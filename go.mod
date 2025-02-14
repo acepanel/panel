@@ -27,9 +27,9 @@ require (
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.3
-	github.com/libdns/cloudflare v0.1.1
+	github.com/libdns/cloudflare v0.1.2
 	github.com/libdns/huaweicloud v0.3.1
-	github.com/libdns/libdns v0.2.2
+	github.com/libdns/libdns v0.2.3
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/mholt/acmez/v3 v3.0.1
 	github.com/orandin/slog-gorm v1.4.0
