@@ -98,7 +98,7 @@ importers:
     devDependencies:
       '@iconify/json':
         specifier: ^2.2.290
-        version: 2.2.307
+        version: 2.2.308
       '@iconify/vue':
         specifier: ^4.2.0
         version: 4.3.0(vue@3.5.13(typescript@5.7.3))
@@ -182,7 +182,7 @@ importers:
         version: 19.1.0(@nuxt/kit@3.15.4)(@vueuse/core@12.7.0(typescript@5.7.3))
       unplugin-icons:
         specifier: ^22.0.0
-        version: 22.0.0(@vue/compiler-sfc@3.5.13)
+        version: 22.1.0(@vue/compiler-sfc@3.5.13)
       unplugin-vue-components:
         specifier: ^28.0.0
         version: 28.2.0(@babel/parser@7.26.9)(@nuxt/kit@3.15.4)(vue@3.5.13(typescript@5.7.3))
@@ -218,9 +218,6 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
-
-  '@antfu/install-pkg@0.5.0':
-    resolution: {integrity: sha512-dKnk2xlAyC7rvTkpkHmu+Qy/2Zc3Vm/l8PtNyIOGDBtXPY3kThfU4ORNEp3V7SXw5XSOb+tOJaUYpfquPzL/Tg==}
 
   '@antfu/install-pkg@1.0.0':
     resolution: {integrity: sha512-xvX6P/lo1B3ej0OsaErAjqgFYzYVcJpamjLAFLYh9vRJngBrMoUG7aVnrGTeqM7yxbyTD5p3F2+0/QUEh8Vzhw==}
@@ -836,8 +833,8 @@ packages:
     resolution: {integrity: sha512-c7hNEllBlenFTHBky65mhq8WD2kbN9Q6gk0bTk8lSBvc554jpXSkST1iePudpt7+A/AQvuHs9EMqjHDXMY1lrA==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.307':
-    resolution: {integrity: sha512-540d6XxtPwSVdWf2fM0JTq9j7DYPV7SLpjxPtU5i/AXPTltqZVk0hjVCt5yiFW5fYi0/eiCM44tSDJZJXgKp/w==}
+  '@iconify/json@2.2.308':
+    resolution: {integrity: sha512-tT+fOVu/cU9Q6GOZfFE+rcfrK4rqwM7ucn3PnTXG+bIcr9PmuvJExZ4oSXwdgPKLdjPqFnQFGgEvDtWFfJVP2g==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -2563,10 +2560,6 @@ packages:
     resolution: {integrity: sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  local-pkg@0.5.1:
-    resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
-    engines: {node: '>=14'}
-
   local-pkg@1.0.0:
     resolution: {integrity: sha512-bbgPw/wmroJsil/GgL4qjDzs5YLTBMQ99weRsok1XCDccQeehbHA/I1oRvk2NPtr7KGZgT/Y5tPRnAtMqeG2Kg==}
     engines: {node: '>=14'}
@@ -3396,8 +3389,8 @@ packages:
       '@vueuse/core':
         optional: true
 
-  unplugin-icons@22.0.0:
-    resolution: {integrity: sha512-+1jIt2wynxL+GISehNok8MIb9RaCufIZCHJs0HKbxOljJL9m4NtOhva+dZhNtSKtfQ62Hwd/RRbniSVuuD4Xow==}
+  unplugin-icons@22.1.0:
+    resolution: {integrity: sha512-ect2ZNtk1Zgwb0NVHd0C1IDW/MV+Jk/xaq4t8o6rYdVS3+L660ZdD5kTSQZvsgdwCvquRw+/wYn75hsweRjoIA==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -3714,11 +3707,6 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
-
-  '@antfu/install-pkg@0.5.0':
-    dependencies:
-      package-manager-detector: 0.2.9
-      tinyexec: 0.3.2
 
   '@antfu/install-pkg@1.0.0':
     dependencies:
@@ -4383,7 +4371,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.1': {}
 
-  '@iconify/json@2.2.307':
+  '@iconify/json@2.2.308':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -6417,11 +6405,6 @@ snapshots:
 
   load-tsconfig@0.2.5: {}
 
-  local-pkg@0.5.1:
-    dependencies:
-      mlly: 1.7.4
-      pkg-types: 1.3.1
-
   local-pkg@1.0.0:
     dependencies:
       mlly: 1.7.4
@@ -7334,14 +7317,12 @@ snapshots:
       '@nuxt/kit': 3.15.4
       '@vueuse/core': 12.7.0(typescript@5.7.3)
 
-  unplugin-icons@22.0.0(@vue/compiler-sfc@3.5.13):
+  unplugin-icons@22.1.0(@vue/compiler-sfc@3.5.13):
     dependencies:
-      '@antfu/install-pkg': 0.5.0
-      '@antfu/utils': 0.7.10
+      '@antfu/install-pkg': 1.0.0
       '@iconify/utils': 2.3.0
       debug: 4.4.0
-      kolorist: 1.8.0
-      local-pkg: 0.5.1
+      local-pkg: 1.0.0
       unplugin: 2.2.0
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.13
