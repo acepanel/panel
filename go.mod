@@ -16,7 +16,7 @@ require (
 	github.com/go-rat/sessions v1.0.14
 	github.com/go-rat/utils v1.0.9
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/go-sql-driver/mysql v1.8.1
+	github.com/go-sql-driver/mysql v1.9.0
 	github.com/golang-cz/httplog v0.0.0-20241002114323-98e09d6f537a
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
