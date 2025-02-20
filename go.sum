@@ -100,10 +100,10 @@ github.com/mitchellh/copystructure v1.2.0 h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa1
 github.com/mitchellh/copystructure v1.2.0/go.mod h1:qLl+cE2AmVv+CoeAwDPye/v+N2HKCj9FbZEVFJRxO9s=
 github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
 github.com/mitchellh/reflectwalk v1.0.2/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
-github.com/ncruces/go-sqlite3 v0.23.0 h1:90j/ar8Ywu2AtsfDl5WhO9sgP/rNk76BcKGIzAHO8AQ=
-github.com/ncruces/go-sqlite3 v0.23.0/go.mod h1:gq2nriHSczOs11SqGW5+0X+SgLdkdj4K+j4F/AhQ+8g=
-github.com/ncruces/go-sqlite3/gormlite v0.23.0 h1:NqzJ6rgg+jQn9VcDP4qQmS0CuGiEYaZY8au34+KzLsM=
-github.com/ncruces/go-sqlite3/gormlite v0.23.0/go.mod h1:658gNyXkSUO5t3XpQIEIRUhADGvm276UmeOYTsNoaY0=
+github.com/ncruces/go-sqlite3 v0.23.1 h1:zGAd76q+Tr18z/xKGatUlzBQdjR3J+rexfANUcjAgkY=
+github.com/ncruces/go-sqlite3 v0.23.1/go.mod h1:Xg3FyAZl25HcBSFmcbymdfoTqD7jRnBUmv1jSrbIjdE=
+github.com/ncruces/go-sqlite3/gormlite v0.23.1 h1:vnROk1MsEQsb3A0VrrnJx17z7ST62tX9wt7aEAiu4sY=
+github.com/ncruces/go-sqlite3/gormlite v0.23.1/go.mod h1:d0p6WPY9H9PlgdQoe5d3aLAbC3RfU9lsdoP+GusFp9k=
 github.com/ncruces/julianday v1.0.0 h1:fH0OKwa7NWvniGQtxdJRxAgkBMolni2BjDHaWTxqt7M=
 github.com/ncruces/julianday v1.0.0/go.mod h1:Dusn2KvZrrovOMJuOt0TNXL6tB7U2E8kvza5fFc9G7g=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=
@@ -130,8 +130,8 @@ github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOf
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 h1:DMokC7T0UF8wMfT1kD+mX3M+hc2C06gmFvQ9gsfRPmI=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
-github.com/tetratelabs/wazero v1.8.2 h1:yIgLR/b2bN31bjxwXHD8a3d+BogigR952csSDdLYEv4=
-github.com/tetratelabs/wazero v1.8.2/go.mod h1:yAI0XTsMBhREkM/YDAK/zNou3GoiAce1P6+rp/wQhjs=
+github.com/tetratelabs/wazero v1.9.0 h1:IcZ56OuxrtaEz8UYNRHBrUa9bYeX9oVY93KspZZBf/I=
+github.com/tetratelabs/wazero v1.9.0/go.mod h1:TSbcXCfFP0L2FGkRPxHphadXPjo1T6W+CseNNY7EkjM=
 github.com/tklauser/go-sysconf v0.3.14 h1:g5vzr9iPFFz24v2KZXs/pvpvh8/V9Fw6vQK5ZZb78yU=
 github.com/tklauser/go-sysconf v0.3.14/go.mod h1:1ym4lWMLUOhuBOPGtRcJm7tEGX4SCYNEEEtghGG/8uY=
 github.com/tklauser/numcpus v0.9.0 h1:lmyCHtANi8aRUgkckBgoDk1nHCux3n2cgkJLXdQGPDo=

@@ -33,8 +33,8 @@ require (
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/mholt/acmez/v3 v3.0.1
-	github.com/ncruces/go-sqlite3 v0.23.0
-	github.com/ncruces/go-sqlite3/gormlite v0.23.0
+	github.com/ncruces/go-sqlite3 v0.23.1
+	github.com/ncruces/go-sqlite3/gormlite v0.23.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.49.1
@@ -72,7 +72,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 // indirect
-	github.com/tetratelabs/wazero v1.8.2 // indirect
+	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
