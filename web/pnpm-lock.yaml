@@ -149,7 +149,7 @@ importers:
         version: 9.32.0(eslint@9.20.1(jiti@2.4.2))
       md-editor-v3:
         specifier: ^5.1.1
-        version: 5.3.0(vue@3.5.13(typescript@5.7.3))
+        version: 5.3.2(vue@3.5.13(typescript@5.7.3))
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -2633,8 +2633,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.3.0:
-    resolution: {integrity: sha512-c/BKDmIUez+LzDxlUf6FMnFVUUaYTQdqXVTFmuwSyIzx0nGInFtpdLGiWlWWS+EAsgee+fUydlPfKmIBSXuxdQ==}
+  md-editor-v3@5.3.2:
+    resolution: {integrity: sha512-O3gV4X3+x8QZava2pzJfVb06dqO1Y1UrmUpHS0E7htblqq0MQ67yrLLkTkVYIxF04Tj8Ub67pc8fypR3uT8FUA==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -6477,7 +6477,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  md-editor-v3@5.3.0(vue@3.5.13(typescript@5.7.3)):
+  md-editor-v3@5.3.2(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@codemirror/lang-markdown': 6.3.2
       '@codemirror/language-data': 6.5.1
