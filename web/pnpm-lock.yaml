@@ -197,7 +197,7 @@ importers:
         version: 3.0.2(esbuild@0.25.0)(mockjs@1.1.0)(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3))
       vite-plugin-static-copy:
         specifier: ^2.2.0
-        version: 2.2.0(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3))
+        version: 2.3.0(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3))
       vite-plugin-vue-devtools:
         specifier: ^7.6.8
         version: 7.7.2(@nuxt/kit@3.15.4)(rollup@3.29.5)(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3))(vue@3.5.13(typescript@5.7.3))
@@ -1944,8 +1944,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fastq@1.19.0:
-    resolution: {integrity: sha512-7SFSRCNjBQIZH/xZR3iy5iQYR8aGBE0h3VG6/cwlbrpdciNYBMotQav8c1XI3HjHH+NikUpP53nPdlZSdWmFzA==}
+  fastq@1.19.1:
+    resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
 
   fdir@6.4.3:
     resolution: {integrity: sha512-PMXmW2y1hDDfTSRc9gaXIuCCRpuoz3Kaz8cUelp3smouvfT632ozg2vrT6lJsHKKOF59YLbOGfAWGUcKEfRMQw==}
@@ -2879,8 +2879,8 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
-  reusify@1.0.4:
-    resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
+  reusify@1.1.0:
+    resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
   rfdc@1.4.1:
@@ -3339,8 +3339,8 @@ packages:
       mockjs: '>=1.1.0'
       vite: '>=4.0.0'
 
-  vite-plugin-static-copy@2.2.0:
-    resolution: {integrity: sha512-ytMrKdR9iWEYHbUxs6x53m+MRl4SJsOSoMu1U1+Pfg0DjPeMlsRVx3RR5jvoonineDquIue83Oq69JvNsFSU5w==}
+  vite-plugin-static-copy@2.3.0:
+    resolution: {integrity: sha512-LLKwhhHetGaCnWz4mas4qqjjguDka6/6b4+SeIohRroj8aCE7QTfiZECfPecslFQkWZ3HdQuq5kOPmWZjNYlKA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0
@@ -4337,7 +4337,7 @@ snapshots:
   '@nodelib/fs.walk@1.2.8':
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
-      fastq: 1.19.0
+      fastq: 1.19.1
 
   '@nuxt/kit@3.15.4':
     dependencies:
@@ -5700,9 +5700,9 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fastq@1.19.0:
+  fastq@1.19.1:
     dependencies:
-      reusify: 1.0.4
+      reusify: 1.1.0
 
   fdir@6.4.3(picomatch@4.0.2):
     optionalDependencies:
@@ -6618,7 +6618,7 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  reusify@1.0.4: {}
+  reusify@1.1.0: {}
 
   rfdc@1.4.1: {}
 
@@ -7196,11 +7196,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-static-copy@2.2.0(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3)):
+  vite-plugin-static-copy@2.3.0(vite@6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3)):
     dependencies:
       chokidar: 3.6.0
       fast-glob: 3.3.3
       fs-extra: 11.3.0
+      p-map: 7.0.3
       picocolors: 1.1.1
       vite: 6.2.0(@types/node@22.13.5)(jiti@2.4.2)(sass@1.85.1)(terser@5.39.0)(tsx@4.19.3)
 
