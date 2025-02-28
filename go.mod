@@ -26,13 +26,13 @@ require (
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.3
-	github.com/libdns/cloudflare v0.1.2
+	github.com/libdns/cloudflare v0.1.3
 	github.com/libdns/huaweicloud v0.3.1
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/mholt/acmez/v3 v3.0.1
-	github.com/ncruces/go-sqlite3 v0.23.3
-	github.com/ncruces/go-sqlite3/gormlite v0.23.1
+	github.com/ncruces/go-sqlite3 v0.24.0
+	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.49.1
