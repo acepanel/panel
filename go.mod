@@ -9,7 +9,7 @@ require (
 	github.com/expr-lang/expr v1.16.9
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.3
-	github.com/go-rat/chix v1.1.4
+	github.com/go-rat/chix v1.1.5
 	github.com/go-rat/gormstore v1.0.6
 	github.com/go-rat/sessions v1.0.14
 	github.com/go-rat/utils v1.0.9
@@ -57,7 +57,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-rat/securecookie v1.1.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/gofiber/schema v1.2.0 // indirect
+	github.com/gofiber/schema v1.3.0 // indirect
 	github.com/gookit/filter v1.2.2 // indirect
 	github.com/gookit/goutil v0.6.18 // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
