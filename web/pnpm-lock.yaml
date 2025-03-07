@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@alova/adapter-xhr':
         specifier: ^2.1.1
-        version: 2.1.1(alova@3.2.9)
+        version: 2.1.1(alova@3.2.10)
       '@eslint/eslintrc':
         specifier: ^3.2.0
         version: 3.3.0
@@ -49,7 +49,7 @@ importers:
         version: 5.5.0
       alova:
         specifier: ^3.2.7
-        version: 3.2.9
+        version: 3.2.10
       cronstrue:
         specifier: ^2.52.0
         version: 2.56.0
@@ -1394,8 +1394,8 @@ packages:
   alien-signals@1.0.4:
     resolution: {integrity: sha512-DJqqQD3XcsaQcQ1s+iE2jDUZmmQpXwHiR6fCAim/w87luaW+vmLY8fMlrdkmRwzaFXhkxf3rqPCR59tKVv1MDw==}
 
-  alova@3.2.9:
-    resolution: {integrity: sha512-jY+acMWPpGqEWncGjH87xQE2pJVIOgwJHe2QdJRskPvcpq1wHvCsGBbcLj6abeFfSqkj9G5gCUzeZqhpDtMoTQ==}
+  alova@3.2.10:
+    resolution: {integrity: sha512-OHMuSNUbIUEsAq6q5DabISNgFMIXqrC/DPBQv1QJEwxW3fWlYlaF6Vr8b4iqwZnUd2+0rCmFm9GnpKWk7vvx2w==}
     engines: {node: '>= 18.0.0'}
 
   ansi-regex@5.0.1:
@@ -3534,10 +3534,10 @@ packages:
 
 snapshots:
 
-  '@alova/adapter-xhr@2.1.1(alova@3.2.9)':
+  '@alova/adapter-xhr@2.1.1(alova@3.2.10)':
     dependencies:
       '@alova/shared': 1.1.2
-      alova: 3.2.9
+      alova: 3.2.10
 
   '@alova/shared@1.1.2': {}
 
@@ -5024,7 +5024,7 @@ snapshots:
 
   alien-signals@1.0.4: {}
 
-  alova@3.2.9:
+  alova@3.2.10:
     dependencies:
       '@alova/shared': 1.1.2
       rate-limiter-flexible: 5.0.5
