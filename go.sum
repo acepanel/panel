@@ -136,8 +136,8 @@ github.com/tklauser/go-sysconf v0.3.14 h1:g5vzr9iPFFz24v2KZXs/pvpvh8/V9Fw6vQK5ZZ
 github.com/tklauser/go-sysconf v0.3.14/go.mod h1:1ym4lWMLUOhuBOPGtRcJm7tEGX4SCYNEEEtghGG/8uY=
 github.com/tklauser/numcpus v0.9.0 h1:lmyCHtANi8aRUgkckBgoDk1nHCux3n2cgkJLXdQGPDo=
 github.com/tklauser/numcpus v0.9.0/go.mod h1:SN6Nq1O3VychhC1npsWostA+oW+VOQTxZrS604NSRyI=
-github.com/tnb-labs/acmez/v3 v3.0.0-20250216080244-e6398098ff3a h1:oDwtjOb3Gs0qKzhuWCNLIxONQrp5YC9Io1mrSGzXCIc=
-github.com/tnb-labs/acmez/v3 v3.0.0-20250216080244-e6398098ff3a/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
+github.com/tnb-labs/acmez/v3 v3.0.0-20250310074100-3f4cd473d1db h1:AXSsiy1iFRStfGgMqIss2hXaAdPU29EGfJ0dsQOCvMo=
+github.com/tnb-labs/acmez/v3 v3.0.0-20250310074100-3f4cd473d1db/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
 github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6 h1:HmtcQ7w07RI2SdTKkPf+NM8R33B1oR9MjIZYzlBizwA=
 github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6/go.mod h1:hdMWBc1+TyB6G5ZZBBgPWQ8cjRZ6zpYdhal0uu6E9QM=
 github.com/urfave/cli/v3 v3.0.0-beta1 h1:6DTaaUarcM0wX7qj5Hcvs+5Dm3dyUTBbEwIWAjcw9Zg=

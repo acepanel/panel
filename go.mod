@@ -79,4 +79,4 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 )
 
-replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250216080244-e6398098ff3a
+replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250310074100-3f4cd473d1db
