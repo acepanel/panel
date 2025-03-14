@@ -31,7 +31,7 @@ require (
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/mholt/acmez/v3 v3.1.0
-	github.com/ncruces/go-sqlite3 v0.24.0
+	github.com/ncruces/go-sqlite3 v0.24.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
