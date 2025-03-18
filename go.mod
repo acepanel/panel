@@ -6,7 +6,7 @@ require (
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
-	github.com/expr-lang/expr v1.17.0
+	github.com/expr-lang/expr v1.17.1
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.3
 	github.com/go-rat/chix v1.1.5
