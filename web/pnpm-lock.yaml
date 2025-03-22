@@ -152,7 +152,7 @@ importers:
         version: 10.0.0(eslint@9.23.0(jiti@2.4.2))(vue-eslint-parser@10.1.1(eslint@9.23.0(jiti@2.4.2)))
       md-editor-v3:
         specifier: ^5.1.1
-        version: 5.4.3(vue@3.5.13(typescript@5.8.2))
+        version: 5.4.4(vue@3.5.13(typescript@5.8.2))
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -400,8 +400,8 @@ packages:
   '@codemirror/lang-less@6.0.2':
     resolution: {integrity: sha512-EYdQTG22V+KUUk8Qq582g7FMnCZeEHsyuOJisHRft/mQ+ZSZ2w51NupvDUHiqtsOy7It5cHLPGfHQLpMh9bqpQ==}
 
-  '@codemirror/lang-liquid@6.2.2':
-    resolution: {integrity: sha512-7Dm841fk37+JQW6j2rI1/uGkJyESrjzyhiIkaLjbbR0U6aFFQvMrJn35WxQreRMADMhzkyVkZM4467OR7GR8nQ==}
+  '@codemirror/lang-liquid@6.2.3':
+    resolution: {integrity: sha512-yeN+nMSrf/lNii3FJxVVEGQwFG0/2eDyH6gNOj+TGCa0hlNO4bhQnoO5ISnd7JOG+7zTEcI/GOoyraisFVY7jQ==}
 
   '@codemirror/lang-markdown@6.3.2':
     resolution: {integrity: sha512-c/5MYinGbFxYl4itE9q/rgN/sMTjOr8XL5OWnC+EaRMLfCbVUmmubTJfdgpfcSS2SCaT7b+Q+xi3l6CgoE+BsA==}
@@ -2457,8 +2457,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.4.3:
-    resolution: {integrity: sha512-++C8Ov5BFeLvpgpACjh+tmsdgYuErfXTwqJw9hFRpqYfBvF74GkJnqrdAfD4gXC0kWYLpJ7wdaswbmzGvOxrhQ==}
+  md-editor-v3@5.4.4:
+    resolution: {integrity: sha512-AU901GSSrugrA2EFTTIIlxlHa97ibznjdtv4eC6PcAhLfdOSe5oBNfVdrtnbTeS7FPCki18czTtGZ+/CRtdOmg==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -3783,7 +3783,7 @@ snapshots:
       '@lezer/highlight': 1.2.1
       '@lezer/lr': 1.4.2
 
-  '@codemirror/lang-liquid@6.2.2':
+  '@codemirror/lang-liquid@6.2.3':
     dependencies:
       '@codemirror/autocomplete': 6.18.6
       '@codemirror/lang-html': 6.4.9
@@ -3888,7 +3888,7 @@ snapshots:
       '@codemirror/lang-javascript': 6.2.3
       '@codemirror/lang-json': 6.0.1
       '@codemirror/lang-less': 6.0.2
-      '@codemirror/lang-liquid': 6.2.2
+      '@codemirror/lang-liquid': 6.2.3
       '@codemirror/lang-markdown': 6.3.2
       '@codemirror/lang-php': 6.0.1
       '@codemirror/lang-python': 6.1.7
@@ -6112,7 +6112,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  md-editor-v3@5.4.3(vue@3.5.13(typescript@5.8.2)):
+  md-editor-v3@5.4.4(vue@3.5.13(typescript@5.8.2)):
     dependencies:
       '@codemirror/lang-markdown': 6.3.2
       '@codemirror/language-data': 6.5.1
