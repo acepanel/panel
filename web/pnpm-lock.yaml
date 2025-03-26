@@ -182,7 +182,7 @@ importers:
         version: 66.0.0(postcss@8.5.3)(vite@6.2.3(@types/node@22.13.13)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0)(tsx@4.19.3))(vue@3.5.13(typescript@5.8.2))
       unplugin-auto-import:
         specifier: ^19.0.0
-        version: 19.1.1(@nuxt/kit@3.16.1)(@vueuse/core@13.0.0(vue@3.5.13(typescript@5.8.2)))
+        version: 19.1.2(@nuxt/kit@3.16.1)(@vueuse/core@13.0.0(vue@3.5.13(typescript@5.8.2)))
       unplugin-icons:
         specifier: ^22.0.0
         version: 22.1.0(@vue/compiler-sfc@3.5.13)
@@ -3181,8 +3181,8 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-auto-import@19.1.1:
-    resolution: {integrity: sha512-sCGZZrSR1Bc8RfN8Q0RUDxXtC20rdAt7UB4lDyq8MNtKVHiXXh+5af6Nz4JRp9Q+7HjnbgQfQox0TkEymjdUAQ==}
+  unplugin-auto-import@19.1.2:
+    resolution: {integrity: sha512-EkxNIJm4ZPYtV7rRaPBKnsscgTaifIZNrJF5DkMffTxkUOJOlJuKVypA6YBSBOjzPJDTFPjfVmCQPoBuOO+YYQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@nuxt/kit': ^3.2.2
@@ -6939,7 +6939,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-auto-import@19.1.1(@nuxt/kit@3.16.1)(@vueuse/core@13.0.0(vue@3.5.13(typescript@5.8.2))):
+  unplugin-auto-import@19.1.2(@nuxt/kit@3.16.1)(@vueuse/core@13.0.0(vue@3.5.13(typescript@5.8.2))):
     dependencies:
       local-pkg: 1.1.1
       magic-string: 0.30.17
