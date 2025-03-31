@@ -179,8 +179,8 @@ github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a h1:Qs7oWoFZO1CR9
 github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
 github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6 h1:HmtcQ7w07RI2SdTKkPf+NM8R33B1oR9MjIZYzlBizwA=
 github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6/go.mod h1:hdMWBc1+TyB6G5ZZBBgPWQ8cjRZ6zpYdhal0uu6E9QM=
-github.com/urfave/cli/v3 v3.0.0-beta1 h1:6DTaaUarcM0wX7qj5Hcvs+5Dm3dyUTBbEwIWAjcw9Zg=
-github.com/urfave/cli/v3 v3.0.0-beta1/go.mod h1:FnIeEMYu+ko8zP1F9Ypr3xkZMIDqW3DR92yUtY39q1Y=
+github.com/urfave/cli/v3 v3.1.0 h1:kQR+oiqpJkBAONxBjM4RWivD4AfPHL/f4vqe/gjYU8M=
+github.com/urfave/cli/v3 v3.1.0/go.mod h1:FJSKtM/9AiiTOJL4fJ6TbMUkxBXn7GO9guZqoZtpYpo=
 github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e h1:JVG44RsyaB9T2KIHavMF/ppJZNG9ZpyihvCd0w101no=
 github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e/go.mod h1:RbqR21r5mrJuqunuUZ/Dhy/avygyECGrLceyNeo4LiM=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

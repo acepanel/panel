@@ -26,7 +26,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.1.2
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/lib/pq v1.10.9
-	github.com/libdns/alidns v1.0.3
+	github.com/libdns/alidns v1.0.4
 	github.com/libdns/cloudflare v0.1.3
 	github.com/libdns/cloudns v1.0.0
 	github.com/libdns/duckdns v0.2.0
@@ -53,7 +53,7 @@ require (
 	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
-	github.com/urfave/cli/v3 v3.0.0-beta1
+	github.com/urfave/cli/v3 v3.1.0
 	golang.org/x/crypto v0.36.0
 	golang.org/x/net v0.38.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
