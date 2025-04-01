@@ -43,7 +43,7 @@ require (
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.1
-	github.com/ncruces/go-sqlite3 v0.24.1
+	github.com/ncruces/go-sqlite3 v0.25.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -53,7 +53,7 @@ require (
 	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
-	github.com/urfave/cli/v3 v3.1.0
+	github.com/urfave/cli/v3 v3.1.1
 	golang.org/x/crypto v0.36.0
 	golang.org/x/net v0.38.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
