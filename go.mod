@@ -40,7 +40,7 @@ require (
 	github.com/libdns/namedotcom v0.3.3
 	github.com/libdns/namesilo v0.1.1
 	github.com/libdns/porkbun v0.2.0
-	github.com/libdns/tencentcloud v1.2.0
+	github.com/libdns/tencentcloud v1.2.1
 	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.1
 	github.com/ncruces/go-sqlite3 v0.25.0
