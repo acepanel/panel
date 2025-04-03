@@ -33,7 +33,7 @@ require (
 	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
 	github.com/libdns/godaddy v1.0.3
 	github.com/libdns/hetzner v0.0.1
-	github.com/libdns/huaweicloud v0.3.4
+	github.com/libdns/huaweicloud v0.3.5
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
@@ -99,6 +99,6 @@ require (
 )
 
 replace (
-	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250330073315-5c0067dc1fbb
+	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250403080318-49764d98fb5f
 	github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
 )
