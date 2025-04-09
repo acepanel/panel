@@ -6,7 +6,7 @@ require (
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
-	github.com/devhaozi/westcn v0.0.0-20250329192208-199d82100bff
+	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
 	github.com/expr-lang/expr v1.17.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
@@ -15,7 +15,7 @@ require (
 	github.com/go-rat/sessions v1.1.0
 	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/go-sql-driver/mysql v1.9.1
+	github.com/go-sql-driver/mysql v1.9.2
 	github.com/golang-cz/httplog v0.0.0-20241002114323-98e09d6f537a
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
@@ -55,7 +55,7 @@ require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
 	github.com/urfave/cli/v3 v3.1.1
 	golang.org/x/crypto v0.37.0
-	golang.org/x/net v0.38.0
+	golang.org/x/net v0.39.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.25.12
