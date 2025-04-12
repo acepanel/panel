@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-04-12 12:32\n"
+"PO-Revision-Date: 2025-04-12 15:25\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -39,6 +39,14 @@ msgstr "活動進程"
 #: internal/apps/nginx/app.go:120
 msgid "Active connections"
 msgstr "活動連接"
+
+#: internal/route/cli.go:199
+msgid "Add database server"
+msgstr ""
+
+#: internal/route/cli.go:417
+msgid "Add panel application mark (use only under guidance)"
+msgstr ""
 
 #: internal/service/cert.go:60
 msgid "Aliyun"
@@ -80,11 +88,39 @@ msgstr "應用程式更新失敗：%v"
 msgid "Application Pool"
 msgstr "應用程序池"
 
+#: internal/route/cli.go:398
+msgid "Application management"
+msgstr ""
+
+#: internal/route/cli.go:275
+msgid "Backup database"
+msgstr ""
+
+#: internal/route/cli.go:335
+msgid "Backup directory (default path if not filled)"
+msgstr ""
+
 #: internal/service/cli.go:544
 #: internal/service/cli.go:560
 #: internal/service/cli.go:574
 msgid "Backup failed: %v"
 msgstr "備份失敗：%v"
+
+#: internal/route/cli.go:323
+msgid "Backup file"
+msgstr ""
+
+#: internal/route/cli.go:299
+msgid "Backup panel"
+msgstr ""
+
+#: internal/route/cli.go:317
+msgid "Backup type"
+msgstr ""
+
+#: internal/route/cli.go:257
+msgid "Backup website"
+msgstr ""
 
 #: internal/apps/mysql/app.go:120
 #: internal/apps/mysql/app.go:139
@@ -117,6 +153,18 @@ msgstr "版權"
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一個用於處理日期的庫"
 
+#: internal/route/cli.go:119
+msgid "Change panel port"
+msgstr ""
+
+#: internal/route/cli.go:75
+msgid "Change user password"
+msgstr ""
+
+#: internal/route/cli.go:70
+msgid "Change username"
+msgstr ""
+
 #: internal/service/cli.go:598
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
@@ -132,6 +180,18 @@ msgstr "清理臨時檔案失敗：%v"
 #: internal/data/backup.go:193
 msgid "Cleanup failed: %v"
 msgstr "清理失敗：%v"
+
+#: internal/route/cli.go:311
+msgid "Clear backups"
+msgstr ""
+
+#: internal/route/cli.go:461
+msgid "Clear panel task queue (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:366
+msgid "Clear rotated logs"
+msgstr ""
 
 #: internal/service/cert.go:104
 msgid "ClouDNS"
@@ -149,6 +209,10 @@ msgstr "每秒執行命令數"
 msgid "Connected Clients"
 msgstr "已連接客戶端數"
 
+#: internal/route/cli.go:128
+msgid "Create new website"
+msgstr ""
+
 #: internal/service/cli.go:632
 msgid "Currently only website log rotation is supported"
 msgstr "目前僅支援網站日誌輪替"
@@ -158,9 +222,21 @@ msgstr "目前僅支援網站日誌輪替"
 msgid "DESCRIPTION"
 msgstr "描述"
 
+#: internal/route/cli.go:253
+msgid "Data backup"
+msgstr ""
+
 #: internal/service/cli.go:117
 msgid "Data synchronized successfully"
 msgstr "數據同步成功"
+
+#: internal/route/cli.go:195
+msgid "Database management"
+msgstr ""
+
+#: internal/route/cli.go:287
+msgid "Database name"
+msgstr ""
 
 #: internal/service/cli.go:519
 msgid "Database server %s added successfully"
@@ -169,6 +245,26 @@ msgstr "數據庫伺服器 %s 添加成功"
 #: internal/service/cli.go:533
 msgid "Database server %s deleted successfully"
 msgstr "數據庫伺服器 %s 刪除成功"
+
+#: internal/route/cli.go:281
+msgid "Database type"
+msgstr ""
+
+#: internal/route/cli.go:238
+msgid "Delete database server"
+msgstr ""
+
+#: internal/route/cli.go:174
+msgid "Delete website (including website directory, database with the same name)"
+msgstr ""
+
+#: internal/route/cli.go:91
+msgid "Disable HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:112
+msgid "Disable access entrance"
+msgstr ""
 
 #: internal/service/cli.go:103
 msgid "Download URL is empty"
@@ -190,6 +286,14 @@ msgstr "下載遠程文件 %v"
 #: internal/service/cert.go:108
 msgid "Duck DNS"
 msgstr "Duck DNS"
+
+#: internal/route/cli.go:86
+msgid "Enable HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:107
+msgid "Enable access entrance"
+msgstr ""
 
 #: internal/apps/php/app.go:382
 msgid "Enchant is a spell-checking library"
@@ -303,6 +407,10 @@ msgstr "Fileinfo 是一個用於識別文件類型的庫"
 msgid "Files are normal and do not need to be repaired, please run panel-cli update to update the panel"
 msgstr "文件正常，無需修復，請運行 panel-cli update 更新面板"
 
+#: internal/route/cli.go:51
+msgid "Fix panel"
+msgstr ""
+
 #: internal/bootstrap/cli.go:34
 msgid "Forum：https://bbs.haozi.net"
 msgstr "論壇：https://bbs.haozi.net"
@@ -326,6 +434,14 @@ msgstr "GMP 是一個用於處理大整數的庫"
 #: internal/service/cert.go:84
 msgid "Gcore"
 msgstr "Gcore"
+
+#: internal/route/cli.go:96
+msgid "Generate HTTPS certificate"
+msgstr ""
+
+#: internal/route/cli.go:436
+msgid "Get panel setting (use only under guidance)"
+msgstr ""
 
 #: internal/apps/php/app.go:417
 msgid "Gettext is a library for handling multilingual support"
@@ -394,6 +510,10 @@ msgstr "索引命中率"
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
+#: internal/route/cli.go:467
+msgid "Initialize panel (use only under guidance)"
+msgstr ""
+
 #: internal/apps/mysql/app.go:124
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
@@ -405,6 +525,10 @@ msgstr "安裝 PHP-%d %s 擴展"
 #: internal/data/app.go:191
 msgid "Install app %s"
 msgstr "安裝應用 %s"
+
+#: internal/route/cli.go:402
+msgid "Install application"
+msgstr ""
 
 #: internal/data/backup.go:510
 #: internal/data/backup.go:536
@@ -435,6 +559,18 @@ msgstr "最近一次 fork() 操作耗費的毫秒數"
 msgid "Linode"
 msgstr "Linode"
 
+#: internal/route/cli.go:65
+msgid "List all users"
+msgstr ""
+
+#: internal/route/cli.go:139
+msgid "List of domains associated with the website"
+msgstr ""
+
+#: internal/route/cli.go:145
+msgid "List of listening addresses associated with the website"
+msgstr ""
+
 #: internal/apps/php/app.go:131
 msgid "Listen Queue"
 msgstr "監聽佇列"
@@ -450,6 +586,10 @@ msgstr "本地 IPv4：%s://%s:%s%s"
 #: internal/service/cli.go:171
 msgid "Local IPv6: %s://[%s]:%s%s"
 msgstr "本地 IPv6：%s://[%s]:%s%s"
+
+#: internal/route/cli.go:343
+msgid "Log rotation"
+msgstr ""
 
 #: internal/apps/php/app.go:137
 msgid "Max Active Processes"
@@ -526,6 +666,14 @@ msgstr "不支援"
 msgid "Not used"
 msgstr "未使用"
 
+#: internal/route/cli.go:329
+msgid "Number of backups to keep"
+msgstr ""
+
+#: internal/route/cli.go:384
+msgid "Number of logs to keep"
+msgstr ""
+
 #: internal/bootstrap/cli.go:26
 #: internal/bootstrap/cli.go:31
 msgid "OPTIONS"
@@ -542,6 +690,26 @@ msgstr "舊用戶名不能為空"
 #: internal/apps/mysql/app.go:126
 msgid "Open Tables"
 msgstr "已開啟的表"
+
+#: internal/route/cli.go:82
+msgid "Operate panel HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:103
+msgid "Operate panel access entrance"
+msgstr ""
+
+#: internal/route/cli.go:61
+msgid "Operate panel users"
+msgstr ""
+
+#: internal/route/cli.go:56
+msgid "Output panel basic information and generate new password"
+msgstr ""
+
+#: internal/route/cli.go:155
+msgid "PHP version used by the website (not used if not filled)"
+msgstr ""
 
 #: internal/service/cli.go:73
 msgid "Panel service restarted"
@@ -577,6 +745,10 @@ msgstr "密碼長度不能少於6位"
 #: internal/service/cli.go:161
 msgid "Password: %s"
 msgstr "密碼：%s"
+
+#: internal/route/cli.go:151
+msgid "Path where the website is hosted (default path if not filled)"
+msgstr ""
 
 #: internal/apps/mysql/app.go:122
 msgid "Peak Connections"
@@ -658,13 +830,41 @@ msgstr "正在讀取"
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一個處理文本的庫"
 
+#: internal/route/cli.go:423
+msgid "Remove panel application mark (use only under guidance)"
+msgstr ""
+
 #: internal/data/backup.go:640
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
+#: internal/route/cli.go:448
+msgid "Remove panel setting (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:161
+msgid "Remove website"
+msgstr ""
+
+#: internal/route/cli.go:26
+msgid "Restart panel service"
+msgstr ""
+
 #: internal/apps/mysql/app.go:118
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
+
+#: internal/route/cli.go:390
+msgid "Rotation directory (default path if not filled)"
+msgstr ""
+
+#: internal/route/cli.go:378
+msgid "Rotation file"
+msgstr ""
+
+#: internal/route/cli.go:372
+msgid "Rotation type"
+msgstr ""
 
 #: internal/apps/php/app.go:372
 msgid "SNMP is a protocol for network management"
@@ -673,6 +873,46 @@ msgstr "SNMP 是一種用於網絡管理的協議"
 #: internal/apps/php/app.go:357
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
+
+#: internal/route/cli.go:269
+#: internal/route/cli.go:293
+#: internal/route/cli.go:305
+#: internal/route/cli.go:360
+msgid "Save directory (default path if not filled)"
+msgstr ""
+
+#: internal/route/cli.go:214
+msgid "Server address"
+msgstr ""
+
+#: internal/route/cli.go:209
+#: internal/route/cli.go:243
+msgid "Server name"
+msgstr ""
+
+#: internal/route/cli.go:228
+msgid "Server password"
+msgstr ""
+
+#: internal/route/cli.go:219
+msgid "Server port"
+msgstr ""
+
+#: internal/route/cli.go:232
+msgid "Server remark"
+msgstr ""
+
+#: internal/route/cli.go:204
+msgid "Server type"
+msgstr ""
+
+#: internal/route/cli.go:224
+msgid "Server username"
+msgstr ""
+
+#: internal/route/cli.go:431
+msgid "Setting management"
+msgstr ""
 
 #: internal/service/cli.go:769
 msgid "Setting not exists"
@@ -691,6 +931,14 @@ msgstr "排序後的合併次數"
 msgid "Start Time"
 msgstr "啟動時間"
 
+#: internal/route/cli.go:36
+msgid "Start panel service"
+msgstr ""
+
+#: internal/route/cli.go:31
+msgid "Stop panel service"
+msgstr ""
+
 #: internal/apps/postgresql/app.go:144
 msgid "Storage Usage"
 msgstr "存儲使用"
@@ -706,6 +954,14 @@ msgstr "Swoole 是構建高性能異步並發伺服器的 PHP 擴展"
 #: internal/apps/php/app.go:486
 msgid "Swow is a PHP extension for building high-performance asynchronous concurrent servers"
 msgstr "Swow 是構建高性能異步並發伺服器的 PHP 擴展"
+
+#: internal/route/cli.go:46
+msgid "Sync panel data"
+msgstr ""
+
+#: internal/route/cli.go:456
+msgid "Sync system time"
+msgstr ""
 
 #: internal/apps/php/app.go:457
 msgid "Sysvmsg is a library for handling System V message queues"
@@ -815,6 +1071,10 @@ msgstr "卸載 PHP-%d %s 擴展"
 msgid "Uninstall app %s"
 msgstr "卸載應用 %s"
 
+#: internal/route/cli.go:407
+msgid "Uninstall application"
+msgstr ""
+
 #: internal/data/backup.go:631
 msgid "Unzip backup file failed: %v"
 msgstr "解壓備份檔案失敗：%v"
@@ -826,6 +1086,14 @@ msgstr "解壓面板數據失敗：%v"
 #: internal/data/app.go:301
 msgid "Update app %s"
 msgstr "更新應用 %s"
+
+#: internal/route/cli.go:412
+msgid "Update application"
+msgstr ""
+
+#: internal/route/cli.go:41
+msgid "Update panel"
+msgstr ""
 
 #: internal/apps/mysql/app.go:114
 msgid "Uptime"
@@ -872,6 +1140,10 @@ msgstr "正在駐留等待"
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr "警告：關閉面板 HTTPS 後，面板的安全性將大大降低，請謹慎操作"
 
+#: internal/route/cli.go:347
+msgid "Website"
+msgstr ""
+
 #: internal/service/cli.go:459
 msgid "Website %s created successfully"
 msgstr "網站 %s 創建成功"
@@ -884,6 +1156,18 @@ msgstr "網站 %s 刪除成功"
 msgid "Website %s removed successfully"
 msgstr "網站 %s 移除成功"
 
+#: internal/route/cli.go:124
+msgid "Website management"
+msgstr ""
+
+#: internal/route/cli.go:133
+#: internal/route/cli.go:166
+#: internal/route/cli.go:179
+#: internal/route/cli.go:263
+#: internal/route/cli.go:353
+msgid "Website name"
+msgstr ""
+
 #: internal/bootstrap/cli.go:33
 msgid "Website：https://panel.haozi.net"
 msgstr "網站：https://panel.haozi.net"
@@ -895,6 +1179,14 @@ msgstr "西部數碼"
 #: internal/apps/nginx/app.go:102
 msgid "Workers"
 msgstr "工作進程"
+
+#: internal/route/cli.go:442
+msgid "Write panel setting (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:187
+msgid "Write website data (use only under guidance)"
+msgstr ""
 
 #: internal/apps/nginx/app.go:148
 msgid "Writing"
