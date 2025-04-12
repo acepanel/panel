@@ -1,29 +1,936 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: zh_TW\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: ratpanel\n"
+"X-Crowdin-Project-ID: 778640\n"
+"X-Crowdin-Language: zh-TW\n"
+"X-Crowdin-File: /main/web/src/locales/frontend.pot\n"
+"X-Crowdin-File-ID: 934\n"
+"Project-Id-Version: ratpanel\n"
+"Language-Team: Chinese Traditional\n"
+"Language: zh_TW\n"
+"PO-Revision-Date: 2025-04-12 17:00\n"
 
-#: src/views/setting/SettingHttps.vue:25
-msgid "Saved successfully"
+#: src/views/app/IndexView.vue:19
+#: src/views/app/IndexView.vue:159
+#: src/views/app/IndexView.vue:164
+msgid "Install"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:34
-msgid "Panel HTTPS"
+#: src/views/app/IndexView.vue:37
+msgid "App Name"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:37
+#: src/views/app/IndexView.vue:44
+msgid "Description"
+msgstr ""
+
+#: src/views/app/IndexView.vue:51
+msgid "Installed Version"
+msgstr ""
+
+#: src/views/app/IndexView.vue:57
+msgid "Show in Home"
+msgstr ""
+
+#: src/views/app/IndexView.vue:71
+#: src/views/backup/ListView.vue:58
+#: src/views/database/DatabaseList.vue:74
+#: src/views/database/ServerList.vue:135
+msgid "Actions"
+msgstr ""
+
+#: src/views/app/IndexView.vue:91
+msgid "Updating app %{ app } may reset related configurations to default state, are you sure to continue?"
+msgstr ""
+
+#: src/views/app/IndexView.vue:101
+msgid "Update"
+msgstr ""
+
+#: src/views/app/IndexView.vue:120
+msgid "Manage"
+msgstr ""
+
+#: src/views/app/IndexView.vue:133
+msgid "Are you sure to uninstall app %{ app }?"
+msgstr ""
+
+#: src/views/app/IndexView.vue:143
+msgid "Uninstall"
+msgstr ""
+
+#: src/views/app/IndexView.vue:189
+msgid "Setup successfully"
+msgstr ""
+
+#: src/views/app/IndexView.vue:195
+#: src/views/app/IndexView.vue:201
+#: src/views/app/VersionModal.vue:31
+msgid "Task submitted, please check the progress in background tasks"
+msgstr ""
+
+#: src/views/app/IndexView.vue:212
+msgid "Cache updated successfully"
+msgstr ""
+
+#: src/views/app/IndexView.vue:226
+msgid "Update Cache"
+msgstr ""
+
+#: src/views/app/IndexView.vue:230
+msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
+msgstr ""
+
+#: src/views/app/VersionModal.vue:71
+msgid "Channel"
+msgstr ""
+
+#: src/views/app/VersionModal.vue:78
+msgid "Version"
+msgstr ""
+
+#: src/views/app/VersionModal.vue:79
+msgid "Please select a channel"
+msgstr ""
+
+#: src/views/app/VersionModal.vue:89
+#: src/views/backup/ListView.vue:237
+#: src/views/backup/ListView.vue:257
+#: src/views/cert/CreateAccountModal.vue:114
+#: src/views/cert/CreateCertModal.vue:111
+#: src/views/cert/CreateDnsModal.vue:173
+#: src/views/cert/ObtainModal.vue:126
+#: src/views/cert/UploadCertModal.vue:55
+#: src/views/database/CreateDatabaseModal.vue:127
+#: src/views/file/ToolBar.vue:261
+#: src/views/file/ToolBar.vue:282
+msgid "Submit"
+msgstr ""
+
+#: src/views/backup/IndexView.vue:37
+#: src/views/backup/ListView.vue:217
+#: src/views/backup/ListView.vue:250
+#: src/views/cert/CreateCertModal.vue:86
+msgid "Website"
+msgstr ""
+
+#: src/views/backup/ListView.vue:36
+msgid "Filename"
+msgstr ""
+
+#: src/views/backup/ListView.vue:43
+msgid "Size"
+msgstr ""
+
+#: src/views/backup/ListView.vue:49
+#: src/views/database/ServerList.vue:126
+msgid "Update Date"
+msgstr ""
+
+#: src/views/backup/ListView.vue:77
+msgid "Restore"
+msgstr ""
+
+#: src/views/backup/ListView.vue:88
+msgid "Are you sure you want to delete this backup?"
+msgstr ""
+
+#: src/views/backup/ListView.vue:99
+#: src/views/database/DatabaseList.vue:99
+#: src/views/database/ServerList.vue:212
+#: src/views/file/ToolBar.vue:238
+msgid "Delete"
+msgstr ""
+
+#: src/views/backup/ListView.vue:126
+#: src/views/cert/CreateAccountModal.vue:49
+#: src/views/cert/CreateCertModal.vue:50
+#: src/views/cert/CreateDnsModal.vue:35
+#: src/views/cert/UploadCertModal.vue:21
+#: src/views/database/CreateDatabaseModal.vue:28
+#: src/views/file/ToolBar.vue:45
+msgid "Created successfully"
+msgstr ""
+
+#: src/views/backup/ListView.vue:132
+msgid "Restoring..."
+msgstr ""
+
+#: src/views/backup/ListView.vue:139
+msgid "Restored successfully"
+msgstr ""
+
+#: src/views/backup/ListView.vue:149
+#: src/views/database/DatabaseList.vue:124
+#: src/views/database/ServerList.vue:237
+#: src/views/file/ToolBar.vue:189
+msgid "Deleted successfully"
+msgstr ""
+
+#: src/views/backup/ListView.vue:182
+#: src/views/backup/ListView.vue:209
+msgid "Create Backup"
+msgstr ""
+
+#: src/views/backup/ListView.vue:183
+#: src/views/backup/UploadModal.vue:39
+msgid "Upload Backup"
+msgstr ""
+
+#: src/views/backup/ListView.vue:218
+#: src/views/backup/ListView.vue:251
+msgid "Select website"
+msgstr ""
+
+#: src/views/backup/ListView.vue:220
+#: src/views/database/CreateDatabaseModal.vue:70
+#: src/views/database/DatabaseList.vue:35
+msgid "Database Name"
+msgstr ""
+
+#: src/views/backup/ListView.vue:225
+#: src/views/database/CreateDatabaseModal.vue:75
+msgid "Enter database name"
+msgstr ""
+
+#: src/views/backup/ListView.vue:228
+msgid "Save Directory"
+msgstr ""
+
+#: src/views/backup/ListView.vue:233
+msgid "Leave empty to use default path"
+msgstr ""
+
+#: src/views/backup/ListView.vue:242
+msgid "Restore Backup"
+msgstr ""
+
+#: src/views/backup/ListView.vue:253
+#: src/views/database/IndexView.vue:45
+msgid "Database"
+msgstr ""
+
+#: src/views/backup/route.ts:19
+msgid "Backup"
+msgstr ""
+
+#: src/views/backup/UploadModal.vue:20
+msgid "Upload %{ filename } successfully"
+msgstr ""
+
+#: src/views/backup/UploadModal.vue:51
+msgid "Click or drag files to this area to upload"
+msgstr ""
+
+#: src/views/backup/UploadModal.vue:53
+msgid "For large files, it is recommended to use SFTP or other methods to upload"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:38
+msgid "Registering account with CA, please wait patiently"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:61
+#: src/views/cert/IndexView.vue:106
+msgid "Create Account"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:68
+msgid "Google and SSL.com require obtaining KID and HMAC from their official websites first"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:70
+msgid "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:73
+msgid "CA"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:76
+msgid "Select CA"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:81
+#: src/views/cert/CreateCertModal.vue:78
+msgid "Key Type"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:84
+#: src/views/cert/CreateCertModal.vue:81
+msgid "Select key type"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:89
+msgid "Email"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:94
+msgid "Enter email address"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:102
+msgid "Enter KID"
+msgstr ""
+
+#: src/views/cert/CreateAccountModal.vue:110
+msgid "Enter HMAC"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:59
+#: src/views/cert/IndexView.vue:102
+msgid "Create Certificate"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:67
+msgid "You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:70
+#: src/views/cert/ObtainModal.vue:53
+msgid "Domain"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:89
+msgid "Select website for certificate deployment"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:94
+msgid "Account"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:97
+msgid "Select account for certificate issuance"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:102
+#: src/views/cert/CreateDnsModal.vue:55
+msgid "DNS"
+msgstr ""
+
+#: src/views/cert/CreateCertModal.vue:105
+msgid "Select DNS for certificate issuance"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:44
+#: src/views/cert/IndexView.vue:110
+msgid "Create DNS"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:52
+msgid "Comment Name"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:53
+msgid "Enter comment name"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:58
+msgid "Select DNS"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:64
+msgid "Enter Aliyun Access Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:67
+msgid "Enter Aliyun Secret Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:70
+msgid "Enter Tencent Cloud SecretId"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:73
+msgid "Enter Tencent Cloud SecretKey"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:76
+msgid "Enter Huawei Cloud AccessKeyId"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:82
+msgid "Enter Huawei Cloud SecretAccessKey"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:86
+msgid "Enter Western Digital Username"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:92
+msgid "Enter Western Digital API Password"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:99
+msgid "Enter Cloudflare API Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:103
+msgid "Enter GoDaddy Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:106
+msgid "Enter G-Core API Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:109
+msgid "Enter Porkbun API Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:115
+msgid "Enter Porkbun Secret Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:122
+msgid "Enter Namecheap API Username"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:126
+msgid "Enter Namecheap API Key"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:132
+msgid "Enter NameSilo API Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:136
+msgid "Enter Name.com Username"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:139
+msgid "Enter Name.com Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:146
+msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:153
+msgid "Enter ClouDNS Auth Password"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:157
+msgid "Enter Duck DNS Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:163
+msgid "Enter Hetzner Auth API Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:167
+msgid "Enter Linode Token"
+msgstr ""
+
+#: src/views/cert/CreateDnsModal.vue:170
+msgid "Enter Vercel Token"
+msgstr ""
+
+#: src/views/cert/IndexView.vue:98
+#: src/views/cert/UploadCertModal.vue:30
+msgid "Upload Certificate"
+msgstr ""
+
+#: src/views/cert/IndexView.vue:115
+msgid "Certificate List"
+msgstr ""
+
+#: src/views/cert/IndexView.vue:118
+msgid "Account List"
+msgstr ""
+
+#: src/views/cert/IndexView.vue:121
+msgid "DNS List"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:18
+msgid "Automatic"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:19
+msgid "Manual"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:20
+msgid "Self-signed"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:24
+#: src/views/cert/ObtainModal.vue:77
+msgid "Please wait..."
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:33
+#: src/views/cert/ObtainModal.vue:85
+#: src/views/cert/ObtainModal.vue:103
+msgid "Issuance successful"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:41
+msgid "Please set up DNS resolution for the domain first, then continue with the issuance"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:44
+msgid "DNS Records to Set"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:54
+#: src/views/database/DatabaseList.vue:12
+#: src/views/database/ServerList.vue:17
+msgid "Type"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:55
+msgid "Host Record"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:56
+msgid "Record Value"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:74
+msgid "Issue"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:116
+msgid "Issue Certificate"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:123
+msgid "Issuance Mode"
+msgstr ""
+
+#: src/views/cert/route.ts:19
+#: src/views/cert/UploadCertModal.vue:38
+#: src/views/setting/SettingHttps.vue:39
 msgid "Certificate"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:44
+#: src/views/cert/UploadCertModal.vue:42
+msgid "Enter the content of the PEM certificate file"
+msgstr ""
+
+#: src/views/cert/UploadCertModal.vue:46
+#: src/views/setting/SettingHttps.vue:46
 msgid "Private Key"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:54
+#: src/views/cert/UploadCertModal.vue:50
+msgid "Enter the content of the KEY private key file"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:24
+msgid "Update Panel"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:25
+msgid "Are you sure you want to update the panel?"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:26
+msgid "Confirm"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:27
+#: src/views/file/ToolBar.vue:139
+#: src/views/file/ToolBar.vue:226
+msgid "Cancel"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:29
+msgid "Panel updating..."
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:40
+msgid "Panel updated successfully"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:47
+msgid "Update canceled"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:59
+msgid "Update Now"
+msgstr ""
+
+#: src/views/dashboard/UpdateView.vue:82
+msgid "Loading update information, please wait a moment"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:20
+msgid "Local (localhost)"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:21
+msgid "All (%)"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:22
+msgid "Specific"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:54
+#: src/views/database/IndexView.vue:32
+msgid "Create Database"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:62
+#: src/views/database/DatabaseList.vue:42
+#: src/views/database/IndexView.vue:51
+msgid "Server"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:66
+msgid "Select server"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:78
+#: src/views/database/IndexView.vue:36
+msgid "Create User"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:81
+msgid "Authorized User"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:86
+msgid "Enter authorized username (leave empty for no authorization)"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:89
+#: src/views/database/ServerList.vue:47
+#: src/views/login/IndexView.vue:113
+#: src/views/setting/SettingBase.vue:63
+msgid "Username"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:94
+msgid "Enter username"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:97
+#: src/views/database/ServerList.vue:56
+#: src/views/login/IndexView.vue:121
+#: src/views/setting/SettingBase.vue:69
+msgid "Password"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:103
+msgid "Enter password"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:106
+#: src/views/database/ServerList.vue:87
+msgid "Host"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:110
+msgid "Select host"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:117
+msgid "Specific Host"
+msgstr ""
+
+#: src/views/database/CreateDatabaseModal.vue:123
+msgid "Enter supported host address"
+msgstr ""
+
+#: src/views/database/DatabaseList.vue:47
+msgid "Encoding"
+msgstr ""
+
+#: src/views/database/DatabaseList.vue:57
+#: src/views/database/ServerList.vue:97
+msgid "Comment"
+msgstr ""
+
+#: src/views/database/DatabaseList.vue:88
+msgid "Are you sure you want to delete this database?"
+msgstr ""
+
+#: src/views/database/DatabaseList.vue:130
+#: src/views/database/ServerList.vue:243
+msgid "Modified successfully"
+msgstr ""
+
+#: src/views/database/IndexView.vue:40
+msgid "Add Server"
+msgstr ""
+
+#: src/views/database/IndexView.vue:48
+msgid "User"
+msgstr ""
+
+#: src/views/database/ServerList.vue:40
+#: src/views/file/ToolBar.vue:257
+msgid "Name"
+msgstr ""
+
+#: src/views/database/ServerList.vue:52
+#: src/views/database/ServerList.vue:67
+msgid "None"
+msgstr ""
+
+#: src/views/database/ServerList.vue:76
+#: src/views/file/ToolBar.vue:145
+#: src/views/file/ToolBar.vue:165
+msgid "Copied successfully"
+msgstr ""
+
+#: src/views/database/ServerList.vue:80
+#: src/views/file/ToolBar.vue:232
+msgid "Copy"
+msgstr ""
+
+#: src/views/database/ServerList.vue:114
+msgid "Status"
+msgstr ""
+
+#: src/views/database/ServerList.vue:121
+msgid "Valid"
+msgstr ""
+
+#: src/views/database/ServerList.vue:121
+msgid "Invalid"
+msgstr ""
+
+#: src/views/database/ServerList.vue:148
+msgid "Synchronized successfully"
+msgstr ""
+
+#: src/views/database/ServerList.vue:154
+msgid "Are you sure you want to synchronize database users (excluding password) to the panel?"
+msgstr ""
+
+#: src/views/database/ServerList.vue:164
+msgid "Sync"
+msgstr ""
+
+#: src/views/database/ServerList.vue:183
+msgid "Modify"
+msgstr ""
+
+#: src/views/database/ServerList.vue:193
+msgid "Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding application"
+msgstr ""
+
+#: src/views/database/ServerList.vue:201
+msgid "Are you sure you want to delete the server?"
+msgstr ""
+
+#: src/views/error-page/NotFound.vue:10
+msgid "Sorry, the page you visited does not exist."
+msgstr ""
+
+#: src/views/error-page/NotFound.vue:15
+msgid "Back to Home"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:37
+#: src/views/file/ToolBar.vue:51
+msgid "Invalid name"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:60
+msgid "Download task created successfully"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:66
+msgid "Please select files/folders to copy"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:77
+#: src/views/file/ToolBar.vue:94
+msgid "Marked successfully, please navigate to the destination path to paste"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:83
+msgid "Please select files/folders to move"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:104
+msgid "Please mark the files/folders to copy or move first"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:128
+msgid "Warning"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:129
+msgid "There are items with the same name. %{ items } Do you want to overwrite?"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:138
+msgid "Overwrite"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:151
+#: src/views/file/ToolBar.vue:171
+msgid "Moved successfully"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:157
+msgid "Canceled"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:180
+msgid "Please select files/folders to delete"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:214
+msgid "File"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:215
+msgid "Folder"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:219
+#: src/views/file/ToolBar.vue:249
+msgid "New"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:221
+msgid "Upload"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:222
+#: src/views/file/ToolBar.vue:267
+msgid "Remote Download"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:229
+msgid "Paste"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:233
+msgid "Move"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:234
+msgid "Compress"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:235
+msgid "Permission"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:240
+msgid "Are you sure you want to delete in bulk?"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:275
+msgid "Download URL"
+msgstr ""
+
+#: src/views/file/ToolBar.vue:278
+msgid "Save as"
+msgstr ""
+
+#: src/views/login/IndexView.vue:46
+msgid "Please enter username and password"
+msgstr ""
+
+#: src/views/login/IndexView.vue:50
+msgid "Failed to get encryption public key, please refresh the page and try again"
+msgstr ""
+
+#: src/views/login/IndexView.vue:61
+msgid "Login successful!"
+msgstr ""
+
+#: src/views/login/IndexView.vue:130
+msgid "Safe Login"
+msgstr ""
+
+#: src/views/login/IndexView.vue:131
+msgid "Remember Me"
+msgstr ""
+
+#: src/views/login/IndexView.vue:145
+msgid "Login"
+msgstr ""
+
+#: src/views/setting/IndexView.vue:17
+msgid "Basic"
+msgstr "Basic"
+
+#: src/views/setting/SettingBase.vue:34
+#: src/views/setting/SettingHttps.vue:27
+msgid "Saved successfully"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:51
+msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:54
+#: src/views/setting/SettingBase.vue:57
+msgid "Panel Name"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:60
+msgid "Language"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:66
+#: src/views/setting/SettingBase.vue:72
+#: src/views/setting/SettingBase.vue:90
+msgid "admin"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:75
+msgid "Certificate Default Email"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:78
+msgid "admin@example.com"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:81
+msgid "Port"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:84
+msgid "8888"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:87
+msgid "Security Entrance"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:93
+msgid "Offline Mode"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:96
+msgid "Auto Update"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:99
+msgid "Default Website Directory"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:102
+msgid "/www/wwwroot"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:105
+msgid "Default Backup Directory"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:108
+msgid "/www/backup"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:114
+#: src/views/setting/SettingHttps.vue:56
 msgid "Save"
 msgstr ""
+
+#: src/views/setting/SettingHttps.vue:36
+msgid "Panel HTTPS"
+msgstr ""
+
