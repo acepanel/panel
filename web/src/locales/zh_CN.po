@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-13 11:08\n"
+"PO-Revision-Date: 2025-04-13 11:45\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -19,7 +19,7 @@ msgstr "耗子面板"
 
 #: src/components/common/AppFooter.vue:15
 msgid "All Rights Reserved."
-msgstr "版权所有。"
+msgstr "版权所有"
 
 #: src/components/common/AppFooter.vue:23
 msgid "QQ Group"
