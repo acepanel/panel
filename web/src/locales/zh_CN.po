@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-12 22:48\n"
+"PO-Revision-Date: 2025-04-13 08:47\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -367,6 +367,91 @@ msgstr "关闭左侧"
 msgid "Close Right"
 msgstr "关闭右侧"
 
+#: src/locales/menu.ts:7
+msgid "Apps"
+msgstr "应用"
+
+#: src/locales/menu.ts:8
+msgid "Backup"
+msgstr "备份"
+
+#: src/locales/menu.ts:9
+#: src/views/cert/CertView.vue:497
+#: src/views/cert/CertView.vue:573
+#: src/views/cert/UploadCertModal.vue:38
+#: src/views/setting/SettingHttps.vue:45
+#: src/views/website/EditView.vue:355
+msgid "Certificate"
+msgstr "证书"
+
+#: src/locales/menu.ts:10
+msgid "Container"
+msgstr "容器"
+
+#: src/locales/menu.ts:11
+msgid "Dashboard"
+msgstr "仪表板"
+
+#: src/locales/menu.ts:12
+#: src/views/app/IndexView.vue:96
+#: src/views/dashboard/IndexView.vue:451
+msgid "Update"
+msgstr "更新"
+
+#: src/locales/menu.ts:13
+#: src/views/backup/ListView.vue:264
+#: src/views/dashboard/IndexView.vue:425
+#: src/views/database/IndexView.vue:45
+#: src/views/website/IndexView.vue:444
+msgid "Database"
+msgstr "数据库"
+
+#: src/locales/menu.ts:14
+msgid "Files"
+msgstr "文件"
+
+#: src/locales/menu.ts:15
+msgid "Firewall"
+msgstr "防火墙"
+
+#: src/locales/menu.ts:16
+msgid "Monitoring"
+msgstr "监控"
+
+#: src/locales/menu.ts:17
+#: src/views/firewall/IndexView.vue:28
+msgid "Settings"
+msgstr "设置"
+
+#: src/locales/menu.ts:18
+msgid "Terminal"
+msgstr "终端"
+
+#: src/locales/menu.ts:19
+msgid "Tasks"
+msgstr "任务"
+
+#: src/locales/menu.ts:20
+#: src/views/apps/fail2ban/IndexView.vue:415
+#: src/views/backup/IndexView.vue:37
+#: src/views/backup/ListView.vue:220
+#: src/views/backup/ListView.vue:257
+#: src/views/cert/CertView.vue:466
+#: src/views/cert/CertView.vue:549
+#: src/views/cert/CreateCertModal.vue:90
+#: src/views/dashboard/IndexView.vue:421
+#: src/views/task/CreateModal.vue:130
+msgid "Website"
+msgstr "网站"
+
+#: src/locales/menu.ts:22
+msgid "Rat Benchmark"
+msgstr "耗子跑分"
+
+#: src/locales/menu.ts:23
+msgid "Toolbox"
+msgstr "工具箱"
+
 #: src/router/routes/index.ts:18
 msgid "Login Page"
 msgstr "登录页面"
@@ -432,11 +517,6 @@ msgstr "操作"
 #: src/views/app/IndexView.vue:83
 msgid "Updating app %{ app } may reset related configurations to default state, are you sure to continue?"
 msgstr "更新应用 %{ app } 可能会将相关配置重置为默认状态，您确定要继续吗？"
-
-#: src/views/app/IndexView.vue:96
-#: src/views/dashboard/IndexView.vue:451
-msgid "Update"
-msgstr "更新"
 
 #: src/views/app/IndexView.vue:115
 msgid "Manage"
@@ -1156,18 +1236,6 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 #: src/views/database/UserList.vue:17
 msgid "Type"
 msgstr "类型"
-
-#: src/views/apps/fail2ban/IndexView.vue:415
-#: src/views/backup/IndexView.vue:37
-#: src/views/backup/ListView.vue:220
-#: src/views/backup/ListView.vue:257
-#: src/views/cert/CertView.vue:466
-#: src/views/cert/CertView.vue:549
-#: src/views/cert/CreateCertModal.vue:90
-#: src/views/dashboard/IndexView.vue:421
-#: src/views/task/CreateModal.vue:130
-msgid "Website"
-msgstr "网站"
 
 #: src/views/apps/fail2ban/IndexView.vue:416
 #: src/views/apps/fail2ban/IndexView.vue:447
@@ -1961,13 +2029,6 @@ msgstr "留空以使用默认路径"
 msgid "Restore Backup"
 msgstr "恢复备份"
 
-#: src/views/backup/ListView.vue:264
-#: src/views/dashboard/IndexView.vue:425
-#: src/views/database/IndexView.vue:45
-#: src/views/website/IndexView.vue:444
-msgid "Database"
-msgstr "数据库"
-
 #: src/views/backup/UploadModal.vue:20
 msgid "Upload %{ filename } successfully"
 msgstr "上传 %{ filename } 成功"
@@ -2179,14 +2240,6 @@ msgstr "DNS"
 #: src/views/cert/CreateCertModal.vue:109
 msgid "Select DNS for certificate issuance"
 msgstr "选择用于证书颁发的 DNS"
-
-#: src/views/cert/CertView.vue:497
-#: src/views/cert/CertView.vue:573
-#: src/views/cert/UploadCertModal.vue:38
-#: src/views/setting/SettingHttps.vue:45
-#: src/views/website/EditView.vue:355
-msgid "Certificate"
-msgstr "证书"
 
 #: src/views/cert/CertView.vue:502
 #: src/views/cert/UploadCertModal.vue:42
@@ -3892,10 +3945,6 @@ msgstr "IP 规则"
 msgid "Port Forwarding"
 msgstr "端口转发"
 
-#: src/views/firewall/IndexView.vue:28
-msgid "Settings"
-msgstr "设置"
-
 #: src/views/firewall/IpRuleView.vue:75
 #: src/views/firewall/RuleView.vue:109
 msgid "Mark"
@@ -4043,7 +4092,7 @@ msgstr "基本"
 
 #: src/views/setting/SettingBase.vue:42
 msgid "Panel is restarting, page will refresh in 3 seconds"
-msgstr ""
+msgstr "面板正在重启，页面将在 3 秒后刷新"
 
 #: src/views/setting/SettingBase.vue:55
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
