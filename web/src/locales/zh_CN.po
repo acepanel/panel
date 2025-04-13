@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-13 11:45\n"
+"PO-Revision-Date: 2025-04-13 12:44\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -445,31 +445,35 @@ msgstr "任务"
 msgid "Website"
 msgstr "网站"
 
-#: src/locales/menu.ts:22
+#: src/locales/menu.ts:21
+msgid "Website Edit"
+msgstr ""
+
+#: src/locales/menu.ts:23
 msgid "Fail2ban Manager"
 msgstr "Fail2ban 管理器"
 
-#: src/locales/menu.ts:23
+#: src/locales/menu.ts:24
 msgid "S3fs Manager"
 msgstr "S3fs 管理器"
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:25
 msgid "Supervisor Manager"
 msgstr "Supervisor 管理器"
 
-#: src/locales/menu.ts:25
+#: src/locales/menu.ts:26
 msgid "Rsync Manager"
 msgstr "Rsync 管理器"
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:27
 msgid "Frp Manager"
 msgstr "Frp 管理器"
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:28
 msgid "Rat Benchmark"
 msgstr "耗子跑分"
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:29
 msgid "System Toolbox"
 msgstr "系统工具箱"
 
