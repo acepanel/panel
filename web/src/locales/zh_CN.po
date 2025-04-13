@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-13 12:44\n"
+"PO-Revision-Date: 2025-04-13 12:52\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -447,7 +447,7 @@ msgstr "网站"
 
 #: src/locales/menu.ts:21
 msgid "Website Edit"
-msgstr ""
+msgstr "网站编辑"
 
 #: src/locales/menu.ts:23
 msgid "Fail2ban Manager"
