@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-13 09:54\n"
+"PO-Revision-Date: 2025-04-13 10:15\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -46,6 +46,7 @@ msgid "Cannot save in current state"
 msgstr "当前状态无法保存"
 
 #: src/components/common/CodeEditor.vue:40
+#: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:38
 #: src/views/apps/fail2ban/IndexView.vue:173
 #: src/views/apps/frp/IndexView.vue:53
@@ -747,6 +748,7 @@ msgstr "跑分中……"
 msgid "Start Benchmark"
 msgstr "开始跑分"
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -768,6 +770,7 @@ msgstr "开始跑分"
 msgid "Running"
 msgstr "运行中"
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -788,6 +791,7 @@ msgstr "运行中"
 msgid "Stopped"
 msgstr "已停止"
 
+#: src/views/apps/codeserver/IndexView.vue:43
 #: src/views/apps/docker/IndexView.vue:44
 #: src/views/apps/fail2ban/IndexView.vue:208
 #: src/views/apps/frp/IndexView.vue:60
@@ -807,6 +811,7 @@ msgstr "已停止"
 msgid "Started successfully"
 msgstr "启动成功"
 
+#: src/views/apps/codeserver/IndexView.vue:49
 #: src/views/apps/docker/IndexView.vue:51
 #: src/views/apps/fail2ban/IndexView.vue:225
 #: src/views/apps/frp/IndexView.vue:66
@@ -826,6 +831,7 @@ msgstr "启动成功"
 msgid "Stopped successfully"
 msgstr "停止成功"
 
+#: src/views/apps/codeserver/IndexView.vue:55
 #: src/views/apps/docker/IndexView.vue:58
 #: src/views/apps/fail2ban/IndexView.vue:231
 #: src/views/apps/frp/IndexView.vue:72
@@ -845,6 +851,7 @@ msgstr "停止成功"
 msgid "Restarted successfully"
 msgstr "重启成功"
 
+#: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:66
 #: src/views/apps/fail2ban/IndexView.vue:215
 #: src/views/apps/frp/IndexView.vue:79
@@ -863,6 +870,7 @@ msgstr "重启成功"
 msgid "Autostart enabled successfully"
 msgstr "自启动已成功启用"
 
+#: src/views/apps/codeserver/IndexView.vue:65
 #: src/views/apps/docker/IndexView.vue:69
 #: src/views/apps/fail2ban/IndexView.vue:218
 #: src/views/apps/frp/IndexView.vue:82
@@ -881,6 +889,7 @@ msgstr "自启动已成功启用"
 msgid "Autostart disabled successfully"
 msgstr "自启动已成功禁用"
 
+#: src/views/apps/codeserver/IndexView.vue:87
 #: src/views/apps/docker/IndexView.vue:90
 #: src/views/apps/frp/IndexView.vue:135
 #: src/views/apps/frp/IndexView.vue:191
@@ -913,6 +922,8 @@ msgstr "自启动已成功禁用"
 msgid "Save"
 msgstr "保存"
 
+#: src/views/apps/codeserver/IndexView.vue:91
+#: src/views/apps/codeserver/IndexView.vue:92
 #: src/views/apps/docker/IndexView.vue:94
 #: src/views/apps/docker/IndexView.vue:96
 #: src/views/apps/fail2ban/IndexView.vue:306
@@ -947,6 +958,7 @@ msgstr "保存"
 msgid "Running Status"
 msgstr "运行状态"
 
+#: src/views/apps/codeserver/IndexView.vue:95
 #: src/views/apps/docker/IndexView.vue:99
 #: src/views/apps/fail2ban/IndexView.vue:311
 #: src/views/apps/frp/IndexView.vue:102
@@ -966,6 +978,7 @@ msgstr "运行状态"
 msgid "Autostart On"
 msgstr "自启动开启"
 
+#: src/views/apps/codeserver/IndexView.vue:96
 #: src/views/apps/docker/IndexView.vue:100
 #: src/views/apps/fail2ban/IndexView.vue:312
 #: src/views/apps/frp/IndexView.vue:103
@@ -985,6 +998,7 @@ msgstr "自启动开启"
 msgid "Autostart Off"
 msgstr "自启动关闭"
 
+#: src/views/apps/codeserver/IndexView.vue:106
 #: src/views/apps/docker/IndexView.vue:110
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/apps/frp/IndexView.vue:113
@@ -1008,6 +1022,7 @@ msgstr "自启动关闭"
 msgid "Start"
 msgstr "启动"
 
+#: src/views/apps/codeserver/IndexView.vue:112
 #: src/views/apps/docker/IndexView.vue:116
 #: src/views/apps/fail2ban/IndexView.vue:328
 #: src/views/apps/frp/IndexView.vue:119
@@ -1031,10 +1046,11 @@ msgstr "启动"
 msgid "Stop"
 msgstr "停止"
 
-#: src/views/apps/docker/IndexView.vue:119
-msgid "Are you sure you want to stop Docker?"
-msgstr "您确定要停止 Docker 吗？"
+#: src/views/apps/codeserver/IndexView.vue:115
+msgid "Are you sure you want to stop Code Server?"
+msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:119
 #: src/views/apps/docker/IndexView.vue:123
 #: src/views/apps/fail2ban/IndexView.vue:339
 #: src/views/apps/frp/IndexView.vue:126
@@ -1058,15 +1074,21 @@ msgstr "您确定要停止 Docker 吗？"
 msgid "Restart"
 msgstr "重启"
 
-#: src/views/apps/docker/IndexView.vue:130
-#: src/views/website/EditView.vue:401
-msgid "Configuration"
-msgstr "配置"
+#: src/views/apps/codeserver/IndexView.vue:125
+#: src/views/apps/frp/IndexView.vue:131
+#: src/views/apps/frp/IndexView.vue:187
+#: src/views/apps/gitea/IndexView.vue:125
+#: src/views/apps/mysql/IndexView.vue:204
+#: src/views/apps/nginx/IndexView.vue:178
+#: src/views/apps/phpmyadmin/IndexView.vue:84
+msgid "Modify Configuration"
+msgstr "修改配置"
 
-#: src/views/apps/docker/IndexView.vue:133
-msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
-msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
+#: src/views/apps/codeserver/IndexView.vue:129
+msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:148
 #: src/views/apps/docker/IndexView.vue:149
 #: src/views/apps/fail2ban/IndexView.vue:382
 #: src/views/apps/gitea/IndexView.vue:148
@@ -1082,6 +1104,19 @@ msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
 #: src/views/apps/supervisor/IndexView.vue:471
 msgid "Runtime Logs"
 msgstr "运行日志"
+
+#: src/views/apps/docker/IndexView.vue:119
+msgid "Are you sure you want to stop Docker?"
+msgstr "您确定要停止 Docker 吗？"
+
+#: src/views/apps/docker/IndexView.vue:130
+#: src/views/website/EditView.vue:401
+msgid "Configuration"
+msgstr "配置"
+
+#: src/views/apps/docker/IndexView.vue:133
+msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
+msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
 
 #: src/views/apps/fail2ban/IndexView.vue:53
 #: src/views/apps/phpmyadmin/IndexView.vue:71
@@ -1307,15 +1342,6 @@ msgstr "封禁列表"
 #: src/views/apps/frp/IndexView.vue:122
 msgid "Are you sure you want to stop Frps?"
 msgstr "您确定要停止 Frps 吗？"
-
-#: src/views/apps/frp/IndexView.vue:131
-#: src/views/apps/frp/IndexView.vue:187
-#: src/views/apps/gitea/IndexView.vue:125
-#: src/views/apps/mysql/IndexView.vue:204
-#: src/views/apps/nginx/IndexView.vue:178
-#: src/views/apps/phpmyadmin/IndexView.vue:84
-msgid "Modify Configuration"
-msgstr "修改配置"
 
 #: src/views/apps/frp/IndexView.vue:178
 msgid "Are you sure you want to stop Frpc?"
