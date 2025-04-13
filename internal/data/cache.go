@@ -20,7 +20,7 @@ type cacheRepo struct {
 
 func NewCacheRepo(db *gorm.DB) biz.CacheRepo {
 	return &cacheRepo{
-		api: api.NewAPI(app.Version),
+		api: api.NewAPI(app.Version, app.Locale),
 		db:  db,
 	}
 }

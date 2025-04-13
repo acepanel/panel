@@ -41,7 +41,7 @@ type DashboardService struct {
 func NewDashboardService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *DashboardService {
 	return &DashboardService{
 		t:           t,
-		api:         api.NewAPI(app.Version),
+		api:         api.NewAPI(app.Version, app.Locale),
 		conf:        conf,
 		taskRepo:    task,
 		websiteRepo: website,

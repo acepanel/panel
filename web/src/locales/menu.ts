@@ -19,8 +19,13 @@ export function translateTitle(key: string): string {
     Tasks: $gettext('Tasks'),
     Website: $gettext('Website'),
     // 应用标题
+    'Fail2ban Manager': $gettext('Fail2ban Manager'),
+    'S3fs Manager': $gettext('S3fs Manager'),
+    'Supervisor Manager': $gettext('Supervisor Manager'),
+    'Rsync Manager': $gettext('Rsync Manager'),
+    'Frp Manager': $gettext('Frp Manager'),
     'Rat Benchmark': $gettext('Rat Benchmark'),
-    Toolbox: $gettext('Toolbox')
+    'System Toolbox': $gettext('System Toolbox')
   }
 
   return titles[key] || key

@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/tnb-labs/panel/internal/apps/benchmark"
+	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
 	"github.com/tnb-labs/panel/internal/apps/frp"
@@ -30,6 +31,7 @@ import (
 
 func NewLoader(
 	benchmark *benchmark.App,
+	codeserver *codeserver.App,
 	docker *docker.App,
 	fail2ban *fail2ban.App,
 	frp *frp.App,
@@ -55,6 +57,6 @@ func NewLoader(
 	toolbox *toolbox.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(benchmark, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
+	loader.Add(benchmark, codeserver, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
 	return loader
 }

@@ -29,7 +29,7 @@ type PanelTask struct {
 
 func NewPanelTask(db *gorm.DB, log *slog.Logger, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, setting biz.SettingRepo) *PanelTask {
 	return &PanelTask{
-		api:         api.NewAPI(app.Version),
+		api:         api.NewAPI(app.Version, app.Locale),
 		db:          db,
 		log:         log,
 		backupRepo:  backup,

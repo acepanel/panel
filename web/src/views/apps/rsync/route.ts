@@ -13,7 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Rsync',
+        title: 'Rsync Manager',
         icon: 'file-icons:rsync',
         role: ['admin'],
         requireAuth: true

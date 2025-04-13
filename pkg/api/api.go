@@ -20,7 +20,7 @@ type Response struct {
 	Data    any    `json:"data"`
 }
 
-func NewAPI(panelVersion string, url ...string) *API {
+func NewAPI(panelVersion, locale string, url ...string) *API {
 	if len(panelVersion) == 0 {
 		panic("panel version is required")
 	}
@@ -37,6 +37,7 @@ func NewAPI(panelVersion string, url ...string) *API {
 	client.SetTimeout(10 * time.Second)
 	client.SetBaseURL(url[0])
 	client.SetHeader("User-Agent", fmt.Sprintf("rat-panel/%s %s/%s", panelVersion, hostInfo.Platform, hostInfo.PlatformVersion))
+	client.SetQueryParam("locale", locale)
 
 	return &API{
 		panelVersion: panelVersion,

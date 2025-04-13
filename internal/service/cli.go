@@ -50,7 +50,7 @@ type CliService struct {
 func NewCliService(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
-		api:                api.NewAPI(app.Version),
+		api:                api.NewAPI(app.Version, app.Locale),
 		t:                  t,
 		conf:               conf,
 		db:                 db,

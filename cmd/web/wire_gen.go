@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/apps/benchmark"
+	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
 	"github.com/tnb-labs/panel/internal/apps/frp"
@@ -116,6 +117,7 @@ func initWeb() (*app.Web, error) {
 	settingService := service.NewSettingService(settingRepo)
 	systemctlService := service.NewSystemctlService(locale)
 	benchmarkApp := benchmark.NewApp(locale)
+	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
 	frpApp := frp.NewApp()
@@ -139,7 +141,7 @@ func initWeb() (*app.Web, error) {
 	s3fsApp := s3fs.NewApp(locale, settingRepo)
 	supervisorApp := supervisor.NewApp(locale)
 	toolboxApp := toolbox.NewApp(locale)
-	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
+	loader := bootstrap.NewLoader(benchmarkApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
 	http := route.NewHttp(userService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, loader)
 	wsService := service.NewWsService(locale, koanf, sshRepo)
 	ws := route.NewWs(wsService)

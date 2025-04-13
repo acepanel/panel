@@ -13,7 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Toolbox',
+        title: 'System Toolbox',
         icon: 'mdi:tools',
         role: ['admin'],
         requireAuth: true

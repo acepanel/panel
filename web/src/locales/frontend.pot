@@ -36,6 +36,7 @@ msgid "Cannot save in current state"
 msgstr ""
 
 #: src/components/common/CodeEditor.vue:40
+#: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:38
 #: src/views/apps/fail2ban/IndexView.vue:173
 #: src/views/apps/frp/IndexView.vue:53
@@ -435,11 +436,31 @@ msgid "Website"
 msgstr ""
 
 #: src/locales/menu.ts:22
-msgid "Rat Benchmark"
+msgid "Fail2ban Manager"
 msgstr ""
 
 #: src/locales/menu.ts:23
-msgid "Toolbox"
+msgid "S3fs Manager"
+msgstr ""
+
+#: src/locales/menu.ts:24
+msgid "Supervisor Manager"
+msgstr ""
+
+#: src/locales/menu.ts:25
+msgid "Rsync Manager"
+msgstr ""
+
+#: src/locales/menu.ts:26
+msgid "Frp Manager"
+msgstr ""
+
+#: src/locales/menu.ts:27
+msgid "Rat Benchmark"
+msgstr ""
+
+#: src/locales/menu.ts:28
+msgid "System Toolbox"
 msgstr ""
 
 #: src/router/routes/index.ts:18
@@ -717,6 +738,7 @@ msgstr ""
 msgid "Start Benchmark"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -738,6 +760,7 @@ msgstr ""
 msgid "Running"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -758,6 +781,7 @@ msgstr ""
 msgid "Stopped"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:43
 #: src/views/apps/docker/IndexView.vue:44
 #: src/views/apps/fail2ban/IndexView.vue:208
 #: src/views/apps/frp/IndexView.vue:60
@@ -777,6 +801,7 @@ msgstr ""
 msgid "Started successfully"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:49
 #: src/views/apps/docker/IndexView.vue:51
 #: src/views/apps/fail2ban/IndexView.vue:225
 #: src/views/apps/frp/IndexView.vue:66
@@ -796,6 +821,7 @@ msgstr ""
 msgid "Stopped successfully"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:55
 #: src/views/apps/docker/IndexView.vue:58
 #: src/views/apps/fail2ban/IndexView.vue:231
 #: src/views/apps/frp/IndexView.vue:72
@@ -815,6 +841,7 @@ msgstr ""
 msgid "Restarted successfully"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:66
 #: src/views/apps/fail2ban/IndexView.vue:215
 #: src/views/apps/frp/IndexView.vue:79
@@ -833,6 +860,7 @@ msgstr ""
 msgid "Autostart enabled successfully"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:65
 #: src/views/apps/docker/IndexView.vue:69
 #: src/views/apps/fail2ban/IndexView.vue:218
 #: src/views/apps/frp/IndexView.vue:82
@@ -851,6 +879,7 @@ msgstr ""
 msgid "Autostart disabled successfully"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:87
 #: src/views/apps/docker/IndexView.vue:90
 #: src/views/apps/frp/IndexView.vue:135
 #: src/views/apps/frp/IndexView.vue:191
@@ -883,6 +912,8 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:91
+#: src/views/apps/codeserver/IndexView.vue:92
 #: src/views/apps/docker/IndexView.vue:94
 #: src/views/apps/docker/IndexView.vue:96
 #: src/views/apps/fail2ban/IndexView.vue:306
@@ -917,6 +948,7 @@ msgstr ""
 msgid "Running Status"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:95
 #: src/views/apps/docker/IndexView.vue:99
 #: src/views/apps/fail2ban/IndexView.vue:311
 #: src/views/apps/frp/IndexView.vue:102
@@ -936,6 +968,7 @@ msgstr ""
 msgid "Autostart On"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:96
 #: src/views/apps/docker/IndexView.vue:100
 #: src/views/apps/fail2ban/IndexView.vue:312
 #: src/views/apps/frp/IndexView.vue:103
@@ -955,6 +988,7 @@ msgstr ""
 msgid "Autostart Off"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:106
 #: src/views/apps/docker/IndexView.vue:110
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/apps/frp/IndexView.vue:113
@@ -978,6 +1012,7 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:112
 #: src/views/apps/docker/IndexView.vue:116
 #: src/views/apps/fail2ban/IndexView.vue:328
 #: src/views/apps/frp/IndexView.vue:119
@@ -1001,10 +1036,11 @@ msgstr ""
 msgid "Stop"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:119
-msgid "Are you sure you want to stop Docker?"
+#: src/views/apps/codeserver/IndexView.vue:115
+msgid "Are you sure you want to stop Code Server?"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:119
 #: src/views/apps/docker/IndexView.vue:123
 #: src/views/apps/fail2ban/IndexView.vue:339
 #: src/views/apps/frp/IndexView.vue:126
@@ -1028,15 +1064,21 @@ msgstr ""
 msgid "Restart"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:130
-#: src/views/website/EditView.vue:401
-msgid "Configuration"
+#: src/views/apps/codeserver/IndexView.vue:125
+#: src/views/apps/frp/IndexView.vue:131
+#: src/views/apps/frp/IndexView.vue:187
+#: src/views/apps/gitea/IndexView.vue:125
+#: src/views/apps/mysql/IndexView.vue:204
+#: src/views/apps/nginx/IndexView.vue:178
+#: src/views/apps/phpmyadmin/IndexView.vue:84
+msgid "Modify Configuration"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:133
-msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
+#: src/views/apps/codeserver/IndexView.vue:129
+msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
+#: src/views/apps/codeserver/IndexView.vue:148
 #: src/views/apps/docker/IndexView.vue:149
 #: src/views/apps/fail2ban/IndexView.vue:382
 #: src/views/apps/gitea/IndexView.vue:148
@@ -1051,6 +1093,19 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:349
 #: src/views/apps/supervisor/IndexView.vue:471
 msgid "Runtime Logs"
+msgstr ""
+
+#: src/views/apps/docker/IndexView.vue:119
+msgid "Are you sure you want to stop Docker?"
+msgstr ""
+
+#: src/views/apps/docker/IndexView.vue:130
+#: src/views/website/EditView.vue:401
+msgid "Configuration"
+msgstr ""
+
+#: src/views/apps/docker/IndexView.vue:133
+msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:53
@@ -1276,15 +1331,6 @@ msgstr ""
 
 #: src/views/apps/frp/IndexView.vue:122
 msgid "Are you sure you want to stop Frps?"
-msgstr ""
-
-#: src/views/apps/frp/IndexView.vue:131
-#: src/views/apps/frp/IndexView.vue:187
-#: src/views/apps/gitea/IndexView.vue:125
-#: src/views/apps/mysql/IndexView.vue:204
-#: src/views/apps/nginx/IndexView.vue:178
-#: src/views/apps/phpmyadmin/IndexView.vue:84
-msgid "Modify Configuration"
 msgstr ""
 
 #: src/views/apps/frp/IndexView.vue:178

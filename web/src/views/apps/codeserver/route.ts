@@ -3,18 +3,18 @@ import type { RouteType } from '~/types/router'
 const Layout = () => import('@/layout/IndexView.vue')
 
 export default {
-  name: 'frp',
-  path: '/apps/frp',
+  name: 'codeserver',
+  path: '/apps/codeserver',
   component: Layout,
   isHidden: true,
   children: [
     {
-      name: 'apps-frp-index',
+      name: 'apps-codeserver-index',
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Frp Manager',
-        icon: 'icon-park-outline:connection-box',
+        title: 'Code Server',
+        icon: 'simple-icons:coder',
         role: ['admin'],
         requireAuth: true
       }

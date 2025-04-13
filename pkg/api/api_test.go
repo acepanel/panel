@@ -13,7 +13,7 @@ type APITestSuite struct {
 
 func TestAPITestSuite(t *testing.T) {
 	suite.Run(t, &APITestSuite{
-		api: NewAPI("2.3.0"),
+		api: NewAPI("2.3.0", "en"),
 	})
 }
 

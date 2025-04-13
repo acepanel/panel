@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/apps/benchmark"
+	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
 	"github.com/tnb-labs/panel/internal/apps/frp"
@@ -77,6 +78,7 @@ func initCli() (*app.Cli, error) {
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)
 	benchmarkApp := benchmark.NewApp(locale)
+	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
 	frpApp := frp.NewApp()
@@ -100,7 +102,7 @@ func initCli() (*app.Cli, error) {
 	s3fsApp := s3fs.NewApp(locale, settingRepo)
 	supervisorApp := supervisor.NewApp(locale)
 	toolboxApp := toolbox.NewApp(locale)
-	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
+	loader := bootstrap.NewLoader(benchmarkApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

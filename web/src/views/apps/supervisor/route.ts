@@ -13,7 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Supervisor',
+        title: 'Supervisor Manager',
         icon: 'mdi:monitor-dashboard',
         role: ['admin'],
         requireAuth: true
