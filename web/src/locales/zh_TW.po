@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-13 10:15\n"
+"PO-Revision-Date: 2025-04-13 10:32\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -447,23 +447,23 @@ msgstr "網站"
 
 #: src/locales/menu.ts:22
 msgid "Fail2ban Manager"
-msgstr ""
+msgstr "Fail2ban 管理器"
 
 #: src/locales/menu.ts:23
 msgid "S3fs Manager"
-msgstr ""
+msgstr "S3fs 管理器"
 
 #: src/locales/menu.ts:24
 msgid "Supervisor Manager"
-msgstr ""
+msgstr "Supervisor 管理器"
 
 #: src/locales/menu.ts:25
 msgid "Rsync Manager"
-msgstr ""
+msgstr "Rsync 管理器"
 
 #: src/locales/menu.ts:26
 msgid "Frp Manager"
-msgstr ""
+msgstr "Frp 管理器"
 
 #: src/locales/menu.ts:27
 msgid "Rat Benchmark"
@@ -471,7 +471,7 @@ msgstr "耗子跑分"
 
 #: src/locales/menu.ts:28
 msgid "System Toolbox"
-msgstr ""
+msgstr "系統工具箱"
 
 #: src/router/routes/index.ts:18
 msgid "Login Page"
@@ -1048,7 +1048,7 @@ msgstr "停止"
 
 #: src/views/apps/codeserver/IndexView.vue:115
 msgid "Are you sure you want to stop Code Server?"
-msgstr ""
+msgstr "您確定要停止 Code Server 嗎？"
 
 #: src/views/apps/codeserver/IndexView.vue:119
 #: src/views/apps/docker/IndexView.vue:123
@@ -1086,7 +1086,7 @@ msgstr "修改配置"
 
 #: src/views/apps/codeserver/IndexView.vue:129
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "這將修改 Code Server 的配置文件。如果您不理解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/codeserver/IndexView.vue:148
 #: src/views/apps/docker/IndexView.vue:149
@@ -1112,7 +1112,7 @@ msgstr "您確定要停止 Docker 嗎？"
 #: src/views/apps/docker/IndexView.vue:130
 #: src/views/website/EditView.vue:401
 msgid "Configuration"
-msgstr "Configuration"
+msgstr "配置"
 
 #: src/views/apps/docker/IndexView.vue:133
 msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
@@ -1404,7 +1404,7 @@ msgstr "環境變數"
 
 #: src/views/apps/minio/IndexView.vue:124
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr "這是修改 Minio 環境變量文件 /etc/default/minio。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Minio 環境變量文件 /etc/default/minio。如果您不了解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/mysql/IndexView.vue:70
 #: src/views/apps/mysql/IndexView.vue:76
@@ -1472,7 +1472,7 @@ msgstr "停止 OpenResty 將導致所有網站無法訪問。您確定要停止�
 
 #: src/views/apps/nginx/IndexView.vue:182
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 OpenResty 主配置文件。如果您不理解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 OpenResty 主配置文件。如果您不理解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/nginx/IndexView.vue:214
 #: src/views/apps/php/PhpView.vue:401
@@ -1595,7 +1595,7 @@ msgstr "停止 PostgreSQL 將導致使用 PostgreSQL 的網站無法訪問。您
 
 #: src/views/apps/postgresql/IndexView.vue:193
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 PostgreSQL 主配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PostgreSQL 主配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:212
 msgid "User Configuration"
@@ -1603,7 +1603,7 @@ msgstr "用戶配置"
 
 #: src/views/apps/postgresql/IndexView.vue:216
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 PostgreSQL 用戶配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PostgreSQL 用戶配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/pureftpd/IndexView.vue:41
 #: src/views/apps/pureftpd/IndexView.vue:304
@@ -1905,7 +1905,7 @@ msgstr "進程列表"
 
 #: src/views/apps/supervisor/IndexView.vue:452
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 Supervisor 主配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Supervisor 主配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
 
 #: src/views/apps/supervisor/IndexView.vue:474
 msgid "Daemon Logs"
@@ -1977,7 +1977,7 @@ msgstr "主機名"
 
 #: src/views/apps/toolbox/IndexView.vue:177
 msgid "Time"
-msgstr "Time"
+msgstr "時間"
 
 #: src/views/apps/toolbox/IndexView.vue:181
 msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
@@ -2955,7 +2955,7 @@ msgstr "docker.io/php:8.3-fpm"
 
 #: src/views/container/ImageView.vue:195
 msgid "Authentication"
-msgstr "Authentication"
+msgstr "身份驗證"
 
 #: src/views/container/ImageView.vue:212
 #: src/views/database/CreateDatabaseModal.vue:107
@@ -2985,7 +2985,7 @@ msgstr "卷"
 #: src/views/container/VolumeView.vue:33
 #: src/views/container/VolumeView.vue:186
 msgid "Driver"
-msgstr "Driver"
+msgstr "驅動程式"
 
 #: src/views/container/NetworkView.vue:59
 #: src/views/container/VolumeView.vue:40
@@ -3046,7 +3046,7 @@ msgstr "2408:400e::/64"
 #: src/views/container/NetworkView.vue:303
 #: src/views/container/VolumeView.vue:203
 msgid "Options"
-msgstr "Options"
+msgstr "選項"
 
 #: src/views/container/NetworkView.vue:307
 #: src/views/container/VolumeView.vue:207
@@ -3221,12 +3221,12 @@ msgstr "參數"
 
 #: src/views/dashboard/IndexView.vue:518
 msgid "cache"
-msgstr "cache"
+msgstr "快取"
 
 #: src/views/dashboard/IndexView.vue:524
 #: src/views/monitor/IndexView.vue:179
 msgid "Usage"
-msgstr "Usage"
+msgstr "使用率"
 
 #: src/views/dashboard/IndexView.vue:525
 msgid "Frequency"
@@ -4134,7 +4134,7 @@ msgstr "時間選擇"
 
 #: src/views/setting/IndexView.vue:17
 msgid "Basic"
-msgstr "Basic"
+msgstr "基本"
 
 #: src/views/setting/SettingBase.vue:42
 msgid "Panel is restarting, page will refresh in 3 seconds"
