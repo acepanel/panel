@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-13 10:15\n"
+"PO-Revision-Date: 2025-04-13 10:32\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -447,23 +447,23 @@ msgstr "网站"
 
 #: src/locales/menu.ts:22
 msgid "Fail2ban Manager"
-msgstr ""
+msgstr "Fail2ban 管理器"
 
 #: src/locales/menu.ts:23
 msgid "S3fs Manager"
-msgstr ""
+msgstr "S3fs 管理器"
 
 #: src/locales/menu.ts:24
 msgid "Supervisor Manager"
-msgstr ""
+msgstr "Supervisor 管理器"
 
 #: src/locales/menu.ts:25
 msgid "Rsync Manager"
-msgstr ""
+msgstr "Rsync 管理器"
 
 #: src/locales/menu.ts:26
 msgid "Frp Manager"
-msgstr ""
+msgstr "Frp 管理器"
 
 #: src/locales/menu.ts:27
 msgid "Rat Benchmark"
@@ -471,7 +471,7 @@ msgstr "耗子跑分"
 
 #: src/locales/menu.ts:28
 msgid "System Toolbox"
-msgstr ""
+msgstr "系统工具箱"
 
 #: src/router/routes/index.ts:18
 msgid "Login Page"
@@ -1048,7 +1048,7 @@ msgstr "停止"
 
 #: src/views/apps/codeserver/IndexView.vue:115
 msgid "Are you sure you want to stop Code Server?"
-msgstr ""
+msgstr "您确定要停止 Code Server 吗？"
 
 #: src/views/apps/codeserver/IndexView.vue:119
 #: src/views/apps/docker/IndexView.vue:123
@@ -1086,7 +1086,7 @@ msgstr "修改配置"
 
 #: src/views/apps/codeserver/IndexView.vue:129
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Code Server 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/codeserver/IndexView.vue:148
 #: src/views/apps/docker/IndexView.vue:149
@@ -1404,7 +1404,7 @@ msgstr "环境变量"
 
 #: src/views/apps/minio/IndexView.vue:124
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr "这是修改 Minio 环境变量文件 /etc/default/minio。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 Minio 环境变量文件 /etc/default/minio。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/mysql/IndexView.vue:70
 #: src/views/apps/mysql/IndexView.vue:76
@@ -1472,7 +1472,7 @@ msgstr "停止 OpenResty 将导致所有网站无法访问。您确定要停止�
 
 #: src/views/apps/nginx/IndexView.vue:182
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 OpenResty 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 OpenResty 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/nginx/IndexView.vue:214
 #: src/views/apps/php/PhpView.vue:401
@@ -1595,7 +1595,7 @@ msgstr "停止 PostgreSQL 将导致使用 PostgreSQL 的网站无法访问。您
 
 #: src/views/apps/postgresql/IndexView.vue:193
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:212
 msgid "User Configuration"
@@ -1603,7 +1603,7 @@ msgstr "用户配置"
 
 #: src/views/apps/postgresql/IndexView.vue:216
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/pureftpd/IndexView.vue:41
 #: src/views/apps/pureftpd/IndexView.vue:304
@@ -1905,7 +1905,7 @@ msgstr "进程列表"
 
 #: src/views/apps/supervisor/IndexView.vue:452
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 Supervisor 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 Supervisor 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/supervisor/IndexView.vue:474
 msgid "Daemon Logs"
