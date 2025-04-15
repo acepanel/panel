@@ -24,8 +24,8 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
-	github.com/knadh/koanf/providers/file v1.1.2
-	github.com/knadh/koanf/v2 v2.1.2
+	github.com/knadh/koanf/providers/file v1.2.0
+	github.com/knadh/koanf/v2 v2.2.0
 	github.com/leonelquinteros/gotext v1.7.1
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.4
@@ -67,7 +67,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.2.9 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fsnotify/fsnotify v1.8.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-rat/securecookie v1.1.0 // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/linode/linodego v1.23.0 // indirect
 	github.com/miekg/dns v1.1.40 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
