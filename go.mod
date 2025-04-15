@@ -23,7 +23,7 @@ require (
 	github.com/gookit/validate v1.5.4
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
-	github.com/knadh/koanf/parsers/yaml v0.1.0
+	github.com/knadh/koanf/parsers/yaml v1.0.0
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.2.0
 	github.com/leonelquinteros/gotext v1.7.1
