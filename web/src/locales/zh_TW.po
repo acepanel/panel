@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-13 12:52\n"
+"PO-Revision-Date: 2025-04-16 09:13\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -812,6 +812,7 @@ msgstr "已停止"
 #: src/views/apps/rsync/IndexView.vue:159
 #: src/views/apps/supervisor/IndexView.vue:273
 #: src/views/apps/supervisor/IndexView.vue:302
+#: src/views/website/IndexView.vue:237
 msgid "Started successfully"
 msgstr "啟動成功"
 
@@ -832,6 +833,7 @@ msgstr "啟動成功"
 #: src/views/apps/rsync/IndexView.vue:176
 #: src/views/apps/supervisor/IndexView.vue:280
 #: src/views/apps/supervisor/IndexView.vue:309
+#: src/views/website/IndexView.vue:239
 msgid "Stopped successfully"
 msgstr "停止成功"
 
@@ -4168,8 +4170,8 @@ msgid "Certificate Default Email"
 msgstr "證書默認郵箱"
 
 #: src/views/setting/SettingBase.vue:74
-msgid "admin@example.com"
-msgstr "admin@example.com"
+msgid "admin@yourdomain.com"
+msgstr "admin@yourdomain.com"
 
 #: src/views/setting/SettingBase.vue:77
 msgid "8888"
@@ -4578,18 +4580,6 @@ msgstr "刪除網站目錄"
 #: src/views/website/IndexView.vue:151
 msgid "Delete local database with the same name"
 msgstr "刪除同名的本地數據庫"
-
-#: src/views/website/IndexView.vue:237
-msgid "Already %{ status }"
-msgstr "已%{ status }"
-
-#: src/views/website/IndexView.vue:238
-msgid "started"
-msgstr "啟動"
-
-#: src/views/website/IndexView.vue:238
-msgid "stopped"
-msgstr "已停止"
 
 #: src/views/website/IndexView.vue:312
 msgid "Please select the websites to delete"
