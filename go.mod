@@ -101,4 +101,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
-replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
+replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250416074048-0e9f6b5f8ec5
