@@ -40,7 +40,7 @@ require (
 	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
 	github.com/libdns/namedotcom v0.3.3
-	github.com/libdns/namesilo v0.1.1
+	github.com/libdns/namesilo v0.1.2
 	github.com/libdns/porkbun v0.2.0
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
