@@ -49,7 +49,7 @@ require (
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/samber/lo v1.49.1
+	github.com/samber/lo v1.50.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.7.1
