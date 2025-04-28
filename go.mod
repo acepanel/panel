@@ -55,7 +55,7 @@ require (
 	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
-	github.com/urfave/cli/v3 v3.2.0
+	github.com/urfave/cli/v3 v3.3.1
 	golang.org/x/crypto v0.37.0
 	golang.org/x/net v0.39.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
