@@ -54,7 +54,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
-	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
+	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
 	github.com/urfave/cli/v3 v3.3.2
 	golang.org/x/crypto v0.37.0
 	golang.org/x/net v0.39.0
@@ -76,6 +76,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/filter v1.2.2 // indirect
 	github.com/gookit/goutil v0.6.18 // indirect
+	github.com/imega/luaformatter v0.0.0-20211025140405-86b0a68d6bef // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -90,6 +91,8 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
+	github.com/timtadh/data-structures v0.5.3 // indirect
+	github.com/timtadh/lexmachine v0.2.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
