@@ -52,7 +52,7 @@ require (
 	github.com/samber/lo v1.50.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/spf13/cast v1.7.1
+	github.com/spf13/cast v1.8.0
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
 	github.com/urfave/cli/v3 v3.3.2
