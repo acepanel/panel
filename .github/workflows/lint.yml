@@ -19,7 +19,7 @@ jobs:
           cache: true
           go-version: 'stable'
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v8
         with:
           skip-cache: true
           version: latest
