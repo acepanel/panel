@@ -25,7 +25,7 @@ importers:
         version: 1.0.1
       '@vue-js-cron/naive-ui':
         specifier: ^2.0.9
-        version: 2.0.9
+        version: 2.0.10
       '@vueuse/core':
         specifier: ^13.0.0
         version: 13.1.0(vue@3.5.13(typescript@5.8.3))
@@ -1254,11 +1254,11 @@ packages:
   '@volar/typescript@2.4.13':
     resolution: {integrity: sha512-Ukz4xv84swJPupZeoFsQoeJEOm7U9pqsEnaGGgt5ni3SCTa22m8oJP5Nng3Wed7Uw5RBELdLxxORX8YhJPyOgQ==}
 
-  '@vue-js-cron/core@5.4.1':
-    resolution: {integrity: sha512-Z2dPQWyBlsCvoFAZMSx+CWqWRXyf09AabvG/jkEvHx9hbydhHDQApNhQHKVjbMMbFzu4HWRmjRjrx3Cq6bCOOw==}
+  '@vue-js-cron/core@5.4.2':
+    resolution: {integrity: sha512-y5HrgLJ/0JMXUliOdJZQbB+9UHs7+b7/spe8GFt/a1iCM1ILGKxAoTfbeapoSbF9LxDgw9SsXTgdkmMKWum58A==}
 
-  '@vue-js-cron/naive-ui@2.0.9':
-    resolution: {integrity: sha512-0IOe/zhGOZqyLAkUixmtW5m+ACil/itNYTY9ehXQ9XcoaA01l0sWpsI/GM34001CwKKGKkSdA03CFgE1xsbdZw==}
+  '@vue-js-cron/naive-ui@2.0.10':
+    resolution: {integrity: sha512-bV+WKduUL1sNfNBuECyMIRL4VR6mGfwyyHf+1nG67IgS5TfWwQ+BIBFA0YDBpl8nO+97xLxJugLMHO+8u1WaAw==}
 
   '@vue/babel-helper-vue-transform-on@1.4.0':
     resolution: {integrity: sha512-mCokbouEQ/ocRce/FpKCRItGo+013tHg7tixg3DUNS+6bmIchPt66012kBMm476vyEIJPafrvOf4E5OYj3shSw==}
@@ -5051,13 +5051,13 @@ snapshots:
       path-browserify: 1.0.1
       vscode-uri: 3.1.0
 
-  '@vue-js-cron/core@5.4.1':
+  '@vue-js-cron/core@5.4.2':
     dependencies:
       mustache: 4.2.0
 
-  '@vue-js-cron/naive-ui@2.0.9':
+  '@vue-js-cron/naive-ui@2.0.10':
     dependencies:
-      '@vue-js-cron/core': 5.4.1
+      '@vue-js-cron/core': 5.4.2
 
   '@vue/babel-helper-vue-transform-on@1.4.0': {}
 
