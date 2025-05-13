@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-04-13 11:45\n"
+"PO-Revision-Date: 2025-05-13 19:15\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -503,10 +503,10 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:830
-#: internal/service/cli.go:835
-#: internal/service/cli.go:840
-#: internal/service/cli.go:844
+#: internal/service/cli.go:831
+#: internal/service/cli.go:836
+#: internal/service/cli.go:841
+#: internal/service/cli.go:845
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
@@ -1204,6 +1204,10 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
 
+#: internal/http/middleware/must_login.go:94
+msgid "api signature expired"
+msgstr ""
+
 #: internal/data/app.go:159
 msgid "app %s already installed"
 msgstr "應用 %s 已安裝"
@@ -1214,6 +1218,7 @@ msgstr "找不到應用 %s"
 
 #: internal/data/app.go:210
 #: internal/data/app.go:265
+#: internal/http/middleware/must_install.go:48
 msgid "app %s not installed"
 msgstr "應用程式 %s 未安裝"
 
@@ -1228,8 +1233,12 @@ msgstr "應用程式 %s 不支援目前面板版本"
 msgid "app %s requires panel version %s, current version %s"
 msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 
-#: internal/data/setting.go:191
-#: internal/data/setting.go:248
+#: internal/http/middleware/must_install.go:29
+msgid "app not found"
+msgstr ""
+
+#: internal/data/setting.go:314
+#: internal/data/setting.go:375
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
@@ -1259,6 +1268,10 @@ msgstr "找不到 %s 數據庫服務器，請先添加"
 #: internal/data/database_server.go:86
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
+
+#: internal/http/middleware/must_login.go:122
+msgid "client ip/ua changed, please login again"
+msgstr ""
 
 #: internal/data/backup.go:564
 msgid "could not find .sql backup file"
@@ -1517,12 +1530,12 @@ msgid "failed to load MySQL root password: %v"
 msgstr "無法載入 MySQL root 密碼：%v"
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:196
+#: internal/data/setting.go:319
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:199
+#: internal/data/setting.go:322
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -1634,9 +1647,33 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
+#: internal/http/middleware/entrance.go:101
+msgid "invalid access entrance"
+msgstr ""
+
+#: internal/http/middleware/must_login.go:84
+msgid "invalid api signature"
+msgstr ""
+
 #: internal/service/user.go:78
 msgid "invalid key, please refresh the page"
 msgstr "無效的密鑰，請重新整理頁面"
+
+#: internal/http/middleware/entrance.go:50
+msgid "invalid request domain: %s"
+msgstr ""
+
+#: internal/http/middleware/entrance.go:63
+msgid "invalid request ip: %s"
+msgstr ""
+
+#: internal/http/middleware/entrance.go:72
+msgid "invalid request user agent: %s"
+msgstr ""
+
+#: internal/http/middleware/must_login.go:136
+msgid "invalid user id, please login again"
+msgstr ""
 
 #: internal/apps/php/app.go:473
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
@@ -1683,6 +1720,22 @@ msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方�
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
+#: internal/http/middleware/status.go:38
+msgid "panel is closed"
+msgstr ""
+
+#: internal/http/middleware/status.go:30
+msgid "panel is maintaining, please refresh later"
+msgstr ""
+
+#: internal/http/middleware/status.go:22
+msgid "panel is upgrading, please refresh later"
+msgstr ""
+
+#: internal/http/middleware/status.go:46
+msgid "panel run error, please check or contact support"
+msgstr ""
+
 #: internal/apps/php/app.go:328
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pdo_pgsql 是一個用於連接 PostgreSQL 的 PDO 驅動程序（需先安裝 PostgreSQL）"
@@ -1714,7 +1767,7 @@ msgstr "請不要這樣做"
 msgid "please retry the manual obtain operation"
 msgstr "請重新操作手動簽發"
 
-#: internal/data/setting.go:220
+#: internal/data/setting.go:343
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
@@ -1746,6 +1799,10 @@ msgstr "未找到運行目錄註釋"
 #: internal/data/website.go:708
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
+
+#: internal/http/middleware/must_login.go:107
+msgid "session expired, please login again"
+msgstr ""
 
 #: internal/apps/php/app.go:333
 msgid "sqlsrv is a driver for connecting to SQL Server"
