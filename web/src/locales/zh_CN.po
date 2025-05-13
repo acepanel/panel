@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-13 19:15\n"
+"PO-Revision-Date: 2025-05-13 20:54\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -4146,15 +4146,15 @@ msgstr "基本"
 
 #: src/views/setting/IndexView.vue:70
 msgid "Safe"
-msgstr ""
+msgstr "安全"
 
 #: src/views/setting/SettingBase.vue:20
 msgid "Stable"
-msgstr ""
+msgstr "稳定"
 
 #: src/views/setting/SettingBase.vue:24
 msgid "Beta"
-msgstr ""
+msgstr "测试"
 
 #: src/views/setting/SettingBase.vue:34
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
@@ -4171,7 +4171,7 @@ msgstr "语言"
 
 #: src/views/setting/SettingBase.vue:46
 msgid "Update Channel"
-msgstr ""
+msgstr "更新渠道"
 
 #: src/views/setting/SettingBase.vue:50
 #: src/views/setting/SettingBase.vue:53
@@ -4209,11 +4209,11 @@ msgstr "/www/backup"
 
 #: src/views/setting/SettingSafe.vue:12
 msgid "Login Timeout"
-msgstr ""
+msgstr "登录超时"
 
 #: src/views/setting/SettingSafe.vue:15
 msgid "120"
-msgstr ""
+msgstr "120"
 
 #: src/views/setting/SettingSafe.vue:21
 #: src/views/website/ProxyBuilderModal.vue:188
@@ -4226,15 +4226,15 @@ msgstr "访问入口"
 
 #: src/views/setting/SettingSafe.vue:28
 msgid "Bind Domain"
-msgstr ""
+msgstr "绑定域名"
 
 #: src/views/setting/SettingSafe.vue:35
 msgid "Bind IP"
-msgstr ""
+msgstr "绑定 IP"
 
 #: src/views/setting/SettingSafe.vue:38
 msgid "Bind UA"
-msgstr ""
+msgstr "绑定 UA"
 
 #: src/views/setting/SettingSafe.vue:45
 msgid "Offline Mode"
