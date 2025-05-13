@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-16 09:13\n"
+"PO-Revision-Date: 2025-05-13 19:15\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -74,8 +74,7 @@ msgstr "當前狀態無法保存"
 #: src/views/apps/toolbox/IndexView.vue:66
 #: src/views/apps/toolbox/IndexView.vue:72
 #: src/views/apps/toolbox/IndexView.vue:81
-#: src/views/setting/SettingBase.vue:39
-#: src/views/setting/SettingHttps.vue:27
+#: src/views/setting/IndexView.vue:46
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr "儲存成功"
@@ -380,7 +379,7 @@ msgstr "備份"
 #: src/views/cert/CertView.vue:497
 #: src/views/cert/CertView.vue:573
 #: src/views/cert/UploadCertModal.vue:38
-#: src/views/setting/SettingHttps.vue:45
+#: src/views/setting/SettingSafe.vue:54
 #: src/views/website/EditView.vue:355
 msgid "Certificate"
 msgstr "證書"
@@ -922,8 +921,7 @@ msgstr "自啟動已成功禁用"
 #: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
-#: src/views/setting/SettingBase.vue:97
-#: src/views/setting/SettingHttps.vue:62
+#: src/views/setting/IndexView.vue:63
 #: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr "儲存"
@@ -1621,7 +1619,7 @@ msgstr "這將修改 PostgreSQL 用戶配置文件。如果您不了解每個參
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
 #: src/views/login/IndexView.vue:115
-#: src/views/setting/SettingBase.vue:67
+#: src/views/setting/SettingBase.vue:49
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
 msgid "Username"
@@ -1687,7 +1685,7 @@ msgstr "輸入使用者名稱"
 #: src/views/database/UpdateUserModal.vue:49
 #: src/views/database/UserList.vue:50
 #: src/views/login/IndexView.vue:123
-#: src/views/setting/SettingBase.vue:70
+#: src/views/setting/SettingBase.vue:52
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/CreateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:83
@@ -2302,7 +2300,7 @@ msgstr "輸入 PEM 證書文件的內容"
 #: src/views/cert/CertView.vue:509
 #: src/views/cert/CertView.vue:585
 #: src/views/cert/UploadCertModal.vue:46
-#: src/views/setting/SettingHttps.vue:52
+#: src/views/setting/SettingSafe.vue:61
 #: src/views/ssh/CreateModal.vue:78
 #: src/views/ssh/CreateModal.vue:89
 #: src/views/ssh/UpdateModal.vue:84
@@ -3490,7 +3488,7 @@ msgstr "輸入數據庫伺服器主機"
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:32
 #: src/views/firewall/RuleView.vue:49
-#: src/views/setting/SettingBase.vue:76
+#: src/views/setting/SettingBase.vue:58
 #: src/views/ssh/CreateModal.vue:68
 #: src/views/ssh/UpdateModal.vue:74
 #: src/views/website/IndexView.vue:420
@@ -3608,16 +3606,16 @@ msgstr "抱歉，您訪問的頁面不存在。"
 msgid "Back to Home"
 msgstr "返回首頁"
 
-#: src/views/file/CompressModal.vue:32
+#: src/views/file/CompressModal.vue:41
 msgid "Compressing..."
 msgstr "壓縮中……"
 
-#: src/views/file/CompressModal.vue:40
+#: src/views/file/CompressModal.vue:49
 msgid "Compressed successfully"
 msgstr "壓縮成功"
 
-#: src/views/file/CompressModal.vue:64
-#: src/views/file/CompressModal.vue:96
+#: src/views/file/CompressModal.vue:73
+#: src/views/file/CompressModal.vue:105
 #: src/views/file/ListTable.vue:75
 #: src/views/file/ListTable.vue:245
 #: src/views/file/ListTable.vue:301
@@ -3625,15 +3623,15 @@ msgstr "壓縮成功"
 msgid "Compress"
 msgstr "壓縮"
 
-#: src/views/file/CompressModal.vue:72
+#: src/views/file/CompressModal.vue:81
 msgid "Files to compress"
 msgstr "要壓縮的檔案"
 
-#: src/views/file/CompressModal.vue:75
+#: src/views/file/CompressModal.vue:84
 msgid "Compress to"
 msgstr "壓縮到"
 
-#: src/views/file/CompressModal.vue:78
+#: src/views/file/CompressModal.vue:87
 msgid "Format"
 msgstr "格式"
 
@@ -4138,78 +4136,115 @@ msgstr "天"
 msgid "Time Selection"
 msgstr "時間選擇"
 
-#: src/views/setting/IndexView.vue:17
-msgid "Basic"
-msgstr "基本"
-
-#: src/views/setting/SettingBase.vue:42
+#: src/views/setting/IndexView.vue:49
 msgid "Panel is restarting, page will refresh in 3 seconds"
 msgstr "面板正在重啟，頁面將在 3 秒後刷新"
 
-#: src/views/setting/SettingBase.vue:55
+#: src/views/setting/IndexView.vue:67
+msgid "Basic"
+msgstr "基本"
+
+#: src/views/setting/IndexView.vue:70
+msgid "Safe"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:20
+msgid "Stable"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:24
+msgid "Beta"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:34
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
 msgstr "修改面板端口/入口需要在瀏覽器地址欄中相應更改以訪問面板！"
 
-#: src/views/setting/SettingBase.vue:61
-#: src/views/setting/SettingBase.vue:62
+#: src/views/setting/SettingBase.vue:40
+#: src/views/setting/SettingBase.vue:41
 msgid "Panel Name"
 msgstr "面板名稱"
 
-#: src/views/setting/SettingBase.vue:64
+#: src/views/setting/SettingBase.vue:43
 msgid "Language"
 msgstr "語言"
 
-#: src/views/setting/SettingBase.vue:68
-#: src/views/setting/SettingBase.vue:71
-#: src/views/setting/SettingBase.vue:80
+#: src/views/setting/SettingBase.vue:46
+msgid "Update Channel"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:50
+#: src/views/setting/SettingBase.vue:53
+#: src/views/setting/SettingSafe.vue:26
 msgid "admin"
 msgstr "admin"
 
-#: src/views/setting/SettingBase.vue:73
+#: src/views/setting/SettingBase.vue:55
 msgid "Certificate Default Email"
 msgstr "證書默認郵箱"
 
-#: src/views/setting/SettingBase.vue:74
+#: src/views/setting/SettingBase.vue:56
 msgid "admin@yourdomain.com"
 msgstr "admin@yourdomain.com"
 
-#: src/views/setting/SettingBase.vue:77
+#: src/views/setting/SettingBase.vue:59
 msgid "8888"
 msgstr "8888"
 
-#: src/views/setting/SettingBase.vue:79
-msgid "Access Entrance"
-msgstr "訪問入口"
-
-#: src/views/setting/SettingBase.vue:82
-msgid "Offline Mode"
-msgstr "離線模式"
-
-#: src/views/setting/SettingBase.vue:85
-msgid "Auto Update"
-msgstr "自動更新"
-
-#: src/views/setting/SettingBase.vue:88
+#: src/views/setting/SettingBase.vue:61
 msgid "Default Website Directory"
 msgstr "預設網站目錄"
 
-#: src/views/setting/SettingBase.vue:89
+#: src/views/setting/SettingBase.vue:62
 msgid "/www/wwwroot"
 msgstr "/www/wwwroot"
 
-#: src/views/setting/SettingBase.vue:91
+#: src/views/setting/SettingBase.vue:64
 msgid "Default Backup Directory"
 msgstr "預設備份目錄"
 
-#: src/views/setting/SettingBase.vue:92
+#: src/views/setting/SettingBase.vue:65
 msgid "/www/backup"
 msgstr "/www/backup"
 
-#: src/views/setting/SettingHttps.vue:36
-msgid "Incorrect certificates may cause the panel to be inaccessible. Please proceed with caution!"
-msgstr "不正確的證書可能導致面板無法訪問。請謹慎操作！"
+#: src/views/setting/SettingSafe.vue:12
+msgid "Login Timeout"
+msgstr ""
 
-#: src/views/setting/SettingHttps.vue:42
+#: src/views/setting/SettingSafe.vue:15
+msgid "120"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:21
+#: src/views/website/ProxyBuilderModal.vue:188
+msgid "minutes"
+msgstr "分鐘"
+
+#: src/views/setting/SettingSafe.vue:25
+msgid "Access Entrance"
+msgstr "訪問入口"
+
+#: src/views/setting/SettingSafe.vue:28
+msgid "Bind Domain"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:35
+msgid "Bind IP"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:38
+msgid "Bind UA"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:45
+msgid "Offline Mode"
+msgstr "離線模式"
+
+#: src/views/setting/SettingSafe.vue:48
+msgid "Auto Update"
+msgstr "自動更新"
+
+#: src/views/setting/SettingSafe.vue:51
 msgid "Panel HTTPS"
 msgstr "面板 HTTPS"
 
@@ -4726,10 +4761,6 @@ msgstr "快取時間"
 #: src/views/website/ProxyBuilderModal.vue:186
 msgid "Cache time (minutes)"
 msgstr "快取時間（分鐘）"
-
-#: src/views/website/ProxyBuilderModal.vue:188
-msgid "minutes"
-msgstr "分鐘"
 
 #: src/views/website/ProxyBuilderModal.vue:191
 msgid "Content Replacement"
