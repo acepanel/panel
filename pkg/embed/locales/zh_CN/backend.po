@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-14 19:22\n"
+"PO-Revision-Date: 2025-05-14 19:25\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -1707,7 +1707,7 @@ msgstr "无效的访问入口"
 
 #: internal/data/user_token.go:101
 msgid "invalid algorithm, must be HMAC-SHA256"
-msgstr ""
+msgstr "无效的算法，必须是 HMAC-SHA256"
 
 #: internal/data/user_token.go:124
 msgid "invalid api signature"
@@ -1715,7 +1715,7 @@ msgstr "无效的 API 签名"
 
 #: internal/data/user_token.go:98
 msgid "invalid header: %v"
-msgstr ""
+msgstr "无效的请求头： %v"
 
 #: internal/service/user.go:82
 msgid "invalid key, please refresh the page"
