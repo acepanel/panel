@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-13 20:54\n"
+"PO-Revision-Date: 2025-05-14 13:27\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -1242,7 +1242,7 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
 
-#: internal/http/middleware/must_login.go:94
+#: internal/http/middleware/must_login.go:95
 msgid "api signature expired"
 msgstr ""
 
@@ -1275,8 +1275,8 @@ msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:312
-#: internal/data/setting.go:373
+#: internal/data/setting.go:282
+#: internal/data/setting.go:343
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
@@ -1307,7 +1307,7 @@ msgstr "找不到 %s 數據庫服務器，請先添加"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/http/middleware/must_login.go:122
+#: internal/http/middleware/must_login.go:123
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1568,12 +1568,12 @@ msgid "failed to load MySQL root password: %v"
 msgstr "無法載入 MySQL root 密碼：%v"
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:317
+#: internal/data/setting.go:287
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:320
+#: internal/data/setting.go:290
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -1685,9 +1685,9 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/data/user.go:149
-#: internal/data/user.go:167
-#: internal/service/user.go:93
+#: internal/data/user.go:159
+#: internal/data/user.go:177
+#: internal/service/user.go:96
 msgid "invalid 2fa code"
 msgstr ""
 
@@ -1695,11 +1695,11 @@ msgstr ""
 msgid "invalid access entrance"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:84
+#: internal/http/middleware/must_login.go:85
 msgid "invalid api signature"
 msgstr ""
 
-#: internal/service/user.go:79
+#: internal/service/user.go:82
 msgid "invalid key, please refresh the page"
 msgstr "無效的密鑰，請重新整理頁面"
 
@@ -1715,7 +1715,7 @@ msgstr ""
 msgid "invalid request user agent: %s"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:136
+#: internal/http/middleware/must_login.go:137
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -1801,7 +1801,7 @@ msgstr "未找到 phpMyAdmin 目錄"
 msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
-#: internal/data/user.go:81
+#: internal/data/user.go:91
 #: internal/service/file.go:135
 #: internal/service/file.go:222
 #: internal/service/file.go:251
@@ -1812,7 +1812,7 @@ msgstr "請不要這樣做"
 msgid "please retry the manual obtain operation"
 msgstr "請重新操作手動簽發"
 
-#: internal/data/setting.go:341
+#: internal/data/setting.go:311
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
@@ -1845,7 +1845,7 @@ msgstr "未找到運行目錄註釋"
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
-#: internal/http/middleware/must_login.go:107
+#: internal/http/middleware/must_login.go:108
 msgid "session expired, please login again"
 msgstr ""
 
@@ -1935,9 +1935,9 @@ msgstr "上傳的憑證無法設定為自動續簽"
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
-#: internal/data/user.go:103
+#: internal/data/user.go:106
 #: internal/data/user.go:113
-#: internal/data/user.go:96
+#: internal/data/user.go:123
 msgid "username or password error"
 msgstr "使用者名稱或密碼錯誤"
 
