@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-14 19:20\n"
+"PO-Revision-Date: 2025-05-14 19:22\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -1701,21 +1701,21 @@ msgstr "獲取服務端口失敗，請檢查是否安裝"
 msgid "invalid 2FA code"
 msgstr "無效的兩步驗證代碼"
 
-#: internal/data/user_token.go:101
-msgid "invalid Authorization algorithm, must be HMAC-SHA256"
-msgstr ""
-
-#: internal/data/user_token.go:98
-msgid "invalid Authorization header: %v"
-msgstr ""
-
 #: internal/http/middleware/entrance.go:101
 msgid "invalid access entrance"
 msgstr "無效的訪問入口"
 
+#: internal/data/user_token.go:101
+msgid "invalid algorithm, must be HMAC-SHA256"
+msgstr ""
+
 #: internal/data/user_token.go:124
 msgid "invalid api signature"
 msgstr "無效的 API 簽名"
+
+#: internal/data/user_token.go:98
+msgid "invalid header: %v"
+msgstr ""
 
 #: internal/service/user.go:82
 msgid "invalid key, please refresh the page"
