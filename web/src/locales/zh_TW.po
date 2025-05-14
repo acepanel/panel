@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-14 13:27\n"
+"PO-Revision-Date: 2025-05-14 18:20\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -74,7 +74,7 @@ msgstr "當前狀態無法保存"
 #: src/views/apps/toolbox/IndexView.vue:66
 #: src/views/apps/toolbox/IndexView.vue:72
 #: src/views/apps/toolbox/IndexView.vue:81
-#: src/views/setting/IndexView.vue:42
+#: src/views/setting/IndexView.vue:44
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr "儲存成功"
@@ -160,6 +160,8 @@ msgstr "無效的名稱"
 #: src/views/file/ToolBar.vue:45
 #: src/views/firewall/CreateForwardModal.vue:41
 #: src/views/firewall/CreateModal.vue:84
+#: src/views/setting/CreateModal.vue:19
+#: src/views/setting/TokenModal.vue:127
 #: src/views/ssh/CreateModal.vue:38
 #: src/views/task/CreateModal.vue:51
 msgid "Created successfully"
@@ -177,6 +179,7 @@ msgstr "文件夾"
 
 #: src/components/common/PathSelector.vue:260
 #: src/components/common/PathSelector.vue:323
+#: src/views/setting/TokenModal.vue:268
 #: src/views/website/BulkCreate.vue:127
 #: src/views/website/IndexView.vue:533
 msgid "Create"
@@ -223,6 +226,7 @@ msgstr "根目錄"
 #: src/views/firewall/CreateForwardModal.vue:88
 #: src/views/firewall/CreateIpModal.vue:122
 #: src/views/firewall/CreateModal.vue:147
+#: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
 #: src/views/setting/TwoFaModal.vue:80
 #: src/views/ssh/CreateModal.vue:99
@@ -274,7 +278,7 @@ msgstr "設置主題顏色"
 #: src/views/apps/pureftpd/IndexView.vue:74
 #: src/views/apps/pureftpd/IndexView.vue:339
 #: src/views/setting/PasswordModal.vue:26
-#: src/views/setting/SettingUser.vue:91
+#: src/views/setting/SettingUser.vue:109
 msgid "Change Password"
 msgstr "更改密碼"
 
@@ -399,6 +403,7 @@ msgstr "儀表板"
 #: src/locales/menu.ts:12
 #: src/views/app/IndexView.vue:96
 #: src/views/dashboard/IndexView.vue:451
+#: src/views/setting/TokenModal.vue:301
 msgid "Update"
 msgstr "更新"
 
@@ -535,7 +540,8 @@ msgstr "在主頁顯示"
 #: src/views/firewall/ForwardView.vue:80
 #: src/views/firewall/IpRuleView.vue:122
 #: src/views/firewall/RuleView.vue:159
-#: src/views/setting/SettingUser.vue:74
+#: src/views/setting/SettingUser.vue:76
+#: src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:102
 #: src/views/task/SystemView.vue:96
 #: src/views/task/TaskView.vue:55
@@ -926,7 +932,7 @@ msgstr "自啟動已成功禁用"
 #: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
-#: src/views/setting/IndexView.vue:61
+#: src/views/setting/IndexView.vue:65
 #: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr "儲存"
@@ -1191,7 +1197,8 @@ msgstr "您確定要刪除規則 %{ name } 嗎？"
 #: src/views/firewall/ForwardView.vue:104
 #: src/views/firewall/IpRuleView.vue:146
 #: src/views/firewall/RuleView.vue:183
-#: src/views/setting/SettingUser.vue:114
+#: src/views/setting/SettingUser.vue:132
+#: src/views/setting/TokenModal.vue:92
 #: src/views/ssh/IndexView.vue:93
 #: src/views/task/CronView.vue:155
 #: src/views/task/TaskView.vue:98
@@ -1242,7 +1249,8 @@ msgstr "添加成功"
 #: src/views/firewall/IpRuleView.vue:191
 #: src/views/firewall/RuleView.vue:210
 #: src/views/firewall/RuleView.vue:228
-#: src/views/setting/SettingUser.vue:144
+#: src/views/setting/SettingUser.vue:162
+#: src/views/setting/TokenModal.vue:116
 #: src/views/task/CronView.vue:198
 #: src/views/task/TaskView.vue:124
 #: src/views/website/IndexView.vue:269
@@ -1436,7 +1444,7 @@ msgstr "清除成功"
 #: src/views/database/UpdateUserModal.vue:18
 #: src/views/database/UserList.vue:222
 #: src/views/file/PermissionModal.vue:29
-#: src/views/setting/SettingUser.vue:138
+#: src/views/setting/SettingUser.vue:156
 #: src/views/task/CronView.vue:180
 #: src/views/task/CronView.vue:207
 #: src/views/website/IndexView.vue:252
@@ -1627,7 +1635,8 @@ msgstr "這將修改 PostgreSQL 用戶配置文件。如果您不了解每個參
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
 #: src/views/login/IndexView.vue:133
-#: src/views/setting/SettingUser.vue:17
+#: src/views/setting/CreateModal.vue:40
+#: src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
 msgid "Username"
@@ -1670,7 +1679,8 @@ msgstr "運行日誌"
 #: src/views/database/CreateDatabaseModal.vue:78
 #: src/views/database/CreateUserModal.vue:54
 #: src/views/database/IndexView.vue:36
-#: src/views/setting/IndexView.vue:65
+#: src/views/setting/CreateModal.vue:32
+#: src/views/setting/IndexView.vue:69
 msgid "Create User"
 msgstr "建立使用者"
 
@@ -1694,6 +1704,7 @@ msgstr "輸入使用者名稱"
 #: src/views/database/UpdateUserModal.vue:49
 #: src/views/database/UserList.vue:50
 #: src/views/login/IndexView.vue:142
+#: src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/CreateModal.vue:86
@@ -1738,7 +1749,7 @@ msgstr "運行正常"
 #: src/views/apps/rsync/IndexView.vue:381
 #: src/views/apps/rsync/IndexView.vue:435
 #: src/views/database/IndexView.vue:48
-#: src/views/setting/IndexView.vue:75
+#: src/views/setting/IndexView.vue:79
 #: src/views/task/SystemView.vue:37
 msgid "User"
 msgstr "用戶"
@@ -2105,7 +2116,8 @@ msgstr "對於大文件，建議使用 SFTP 或其他方法上傳"
 #: src/views/cert/AccountView.vue:44
 #: src/views/cert/AccountView.vue:243
 #: src/views/cert/CreateAccountModal.vue:100
-#: src/views/setting/SettingUser.vue:24
+#: src/views/setting/CreateModal.vue:56
+#: src/views/setting/SettingUser.vue:26
 msgid "Email"
 msgstr "電子郵件"
 
@@ -2228,6 +2240,9 @@ msgid "Issuer"
 msgstr "頒發者"
 
 #: src/views/cert/CertView.vue:139
+#: src/views/setting/TokenModal.vue:43
+#: src/views/setting/TokenModal.vue:258
+#: src/views/setting/TokenModal.vue:291
 msgid "Expiration Time"
 msgstr "過期時間"
 
@@ -2578,7 +2593,8 @@ msgstr "簽發模式"
 #: src/views/container/ImageView.vue:60
 #: src/views/container/NetworkView.vue:100
 #: src/views/container/VolumeView.vue:54
-#: src/views/setting/SettingUser.vue:65
+#: src/views/setting/SettingUser.vue:67
+#: src/views/setting/TokenModal.vue:34
 #: src/views/task/CronView.vue:83
 #: src/views/task/TaskView.vue:37
 msgid "Creation Time"
@@ -3557,6 +3573,7 @@ msgstr "您確定要刪除這個數據庫嗎？"
 #: src/views/file/SearchModal.vue:65
 #: src/views/file/ToolBar.vue:145
 #: src/views/file/ToolBar.vue:165
+#: src/views/setting/TokenModal.vue:165
 msgid "Copied successfully"
 msgstr "複製成功"
 
@@ -4152,27 +4169,37 @@ msgstr "天"
 msgid "Time Selection"
 msgstr "時間選擇"
 
-#: src/views/setting/IndexView.vue:45
+#: src/views/setting/CreateModal.vue:44
+msgid "Enter user name"
+msgstr ""
+
+#: src/views/setting/CreateModal.vue:53
+#: src/views/setting/PasswordModal.vue:40
+msgid "Enter user password"
+msgstr ""
+
+#: src/views/setting/CreateModal.vue:60
+msgid "Enter user email"
+msgstr ""
+
+#: src/views/setting/IndexView.vue:47
 msgid "Panel is restarting, page will refresh in 3 seconds"
 msgstr "面板正在重啟，頁面將在 3 秒後刷新"
 
-#: src/views/setting/IndexView.vue:69
+#: src/views/setting/IndexView.vue:73
 msgid "Basic"
 msgstr "基本"
 
-#: src/views/setting/IndexView.vue:72
+#: src/views/setting/IndexView.vue:76
 msgid "Safe"
 msgstr ""
 
 #: src/views/setting/PasswordModal.vue:16
+#: src/views/setting/TokenModal.vue:183
 #: src/views/setting/TwoFaModal.vue:24
 #: src/views/ssh/UpdateModal.vue:30
 msgid "Updated successfully"
 msgstr "更新成功"
-
-#: src/views/setting/PasswordModal.vue:40
-msgid "Enter user password"
-msgstr ""
 
 #: src/views/setting/SettingBase.vue:20
 msgid "Stable"
@@ -4264,16 +4291,69 @@ msgstr "自動更新"
 msgid "Panel HTTPS"
 msgstr "面板 HTTPS"
 
-#: src/views/setting/SettingUser.vue:41
+#: src/views/setting/SettingUser.vue:43
 msgid "2FA"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:56
+#: src/views/setting/SettingUser.vue:58
 msgid "Disabled successfully"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:103
+#: src/views/setting/SettingUser.vue:93
+#: src/views/setting/TokenModal.vue:204
+msgid "Access Token"
+msgstr ""
+
+#: src/views/setting/SettingUser.vue:121
 msgid "Are you sure you want to delete this user?"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:27
+msgid "ID"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:69
+msgid "Change"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:81
+msgid "Are you sure you want to delete this access token?"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:144
+msgid "Token is only displayed once, please save it before closing the dialog"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:161
+msgid "Copy and close"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:168
+msgid "Copy failed"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:214
+#: src/views/setting/TokenModal.vue:242
+msgid "Create Access Token"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:251
+#: src/views/setting/TokenModal.vue:284
+msgid "IP White List"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:254
+#: src/views/setting/TokenModal.vue:287
+msgid "127.0.0.1"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:262
+#: src/views/setting/TokenModal.vue:295
+msgid "Please select the expiration time"
+msgstr ""
+
+#: src/views/setting/TokenModal.vue:275
+msgid "Update Access Token"
 msgstr ""
 
 #: src/views/setting/TwoFaModal.vue:46
