@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-14 18:55\n"
+"PO-Revision-Date: 2025-05-14 19:20\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -1242,7 +1242,7 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
 
-#: internal/http/middleware/must_login.go:95
+#: internal/data/user_token.go:129
 msgid "api signature expired"
 msgstr "API 簽名已過期"
 
@@ -1307,7 +1307,7 @@ msgstr "找不到 %s 數據庫服務器，請先添加"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/http/middleware/must_login.go:123
+#: internal/http/middleware/must_login.go:83
 msgid "client ip/ua changed, please login again"
 msgstr "客戶端 IP/UA 已更改，請重新登入"
 
@@ -1695,17 +1695,25 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/data/user.go:160
-#: internal/data/user.go:178
+#: internal/data/user.go:169
+#: internal/data/user.go:187
 #: internal/service/user.go:96
 msgid "invalid 2FA code"
 msgstr "無效的兩步驗證代碼"
+
+#: internal/data/user_token.go:101
+msgid "invalid Authorization algorithm, must be HMAC-SHA256"
+msgstr ""
+
+#: internal/data/user_token.go:98
+msgid "invalid Authorization header: %v"
+msgstr ""
 
 #: internal/http/middleware/entrance.go:101
 msgid "invalid access entrance"
 msgstr "無效的訪問入口"
 
-#: internal/http/middleware/must_login.go:85
+#: internal/data/user_token.go:124
 msgid "invalid api signature"
 msgstr "無效的 API 簽名"
 
@@ -1717,6 +1725,7 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid request domain: %s"
 msgstr "無效的請求域名：%s"
 
+#: internal/data/user_token.go:139
 #: internal/http/middleware/entrance.go:63
 msgid "invalid request ip: %s"
 msgstr "無效的請求 IP：%s"
@@ -1725,7 +1734,7 @@ msgstr "無效的請求 IP：%s"
 msgid "invalid request user agent: %s"
 msgstr "無效的請求UA：%s"
 
-#: internal/http/middleware/must_login.go:137
+#: internal/http/middleware/must_login.go:97
 msgid "invalid user id, please login again"
 msgstr "無效的用戶ID，請重新登錄"
 
@@ -1811,7 +1820,7 @@ msgstr "未找到 phpMyAdmin 目錄"
 msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
-#: internal/data/user.go:92
+#: internal/data/user.go:96
 #: internal/service/file.go:135
 #: internal/service/file.go:222
 #: internal/service/file.go:251
@@ -1855,7 +1864,7 @@ msgstr "未找到運行目錄註釋"
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
-#: internal/http/middleware/must_login.go:108
+#: internal/http/middleware/must_login.go:68
 msgid "session expired, please login again"
 msgstr "會話已過期，請重新登錄"
 
@@ -1945,9 +1954,9 @@ msgstr "上傳的憑證無法設定為自動續簽"
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
-#: internal/data/user.go:107
-#: internal/data/user.go:114
-#: internal/data/user.go:124
+#: internal/data/user.go:116
+#: internal/data/user.go:123
+#: internal/data/user.go:133
 msgid "username or password error"
 msgstr "使用者名稱或密碼錯誤"
 
