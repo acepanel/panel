@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-14 18:19\n"
+"PO-Revision-Date: 2025-05-14 18:33\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -4077,7 +4077,7 @@ msgstr "登录成功！"
 
 #: src/views/login/IndexView.vue:153
 msgid "2FA Code"
-msgstr ""
+msgstr "两步验证代码"
 
 #: src/views/login/IndexView.vue:161
 msgid "Safe Login"
@@ -4171,16 +4171,16 @@ msgstr "时间选择"
 
 #: src/views/setting/CreateModal.vue:44
 msgid "Enter user name"
-msgstr ""
+msgstr "输入用户名"
 
 #: src/views/setting/CreateModal.vue:53
 #: src/views/setting/PasswordModal.vue:40
 msgid "Enter user password"
-msgstr ""
+msgstr "输入用户密码"
 
 #: src/views/setting/CreateModal.vue:60
 msgid "Enter user email"
-msgstr ""
+msgstr "输入用户邮箱"
 
 #: src/views/setting/IndexView.vue:47
 msgid "Panel is restarting, page will refresh in 3 seconds"
@@ -4293,20 +4293,20 @@ msgstr "面板 HTTPS"
 
 #: src/views/setting/SettingUser.vue:43
 msgid "2FA"
-msgstr ""
+msgstr "两步验证"
 
 #: src/views/setting/SettingUser.vue:58
 msgid "Disabled successfully"
-msgstr ""
+msgstr "禁用成功"
 
 #: src/views/setting/SettingUser.vue:93
 #: src/views/setting/TokenModal.vue:204
 msgid "Access Token"
-msgstr ""
+msgstr "访问令牌"
 
 #: src/views/setting/SettingUser.vue:121
 msgid "Are you sure you want to delete this user?"
-msgstr ""
+msgstr "您确定要删除该用户吗？"
 
 #: src/views/setting/TokenModal.vue:27
 msgid "ID"
@@ -4314,71 +4314,71 @@ msgstr "ID"
 
 #: src/views/setting/TokenModal.vue:69
 msgid "Change"
-msgstr ""
+msgstr "修改"
 
 #: src/views/setting/TokenModal.vue:81
 msgid "Are you sure you want to delete this access token?"
-msgstr ""
+msgstr "您确定要删除此访问令牌吗？"
 
 #: src/views/setting/TokenModal.vue:144
 msgid "Token is only displayed once, please save it before closing the dialog"
-msgstr ""
+msgstr "令牌只显示一次，请在关闭对话框前保存。"
 
 #: src/views/setting/TokenModal.vue:161
 msgid "Copy and close"
-msgstr ""
+msgstr "复制并关闭"
 
 #: src/views/setting/TokenModal.vue:168
 msgid "Copy failed"
-msgstr ""
+msgstr "复制失败"
 
 #: src/views/setting/TokenModal.vue:214
 #: src/views/setting/TokenModal.vue:242
 msgid "Create Access Token"
-msgstr ""
+msgstr "创建访问令牌"
 
 #: src/views/setting/TokenModal.vue:251
 #: src/views/setting/TokenModal.vue:284
 msgid "IP White List"
-msgstr ""
+msgstr "IP 白名单"
 
 #: src/views/setting/TokenModal.vue:254
 #: src/views/setting/TokenModal.vue:287
 msgid "127.0.0.1"
-msgstr ""
+msgstr "127.0.0.1"
 
 #: src/views/setting/TokenModal.vue:262
 #: src/views/setting/TokenModal.vue:295
 msgid "Please select the expiration time"
-msgstr ""
+msgstr "请选择到期时间"
 
 #: src/views/setting/TokenModal.vue:275
 msgid "Update Access Token"
-msgstr ""
+msgstr "更新访问令牌"
 
 #: src/views/setting/TwoFaModal.vue:46
 msgid "Enable 2FA"
-msgstr ""
+msgstr "启用两步验证"
 
 #: src/views/setting/TwoFaModal.vue:55
 msgid "QR Code"
-msgstr ""
+msgstr "二维码"
 
 #: src/views/setting/TwoFaModal.vue:58
 msgid "Scan the QR code with your 2FA app and enter the code below"
-msgstr ""
+msgstr "用您的两步验证应用扫描二维码并在下方输入代码"
 
 #: src/views/setting/TwoFaModal.vue:62
 msgid "If you cannot scan the QR code, please enter the URL below in your 2FA app"
-msgstr ""
+msgstr "如果您不能扫描二维码，请在您的两步验证应用中输入下面的 URL"
 
 #: src/views/setting/TwoFaModal.vue:72
 msgid "Code"
-msgstr "Code"
+msgstr "代码"
 
 #: src/views/setting/TwoFaModal.vue:76
 msgid "Enter the code"
-msgstr ""
+msgstr "输入代码"
 
 #: src/views/ssh/CreateModal.vue:50
 #: src/views/ssh/IndexView.vue:231
@@ -4569,7 +4569,7 @@ msgstr "如果无法加载日志，请禁用广告拦截器！"
 
 #: src/views/website/BulkCreate.vue:21
 msgid "The format is incorrect, please check"
-msgstr ""
+msgstr "格式不正确，请检查"
 
 #: src/views/website/BulkCreate.vue:59
 #: src/views/website/IndexView.vue:295
@@ -4579,35 +4579,35 @@ msgstr "网站 %{ name } 创建成功"
 #: src/views/website/BulkCreate.vue:77
 #: src/views/website/IndexView.vue:363
 msgid "Bulk Create Website"
-msgstr ""
+msgstr "批量创建网站"
 
 #: src/views/website/BulkCreate.vue:88
 msgid "Please enter the website name, domain, port, path, and remark in the text area below, one per line."
-msgstr ""
+msgstr "请在下面的文本区域输入网站名称、域名、端口、路径和注释，每行一个。"
 
 #: src/views/website/BulkCreate.vue:96
 msgid "name|domain|port|path|remark"
-msgstr ""
+msgstr "名称|域名|端口|路径|备注"
 
 #: src/views/website/BulkCreate.vue:101
 msgid "Name: The name of the website, which will be displayed in the website list, must be unique."
-msgstr ""
+msgstr "名称：网站的名称，将显示在网站列表中，必须是唯一的。"
 
 #: src/views/website/BulkCreate.vue:108
 msgid "Domain: The domain name of the website, multiple domains can be separated by commas."
-msgstr ""
+msgstr "域名：网站的域名，多个域名可以用英文逗号分隔。"
 
 #: src/views/website/BulkCreate.vue:115
 msgid "Port: The port number of the website, multiple ports can be separated by commas."
-msgstr ""
+msgstr "端口：网站的端口号，多个端口可以用英文逗号分隔。"
 
 #: src/views/website/BulkCreate.vue:121
 msgid "Path: The path of the website, can be empty to use the default path."
-msgstr ""
+msgstr "路径：网站的根目录，可以为空以使用默认路径。"
 
 #: src/views/website/BulkCreate.vue:124
 msgid "Remark: The remark of the website, can be empty."
-msgstr ""
+msgstr "备注：网站的备注，可以为空。"
 
 #: src/views/website/EditView.vue:54
 #: src/views/website/IndexView.vue:209
