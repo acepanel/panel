@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-14 18:19\n"
+"PO-Revision-Date: 2025-05-14 18:33\n"
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
@@ -22,11 +22,11 @@ msgstr "# 伪静态规则"
 
 #: internal/service/cli.go:284
 msgid "2FA disabled for user %s"
-msgstr ""
+msgstr "用户 %s 已禁用两步验证"
 
 #: internal/service/cli.go:292
 msgid "2FA url: %s"
-msgstr ""
+msgstr "两步验证 URL： %s"
 
 #: internal/bootstrap/cli.go:18
 msgid "AUTHOR"
@@ -167,7 +167,7 @@ msgstr "更改面板端口"
 
 #: internal/route/cli.go:80
 msgid "Change user 2FA"
-msgstr ""
+msgstr "更改用户两步验证"
 
 #: internal/route/cli.go:75
 msgid "Change user password"
@@ -334,7 +334,7 @@ msgstr "Exif 是一个用于读取和写入图像元数据的库"
 
 #: internal/service/cli.go:282
 msgid "Failed to change 2FA status: %v"
-msgstr ""
+msgstr "修改两步验证失败：%v"
 
 #: internal/service/cli.go:256
 msgid "Failed to change password: %v"
@@ -358,7 +358,7 @@ msgstr "删除设置失败：%v"
 
 #: internal/service/cli.go:290
 msgid "Failed to generate 2FA: %v"
-msgstr ""
+msgstr "生成两步验证失败：%v"
 
 #: internal/service/cli.go:137
 #: internal/service/cli.go:252
@@ -402,7 +402,7 @@ msgstr "获取用户失败：%v"
 
 #: internal/service/cli.go:297
 msgid "Failed to read input: %v"
-msgstr ""
+msgstr "读取输入失败： %v"
 
 #: internal/service/cli.go:758
 msgid "Failed to save app: %v"
@@ -426,7 +426,7 @@ msgstr "同步重写规则失败：%v"
 
 #: internal/service/cli.go:300
 msgid "Failed to update 2FA: %v"
-msgstr ""
+msgstr "更新两步验证失败： %v"
 
 #: internal/apps/php/app.go:288
 msgid "Fileinfo is a library used to identify file types"
@@ -797,7 +797,7 @@ msgstr "请根据您的网络情况选择合适的地址访问面板"
 
 #: internal/service/cli.go:294
 msgid "Please enter the 2FA code: "
-msgstr ""
+msgstr "请输入两步验证代码： "
 
 #: internal/service/cert.go:88
 msgid "Porkbun"
@@ -1152,7 +1152,7 @@ msgstr "用户名和密码不能为空"
 
 #: internal/service/cli.go:267
 msgid "Username cannot be empty"
-msgstr ""
+msgstr "用户名不能为空"
 
 #: internal/service/cli.go:160
 msgid "Username: %s"
@@ -1361,12 +1361,12 @@ msgstr "端点不应包含 bucket"
 #: internal/service/user_token.go:54
 #: internal/service/user_token.go:89
 msgid "expiration time must be greater than current time"
-msgstr ""
+msgstr "到期时间必须大于当前时间"
 
 #: internal/service/user_token.go:58
 #: internal/service/user_token.go:93
 msgid "expiration time must be less than 10 years"
-msgstr ""
+msgstr "到期时间必须小于 10 年"
 
 #: internal/apps/php/app.go:229
 #: internal/apps/php/app.go:260
@@ -1699,7 +1699,7 @@ msgstr "获取服务端口失败，请检查是否安装"
 #: internal/data/user.go:178
 #: internal/service/user.go:96
 msgid "invalid 2fa code"
-msgstr ""
+msgstr "无效的两步验证代码"
 
 #: internal/http/middleware/entrance.go:101
 msgid "invalid access entrance"
