@@ -1698,8 +1698,8 @@ msgstr "获取服务端口失败，请检查是否安装"
 #: internal/data/user.go:160
 #: internal/data/user.go:178
 #: internal/service/user.go:96
-msgid "invalid 2fa code"
-msgstr "无效的两步验证代码"
+msgid "invalid 2FA code"
+msgstr ""
 
 #: internal/http/middleware/entrance.go:101
 msgid "invalid access entrance"
