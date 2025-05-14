@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-14 18:20\n"
+"PO-Revision-Date: 2025-05-14 18:34\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -1980,6 +1980,7 @@ msgstr "同步成功"
 #: src/views/database/ServerList.vue:184
 #: src/views/database/UserList.vue:169
 #: src/views/file/PermissionModal.vue:123
+#: src/views/setting/TokenModal.vue:69
 msgid "Modify"
 msgstr "修改"
 
@@ -4301,7 +4302,7 @@ msgstr ""
 
 #: src/views/setting/SettingUser.vue:93
 #: src/views/setting/TokenModal.vue:204
-msgid "Access Token"
+msgid "Access Tokens"
 msgstr ""
 
 #: src/views/setting/SettingUser.vue:121
@@ -4312,16 +4313,12 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: src/views/setting/TokenModal.vue:69
-msgid "Change"
-msgstr ""
-
 #: src/views/setting/TokenModal.vue:81
 msgid "Are you sure you want to delete this access token?"
 msgstr ""
 
 #: src/views/setting/TokenModal.vue:144
-msgid "Token is only displayed once, please save it before closing the dialog"
+msgid "Token is only displayed once, please save it before closing the dialog."
 msgstr ""
 
 #: src/views/setting/TokenModal.vue:161
@@ -4353,7 +4350,7 @@ msgid "Please select the expiration time"
 msgstr ""
 
 #: src/views/setting/TokenModal.vue:275
-msgid "Update Access Token"
+msgid "Modify Access Token"
 msgstr ""
 
 #: src/views/setting/TwoFaModal.vue:46
