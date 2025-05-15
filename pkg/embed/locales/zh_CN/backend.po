@@ -13,10 +13,10 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-14 19:25\n"
+"PO-Revision-Date: 2025-05-15 01:43\n"
 
-#: internal/data/website.go:269
-#: internal/data/website.go:635
+#: internal/data/website.go:270
+#: internal/data/website.go:643
 msgid "# Rewrite rule"
 msgstr "# 伪静态规则"
 
@@ -1277,6 +1277,7 @@ msgstr "应用未找到"
 
 #: internal/data/setting.go:282
 #: internal/data/setting.go:343
+#: internal/data/setting.go:356
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
@@ -1298,7 +1299,7 @@ msgstr "备份文件 %s 不存在"
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/data/website.go:369
+#: internal/data/website.go:371
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -1334,11 +1335,11 @@ msgstr "cron 日志目录 %s 不存在"
 msgid "database does not exist: %s"
 msgstr "数据库不存在：%s"
 
-#: internal/data/website.go:717
+#: internal/data/website.go:725
 msgid "default document comment count is incorrect, expected 1, actual %d"
 msgstr "默认文档注释数量不正确，预期为1，实际为 %d"
 
-#: internal/data/website.go:714
+#: internal/data/website.go:722
 msgid "default document comment not found"
 msgstr "未找到默认文档注释"
 
@@ -1354,7 +1355,7 @@ msgstr "磁盘空间不足，当前可用 %s"
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr "重复提交，请等待前一个任务结束"
 
-#: internal/apps/s3fs/app.go:71
+#: internal/apps/s3fs/app.go:62
 msgid "endpoint should not contain bucket"
 msgstr "端点不应包含 bucket"
 
@@ -1373,11 +1374,6 @@ msgstr "到期时间必须小于 10 年"
 msgid "extension %s does not exist"
 msgstr "拓展 %s 不存在"
 
-#: internal/apps/s3fs/app.go:134
-#: internal/apps/s3fs/app.go:139
-msgid "failed to add s3fs mount: %v"
-msgstr "添加 s3fs 挂载失败： %v"
-
 #: internal/data/ssh.go:53
 #: internal/data/ssh.go:77
 msgid "failed to check ssh connection: %v"
@@ -1387,18 +1383,13 @@ msgstr "检查 ssh 连接失败：%v"
 msgid "failed to clean temporary files: %v"
 msgstr "清理临时文件失败：%v"
 
-#: internal/apps/s3fs/app.go:78
+#: internal/apps/s3fs/app.go:69
 msgid "failed to create mount path: %v"
 msgstr "创建挂载路径失败： %v"
 
-#: internal/apps/s3fs/app.go:108
+#: internal/apps/s3fs/app.go:94
 msgid "failed to create passwd file: %v"
 msgstr "创建 passwd 文件失败： %v"
-
-#: internal/apps/s3fs/app.go:206
-#: internal/apps/s3fs/app.go:210
-msgid "failed to delete s3fs mount: %v"
-msgstr "删除 s3fs 挂载失败： %v"
 
 #: internal/service/systemctl.go:77
 msgid "failed to disable %s service: %v"
@@ -1416,7 +1407,7 @@ msgstr "获取 %s 服务启用状态失败：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "获取 %s 服务运行状态失败：%v"
 
-#: internal/data/website.go:305
+#: internal/data/website.go:306
 msgid "failed to get 404 template file: %v"
 msgstr "获取404模板文件失败：%v"
 
@@ -1489,7 +1480,7 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:293
+#: internal/data/website.go:294
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -1525,12 +1516,9 @@ msgstr "获取 redis 信息失败： %v"
 msgid "failed to get redis status: %v"
 msgstr "获取 redis 状态失败： %v"
 
-#: internal/apps/s3fs/app.go:157
-#: internal/apps/s3fs/app.go:161
-#: internal/apps/s3fs/app.go:44
-#: internal/apps/s3fs/app.go:49
-#: internal/apps/s3fs/app.go:90
-#: internal/apps/s3fs/app.go:94
+#: internal/apps/s3fs/app.go:125
+#: internal/apps/s3fs/app.go:40
+#: internal/apps/s3fs/app.go:80
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
@@ -1579,11 +1567,17 @@ msgstr "加载 MySQL root 密码失败： %v"
 
 #: internal/data/cert.go:92
 #: internal/data/setting.go:287
+#: internal/data/setting.go:359
+#: internal/data/website.go:475
+#: internal/data/website.go:764
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
 #: internal/data/cert.go:95
 #: internal/data/setting.go:290
+#: internal/data/setting.go:362
+#: internal/data/website.go:478
+#: internal/data/website.go:767
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -1755,19 +1749,19 @@ msgstr "模块 %s 已存在"
 msgid "module %s does not exist"
 msgstr "模块 %s 不存在"
 
-#: internal/apps/s3fs/app.go:122
+#: internal/apps/s3fs/app.go:108
 msgid "mount failed: %v"
 msgstr "挂载失败： %v"
 
-#: internal/apps/s3fs/app.go:173
+#: internal/apps/s3fs/app.go:137
 msgid "mount not found"
 msgstr "找不到挂载"
 
-#: internal/apps/s3fs/app.go:100
+#: internal/apps/s3fs/app.go:86
 msgid "mount path already exists"
 msgstr "挂载路径已存在"
 
-#: internal/apps/s3fs/app.go:83
+#: internal/apps/s3fs/app.go:74
 msgid "mount path is not empty"
 msgstr "挂载路径不为空"
 
@@ -1775,7 +1769,7 @@ msgstr "挂载路径不为空"
 msgid "mysql not support database comment"
 msgstr "mysql 不支持数据库注释"
 
-#: internal/data/website.go:755
+#: internal/data/website.go:795
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -1851,16 +1845,16 @@ msgstr "规则已存在"
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/data/website.go:704
+#: internal/data/website.go:712
 msgid "runtime directory comment count is incorrect, expected 1, actual %d"
 msgstr "运行时目录注释数量不正确，预期为1，实际为%d"
 
-#: internal/data/website.go:701
+#: internal/data/website.go:709
 msgid "runtime directory comment not found"
 msgstr "未找到运行目录注释"
 
-#: internal/data/website.go:447
-#: internal/data/website.go:708
+#: internal/data/website.go:449
+#: internal/data/website.go:716
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -1960,11 +1954,11 @@ msgstr "上传文件错误：%v"
 msgid "username or password error"
 msgstr "用户名或密码错误"
 
-#: internal/data/website.go:552
+#: internal/data/website.go:560
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
-#: internal/data/website.go:454
+#: internal/data/website.go:456
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
