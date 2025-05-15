@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-15 15:20\n"
+"PO-Revision-Date: 2025-05-15 16:50\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -4843,7 +4843,7 @@ msgstr "配置生成成功"
 
 #: src/views/website/ProxyBuilderModal.vue:132
 msgid "After generating the reverse proxy configuration, the original rewrite rules will be overwritten."
-msgstr "生成反向代理配置后，原有的重写规则将被覆盖。"
+msgstr "生成反向代理配置后，原有的伪静态规则将被覆盖。"
 
 #: src/views/website/ProxyBuilderModal.vue:139
 msgid "If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration."
