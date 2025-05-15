@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-14 18:55\n"
+"PO-Revision-Date: 2025-05-15 12:28\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -181,7 +181,7 @@ msgstr "文件夹"
 #: src/components/common/PathSelector.vue:323
 #: src/views/setting/TokenModal.vue:268
 #: src/views/website/BulkCreate.vue:127
-#: src/views/website/IndexView.vue:533
+#: src/views/website/IndexView.vue:539
 msgid "Create"
 msgstr "创建"
 
@@ -228,7 +228,7 @@ msgstr "根目录"
 #: src/views/firewall/CreateModal.vue:147
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
-#: src/views/setting/TwoFaModal.vue:80
+#: src/views/setting/TwoFaModal.vue:87
 #: src/views/ssh/CreateModal.vue:99
 #: src/views/ssh/UpdateModal.vue:105
 #: src/views/task/CreateModal.vue:171
@@ -411,7 +411,7 @@ msgstr "更新"
 #: src/views/backup/ListView.vue:264
 #: src/views/dashboard/IndexView.vue:425
 #: src/views/database/IndexView.vue:45
-#: src/views/website/IndexView.vue:454
+#: src/views/website/IndexView.vue:460
 msgid "Database"
 msgstr "数据库"
 
@@ -1536,10 +1536,6 @@ msgstr "停止 PHP %{ version } 将导致使用 PHP %{ version } 的网站无法
 msgid "Extension Management"
 msgstr "扩展管理"
 
-#: src/views/apps/php/PhpView.vue:328
-msgid "Extension List"
-msgstr "扩展列表"
-
 #: src/views/apps/php/PhpView.vue:340
 #: src/views/apps/postgresql/IndexView.vue:189
 #: src/views/apps/redis/IndexView.vue:151
@@ -1666,10 +1662,6 @@ msgstr "修改 Pure-Ftpd 监听端口"
 msgid "User Management"
 msgstr "用户管理"
 
-#: src/views/apps/pureftpd/IndexView.vue:268
-msgid "User List"
-msgstr "用户列表"
-
 #: src/views/apps/pureftpd/IndexView.vue:291
 msgid "Run Log"
 msgstr "运行日志"
@@ -1724,7 +1716,7 @@ msgstr "建议使用生成器生成随机密码"
 #: src/views/apps/rsync/IndexView.vue:427
 #: src/views/container/ComposeView.vue:38
 #: src/views/website/IndexView.vue:44
-#: src/views/website/IndexView.vue:511
+#: src/views/website/IndexView.vue:517
 msgid "Directory"
 msgstr "目录"
 
@@ -1803,10 +1795,6 @@ msgstr "停止 Rsync 服务后，您将无法使用 Rsync 功能。您确定要�
 msgid "Module Management"
 msgstr "模块管理"
 
-#: src/views/apps/rsync/IndexView.vue:303
-msgid "Module List"
-msgstr "模块列表"
-
 #: src/views/apps/rsync/IndexView.vue:330
 msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 Rsync 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
@@ -1862,10 +1850,6 @@ msgstr "卸载"
 #: src/views/apps/s3fs/IndexView.vue:135
 msgid "Add Mount"
 msgstr "添加挂载"
-
-#: src/views/apps/s3fs/IndexView.vue:108
-msgid "Mount List"
-msgstr "挂载列表"
 
 #: src/views/apps/s3fs/IndexView.vue:144
 msgid "Enter Bucket name (COS format: xxxx-ID)"
@@ -1923,10 +1907,6 @@ msgstr "停止 Supervisor 将导致所有由 Supervisor 管理的进程被终止
 #: src/views/apps/supervisor/IndexView.vue:424
 msgid "Process Management"
 msgstr "进程管理"
-
-#: src/views/apps/supervisor/IndexView.vue:425
-msgid "Process List"
-msgstr "进程列表"
 
 #: src/views/apps/supervisor/IndexView.vue:452
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
@@ -2075,8 +2055,8 @@ msgstr "选择网站"
 #: src/views/database/DatabaseList.vue:35
 #: src/views/task/CreateModal.vue:154
 #: src/views/task/CreateModal.vue:156
-#: src/views/website/IndexView.vue:475
-#: src/views/website/IndexView.vue:480
+#: src/views/website/IndexView.vue:481
+#: src/views/website/IndexView.vue:486
 msgid "Database Name"
 msgstr "数据库名称"
 
@@ -2204,7 +2184,7 @@ msgstr "输入 HMAC"
 #: src/views/cert/CreateCertModal.vue:74
 #: src/views/cert/ObtainModal.vue:57
 #: src/views/website/EditView.vue:232
-#: src/views/website/IndexView.vue:419
+#: src/views/website/IndexView.vue:425
 msgid "Domain"
 msgstr "域名"
 
@@ -3520,7 +3500,7 @@ msgstr "输入数据库服务器主机"
 #: src/views/setting/SettingBase.vue:49
 #: src/views/ssh/CreateModal.vue:68
 #: src/views/ssh/UpdateModal.vue:74
-#: src/views/website/IndexView.vue:430
+#: src/views/website/IndexView.vue:436
 msgid "Port"
 msgstr "端口"
 
@@ -4003,7 +3983,7 @@ msgstr "请选择要删除的规则"
 #: src/views/firewall/ForwardView.vue:172
 #: src/views/firewall/IpRuleView.vue:214
 #: src/views/firewall/RuleView.vue:251
-#: src/views/website/IndexView.vue:354
+#: src/views/website/IndexView.vue:357
 msgid "Batch Delete"
 msgstr "批量删除"
 
@@ -4204,11 +4184,11 @@ msgstr "更新成功"
 
 #: src/views/setting/SettingBase.vue:20
 msgid "Stable"
-msgstr "稳定"
+msgstr "稳定版"
 
 #: src/views/setting/SettingBase.vue:24
 msgid "Beta"
-msgstr "测试"
+msgstr "测试版"
 
 #: src/views/setting/SettingBase.vue:34
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
@@ -4357,23 +4337,23 @@ msgstr "修改访问令牌"
 msgid "Enable 2FA"
 msgstr "启用两步验证"
 
-#: src/views/setting/TwoFaModal.vue:55
+#: src/views/setting/TwoFaModal.vue:57
 msgid "QR Code"
 msgstr "二维码"
 
-#: src/views/setting/TwoFaModal.vue:58
+#: src/views/setting/TwoFaModal.vue:62
 msgid "Scan the QR code with your 2FA app and enter the code below"
 msgstr "用您的两步验证应用扫描二维码并在下方输入代码"
 
-#: src/views/setting/TwoFaModal.vue:62
+#: src/views/setting/TwoFaModal.vue:66
 msgid "If you cannot scan the QR code, please enter the URL below in your 2FA app"
 msgstr "如果您不能扫描二维码，请在您的两步验证应用中输入下面的 URL"
 
-#: src/views/setting/TwoFaModal.vue:72
+#: src/views/setting/TwoFaModal.vue:79
 msgid "Code"
 msgstr "代码"
 
-#: src/views/setting/TwoFaModal.vue:76
+#: src/views/setting/TwoFaModal.vue:83
 msgid "Enter the code"
 msgstr "输入代码"
 
@@ -4574,7 +4554,7 @@ msgid "Website %{ name } created successfully"
 msgstr "网站 %{ name } 创建成功"
 
 #: src/views/website/BulkCreate.vue:77
-#: src/views/website/IndexView.vue:363
+#: src/views/website/IndexView.vue:368
 msgid "Bulk Create Website"
 msgstr "批量创建网站"
 
@@ -4689,12 +4669,12 @@ msgid "Default Document"
 msgstr "默认文档"
 
 #: src/views/website/EditView.vue:277
-#: src/views/website/IndexView.vue:442
+#: src/views/website/IndexView.vue:448
 msgid "PHP Version"
 msgstr "PHP 版本"
 
 #: src/views/website/EditView.vue:282
-#: src/views/website/IndexView.vue:446
+#: src/views/website/IndexView.vue:452
 msgid "Select PHP Version"
 msgstr "选择 PHP 版本"
 
@@ -4761,13 +4741,13 @@ msgid "Error Log"
 msgstr "错误日志"
 
 #: src/views/website/IndexView.vue:24
-#: src/views/website/IndexView.vue:405
+#: src/views/website/IndexView.vue:411
 msgid "Website Name"
 msgstr "网站名称"
 
 #: src/views/website/IndexView.vue:77
-#: src/views/website/IndexView.vue:523
-#: src/views/website/IndexView.vue:528
+#: src/views/website/IndexView.vue:529
+#: src/views/website/IndexView.vue:534
 msgid "Remark"
 msgstr "备注"
 
@@ -4787,49 +4767,49 @@ msgstr "删除同名的本地数据库"
 msgid "Please select the websites to delete"
 msgstr "请选择要删除的网站"
 
-#: src/views/website/IndexView.vue:350
-#: src/views/website/IndexView.vue:539
+#: src/views/website/IndexView.vue:351
+#: src/views/website/IndexView.vue:545
 msgid "Modify Default Page"
 msgstr "修改默认页面"
 
-#: src/views/website/IndexView.vue:357
+#: src/views/website/IndexView.vue:361
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
 msgstr "这将删除网站目录，但不会删除同名的数据库。您确定要删除所选网站吗？"
 
-#: src/views/website/IndexView.vue:366
-#: src/views/website/IndexView.vue:396
+#: src/views/website/IndexView.vue:372
+#: src/views/website/IndexView.vue:402
 msgid "Create Website"
 msgstr "创建网站"
 
-#: src/views/website/IndexView.vue:411
+#: src/views/website/IndexView.vue:417
 msgid "Recommended to use English for the website name, it cannot be modified after setting"
 msgstr "建议使用英文作为网站名称，设置后无法修改"
 
-#: src/views/website/IndexView.vue:458
+#: src/views/website/IndexView.vue:464
 msgid "Select Database"
 msgstr "选择数据库"
 
-#: src/views/website/IndexView.vue:486
-#: src/views/website/IndexView.vue:491
+#: src/views/website/IndexView.vue:492
+#: src/views/website/IndexView.vue:497
 msgid "Database User"
 msgstr "数据库用户"
 
-#: src/views/website/IndexView.vue:500
 #: src/views/website/IndexView.vue:506
+#: src/views/website/IndexView.vue:512
 msgid "Database Password"
 msgstr "数据库密码"
 
-#: src/views/website/IndexView.vue:517
+#: src/views/website/IndexView.vue:523
 msgid "Website root directory (if left empty, defaults to website directory/website name)"
 msgstr "网站根目录（如果留空，默认为网站目录/网站名称）"
 
-#: src/views/website/IndexView.vue:547
-#: src/views/website/IndexView.vue:547
+#: src/views/website/IndexView.vue:553
+#: src/views/website/IndexView.vue:553
 msgid "Default Page"
 msgstr "默认页面"
 
-#: src/views/website/IndexView.vue:561
-#: src/views/website/IndexView.vue:561
+#: src/views/website/IndexView.vue:567
+#: src/views/website/IndexView.vue:567
 msgid "Stop Page"
 msgstr "停止页面"
 
