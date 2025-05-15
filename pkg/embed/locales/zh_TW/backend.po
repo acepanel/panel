@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-15 12:28\n"
+"PO-Revision-Date: 2025-05-15 12:37\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -132,15 +132,15 @@ msgstr "備份網站"
 
 #: internal/service/cli.go:485
 msgid "Bind IP disabled"
-msgstr ""
+msgstr "繫結 IP 已禁用"
 
 #: internal/service/cli.go:510
 msgid "Bind UA disabled"
-msgstr ""
+msgstr "繫結 UA 已禁用"
 
 #: internal/service/cli.go:460
 msgid "Bind domain disabled"
-msgstr ""
+msgstr "繫結網域已禁用"
 
 #: internal/apps/mysql/app.go:120
 #: internal/apps/mysql/app.go:139
@@ -288,11 +288,11 @@ msgstr "禁用 HTTPS"
 
 #: internal/route/cli.go:139
 msgid "Disable IP binding"
-msgstr ""
+msgstr "禁用繫結 IP"
 
 #: internal/route/cli.go:150
 msgid "Disable UA binding"
-msgstr ""
+msgstr "禁用繫結 UA"
 
 #: internal/route/cli.go:117
 msgid "Disable access entrance"
@@ -300,7 +300,7 @@ msgstr "禁用訪問入口"
 
 #: internal/route/cli.go:128
 msgid "Disable domain binding"
-msgstr ""
+msgstr "禁用繫結網域"
 
 #: internal/service/cli.go:107
 msgid "Download URL is empty"
@@ -750,11 +750,11 @@ msgstr "操作面板 HTTPS"
 
 #: internal/route/cli.go:135
 msgid "Operate panel IP binding"
-msgstr ""
+msgstr "操作面板繫結 IP"
 
 #: internal/route/cli.go:146
 msgid "Operate panel UA binding"
-msgstr ""
+msgstr "操作面板繫結 UA"
 
 #: internal/route/cli.go:108
 msgid "Operate panel access entrance"
@@ -762,7 +762,7 @@ msgstr "操作面板訪問入口"
 
 #: internal/route/cli.go:124
 msgid "Operate panel domain binding"
-msgstr ""
+msgstr "操作面板繫結網域"
 
 #: internal/route/cli.go:61
 msgid "Operate panel users"
@@ -1703,7 +1703,7 @@ msgstr "停止 %s 服務失敗：%v"
 
 #: internal/apps/s3fs/app.go:145
 msgid "failed to unmount: %v"
-msgstr ""
+msgstr "卸載失敗：%v"
 
 #: internal/apps/toolbox/app.go:80
 msgid "failed to update DNS: %v"
@@ -1760,7 +1760,7 @@ msgstr "無效的請求UA：%s"
 #: internal/data/user_token.go:110
 #: internal/data/user_token.go:133
 msgid "invalid signature"
-msgstr ""
+msgstr "無效的簽名"
 
 #: internal/http/middleware/must_login.go:97
 msgid "invalid user id, please login again"
@@ -1898,7 +1898,7 @@ msgstr "會話已過期，請重新登錄"
 
 #: internal/data/user_token.go:138
 msgid "signature expired"
-msgstr ""
+msgstr "簽名已過期"
 
 #: internal/apps/php/app.go:333
 msgid "sqlsrv is a driver for connecting to SQL Server"
@@ -1944,7 +1944,7 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 
 #: internal/data/user_token.go:113
 msgid "token expired"
-msgstr ""
+msgstr "令牌已過期"
 
 #: internal/service/dashboard.go:228
 #: internal/service/dashboard.go:264
