@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-15 12:28\n"
+"PO-Revision-Date: 2025-05-15 15:20\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -353,7 +353,7 @@ msgstr "关闭"
 #: src/views/apps/php/PhpView.vue:320
 #: src/views/apps/postgresql/IndexView.vue:182
 msgid "Reload"
-msgstr "重新加载"
+msgstr "重载"
 
 #: src/layout/tab/components/ContextMenu.vue:40
 msgid "Pin"
@@ -1219,7 +1219,7 @@ msgstr "解封"
 #: src/views/apps/php/PhpView.vue:216
 #: src/views/apps/postgresql/IndexView.vue:108
 msgid "Reloaded successfully"
-msgstr "重新加载成功"
+msgstr "重载成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:244
 #: src/views/apps/pureftpd/IndexView.vue:176
