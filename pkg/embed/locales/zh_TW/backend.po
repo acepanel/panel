@@ -13,18 +13,18 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-15 01:43\n"
+"PO-Revision-Date: 2025-05-15 12:28\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
 msgid "# Rewrite rule"
 msgstr "# 重寫規則"
 
-#: internal/service/cli.go:284
+#: internal/service/cli.go:285
 msgid "2FA disabled for user %s"
 msgstr "用戶 %s 已禁用兩步驗證"
 
-#: internal/service/cli.go:292
+#: internal/service/cli.go:293
 msgid "2FA url: %s"
 msgstr "兩步驗證 URL： %s"
 
@@ -48,11 +48,11 @@ msgstr "活動進程"
 msgid "Active connections"
 msgstr "活動連接"
 
-#: internal/route/cli.go:204
+#: internal/route/cli.go:237
 msgid "Add database server"
 msgstr "添加數據庫伺服器"
 
-#: internal/route/cli.go:422
+#: internal/route/cli.go:455
 msgid "Add panel application mark (use only under guidance)"
 msgstr "添加面板應用標記（僅在指導下使用）"
 
@@ -60,7 +60,7 @@ msgstr "添加面板應用標記（僅在指導下使用）"
 msgid "Aliyun"
 msgstr "阿里雲"
 
-#: internal/service/cli.go:859
+#: internal/service/cli.go:935
 msgid "Already initialized"
 msgstr "已經初始化過了"
 
@@ -68,27 +68,27 @@ msgstr "已經初始化過了"
 msgid "App %s %s"
 msgstr "應用 %s %s"
 
-#: internal/service/cli.go:708
+#: internal/service/cli.go:784
 msgid "App %s installed successfully"
 msgstr "應用程式 %s 安裝成功"
 
-#: internal/service/cli.go:722
+#: internal/service/cli.go:798
 msgid "App %s uninstalled successfully"
 msgstr "應用程式 %s 解除安裝成功"
 
-#: internal/service/cli.go:736
+#: internal/service/cli.go:812
 msgid "App %s updated successfully"
 msgstr "應用程式 %s 更新成功"
 
-#: internal/service/cli.go:705
+#: internal/service/cli.go:781
 msgid "App install failed: %v"
 msgstr "應用程式安裝失敗：%v"
 
-#: internal/service/cli.go:719
+#: internal/service/cli.go:795
 msgid "App uninstall failed: %v"
 msgstr "應用程式解除安裝失敗：%v"
 
-#: internal/service/cli.go:733
+#: internal/service/cli.go:809
 msgid "App update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
@@ -96,39 +96,51 @@ msgstr "應用程式更新失敗：%v"
 msgid "Application Pool"
 msgstr "應用程序池"
 
-#: internal/route/cli.go:403
+#: internal/route/cli.go:436
 msgid "Application management"
 msgstr "應用管理"
 
-#: internal/route/cli.go:280
+#: internal/route/cli.go:313
 msgid "Backup database"
 msgstr "備份數據庫"
 
-#: internal/route/cli.go:340
+#: internal/route/cli.go:373
 msgid "Backup directory (default path if not filled)"
 msgstr "備份目錄（不填則使用默認路徑）"
 
-#: internal/service/cli.go:587
-#: internal/service/cli.go:603
-#: internal/service/cli.go:617
+#: internal/service/cli.go:663
+#: internal/service/cli.go:679
+#: internal/service/cli.go:693
 msgid "Backup failed: %v"
 msgstr "備份失敗：%v"
 
-#: internal/route/cli.go:328
+#: internal/route/cli.go:361
 msgid "Backup file"
 msgstr "備份文件"
 
-#: internal/route/cli.go:304
+#: internal/route/cli.go:337
 msgid "Backup panel"
 msgstr "備份面板"
 
-#: internal/route/cli.go:322
+#: internal/route/cli.go:355
 msgid "Backup type"
 msgstr "備份類型"
 
-#: internal/route/cli.go:262
+#: internal/route/cli.go:295
 msgid "Backup website"
 msgstr "備份網站"
+
+#: internal/service/cli.go:485
+msgid "Bind IP disabled"
+msgstr ""
+
+#: internal/service/cli.go:510
+msgid "Bind UA disabled"
+msgstr ""
+
+#: internal/service/cli.go:460
+msgid "Bind domain disabled"
+msgstr ""
 
 #: internal/apps/mysql/app.go:120
 #: internal/apps/mysql/app.go:139
@@ -161,7 +173,7 @@ msgstr "版權"
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一個用於處理日期的庫"
 
-#: internal/route/cli.go:124
+#: internal/route/cli.go:157
 msgid "Change panel port"
 msgstr "更改面板端口"
 
@@ -177,7 +189,7 @@ msgstr "更改用戶密碼"
 msgid "Change username"
 msgstr "更改用戶名"
 
-#: internal/service/cli.go:641
+#: internal/service/cli.go:717
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
@@ -193,15 +205,15 @@ msgstr "清理臨時檔案失敗：%v"
 msgid "Cleanup failed: %v"
 msgstr "清理失敗：%v"
 
-#: internal/route/cli.go:316
+#: internal/route/cli.go:349
 msgid "Clear backups"
 msgstr "清理備份"
 
-#: internal/route/cli.go:466
+#: internal/route/cli.go:499
 msgid "Clear panel task queue (use only under guidance)"
 msgstr "清理面板任務佇列（僅在指導下使用）"
 
-#: internal/route/cli.go:371
+#: internal/route/cli.go:404
 msgid "Clear rotated logs"
 msgstr "清除旋轉日誌"
 
@@ -221,11 +233,11 @@ msgstr "每秒執行命令數"
 msgid "Connected Clients"
 msgstr "已連接客戶端數"
 
-#: internal/route/cli.go:133
+#: internal/route/cli.go:166
 msgid "Create new website"
 msgstr "創建新網站"
 
-#: internal/service/cli.go:675
+#: internal/service/cli.go:751
 msgid "Currently only website log rotation is supported"
 msgstr "目前僅支援網站日誌輪替"
 
@@ -234,39 +246,39 @@ msgstr "目前僅支援網站日誌輪替"
 msgid "DESCRIPTION"
 msgstr "描述"
 
-#: internal/route/cli.go:258
+#: internal/route/cli.go:291
 msgid "Data backup"
 msgstr "數據備份"
 
-#: internal/service/cli.go:120
+#: internal/service/cli.go:121
 msgid "Data synchronized successfully"
 msgstr "數據同步成功"
 
-#: internal/route/cli.go:200
+#: internal/route/cli.go:233
 msgid "Database management"
 msgstr "數據庫管理"
 
-#: internal/route/cli.go:292
+#: internal/route/cli.go:325
 msgid "Database name"
 msgstr "數據庫名稱"
 
-#: internal/service/cli.go:562
+#: internal/service/cli.go:638
 msgid "Database server %s added successfully"
 msgstr "數據庫伺服器 %s 添加成功"
 
-#: internal/service/cli.go:576
+#: internal/service/cli.go:652
 msgid "Database server %s deleted successfully"
 msgstr "數據庫伺服器 %s 刪除成功"
 
-#: internal/route/cli.go:286
+#: internal/route/cli.go:319
 msgid "Database type"
 msgstr "數據庫類型"
 
-#: internal/route/cli.go:243
+#: internal/route/cli.go:276
 msgid "Delete database server"
 msgstr "刪除數據庫服務器"
 
-#: internal/route/cli.go:179
+#: internal/route/cli.go:212
 msgid "Delete website (including website directory, database with the same name)"
 msgstr "刪除網站（包括網站目錄、同名數據庫）"
 
@@ -274,11 +286,23 @@ msgstr "刪除網站（包括網站目錄、同名數據庫）"
 msgid "Disable HTTPS"
 msgstr "禁用 HTTPS"
 
+#: internal/route/cli.go:139
+msgid "Disable IP binding"
+msgstr ""
+
+#: internal/route/cli.go:150
+msgid "Disable UA binding"
+msgstr ""
+
 #: internal/route/cli.go:117
 msgid "Disable access entrance"
 msgstr "禁用訪問入口"
 
-#: internal/service/cli.go:106
+#: internal/route/cli.go:128
+msgid "Disable domain binding"
+msgstr ""
+
+#: internal/service/cli.go:107
 msgid "Download URL is empty"
 msgstr "下載 URL 為空"
 
@@ -311,16 +335,16 @@ msgstr "啟用訪問入口"
 msgid "Enchant is a spell-checking library"
 msgstr "Enchant 是一個拼寫檢查庫"
 
-#: internal/service/cli.go:434
+#: internal/service/cli.go:435
 msgid "Entrance disabled"
 msgstr "入口已禁用"
 
-#: internal/service/cli.go:408
+#: internal/service/cli.go:409
 msgid "Entrance enabled"
 msgstr "入口已啟用"
 
-#: internal/service/cli.go:163
-#: internal/service/cli.go:409
+#: internal/service/cli.go:164
+#: internal/service/cli.go:410
 msgid "Entrance: %s"
 msgstr "入口：%s"
 
@@ -332,99 +356,99 @@ msgstr "Event 是一個用於處理事件的庫"
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一個用於讀取和寫入圖像元數據的庫"
 
-#: internal/service/cli.go:282
+#: internal/service/cli.go:283
 msgid "Failed to change 2FA status: %v"
 msgstr "修改兩步驗證狀態失敗：%v"
 
-#: internal/service/cli.go:256
+#: internal/service/cli.go:257
 msgid "Failed to change password: %v"
 msgstr "修改密碼失敗：%v"
 
-#: internal/service/cli.go:224
+#: internal/service/cli.go:225
 msgid "Failed to change username: %v"
 msgstr "修改用戶名失敗：%v"
 
-#: internal/service/cli.go:796
+#: internal/service/cli.go:872
 msgid "Failed to clear tasks: %v"
 msgstr "清除任務失敗：%v"
 
-#: internal/service/cli.go:771
+#: internal/service/cli.go:847
 msgid "Failed to delete app: %v"
 msgstr "刪除應用失敗：%v"
 
-#: internal/service/cli.go:850
+#: internal/service/cli.go:926
 msgid "Failed to delete setting: %v"
 msgstr "刪除設置失敗：%v"
 
-#: internal/service/cli.go:290
+#: internal/service/cli.go:291
 msgid "Failed to generate 2FA: %v"
 msgstr "生成兩步驗證失敗：%v"
 
-#: internal/service/cli.go:137
-#: internal/service/cli.go:252
+#: internal/service/cli.go:138
+#: internal/service/cli.go:253
 msgid "Failed to generate password: %v"
 msgstr "生成密碼失敗：%v"
 
-#: internal/service/cli.go:751
+#: internal/service/cli.go:827
 msgid "Failed to get app: %v"
 msgstr "獲取應用失敗：%v"
 
-#: internal/service/cli.go:157
+#: internal/service/cli.go:158
 msgid "Failed to get entrance"
 msgstr "獲取入口失敗"
 
-#: internal/service/cli.go:101
+#: internal/service/cli.go:102
 msgid "Failed to get latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
-#: internal/service/cli.go:153
+#: internal/service/cli.go:154
 msgid "Failed to get port"
 msgstr "無法獲取端口"
 
-#: internal/service/cli.go:814
-#: internal/service/cli.go:831
+#: internal/service/cli.go:890
+#: internal/service/cli.go:907
 msgid "Failed to get setting: %v"
 msgstr "無法獲取設置：%v"
 
-#: internal/service/cli.go:131
+#: internal/service/cli.go:132
 msgid "Failed to get user info: %v"
 msgstr "無法獲取用戶信息：%v"
 
-#: internal/service/cli.go:193
+#: internal/service/cli.go:194
 msgid "Failed to get user list: %v"
 msgstr "無法獲取用戶列表：%v"
 
-#: internal/service/cli.go:218
-#: internal/service/cli.go:246
-#: internal/service/cli.go:274
+#: internal/service/cli.go:219
+#: internal/service/cli.go:247
+#: internal/service/cli.go:275
 msgid "Failed to get user: %v"
 msgstr "無法獲取用戶：%v"
 
-#: internal/service/cli.go:297
+#: internal/service/cli.go:298
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
-#: internal/service/cli.go:758
+#: internal/service/cli.go:834
 msgid "Failed to save app: %v"
 msgstr "無法保存應用：%v"
 
-#: internal/service/cli.go:837
+#: internal/service/cli.go:913
 msgid "Failed to save setting: %v"
 msgstr "無法保存設置：%v"
 
-#: internal/service/cli.go:143
+#: internal/service/cli.go:144
 msgid "Failed to save user info: %v"
 msgstr "無法保存用戶信息：%v"
 
-#: internal/service/cli.go:114
+#: internal/service/cli.go:115
 msgid "Failed to synchronize app data: %v"
 msgstr "同步應用程式資料失敗：%v"
 
-#: internal/service/cli.go:117
+#: internal/service/cli.go:118
 msgid "Failed to synchronize rewrite rules: %v"
 msgstr "同步重寫規則失敗：%v"
 
-#: internal/service/cli.go:300
+#: internal/service/cli.go:301
 msgid "Failed to update 2FA: %v"
 msgstr "更新兩步驗證失敗： %v"
 
@@ -468,7 +492,7 @@ msgstr "Gcore"
 msgid "Generate HTTPS certificate"
 msgstr "生成 HTTPS 證書"
 
-#: internal/route/cli.go:441
+#: internal/route/cli.go:474
 msgid "Get panel setting (use only under guidance)"
 msgstr "獲取面板設置（僅在指導下使用）"
 
@@ -480,15 +504,15 @@ msgstr "Gettext 是一個處理多語言支持的庫"
 msgid "Godaddy"
 msgstr "Godaddy"
 
-#: internal/service/cli.go:383
+#: internal/service/cli.go:384
 msgid "HTTPS certificate generated"
 msgstr "HTTPS 憑證已生成"
 
-#: internal/service/cli.go:352
+#: internal/service/cli.go:353
 msgid "HTTPS disabled"
 msgstr "HTTPS 已停用"
 
-#: internal/service/cli.go:327
+#: internal/service/cli.go:328
 msgid "HTTPS enabled"
 msgstr "HTTPS 已啟用"
 
@@ -500,7 +524,7 @@ msgstr "Hetzner"
 msgid "Huawei Cloud"
 msgstr "華為雲"
 
-#: internal/service/cli.go:197
+#: internal/service/cli.go:198
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 用戶名: %s, 電子郵件: %s, 創建時間: %s"
 
@@ -512,11 +536,11 @@ msgstr "IMAP 擴展允許 PHP 讀取、搜索、刪除、下載和管理電子�
 msgid "Idle Processes"
 msgstr "空閒進程"
 
-#: internal/service/cli.go:183
+#: internal/service/cli.go:184
 msgid "If you cannot access, please check whether the server's security group and firewall allow port %s"
 msgstr "如果您無法訪問，請檢查服務器的安全組和防火牆是否允許端口 %s"
 
-#: internal/service/cli.go:184
+#: internal/service/cli.go:185
 msgid "If you still cannot access, try running panel-cli https off to turn off panel HTTPS"
 msgstr "如果您仍然無法訪問，請嘗試運行 panel-cli https off 關閉面板 HTTPS"
 
@@ -532,14 +556,14 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:874
-#: internal/service/cli.go:879
-#: internal/service/cli.go:884
-#: internal/service/cli.go:888
+#: internal/service/cli.go:950
+#: internal/service/cli.go:955
+#: internal/service/cli.go:960
+#: internal/service/cli.go:964
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
-#: internal/route/cli.go:472
+#: internal/route/cli.go:505
 msgid "Initialize panel (use only under guidance)"
 msgstr "初始化面板（僅在指導下使用）"
 
@@ -555,7 +579,7 @@ msgstr "安裝 PHP-%d %s 擴展"
 msgid "Install app %s"
 msgstr "安裝應用 %s"
 
-#: internal/route/cli.go:407
+#: internal/route/cli.go:440
 msgid "Install application"
 msgstr "安裝應用程式"
 
@@ -592,11 +616,11 @@ msgstr "Linode"
 msgid "List all users"
 msgstr "列出所有用戶"
 
-#: internal/route/cli.go:144
+#: internal/route/cli.go:177
 msgid "List of domains associated with the website"
 msgstr "與網站關聯的域名列表"
 
-#: internal/route/cli.go:150
+#: internal/route/cli.go:183
 msgid "List of listening addresses associated with the website"
 msgstr "與網站關聯的監聽地址列表"
 
@@ -608,15 +632,15 @@ msgstr "監聽佇列"
 msgid "Listen Queue Length"
 msgstr "監聽佇列長度"
 
-#: internal/service/cli.go:167
+#: internal/service/cli.go:168
 msgid "Local IPv4: %s://%s:%s%s"
 msgstr "本地 IPv4：%s://%s:%s%s"
 
-#: internal/service/cli.go:171
+#: internal/service/cli.go:172
 msgid "Local IPv6: %s://[%s]:%s%s"
 msgstr "本地 IPv6：%s://[%s]:%s%s"
 
-#: internal/route/cli.go:348
+#: internal/route/cli.go:381
 msgid "Log rotation"
 msgstr "日誌輪替"
 
@@ -678,7 +702,7 @@ msgstr "NameSilo"
 msgid "Namecheap"
 msgstr "Namecheap"
 
-#: internal/service/cli.go:211
+#: internal/service/cli.go:212
 msgid "New username cannot be empty"
 msgstr "新用戶名不能為空"
 
@@ -686,7 +710,7 @@ msgstr "新用戶名不能為空"
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
-#: internal/service/cli.go:543
+#: internal/service/cli.go:619
 msgid "Not supported"
 msgstr "不支援"
 
@@ -695,11 +719,11 @@ msgstr "不支援"
 msgid "Not used"
 msgstr "未使用"
 
-#: internal/route/cli.go:334
+#: internal/route/cli.go:367
 msgid "Number of backups to keep"
 msgstr "要保留的備份數量"
 
-#: internal/route/cli.go:389
+#: internal/route/cli.go:422
 msgid "Number of logs to keep"
 msgstr "要保留的日誌數量"
 
@@ -712,7 +736,7 @@ msgstr "選項"
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體中來提升 PHP 的效能"
 
-#: internal/service/cli.go:208
+#: internal/service/cli.go:209
 msgid "Old username cannot be empty"
 msgstr "舊用戶名不能為空"
 
@@ -724,9 +748,21 @@ msgstr "已開啟的表"
 msgid "Operate panel HTTPS"
 msgstr "操作面板 HTTPS"
 
+#: internal/route/cli.go:135
+msgid "Operate panel IP binding"
+msgstr ""
+
+#: internal/route/cli.go:146
+msgid "Operate panel UA binding"
+msgstr ""
+
 #: internal/route/cli.go:108
 msgid "Operate panel access entrance"
 msgstr "操作面板訪問入口"
+
+#: internal/route/cli.go:124
+msgid "Operate panel domain binding"
+msgstr ""
 
 #: internal/route/cli.go:61
 msgid "Operate panel users"
@@ -736,7 +772,7 @@ msgstr "操作面板用戶"
 msgid "Output panel basic information and generate new password"
 msgstr "輸出面板基本信息並生成新密碼"
 
-#: internal/route/cli.go:160
+#: internal/route/cli.go:193
 msgid "PHP version used by the website (not used if not filled)"
 msgstr "網站使用的 PHP 版本（不填則不使用）"
 
@@ -752,30 +788,30 @@ msgstr "面板服務已啟動"
 msgid "Panel service stopped"
 msgstr "面板服務已停止"
 
-#: internal/service/cli.go:701
-#: internal/service/cli.go:715
-#: internal/service/cli.go:729
-#: internal/service/cli.go:745
-#: internal/service/cli.go:767
-#: internal/service/cli.go:806
-#: internal/service/cli.go:825
-#: internal/service/cli.go:846
+#: internal/service/cli.go:777
+#: internal/service/cli.go:791
+#: internal/service/cli.go:805
+#: internal/service/cli.go:821
+#: internal/service/cli.go:843
+#: internal/service/cli.go:882
+#: internal/service/cli.go:901
+#: internal/service/cli.go:922
 msgid "Parameters cannot be empty"
 msgstr "參數不能為空"
 
-#: internal/service/cli.go:259
+#: internal/service/cli.go:260
 msgid "Password for user %s changed successfully"
 msgstr "用戶 %s 的密碼已成功更改"
 
-#: internal/service/cli.go:239
+#: internal/service/cli.go:240
 msgid "Password length cannot be less than 6"
 msgstr "密碼長度不能少於6位"
 
-#: internal/service/cli.go:161
+#: internal/service/cli.go:162
 msgid "Password: %s"
 msgstr "密碼：%s"
 
-#: internal/route/cli.go:156
+#: internal/route/cli.go:189
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "網站託管的路徑（不填則使用默認路徑）"
 
@@ -791,11 +827,11 @@ msgstr "佔用記憶體峰值"
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"
 msgstr "PhpRedis 連接並操作 Redis 資料庫上的資料（需先安裝上面 igbinary 擴展）"
 
-#: internal/service/cli.go:182
+#: internal/service/cli.go:183
 msgid "Please choose the appropriate address to access the panel based on your network situation"
 msgstr "請根據您的網絡情況選擇合適的地址訪問面板"
 
-#: internal/service/cli.go:294
+#: internal/service/cli.go:295
 msgid "Please enter the 2FA code: "
 msgstr "請輸入兩步驗證代碼： "
 
@@ -803,19 +839,19 @@ msgstr "請輸入兩步驗證代碼： "
 msgid "Porkbun"
 msgstr "Porkbun"
 
-#: internal/service/cli.go:455
+#: internal/service/cli.go:531
 msgid "Port already in use"
 msgstr "端口已被佔用"
 
-#: internal/service/cli.go:483
+#: internal/service/cli.go:559
 msgid "Port changed to %d"
 msgstr "端口已更改為 %d"
 
-#: internal/service/cli.go:441
+#: internal/service/cli.go:517
 msgid "Port range error"
 msgstr "端口範圍錯誤"
 
-#: internal/service/cli.go:162
+#: internal/service/cli.go:163
 msgid "Port: %s"
 msgstr "端口：%s"
 
@@ -825,7 +861,7 @@ msgstr "進程數"
 
 #: internal/apps/php/app.go:129
 msgid "Process Manager"
-msgstr "應用池"
+msgstr "進程管理方式"
 
 #: internal/apps/postgresql/app.go:141
 msgid "Process PID"
@@ -835,11 +871,11 @@ msgstr "進程 PID"
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一個拼寫檢查庫"
 
-#: internal/service/cli.go:175
+#: internal/service/cli.go:176
 msgid "Public IPv4: %s://%s:%s%s"
 msgstr "公用 IPv4：%s://%s:%s%s"
 
-#: internal/service/cli.go:179
+#: internal/service/cli.go:180
 msgid "Public IPv6: %s://[%s]:%s%s"
 msgstr "公用 IPv6：%s://[%s]:%s%s"
 
@@ -863,7 +899,7 @@ msgstr "正在讀取"
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一個處理文本的庫"
 
-#: internal/route/cli.go:428
+#: internal/route/cli.go:461
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板應用標記（僅在指導下使用）"
 
@@ -871,11 +907,11 @@ msgstr "移除面板應用標記（僅在指導下使用）"
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
-#: internal/route/cli.go:453
+#: internal/route/cli.go:486
 msgid "Remove panel setting (use only under guidance)"
 msgstr "移除面板設置（僅在指導下使用）"
 
-#: internal/route/cli.go:166
+#: internal/route/cli.go:199
 msgid "Remove website"
 msgstr "移除網站"
 
@@ -887,15 +923,15 @@ msgstr "重新啟動面板服務"
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
 
-#: internal/route/cli.go:395
+#: internal/route/cli.go:428
 msgid "Rotation directory (default path if not filled)"
 msgstr "旋轉目錄（如果未填寫則使用默認路徑）"
 
-#: internal/route/cli.go:383
+#: internal/route/cli.go:416
 msgid "Rotation file"
 msgstr "旋轉文件"
 
-#: internal/route/cli.go:377
+#: internal/route/cli.go:410
 msgid "Rotation type"
 msgstr "旋轉類型"
 
@@ -907,47 +943,47 @@ msgstr "SNMP 是一種用於網絡管理的協議"
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
 
-#: internal/route/cli.go:274
-#: internal/route/cli.go:298
-#: internal/route/cli.go:310
-#: internal/route/cli.go:365
+#: internal/route/cli.go:307
+#: internal/route/cli.go:331
+#: internal/route/cli.go:343
+#: internal/route/cli.go:398
 msgid "Save directory (default path if not filled)"
 msgstr "保存目錄（如果未填寫則使用默認路徑）"
 
-#: internal/route/cli.go:219
+#: internal/route/cli.go:252
 msgid "Server address"
 msgstr "伺服器地址"
 
-#: internal/route/cli.go:214
-#: internal/route/cli.go:248
+#: internal/route/cli.go:247
+#: internal/route/cli.go:281
 msgid "Server name"
 msgstr "伺服器名稱"
 
-#: internal/route/cli.go:233
+#: internal/route/cli.go:266
 msgid "Server password"
 msgstr "伺服器密碼"
 
-#: internal/route/cli.go:224
+#: internal/route/cli.go:257
 msgid "Server port"
 msgstr "伺服器端口"
 
-#: internal/route/cli.go:237
+#: internal/route/cli.go:270
 msgid "Server remark"
 msgstr "伺服器備註"
 
-#: internal/route/cli.go:209
+#: internal/route/cli.go:242
 msgid "Server type"
 msgstr "伺服器類型"
 
-#: internal/route/cli.go:229
+#: internal/route/cli.go:262
 msgid "Server username"
 msgstr "伺服器用戶名"
 
-#: internal/route/cli.go:436
+#: internal/route/cli.go:469
 msgid "Setting management"
 msgstr "設置管理"
 
-#: internal/service/cli.go:812
+#: internal/service/cli.go:888
 msgid "Setting not exists"
 msgstr "設置不存在"
 
@@ -992,7 +1028,7 @@ msgstr "Swow 是構建高性能異步並發伺服器的 PHP 擴展"
 msgid "Sync panel data"
 msgstr "同步面板數據"
 
-#: internal/route/cli.go:461
+#: internal/route/cli.go:494
 msgid "Sync system time"
 msgstr "同步系統時間"
 
@@ -1016,7 +1052,7 @@ msgstr "TCP 連接埠"
 msgid "Table Locks Waited"
 msgstr "等待表鎖定"
 
-#: internal/service/cli.go:799
+#: internal/service/cli.go:875
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
@@ -1036,7 +1072,7 @@ msgstr "騰訊雲"
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "壓縮檔案包含的檔案數量不為1，實際為 %d"
 
-#: internal/service/cli.go:787
+#: internal/service/cli.go:863
 msgid "Time synchronized successfully"
 msgstr "時間同步成功"
 
@@ -1104,7 +1140,7 @@ msgstr "卸載 PHP-%d %s 擴展"
 msgid "Uninstall app %s"
 msgstr "卸載應用 %s"
 
-#: internal/route/cli.go:412
+#: internal/route/cli.go:445
 msgid "Uninstall application"
 msgstr "卸載應用"
 
@@ -1120,7 +1156,7 @@ msgstr "解壓面板數據失敗：%v"
 msgid "Update app %s"
 msgstr "更新應用 %s"
 
-#: internal/route/cli.go:417
+#: internal/route/cli.go:450
 msgid "Update application"
 msgstr "更新應用"
 
@@ -1136,25 +1172,25 @@ msgstr "運行時間"
 msgid "Uptime in Days"
 msgstr "已運行天數"
 
-#: internal/service/cli.go:216
-#: internal/service/cli.go:244
-#: internal/service/cli.go:272
+#: internal/service/cli.go:217
+#: internal/service/cli.go:245
+#: internal/service/cli.go:273
 msgid "User not exists"
 msgstr "使用者不存在"
 
-#: internal/service/cli.go:227
+#: internal/service/cli.go:228
 msgid "Username %s changed to %s successfully"
 msgstr "使用者名稱 %s 已成功更改為 %s"
 
-#: internal/service/cli.go:236
+#: internal/service/cli.go:237
 msgid "Username and password cannot be empty"
 msgstr "使用者名稱和密碼不能為空"
 
-#: internal/service/cli.go:267
+#: internal/service/cli.go:268
 msgid "Username cannot be empty"
 msgstr "用戶名不能為空"
 
-#: internal/service/cli.go:160
+#: internal/service/cli.go:161
 msgid "Username: %s"
 msgstr "使用者名稱：%s"
 
@@ -1174,35 +1210,35 @@ msgstr "驗證下載文件失敗：%v"
 msgid "Waiting"
 msgstr "正在駐留等待"
 
-#: internal/service/cli.go:185
+#: internal/service/cli.go:186
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr "警告：關閉面板 HTTPS 後，面板的安全性將大大降低，請謹慎操作"
 
-#: internal/route/cli.go:352
+#: internal/route/cli.go:385
 msgid "Website"
 msgstr "網站"
 
-#: internal/service/cli.go:502
+#: internal/service/cli.go:578
 msgid "Website %s created successfully"
 msgstr "網站 %s 創建成功"
 
-#: internal/service/cli.go:538
+#: internal/service/cli.go:614
 msgid "Website %s deleted successfully"
 msgstr "網站 %s 刪除成功"
 
-#: internal/service/cli.go:519
+#: internal/service/cli.go:595
 msgid "Website %s removed successfully"
 msgstr "網站 %s 移除成功"
 
-#: internal/route/cli.go:129
+#: internal/route/cli.go:162
 msgid "Website management"
 msgstr "網站管理"
 
-#: internal/route/cli.go:138
 #: internal/route/cli.go:171
-#: internal/route/cli.go:184
-#: internal/route/cli.go:268
-#: internal/route/cli.go:358
+#: internal/route/cli.go:204
+#: internal/route/cli.go:217
+#: internal/route/cli.go:301
+#: internal/route/cli.go:391
 msgid "Website name"
 msgstr "網站名稱"
 
@@ -1218,11 +1254,11 @@ msgstr "西部數碼"
 msgid "Workers"
 msgstr "工作進程"
 
-#: internal/route/cli.go:447
+#: internal/route/cli.go:480
 msgid "Write panel setting (use only under guidance)"
 msgstr "寫入面板設置（僅在指導下使用）"
 
-#: internal/route/cli.go:192
+#: internal/route/cli.go:225
 msgid "Write website data (use only under guidance)"
 msgstr "寫入網站數據（僅在指導下使用）"
 
@@ -1241,10 +1277,6 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 #: internal/apps/php/app.go:348
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
-
-#: internal/data/user_token.go:129
-msgid "api signature expired"
-msgstr "API 簽名已過期"
 
 #: internal/data/app.go:159
 msgid "app %s already installed"
@@ -1281,11 +1313,11 @@ msgstr "找不到應用"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
-#: internal/service/dashboard.go:336
+#: internal/service/dashboard.go:339
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 
-#: internal/service/dashboard.go:305
+#: internal/service/dashboard.go:307
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
@@ -1526,13 +1558,13 @@ msgstr "無法獲取 s3fs 列表：%v"
 msgid "failed to get system info: %v"
 msgstr "無法獲取系統信息：%v"
 
-#: internal/service/dashboard.go:317
+#: internal/service/dashboard.go:320
 msgid "failed to get the latest version download link"
 msgstr "無法獲取最新版本下載鏈接"
 
-#: internal/service/dashboard.go:235
-#: internal/service/dashboard.go:270
-#: internal/service/dashboard.go:311
+#: internal/service/dashboard.go:236
+#: internal/service/dashboard.go:272
+#: internal/service/dashboard.go:314
 msgid "failed to get the latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
@@ -1544,7 +1576,7 @@ msgstr "無法獲取模組 %s 的密鑰"
 msgid "failed to get the total number of websites: %v"
 msgstr "無法獲取網站總數：%v"
 
-#: internal/service/dashboard.go:291
+#: internal/service/dashboard.go:293
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
@@ -1586,10 +1618,10 @@ msgstr "解析私鑰失敗：%v"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "無法解析 fail2ban 的 ignoreip"
 
-#: internal/service/dashboard.go:241
-#: internal/service/dashboard.go:246
-#: internal/service/dashboard.go:276
-#: internal/service/dashboard.go:281
+#: internal/service/dashboard.go:242
+#: internal/service/dashboard.go:247
+#: internal/service/dashboard.go:278
+#: internal/service/dashboard.go:283
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
@@ -1669,6 +1701,10 @@ msgstr "啟動 %s 服務失敗：%v"
 msgid "failed to stop %s service: %v"
 msgstr "停止 %s 服務失敗：%v"
 
+#: internal/apps/s3fs/app.go:145
+msgid "failed to unmount: %v"
+msgstr ""
+
 #: internal/apps/toolbox/app.go:80
 msgid "failed to update DNS: %v"
 msgstr "更新 DNS 失敗： %v"
@@ -1695,19 +1731,11 @@ msgstr "獲取服務端口失敗，請檢查是否安裝"
 msgid "invalid 2FA code"
 msgstr "無效的兩步驗證代碼"
 
-#: internal/http/middleware/entrance.go:101
+#: internal/http/middleware/entrance.go:114
 msgid "invalid access entrance"
 msgstr "無效的訪問入口"
 
 #: internal/data/user_token.go:101
-msgid "invalid algorithm, must be HMAC-SHA256"
-msgstr "無效的演算法，必須是 HMAC-SHA256"
-
-#: internal/data/user_token.go:124
-msgid "invalid api signature"
-msgstr "無效的 API 簽名"
-
-#: internal/data/user_token.go:98
 msgid "invalid header: %v"
 msgstr "無效的請求標頭：%v"
 
@@ -1715,18 +1743,24 @@ msgstr "無效的請求標頭：%v"
 msgid "invalid key, please refresh the page"
 msgstr "無效的密鑰，請重新整理頁面"
 
-#: internal/http/middleware/entrance.go:50
+#: internal/http/middleware/entrance.go:57
 msgid "invalid request domain: %s"
 msgstr "無效的請求域名：%s"
 
-#: internal/data/user_token.go:139
-#: internal/http/middleware/entrance.go:63
+#: internal/data/user_token.go:148
+#: internal/http/middleware/entrance.go:70
 msgid "invalid request ip: %s"
 msgstr "無效的請求 IP：%s"
 
-#: internal/http/middleware/entrance.go:72
+#: internal/http/middleware/entrance.go:79
 msgid "invalid request user agent: %s"
 msgstr "無效的請求UA：%s"
+
+#: internal/data/user_token.go:104
+#: internal/data/user_token.go:110
+#: internal/data/user_token.go:133
+msgid "invalid signature"
+msgstr ""
 
 #: internal/http/middleware/must_login.go:97
 msgid "invalid user id, please login again"
@@ -1862,6 +1896,10 @@ msgstr "運行目錄不存在"
 msgid "session expired, please login again"
 msgstr "會話已過期，請重新登錄"
 
+#: internal/data/user_token.go:138
+msgid "signature expired"
+msgstr ""
+
 #: internal/apps/php/app.go:333
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一個用於連接 SQL Server 的驅動程序"
@@ -1883,7 +1921,7 @@ msgstr "目標是一個目錄"
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
-#: internal/service/dashboard.go:285
+#: internal/service/dashboard.go:287
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
@@ -1904,12 +1942,16 @@ msgstr "此證書未與任何網站關聯，無法簽發。您可以嘗試使用
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 
+#: internal/data/user_token.go:113
+msgid "token expired"
+msgstr ""
+
 #: internal/service/dashboard.go:228
-#: internal/service/dashboard.go:263
+#: internal/service/dashboard.go:264
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/dashboard.go:300
+#: internal/service/dashboard.go:302
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
@@ -2021,8 +2063,8 @@ msgstr "|-備份面板數據失敗：%v"
 msgid "|-Backup panel data..."
 msgstr "|-備份面板數據……"
 
-#: internal/service/cli.go:585
-#: internal/service/cli.go:601
+#: internal/service/cli.go:661
+#: internal/service/cli.go:677
 msgid "|-Backup target: %s"
 msgstr "|-備份目標：%s"
 
@@ -2033,15 +2075,15 @@ msgstr "|-備份目標：%s"
 msgid "|-Backup time: %s"
 msgstr "|-備份時間：%s"
 
-#: internal/service/cli.go:599
+#: internal/service/cli.go:675
 msgid "|-Backup type: database"
 msgstr "|-備份類型：數據庫"
 
-#: internal/service/cli.go:615
+#: internal/service/cli.go:691
 msgid "|-Backup type: panel"
 msgstr "|-備份類型：面板"
 
-#: internal/service/cli.go:584
+#: internal/service/cli.go:660
 msgid "|-Backup type: website"
 msgstr "|-備份類型：網站"
 
@@ -2069,17 +2111,17 @@ msgstr "|-清理舊版本失敗：%v"
 msgid "|-Cleaning old version..."
 msgstr "|-清理舊版本……"
 
-#: internal/service/cli.go:638
-#: internal/service/cli.go:686
+#: internal/service/cli.go:714
+#: internal/service/cli.go:762
 msgid "|-Cleaning target: %s"
 msgstr "|-清理目標：%s"
 
-#: internal/service/cli.go:637
-#: internal/service/cli.go:685
+#: internal/service/cli.go:713
+#: internal/service/cli.go:761
 msgid "|-Cleaning type: %s"
 msgstr "|-清理類型：%s"
 
-#: internal/service/cli.go:600
+#: internal/service/cli.go:676
 msgid "|-Database: %s"
 msgstr "|-數據庫：%s"
 
@@ -2103,8 +2145,8 @@ msgstr "|-文件名：%s"
 msgid "|-Fix completed"
 msgstr "|-修復完成"
 
-#: internal/service/cli.go:639
-#: internal/service/cli.go:687
+#: internal/service/cli.go:715
+#: internal/service/cli.go:763
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
@@ -2129,11 +2171,11 @@ msgstr "|-還原面板數據失敗：%v"
 msgid "|-Restore panel data..."
 msgstr "|-還原面板資料……"
 
-#: internal/service/cli.go:663
+#: internal/service/cli.go:739
 msgid "|-Rotation target: %s"
 msgstr "|-輪換目標：%s"
 
-#: internal/service/cli.go:662
+#: internal/service/cli.go:738
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
@@ -2195,36 +2237,36 @@ msgstr "|-驗證下載檔案……"
 msgid "|-Write new panel version failed: %v"
 msgstr "|-寫入新面板版本失敗：%v"
 
-#: internal/service/cli.go:582
-#: internal/service/cli.go:597
-#: internal/service/cli.go:613
+#: internal/service/cli.go:658
+#: internal/service/cli.go:673
+#: internal/service/cli.go:689
 msgid "★ Start backup [%s]"
 msgstr "★ 開始備份 [%s]"
 
-#: internal/service/cli.go:635
+#: internal/service/cli.go:711
 msgid "★ Start cleaning [%s]"
 msgstr "★ 開始清理 [%s]"
 
-#: internal/service/cli.go:683
+#: internal/service/cli.go:759
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr "★ 開始清理已旋轉的日誌 [%s]"
 
-#: internal/service/cli.go:660
+#: internal/service/cli.go:736
 msgid "★ Start log rotation [%s]"
 msgstr "★ 開始日誌旋轉 [%s]"
 
-#: internal/service/cli.go:590
-#: internal/service/cli.go:606
-#: internal/service/cli.go:620
+#: internal/service/cli.go:666
+#: internal/service/cli.go:682
+#: internal/service/cli.go:696
 msgid "☆ Backup successful [%s]"
 msgstr "☆ 備份成功 [%s]"
 
-#: internal/service/cli.go:644
-#: internal/service/cli.go:692
+#: internal/service/cli.go:720
+#: internal/service/cli.go:768
 msgid "☆ Cleaning successful [%s]"
 msgstr "☆ 清理成功 [%s]"
 
-#: internal/service/cli.go:668
+#: internal/service/cli.go:744
 msgid "☆ Rotation successful [%s]"
 msgstr "☆ 旋轉成功 [%s]"
 
