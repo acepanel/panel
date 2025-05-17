@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-15 12:37\n"
+"PO-Revision-Date: 2025-05-17 09:13\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -193,15 +193,15 @@ msgstr "更改用戶名"
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
-#: internal/data/backup.go:628
+#: internal/data/backup.go:633
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理臨時目錄失敗：%v"
 
-#: internal/data/backup.go:666
+#: internal/data/backup.go:671
 msgid "Cleaning temporary file failed: %v"
 msgstr "清理臨時檔案失敗：%v"
 
-#: internal/data/backup.go:193
+#: internal/data/backup.go:198
 msgid "Cleanup failed: %v"
 msgstr "清理失敗：%v"
 
@@ -306,12 +306,12 @@ msgstr "禁用繫結網域"
 msgid "Download URL is empty"
 msgstr "下載 URL 為空"
 
-#: internal/data/backup.go:726
-#: internal/data/backup.go:729
+#: internal/data/backup.go:731
+#: internal/data/backup.go:734
 msgid "Download failed: %v"
 msgstr "下載失敗：%v"
 
-#: internal/data/backup.go:732
+#: internal/data/backup.go:737
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
@@ -456,7 +456,7 @@ msgstr "更新兩步驗證失敗： %v"
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別文件類型的庫"
 
-#: internal/data/backup.go:588
+#: internal/data/backup.go:593
 msgid "Files are normal and do not need to be repaired, please run panel-cli update to update the panel"
 msgstr "文件正常，無需修復，請運行 panel-cli update 更新面板"
 
@@ -583,8 +583,8 @@ msgstr "安裝應用 %s"
 msgid "Install application"
 msgstr "安裝應用程式"
 
-#: internal/data/backup.go:510
-#: internal/data/backup.go:536
+#: internal/data/backup.go:515
+#: internal/data/backup.go:541
 msgid "Insufficient backup directory space"
 msgstr "備份目錄空間不足"
 
@@ -668,15 +668,15 @@ msgstr "記憶體"
 msgid "Memory Fragmentation Ratio"
 msgstr "記憶體碎片比率"
 
-#: internal/data/backup.go:648
+#: internal/data/backup.go:653
 msgid "Move panel config failed: %v"
 msgstr "移動面板配置失敗：%v"
 
-#: internal/data/backup.go:643
+#: internal/data/backup.go:648
 msgid "Move panel file failed: %v"
 msgstr "移動面板檔案失敗：%v"
 
-#: internal/data/backup.go:653
+#: internal/data/backup.go:658
 msgid "Move panel-cli file failed: %v"
 msgstr "移動 panel-cli 檔案失敗：%v"
 
@@ -706,7 +706,7 @@ msgstr "Namecheap"
 msgid "New username cannot be empty"
 msgstr "新用戶名不能為空"
 
-#: internal/data/backup.go:616
+#: internal/data/backup.go:621
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
@@ -903,7 +903,7 @@ msgstr "Readline 是一個處理文本的庫"
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板應用標記（僅在指導下使用）"
 
-#: internal/data/backup.go:640
+#: internal/data/backup.go:645
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
@@ -1060,7 +1060,7 @@ msgstr "任務已成功清除"
 msgid "Temporary Tables Created on Disk"
 msgstr "在磁碟上創建的臨時表"
 
-#: internal/data/backup.go:746
+#: internal/data/backup.go:751
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run panel-cli fix to repair and try again"
 msgstr "在 /tmp 中檢測到臨時檔案，這可能是上次更新失敗導致的，請運行 panel-cli fix 進行修復並重試"
 
@@ -1068,7 +1068,7 @@ msgstr "在 /tmp 中檢測到臨時檔案，這可能是上次更新失敗導致
 msgid "Tencent Cloud"
 msgstr "騰訊雲"
 
-#: internal/data/backup.go:556
+#: internal/data/backup.go:561
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "壓縮檔案包含的檔案數量不為1，實際為 %d"
 
@@ -1144,11 +1144,11 @@ msgstr "卸載應用 %s"
 msgid "Uninstall application"
 msgstr "卸載應用"
 
-#: internal/data/backup.go:631
+#: internal/data/backup.go:636
 msgid "Unzip backup file failed: %v"
 msgstr "解壓備份檔案失敗：%v"
 
-#: internal/data/backup.go:663
+#: internal/data/backup.go:668
 msgid "Unzip panel data failed: %v"
 msgstr "解壓面板數據失敗：%v"
 
@@ -1202,7 +1202,7 @@ msgstr "版本"
 msgid "Vercel"
 msgstr "Vercel"
 
-#: internal/data/backup.go:739
+#: internal/data/backup.go:744
 msgid "Verify download file failed: %v"
 msgstr "驗證下載文件失敗：%v"
 
@@ -1321,9 +1321,9 @@ msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
-#: internal/data/backup.go:378
-#: internal/data/backup.go:405
-#: internal/data/backup.go:451
+#: internal/data/backup.go:383
+#: internal/data/backup.go:410
+#: internal/data/backup.go:456
 msgid "backup file %s not exists"
 msgstr "備份檔案 %s 不存在"
 
@@ -1340,11 +1340,11 @@ msgstr "找不到 %s 數據庫服務器，請先添加"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/http/middleware/must_login.go:83
+#: internal/http/middleware/must_login.go:93
 msgid "client ip/ua changed, please login again"
 msgstr "客戶端 IP/UA 已更改，請重新登入"
 
-#: internal/data/backup.go:564
+#: internal/data/backup.go:569
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
@@ -1360,10 +1360,10 @@ msgstr "cron 目錄 %s 不存在"
 msgid "cron log directory %s not exists"
 msgstr "cron 日誌目錄 %s 不存在"
 
-#: internal/data/backup.go:258
-#: internal/data/backup.go:304
-#: internal/data/backup.go:420
-#: internal/data/backup.go:462
+#: internal/data/backup.go:263
+#: internal/data/backup.go:309
+#: internal/data/backup.go:425
+#: internal/data/backup.go:467
 msgid "database does not exist: %s"
 msgstr "資料庫不存在：%s"
 
@@ -1411,7 +1411,7 @@ msgstr "擴展 %s 不存在"
 msgid "failed to check ssh connection: %v"
 msgstr "檢查 ssh 連接失敗：%v"
 
-#: internal/data/backup.go:598
+#: internal/data/backup.go:603
 msgid "failed to clean temporary files: %v"
 msgstr "清理臨時文件失敗：%v"
 
@@ -1762,7 +1762,7 @@ msgstr "無效的請求UA：%s"
 msgid "invalid signature"
 msgstr "無效的簽名"
 
-#: internal/http/middleware/must_login.go:97
+#: internal/http/middleware/must_login.go:107
 msgid "invalid user id, please login again"
 msgstr "無效的用戶ID，請重新登錄"
 
@@ -1892,7 +1892,7 @@ msgstr "未找到運行目錄註釋"
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
-#: internal/http/middleware/must_login.go:68
+#: internal/http/middleware/must_login.go:78
 msgid "session expired, please login again"
 msgstr "會話已過期，請重新登錄"
 
@@ -1956,7 +1956,7 @@ msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
 #: internal/data/backup.go:131
-#: internal/data/backup.go:207
+#: internal/data/backup.go:212
 #: internal/data/backup.go:95
 msgid "unknown backup type"
 msgstr "未知備份類型"
@@ -2013,6 +2013,10 @@ msgstr "萬用字元網域無法使用 HTTP 驗證"
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
+#: internal/http/middleware/must_login.go:58
+msgid "ws not allowed"
+msgstr ""
+
 #: internal/apps/php/app.go:443
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr "xdebug 是一個用於調試和分析 PHP 代碼的庫"
@@ -2029,37 +2033,37 @@ msgstr "yaml 是一個用於處理 YAML 的庫"
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個壓縮和解壓文件的庫"
 
-#: internal/data/backup.go:239
-#: internal/data/backup.go:289
-#: internal/data/backup.go:329
-#: internal/data/backup.go:369
+#: internal/data/backup.go:244
+#: internal/data/backup.go:294
+#: internal/data/backup.go:334
+#: internal/data/backup.go:374
 msgid "|-Backed up to file: %s"
 msgstr "|-備份到檔案：%s"
 
-#: internal/data/backup.go:506
-#: internal/data/backup.go:532
+#: internal/data/backup.go:511
+#: internal/data/backup.go:537
 msgid "|-Backup directory available Inode: %d"
 msgstr "|-備份目錄可用 Inode：%d"
 
-#: internal/data/backup.go:505
-#: internal/data/backup.go:531
+#: internal/data/backup.go:510
+#: internal/data/backup.go:536
 msgid "|-Backup directory available space: %s"
 msgstr "|-備份目錄可用空間：%s"
 
-#: internal/data/backup.go:620
+#: internal/data/backup.go:625
 msgid "|-Backup file used: %s"
 msgstr "|-使用的備份檔案：%s"
 
-#: internal/data/backup.go:760
+#: internal/data/backup.go:765
 msgid "|-Backup panel data failed, missing file"
 msgstr "|-備份面板數據失敗，缺少檔案"
 
-#: internal/data/backup.go:754
-#: internal/data/backup.go:757
+#: internal/data/backup.go:759
+#: internal/data/backup.go:762
 msgid "|-Backup panel data failed: %v"
 msgstr "|-備份面板數據失敗：%v"
 
-#: internal/data/backup.go:750
+#: internal/data/backup.go:755
 msgid "|-Backup panel data..."
 msgstr "|-備份面板數據……"
 
@@ -2068,10 +2072,10 @@ msgstr "|-備份面板數據……"
 msgid "|-Backup target: %s"
 msgstr "|-備份目標：%s"
 
-#: internal/data/backup.go:238
-#: internal/data/backup.go:288
-#: internal/data/backup.go:328
-#: internal/data/backup.go:368
+#: internal/data/backup.go:243
+#: internal/data/backup.go:293
+#: internal/data/backup.go:333
+#: internal/data/backup.go:373
 msgid "|-Backup time: %s"
 msgstr "|-備份時間：%s"
 
@@ -2087,27 +2091,27 @@ msgstr "|-備份類型：面板"
 msgid "|-Backup type: website"
 msgstr "|-備份類型：網站"
 
-#: internal/data/backup.go:780
+#: internal/data/backup.go:785
 msgid "|-Clean up temporary file failed: %v"
 msgstr "|-清理臨時文件失敗：%v"
 
-#: internal/data/backup.go:742
+#: internal/data/backup.go:747
 msgid "|-Clean up verification file failed: %v"
 msgstr "|-清理驗證文件失敗：%v"
 
-#: internal/data/backup.go:601
+#: internal/data/backup.go:606
 msgid "|-Cleaned up temporary files, please run panel-cli update to update the panel"
 msgstr "|-已清理臨時文件，請運行 panel-cli update 更新面板"
 
-#: internal/data/backup.go:190
+#: internal/data/backup.go:195
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理過期文件：%s"
 
-#: internal/data/backup.go:767
+#: internal/data/backup.go:772
 msgid "|-Cleaning old version failed: %v"
 msgstr "|-清理舊版本失敗：%v"
 
-#: internal/data/backup.go:764
+#: internal/data/backup.go:769
 msgid "|-Cleaning old version..."
 msgstr "|-清理舊版本……"
 
@@ -2125,23 +2129,23 @@ msgstr "|-清理類型：%s"
 msgid "|-Database: %s"
 msgstr "|-數據庫：%s"
 
-#: internal/data/backup.go:718
+#: internal/data/backup.go:723
 msgid "|-Download link: %s"
 msgstr "|-下載鏈接：%s"
 
-#: internal/data/backup.go:800
+#: internal/data/backup.go:805
 msgid "|-Download panel service file failed: %v"
 msgstr "|-下載面板服務文件失敗：%v"
 
-#: internal/data/backup.go:723
+#: internal/data/backup.go:728
 msgid "|-Downloading..."
 msgstr "|-下載中……"
 
-#: internal/data/backup.go:719
+#: internal/data/backup.go:724
 msgid "|-File name: %s"
 msgstr "|-文件名：%s"
 
-#: internal/data/backup.go:699
+#: internal/data/backup.go:704
 msgid "|-Fix completed"
 msgstr "|-修復完成"
 
@@ -2150,24 +2154,24 @@ msgstr "|-修復完成"
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
-#: internal/data/backup.go:636
+#: internal/data/backup.go:641
 msgid "|-Move backup file..."
 msgstr "|-移動備份檔案……"
 
-#: internal/data/backup.go:806
+#: internal/data/backup.go:811
 msgid "|-Move panel-cli tool failed: %v"
 msgstr "|-移動 panel-cli 工具失敗：%v"
 
-#: internal/data/backup.go:790
+#: internal/data/backup.go:795
 msgid "|-Restore panel data failed, missing file"
 msgstr "|-還原面板資料失敗，缺少檔案"
 
-#: internal/data/backup.go:787
+#: internal/data/backup.go:792
 msgid "|-Restore panel data failed: %v"
 msgstr "|-還原面板數據失敗：%v"
 
-#: internal/data/backup.go:659
-#: internal/data/backup.go:784
+#: internal/data/backup.go:664
+#: internal/data/backup.go:789
 msgid "|-Restore panel data..."
 msgstr "|-還原面板資料……"
 
@@ -2179,61 +2183,61 @@ msgstr "|-輪換目標：%s"
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
-#: internal/data/backup.go:797
+#: internal/data/backup.go:802
 msgid "|-Run post-update script failed: %v"
 msgstr "|-運行更新後腳本失敗：%v"
 
-#: internal/data/backup.go:794
+#: internal/data/backup.go:799
 msgid "|-Run post-update script..."
 msgstr "|-執行更新後腳本……"
 
-#: internal/data/backup.go:679
-#: internal/data/backup.go:810
+#: internal/data/backup.go:684
+#: internal/data/backup.go:815
 msgid "|-Set key file permissions..."
 msgstr "|-設定金鑰檔案權限……"
 
-#: internal/data/backup.go:572
+#: internal/data/backup.go:577
 msgid "|-Start fixing the panel..."
 msgstr "|-開始修復面板……"
 
-#: internal/data/backup.go:504
+#: internal/data/backup.go:509
 msgid "|-Target file count: %d"
 msgstr "|-目標檔案數量：%d"
 
-#: internal/data/backup.go:503
-#: internal/data/backup.go:530
+#: internal/data/backup.go:508
+#: internal/data/backup.go:535
 msgid "|-Target size: %s"
 msgstr "|-目標大小：%s"
 
-#: internal/data/backup.go:717
+#: internal/data/backup.go:722
 msgid "|-Target version: %s"
 msgstr "|-目標版本：%s"
 
-#: internal/data/backup.go:625
+#: internal/data/backup.go:630
 msgid "|-Unzip backup file..."
 msgstr "|-解壓備份檔案……"
 
-#: internal/data/backup.go:777
+#: internal/data/backup.go:782
 msgid "|-Unzip new version failed, missing file"
 msgstr "|-解壓新版本失敗，缺少檔案"
 
-#: internal/data/backup.go:774
+#: internal/data/backup.go:779
 msgid "|-Unzip new version failed: %v"
 msgstr "|-解壓新版本失敗：%v"
 
-#: internal/data/backup.go:771
+#: internal/data/backup.go:776
 msgid "|-Unzip new version..."
 msgstr "|-解壓新版本……"
 
-#: internal/data/backup.go:817
+#: internal/data/backup.go:822
 msgid "|-Update completed"
 msgstr "|-更新完成"
 
-#: internal/data/backup.go:736
+#: internal/data/backup.go:741
 msgid "|-Verify download file..."
 msgstr "|-驗證下載檔案……"
 
-#: internal/data/backup.go:803
+#: internal/data/backup.go:808
 msgid "|-Write new panel version failed: %v"
 msgstr "|-寫入新面板版本失敗：%v"
 
