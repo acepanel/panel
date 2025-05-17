@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-17 10:24\n"
+"PO-Revision-Date: 2025-05-17 10:31\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -289,7 +289,7 @@ msgstr "启动成功"
 
 #: src/components/common/ServiceStatus.vue:57
 msgid "Stopping..."
-msgstr ""
+msgstr "停止中..."
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:255
@@ -299,7 +299,7 @@ msgstr "停止成功"
 
 #: src/components/common/ServiceStatus.vue:72
 msgid "Restarting..."
-msgstr ""
+msgstr "重启中..."
 
 #: src/components/common/ServiceStatus.vue:78
 #: src/views/apps/supervisor/IndexView.vue:262
@@ -308,7 +308,7 @@ msgstr "重启成功"
 
 #: src/components/common/ServiceStatus.vue:87
 msgid "Reloading..."
-msgstr ""
+msgstr "重载中..."
 
 #: src/components/common/ServiceStatus.vue:93
 msgid "Reloaded successfully"
@@ -316,7 +316,7 @@ msgstr "重载成功"
 
 #: src/components/common/ServiceStatus.vue:102
 msgid "Setting autostart..."
-msgstr ""
+msgstr "设置自启动中..."
 
 #: src/components/common/ServiceStatus.vue:109
 msgid "Autostart enabled successfully"
@@ -372,7 +372,7 @@ msgstr "停止"
 
 #: src/components/common/ServiceStatus.vue:161
 msgid "Are you sure you want to stop %{ service }?"
-msgstr ""
+msgstr "您确定要停止 %{ service } 吗？"
 
 #: src/components/common/ServiceStatus.vue:165
 #: src/views/apps/supervisor/IndexView.vue:174
