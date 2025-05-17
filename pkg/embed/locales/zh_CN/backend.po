@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-17 09:13\n"
+"PO-Revision-Date: 2025-05-17 10:31\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -2015,7 +2015,7 @@ msgstr "写入文件错误：%v"
 
 #: internal/http/middleware/must_login.go:58
 msgid "ws not allowed"
-msgstr ""
+msgstr "不允许 ws"
 
 #: internal/apps/php/app.go:443
 msgid "xdebug is a library for debugging and profiling PHP code"
