@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-17 10:31\n"
+"PO-Revision-Date: 2025-05-18 16:48\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -69,12 +69,12 @@ msgstr "當前狀態無法保存"
 #: src/views/apps/rsync/IndexView.vue:180
 #: src/views/apps/supervisor/IndexView.vue:227
 #: src/views/apps/supervisor/IndexView.vue:292
-#: src/views/apps/toolbox/IndexView.vue:51
-#: src/views/apps/toolbox/IndexView.vue:57
-#: src/views/apps/toolbox/IndexView.vue:66
-#: src/views/apps/toolbox/IndexView.vue:72
-#: src/views/apps/toolbox/IndexView.vue:81
 #: src/views/setting/IndexView.vue:44
+#: src/views/toolbox/SystemView.vue:51
+#: src/views/toolbox/SystemView.vue:57
+#: src/views/toolbox/SystemView.vue:66
+#: src/views/toolbox/SystemView.vue:72
+#: src/views/toolbox/SystemView.vue:81
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr "儲存成功"
@@ -566,6 +566,18 @@ msgid "Tasks"
 msgstr "任務"
 
 #: src/locales/menu.ts:20
+msgid "Toolbox"
+msgstr ""
+
+#: src/locales/menu.ts:21
+msgid "System"
+msgstr ""
+
+#: src/locales/menu.ts:22
+msgid "Benchmark"
+msgstr ""
+
+#: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/backup/IndexView.vue:37
 #: src/views/backup/ListView.vue:220
@@ -578,37 +590,29 @@ msgstr "任務"
 msgid "Website"
 msgstr "網站"
 
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:24
 msgid "Website Edit"
 msgstr "網站編輯"
 
-#: src/locales/menu.ts:23
+#: src/locales/menu.ts:26
 msgid "Fail2ban Manager"
 msgstr "Fail2ban 管理器"
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:27
 msgid "S3fs Manager"
 msgstr "S3fs 管理器"
 
-#: src/locales/menu.ts:25
+#: src/locales/menu.ts:28
 msgid "Supervisor Manager"
 msgstr "Supervisor 管理器"
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:29
 msgid "Rsync Manager"
 msgstr "Rsync 管理器"
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:30
 msgid "Frp Manager"
 msgstr "Frp 管理器"
-
-#: src/locales/menu.ts:28
-msgid "Rat Benchmark"
-msgstr "耗子跑分"
-
-#: src/locales/menu.ts:29
-msgid "System Toolbox"
-msgstr "系統工具箱"
 
 #: src/router/routes/index.ts:18
 msgid "Login Page"
@@ -724,169 +728,6 @@ msgstr "版本"
 msgid "Please select a channel"
 msgstr "請選擇一個渠道"
 
-#: src/views/apps/benchmark/IndexView.vue:12
-#: src/views/apps/benchmark/IndexView.vue:165
-msgid "CPU"
-msgstr "CPU"
-
-#: src/views/apps/benchmark/IndexView.vue:67
-#: src/views/apps/benchmark/IndexView.vue:68
-#: src/views/apps/benchmark/IndexView.vue:74
-#: src/views/apps/benchmark/IndexView.vue:75
-#: src/views/apps/benchmark/IndexView.vue:76
-#: src/views/apps/benchmark/IndexView.vue:77
-#: src/views/apps/benchmark/IndexView.vue:80
-#: src/views/apps/benchmark/IndexView.vue:81
-#: src/views/apps/benchmark/IndexView.vue:82
-#: src/views/apps/benchmark/IndexView.vue:83
-#: src/views/apps/benchmark/IndexView.vue:86
-#: src/views/apps/benchmark/IndexView.vue:87
-#: src/views/apps/benchmark/IndexView.vue:88
-#: src/views/apps/benchmark/IndexView.vue:89
-#: src/views/apps/benchmark/IndexView.vue:92
-#: src/views/apps/benchmark/IndexView.vue:93
-#: src/views/apps/benchmark/IndexView.vue:94
-#: src/views/apps/benchmark/IndexView.vue:95
-#: src/views/apps/benchmark/IndexView.vue:156
-#: src/views/apps/benchmark/IndexView.vue:256
-#: src/views/apps/benchmark/IndexView.vue:287
-msgid "Pending benchmark"
-msgstr "待跑分"
-
-#: src/views/apps/benchmark/IndexView.vue:129
-msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
-msgstr "跑分結果僅供參考，由於系統資源調度、快取和其他因素，可能與實際性能有所不同！"
-
-#: src/views/apps/benchmark/IndexView.vue:136
-msgid "Benchmarking in progress, it may take some time..."
-msgstr "跑分正在進行中，可能需要一些時間……"
-
-#: src/views/apps/benchmark/IndexView.vue:139
-msgid "Current project: %{ current }"
-msgstr "當前項目：%{ current }"
-
-#: src/views/apps/benchmark/IndexView.vue:151
-msgid "Single-core"
-msgstr "單核"
-
-#: src/views/apps/benchmark/IndexView.vue:153
-msgid "Multi-core"
-msgstr "多核"
-
-#: src/views/apps/benchmark/IndexView.vue:170
-msgid "Image Processing"
-msgstr "圖像處理"
-
-#: src/views/apps/benchmark/IndexView.vue:173
-#: src/views/apps/benchmark/IndexView.vue:184
-#: src/views/apps/benchmark/IndexView.vue:195
-#: src/views/apps/benchmark/IndexView.vue:206
-#: src/views/apps/benchmark/IndexView.vue:217
-#: src/views/apps/benchmark/IndexView.vue:228
-#: src/views/apps/benchmark/IndexView.vue:239
-msgid "Single-core %{ single } / Multi-core %{ multi }"
-msgstr "單核 %{ single } / 多核 %{ multi }"
-
-#: src/views/apps/benchmark/IndexView.vue:181
-msgid "Machine Learning"
-msgstr "機器學習"
-
-#: src/views/apps/benchmark/IndexView.vue:192
-msgid "Program Compilation"
-msgstr "程序編譯"
-
-#: src/views/apps/benchmark/IndexView.vue:203
-msgid "AES Encryption"
-msgstr "AES 加密"
-
-#: src/views/apps/benchmark/IndexView.vue:214
-msgid "Compression/Decompression"
-msgstr "壓縮/解壓縮"
-
-#: src/views/apps/benchmark/IndexView.vue:225
-msgid "Physics Simulation"
-msgstr "物理模擬"
-
-#: src/views/apps/benchmark/IndexView.vue:236
-msgid "JSON Parsing"
-msgstr "JSON 解析"
-
-#: src/views/apps/benchmark/IndexView.vue:265
-#: src/views/container/ContainerCreate.vue:306
-#: src/views/dashboard/IndexView.vue:533
-#: src/views/monitor/IndexView.vue:205
-#: src/views/monitor/IndexView.vue:216
-#: src/views/monitor/IndexView.vue:238
-#: src/views/task/SystemView.vue:78
-msgid "Memory"
-msgstr "記憶體"
-
-#: src/views/apps/benchmark/IndexView.vue:270
-msgid "Memory Bandwidth"
-msgstr "記憶體頻寬"
-
-#: src/views/apps/benchmark/IndexView.vue:274
-msgid "Memory Latency"
-msgstr "記憶體延遲"
-
-#: src/views/apps/benchmark/IndexView.vue:296
-#: src/views/dashboard/IndexView.vue:141
-#: src/views/dashboard/IndexView.vue:798
-#: src/views/dashboard/IndexView.vue:818
-msgid "Disk"
-msgstr "磁碟"
-
-#: src/views/apps/benchmark/IndexView.vue:301
-msgid "4KB Read"
-msgstr "4KB 讀取"
-
-#: src/views/apps/benchmark/IndexView.vue:304
-#: src/views/apps/benchmark/IndexView.vue:315
-#: src/views/apps/benchmark/IndexView.vue:326
-#: src/views/apps/benchmark/IndexView.vue:337
-#: src/views/apps/benchmark/IndexView.vue:348
-#: src/views/apps/benchmark/IndexView.vue:359
-#: src/views/apps/benchmark/IndexView.vue:370
-#: src/views/apps/benchmark/IndexView.vue:381
-msgid "Speed %{ speed } / %{ iops } IOPS"
-msgstr "速度 %{ speed } / %{ iops } IOPS"
-
-#: src/views/apps/benchmark/IndexView.vue:312
-msgid "4KB Write"
-msgstr "4KB 寫入"
-
-#: src/views/apps/benchmark/IndexView.vue:323
-msgid "64KB Read"
-msgstr "64KB 讀取"
-
-#: src/views/apps/benchmark/IndexView.vue:334
-msgid "64KB Write"
-msgstr "64KB 寫入"
-
-#: src/views/apps/benchmark/IndexView.vue:345
-msgid "512KB Read"
-msgstr "512KB 讀取"
-
-#: src/views/apps/benchmark/IndexView.vue:356
-msgid "512KB Write"
-msgstr "512KB 寫入"
-
-#: src/views/apps/benchmark/IndexView.vue:367
-msgid "1MB Read"
-msgstr "1MB 讀取"
-
-#: src/views/apps/benchmark/IndexView.vue:378
-msgid "1MB Write"
-msgstr "1MB 寫入"
-
-#: src/views/apps/benchmark/IndexView.vue:402
-msgid "Benchmarking..."
-msgstr "跑分中……"
-
-#: src/views/apps/benchmark/IndexView.vue:402
-msgid "Start Benchmark"
-msgstr "開始跑分"
-
 #: src/views/apps/codeserver/IndexView.vue:39
 #: src/views/apps/docker/IndexView.vue:39
 #: src/views/apps/frp/IndexView.vue:48
@@ -908,13 +749,13 @@ msgstr "開始跑分"
 #: src/views/apps/redis/IndexView.vue:56
 #: src/views/apps/rsync/IndexView.vue:201
 #: src/views/apps/supervisor/IndexView.vue:313
-#: src/views/apps/toolbox/IndexView.vue:97
-#: src/views/apps/toolbox/IndexView.vue:101
-#: src/views/apps/toolbox/IndexView.vue:105
-#: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
 #: src/views/setting/IndexView.vue:65
+#: src/views/toolbox/SystemView.vue:97
+#: src/views/toolbox/SystemView.vue:101
+#: src/views/toolbox/SystemView.vue:105
+#: src/views/toolbox/SystemView.vue:109
 #: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr "儲存"
@@ -1260,8 +1101,8 @@ msgid "Clear Slow Log"
 msgstr "清除慢查詢日誌"
 
 #: src/views/apps/mysql/IndexView.vue:104
-#: src/views/apps/toolbox/IndexView.vue:205
-#: src/views/apps/toolbox/IndexView.vue:207
+#: src/views/toolbox/SystemView.vue:205
+#: src/views/toolbox/SystemView.vue:207
 msgid "Root Password"
 msgstr "Root 密碼"
 
@@ -1511,7 +1352,6 @@ msgstr "用戶"
 #: src/views/apps/rsync/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:312
 #: src/views/apps/rsync/IndexView.vue:367
-#: src/views/apps/toolbox/IndexView.vue:156
 #: src/views/database/CreateDatabaseModal.vue:110
 #: src/views/database/CreateServerModal.vue:73
 #: src/views/database/ServerList.vue:87
@@ -1519,6 +1359,7 @@ msgstr "用戶"
 #: src/views/database/UserList.vue:81
 #: src/views/ssh/CreateModal.vue:62
 #: src/views/ssh/UpdateModal.vue:68
+#: src/views/toolbox/SystemView.vue:156
 msgid "Host"
 msgstr "主機"
 
@@ -1702,67 +1543,6 @@ msgstr "進程數量"
 msgid "Process Configuration"
 msgstr "進程配置"
 
-#: src/views/apps/toolbox/IndexView.vue:87
-#: src/views/database/ServerList.vue:147
-msgid "Synchronized successfully"
-msgstr "同步成功"
-
-#: src/views/apps/toolbox/IndexView.vue:118
-#: src/views/cert/AccountView.vue:101
-#: src/views/cert/CertView.vue:288
-#: src/views/cert/DnsView.vue:85
-#: src/views/database/ServerList.vue:184
-#: src/views/database/UserList.vue:169
-#: src/views/file/PermissionModal.vue:123
-#: src/views/setting/TokenModal.vue:69
-msgid "Modify"
-msgstr "修改"
-
-#: src/views/apps/toolbox/IndexView.vue:125
-msgid "DNS modifications will revert to default after system restart."
-msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
-
-#: src/views/apps/toolbox/IndexView.vue:141
-msgid "Total %{ total }, used %{ used }, free %{ free }"
-msgstr "總計 %{ total }，已使用 %{ used }，可用 %{ free }"
-
-#: src/views/apps/toolbox/IndexView.vue:149
-#: src/views/dashboard/IndexView.vue:581
-msgid "SWAP Size"
-msgstr "SWAP 大小"
-
-#: src/views/apps/toolbox/IndexView.vue:159
-msgid "Hostname"
-msgstr "主機名"
-
-#: src/views/apps/toolbox/IndexView.vue:177
-msgid "Time"
-msgstr "時間"
-
-#: src/views/apps/toolbox/IndexView.vue:181
-msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
-msgstr "手動更改時間後，系統自動時間同步可能仍會覆蓋設置。"
-
-#: src/views/apps/toolbox/IndexView.vue:187
-msgid "Select Timezone"
-msgstr "選擇時區"
-
-#: src/views/apps/toolbox/IndexView.vue:190
-msgid "Please select a timezone"
-msgstr "請選擇時區"
-
-#: src/views/apps/toolbox/IndexView.vue:194
-msgid "Modify Time"
-msgstr "修改時間"
-
-#: src/views/apps/toolbox/IndexView.vue:197
-msgid "NTP Time Synchronization"
-msgstr "NTP 時間同步"
-
-#: src/views/apps/toolbox/IndexView.vue:199
-msgid "Synchronize Time"
-msgstr "同步時間"
-
 #: src/views/backup/ListView.vue:36
 msgid "Filename"
 msgstr "檔案名稱"
@@ -1863,6 +1643,17 @@ msgstr "電子郵件"
 #: src/views/cert/CreateCertModal.vue:82
 msgid "Key Type"
 msgstr "密鑰類型"
+
+#: src/views/cert/AccountView.vue:101
+#: src/views/cert/CertView.vue:288
+#: src/views/cert/DnsView.vue:85
+#: src/views/database/ServerList.vue:184
+#: src/views/database/UserList.vue:169
+#: src/views/file/PermissionModal.vue:123
+#: src/views/setting/TokenModal.vue:69
+#: src/views/toolbox/SystemView.vue:118
+msgid "Modify"
+msgstr "修改"
 
 #: src/views/cert/AccountView.vue:109
 #: src/views/cert/CertView.vue:297
@@ -2531,6 +2322,16 @@ msgstr "命令"
 msgid "Entrypoint"
 msgstr "進入點"
 
+#: src/views/container/ContainerCreate.vue:306
+#: src/views/dashboard/IndexView.vue:533
+#: src/views/monitor/IndexView.vue:205
+#: src/views/monitor/IndexView.vue:216
+#: src/views/monitor/IndexView.vue:238
+#: src/views/task/SystemView.vue:78
+#: src/views/toolbox/BenchmarkView.vue:265
+msgid "Memory"
+msgstr "記憶體"
+
 #: src/views/container/ContainerCreate.vue:316
 msgid "CPU Shares"
 msgstr "CPU 份額"
@@ -2855,6 +2656,13 @@ msgstr "運行正常"
 msgid "Running smoothly"
 msgstr "運行流暢"
 
+#: src/views/dashboard/IndexView.vue:141
+#: src/views/dashboard/IndexView.vue:798
+#: src/views/dashboard/IndexView.vue:818
+#: src/views/toolbox/BenchmarkView.vue:296
+msgid "Disk"
+msgstr "磁碟"
+
 #: src/views/dashboard/IndexView.vue:164
 #: src/views/dashboard/IndexView.vue:181
 msgid "Send"
@@ -3022,6 +2830,11 @@ msgstr "已提交"
 #: src/views/dashboard/IndexView.vue:575
 msgid "Commit Limit"
 msgstr "提交限制"
+
+#: src/views/dashboard/IndexView.vue:581
+#: src/views/toolbox/SystemView.vue:149
+msgid "SWAP Size"
+msgstr "SWAP 大小"
 
 #: src/views/dashboard/IndexView.vue:587
 msgid "SWAP Used"
@@ -3320,6 +3133,11 @@ msgstr "有效"
 #: src/views/database/UserList.vue:138
 msgid "Invalid"
 msgstr "無效"
+
+#: src/views/database/ServerList.vue:147
+#: src/views/toolbox/SystemView.vue:87
+msgid "Synchronized successfully"
+msgstr "同步成功"
 
 #: src/views/database/ServerList.vue:153
 msgid "Are you sure you want to synchronize database users (excluding password) to the panel?"
@@ -4288,6 +4106,192 @@ msgstr "完成時間"
 #: src/views/task/TaskView.vue:136
 msgid "If logs cannot be loaded, please disable ad blockers!"
 msgstr "如果無法加載日誌，請禁用廣告攔截器！"
+
+#: src/views/toolbox/BenchmarkView.vue:12
+#: src/views/toolbox/BenchmarkView.vue:165
+msgid "CPU"
+msgstr "CPU"
+
+#: src/views/toolbox/BenchmarkView.vue:67
+#: src/views/toolbox/BenchmarkView.vue:68
+#: src/views/toolbox/BenchmarkView.vue:74
+#: src/views/toolbox/BenchmarkView.vue:75
+#: src/views/toolbox/BenchmarkView.vue:76
+#: src/views/toolbox/BenchmarkView.vue:77
+#: src/views/toolbox/BenchmarkView.vue:80
+#: src/views/toolbox/BenchmarkView.vue:81
+#: src/views/toolbox/BenchmarkView.vue:82
+#: src/views/toolbox/BenchmarkView.vue:83
+#: src/views/toolbox/BenchmarkView.vue:86
+#: src/views/toolbox/BenchmarkView.vue:87
+#: src/views/toolbox/BenchmarkView.vue:88
+#: src/views/toolbox/BenchmarkView.vue:89
+#: src/views/toolbox/BenchmarkView.vue:92
+#: src/views/toolbox/BenchmarkView.vue:93
+#: src/views/toolbox/BenchmarkView.vue:94
+#: src/views/toolbox/BenchmarkView.vue:95
+#: src/views/toolbox/BenchmarkView.vue:156
+#: src/views/toolbox/BenchmarkView.vue:256
+#: src/views/toolbox/BenchmarkView.vue:287
+msgid "Pending benchmark"
+msgstr "待跑分"
+
+#: src/views/toolbox/BenchmarkView.vue:129
+msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
+msgstr "跑分結果僅供參考，由於系統資源調度、快取和其他因素，可能與實際性能有所不同！"
+
+#: src/views/toolbox/BenchmarkView.vue:136
+msgid "Benchmarking in progress, it may take some time..."
+msgstr "跑分正在進行中，可能需要一些時間……"
+
+#: src/views/toolbox/BenchmarkView.vue:139
+msgid "Current project: %{ current }"
+msgstr "當前項目：%{ current }"
+
+#: src/views/toolbox/BenchmarkView.vue:151
+msgid "Single-core"
+msgstr "單核"
+
+#: src/views/toolbox/BenchmarkView.vue:153
+msgid "Multi-core"
+msgstr "多核"
+
+#: src/views/toolbox/BenchmarkView.vue:170
+msgid "Image Processing"
+msgstr "圖像處理"
+
+#: src/views/toolbox/BenchmarkView.vue:173
+#: src/views/toolbox/BenchmarkView.vue:184
+#: src/views/toolbox/BenchmarkView.vue:195
+#: src/views/toolbox/BenchmarkView.vue:206
+#: src/views/toolbox/BenchmarkView.vue:217
+#: src/views/toolbox/BenchmarkView.vue:228
+#: src/views/toolbox/BenchmarkView.vue:239
+msgid "Single-core %{ single } / Multi-core %{ multi }"
+msgstr "單核 %{ single } / 多核 %{ multi }"
+
+#: src/views/toolbox/BenchmarkView.vue:181
+msgid "Machine Learning"
+msgstr "機器學習"
+
+#: src/views/toolbox/BenchmarkView.vue:192
+msgid "Program Compilation"
+msgstr "程序編譯"
+
+#: src/views/toolbox/BenchmarkView.vue:203
+msgid "AES Encryption"
+msgstr "AES 加密"
+
+#: src/views/toolbox/BenchmarkView.vue:214
+msgid "Compression/Decompression"
+msgstr "壓縮/解壓縮"
+
+#: src/views/toolbox/BenchmarkView.vue:225
+msgid "Physics Simulation"
+msgstr "物理模擬"
+
+#: src/views/toolbox/BenchmarkView.vue:236
+msgid "JSON Parsing"
+msgstr "JSON 解析"
+
+#: src/views/toolbox/BenchmarkView.vue:270
+msgid "Memory Bandwidth"
+msgstr "記憶體頻寬"
+
+#: src/views/toolbox/BenchmarkView.vue:274
+msgid "Memory Latency"
+msgstr "記憶體延遲"
+
+#: src/views/toolbox/BenchmarkView.vue:301
+msgid "4KB Read"
+msgstr "4KB 讀取"
+
+#: src/views/toolbox/BenchmarkView.vue:304
+#: src/views/toolbox/BenchmarkView.vue:315
+#: src/views/toolbox/BenchmarkView.vue:326
+#: src/views/toolbox/BenchmarkView.vue:337
+#: src/views/toolbox/BenchmarkView.vue:348
+#: src/views/toolbox/BenchmarkView.vue:359
+#: src/views/toolbox/BenchmarkView.vue:370
+#: src/views/toolbox/BenchmarkView.vue:381
+msgid "Speed %{ speed } / %{ iops } IOPS"
+msgstr "速度 %{ speed } / %{ iops } IOPS"
+
+#: src/views/toolbox/BenchmarkView.vue:312
+msgid "4KB Write"
+msgstr "4KB 寫入"
+
+#: src/views/toolbox/BenchmarkView.vue:323
+msgid "64KB Read"
+msgstr "64KB 讀取"
+
+#: src/views/toolbox/BenchmarkView.vue:334
+msgid "64KB Write"
+msgstr "64KB 寫入"
+
+#: src/views/toolbox/BenchmarkView.vue:345
+msgid "512KB Read"
+msgstr "512KB 讀取"
+
+#: src/views/toolbox/BenchmarkView.vue:356
+msgid "512KB Write"
+msgstr "512KB 寫入"
+
+#: src/views/toolbox/BenchmarkView.vue:367
+msgid "1MB Read"
+msgstr "1MB 讀取"
+
+#: src/views/toolbox/BenchmarkView.vue:378
+msgid "1MB Write"
+msgstr "1MB 寫入"
+
+#: src/views/toolbox/BenchmarkView.vue:402
+msgid "Benchmarking..."
+msgstr "跑分中……"
+
+#: src/views/toolbox/BenchmarkView.vue:402
+msgid "Start Benchmark"
+msgstr "開始跑分"
+
+#: src/views/toolbox/SystemView.vue:125
+msgid "DNS modifications will revert to default after system restart."
+msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
+
+#: src/views/toolbox/SystemView.vue:141
+msgid "Total %{ total }, used %{ used }, free %{ free }"
+msgstr "總計 %{ total }，已使用 %{ used }，可用 %{ free }"
+
+#: src/views/toolbox/SystemView.vue:159
+msgid "Hostname"
+msgstr "主機名"
+
+#: src/views/toolbox/SystemView.vue:177
+msgid "Time"
+msgstr "時間"
+
+#: src/views/toolbox/SystemView.vue:181
+msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
+msgstr "手動更改時間後，系統自動時間同步可能仍會覆蓋設置。"
+
+#: src/views/toolbox/SystemView.vue:187
+msgid "Select Timezone"
+msgstr "選擇時區"
+
+#: src/views/toolbox/SystemView.vue:190
+msgid "Please select a timezone"
+msgstr "請選擇時區"
+
+#: src/views/toolbox/SystemView.vue:194
+msgid "Modify Time"
+msgstr "修改時間"
+
+#: src/views/toolbox/SystemView.vue:197
+msgid "NTP Time Synchronization"
+msgstr "NTP 時間同步"
+
+#: src/views/toolbox/SystemView.vue:199
+msgid "Synchronize Time"
+msgstr "同步時間"
 
 #: src/views/website/BulkCreate.vue:21
 msgid "The format is incorrect, please check"
