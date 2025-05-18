@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-18 16:48\n"
+"PO-Revision-Date: 2025-05-18 18:01\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -2328,7 +2328,7 @@ msgstr "進入點"
 #: src/views/monitor/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:238
 #: src/views/task/SystemView.vue:78
-#: src/views/toolbox/BenchmarkView.vue:265
+#: src/views/toolbox/BenchmarkView.vue:188
 msgid "Memory"
 msgstr "記憶體"
 
@@ -2659,7 +2659,7 @@ msgstr "運行流暢"
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:798
 #: src/views/dashboard/IndexView.vue:818
-#: src/views/toolbox/BenchmarkView.vue:296
+#: src/views/toolbox/BenchmarkView.vue:219
 msgid "Disk"
 msgstr "磁碟"
 
@@ -4108,148 +4108,101 @@ msgid "If logs cannot be loaded, please disable ad blockers!"
 msgstr "如果無法加載日誌，請禁用廣告攔截器！"
 
 #: src/views/toolbox/BenchmarkView.vue:12
-#: src/views/toolbox/BenchmarkView.vue:165
+#: src/views/toolbox/BenchmarkView.vue:123
 msgid "CPU"
 msgstr "CPU"
 
-#: src/views/toolbox/BenchmarkView.vue:67
-#: src/views/toolbox/BenchmarkView.vue:68
-#: src/views/toolbox/BenchmarkView.vue:74
-#: src/views/toolbox/BenchmarkView.vue:75
-#: src/views/toolbox/BenchmarkView.vue:76
-#: src/views/toolbox/BenchmarkView.vue:77
-#: src/views/toolbox/BenchmarkView.vue:80
-#: src/views/toolbox/BenchmarkView.vue:81
-#: src/views/toolbox/BenchmarkView.vue:82
-#: src/views/toolbox/BenchmarkView.vue:83
-#: src/views/toolbox/BenchmarkView.vue:86
-#: src/views/toolbox/BenchmarkView.vue:87
-#: src/views/toolbox/BenchmarkView.vue:88
-#: src/views/toolbox/BenchmarkView.vue:89
-#: src/views/toolbox/BenchmarkView.vue:92
-#: src/views/toolbox/BenchmarkView.vue:93
-#: src/views/toolbox/BenchmarkView.vue:94
-#: src/views/toolbox/BenchmarkView.vue:95
-#: src/views/toolbox/BenchmarkView.vue:156
-#: src/views/toolbox/BenchmarkView.vue:256
-#: src/views/toolbox/BenchmarkView.vue:287
+#: src/views/toolbox/BenchmarkView.vue:43
+#: src/views/toolbox/BenchmarkView.vue:44
+#: src/views/toolbox/BenchmarkView.vue:50
+#: src/views/toolbox/BenchmarkView.vue:51
+#: src/views/toolbox/BenchmarkView.vue:54
+#: src/views/toolbox/BenchmarkView.vue:55
+#: src/views/toolbox/BenchmarkView.vue:58
+#: src/views/toolbox/BenchmarkView.vue:59
+#: src/views/toolbox/BenchmarkView.vue:114
+#: src/views/toolbox/BenchmarkView.vue:179
+#: src/views/toolbox/BenchmarkView.vue:210
 msgid "Pending benchmark"
 msgstr "待跑分"
 
-#: src/views/toolbox/BenchmarkView.vue:129
+#: src/views/toolbox/BenchmarkView.vue:90
 msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
 msgstr "跑分結果僅供參考，由於系統資源調度、快取和其他因素，可能與實際性能有所不同！"
 
-#: src/views/toolbox/BenchmarkView.vue:136
+#: src/views/toolbox/BenchmarkView.vue:97
 msgid "Benchmarking in progress, it may take some time..."
 msgstr "跑分正在進行中，可能需要一些時間……"
 
-#: src/views/toolbox/BenchmarkView.vue:139
+#: src/views/toolbox/BenchmarkView.vue:100
 msgid "Current project: %{ current }"
 msgstr "當前項目：%{ current }"
 
-#: src/views/toolbox/BenchmarkView.vue:151
-msgid "Single-core"
-msgstr "單核"
-
-#: src/views/toolbox/BenchmarkView.vue:153
-msgid "Multi-core"
-msgstr "多核"
-
-#: src/views/toolbox/BenchmarkView.vue:170
+#: src/views/toolbox/BenchmarkView.vue:128
 msgid "Image Processing"
 msgstr "圖像處理"
 
-#: src/views/toolbox/BenchmarkView.vue:173
-#: src/views/toolbox/BenchmarkView.vue:184
-#: src/views/toolbox/BenchmarkView.vue:195
-#: src/views/toolbox/BenchmarkView.vue:206
-#: src/views/toolbox/BenchmarkView.vue:217
-#: src/views/toolbox/BenchmarkView.vue:228
-#: src/views/toolbox/BenchmarkView.vue:239
-msgid "Single-core %{ single } / Multi-core %{ multi }"
-msgstr "單核 %{ single } / 多核 %{ multi }"
-
-#: src/views/toolbox/BenchmarkView.vue:181
+#: src/views/toolbox/BenchmarkView.vue:134
 msgid "Machine Learning"
 msgstr "機器學習"
 
-#: src/views/toolbox/BenchmarkView.vue:192
+#: src/views/toolbox/BenchmarkView.vue:140
 msgid "Program Compilation"
 msgstr "程序編譯"
 
-#: src/views/toolbox/BenchmarkView.vue:203
+#: src/views/toolbox/BenchmarkView.vue:146
 msgid "AES Encryption"
 msgstr "AES 加密"
 
-#: src/views/toolbox/BenchmarkView.vue:214
+#: src/views/toolbox/BenchmarkView.vue:152
 msgid "Compression/Decompression"
 msgstr "壓縮/解壓縮"
 
-#: src/views/toolbox/BenchmarkView.vue:225
+#: src/views/toolbox/BenchmarkView.vue:158
 msgid "Physics Simulation"
 msgstr "物理模擬"
 
-#: src/views/toolbox/BenchmarkView.vue:236
+#: src/views/toolbox/BenchmarkView.vue:164
 msgid "JSON Parsing"
 msgstr "JSON 解析"
 
-#: src/views/toolbox/BenchmarkView.vue:270
+#: src/views/toolbox/BenchmarkView.vue:193
 msgid "Memory Bandwidth"
 msgstr "記憶體頻寬"
 
-#: src/views/toolbox/BenchmarkView.vue:274
+#: src/views/toolbox/BenchmarkView.vue:197
 msgid "Memory Latency"
 msgstr "記憶體延遲"
 
-#: src/views/toolbox/BenchmarkView.vue:301
+#: src/views/toolbox/BenchmarkView.vue:224
 msgid "4KB Read"
 msgstr "4KB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:304
-#: src/views/toolbox/BenchmarkView.vue:315
-#: src/views/toolbox/BenchmarkView.vue:326
-#: src/views/toolbox/BenchmarkView.vue:337
-#: src/views/toolbox/BenchmarkView.vue:348
-#: src/views/toolbox/BenchmarkView.vue:359
-#: src/views/toolbox/BenchmarkView.vue:370
-#: src/views/toolbox/BenchmarkView.vue:381
-msgid "Speed %{ speed } / %{ iops } IOPS"
-msgstr "速度 %{ speed } / %{ iops } IOPS"
-
-#: src/views/toolbox/BenchmarkView.vue:312
+#: src/views/toolbox/BenchmarkView.vue:230
 msgid "4KB Write"
 msgstr "4KB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:323
+#: src/views/toolbox/BenchmarkView.vue:236
 msgid "64KB Read"
 msgstr "64KB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:334
+#: src/views/toolbox/BenchmarkView.vue:242
 msgid "64KB Write"
 msgstr "64KB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:345
-msgid "512KB Read"
-msgstr "512KB 讀取"
-
-#: src/views/toolbox/BenchmarkView.vue:356
-msgid "512KB Write"
-msgstr "512KB 寫入"
-
-#: src/views/toolbox/BenchmarkView.vue:367
+#: src/views/toolbox/BenchmarkView.vue:248
 msgid "1MB Read"
 msgstr "1MB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:378
+#: src/views/toolbox/BenchmarkView.vue:254
 msgid "1MB Write"
 msgstr "1MB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:402
+#: src/views/toolbox/BenchmarkView.vue:273
 msgid "Benchmarking..."
 msgstr "跑分中……"
 
-#: src/views/toolbox/BenchmarkView.vue:402
+#: src/views/toolbox/BenchmarkView.vue:273
 msgid "Start Benchmark"
 msgstr "開始跑分"
 
