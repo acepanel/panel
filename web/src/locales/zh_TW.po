@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-18 18:01\n"
+"PO-Revision-Date: 2025-05-18 18:03\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -567,15 +567,15 @@ msgstr "任務"
 
 #: src/locales/menu.ts:20
 msgid "Toolbox"
-msgstr ""
+msgstr "工具箱"
 
 #: src/locales/menu.ts:21
 msgid "System"
-msgstr ""
+msgstr "系統"
 
 #: src/locales/menu.ts:22
 msgid "Benchmark"
-msgstr ""
+msgstr "跑分"
 
 #: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
