@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-18 18:01\n"
+"PO-Revision-Date: 2025-05-24 07:21\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1288,7 +1288,7 @@ msgstr "找不到應用 %s"
 
 #: internal/data/app.go:210
 #: internal/data/app.go:265
-#: internal/http/middleware/must_install.go:48
+#: internal/http/middleware/must_install.go:38
 msgid "app %s not installed"
 msgstr "應用程式 %s 未安裝"
 
@@ -1303,7 +1303,7 @@ msgstr "應用程式 %s 不支援目前面板版本"
 msgid "app %s requires panel version %s, current version %s"
 msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 
-#: internal/http/middleware/must_install.go:29
+#: internal/http/middleware/must_install.go:24
 msgid "app not found"
 msgstr "找不到應用"
 
@@ -1340,7 +1340,7 @@ msgstr "找不到 %s 數據庫服務器，請先添加"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/http/middleware/must_login.go:93
+#: internal/http/middleware/must_login.go:68
 msgid "client ip/ua changed, please login again"
 msgstr "客戶端 IP/UA 已更改，請重新登入"
 
@@ -1725,13 +1725,13 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/data/user.go:175
-#: internal/data/user.go:198
-#: internal/service/user.go:102
+#: internal/data/user.go:170
+#: internal/data/user.go:189
+#: internal/service/user.go:96
 msgid "invalid 2FA code"
 msgstr "無效的兩步驗證代碼"
 
-#: internal/http/middleware/entrance.go:114
+#: internal/http/middleware/entrance.go:87
 msgid "invalid access entrance"
 msgstr "無效的訪問入口"
 
@@ -1739,20 +1739,20 @@ msgstr "無效的訪問入口"
 msgid "invalid header: %v"
 msgstr "無效的請求標頭：%v"
 
-#: internal/service/user.go:84
+#: internal/service/user.go:82
 msgid "invalid key, please refresh the page"
 msgstr "無效的密鑰，請重新整理頁面"
 
-#: internal/http/middleware/entrance.go:57
+#: internal/http/middleware/entrance.go:43
 msgid "invalid request domain: %s"
 msgstr "無效的請求域名：%s"
 
 #: internal/data/user_token.go:148
-#: internal/http/middleware/entrance.go:70
+#: internal/http/middleware/entrance.go:51
 msgid "invalid request ip: %s"
 msgstr "無效的請求 IP：%s"
 
-#: internal/http/middleware/entrance.go:79
+#: internal/http/middleware/entrance.go:55
 msgid "invalid request user agent: %s"
 msgstr "無效的請求UA：%s"
 
@@ -1762,7 +1762,7 @@ msgstr "無效的請求UA：%s"
 msgid "invalid signature"
 msgstr "無效的簽名"
 
-#: internal/http/middleware/must_login.go:107
+#: internal/http/middleware/must_login.go:77
 msgid "invalid user id, please login again"
 msgstr "無效的用戶ID，請重新登錄"
 
@@ -1811,19 +1811,19 @@ msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方�
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/http/middleware/status.go:38
+#: internal/http/middleware/status.go:23
 msgid "panel is closed"
 msgstr "面板已關閉"
 
-#: internal/http/middleware/status.go:30
+#: internal/http/middleware/status.go:20
 msgid "panel is maintaining, please refresh later"
 msgstr "面板正在維護，請稍後刷新"
 
-#: internal/http/middleware/status.go:22
+#: internal/http/middleware/status.go:17
 msgid "panel is upgrading, please refresh later"
 msgstr "面板正在升級，請稍後刷新"
 
-#: internal/http/middleware/status.go:46
+#: internal/http/middleware/status.go:26
 msgid "panel run error, please check or contact support"
 msgstr "面板運行錯誤，請檢查或聯繫技術支持"
 
@@ -1848,7 +1848,7 @@ msgstr "未找到 phpMyAdmin 目錄"
 msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
-#: internal/data/user.go:97
+#: internal/data/user.go:96
 #: internal/service/file.go:135
 #: internal/service/file.go:222
 #: internal/service/file.go:251
@@ -1892,7 +1892,7 @@ msgstr "未找到運行目錄註釋"
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
-#: internal/http/middleware/must_login.go:78
+#: internal/http/middleware/must_login.go:58
 msgid "session expired, please login again"
 msgstr "會話已過期，請重新登錄"
 
@@ -1990,9 +1990,9 @@ msgstr "上傳的憑證無法設定為自動續簽"
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
-#: internal/data/user.go:117
-#: internal/data/user.go:124
-#: internal/data/user.go:134
+#: internal/data/user.go:116
+#: internal/data/user.go:123
+#: internal/data/user.go:133
 msgid "username or password error"
 msgstr "使用者名稱或密碼錯誤"
 
@@ -2013,7 +2013,7 @@ msgstr "萬用字元網域無法使用 HTTP 驗證"
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
-#: internal/http/middleware/must_login.go:58
+#: internal/http/middleware/must_login.go:48
 msgid "ws not allowed"
 msgstr "不允許 ws"
 
