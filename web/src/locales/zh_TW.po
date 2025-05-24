@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-18 18:03\n"
+"PO-Revision-Date: 2025-05-24 15:47\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -615,8 +615,9 @@ msgid "Frp Manager"
 msgstr "Frp 管理器"
 
 #: src/router/routes/index.ts:18
-msgid "Login Page"
-msgstr "登錄頁面"
+#: src/views/login/IndexView.vue:176
+msgid "Login"
+msgstr "登錄"
 
 #: src/views/app/IndexView.vue:19
 #: src/views/app/IndexView.vue:154
@@ -3630,10 +3631,6 @@ msgstr "安全登錄"
 #: src/views/login/IndexView.vue:162
 msgid "Remember Me"
 msgstr "記住我"
-
-#: src/views/login/IndexView.vue:176
-msgid "Login"
-msgstr "登錄"
 
 #: src/views/monitor/IndexView.vue:60
 msgid "Load"
