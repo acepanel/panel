@@ -5,12 +5,12 @@ msgstr ""
 "X-Crowdin-Project: ratpanel\n"
 "X-Crowdin-Project-ID: 778640\n"
 "X-Crowdin-Language: zh-TW\n"
-"X-Crowdin-File: /main/web/src/locales/frontend.pot\n"
+"X-Crowdin-File: /[tnb-labs.panel] main/web/src/locales/frontend.pot\n"
 "X-Crowdin-File-ID: 934\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-26 08:25\n"
+"PO-Revision-Date: 2025-05-26 15:10\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -3806,7 +3806,7 @@ msgstr "訪問入口"
 
 #: src/views/setting/SettingSafe.vue:26
 msgid "/admin"
-msgstr ""
+msgstr "/admin"
 
 #: src/views/setting/SettingSafe.vue:28
 msgid "Bind Domain"
