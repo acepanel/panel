@@ -9,11 +9,11 @@ msgstr ""
 "X-Crowdin-Project: ratpanel\n"
 "X-Crowdin-Project-ID: 778640\n"
 "X-Crowdin-Language: zh-TW\n"
-"X-Crowdin-File: /main/pkg/embed/locales/backend.pot\n"
+"X-Crowdin-File: /[tnb-labs.panel] main/pkg/embed/locales/backend.pot\n"
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-26 11:21\n"
+"PO-Revision-Date: 2025-05-26 15:10\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
