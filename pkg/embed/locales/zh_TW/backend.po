@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-24 07:21\n"
+"PO-Revision-Date: 2025-05-26 11:21\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1731,7 +1731,7 @@ msgstr "獲取服務端口失敗，請檢查是否安裝"
 msgid "invalid 2FA code"
 msgstr "無效的兩步驗證代碼"
 
-#: internal/http/middleware/entrance.go:87
+#: internal/http/middleware/entrance.go:108
 msgid "invalid access entrance"
 msgstr "無效的訪問入口"
 
@@ -1747,12 +1747,12 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid request domain: %s"
 msgstr "無效的請求域名：%s"
 
-#: internal/data/user_token.go:148
-#: internal/http/middleware/entrance.go:51
+#: internal/data/user_token.go:167
+#: internal/http/middleware/entrance.go:71
 msgid "invalid request ip: %s"
 msgstr "無效的請求 IP：%s"
 
-#: internal/http/middleware/entrance.go:55
+#: internal/http/middleware/entrance.go:76
 msgid "invalid request user agent: %s"
 msgstr "無效的請求UA：%s"
 
