@@ -7,7 +7,7 @@ require (
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
 	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
-	github.com/expr-lang/expr v1.17.2
+	github.com/expr-lang/expr v1.17.3
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/go-rat/chix v1.2.0
@@ -38,7 +38,7 @@ require (
 	github.com/libdns/huaweicloud v0.3.5
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/linode v0.4.1
-	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
+	github.com/libdns/namecheap v0.0.0-20250523201144-144eb6168d52
 	github.com/libdns/namedotcom v0.3.3
 	github.com/libdns/namesilo v0.1.2
 	github.com/libdns/porkbun v0.2.0
@@ -48,7 +48,7 @@ require (
 	github.com/ncruces/go-sqlite3 v0.25.2
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
-	github.com/pquerna/otp v1.4.1-0.20241231231527-5971b1ef1d66
+	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.50.0
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
@@ -61,7 +61,7 @@ require (
 	golang.org/x/net v0.40.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/gorm v1.26.1
+	gorm.io/gorm v1.30.0
 )
 
 require (
