@@ -7,7 +7,7 @@ require (
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
 	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
-	github.com/expr-lang/expr v1.17.3
+	github.com/expr-lang/expr v1.17.4
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/go-rat/chix v1.2.0
@@ -20,7 +20,7 @@ require (
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
 	github.com/gookit/color v1.5.4
-	github.com/gookit/validate v1.5.4
+	github.com/gookit/validate v1.5.5
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
 	github.com/knadh/koanf/parsers/yaml v1.0.0
