@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-26 15:10\n"
+"PO-Revision-Date: 2025-05-31 11:19\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -64,7 +64,7 @@ msgstr "阿里雲"
 msgid "Already initialized"
 msgstr "已經初始化過了"
 
-#: internal/data/app.go:347
+#: internal/data/app.go:350
 msgid "App %s %s"
 msgstr "應用 %s %s"
 
@@ -575,7 +575,7 @@ msgstr "Innodb 索引命中率"
 msgid "Install PHP-%d %s extension"
 msgstr "安裝 PHP-%d %s 擴展"
 
-#: internal/data/app.go:191
+#: internal/data/app.go:194
 msgid "Install app %s"
 msgstr "安裝應用 %s"
 
@@ -1136,7 +1136,7 @@ msgstr "無法在離線模式下更新應用程式列表快取"
 msgid "Uninstall PHP-%d %s extension"
 msgstr "卸載 PHP-%d %s 擴展"
 
-#: internal/data/app.go:246
+#: internal/data/app.go:249
 msgid "Uninstall app %s"
 msgstr "卸載應用 %s"
 
@@ -1152,7 +1152,7 @@ msgstr "解壓備份檔案失敗：%v"
 msgid "Unzip panel data failed: %v"
 msgstr "解壓面板數據失敗：%v"
 
-#: internal/data/app.go:301
+#: internal/data/app.go:304
 msgid "Update app %s"
 msgstr "更新應用 %s"
 
@@ -1278,28 +1278,28 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
 
-#: internal/data/app.go:159
+#: internal/data/app.go:162
 msgid "app %s already installed"
 msgstr "應用 %s 已安裝"
 
-#: internal/data/app.go:56
+#: internal/data/app.go:59
 msgid "app %s not found"
 msgstr "找不到應用 %s"
 
-#: internal/data/app.go:210
-#: internal/data/app.go:265
+#: internal/data/app.go:213
+#: internal/data/app.go:268
 #: internal/http/middleware/must_install.go:38
 msgid "app %s not installed"
 msgstr "應用程式 %s 未安裝"
 
-#: internal/data/app.go:179
-#: internal/data/app.go:289
+#: internal/data/app.go:182
+#: internal/data/app.go:292
 msgid "app %s not support current panel version"
 msgstr "應用程式 %s 不支援目前面板版本"
 
-#: internal/data/app.go:170
-#: internal/data/app.go:225
-#: internal/data/app.go:280
+#: internal/data/app.go:173
+#: internal/data/app.go:228
+#: internal/data/app.go:283
 msgid "app %s requires panel version %s, current version %s"
 msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 
@@ -1588,7 +1588,7 @@ msgstr "無法獲取時區：%v"
 msgid "failed to get total banned list"
 msgstr "無法獲取全部被禁止的列表"
 
-#: internal/data/app.go:234
+#: internal/data/app.go:237
 msgid "failed to get uninstall script for app %s"
 msgstr "無法取得應用程式 %s 的解除安裝腳本"
 
