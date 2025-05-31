@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-26 15:10\n"
+"PO-Revision-Date: 2025-05-31 10:05\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -212,15 +212,15 @@ msgstr "根目录"
 #: src/views/container/ComposeView.vue:340
 #: src/views/container/ComposeView.vue:370
 #: src/views/container/ContainerCreate.vue:370
-#: src/views/container/ContainerView.vue:481
+#: src/views/container/ContainerView.vue:485
 #: src/views/container/ImageView.vue:217
 #: src/views/container/NetworkView.vue:313
 #: src/views/container/VolumeView.vue:213
-#: src/views/database/CreateDatabaseModal.vue:131
+#: src/views/database/CreateDatabaseModal.vue:132
 #: src/views/database/CreateServerModal.vue:120
-#: src/views/database/CreateUserModal.vue:118
+#: src/views/database/CreateUserModal.vue:125
 #: src/views/database/UpdateServerModal.vue:112
-#: src/views/database/UpdateUserModal.vue:73
+#: src/views/database/UpdateUserModal.vue:79
 #: src/views/file/ToolBar.vue:261
 #: src/views/file/ToolBar.vue:282
 #: src/views/firewall/CreateForwardModal.vue:88
@@ -247,8 +247,8 @@ msgstr "获取日志流失败"
 
 #: src/components/common/RealtimeLogModal.vue:67
 #: src/views/apps/supervisor/IndexView.vue:91
-#: src/views/container/ContainerView.vue:102
-#: src/views/container/ContainerView.vue:442
+#: src/views/container/ContainerView.vue:106
+#: src/views/container/ContainerView.vue:446
 #: src/views/task/CronView.vue:120
 #: src/views/task/TaskView.vue:74
 msgid "Logs"
@@ -342,7 +342,7 @@ msgstr "自启动已成功禁用"
 #: src/views/apps/redis/IndexView.vue:60
 #: src/views/apps/rsync/IndexView.vue:214
 #: src/views/apps/supervisor/IndexView.vue:330
-#: src/views/container/ContainerView.vue:80
+#: src/views/container/ContainerView.vue:84
 msgid "Running Status"
 msgstr "运行状态"
 
@@ -357,16 +357,16 @@ msgstr "自启动关闭"
 #: src/components/common/ServiceStatus.vue:152
 #: src/views/apps/supervisor/IndexView.vue:119
 #: src/views/container/ComposeView.vue:158
-#: src/views/container/ContainerView.vue:126
-#: src/views/container/ContainerView.vue:408
+#: src/views/container/ContainerView.vue:130
+#: src/views/container/ContainerView.vue:412
 msgid "Start"
 msgstr "启动"
 
 #: src/components/common/ServiceStatus.vue:158
 #: src/views/apps/supervisor/IndexView.vue:145
 #: src/views/container/ComposeView.vue:189
-#: src/views/container/ContainerView.vue:131
-#: src/views/container/ContainerView.vue:409
+#: src/views/container/ContainerView.vue:135
+#: src/views/container/ContainerView.vue:413
 msgid "Stop"
 msgstr "停止"
 
@@ -376,8 +376,8 @@ msgstr "您确定要停止 %{ service } 吗？"
 
 #: src/components/common/ServiceStatus.vue:165
 #: src/views/apps/supervisor/IndexView.vue:174
-#: src/views/container/ContainerView.vue:136
-#: src/views/container/ContainerView.vue:410
+#: src/views/container/ContainerView.vue:140
+#: src/views/container/ContainerView.vue:414
 #: src/views/dashboard/IndexView.vue:447
 msgid "Restart"
 msgstr "重启"
@@ -658,7 +658,7 @@ msgstr "在主页显示"
 #: src/views/container/ComposeView.vue:74
 #: src/views/container/ContainerCreate.vue:174
 #: src/views/container/ContainerCreate.vue:255
-#: src/views/container/ContainerView.vue:87
+#: src/views/container/ContainerView.vue:91
 #: src/views/container/ImageView.vue:69
 #: src/views/container/NetworkView.vue:109
 #: src/views/container/VolumeView.vue:63
@@ -850,8 +850,8 @@ msgstr "您确定要删除规则 %{ name } 吗？"
 #: src/views/container/ComposeView.vue:220
 #: src/views/container/ContainerCreate.vue:235
 #: src/views/container/ContainerCreate.vue:286
-#: src/views/container/ContainerView.vue:156
-#: src/views/container/ContainerView.vue:414
+#: src/views/container/ContainerView.vue:160
+#: src/views/container/ContainerView.vue:418
 #: src/views/container/ImageView.vue:94
 #: src/views/container/NetworkView.vue:134
 #: src/views/container/VolumeView.vue:88
@@ -1241,9 +1241,9 @@ msgstr "这将修改 PostgreSQL 用户配置文件。如果您不了解每个参
 #: src/views/apps/pureftpd/IndexView.vue:32
 #: src/views/apps/pureftpd/IndexView.vue:221
 #: src/views/container/ImageView.vue:198
-#: src/views/database/CreateDatabaseModal.vue:93
+#: src/views/database/CreateDatabaseModal.vue:94
 #: src/views/database/CreateServerModal.vue:94
-#: src/views/database/CreateUserModal.vue:70
+#: src/views/database/CreateUserModal.vue:77
 #: src/views/database/ServerList.vue:47
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
@@ -1281,8 +1281,8 @@ msgstr "运行日志"
 
 #: src/views/apps/pureftpd/IndexView.vue:213
 #: src/views/apps/pureftpd/IndexView.vue:217
-#: src/views/database/CreateDatabaseModal.vue:78
-#: src/views/database/CreateUserModal.vue:54
+#: src/views/database/CreateDatabaseModal.vue:79
+#: src/views/database/CreateUserModal.vue:55
 #: src/views/database/IndexView.vue:36
 #: src/views/setting/CreateModal.vue:32
 #: src/views/setting/IndexView.vue:69
@@ -1291,8 +1291,8 @@ msgstr "创建用户"
 
 #: src/views/apps/pureftpd/IndexView.vue:226
 #: src/views/container/ImageView.vue:203
-#: src/views/database/CreateDatabaseModal.vue:98
-#: src/views/database/CreateUserModal.vue:75
+#: src/views/database/CreateDatabaseModal.vue:99
+#: src/views/database/CreateUserModal.vue:82
 msgid "Enter username"
 msgstr "输入用户名"
 
@@ -1301,12 +1301,12 @@ msgstr "输入用户名"
 #: src/views/apps/rsync/IndexView.vue:304
 #: src/views/apps/rsync/IndexView.vue:358
 #: src/views/container/ImageView.vue:206
-#: src/views/database/CreateDatabaseModal.vue:101
+#: src/views/database/CreateDatabaseModal.vue:102
 #: src/views/database/CreateServerModal.vue:102
-#: src/views/database/CreateUserModal.vue:78
+#: src/views/database/CreateUserModal.vue:85
 #: src/views/database/ServerList.vue:56
 #: src/views/database/UpdateServerModal.vue:94
-#: src/views/database/UpdateUserModal.vue:49
+#: src/views/database/UpdateUserModal.vue:55
 #: src/views/database/UserList.vue:50
 #: src/views/login/IndexView.vue:142
 #: src/views/setting/CreateModal.vue:47
@@ -1353,7 +1353,7 @@ msgstr "用户"
 #: src/views/apps/rsync/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:312
 #: src/views/apps/rsync/IndexView.vue:367
-#: src/views/database/CreateDatabaseModal.vue:110
+#: src/views/database/CreateDatabaseModal.vue:111
 #: src/views/database/CreateServerModal.vue:73
 #: src/views/database/ServerList.vue:87
 #: src/views/database/UpdateServerModal.vue:65
@@ -1368,11 +1368,11 @@ msgstr "主机"
 #: src/views/apps/rsync/IndexView.vue:320
 #: src/views/apps/rsync/IndexView.vue:375
 #: src/views/database/CreateServerModal.vue:111
-#: src/views/database/CreateUserModal.vue:109
+#: src/views/database/CreateUserModal.vue:116
 #: src/views/database/DatabaseList.vue:57
 #: src/views/database/ServerList.vue:97
 #: src/views/database/UpdateServerModal.vue:103
-#: src/views/database/UpdateUserModal.vue:64
+#: src/views/database/UpdateUserModal.vue:70
 #: src/views/database/UserList.vue:114
 msgid "Comment"
 msgstr "注释"
@@ -1586,7 +1586,7 @@ msgid "Select website"
 msgstr "选择网站"
 
 #: src/views/backup/ListView.vue:227
-#: src/views/database/CreateDatabaseModal.vue:70
+#: src/views/database/CreateDatabaseModal.vue:71
 #: src/views/database/DatabaseList.vue:35
 #: src/views/task/CreateModal.vue:154
 #: src/views/task/CreateModal.vue:156
@@ -1596,9 +1596,9 @@ msgid "Database Name"
 msgstr "数据库名称"
 
 #: src/views/backup/ListView.vue:232
-#: src/views/database/CreateDatabaseModal.vue:75
-#: src/views/database/CreateUserModal.vue:106
-#: src/views/database/UpdateUserModal.vue:61
+#: src/views/database/CreateDatabaseModal.vue:76
+#: src/views/database/CreateUserModal.vue:113
+#: src/views/database/UpdateUserModal.vue:67
 msgid "Enter database name"
 msgstr "输入数据库名称"
 
@@ -2137,8 +2137,8 @@ msgid "Edit"
 msgstr "编辑"
 
 #: src/views/container/ComposeView.vue:111
-#: src/views/container/ContainerView.vue:237
-#: src/views/container/ContainerView.vue:301
+#: src/views/container/ContainerView.vue:241
+#: src/views/container/ContainerView.vue:305
 msgid "Start successful"
 msgstr "启动成功"
 
@@ -2151,8 +2151,8 @@ msgid "Force pull images"
 msgstr "强制拉取镜像"
 
 #: src/views/container/ComposeView.vue:170
-#: src/views/container/ContainerView.vue:244
-#: src/views/container/ContainerView.vue:315
+#: src/views/container/ContainerView.vue:248
+#: src/views/container/ContainerView.vue:319
 msgid "Stop successful"
 msgstr "停止成功"
 
@@ -2161,8 +2161,8 @@ msgid "Are you sure you want to stop compose %{ name }?"
 msgstr "您确定要停止编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:201
-#: src/views/container/ContainerView.vue:279
-#: src/views/container/ContainerView.vue:357
+#: src/views/container/ContainerView.vue:283
+#: src/views/container/ContainerView.vue:361
 #: src/views/container/ImageView.vue:118
 #: src/views/container/NetworkView.vue:158
 #: src/views/container/VolumeView.vue:112
@@ -2217,7 +2217,7 @@ msgid "Unless stopped"
 msgstr "除非停止"
 
 #: src/views/container/ContainerCreate.vue:127
-#: src/views/container/ContainerView.vue:402
+#: src/views/container/ContainerView.vue:406
 msgid "Create Container"
 msgstr "创建容器"
 
@@ -2384,102 +2384,102 @@ msgstr "标签值"
 msgid "Ports (Host->Container)"
 msgstr "端口（主机->容器）"
 
-#: src/views/container/ContainerView.vue:118
-#: src/views/container/ContainerView.vue:465
+#: src/views/container/ContainerView.vue:122
+#: src/views/container/ContainerView.vue:469
 #: src/views/file/ListTable.vue:84
 #: src/views/file/ListTable.vue:264
 msgid "Rename"
 msgstr "重命名"
 
-#: src/views/container/ContainerView.vue:141
-#: src/views/container/ContainerView.vue:411
+#: src/views/container/ContainerView.vue:145
+#: src/views/container/ContainerView.vue:415
 msgid "Force Stop"
 msgstr "强制停止"
 
-#: src/views/container/ContainerView.vue:146
-#: src/views/container/ContainerView.vue:412
+#: src/views/container/ContainerView.vue:150
+#: src/views/container/ContainerView.vue:416
 msgid "Pause"
 msgstr "暂停"
 
-#: src/views/container/ContainerView.vue:151
-#: src/views/container/ContainerView.vue:413
+#: src/views/container/ContainerView.vue:155
+#: src/views/container/ContainerView.vue:417
 msgid "Resume"
 msgstr "恢复"
 
-#: src/views/container/ContainerView.vue:196
+#: src/views/container/ContainerView.vue:200
 #: src/views/file/ListTable.vue:364
 msgid "More"
 msgstr "更多"
 
-#: src/views/container/ContainerView.vue:229
+#: src/views/container/ContainerView.vue:233
 msgid "Rename successful"
 msgstr "重命名成功"
 
-#: src/views/container/ContainerView.vue:251
-#: src/views/container/ContainerView.vue:329
+#: src/views/container/ContainerView.vue:255
+#: src/views/container/ContainerView.vue:333
 msgid "Restart successful"
 msgstr "重启成功"
 
-#: src/views/container/ContainerView.vue:258
-#: src/views/container/ContainerView.vue:343
+#: src/views/container/ContainerView.vue:262
+#: src/views/container/ContainerView.vue:347
 msgid "Force stop successful"
 msgstr "强制停止成功"
 
-#: src/views/container/ContainerView.vue:265
-#: src/views/container/ContainerView.vue:371
+#: src/views/container/ContainerView.vue:269
+#: src/views/container/ContainerView.vue:375
 msgid "Pause successful"
 msgstr "暂停成功"
 
-#: src/views/container/ContainerView.vue:272
-#: src/views/container/ContainerView.vue:385
+#: src/views/container/ContainerView.vue:276
+#: src/views/container/ContainerView.vue:389
 msgid "Resume successful"
 msgstr "恢复成功"
 
-#: src/views/container/ContainerView.vue:286
+#: src/views/container/ContainerView.vue:290
 #: src/views/container/ImageView.vue:125
 #: src/views/container/NetworkView.vue:165
 #: src/views/container/VolumeView.vue:119
 msgid "Cleanup successful"
 msgstr "清理成功"
 
-#: src/views/container/ContainerView.vue:292
+#: src/views/container/ContainerView.vue:296
 msgid "Please select containers to start"
 msgstr "请选择要启动的容器"
 
-#: src/views/container/ContainerView.vue:306
+#: src/views/container/ContainerView.vue:310
 msgid "Please select containers to stop"
 msgstr "请选择要停止的容器"
 
-#: src/views/container/ContainerView.vue:320
+#: src/views/container/ContainerView.vue:324
 msgid "Please select containers to restart"
 msgstr "请选择要重启的容器"
 
-#: src/views/container/ContainerView.vue:334
+#: src/views/container/ContainerView.vue:338
 msgid "Please select containers to force stop"
 msgstr "请选择要强制停止的容器"
 
-#: src/views/container/ContainerView.vue:348
+#: src/views/container/ContainerView.vue:352
 msgid "Please select containers to delete"
 msgstr "请选择要删除的容器"
 
-#: src/views/container/ContainerView.vue:362
+#: src/views/container/ContainerView.vue:366
 msgid "Please select containers to pause"
 msgstr "请选择要暂停的容器"
 
-#: src/views/container/ContainerView.vue:376
+#: src/views/container/ContainerView.vue:380
 msgid "Please select containers to resume"
 msgstr "请选择要恢复的容器"
 
-#: src/views/container/ContainerView.vue:405
+#: src/views/container/ContainerView.vue:409
 msgid "Cleanup Containers"
 msgstr "清理容器"
 
-#: src/views/container/ContainerView.vue:472
+#: src/views/container/ContainerView.vue:476
 #: src/views/file/ListTable.vue:719
 msgid "New Name"
 msgstr "新名称"
 
-#: src/views/container/ContainerView.vue:477
+#: src/views/container/ContainerView.vue:481
 msgid "Enter new name"
 msgstr "输入新名称"
 
@@ -2523,9 +2523,9 @@ msgid "Authentication"
 msgstr "身份验证"
 
 #: src/views/container/ImageView.vue:212
-#: src/views/database/CreateDatabaseModal.vue:107
-#: src/views/database/CreateUserModal.vue:84
-#: src/views/database/UpdateUserModal.vue:55
+#: src/views/database/CreateDatabaseModal.vue:108
+#: src/views/database/CreateUserModal.vue:91
+#: src/views/database/UpdateUserModal.vue:61
 msgid "Enter password"
 msgstr "输入密码"
 
@@ -2992,44 +2992,44 @@ msgstr "所有 (%)"
 msgid "Specific"
 msgstr "特定"
 
-#: src/views/database/CreateDatabaseModal.vue:54
+#: src/views/database/CreateDatabaseModal.vue:55
 #: src/views/database/IndexView.vue:32
 msgid "Create Database"
 msgstr "创建数据库"
 
-#: src/views/database/CreateDatabaseModal.vue:62
-#: src/views/database/CreateUserModal.vue:62
+#: src/views/database/CreateDatabaseModal.vue:63
+#: src/views/database/CreateUserModal.vue:69
 #: src/views/database/DatabaseList.vue:42
 #: src/views/database/IndexView.vue:51
 #: src/views/database/UserList.vue:91
 msgid "Server"
 msgstr "服务器"
 
-#: src/views/database/CreateDatabaseModal.vue:66
-#: src/views/database/CreateUserModal.vue:66
+#: src/views/database/CreateDatabaseModal.vue:67
+#: src/views/database/CreateUserModal.vue:73
 msgid "Select server"
 msgstr "选择服务器"
 
-#: src/views/database/CreateDatabaseModal.vue:84
+#: src/views/database/CreateDatabaseModal.vue:85
 msgid "Authorized User"
 msgstr "授权用户"
 
-#: src/views/database/CreateDatabaseModal.vue:90
+#: src/views/database/CreateDatabaseModal.vue:91
 msgid "Enter authorized username (leave empty for no authorization)"
 msgstr "输入授权用户名（留空表示无授权）"
 
-#: src/views/database/CreateDatabaseModal.vue:114
-#: src/views/database/CreateUserModal.vue:91
+#: src/views/database/CreateDatabaseModal.vue:115
+#: src/views/database/CreateUserModal.vue:98
 msgid "Select host"
 msgstr "选择主机"
 
-#: src/views/database/CreateDatabaseModal.vue:121
-#: src/views/database/CreateUserModal.vue:95
+#: src/views/database/CreateDatabaseModal.vue:122
+#: src/views/database/CreateUserModal.vue:102
 msgid "Specific Host"
 msgstr "特定主机"
 
-#: src/views/database/CreateDatabaseModal.vue:127
-#: src/views/database/CreateUserModal.vue:100
+#: src/views/database/CreateDatabaseModal.vue:128
+#: src/views/database/CreateUserModal.vue:107
 msgid "Enter supported host address"
 msgstr "输入支持的主机地址"
 
@@ -3083,18 +3083,23 @@ msgstr "输入数据库服务器密码"
 msgid "Enter database server comment"
 msgstr "输入数据库服务器备注"
 
-#: src/views/database/CreateUserModal.vue:87
+#: src/views/database/CreateUserModal.vue:65
+#: src/views/database/UpdateUserModal.vue:51
+msgid "If the privilege databases does not exist, it will be created automatically. "
+msgstr ""
+
+#: src/views/database/CreateUserModal.vue:94
 msgid "Host (MySQL only)"
 msgstr "主机（仅限MySQL）"
 
-#: src/views/database/CreateUserModal.vue:103
-#: src/views/database/UpdateUserModal.vue:58
+#: src/views/database/CreateUserModal.vue:110
+#: src/views/database/UpdateUserModal.vue:64
 #: src/views/database/UserList.vue:99
 msgid "Privileges"
 msgstr "权限"
 
-#: src/views/database/CreateUserModal.vue:114
-#: src/views/database/UpdateUserModal.vue:69
+#: src/views/database/CreateUserModal.vue:121
+#: src/views/database/UpdateUserModal.vue:75
 msgid "Enter database user comment"
 msgstr "输入数据库用户备注"
 
