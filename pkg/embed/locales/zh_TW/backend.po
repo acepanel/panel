@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-31 11:30\n"
+"PO-Revision-Date: 2025-05-31 11:39\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1707,7 +1707,7 @@ msgstr "卸載失敗：%v"
 
 #: internal/apps/mysql/app.go:108
 msgid "failed to unset MYSQL_PWD env: %v"
-msgstr ""
+msgstr "取消設置 MYSQL_PWD 環境變量失敗：%v"
 
 #: internal/service/toolbox_system.go:63
 msgid "failed to update DNS: %v"
