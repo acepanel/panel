@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-05-31 11:39\n"
+"PO-Revision-Date: 2025-05-31 12:39\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -2198,7 +2198,7 @@ msgstr "|-執行更新後腳本……"
 #: internal/data/backup.go:684
 #: internal/data/backup.go:815
 msgid "|-Set key file permissions..."
-msgstr "|-設定金鑰檔案權限……"
+msgstr "|-設定關鍵檔案權限……"
 
 #: internal/data/backup.go:577
 msgid "|-Start fixing the panel..."
