@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-05-31 10:05\n"
+"PO-Revision-Date: 2025-05-31 11:30\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -3085,8 +3085,8 @@ msgstr "輸入數據庫伺服器備註"
 
 #: src/views/database/CreateUserModal.vue:65
 #: src/views/database/UpdateUserModal.vue:51
-msgid "If the privilege databases does not exist, it will be created automatically. "
-msgstr ""
+msgid "If the privilege databases does not exist, it will be created automatically."
+msgstr "如果特權數據庫不存在，將會自動創建。"
 
 #: src/views/database/CreateUserModal.vue:94
 msgid "Host (MySQL only)"
