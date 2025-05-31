@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-31 11:30\n"
+"PO-Revision-Date: 2025-05-31 11:39\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1675,7 +1675,7 @@ msgstr "运行命令失败： %v"
 
 #: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
-msgstr "设置 MYSQL_PWD 环境变量失败： %v"
+msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:159
 msgid "failed to set SWAP permission: %v"
@@ -1707,7 +1707,7 @@ msgstr "卸载失败： %v"
 
 #: internal/apps/mysql/app.go:108
 msgid "failed to unset MYSQL_PWD env: %v"
-msgstr ""
+msgstr "取消设置 MYSQL_PWD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:63
 msgid "failed to update DNS: %v"
