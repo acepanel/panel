@@ -16,7 +16,7 @@ require (
 	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.9.2
-	github.com/golang-cz/httplog v0.0.0-20241002114323-98e09d6f537a
+	github.com/golang-cz/httplog v0.0.0-20250602075320-6fb7a7faafcb
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
 	github.com/gookit/color v1.5.4
@@ -26,7 +26,7 @@ require (
 	github.com/knadh/koanf/parsers/yaml v1.0.0
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.2.0
-	github.com/leonelquinteros/gotext v1.7.1
+	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.4
 	github.com/libdns/cloudflare v0.1.3
@@ -53,7 +53,7 @@ require (
 	github.com/samber/lo v1.50.0
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/spf13/cast v1.8.0
+	github.com/spf13/cast v1.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
 	github.com/urfave/cli/v3 v3.3.3
