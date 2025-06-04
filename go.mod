@@ -16,7 +16,7 @@ require (
 	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.9.2
-	github.com/golang-cz/httplog v0.0.1
+	github.com/golang-cz/httplog v0.0.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
 	github.com/gookit/color v1.5.4
