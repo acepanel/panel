@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-31 11:30\n"
+"PO-Revision-Date: 2025-06-08 07:34\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -151,7 +151,7 @@ msgstr "无效的名称"
 #: src/views/cert/CreateCertModal.vue:50
 #: src/views/cert/CreateDnsModal.vue:35
 #: src/views/cert/UploadCertModal.vue:21
-#: src/views/container/ComposeView.vue:246
+#: src/views/container/ComposeView.vue:254
 #: src/views/container/ContainerCreate.vue:106
 #: src/views/container/NetworkView.vue:174
 #: src/views/container/VolumeView.vue:128
@@ -159,7 +159,6 @@ msgstr "无效的名称"
 #: src/views/database/CreateUserModal.vue:28
 #: src/views/file/ToolBar.vue:45
 #: src/views/firewall/CreateForwardModal.vue:41
-#: src/views/firewall/CreateModal.vue:84
 #: src/views/setting/CreateModal.vue:19
 #: src/views/setting/TokenModal.vue:127
 #: src/views/ssh/CreateModal.vue:38
@@ -191,7 +190,7 @@ msgid "Root Directory"
 msgstr "根目录"
 
 #: src/components/common/PathSelector.vue:335
-#: src/views/app/VersionModal.vue:96
+#: src/views/app/VersionModal.vue:97
 #: src/views/apps/fail2ban/IndexView.vue:375
 #: src/views/apps/pureftpd/IndexView.vue:249
 #: src/views/apps/pureftpd/IndexView.vue:271
@@ -209,9 +208,9 @@ msgstr "根目录"
 #: src/views/cert/DnsView.vue:373
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
-#: src/views/container/ComposeView.vue:340
-#: src/views/container/ComposeView.vue:370
-#: src/views/container/ContainerCreate.vue:370
+#: src/views/container/ComposeView.vue:348
+#: src/views/container/ComposeView.vue:378
+#: src/views/container/ContainerCreate.vue:371
 #: src/views/container/ContainerView.vue:485
 #: src/views/container/ImageView.vue:217
 #: src/views/container/NetworkView.vue:313
@@ -224,8 +223,8 @@ msgstr "根目录"
 #: src/views/file/ToolBar.vue:261
 #: src/views/file/ToolBar.vue:282
 #: src/views/firewall/CreateForwardModal.vue:88
-#: src/views/firewall/CreateIpModal.vue:122
-#: src/views/firewall/CreateModal.vue:147
+#: src/views/firewall/CreateIpModal.vue:118
+#: src/views/firewall/CreateModal.vue:142
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
 #: src/views/setting/TwoFaModal.vue:87
@@ -288,6 +287,7 @@ msgid "Started successfully"
 msgstr "启动成功"
 
 #: src/components/common/ServiceStatus.vue:57
+#: src/views/container/ComposeView.vue:168
 msgid "Stopping..."
 msgstr "停止中..."
 
@@ -364,7 +364,7 @@ msgstr "启动"
 
 #: src/components/common/ServiceStatus.vue:158
 #: src/views/apps/supervisor/IndexView.vue:145
-#: src/views/container/ComposeView.vue:189
+#: src/views/container/ComposeView.vue:197
 #: src/views/container/ContainerView.vue:135
 #: src/views/container/ContainerView.vue:413
 msgid "Stop"
@@ -510,7 +510,7 @@ msgstr "备份"
 
 #: src/locales/menu.ts:9
 #: src/views/cert/CertView.vue:497
-#: src/views/cert/CertView.vue:573
+#: src/views/cert/CertView.vue:574
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/setting/SettingSafe.vue:54
 #: src/views/website/EditView.vue:355
@@ -656,8 +656,8 @@ msgstr "在主页显示"
 #: src/views/cert/CertView.vue:181
 #: src/views/cert/DnsView.vue:64
 #: src/views/container/ComposeView.vue:74
-#: src/views/container/ContainerCreate.vue:174
-#: src/views/container/ContainerCreate.vue:255
+#: src/views/container/ContainerCreate.vue:175
+#: src/views/container/ContainerCreate.vue:256
 #: src/views/container/ContainerView.vue:91
 #: src/views/container/ImageView.vue:69
 #: src/views/container/NetworkView.vue:109
@@ -717,15 +717,15 @@ msgstr "更新缓存"
 msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
 msgstr "在更新应用前，强烈建议先进行备份/快照，这样如果出现任何问题，可以第一时间回滚！"
 
-#: src/views/app/VersionModal.vue:73
+#: src/views/app/VersionModal.vue:74
 msgid "Channel"
 msgstr "渠道"
 
-#: src/views/app/VersionModal.vue:80
+#: src/views/app/VersionModal.vue:81
 msgid "Version"
 msgstr "版本"
 
-#: src/views/app/VersionModal.vue:83
+#: src/views/app/VersionModal.vue:84
 msgid "Please select a channel"
 msgstr "请选择一个渠道"
 
@@ -847,9 +847,9 @@ msgstr "您确定要删除规则 %{ name } 吗？"
 #: src/views/cert/AccountView.vue:127
 #: src/views/cert/CertView.vue:314
 #: src/views/cert/DnsView.vue:111
-#: src/views/container/ComposeView.vue:220
-#: src/views/container/ContainerCreate.vue:235
-#: src/views/container/ContainerCreate.vue:286
+#: src/views/container/ComposeView.vue:228
+#: src/views/container/ContainerCreate.vue:236
+#: src/views/container/ContainerCreate.vue:287
 #: src/views/container/ContainerView.vue:160
 #: src/views/container/ContainerView.vue:418
 #: src/views/container/ImageView.vue:94
@@ -1052,9 +1052,9 @@ msgid "Load Status"
 msgstr "负载状态"
 
 #: src/views/apps/minio/IndexView.vue:39
-#: src/views/container/ComposeView.vue:330
-#: src/views/container/ComposeView.vue:360
-#: src/views/container/ContainerCreate.vue:352
+#: src/views/container/ComposeView.vue:338
+#: src/views/container/ComposeView.vue:368
+#: src/views/container/ContainerCreate.vue:353
 msgid "Environment Variables"
 msgstr "环境变量"
 
@@ -1675,7 +1675,7 @@ msgstr "正在向 CA 注册账户，请耐心等待"
 #: src/views/cert/CertView.vue:348
 #: src/views/cert/CertView.vue:365
 #: src/views/cert/DnsView.vue:139
-#: src/views/container/ComposeView.vue:264
+#: src/views/container/ComposeView.vue:272
 msgid "Update successful"
 msgstr "更新成功"
 
@@ -1851,7 +1851,7 @@ msgid "Enter the content of the PEM certificate file"
 msgstr "输入 PEM 证书文件的内容"
 
 #: src/views/cert/CertView.vue:509
-#: src/views/cert/CertView.vue:585
+#: src/views/cert/CertView.vue:586
 #: src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:61
 #: src/views/ssh/CreateModal.vue:78
@@ -2150,17 +2150,17 @@ msgstr "您确定要启动编排 %{ name } 吗？"
 msgid "Force pull images"
 msgstr "强制拉取镜像"
 
-#: src/views/container/ComposeView.vue:170
+#: src/views/container/ComposeView.vue:175
 #: src/views/container/ContainerView.vue:248
 #: src/views/container/ContainerView.vue:319
 msgid "Stop successful"
 msgstr "停止成功"
 
-#: src/views/container/ComposeView.vue:176
+#: src/views/container/ComposeView.vue:184
 msgid "Are you sure you want to stop compose %{ name }?"
 msgstr "您确定要停止编排 %{ name } 吗？"
 
-#: src/views/container/ComposeView.vue:201
+#: src/views/container/ComposeView.vue:209
 #: src/views/container/ContainerView.vue:283
 #: src/views/container/ContainerView.vue:361
 #: src/views/container/ImageView.vue:118
@@ -2169,38 +2169,38 @@ msgstr "您确定要停止编排 %{ name } 吗？"
 msgid "Delete successful"
 msgstr "删除成功"
 
-#: src/views/container/ComposeView.vue:207
+#: src/views/container/ComposeView.vue:215
 msgid "Are you sure you want to delete compose %{ name }?"
 msgstr "您确定要删除编排 %{ name } 吗？"
 
-#: src/views/container/ComposeView.vue:286
-#: src/views/container/ComposeView.vue:313
+#: src/views/container/ComposeView.vue:294
+#: src/views/container/ComposeView.vue:321
 msgid "Create Compose"
 msgstr "创建编排"
 
-#: src/views/container/ComposeView.vue:320
+#: src/views/container/ComposeView.vue:328
 msgid "Compose Name"
 msgstr "编排名称"
 
-#: src/views/container/ComposeView.vue:323
-#: src/views/container/ComposeView.vue:353
+#: src/views/container/ComposeView.vue:331
+#: src/views/container/ComposeView.vue:361
 #: src/views/container/IndexView.vue:24
 msgid "Compose"
 msgstr "编排"
 
-#: src/views/container/ComposeView.vue:334
-#: src/views/container/ComposeView.vue:364
-#: src/views/container/ContainerCreate.vue:356
+#: src/views/container/ComposeView.vue:342
+#: src/views/container/ComposeView.vue:372
+#: src/views/container/ContainerCreate.vue:357
 msgid "Variable Name"
 msgstr "变量名"
 
-#: src/views/container/ComposeView.vue:335
-#: src/views/container/ComposeView.vue:365
-#: src/views/container/ContainerCreate.vue:357
+#: src/views/container/ComposeView.vue:343
+#: src/views/container/ComposeView.vue:373
+#: src/views/container/ContainerCreate.vue:358
 msgid "Variable Value"
 msgstr "变量值"
 
-#: src/views/container/ComposeView.vue:346
+#: src/views/container/ComposeView.vue:354
 msgid "Edit Compose"
 msgstr "编辑编排"
 
@@ -2221,82 +2221,82 @@ msgstr "除非停止"
 msgid "Create Container"
 msgstr "创建容器"
 
-#: src/views/container/ContainerCreate.vue:137
+#: src/views/container/ContainerCreate.vue:138
 #: src/views/container/ContainerView.vue:25
 msgid "Container Name"
 msgstr "容器名称"
 
-#: src/views/container/ContainerCreate.vue:140
+#: src/views/container/ContainerCreate.vue:141
 #: src/views/container/ContainerView.vue:52
 #: src/views/container/ImageView.vue:36
 msgid "Image"
 msgstr "镜像"
 
-#: src/views/container/ContainerCreate.vue:143
+#: src/views/container/ContainerCreate.vue:144
 msgid "Ports"
 msgstr "端口"
 
-#: src/views/container/ContainerCreate.vue:149
+#: src/views/container/ContainerCreate.vue:150
 msgid "Map Ports"
 msgstr "映射端口"
 
-#: src/views/container/ContainerCreate.vue:156
+#: src/views/container/ContainerCreate.vue:157
 msgid "Expose All"
 msgstr "全部暴露"
 
-#: src/views/container/ContainerCreate.vue:161
+#: src/views/container/ContainerCreate.vue:162
 msgid "Port Mapping"
 msgstr "端口映射"
 
-#: src/views/container/ContainerCreate.vue:169
+#: src/views/container/ContainerCreate.vue:170
 msgid "Host (Start)"
 msgstr "主机（起始）"
 
-#: src/views/container/ContainerCreate.vue:170
+#: src/views/container/ContainerCreate.vue:171
 msgid "Host (End)"
 msgstr "主机（结束）"
 
-#: src/views/container/ContainerCreate.vue:171
+#: src/views/container/ContainerCreate.vue:172
 msgid "Container (Start)"
 msgstr "容器（起始）"
 
-#: src/views/container/ContainerCreate.vue:172
+#: src/views/container/ContainerCreate.vue:173
 msgid "Container (End)"
 msgstr "容器（结束）"
 
-#: src/views/container/ContainerCreate.vue:173
+#: src/views/container/ContainerCreate.vue:174
 msgid "Protocol"
 msgstr "协议"
 
-#: src/views/container/ContainerCreate.vue:184
+#: src/views/container/ContainerCreate.vue:185
 msgid "Optional"
 msgstr "可选"
 
-#: src/views/container/ContainerCreate.vue:241
-#: src/views/container/ContainerCreate.vue:292
+#: src/views/container/ContainerCreate.vue:242
+#: src/views/container/ContainerCreate.vue:293
 msgid "Add"
 msgstr "添加"
 
-#: src/views/container/ContainerCreate.vue:244
+#: src/views/container/ContainerCreate.vue:245
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:797
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
 msgstr "网络"
 
-#: src/views/container/ContainerCreate.vue:247
+#: src/views/container/ContainerCreate.vue:248
 msgid "Mount"
 msgstr "挂载"
 
-#: src/views/container/ContainerCreate.vue:252
+#: src/views/container/ContainerCreate.vue:253
 msgid "Host Directory"
 msgstr "主机目录"
 
-#: src/views/container/ContainerCreate.vue:253
+#: src/views/container/ContainerCreate.vue:254
 msgid "Container Directory"
 msgstr "容器目录"
 
-#: src/views/container/ContainerCreate.vue:254
+#: src/views/container/ContainerCreate.vue:255
 #: src/views/file/ListTable.vue:73
 #: src/views/file/ListTable.vue:145
 #: src/views/file/ListTable.vue:300
@@ -2305,25 +2305,25 @@ msgstr "容器目录"
 msgid "Permission"
 msgstr "权限"
 
-#: src/views/container/ContainerCreate.vue:273
+#: src/views/container/ContainerCreate.vue:274
 msgid "Read-Write"
 msgstr "读写"
 
-#: src/views/container/ContainerCreate.vue:281
+#: src/views/container/ContainerCreate.vue:282
 msgid "Read-Only"
 msgstr "只读"
 
-#: src/views/container/ContainerCreate.vue:295
 #: src/views/container/ContainerCreate.vue:296
+#: src/views/container/ContainerCreate.vue:297
 msgid "Command"
 msgstr "命令"
 
-#: src/views/container/ContainerCreate.vue:298
-#: src/views/container/ContainerCreate.vue:301
+#: src/views/container/ContainerCreate.vue:299
+#: src/views/container/ContainerCreate.vue:302
 msgid "Entrypoint"
 msgstr "入口点"
 
-#: src/views/container/ContainerCreate.vue:306
+#: src/views/container/ContainerCreate.vue:307
 #: src/views/dashboard/IndexView.vue:533
 #: src/views/monitor/IndexView.vue:205
 #: src/views/monitor/IndexView.vue:216
@@ -2333,48 +2333,48 @@ msgstr "入口点"
 msgid "Memory"
 msgstr "内存"
 
-#: src/views/container/ContainerCreate.vue:316
+#: src/views/container/ContainerCreate.vue:317
 msgid "CPU Shares"
 msgstr "CPU 份额"
 
-#: src/views/container/ContainerCreate.vue:323
+#: src/views/container/ContainerCreate.vue:324
 msgid "TTY (-t)"
 msgstr "TTY (-t)"
 
-#: src/views/container/ContainerCreate.vue:328
+#: src/views/container/ContainerCreate.vue:329
 msgid "STDIN (-i)"
 msgstr "STDIN (-i)"
 
-#: src/views/container/ContainerCreate.vue:333
+#: src/views/container/ContainerCreate.vue:334
 msgid "Auto Remove"
 msgstr "自动移除"
 
-#: src/views/container/ContainerCreate.vue:338
+#: src/views/container/ContainerCreate.vue:339
 msgid "Privileged Mode"
 msgstr "特权模式"
 
-#: src/views/container/ContainerCreate.vue:343
+#: src/views/container/ContainerCreate.vue:344
 msgid "Restart Policy"
 msgstr "重启策略"
 
-#: src/views/container/ContainerCreate.vue:346
-#: src/views/container/ContainerCreate.vue:349
+#: src/views/container/ContainerCreate.vue:347
+#: src/views/container/ContainerCreate.vue:350
 msgid "Select restart policy"
 msgstr "选择重启策略"
 
-#: src/views/container/ContainerCreate.vue:360
+#: src/views/container/ContainerCreate.vue:361
 #: src/views/container/NetworkView.vue:295
 #: src/views/container/VolumeView.vue:195
 msgid "Labels"
 msgstr "标签"
 
-#: src/views/container/ContainerCreate.vue:364
+#: src/views/container/ContainerCreate.vue:365
 #: src/views/container/NetworkView.vue:299
 #: src/views/container/VolumeView.vue:199
 msgid "Label Name"
 msgstr "标签名称"
 
-#: src/views/container/ContainerCreate.vue:365
+#: src/views/container/ContainerCreate.vue:366
 #: src/views/container/NetworkView.vue:300
 #: src/views/container/VolumeView.vue:200
 msgid "Label Value"
@@ -3432,7 +3432,7 @@ msgstr "创建转发"
 
 #: src/views/firewall/CreateForwardModal.vue:58
 #: src/views/firewall/CreateIpModal.vue:97
-#: src/views/firewall/CreateModal.vue:101
+#: src/views/firewall/CreateModal.vue:99
 #: src/views/firewall/ForwardView.vue:15
 #: src/views/firewall/IpRuleView.vue:15
 #: src/views/firewall/RuleView.vue:15
@@ -3489,18 +3489,19 @@ msgid "Outbound"
 msgstr "出站"
 
 #: src/views/firewall/CreateIpModal.vue:78
+#: src/views/firewall/CreateModal.vue:80
 msgid "%{ address } created successfully"
 msgstr "%{ address } 创建成功"
 
 #: src/views/firewall/CreateIpModal.vue:89
-#: src/views/firewall/CreateModal.vue:93
+#: src/views/firewall/CreateModal.vue:91
 #: src/views/firewall/IpRuleView.vue:208
 #: src/views/firewall/RuleView.vue:245
 msgid "Create Rule"
 msgstr "创建规则"
 
 #: src/views/firewall/CreateIpModal.vue:100
-#: src/views/firewall/CreateModal.vue:104
+#: src/views/firewall/CreateModal.vue:102
 #: src/views/firewall/IpRuleView.vue:32
 #: src/views/firewall/RuleView.vue:32
 msgid "Network Protocol"
@@ -3510,34 +3511,34 @@ msgstr "网络协议"
 msgid "IP Address"
 msgstr "IP 地址"
 
-#: src/views/firewall/CreateIpModal.vue:108
-#: src/views/firewall/CreateModal.vue:133
-msgid "Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)"
-msgstr "可选 IP 或 IP 范围：127.0.0.1 或 172.16.0.0/24（多个用逗号分隔）"
+#: src/views/firewall/CreateIpModal.vue:107
+#: src/views/firewall/CreateModal.vue:131
+msgid "Optional IP or IP range: 172.16.0.1 or 172.16.0.0/16"
+msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:114
-#: src/views/firewall/CreateModal.vue:139
+#: src/views/firewall/CreateIpModal.vue:110
+#: src/views/firewall/CreateModal.vue:134
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
 msgstr "策略"
 
-#: src/views/firewall/CreateIpModal.vue:117
-#: src/views/firewall/CreateModal.vue:142
+#: src/views/firewall/CreateIpModal.vue:113
+#: src/views/firewall/CreateModal.vue:137
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
 msgid "Direction"
 msgstr "方向"
 
-#: src/views/firewall/CreateModal.vue:109
+#: src/views/firewall/CreateModal.vue:107
 msgid "Start Port"
 msgstr "起始端口"
 
-#: src/views/firewall/CreateModal.vue:119
+#: src/views/firewall/CreateModal.vue:117
 msgid "End Port"
 msgstr "结束端口"
 
-#: src/views/firewall/CreateModal.vue:129
+#: src/views/firewall/CreateModal.vue:127
 #: src/views/firewall/IpRuleView.vue:110
 #: src/views/firewall/RuleView.vue:144
 msgid "Target"
