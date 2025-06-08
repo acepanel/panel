@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-06-08 07:34\n"
+"PO-Revision-Date: 2025-06-08 07:38\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -3513,7 +3513,7 @@ msgstr "IP 地址"
 
 #: src/views/firewall/CreateIpModal.vue:107
 #: src/views/firewall/CreateModal.vue:131
-msgid "Optional IP or IP range: 172.16.0.1 or 172.16.0.0/16"
+msgid "IP or IP range: 172.16.0.1 or 172.16.0.0/16"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:110
