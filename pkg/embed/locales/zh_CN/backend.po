@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-31 12:39\n"
+"PO-Revision-Date: 2025-06-08 07:34\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1735,7 +1735,7 @@ msgstr "获取服务端口失败，请检查是否安装"
 msgid "invalid 2FA code"
 msgstr "无效的两步验证代码"
 
-#: internal/http/middleware/entrance.go:108
+#: internal/http/middleware/entrance.go:107
 msgid "invalid access entrance"
 msgstr "无效的访问入口"
 
