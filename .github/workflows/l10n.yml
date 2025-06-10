@@ -33,7 +33,7 @@ jobs:
         run: |
           ~/go/bin/xgotext -default backend -pkg-tree ./cmd/web -out ./pkg/embed/locales
           cd web && pnpm run gettext:extract
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v6
         name: Commit changes
         with:
           commit_message: "chore(l10n): update pot files"
