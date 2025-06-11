@@ -50,7 +50,7 @@ require (
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/samber/lo v1.50.0
+	github.com/samber/lo v1.51.0
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.9.2
