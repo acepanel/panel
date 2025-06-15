@@ -15,7 +15,7 @@ require (
 	github.com/go-rat/sessions v1.1.0
 	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/go-sql-driver/mysql v1.9.2
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-cz/httplog v0.0.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
@@ -56,7 +56,7 @@ require (
 	github.com/spf13/cast v1.9.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
-	github.com/urfave/cli/v3 v3.3.3
+	github.com/urfave/cli/v3 v3.3.8
 	golang.org/x/crypto v0.39.0
 	golang.org/x/net v0.41.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
