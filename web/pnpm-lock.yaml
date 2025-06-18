@@ -101,7 +101,7 @@ importers:
     devDependencies:
       '@iconify/json':
         specifier: ^2.2.341
-        version: 2.2.349
+        version: 2.2.350
       '@iconify/vue':
         specifier: ^5.0.0
         version: 5.0.0(vue@3.5.16(typescript@5.8.3))
@@ -692,8 +692,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.349':
-    resolution: {integrity: sha512-0uWIZXsRomSeeFpAGTlOtt6q9U4wfh4ghS7uBaXytNcVrklAXTDRqrH5tjbMCfLUSBTCEoF70UzrMCg012U7/g==}
+  '@iconify/json@2.2.350':
+    resolution: {integrity: sha512-ywxrku6FYmZ8PsZ7ZzwaMNErqfP9CG5/g93QMDy9FqYGx0a/XgZ/q0PFpd0IrgjSiByJis5X4oJTKMpu91whGQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4161,7 +4161,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@iconify/json@2.2.349':
+  '@iconify/json@2.2.350':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
