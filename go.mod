@@ -8,7 +8,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
 	github.com/expr-lang/expr v1.17.5
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/go-rat/chix v1.2.0
 	github.com/go-rat/gormstore v1.0.6
@@ -55,7 +55,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.9.2
 	github.com/stretchr/testify v1.10.0
-	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
+	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.3.8
 	golang.org/x/crypto v0.39.0
 	golang.org/x/net v0.41.0
