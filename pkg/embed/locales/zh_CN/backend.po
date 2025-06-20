@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-06-08 07:34\n"
+"PO-Revision-Date: 2025-06-20 05:19\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -1340,7 +1340,7 @@ msgstr "找不到 %s 数据库服务器，请先添加"
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/http/middleware/must_login.go:68
+#: internal/http/middleware/must_login.go:69
 msgid "client ip/ua changed, please login again"
 msgstr "客户端 IP/UA 已更改，请重新登录"
 
@@ -1766,7 +1766,7 @@ msgstr "无效的请求UA：%s"
 msgid "invalid signature"
 msgstr "无效的签名"
 
-#: internal/http/middleware/must_login.go:77
+#: internal/http/middleware/must_login.go:78
 msgid "invalid user id, please login again"
 msgstr "无效的用户ID，请重新登录"
 
