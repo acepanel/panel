@@ -8,7 +8,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
 	github.com/expr-lang/expr v1.17.5
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/go-rat/chix v1.2.0
 	github.com/go-rat/gormstore v1.0.6
