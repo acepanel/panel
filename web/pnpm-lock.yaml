@@ -131,7 +131,7 @@ importers:
         version: 5.2.4(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3))(vue@3.5.17(typescript@5.8.3))
       '@vue/eslint-config-prettier':
         specifier: ^10.2.0
-        version: 10.2.0(eslint@9.29.0(jiti@2.4.2))(prettier@3.5.3)
+        version: 10.2.0(eslint@9.29.0(jiti@2.4.2))(prettier@3.6.0)
       '@vue/eslint-config-typescript':
         specifier: ^14.5.0
         version: 14.5.1(eslint-plugin-vue@10.2.0(eslint@9.29.0(jiti@2.4.2))(vue-eslint-parser@10.1.3(eslint@9.29.0(jiti@2.4.2))))(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
@@ -152,7 +152,7 @@ importers:
         version: 10.2.0(eslint@9.29.0(jiti@2.4.2))(vue-eslint-parser@10.1.3(eslint@9.29.0(jiti@2.4.2)))
       md-editor-v3:
         specifier: ^5.6.0
-        version: 5.7.0(vue@3.5.17(typescript@5.8.3))
+        version: 5.7.1(vue@3.5.17(typescript@5.8.3))
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -164,10 +164,10 @@ importers:
         version: 8.0.4
       prettier:
         specifier: ^3.5.3
-        version: 3.5.3
+        version: 3.6.0
       prettier-plugin-organize-imports:
         specifier: ^4.1.0
-        version: 4.1.0(prettier@3.5.3)(typescript@5.8.3)(vue-tsc@2.2.10(typescript@5.8.3))
+        version: 4.1.0(prettier@3.6.0)(typescript@5.8.3)(vue-tsc@2.2.10(typescript@5.8.3))
       sass:
         specifier: ^1.89.0
         version: 1.89.2
@@ -2510,8 +2510,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.7.0:
-    resolution: {integrity: sha512-zRYvh15AomDVgmH8wgWGG0M5UbfIIMSfarCfUMjyN20ipndhoxbEYcN4xz7QtUUxXws3i6wF2MUMCnbhtQCZ5g==}
+  md-editor-v3@5.7.1:
+    resolution: {integrity: sha512-QPqa+xKpd0MMG2G0aYZGr0X0xcc43KKv03PVEe49BrsOr9/rlTPAz1an2M7yZKrCkuE2YIBPaQSIhcLLpLawrA==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -2832,8 +2832,8 @@ packages:
       vue-tsc:
         optional: true
 
-  prettier@3.5.3:
-    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+  prettier@3.6.0:
+    resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -4933,12 +4933,12 @@ snapshots:
     dependencies:
       rfdc: 1.4.1
 
-  '@vue/eslint-config-prettier@10.2.0(eslint@9.29.0(jiti@2.4.2))(prettier@3.5.3)':
+  '@vue/eslint-config-prettier@10.2.0(eslint@9.29.0(jiti@2.4.2))(prettier@3.6.0)':
     dependencies:
       eslint: 9.29.0(jiti@2.4.2)
       eslint-config-prettier: 10.1.5(eslint@9.29.0(jiti@2.4.2))
-      eslint-plugin-prettier: 5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.4.2)))(eslint@9.29.0(jiti@2.4.2))(prettier@3.5.3)
-      prettier: 3.5.3
+      eslint-plugin-prettier: 5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.4.2)))(eslint@9.29.0(jiti@2.4.2))(prettier@3.6.0)
+      prettier: 3.6.0
     transitivePeerDependencies:
       - '@types/eslint'
 
@@ -5584,10 +5584,10 @@ snapshots:
     dependencies:
       eslint: 9.29.0(jiti@2.4.2)
 
-  eslint-plugin-prettier@5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.4.2)))(eslint@9.29.0(jiti@2.4.2))(prettier@3.5.3):
+  eslint-plugin-prettier@5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.4.2)))(eslint@9.29.0(jiti@2.4.2))(prettier@3.6.0):
     dependencies:
       eslint: 9.29.0(jiti@2.4.2)
-      prettier: 3.5.3
+      prettier: 3.6.0
       prettier-linter-helpers: 1.0.0
       synckit: 0.11.8
     optionalDependencies:
@@ -6216,7 +6216,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  md-editor-v3@5.7.0(vue@3.5.17(typescript@5.8.3)):
+  md-editor-v3@5.7.1(vue@3.5.17(typescript@5.8.3)):
     dependencies:
       '@codemirror/autocomplete': 6.18.6
       '@codemirror/commands': 6.8.1
@@ -6544,14 +6544,14 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-organize-imports@4.1.0(prettier@3.5.3)(typescript@5.8.3)(vue-tsc@2.2.10(typescript@5.8.3)):
+  prettier-plugin-organize-imports@4.1.0(prettier@3.6.0)(typescript@5.8.3)(vue-tsc@2.2.10(typescript@5.8.3)):
     dependencies:
-      prettier: 3.5.3
+      prettier: 3.6.0
       typescript: 5.8.3
     optionalDependencies:
       vue-tsc: 2.2.10(typescript@5.8.3)
 
-  prettier@3.5.3: {}
+  prettier@3.6.0: {}
 
   pretty-ms@9.2.0:
     dependencies:
