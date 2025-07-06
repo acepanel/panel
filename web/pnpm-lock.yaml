@@ -167,7 +167,7 @@ importers:
         version: 3.6.2
       prettier-plugin-organize-imports:
         specifier: ^4.1.0
-        version: 4.1.0(prettier@3.6.2)(typescript@5.8.3)(vue-tsc@3.0.0(typescript@5.8.3))
+        version: 4.1.0(prettier@3.6.2)(typescript@5.8.3)(vue-tsc@3.0.1(typescript@5.8.3))
       sass:
         specifier: ^1.89.0
         version: 1.89.2
@@ -206,7 +206,7 @@ importers:
         version: 7.7.7(rollup@4.44.1)(vite@7.0.2(@types/node@22.16.0)(jiti@2.4.2)(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3))(vue@3.5.17(typescript@5.8.3))
       vue-tsc:
         specifier: ^3.0.0
-        version: 3.0.0(typescript@5.8.3)
+        version: 3.0.1(typescript@5.8.3)
 
 packages:
 
@@ -1230,14 +1230,14 @@ packages:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
       vue: ^3.2.25
 
-  '@volar/language-core@2.4.16':
-    resolution: {integrity: sha512-mcoAFkYVQV4iiLYjTlbolbsm9hhDLtz4D4wTG+rwzSCUbEnxEec+KBlneLMlfdVNjkVEh8lUUSsCGNEQR+hFdA==}
+  '@volar/language-core@2.4.17':
+    resolution: {integrity: sha512-chmRZMbKmcGpKMoO7Reb70uiLrzo0KWC2CkFttKUuKvrE+VYgi+fL9vWMJ07Fv5ulX0V1TAyyacN9q3nc5/ecA==}
 
-  '@volar/source-map@2.4.16':
-    resolution: {integrity: sha512-4rBiAhOw4MfFTpkvweDnjbDkixpmWNgBws95rpu2oFdMprkTtqFEb8pUOxQ/ruru8/zXSYLwRNXNozznjW9Vtw==}
+  '@volar/source-map@2.4.17':
+    resolution: {integrity: sha512-QDybtQyO3Ms/NjFqNHTC5tbDN2oK5VH7ZaKrcubtfHBDj63n2pizHC3wlMQ+iT55kQXZUUAbmBX5L1C8CHFeBw==}
 
-  '@volar/typescript@2.4.16':
-    resolution: {integrity: sha512-CrRuG20euPerYc4H0kvDWSSLTBo6qgSI1/0BjXL9ogjm5j6l0gIffvNzEvfmVjr8TAuoMPD0NxuEkteIapfZQQ==}
+  '@volar/typescript@2.4.17':
+    resolution: {integrity: sha512-3paEFNh4P5DkgNUB2YkTRrfUekN4brAXxd3Ow1syMqdIPtCZHbUy4AW99S5RO/7mzyTWPMdDSo3mqTpB/LPObQ==}
 
   '@vue-js-cron/core@6.0.0':
     resolution: {integrity: sha512-jE6/OrKr7LF2S+4YY9ewYHKLKixq12Kfj7PFq/nCKQn5dGAEYMWYme86csn0LT8c6WanLDJd5I4nzFahYDsXhg==}
@@ -1310,8 +1310,8 @@ packages:
       typescript:
         optional: true
 
-  '@vue/language-core@3.0.0':
-    resolution: {integrity: sha512-V+bSGOIuE59SAVNwzpoyk3VoytmqKPd3RBaHb0ROmK5SNOe9+774t4zmWxzztZGAg3FOGQnb1ZhXECyXLPzWZA==}
+  '@vue/language-core@3.0.1':
+    resolution: {integrity: sha512-sq+/Mc1IqIexWEQ+Q2XPiDb5SxSvY5JPqHnMOl/PlF5BekslzduX8dglSkpC17VeiAQB6dpS+4aiwNLJRduCNw==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -3406,8 +3406,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-tsc@3.0.0:
-    resolution: {integrity: sha512-oDJk0cadq1yZIZ87xgMzyfvl8Z81xNHsi4gMt7bZ7zulWev/ZlyGBO1BWyuVxB+BSRkMhSe9ZoX++eIQWYPU3g==}
+  vue-tsc@3.0.1:
+    resolution: {integrity: sha512-UvMLQD0hAGL1g/NfEQelnSVB4H5gtf/gz2lJKjMMwWNOUmSNyWkejwJagAxEbSjtV5CPPJYslOtoSuqJ63mhdg==}
     hasBin: true
     peerDependencies:
       typescript: '>=5.0.0'
@@ -4738,15 +4738,15 @@ snapshots:
       vite: 7.0.2(@types/node@22.16.0)(jiti@2.4.2)(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3)
       vue: 3.5.17(typescript@5.8.3)
 
-  '@volar/language-core@2.4.16':
+  '@volar/language-core@2.4.17':
     dependencies:
-      '@volar/source-map': 2.4.16
+      '@volar/source-map': 2.4.17
 
-  '@volar/source-map@2.4.16': {}
+  '@volar/source-map@2.4.17': {}
 
-  '@volar/typescript@2.4.16':
+  '@volar/typescript@2.4.17':
     dependencies:
-      '@volar/language-core': 2.4.16
+      '@volar/language-core': 2.4.17
       path-browserify: 1.0.1
       vscode-uri: 3.1.0
 
@@ -4876,9 +4876,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vue/language-core@3.0.0(typescript@5.8.3)':
+  '@vue/language-core@3.0.1(typescript@5.8.3)':
     dependencies:
-      '@volar/language-core': 2.4.16
+      '@volar/language-core': 2.4.17
       '@vue/compiler-dom': 3.5.17
       '@vue/compiler-vue2': 2.7.16
       '@vue/shared': 3.5.17
@@ -6420,12 +6420,12 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-organize-imports@4.1.0(prettier@3.6.2)(typescript@5.8.3)(vue-tsc@3.0.0(typescript@5.8.3)):
+  prettier-plugin-organize-imports@4.1.0(prettier@3.6.2)(typescript@5.8.3)(vue-tsc@3.0.1(typescript@5.8.3)):
     dependencies:
       prettier: 3.6.2
       typescript: 5.8.3
     optionalDependencies:
-      vue-tsc: 3.0.0(typescript@5.8.3)
+      vue-tsc: 3.0.1(typescript@5.8.3)
 
   prettier@3.6.2: {}
 
@@ -7125,10 +7125,10 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.17(typescript@5.8.3)
 
-  vue-tsc@3.0.0(typescript@5.8.3):
+  vue-tsc@3.0.1(typescript@5.8.3):
     dependencies:
-      '@volar/typescript': 2.4.16
-      '@vue/language-core': 3.0.0(typescript@5.8.3)
+      '@volar/typescript': 2.4.17
+      '@vue/language-core': 3.0.1(typescript@5.8.3)
       typescript: 5.8.3
 
   vue3-gettext@4.0.0-alpha.8(@vue/compiler-sfc@3.5.17)(vue@3.5.17(typescript@5.8.3)):
