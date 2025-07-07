@@ -107,4 +107,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250416074048-0e9f6b5f8ec5
+replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250707093727-dc5aedd96413
