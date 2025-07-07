@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-07-07 09:54\n"
+"PO-Revision-Date: 2025-07-07 10:34\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -4453,19 +4453,19 @@ msgstr "網站名稱"
 
 #: src/views/website/IndexView.vue:77
 msgid "Certificate expiration"
-msgstr ""
+msgstr "證書有效期限"
 
 #: src/views/website/IndexView.vue:91
 msgid "Not configured"
-msgstr ""
+msgstr "未設定"
 
 #: src/views/website/IndexView.vue:94
 msgid "Expired %{ days } days ago"
-msgstr ""
+msgstr "%{ days } 天前過期"
 
 #: src/views/website/IndexView.vue:99
 msgid "Expires in %{ days } days"
-msgstr ""
+msgstr "%{ days } 天後過期"
 
 #: src/views/website/IndexView.vue:109
 #: src/views/website/IndexView.vue:561
