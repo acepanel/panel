@@ -41,7 +41,7 @@
     "@xterm/xterm": "^5.5.0",
     "alova": "^3.2.11",
     "cronstrue": "^3.0.0",
-    "echarts": "^5.6.0",
+    "echarts": "^6.0.0",
     "install": "^0.13.0",
     "lodash-es": "^4.17.21",
     "luxon": "^3.6.1",
