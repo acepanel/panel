@@ -6,11 +6,11 @@ msgstr ""
 "X-Crowdin-Project-ID: 778640\n"
 "X-Crowdin-Language: zh-TW\n"
 "X-Crowdin-File: /[tnborg.panel] main/web/src/locales/frontend.pot\n"
-"X-Crowdin-File-ID: 934\n"
+"X-Crowdin-File-ID: 1000\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-07-07 10:34\n"
+"PO-Revision-Date: 2025-08-04 10:18\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -204,8 +204,8 @@ msgstr "根目錄"
 #: src/views/cert/CertView.vue:559
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
-#: src/views/cert/CreateDnsModal.vue:237
-#: src/views/cert/DnsView.vue:373
+#: src/views/cert/CreateDnsModal.vue:180
+#: src/views/cert/DnsView.vue:317
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
@@ -223,7 +223,7 @@ msgstr "根目錄"
 #: src/views/file/ToolBar.vue:261
 #: src/views/file/ToolBar.vue:282
 #: src/views/firewall/CreateForwardModal.vue:88
-#: src/views/firewall/CreateIpModal.vue:118
+#: src/views/firewall/CreateIpModal.vue:121
 #: src/views/firewall/CreateModal.vue:142
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
@@ -1968,78 +1968,38 @@ msgstr "輸入 Cloudflare API 金鑰"
 
 #: src/views/cert/CreateDnsModal.vue:134
 #: src/views/cert/DnsView.vue:271
-msgid "Enter GoDaddy Token"
-msgstr "輸入 GoDaddy 令牌"
-
-#: src/views/cert/CreateDnsModal.vue:141
-#: src/views/cert/DnsView.vue:278
 msgid "Enter G-Core API Key"
 msgstr "輸入 G-Core API 金鑰"
 
-#: src/views/cert/CreateDnsModal.vue:148
-#: src/views/cert/DnsView.vue:285
+#: src/views/cert/CreateDnsModal.vue:141
+#: src/views/cert/DnsView.vue:278
 msgid "Enter Porkbun API Key"
 msgstr "輸入 Porkbun API 金鑰"
 
-#: src/views/cert/CreateDnsModal.vue:155
-#: src/views/cert/DnsView.vue:292
+#: src/views/cert/CreateDnsModal.vue:148
+#: src/views/cert/DnsView.vue:285
 msgid "Enter Porkbun Secret Key"
 msgstr "輸入 Porkbun 密鑰"
 
-#: src/views/cert/CreateDnsModal.vue:162
-#: src/views/cert/DnsView.vue:299
-msgid "Enter Namecheap API Username"
-msgstr "輸入 Namecheap API 用戶名"
-
-#: src/views/cert/CreateDnsModal.vue:169
-#: src/views/cert/DnsView.vue:306
-msgid "Enter Namecheap API Key"
-msgstr "輸入 Namecheap API 金鑰"
-
-#: src/views/cert/CreateDnsModal.vue:176
-#: src/views/cert/DnsView.vue:313
+#: src/views/cert/CreateDnsModal.vue:155
+#: src/views/cert/DnsView.vue:292
 msgid "Enter NameSilo API Token"
 msgstr "輸入 NameSilo API 令牌"
 
-#: src/views/cert/CreateDnsModal.vue:183
-#: src/views/cert/DnsView.vue:320
-msgid "Enter Name.com Username"
-msgstr "輸入 Name.com 用戶名"
-
-#: src/views/cert/CreateDnsModal.vue:190
-#: src/views/cert/DnsView.vue:327
-msgid "Enter Name.com Token"
-msgstr "輸入 Name.com 令牌"
-
-#: src/views/cert/CreateDnsModal.vue:198
-#: src/views/cert/DnsView.vue:334
+#: src/views/cert/CreateDnsModal.vue:162
+#: src/views/cert/DnsView.vue:299
 msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr "輸入 ClouDNS 認證 ID（使用子認證 ID 時添加 sub- 前綴）"
 
-#: src/views/cert/CreateDnsModal.vue:205
-#: src/views/cert/DnsView.vue:341
+#: src/views/cert/CreateDnsModal.vue:169
+#: src/views/cert/DnsView.vue:306
 msgid "Enter ClouDNS Auth Password"
 msgstr "輸入 ClouDNS 認證密碼"
 
-#: src/views/cert/CreateDnsModal.vue:212
-#: src/views/cert/DnsView.vue:348
-msgid "Enter Duck DNS Token"
-msgstr "輸入 Duck DNS 令牌"
-
-#: src/views/cert/CreateDnsModal.vue:219
-#: src/views/cert/DnsView.vue:355
+#: src/views/cert/CreateDnsModal.vue:176
+#: src/views/cert/DnsView.vue:313
 msgid "Enter Hetzner Auth API Token"
 msgstr "輸入 Hetzner Auth API Token"
-
-#: src/views/cert/CreateDnsModal.vue:226
-#: src/views/cert/DnsView.vue:362
-msgid "Enter Linode Token"
-msgstr "輸入 Linode Token"
-
-#: src/views/cert/CreateDnsModal.vue:233
-#: src/views/cert/DnsView.vue:369
-msgid "Enter Vercel Token"
-msgstr "輸入 Vercel Token"
 
 #: src/views/cert/DnsView.vue:31
 #: src/views/cert/DnsView.vue:189
@@ -3432,7 +3392,7 @@ msgid "Create Forwarding"
 msgstr "創建轉發"
 
 #: src/views/firewall/CreateForwardModal.vue:58
-#: src/views/firewall/CreateIpModal.vue:97
+#: src/views/firewall/CreateIpModal.vue:100
 #: src/views/firewall/CreateModal.vue:99
 #: src/views/firewall/ForwardView.vue:15
 #: src/views/firewall/IpRuleView.vue:15
@@ -3489,42 +3449,42 @@ msgstr "入站"
 msgid "Outbound"
 msgstr "出站"
 
-#: src/views/firewall/CreateIpModal.vue:78
+#: src/views/firewall/CreateIpModal.vue:81
 #: src/views/firewall/CreateModal.vue:80
 msgid "%{ address } created successfully"
 msgstr "%{ address } 創建成功"
 
-#: src/views/firewall/CreateIpModal.vue:89
+#: src/views/firewall/CreateIpModal.vue:92
 #: src/views/firewall/CreateModal.vue:91
 #: src/views/firewall/IpRuleView.vue:208
 #: src/views/firewall/RuleView.vue:245
 msgid "Create Rule"
 msgstr "創建規則"
 
-#: src/views/firewall/CreateIpModal.vue:100
+#: src/views/firewall/CreateIpModal.vue:103
 #: src/views/firewall/CreateModal.vue:102
 #: src/views/firewall/IpRuleView.vue:32
 #: src/views/firewall/RuleView.vue:32
 msgid "Network Protocol"
 msgstr "網路協議"
 
-#: src/views/firewall/CreateIpModal.vue:103
+#: src/views/firewall/CreateIpModal.vue:106
 msgid "IP Address"
 msgstr "IP 地址"
 
-#: src/views/firewall/CreateIpModal.vue:107
+#: src/views/firewall/CreateIpModal.vue:110
 #: src/views/firewall/CreateModal.vue:131
 msgid "IP or IP range: 172.16.0.1 or 172.16.0.0/16"
 msgstr "IP 或 IP 範圍：172.16.0.1 或 172.16.0.0/16"
 
-#: src/views/firewall/CreateIpModal.vue:110
+#: src/views/firewall/CreateIpModal.vue:113
 #: src/views/firewall/CreateModal.vue:134
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
 msgstr "策略"
 
-#: src/views/firewall/CreateIpModal.vue:113
+#: src/views/firewall/CreateIpModal.vue:116
 #: src/views/firewall/CreateModal.vue:137
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
