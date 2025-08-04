@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-08-04 10:13\n"
+"PO-Revision-Date: 2025-08-04 10:14\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -633,7 +633,7 @@ msgstr "应用名称"
 #: src/views/app/IndexView.vue:43
 #: src/views/apps/php/PhpView.vue:50
 msgid "Description"
-msgstr "介绍"
+msgstr "描述"
 
 #: src/views/app/IndexView.vue:49
 msgid "Installed Version"
@@ -1636,7 +1636,7 @@ msgstr "对于大文件，建议使用 SFTP 或其他方法上传"
 #: src/views/setting/CreateModal.vue:56
 #: src/views/setting/SettingUser.vue:36
 msgid "Email"
-msgstr "电子邮件"
+msgstr "邮箱"
 
 #: src/views/cert/AccountView.vue:72
 #: src/views/cert/AccountView.vue:235
