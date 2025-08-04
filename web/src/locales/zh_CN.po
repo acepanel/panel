@@ -10,40 +10,40 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-08-04 09:55\n"
+"PO-Revision-Date: 2025-08-04 10:13\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
 msgid "Rat Panel"
-msgstr ""
+msgstr "耗子面板"
 
 #: src/components/common/AppFooter.vue:15
 msgid "All Rights Reserved."
-msgstr ""
+msgstr "版权所有"
 
 #: src/components/common/AppFooter.vue:23
 msgid "QQ Group"
-msgstr ""
+msgstr "QQ 群"
 
 #: src/components/common/AppFooter.vue:31
 msgid "Documentation"
-msgstr ""
+msgstr "文档"
 
 #: src/components/common/AppFooter.vue:39
 msgid "Community"
-msgstr ""
+msgstr "社区"
 
 #: src/components/common/AppFooter.vue:47
 msgid "Sponsor"
-msgstr ""
+msgstr "赞助"
 
 #: src/components/common/CodeEditor.vue:27
 msgid "Retrieved successfully"
-msgstr ""
+msgstr "获取成功"
 
 #: src/components/common/CodeEditor.vue:36
 msgid "Cannot save in current state"
-msgstr ""
+msgstr "当前状态无法保存"
 
 #: src/components/common/CodeEditor.vue:40
 #: src/views/apps/codeserver/IndexView.vue:24
@@ -77,15 +77,15 @@ msgstr ""
 #: src/views/toolbox/SystemView.vue:81
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
-msgstr ""
+msgstr "保存成功"
 
 #: src/components/common/PathSelector.vue:20
 msgid "Select Directory"
-msgstr ""
+msgstr "选择目录"
 
 #: src/components/common/PathSelector.vue:20
 msgid "Select File"
-msgstr ""
+msgstr "选择文件"
 
 #: src/components/common/PathSelector.vue:42
 #: src/components/common/PathSelector.vue:331
@@ -107,16 +107,16 @@ msgstr ""
 #: src/views/ssh/UpdateModal.vue:63
 #: src/views/task/SystemView.vue:18
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: src/components/common/PathSelector.vue:83
 msgid "Permissions"
-msgstr ""
+msgstr "权限"
 
 #: src/components/common/PathSelector.vue:95
 #: src/views/file/ListTable.vue:157
 msgid "Owner / Group"
-msgstr ""
+msgstr "所有者 / 组"
 
 #: src/components/common/PathSelector.vue:107
 #: src/views/backup/ListView.vue:43
@@ -124,26 +124,26 @@ msgstr ""
 #: src/views/file/ListTable.vue:169
 #: src/views/file/SearchModal.vue:28
 msgid "Size"
-msgstr ""
+msgstr "大小"
 
 #: src/components/common/PathSelector.vue:115
 #: src/views/file/ListTable.vue:177
 #: src/views/file/SearchModal.vue:36
 msgid "Modification Time"
-msgstr ""
+msgstr "修改时间"
 
 #: src/components/common/PathSelector.vue:148
 #: src/views/file/ListTable.vue:456
 #: src/views/file/PathInput.vue:33
 msgid "Invalid path"
-msgstr ""
+msgstr "无效路径"
 
 #: src/components/common/PathSelector.vue:208
 #: src/views/file/ListTable.vue:405
 #: src/views/file/ToolBar.vue:37
 #: src/views/file/ToolBar.vue:51
 msgid "Invalid name"
-msgstr ""
+msgstr "无效的名称"
 
 #: src/components/common/PathSelector.vue:216
 #: src/views/backup/ListView.vue:125
@@ -164,17 +164,17 @@ msgstr ""
 #: src/views/ssh/CreateModal.vue:38
 #: src/views/task/CreateModal.vue:51
 msgid "Created successfully"
-msgstr ""
+msgstr "创建成功"
 
 #: src/components/common/PathSelector.vue:255
 #: src/views/file/ToolBar.vue:214
 msgid "File"
-msgstr ""
+msgstr "文件"
 
 #: src/components/common/PathSelector.vue:256
 #: src/views/file/ToolBar.vue:215
 msgid "Folder"
-msgstr ""
+msgstr "文件夹"
 
 #: src/components/common/PathSelector.vue:260
 #: src/components/common/PathSelector.vue:323
@@ -182,12 +182,12 @@ msgstr ""
 #: src/views/website/BulkCreate.vue:127
 #: src/views/website/IndexView.vue:571
 msgid "Create"
-msgstr ""
+msgstr "创建"
 
 #: src/components/common/PathSelector.vue:269
 #: src/views/file/PathInput.vue:133
 msgid "Root Directory"
-msgstr ""
+msgstr "根目录"
 
 #: src/components/common/PathSelector.vue:335
 #: src/views/app/VersionModal.vue:97
@@ -204,8 +204,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:559
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
-#: src/views/cert/CreateDnsModal.vue:187
-#: src/views/cert/DnsView.vue:324
+#: src/views/cert/CreateDnsModal.vue:180
+#: src/views/cert/DnsView.vue:317
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
@@ -233,16 +233,16 @@ msgstr ""
 #: src/views/task/CreateModal.vue:171
 #: src/views/website/ProxyBuilderModal.vue:201
 msgid "Submit"
-msgstr ""
+msgstr "提交"
 
 #: src/components/common/RealtimeLog.vue:29
 msgid "Path or service cannot be empty"
-msgstr ""
+msgstr "路径或服务不能为空"
 
 #: src/components/common/RealtimeLog.vue:44
 #: src/components/common/RealtimeLogModal.vue:33
 msgid "Failed to get log stream"
-msgstr ""
+msgstr "获取日志流失败"
 
 #: src/components/common/RealtimeLogModal.vue:67
 #: src/views/apps/supervisor/IndexView.vue:91
@@ -251,7 +251,7 @@ msgstr ""
 #: src/views/task/CronView.vue:120
 #: src/views/task/TaskView.vue:74
 msgid "Logs"
-msgstr ""
+msgstr "日志"
 
 #: src/components/common/ServiceStatus.vue:25
 #: src/views/dashboard/IndexView.vue:733
@@ -261,70 +261,70 @@ msgstr ""
 #: src/views/dashboard/IndexView.vue:765
 #: src/views/dashboard/IndexView.vue:777
 msgid "Loading..."
-msgstr ""
+msgstr "加载中……"
 
 #: src/components/common/ServiceStatus.vue:26
 #: src/views/task/SystemView.vue:50
 #: src/views/task/TaskView.vue:33
 #: src/views/website/IndexView.vue:31
 msgid "Running"
-msgstr ""
+msgstr "运行中"
 
 #: src/components/common/ServiceStatus.vue:26
 #: src/views/task/SystemView.vue:54
 msgid "Stopped"
-msgstr ""
+msgstr "已停止"
 
 #: src/components/common/ServiceStatus.vue:42
 #: src/views/container/ComposeView.vue:104
 msgid "Starting..."
-msgstr ""
+msgstr "正在启动……"
 
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:248
 #: src/views/website/IndexView.vue:271
 msgid "Started successfully"
-msgstr ""
+msgstr "启动成功"
 
 #: src/components/common/ServiceStatus.vue:57
 #: src/views/container/ComposeView.vue:168
 msgid "Stopping..."
-msgstr ""
+msgstr "停止中..."
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:255
 #: src/views/website/IndexView.vue:273
 msgid "Stopped successfully"
-msgstr ""
+msgstr "停止成功"
 
 #: src/components/common/ServiceStatus.vue:72
 msgid "Restarting..."
-msgstr ""
+msgstr "重启中..."
 
 #: src/components/common/ServiceStatus.vue:78
 #: src/views/apps/supervisor/IndexView.vue:262
 msgid "Restarted successfully"
-msgstr ""
+msgstr "重启成功"
 
 #: src/components/common/ServiceStatus.vue:87
 msgid "Reloading..."
-msgstr ""
+msgstr "重载中..."
 
 #: src/components/common/ServiceStatus.vue:93
 msgid "Reloaded successfully"
-msgstr ""
+msgstr "重载成功"
 
 #: src/components/common/ServiceStatus.vue:102
 msgid "Setting autostart..."
-msgstr ""
+msgstr "设置自启动中..."
 
 #: src/components/common/ServiceStatus.vue:109
 msgid "Autostart enabled successfully"
-msgstr ""
+msgstr "自启动已成功启用"
 
 #: src/components/common/ServiceStatus.vue:118
 msgid "Autostart disabled successfully"
-msgstr ""
+msgstr "自启动已成功禁用"
 
 #: src/components/common/ServiceStatus.vue:134
 #: src/views/apps/codeserver/IndexView.vue:43
@@ -344,15 +344,15 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:330
 #: src/views/container/ContainerView.vue:84
 msgid "Running Status"
-msgstr ""
+msgstr "运行状态"
 
 #: src/components/common/ServiceStatus.vue:141
 msgid "Autostart On"
-msgstr ""
+msgstr "自启动开启"
 
 #: src/components/common/ServiceStatus.vue:142
 msgid "Autostart Off"
-msgstr ""
+msgstr "自启动关闭"
 
 #: src/components/common/ServiceStatus.vue:152
 #: src/views/apps/supervisor/IndexView.vue:119
@@ -360,7 +360,7 @@ msgstr ""
 #: src/views/container/ContainerView.vue:130
 #: src/views/container/ContainerView.vue:412
 msgid "Start"
-msgstr ""
+msgstr "启动"
 
 #: src/components/common/ServiceStatus.vue:158
 #: src/views/apps/supervisor/IndexView.vue:145
@@ -368,11 +368,11 @@ msgstr ""
 #: src/views/container/ContainerView.vue:135
 #: src/views/container/ContainerView.vue:413
 msgid "Stop"
-msgstr ""
+msgstr "停止"
 
 #: src/components/common/ServiceStatus.vue:161
 msgid "Are you sure you want to stop %{ service }?"
-msgstr ""
+msgstr "您确定要停止 %{ service } 吗？"
 
 #: src/components/common/ServiceStatus.vue:165
 #: src/views/apps/supervisor/IndexView.vue:174
@@ -380,32 +380,32 @@ msgstr ""
 #: src/views/container/ContainerView.vue:414
 #: src/views/dashboard/IndexView.vue:447
 msgid "Restart"
-msgstr ""
+msgstr "重启"
 
 #: src/components/common/ServiceStatus.vue:174
 #: src/layout/tab/components/ContextMenu.vue:34
 msgid "Reload"
-msgstr ""
+msgstr "重载"
 
 #: src/layout/header/components/FullScreen.vue:16
 msgid "Fullscreen Display"
-msgstr ""
+msgstr "全屏显示"
 
 #: src/layout/header/components/MenuCollapse.vue:17
 msgid "Menu Zoom"
-msgstr ""
+msgstr "菜单缩放"
 
 #: src/layout/header/components/ReloadPage.vue:20
 msgid "Refresh Tab"
-msgstr ""
+msgstr "刷新标签页"
 
 #: src/layout/header/components/ThemeMode.vue:17
 msgid "Switch Theme"
-msgstr ""
+msgstr "切换主题"
 
 #: src/layout/header/components/ThemeSetting.vue:19
 msgid "Set Theme Color"
-msgstr ""
+msgstr "设置主题颜色"
 
 #: src/layout/header/components/UserAvatar.vue:13
 #: src/views/apps/pureftpd/IndexView.vue:65
@@ -413,25 +413,25 @@ msgstr ""
 #: src/views/setting/PasswordModal.vue:26
 #: src/views/setting/SettingUser.vue:119
 msgid "Change Password"
-msgstr ""
+msgstr "更改密码"
 
 #: src/layout/header/components/UserAvatar.vue:18
 msgid "Logout"
-msgstr ""
+msgstr "登出"
 
 #: src/layout/header/components/UserAvatar.vue:27
 msgid "Confirm logout?"
-msgstr ""
+msgstr "确认退出登录？"
 
 #: src/layout/header/components/UserAvatar.vue:28
 msgid "Prompt"
-msgstr ""
+msgstr "提示"
 
 #: src/layout/header/components/UserAvatar.vue:29
 #: src/views/dashboard/UpdateView.vue:26
 #: src/views/monitor/IndexView.vue:474
 msgid "Confirm"
-msgstr ""
+msgstr "确认"
 
 #: src/layout/header/components/UserAvatar.vue:30
 #: src/views/dashboard/UpdateView.vue:27
@@ -440,11 +440,11 @@ msgstr ""
 #: src/views/file/ToolBar.vue:139
 #: src/views/file/ToolBar.vue:226
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: src/layout/header/components/UserAvatar.vue:35
 msgid "Logged out successfully!"
-msgstr ""
+msgstr "退出登录成功！"
 
 #: src/layout/header/components/UserAvatar.vue:48
 #: src/views/cert/DnsView.vue:56
@@ -453,60 +453,60 @@ msgstr ""
 #: src/views/firewall/RuleView.vue:111
 #: src/views/firewall/RuleView.vue:136
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: src/layout/sidebar/components/SideSetting.vue:66
 #: src/layout/sidebar/components/SideSetting.vue:71
 msgid "Menu Settings"
-msgstr ""
+msgstr "菜单设置"
 
 #: src/layout/sidebar/components/SideSetting.vue:83
 msgid "Settings are saved in the browser and will be reset after clearing the browser cache"
-msgstr ""
+msgstr "设置保存在浏览器中，清除浏览器缓存后将重置"
 
 #: src/layout/sidebar/components/SideSetting.vue:88
 msgid "Custom Logo"
-msgstr ""
+msgstr "自定义 Logo"
 
 #: src/layout/sidebar/components/SideSetting.vue:91
 msgid "Please enter the complete URL"
-msgstr ""
+msgstr "请输入完整的 URL"
 
 #: src/layout/sidebar/components/SideSetting.vue:94
 msgid "Hide Menu"
-msgstr ""
+msgstr "隐藏菜单"
 
 #: src/layout/tab/components/ContextMenu.vue:28
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 #: src/layout/tab/components/ContextMenu.vue:40
 msgid "Pin"
-msgstr ""
+msgstr "固定"
 
 #: src/layout/tab/components/ContextMenu.vue:46
 msgid "Unpin"
-msgstr ""
+msgstr "取消固定"
 
 #: src/layout/tab/components/ContextMenu.vue:52
 msgid "Close Others"
-msgstr ""
+msgstr "关闭其他"
 
 #: src/layout/tab/components/ContextMenu.vue:58
 msgid "Close Left"
-msgstr ""
+msgstr "关闭左侧"
 
 #: src/layout/tab/components/ContextMenu.vue:64
 msgid "Close Right"
-msgstr ""
+msgstr "关闭右侧"
 
 #: src/locales/menu.ts:7
 msgid "Apps"
-msgstr ""
+msgstr "应用"
 
 #: src/locales/menu.ts:8
 msgid "Backup"
-msgstr ""
+msgstr "备份"
 
 #: src/locales/menu.ts:9
 #: src/views/cert/CertView.vue:497
@@ -515,22 +515,22 @@ msgstr ""
 #: src/views/setting/SettingSafe.vue:54
 #: src/views/website/EditView.vue:355
 msgid "Certificate"
-msgstr ""
+msgstr "证书"
 
 #: src/locales/menu.ts:10
 msgid "Container"
-msgstr ""
+msgstr "容器"
 
 #: src/locales/menu.ts:11
 msgid "Dashboard"
-msgstr ""
+msgstr "仪表板"
 
 #: src/locales/menu.ts:12
 #: src/views/app/IndexView.vue:96
 #: src/views/dashboard/IndexView.vue:451
 #: src/views/setting/TokenModal.vue:301
 msgid "Update"
-msgstr ""
+msgstr "更新"
 
 #: src/locales/menu.ts:13
 #: src/views/backup/ListView.vue:264
@@ -538,44 +538,44 @@ msgstr ""
 #: src/views/database/IndexView.vue:45
 #: src/views/website/IndexView.vue:492
 msgid "Database"
-msgstr ""
+msgstr "数据库"
 
 #: src/locales/menu.ts:14
 msgid "Files"
-msgstr ""
+msgstr "文件"
 
 #: src/locales/menu.ts:15
 msgid "Firewall"
-msgstr ""
+msgstr "防火墙"
 
 #: src/locales/menu.ts:16
 msgid "Monitoring"
-msgstr ""
+msgstr "监控"
 
 #: src/locales/menu.ts:17
 #: src/views/firewall/IndexView.vue:28
 msgid "Settings"
-msgstr ""
+msgstr "设置"
 
 #: src/locales/menu.ts:18
 msgid "Terminal"
-msgstr ""
+msgstr "终端"
 
 #: src/locales/menu.ts:19
 msgid "Tasks"
-msgstr ""
+msgstr "任务"
 
 #: src/locales/menu.ts:20
 msgid "Toolbox"
-msgstr ""
+msgstr "工具箱"
 
 #: src/locales/menu.ts:21
 msgid "System"
-msgstr ""
+msgstr "系统"
 
 #: src/locales/menu.ts:22
 msgid "Benchmark"
-msgstr ""
+msgstr "跑分"
 
 #: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
@@ -588,60 +588,60 @@ msgstr ""
 #: src/views/dashboard/IndexView.vue:421
 #: src/views/task/CreateModal.vue:130
 msgid "Website"
-msgstr ""
+msgstr "网站"
 
 #: src/locales/menu.ts:24
 msgid "Website Edit"
-msgstr ""
+msgstr "网站编辑"
 
 #: src/locales/menu.ts:26
 msgid "Fail2ban Manager"
-msgstr ""
+msgstr "Fail2ban 管理器"
 
 #: src/locales/menu.ts:27
 msgid "S3fs Manager"
-msgstr ""
+msgstr "S3fs 管理器"
 
 #: src/locales/menu.ts:28
 msgid "Supervisor Manager"
-msgstr ""
+msgstr "Supervisor 管理器"
 
 #: src/locales/menu.ts:29
 msgid "Rsync Manager"
-msgstr ""
+msgstr "Rsync 管理器"
 
 #: src/locales/menu.ts:30
 msgid "Frp Manager"
-msgstr ""
+msgstr "Frp 管理器"
 
 #: src/router/routes/index.ts:18
 #: src/views/login/IndexView.vue:176
 msgid "Login"
-msgstr ""
+msgstr "登录"
 
 #: src/views/app/IndexView.vue:19
 #: src/views/app/IndexView.vue:154
 #: src/views/app/IndexView.vue:159
 #: src/views/apps/php/PhpView.vue:81
 msgid "Install"
-msgstr ""
+msgstr "安装"
 
 #: src/views/app/IndexView.vue:37
 msgid "App Name"
-msgstr ""
+msgstr "应用名称"
 
 #: src/views/app/IndexView.vue:43
 #: src/views/apps/php/PhpView.vue:50
 msgid "Description"
-msgstr ""
+msgstr "介绍"
 
 #: src/views/app/IndexView.vue:49
 msgid "Installed Version"
-msgstr ""
+msgstr "已安装版本"
 
 #: src/views/app/IndexView.vue:55
 msgid "Show in Home"
-msgstr ""
+msgstr "在主页显示"
 
 #: src/views/app/IndexView.vue:68
 #: src/views/apps/fail2ban/IndexView.vue:60
@@ -677,57 +677,57 @@ msgstr ""
 #: src/views/task/TaskView.vue:55
 #: src/views/website/IndexView.vue:126
 msgid "Actions"
-msgstr ""
+msgstr "操作"
 
 #: src/views/app/IndexView.vue:83
 msgid "Updating app %{ app } may reset related configurations to default state, are you sure to continue?"
-msgstr ""
+msgstr "更新应用 %{ app } 可能会将相关配置重置为默认状态，您确定要继续吗？"
 
 #: src/views/app/IndexView.vue:115
 msgid "Manage"
-msgstr ""
+msgstr "管理"
 
 #: src/views/app/IndexView.vue:128
 msgid "Are you sure to uninstall app %{ app }?"
-msgstr ""
+msgstr "您确定要卸载应用 %{ app } 吗？"
 
 #: src/views/app/IndexView.vue:138
 msgid "Uninstall"
-msgstr ""
+msgstr "卸载"
 
 #: src/views/app/IndexView.vue:183
 msgid "Setup successfully"
-msgstr ""
+msgstr "设置成功"
 
 #: src/views/app/IndexView.vue:190
 #: src/views/app/IndexView.vue:198
 #: src/views/app/VersionModal.vue:32
 msgid "Task submitted, please check the progress in background tasks"
-msgstr ""
+msgstr "任务已提交，请在后台任务中查看进度"
 
 #: src/views/app/IndexView.vue:210
 msgid "Cache updated successfully"
-msgstr ""
+msgstr "缓存更新成功"
 
 #: src/views/app/IndexView.vue:224
 msgid "Update Cache"
-msgstr ""
+msgstr "更新缓存"
 
 #: src/views/app/IndexView.vue:229
 msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
-msgstr ""
+msgstr "在更新应用前，强烈建议先进行备份/快照，这样如果出现任何问题，可以第一时间回滚！"
 
 #: src/views/app/VersionModal.vue:74
 msgid "Channel"
-msgstr ""
+msgstr "渠道"
 
 #: src/views/app/VersionModal.vue:81
 msgid "Version"
-msgstr ""
+msgstr "版本"
 
 #: src/views/app/VersionModal.vue:84
 msgid "Please select a channel"
-msgstr ""
+msgstr "请选择一个渠道"
 
 #: src/views/apps/codeserver/IndexView.vue:39
 #: src/views/apps/docker/IndexView.vue:39
@@ -759,7 +759,7 @@ msgstr ""
 #: src/views/toolbox/SystemView.vue:109
 #: src/views/website/EditView.vue:215
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: src/views/apps/codeserver/IndexView.vue:46
 #: src/views/apps/frp/IndexView.vue:44
@@ -769,11 +769,11 @@ msgstr ""
 #: src/views/apps/nginx/IndexView.vue:81
 #: src/views/apps/phpmyadmin/IndexView.vue:84
 msgid "Modify Configuration"
-msgstr ""
+msgstr "修改配置"
 
 #: src/views/apps/codeserver/IndexView.vue:50
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Code Server 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/codeserver/IndexView.vue:69
 #: src/views/apps/docker/IndexView.vue:65
@@ -790,16 +790,16 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:264
 #: src/views/apps/supervisor/IndexView.vue:380
 msgid "Runtime Logs"
-msgstr ""
+msgstr "运行日志"
 
 #: src/views/apps/docker/IndexView.vue:46
 #: src/views/website/EditView.vue:401
 msgid "Configuration"
-msgstr ""
+msgstr "配置"
 
 #: src/views/apps/docker/IndexView.vue:49
 msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
-msgstr ""
+msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
 
 #: src/views/apps/fail2ban/IndexView.vue:44
 #: src/views/apps/phpmyadmin/IndexView.vue:71
@@ -812,31 +812,31 @@ msgstr ""
 #: src/views/task/SystemView.vue:43
 #: src/views/task/TaskView.vue:22
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: src/views/apps/fail2ban/IndexView.vue:56
 #: src/views/apps/fail2ban/IndexView.vue:365
 msgid "Max Retries"
-msgstr ""
+msgstr "最大重试次数"
 
 #: src/views/apps/fail2ban/IndexView.vue:57
 #: src/views/apps/fail2ban/IndexView.vue:371
 msgid "Ban Time"
-msgstr ""
+msgstr "封禁时间"
 
 #: src/views/apps/fail2ban/IndexView.vue:58
 #: src/views/apps/fail2ban/IndexView.vue:368
 msgid "Find Time"
-msgstr ""
+msgstr "查找时间"
 
 #: src/views/apps/fail2ban/IndexView.vue:78
 #: src/views/cert/CertView.vue:263
 msgid "View"
-msgstr ""
+msgstr "查看"
 
 #: src/views/apps/fail2ban/IndexView.vue:89
 msgid "Are you sure you want to delete rule %{ name }?"
-msgstr ""
+msgstr "您确定要删除规则 %{ name } 吗？"
 
 #: src/views/apps/fail2ban/IndexView.vue:100
 #: src/views/apps/php/PhpView.vue:109
@@ -872,15 +872,15 @@ msgstr ""
 #: src/views/task/TaskView.vue:98
 #: src/views/website/IndexView.vue:199
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: src/views/apps/fail2ban/IndexView.vue:134
 msgid "Are you sure you want to unban %{ ip }?"
-msgstr ""
+msgstr "您确定要解封 %{ ip } 吗？"
 
 #: src/views/apps/fail2ban/IndexView.vue:144
 msgid "Unban"
-msgstr ""
+msgstr "解封"
 
 #: src/views/apps/fail2ban/IndexView.vue:192
 #: src/views/apps/pureftpd/IndexView.vue:130
@@ -889,7 +889,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:241
 #: src/views/database/CreateServerModal.vue:37
 msgid "Added successfully"
-msgstr ""
+msgstr "添加成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:200
 #: src/views/apps/pureftpd/IndexView.vue:147
@@ -917,45 +917,45 @@ msgstr ""
 #: src/views/website/IndexView.vue:301
 #: src/views/website/IndexView.vue:357
 msgid "Deleted successfully"
-msgstr ""
+msgstr "删除成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:213
 msgid "Unbanned successfully"
-msgstr ""
+msgstr "解封成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:239
 msgid "Save Whitelist"
-msgstr ""
+msgstr "保存白名单"
 
 #: src/views/apps/fail2ban/IndexView.vue:248
 #: src/views/apps/fail2ban/IndexView.vue:294
 #: src/views/apps/fail2ban/IndexView.vue:298
 msgid "Add Rule"
-msgstr ""
+msgstr "添加规则"
 
 #: src/views/apps/fail2ban/IndexView.vue:255
 msgid "IP Whitelist"
-msgstr ""
+msgstr "IP 白名单"
 
 #: src/views/apps/fail2ban/IndexView.vue:260
 msgid "IP whitelist, separated by commas"
-msgstr ""
+msgstr "IP 白名单，用逗号分隔"
 
 #: src/views/apps/fail2ban/IndexView.vue:265
 msgid "Rule Management"
-msgstr ""
+msgstr "规则管理"
 
 #: src/views/apps/fail2ban/IndexView.vue:266
 msgid "Rule List"
-msgstr ""
+msgstr "规则列表"
 
 #: src/views/apps/fail2ban/IndexView.vue:304
 msgid "If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)"
-msgstr ""
+msgstr "如果一个 IP 在查找时间（秒）内超过最大重试次数，它将被禁止访问指定的禁止时间（秒）"
 
 #: src/views/apps/fail2ban/IndexView.vue:311
 msgid "Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective"
-msgstr ""
+msgstr "受保护的端口会自动获取。如果您修改了某个规则对应的端口，请删除并重新添加该规则，否则保护可能无效"
 
 #: src/views/apps/fail2ban/IndexView.vue:318
 #: src/views/cert/CertView.vue:87
@@ -966,58 +966,58 @@ msgstr ""
 #: src/views/database/ServerList.vue:17
 #: src/views/database/UserList.vue:17
 msgid "Type"
-msgstr ""
+msgstr "类型"
 
 #: src/views/apps/fail2ban/IndexView.vue:323
 #: src/views/apps/fail2ban/IndexView.vue:354
 msgid "Service"
-msgstr ""
+msgstr "服务"
 
 #: src/views/apps/fail2ban/IndexView.vue:328
 #: src/views/apps/fail2ban/IndexView.vue:332
 #: src/views/task/CreateModal.vue:144
 #: src/views/task/CreateModal.vue:149
 msgid "Select Website"
-msgstr ""
+msgstr "选择网站"
 
 #: src/views/apps/fail2ban/IndexView.vue:335
 msgid "Protection Mode"
-msgstr ""
+msgstr "保护模式"
 
 #: src/views/apps/fail2ban/IndexView.vue:340
 #: src/views/apps/pureftpd/IndexView.vue:39
 msgid "Path"
-msgstr ""
+msgstr "路径"
 
 #: src/views/apps/fail2ban/IndexView.vue:347
 #: src/views/apps/fail2ban/IndexView.vue:351
 msgid "Protection Path"
-msgstr ""
+msgstr "保护路径"
 
 #: src/views/apps/fail2ban/IndexView.vue:379
 #: src/views/apps/fail2ban/IndexView.vue:383
 msgid "View Rule"
-msgstr ""
+msgstr "查看规则"
 
 #: src/views/apps/fail2ban/IndexView.vue:387
 msgid "Rule Information"
-msgstr ""
+msgstr "规则信息"
 
 #: src/views/apps/fail2ban/IndexView.vue:390
 msgid "Currently Banned"
-msgstr ""
+msgstr "当前已封禁"
 
 #: src/views/apps/fail2ban/IndexView.vue:394
 msgid "Total Bans"
-msgstr ""
+msgstr "总封禁次数"
 
 #: src/views/apps/fail2ban/IndexView.vue:399
 msgid "Ban List"
-msgstr ""
+msgstr "封禁列表"
 
 #: src/views/apps/gitea/IndexView.vue:48
 msgid "This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Gitea 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/memcached/IndexView.vue:18
 #: src/views/apps/mysql/IndexView.vue:31
@@ -1026,7 +1026,7 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:31
 #: src/views/apps/redis/IndexView.vue:25
 msgid "Property"
-msgstr ""
+msgstr "属性"
 
 #: src/views/apps/memcached/IndexView.vue:25
 #: src/views/apps/mysql/IndexView.vue:38
@@ -1035,11 +1035,11 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:38
 #: src/views/apps/redis/IndexView.vue:32
 msgid "Current Value"
-msgstr ""
+msgstr "当前值"
 
 #: src/views/apps/memcached/IndexView.vue:66
 msgid "Service Configuration"
-msgstr ""
+msgstr "服务配置"
 
 #: src/views/apps/memcached/IndexView.vue:82
 #: src/views/apps/mysql/IndexView.vue:141
@@ -1049,18 +1049,18 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:86
 #: src/views/dashboard/IndexView.vue:462
 msgid "Load Status"
-msgstr ""
+msgstr "负载状态"
 
 #: src/views/apps/minio/IndexView.vue:39
 #: src/views/container/ComposeView.vue:338
 #: src/views/container/ComposeView.vue:368
 #: src/views/container/ContainerCreate.vue:353
 msgid "Environment Variables"
-msgstr ""
+msgstr "环境变量"
 
 #: src/views/apps/minio/IndexView.vue:43
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr ""
+msgstr "这将修改 Minio 环境变量文件 /etc/default/minio。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/mysql/IndexView.vue:53
 #: src/views/apps/mysql/IndexView.vue:59
@@ -1071,7 +1071,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:233
 #: src/views/website/EditView.vue:160
 msgid "Cleared successfully"
-msgstr ""
+msgstr "清除成功"
 
 #: src/views/apps/mysql/IndexView.vue:65
 #: src/views/apps/pureftpd/IndexView.vue:140
@@ -1088,79 +1088,79 @@ msgstr ""
 #: src/views/website/IndexView.vue:284
 #: src/views/website/IndexView.vue:310
 msgid "Modified successfully"
-msgstr ""
+msgstr "修改成功"
 
 #: src/views/apps/mysql/IndexView.vue:88
 #: src/views/apps/nginx/IndexView.vue:74
 #: src/views/apps/postgresql/IndexView.vue:84
 #: src/views/apps/supervisor/IndexView.vue:326
 msgid "Clear Log"
-msgstr ""
+msgstr "清除日志"
 
 #: src/views/apps/mysql/IndexView.vue:97
 #: src/views/apps/php/PhpView.vue:221
 msgid "Clear Slow Log"
-msgstr ""
+msgstr "清除慢查询日志"
 
 #: src/views/apps/mysql/IndexView.vue:104
 #: src/views/toolbox/SystemView.vue:205
 #: src/views/toolbox/SystemView.vue:207
 msgid "Root Password"
-msgstr ""
+msgstr "Root 密码"
 
 #: src/views/apps/mysql/IndexView.vue:112
 msgid "Save Changes"
-msgstr ""
+msgstr "保存更改"
 
 #: src/views/apps/mysql/IndexView.vue:122
 msgid "This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 MySQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/mysql/IndexView.vue:154
 msgid "Slow Query Log"
-msgstr ""
+msgstr "慢查询日志"
 
 #: src/views/apps/nginx/IndexView.vue:85
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 OpenResty 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/nginx/IndexView.vue:117
 #: src/views/apps/php/PhpView.vue:302
 msgid "Error Logs"
-msgstr ""
+msgstr "错误日志"
 
 #: src/views/apps/php/PhpView.vue:43
 msgid "Extension Name"
-msgstr ""
+msgstr "扩展名称"
 
 #: src/views/apps/php/PhpView.vue:71
 msgid "Are you sure you want to install %{ name }?"
-msgstr ""
+msgstr "您确定要安装 %{ name } 吗？"
 
 #: src/views/apps/php/PhpView.vue:97
 msgid "Are you sure you want to uninstall %{ name }?"
-msgstr ""
+msgstr "您确定要卸载 %{ name } 吗？"
 
 #: src/views/apps/php/PhpView.vue:140
 msgid "Set successfully"
-msgstr ""
+msgstr "设置成功"
 
 #: src/views/apps/php/PhpView.vue:170
 #: src/views/apps/php/PhpView.vue:176
 msgid "Task submitted, please check progress in background tasks"
-msgstr ""
+msgstr "任务已提交，请在后台任务中查看进度"
 
 #: src/views/apps/php/PhpView.vue:185
 msgid "Set as CLI Default Version"
-msgstr ""
+msgstr "设置为 CLI 默认版本"
 
 #: src/views/apps/php/PhpView.vue:212
 msgid "Clear Error Log"
-msgstr ""
+msgstr "清除错误日志"
 
 #: src/views/apps/php/PhpView.vue:228
 msgid "Extension Management"
-msgstr ""
+msgstr "扩展管理"
 
 #: src/views/apps/php/PhpView.vue:241
 #: src/views/apps/postgresql/IndexView.vue:91
@@ -1168,76 +1168,76 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:241
 #: src/views/apps/supervisor/IndexView.vue:357
 msgid "Main Configuration"
-msgstr ""
+msgstr "主要配置"
 
 #: src/views/apps/php/PhpView.vue:245
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 PHP %{ version } 的主要配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/php/PhpView.vue:265
 msgid "FPM Configuration"
-msgstr ""
+msgstr "FPM 配置"
 
 #: src/views/apps/php/PhpView.vue:269
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 PHP %{ version } 的 FPM 配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/php/PhpView.vue:305
 #: src/views/apps/postgresql/IndexView.vue:150
 msgid "Slow Logs"
-msgstr ""
+msgstr "慢日志"
 
 #: src/views/apps/phpmyadmin/IndexView.vue:73
 msgid "Access Information"
-msgstr ""
+msgstr "访问信息"
 
 #: src/views/apps/phpmyadmin/IndexView.vue:75
 msgid "Access URL:"
-msgstr ""
+msgstr "访问 URL："
 
 #: src/views/apps/phpmyadmin/IndexView.vue:78
 msgid "Modify Port"
-msgstr ""
+msgstr "修改端口"
 
 #: src/views/apps/phpmyadmin/IndexView.vue:80
 msgid "Modify phpMyAdmin access port"
-msgstr ""
+msgstr "修改 phpMyAdmin 访问端口"
 
 #: src/views/apps/phpmyadmin/IndexView.vue:88
 msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 phpMyAdmin 的 OpenResty 配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/podman/IndexView.vue:64
 msgid "Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!"
-msgstr ""
+msgstr "Podman 是一个无守护进程的容器管理工具。处于停止状态是正常的，不影响使用！"
 
 #: src/views/apps/podman/IndexView.vue:72
 msgid "Registry Configuration"
-msgstr ""
+msgstr "注册表配置"
 
 #: src/views/apps/podman/IndexView.vue:76
 msgid "This modifies the Podman registry configuration file (/etc/containers/registries.conf)"
-msgstr ""
+msgstr "这会修改 Podman 注册表配置文件 (/etc/containers/registries.conf)"
 
 #: src/views/apps/podman/IndexView.vue:95
 msgid "Storage Configuration"
-msgstr ""
+msgstr "存储配置"
 
 #: src/views/apps/podman/IndexView.vue:99
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
-msgstr ""
+msgstr "这会修改 Podman 存储配置文件 (/etc/containers/storage.conf)"
 
 #: src/views/apps/postgresql/IndexView.vue:95
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:114
 msgid "User Configuration"
-msgstr ""
+msgstr "用户配置"
 
 #: src/views/apps/postgresql/IndexView.vue:118
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/pureftpd/IndexView.vue:32
 #: src/views/apps/pureftpd/IndexView.vue:221
@@ -1254,31 +1254,31 @@ msgstr ""
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
 msgid "Username"
-msgstr ""
+msgstr "用户名"
 
 #: src/views/apps/pureftpd/IndexView.vue:76
 msgid "Are you sure you want to delete user %{ username }?"
-msgstr ""
+msgstr "您确定要删除用户 %{ username } 吗？"
 
 #: src/views/apps/pureftpd/IndexView.vue:171
 msgid "Add User"
-msgstr ""
+msgstr "添加用户"
 
 #: src/views/apps/pureftpd/IndexView.vue:178
 msgid "Port Settings"
-msgstr ""
+msgstr "端口设置"
 
 #: src/views/apps/pureftpd/IndexView.vue:180
 msgid "Modify Pure-Ftpd listening port"
-msgstr ""
+msgstr "修改 Pure-Ftpd 监听端口"
 
 #: src/views/apps/pureftpd/IndexView.vue:184
 msgid "User Management"
-msgstr ""
+msgstr "用户管理"
 
 #: src/views/apps/pureftpd/IndexView.vue:208
 msgid "Run Log"
-msgstr ""
+msgstr "运行日志"
 
 #: src/views/apps/pureftpd/IndexView.vue:213
 #: src/views/apps/pureftpd/IndexView.vue:217
@@ -1288,14 +1288,14 @@ msgstr ""
 #: src/views/setting/CreateModal.vue:32
 #: src/views/setting/IndexView.vue:69
 msgid "Create User"
-msgstr ""
+msgstr "创建用户"
 
 #: src/views/apps/pureftpd/IndexView.vue:226
 #: src/views/container/ImageView.vue:203
 #: src/views/database/CreateDatabaseModal.vue:99
 #: src/views/database/CreateUserModal.vue:82
 msgid "Enter username"
-msgstr ""
+msgstr "输入用户名"
 
 #: src/views/apps/pureftpd/IndexView.vue:229
 #: src/views/apps/pureftpd/IndexView.vue:260
@@ -1317,12 +1317,12 @@ msgstr ""
 #: src/views/ssh/UpdateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:92
 msgid "Password"
-msgstr ""
+msgstr "密码"
 
 #: src/views/apps/pureftpd/IndexView.vue:236
 #: src/views/apps/pureftpd/IndexView.vue:266
 msgid "It is recommended to use the generator to generate a random password"
-msgstr ""
+msgstr "建议使用生成器生成随机密码"
 
 #: src/views/apps/pureftpd/IndexView.vue:240
 #: src/views/apps/rsync/IndexView.vue:47
@@ -1332,15 +1332,15 @@ msgstr ""
 #: src/views/website/IndexView.vue:44
 #: src/views/website/IndexView.vue:549
 msgid "Directory"
-msgstr ""
+msgstr "目录"
 
 #: src/views/apps/pureftpd/IndexView.vue:245
 msgid "Enter the directory authorized to the user"
-msgstr ""
+msgstr "输入授权给用户的目录"
 
 #: src/views/apps/redis/IndexView.vue:67
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Redis 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/rsync/IndexView.vue:54
 #: src/views/apps/rsync/IndexView.vue:296
@@ -1349,7 +1349,7 @@ msgstr ""
 #: src/views/setting/IndexView.vue:79
 #: src/views/task/SystemView.vue:37
 msgid "User"
-msgstr ""
+msgstr "用户"
 
 #: src/views/apps/rsync/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:312
@@ -1363,7 +1363,7 @@ msgstr ""
 #: src/views/ssh/UpdateModal.vue:68
 #: src/views/toolbox/SystemView.vue:156
 msgid "Host"
-msgstr ""
+msgstr "主机"
 
 #: src/views/apps/rsync/IndexView.vue:67
 #: src/views/apps/rsync/IndexView.vue:320
@@ -1376,215 +1376,215 @@ msgstr ""
 #: src/views/database/UpdateUserModal.vue:70
 #: src/views/database/UserList.vue:114
 msgid "Comment"
-msgstr ""
+msgstr "注释"
 
 #: src/views/apps/rsync/IndexView.vue:83
 #: src/views/apps/supervisor/IndexView.vue:104
 msgid "Configure"
-msgstr ""
+msgstr "配置"
 
 #: src/views/apps/rsync/IndexView.vue:94
 msgid "Are you sure you want to delete module %{ name }?"
-msgstr ""
+msgstr "确定要删除模块 %{ name } 吗？"
 
 #: src/views/apps/rsync/IndexView.vue:210
 #: src/views/apps/rsync/IndexView.vue:272
 msgid "Add Module"
-msgstr ""
+msgstr "添加模块"
 
 #: src/views/apps/rsync/IndexView.vue:217
 msgid "Module Management"
-msgstr ""
+msgstr "模块管理"
 
 #: src/views/apps/rsync/IndexView.vue:245
 msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Rsync 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/rsync/IndexView.vue:285
 #: src/views/apps/supervisor/IndexView.vue:404
 msgid "Name cannot contain Chinese characters"
-msgstr ""
+msgstr "名称不能包含中文字符"
 
 #: src/views/apps/rsync/IndexView.vue:293
 #: src/views/apps/rsync/IndexView.vue:347
 msgid "Please enter absolute path"
-msgstr ""
+msgstr "请输入绝对路径"
 
 #: src/views/apps/rsync/IndexView.vue:301
 #: src/views/apps/rsync/IndexView.vue:355
 msgid "Enter module username"
-msgstr ""
+msgstr "输入模块用户名"
 
 #: src/views/apps/rsync/IndexView.vue:309
 #: src/views/apps/rsync/IndexView.vue:364
 msgid "Enter module password"
-msgstr ""
+msgstr "输入模块密码"
 
 #: src/views/apps/rsync/IndexView.vue:317
 #: src/views/apps/rsync/IndexView.vue:372
 msgid "Enter allowed hosts, separate multiple hosts with spaces"
-msgstr ""
+msgstr "输入允许的主机，多个主机用空格分隔"
 
 #: src/views/apps/rsync/IndexView.vue:325
 #: src/views/apps/rsync/IndexView.vue:380
 msgid "Enter comments"
-msgstr ""
+msgstr "输入注释"
 
 #: src/views/apps/rsync/IndexView.vue:334
 msgid "Module Configuration"
-msgstr ""
+msgstr "模块配置"
 
 #: src/views/apps/s3fs/IndexView.vue:25
 msgid "Mount Path"
-msgstr ""
+msgstr "挂载路径"
 
 #: src/views/apps/s3fs/IndexView.vue:46
 msgid "Are you sure you want to delete mount %{ path }?"
-msgstr ""
+msgstr "您确定要删除挂载 %{ path } 吗？"
 
 #: src/views/apps/s3fs/IndexView.vue:58
 msgid "Unmount"
-msgstr ""
+msgstr "卸载"
 
 #: src/views/apps/s3fs/IndexView.vue:105
 #: src/views/apps/s3fs/IndexView.vue:131
 #: src/views/apps/s3fs/IndexView.vue:135
 msgid "Add Mount"
-msgstr ""
+msgstr "添加挂载"
 
 #: src/views/apps/s3fs/IndexView.vue:144
 msgid "Enter Bucket name (COS format: xxxx-ID)"
-msgstr ""
+msgstr "输入存储桶名称（COS 格式：xxxx-ID）"
 
 #: src/views/apps/s3fs/IndexView.vue:152
 msgid "Enter AK key"
-msgstr ""
+msgstr "输入 AK 密钥"
 
 #: src/views/apps/s3fs/IndexView.vue:160
 msgid "Enter SK key"
-msgstr ""
+msgstr "输入 SK 密钥"
 
 #: src/views/apps/s3fs/IndexView.vue:163
 msgid "Region Endpoint"
-msgstr ""
+msgstr "区域端点"
 
 #: src/views/apps/s3fs/IndexView.vue:169
 msgid "Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)"
-msgstr ""
+msgstr "输入完整的区域端点 URL（例如：https://oss-cn-beijing.aliyuncs.com）"
 
 #: src/views/apps/s3fs/IndexView.vue:175
 msgid "Mount Directory"
-msgstr ""
+msgstr "挂载目录"
 
 #: src/views/apps/s3fs/IndexView.vue:180
 msgid "Enter mount directory (e.g., /oss)"
-msgstr ""
+msgstr "输入挂载目录（例如，/oss）"
 
 #: src/views/apps/supervisor/IndexView.vue:69
 msgid "Uptime"
-msgstr ""
+msgstr "运行时间"
 
 #: src/views/apps/supervisor/IndexView.vue:132
 msgid "Are you sure you want to stop process %{ name }?"
-msgstr ""
+msgstr "您确定要停止进程 %{ name } 吗？"
 
 #: src/views/apps/supervisor/IndexView.vue:161
 msgid "Are you sure you want to restart process %{ name }?"
-msgstr ""
+msgstr "您确定要重启进程 %{ name } 吗？"
 
 #: src/views/apps/supervisor/IndexView.vue:189
 msgid "Are you sure you want to delete process %{ name }?"
-msgstr ""
+msgstr "您确定要删除进程 %{ name } 吗？"
 
 #: src/views/apps/supervisor/IndexView.vue:322
 #: src/views/apps/supervisor/IndexView.vue:391
 msgid "Add Process"
-msgstr ""
+msgstr "添加进程"
 
 #: src/views/apps/supervisor/IndexView.vue:333
 msgid "Process Management"
-msgstr ""
+msgstr "进程管理"
 
 #: src/views/apps/supervisor/IndexView.vue:361
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
+msgstr "这将修改 Supervisor 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/supervisor/IndexView.vue:383
 msgid "Daemon Logs"
-msgstr ""
+msgstr "守护进程日志"
 
 #: src/views/apps/supervisor/IndexView.vue:407
 msgid "Start Command"
-msgstr ""
+msgstr "启动命令"
 
 #: src/views/apps/supervisor/IndexView.vue:412
 msgid "Please enter absolute path for files in start command"
-msgstr ""
+msgstr "请在启动命令中输入文件的绝对路径"
 
 #: src/views/apps/supervisor/IndexView.vue:415
 msgid "Working Directory"
-msgstr ""
+msgstr "工作目录"
 
 #: src/views/apps/supervisor/IndexView.vue:420
 msgid "Please enter absolute path for working directory"
-msgstr ""
+msgstr "请输入工作目录的绝对路径"
 
 #: src/views/apps/supervisor/IndexView.vue:423
 msgid "Run As User"
-msgstr ""
+msgstr "运行用户"
 
 #: src/views/apps/supervisor/IndexView.vue:428
 msgid "Usually www is sufficient"
-msgstr ""
+msgstr "通常使用 www 即可"
 
 #: src/views/apps/supervisor/IndexView.vue:431
 msgid "Number of Processes"
-msgstr ""
+msgstr "进程数量"
 
 #: src/views/apps/supervisor/IndexView.vue:441
 msgid "Process Configuration"
-msgstr ""
+msgstr "进程配置"
 
 #: src/views/backup/ListView.vue:36
 msgid "Filename"
-msgstr ""
+msgstr "文件名"
 
 #: src/views/backup/ListView.vue:49
 #: src/views/database/ServerList.vue:126
 #: src/views/database/UserList.vue:143
 msgid "Update Date"
-msgstr ""
+msgstr "更新日期"
 
 #: src/views/backup/ListView.vue:76
 msgid "Restore"
-msgstr ""
+msgstr "恢复"
 
 #: src/views/backup/ListView.vue:87
 msgid "Are you sure you want to delete this backup?"
-msgstr ""
+msgstr "您确定要删除此备份吗？"
 
 #: src/views/backup/ListView.vue:131
 msgid "Restoring..."
-msgstr ""
+msgstr "正在恢复……"
 
 #: src/views/backup/ListView.vue:138
 msgid "Restored successfully"
-msgstr ""
+msgstr "恢复成功"
 
 #: src/views/backup/ListView.vue:182
 #: src/views/backup/ListView.vue:212
 msgid "Create Backup"
-msgstr ""
+msgstr "创建备份"
 
 #: src/views/backup/ListView.vue:185
 #: src/views/backup/UploadModal.vue:39
 msgid "Upload Backup"
-msgstr ""
+msgstr "上传备份"
 
 #: src/views/backup/ListView.vue:224
 #: src/views/backup/ListView.vue:261
 msgid "Select website"
-msgstr ""
+msgstr "选择网站"
 
 #: src/views/backup/ListView.vue:227
 #: src/views/database/CreateDatabaseModal.vue:71
@@ -1594,41 +1594,41 @@ msgstr ""
 #: src/views/website/IndexView.vue:513
 #: src/views/website/IndexView.vue:518
 msgid "Database Name"
-msgstr ""
+msgstr "数据库名称"
 
 #: src/views/backup/ListView.vue:232
 #: src/views/database/CreateDatabaseModal.vue:76
 #: src/views/database/CreateUserModal.vue:113
 #: src/views/database/UpdateUserModal.vue:67
 msgid "Enter database name"
-msgstr ""
+msgstr "输入数据库名称"
 
 #: src/views/backup/ListView.vue:235
 #: src/views/task/CreateModal.vue:158
 #: src/views/task/CreateModal.vue:161
 msgid "Save Directory"
-msgstr ""
+msgstr "保存目录"
 
 #: src/views/backup/ListView.vue:240
 msgid "Leave empty to use default path"
-msgstr ""
+msgstr "留空以使用默认路径"
 
 #: src/views/backup/ListView.vue:249
 msgid "Restore Backup"
-msgstr ""
+msgstr "恢复备份"
 
 #: src/views/backup/UploadModal.vue:20
 msgid "Upload %{ filename } successfully"
-msgstr ""
+msgstr "上传 %{ filename } 成功"
 
 #: src/views/backup/UploadModal.vue:51
 #: src/views/file/UploadModal.vue:50
 msgid "Click or drag files to this area to upload"
-msgstr ""
+msgstr "点击或将文件拖到此区域上传"
 
 #: src/views/backup/UploadModal.vue:53
 msgid "For large files, it is recommended to use SFTP or other methods to upload"
-msgstr ""
+msgstr "对于大文件，建议使用 SFTP 或其他方法上传"
 
 #: src/views/cert/AccountView.vue:44
 #: src/views/cert/AccountView.vue:243
@@ -1636,7 +1636,7 @@ msgstr ""
 #: src/views/setting/CreateModal.vue:56
 #: src/views/setting/SettingUser.vue:36
 msgid "Email"
-msgstr ""
+msgstr "电子邮件"
 
 #: src/views/cert/AccountView.vue:72
 #: src/views/cert/AccountView.vue:235
@@ -1644,7 +1644,7 @@ msgstr ""
 #: src/views/cert/CreateAccountModal.vue:92
 #: src/views/cert/CreateCertModal.vue:82
 msgid "Key Type"
-msgstr ""
+msgstr "密钥类型"
 
 #: src/views/cert/AccountView.vue:101
 #: src/views/cert/CertView.vue:288
@@ -1655,22 +1655,22 @@ msgstr ""
 #: src/views/setting/TokenModal.vue:69
 #: src/views/toolbox/SystemView.vue:118
 msgid "Modify"
-msgstr ""
+msgstr "修改"
 
 #: src/views/cert/AccountView.vue:109
 #: src/views/cert/CertView.vue:297
 #: src/views/cert/DnsView.vue:94
 msgid "Deletion successful"
-msgstr ""
+msgstr "删除成功"
 
 #: src/views/cert/AccountView.vue:116
 msgid "Are you sure you want to delete the account?"
-msgstr ""
+msgstr "您确定要删除该账户吗？"
 
 #: src/views/cert/AccountView.vue:150
 #: src/views/cert/CreateAccountModal.vue:39
 msgid "Registering account with CA, please wait patiently"
-msgstr ""
+msgstr "正在向 CA 注册账户，请耐心等待"
 
 #: src/views/cert/AccountView.vue:162
 #: src/views/cert/CertView.vue:348
@@ -1678,53 +1678,53 @@ msgstr ""
 #: src/views/cert/DnsView.vue:139
 #: src/views/container/ComposeView.vue:272
 msgid "Update successful"
-msgstr ""
+msgstr "更新成功"
 
 #: src/views/cert/AccountView.vue:207
 msgid "Modify Account"
-msgstr ""
+msgstr "修改账户"
 
 #: src/views/cert/AccountView.vue:215
 #: src/views/cert/CreateAccountModal.vue:72
 msgid "Google and SSL.com require obtaining KID and HMAC from their official websites first"
-msgstr ""
+msgstr "Google 和 SSL.com 需要先从其官网获取 KID 和 HMAC"
 
 #: src/views/cert/AccountView.vue:221
 #: src/views/cert/CreateAccountModal.vue:78
 msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
-msgstr ""
+msgstr "Google 在中国大陆无法访问，其他 CA 取决于网络条件，建议使用 Let's Encrypt"
 
 #: src/views/cert/AccountView.vue:227
 #: src/views/cert/CreateAccountModal.vue:84
 msgid "CA"
-msgstr ""
+msgstr "CA"
 
 #: src/views/cert/AccountView.vue:230
 #: src/views/cert/CreateAccountModal.vue:87
 msgid "Select CA"
-msgstr ""
+msgstr "选择 CA"
 
 #: src/views/cert/AccountView.vue:238
 #: src/views/cert/CertView.vue:461
 #: src/views/cert/CreateAccountModal.vue:95
 #: src/views/cert/CreateCertModal.vue:85
 msgid "Select key type"
-msgstr ""
+msgstr "选择密钥类型"
 
 #: src/views/cert/AccountView.vue:248
 #: src/views/cert/CreateAccountModal.vue:105
 msgid "Enter email address"
-msgstr ""
+msgstr "输入电子邮件地址"
 
 #: src/views/cert/AccountView.vue:256
 #: src/views/cert/CreateAccountModal.vue:113
 msgid "Enter KID"
-msgstr ""
+msgstr "输入 KID"
 
 #: src/views/cert/AccountView.vue:264
 #: src/views/cert/CreateAccountModal.vue:121
 msgid "Enter HMAC"
-msgstr ""
+msgstr "输入 HMAC"
 
 #: src/views/cert/CertView.vue:64
 #: src/views/cert/CertView.vue:450
@@ -1733,7 +1733,7 @@ msgstr ""
 #: src/views/website/EditView.vue:232
 #: src/views/website/IndexView.vue:457
 msgid "Domain"
-msgstr ""
+msgstr "域名"
 
 #: src/views/cert/CertView.vue:70
 #: src/views/cert/CertView.vue:124
@@ -1750,106 +1750,106 @@ msgstr ""
 #: src/views/firewall/RuleView.vue:26
 #: src/views/firewall/RuleView.vue:43
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: src/views/cert/CertView.vue:109
 #: src/views/file/ToolBar.vue:221
 #: src/views/file/UploadModal.vue:38
 msgid "Upload"
-msgstr ""
+msgstr "上传"
 
 #: src/views/cert/CertView.vue:117
 msgid "Associated Account"
-msgstr ""
+msgstr "关联账户"
 
 #: src/views/cert/CertView.vue:130
 #: src/views/website/EditView.vue:306
 msgid "Issuer"
-msgstr ""
+msgstr "颁发者"
 
 #: src/views/cert/CertView.vue:139
 #: src/views/setting/TokenModal.vue:43
 #: src/views/setting/TokenModal.vue:258
 #: src/views/setting/TokenModal.vue:291
 msgid "Expiration Time"
-msgstr ""
+msgstr "过期时间"
 
 #: src/views/cert/CertView.vue:167
 msgid "Auto Renew"
-msgstr ""
+msgstr "自动续期"
 
 #: src/views/cert/CertView.vue:200
 #: src/views/cert/ObtainModal.vue:78
 msgid "Issue"
-msgstr ""
+msgstr "签发"
 
 #: src/views/cert/CertView.vue:219
 msgid "Deploy"
-msgstr ""
+msgstr "部署"
 
 #: src/views/cert/CertView.vue:231
 #: src/views/cert/ObtainModal.vue:24
 #: src/views/cert/ObtainModal.vue:81
 #: src/views/website/EditView.vue:133
 msgid "Please wait..."
-msgstr ""
+msgstr "请稍候……"
 
 #: src/views/cert/CertView.vue:237
 msgid "Renewal successful"
-msgstr ""
+msgstr "续期成功"
 
 #: src/views/cert/CertView.vue:245
 msgid "Renew"
-msgstr ""
+msgstr "续期"
 
 #: src/views/cert/CertView.vue:303
 msgid "Are you sure you want to delete the certificate?"
-msgstr ""
+msgstr "您确定要删除证书吗？"
 
 #: src/views/cert/CertView.vue:389
 msgid "Deployment successful"
-msgstr ""
+msgstr "部署成功"
 
 #: src/views/cert/CertView.vue:435
 msgid "Modify Certificate"
-msgstr ""
+msgstr "修改证书"
 
 #: src/views/cert/CertView.vue:444
 msgid "You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates."
-msgstr ""
+msgstr "您可以通过选择任何网站 / DNS 自动颁发和部署证书，或手动输入域名并设置 DNS 解析以颁发证书，或填写部署脚本以自动部署证书。"
 
 #: src/views/cert/CertView.vue:469
 #: src/views/cert/CreateCertModal.vue:93
 msgid "Select website for certificate deployment"
-msgstr ""
+msgstr "选择要部署证书的网站"
 
 #: src/views/cert/CertView.vue:477
 #: src/views/cert/CreateCertModal.vue:98
 msgid "Account"
-msgstr ""
+msgstr "账户"
 
 #: src/views/cert/CertView.vue:481
 #: src/views/cert/CreateCertModal.vue:101
 msgid "Select account for certificate issuance"
-msgstr ""
+msgstr "选择用于证书颁发的账户"
 
 #: src/views/cert/CertView.vue:486
 #: src/views/cert/CreateCertModal.vue:106
 #: src/views/cert/CreateDnsModal.vue:59
 #: src/views/cert/DnsView.vue:196
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 #: src/views/cert/CertView.vue:489
 #: src/views/cert/CreateCertModal.vue:109
 msgid "Select DNS for certificate issuance"
-msgstr ""
+msgstr "选择用于证书颁发的 DNS"
 
 #: src/views/cert/CertView.vue:502
 #: src/views/cert/UploadCertModal.vue:42
 #: src/views/website/EditView.vue:359
 msgid "Enter the content of the PEM certificate file"
-msgstr ""
+msgstr "输入 PEM 证书文件的内容"
 
 #: src/views/cert/CertView.vue:509
 #: src/views/cert/CertView.vue:586
@@ -1861,226 +1861,221 @@ msgstr ""
 #: src/views/ssh/UpdateModal.vue:95
 #: src/views/website/EditView.vue:363
 msgid "Private Key"
-msgstr ""
+msgstr "私钥"
 
 #: src/views/cert/CertView.vue:514
 #: src/views/cert/UploadCertModal.vue:50
 #: src/views/website/EditView.vue:367
 msgid "Enter the content of the KEY private key file"
-msgstr ""
+msgstr "输入 KEY 私钥文件的内容"
 
 #: src/views/cert/CertView.vue:521
 msgid "Deployment Script"
-msgstr ""
+msgstr "部署脚本"
 
 #: src/views/cert/CertView.vue:527
 msgid "The {cert} and {key} in the script will be replaced with the certificate and private key content"
-msgstr ""
+msgstr "脚本中的 {cert} 和 {key} 将被替换为证书和私钥内容"
 
 #: src/views/cert/CertView.vue:541
 msgid "Deploy Certificate"
-msgstr ""
+msgstr "部署证书"
 
 #: src/views/cert/CertView.vue:552
 msgid "Select websites to deploy the certificate"
-msgstr ""
+msgstr "选择要部署证书的网站"
 
 #: src/views/cert/CertView.vue:565
 msgid "View Certificate"
-msgstr ""
+msgstr "查看证书"
 
 #: src/views/cert/CreateAccountModal.vue:64
 #: src/views/cert/IndexView.vue:106
 msgid "Create Account"
-msgstr ""
+msgstr "创建账户"
 
 #: src/views/cert/CreateCertModal.vue:59
 #: src/views/cert/IndexView.vue:102
 msgid "Create Certificate"
-msgstr ""
+msgstr "创建证书"
 
 #: src/views/cert/CreateCertModal.vue:68
 msgid "You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates"
-msgstr ""
+msgstr "您可以通过选择网站或 DNS 来自动颁发和部署证书，或者手动输入域名并设置 DNS 解析以颁发证书"
 
 #: src/views/cert/CreateDnsModal.vue:44
 #: src/views/cert/IndexView.vue:110
 msgid "Create DNS"
-msgstr ""
+msgstr "创建 DNS"
 
 #: src/views/cert/CreateDnsModal.vue:52
 msgid "Comment Name"
-msgstr ""
+msgstr "备注名称"
 
 #: src/views/cert/CreateDnsModal.vue:56
 msgid "Enter comment name"
-msgstr ""
+msgstr "输入备注名称"
 
 #: src/views/cert/CreateDnsModal.vue:62
 #: src/views/cert/DnsView.vue:199
 msgid "Select DNS"
-msgstr ""
+msgstr "选择 DNS"
 
 #: src/views/cert/CreateDnsModal.vue:71
 #: src/views/cert/DnsView.vue:208
 msgid "Enter Aliyun Access Key"
-msgstr ""
+msgstr "输入阿里云 Access Key"
 
 #: src/views/cert/CreateDnsModal.vue:78
 #: src/views/cert/DnsView.vue:215
 msgid "Enter Aliyun Secret Key"
-msgstr ""
+msgstr "输入阿里云 Secret Key"
 
 #: src/views/cert/CreateDnsModal.vue:85
 #: src/views/cert/DnsView.vue:222
 msgid "Enter Tencent Cloud SecretId"
-msgstr ""
+msgstr "输入腾讯云 SecretId"
 
 #: src/views/cert/CreateDnsModal.vue:92
 #: src/views/cert/DnsView.vue:229
 msgid "Enter Tencent Cloud SecretKey"
-msgstr ""
+msgstr "输入腾讯云 SecretKey"
 
 #: src/views/cert/CreateDnsModal.vue:99
 #: src/views/cert/DnsView.vue:236
 msgid "Enter Huawei Cloud AccessKeyId"
-msgstr ""
+msgstr "输入华为云 AccessKeyId"
 
 #: src/views/cert/CreateDnsModal.vue:106
 #: src/views/cert/DnsView.vue:243
 msgid "Enter Huawei Cloud SecretAccessKey"
-msgstr ""
+msgstr "输入华为云 SecretAccessKey"
 
 #: src/views/cert/CreateDnsModal.vue:113
 #: src/views/cert/DnsView.vue:250
 msgid "Enter West.cn Username"
-msgstr ""
+msgstr "输入西部数码用户名"
 
 #: src/views/cert/CreateDnsModal.vue:120
 #: src/views/cert/DnsView.vue:257
 msgid "Enter West.cn API Password"
-msgstr ""
+msgstr "输入西部数码 API 密码"
 
 #: src/views/cert/CreateDnsModal.vue:127
 #: src/views/cert/DnsView.vue:264
 msgid "Enter Cloudflare API Key"
-msgstr ""
+msgstr "输入 Cloudflare API 密钥"
 
 #: src/views/cert/CreateDnsModal.vue:134
 #: src/views/cert/DnsView.vue:271
-msgid "Enter GoDaddy Token"
-msgstr ""
+msgid "Enter G-Core API Key"
+msgstr "输入 G-Core API 密钥"
 
 #: src/views/cert/CreateDnsModal.vue:141
 #: src/views/cert/DnsView.vue:278
-msgid "Enter G-Core API Key"
-msgstr ""
+msgid "Enter Porkbun API Key"
+msgstr "输入 Porkbun API 密钥"
 
 #: src/views/cert/CreateDnsModal.vue:148
 #: src/views/cert/DnsView.vue:285
-msgid "Enter Porkbun API Key"
-msgstr ""
+msgid "Enter Porkbun Secret Key"
+msgstr "输入 Porkbun 密钥"
 
 #: src/views/cert/CreateDnsModal.vue:155
 #: src/views/cert/DnsView.vue:292
-msgid "Enter Porkbun Secret Key"
-msgstr ""
+msgid "Enter NameSilo API Token"
+msgstr "输入 NameSilo API 令牌"
 
 #: src/views/cert/CreateDnsModal.vue:162
 #: src/views/cert/DnsView.vue:299
-msgid "Enter NameSilo API Token"
-msgstr ""
+msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
+msgstr "输入 ClouDNS 认证 ID（使用子认证 ID 时添加 sub- 前缀）"
 
 #: src/views/cert/CreateDnsModal.vue:169
 #: src/views/cert/DnsView.vue:306
-msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
-msgstr ""
+msgid "Enter ClouDNS Auth Password"
+msgstr "输入 ClouDNS 认证密码"
 
 #: src/views/cert/CreateDnsModal.vue:176
 #: src/views/cert/DnsView.vue:313
-msgid "Enter ClouDNS Auth Password"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:183
-#: src/views/cert/DnsView.vue:320
 msgid "Enter Hetzner Auth API Token"
-msgstr ""
+msgstr "输入 Hetzner Auth API Token"
 
 #: src/views/cert/DnsView.vue:31
 #: src/views/cert/DnsView.vue:189
 msgid "Note Name"
-msgstr ""
+msgstr "备注名称"
 
 #: src/views/cert/DnsView.vue:100
 msgid "Are you sure you want to delete the DNS?"
-msgstr ""
+msgstr "您确定要删除 DNS 吗？"
 
 #: src/views/cert/DnsView.vue:181
 msgid "Modify DNS"
-msgstr ""
+msgstr "修改 DNS"
 
 #: src/views/cert/DnsView.vue:193
 msgid "Enter note name"
-msgstr ""
+msgstr "输入备注名称"
 
 #: src/views/cert/IndexView.vue:98
 #: src/views/cert/UploadCertModal.vue:30
 msgid "Upload Certificate"
-msgstr ""
+msgstr "上传证书"
 
 #: src/views/cert/IndexView.vue:115
 msgid "Certificate List"
-msgstr ""
+msgstr "证书列表"
 
 #: src/views/cert/IndexView.vue:118
 msgid "Account List"
-msgstr ""
+msgstr "账户列表"
 
 #: src/views/cert/IndexView.vue:121
 msgid "DNS List"
-msgstr ""
+msgstr "DNS 列表"
 
 #: src/views/cert/ObtainModal.vue:18
 msgid "Automatic"
-msgstr ""
+msgstr "自动"
 
 #: src/views/cert/ObtainModal.vue:19
 msgid "Manual"
-msgstr ""
+msgstr "手动"
 
 #: src/views/cert/ObtainModal.vue:20
 msgid "Self-signed"
-msgstr ""
+msgstr "自签名"
 
 #: src/views/cert/ObtainModal.vue:33
 #: src/views/cert/ObtainModal.vue:89
 #: src/views/cert/ObtainModal.vue:107
 msgid "Issuance successful"
-msgstr ""
+msgstr "签发成功"
 
 #: src/views/cert/ObtainModal.vue:42
 msgid "Please set up DNS resolution for the domain first, then continue with the issuance"
-msgstr ""
+msgstr "请先为域名设置 DNS 解析，然后继续签发"
 
 #: src/views/cert/ObtainModal.vue:48
 msgid "DNS Records to Set"
-msgstr ""
+msgstr "要设置的 DNS 记录"
 
 #: src/views/cert/ObtainModal.vue:59
 msgid "Host Record"
-msgstr ""
+msgstr "主机记录"
 
 #: src/views/cert/ObtainModal.vue:60
 msgid "Record Value"
-msgstr ""
+msgstr "记录值"
 
 #: src/views/cert/ObtainModal.vue:120
 msgid "Issue Certificate"
-msgstr ""
+msgstr "签发证书"
 
 #: src/views/cert/ObtainModal.vue:127
 msgid "Issuance Mode"
-msgstr ""
+msgstr "签发模式"
 
 #: src/views/container/ComposeView.vue:65
 #: src/views/container/ImageView.vue:60
@@ -2091,7 +2086,7 @@ msgstr ""
 #: src/views/task/CronView.vue:83
 #: src/views/task/TaskView.vue:37
 msgid "Creation Time"
-msgstr ""
+msgstr "创建时间"
 
 #: src/views/container/ComposeView.vue:96
 #: src/views/file/ListTable.vue:68
@@ -2100,31 +2095,31 @@ msgstr ""
 #: src/views/task/CronView.vue:133
 #: src/views/website/IndexView.vue:141
 msgid "Edit"
-msgstr ""
+msgstr "编辑"
 
 #: src/views/container/ComposeView.vue:111
 #: src/views/container/ContainerView.vue:241
 #: src/views/container/ContainerView.vue:305
 msgid "Start successful"
-msgstr ""
+msgstr "启动成功"
 
 #: src/views/container/ComposeView.vue:132
 msgid "Are you sure you want to start compose %{ name }?"
-msgstr ""
+msgstr "您确定要启动编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:143
 msgid "Force pull images"
-msgstr ""
+msgstr "强制拉取镜像"
 
 #: src/views/container/ComposeView.vue:175
 #: src/views/container/ContainerView.vue:248
 #: src/views/container/ContainerView.vue:319
 msgid "Stop successful"
-msgstr ""
+msgstr "停止成功"
 
 #: src/views/container/ComposeView.vue:184
 msgid "Are you sure you want to stop compose %{ name }?"
-msgstr ""
+msgstr "您确定要停止编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:209
 #: src/views/container/ContainerView.vue:283
@@ -2133,134 +2128,134 @@ msgstr ""
 #: src/views/container/NetworkView.vue:158
 #: src/views/container/VolumeView.vue:112
 msgid "Delete successful"
-msgstr ""
+msgstr "删除成功"
 
 #: src/views/container/ComposeView.vue:215
 msgid "Are you sure you want to delete compose %{ name }?"
-msgstr ""
+msgstr "您确定要删除编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:294
 #: src/views/container/ComposeView.vue:321
 msgid "Create Compose"
-msgstr ""
+msgstr "创建编排"
 
 #: src/views/container/ComposeView.vue:328
 msgid "Compose Name"
-msgstr ""
+msgstr "编排名称"
 
 #: src/views/container/ComposeView.vue:331
 #: src/views/container/ComposeView.vue:361
 #: src/views/container/IndexView.vue:24
 msgid "Compose"
-msgstr ""
+msgstr "编排"
 
 #: src/views/container/ComposeView.vue:342
 #: src/views/container/ComposeView.vue:372
 #: src/views/container/ContainerCreate.vue:357
 msgid "Variable Name"
-msgstr ""
+msgstr "变量名"
 
 #: src/views/container/ComposeView.vue:343
 #: src/views/container/ComposeView.vue:373
 #: src/views/container/ContainerCreate.vue:358
 msgid "Variable Value"
-msgstr ""
+msgstr "变量值"
 
 #: src/views/container/ComposeView.vue:354
 msgid "Edit Compose"
-msgstr ""
+msgstr "编辑编排"
 
 #: src/views/container/ContainerCreate.vue:56
 msgid "Always"
-msgstr ""
+msgstr "总是"
 
 #: src/views/container/ContainerCreate.vue:57
 msgid "On failure (default 5 retries)"
-msgstr ""
+msgstr "失败时（默认重试 5 次）"
 
 #: src/views/container/ContainerCreate.vue:58
 msgid "Unless stopped"
-msgstr ""
+msgstr "除非停止"
 
 #: src/views/container/ContainerCreate.vue:127
 #: src/views/container/ContainerView.vue:406
 msgid "Create Container"
-msgstr ""
+msgstr "创建容器"
 
 #: src/views/container/ContainerCreate.vue:138
 #: src/views/container/ContainerView.vue:25
 msgid "Container Name"
-msgstr ""
+msgstr "容器名称"
 
 #: src/views/container/ContainerCreate.vue:141
 #: src/views/container/ContainerView.vue:52
 #: src/views/container/ImageView.vue:36
 msgid "Image"
-msgstr ""
+msgstr "镜像"
 
 #: src/views/container/ContainerCreate.vue:144
 msgid "Ports"
-msgstr ""
+msgstr "端口"
 
 #: src/views/container/ContainerCreate.vue:150
 msgid "Map Ports"
-msgstr ""
+msgstr "映射端口"
 
 #: src/views/container/ContainerCreate.vue:157
 msgid "Expose All"
-msgstr ""
+msgstr "全部暴露"
 
 #: src/views/container/ContainerCreate.vue:162
 msgid "Port Mapping"
-msgstr ""
+msgstr "端口映射"
 
 #: src/views/container/ContainerCreate.vue:170
 msgid "Host (Start)"
-msgstr ""
+msgstr "主机（起始）"
 
 #: src/views/container/ContainerCreate.vue:171
 msgid "Host (End)"
-msgstr ""
+msgstr "主机（结束）"
 
 #: src/views/container/ContainerCreate.vue:172
 msgid "Container (Start)"
-msgstr ""
+msgstr "容器（起始）"
 
 #: src/views/container/ContainerCreate.vue:173
 msgid "Container (End)"
-msgstr ""
+msgstr "容器（结束）"
 
 #: src/views/container/ContainerCreate.vue:174
 msgid "Protocol"
-msgstr ""
+msgstr "协议"
 
 #: src/views/container/ContainerCreate.vue:185
 msgid "Optional"
-msgstr ""
+msgstr "可选"
 
 #: src/views/container/ContainerCreate.vue:242
 #: src/views/container/ContainerCreate.vue:293
 msgid "Add"
-msgstr ""
+msgstr "添加"
 
 #: src/views/container/ContainerCreate.vue:245
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:797
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
-msgstr ""
+msgstr "网络"
 
 #: src/views/container/ContainerCreate.vue:248
 msgid "Mount"
-msgstr ""
+msgstr "挂载"
 
 #: src/views/container/ContainerCreate.vue:253
 msgid "Host Directory"
-msgstr ""
+msgstr "主机目录"
 
 #: src/views/container/ContainerCreate.vue:254
 msgid "Container Directory"
-msgstr ""
+msgstr "容器目录"
 
 #: src/views/container/ContainerCreate.vue:255
 #: src/views/file/ListTable.vue:73
@@ -2269,25 +2264,25 @@ msgstr ""
 #: src/views/file/PermissionModal.vue:113
 #: src/views/file/ToolBar.vue:235
 msgid "Permission"
-msgstr ""
+msgstr "权限"
 
 #: src/views/container/ContainerCreate.vue:274
 msgid "Read-Write"
-msgstr ""
+msgstr "读写"
 
 #: src/views/container/ContainerCreate.vue:282
 msgid "Read-Only"
-msgstr ""
+msgstr "只读"
 
 #: src/views/container/ContainerCreate.vue:296
 #: src/views/container/ContainerCreate.vue:297
 msgid "Command"
-msgstr ""
+msgstr "命令"
 
 #: src/views/container/ContainerCreate.vue:299
 #: src/views/container/ContainerCreate.vue:302
 msgid "Entrypoint"
-msgstr ""
+msgstr "入口点"
 
 #: src/views/container/ContainerCreate.vue:307
 #: src/views/dashboard/IndexView.vue:533
@@ -2297,161 +2292,161 @@ msgstr ""
 #: src/views/task/SystemView.vue:78
 #: src/views/toolbox/BenchmarkView.vue:188
 msgid "Memory"
-msgstr ""
+msgstr "内存"
 
 #: src/views/container/ContainerCreate.vue:317
 msgid "CPU Shares"
-msgstr ""
+msgstr "CPU 份额"
 
 #: src/views/container/ContainerCreate.vue:324
 msgid "TTY (-t)"
-msgstr ""
+msgstr "TTY (-t)"
 
 #: src/views/container/ContainerCreate.vue:329
 msgid "STDIN (-i)"
-msgstr ""
+msgstr "STDIN (-i)"
 
 #: src/views/container/ContainerCreate.vue:334
 msgid "Auto Remove"
-msgstr ""
+msgstr "自动移除"
 
 #: src/views/container/ContainerCreate.vue:339
 msgid "Privileged Mode"
-msgstr ""
+msgstr "特权模式"
 
 #: src/views/container/ContainerCreate.vue:344
 msgid "Restart Policy"
-msgstr ""
+msgstr "重启策略"
 
 #: src/views/container/ContainerCreate.vue:347
 #: src/views/container/ContainerCreate.vue:350
 msgid "Select restart policy"
-msgstr ""
+msgstr "选择重启策略"
 
 #: src/views/container/ContainerCreate.vue:361
 #: src/views/container/NetworkView.vue:295
 #: src/views/container/VolumeView.vue:195
 msgid "Labels"
-msgstr ""
+msgstr "标签"
 
 #: src/views/container/ContainerCreate.vue:365
 #: src/views/container/NetworkView.vue:299
 #: src/views/container/VolumeView.vue:199
 msgid "Label Name"
-msgstr ""
+msgstr "标签名称"
 
 #: src/views/container/ContainerCreate.vue:366
 #: src/views/container/NetworkView.vue:300
 #: src/views/container/VolumeView.vue:200
 msgid "Label Value"
-msgstr ""
+msgstr "标签值"
 
 #: src/views/container/ContainerView.vue:63
 msgid "Ports (Host->Container)"
-msgstr ""
+msgstr "端口（主机->容器）"
 
 #: src/views/container/ContainerView.vue:122
 #: src/views/container/ContainerView.vue:469
 #: src/views/file/ListTable.vue:84
 #: src/views/file/ListTable.vue:264
 msgid "Rename"
-msgstr ""
+msgstr "重命名"
 
 #: src/views/container/ContainerView.vue:145
 #: src/views/container/ContainerView.vue:415
 msgid "Force Stop"
-msgstr ""
+msgstr "强制停止"
 
 #: src/views/container/ContainerView.vue:150
 #: src/views/container/ContainerView.vue:416
 msgid "Pause"
-msgstr ""
+msgstr "暂停"
 
 #: src/views/container/ContainerView.vue:155
 #: src/views/container/ContainerView.vue:417
 msgid "Resume"
-msgstr ""
+msgstr "恢复"
 
 #: src/views/container/ContainerView.vue:200
 #: src/views/file/ListTable.vue:364
 msgid "More"
-msgstr ""
+msgstr "更多"
 
 #: src/views/container/ContainerView.vue:233
 msgid "Rename successful"
-msgstr ""
+msgstr "重命名成功"
 
 #: src/views/container/ContainerView.vue:255
 #: src/views/container/ContainerView.vue:333
 msgid "Restart successful"
-msgstr ""
+msgstr "重启成功"
 
 #: src/views/container/ContainerView.vue:262
 #: src/views/container/ContainerView.vue:347
 msgid "Force stop successful"
-msgstr ""
+msgstr "强制停止成功"
 
 #: src/views/container/ContainerView.vue:269
 #: src/views/container/ContainerView.vue:375
 msgid "Pause successful"
-msgstr ""
+msgstr "暂停成功"
 
 #: src/views/container/ContainerView.vue:276
 #: src/views/container/ContainerView.vue:389
 msgid "Resume successful"
-msgstr ""
+msgstr "恢复成功"
 
 #: src/views/container/ContainerView.vue:290
 #: src/views/container/ImageView.vue:125
 #: src/views/container/NetworkView.vue:165
 #: src/views/container/VolumeView.vue:119
 msgid "Cleanup successful"
-msgstr ""
+msgstr "清理成功"
 
 #: src/views/container/ContainerView.vue:296
 msgid "Please select containers to start"
-msgstr ""
+msgstr "请选择要启动的容器"
 
 #: src/views/container/ContainerView.vue:310
 msgid "Please select containers to stop"
-msgstr ""
+msgstr "请选择要停止的容器"
 
 #: src/views/container/ContainerView.vue:324
 msgid "Please select containers to restart"
-msgstr ""
+msgstr "请选择要重启的容器"
 
 #: src/views/container/ContainerView.vue:338
 msgid "Please select containers to force stop"
-msgstr ""
+msgstr "请选择要强制停止的容器"
 
 #: src/views/container/ContainerView.vue:352
 msgid "Please select containers to delete"
-msgstr ""
+msgstr "请选择要删除的容器"
 
 #: src/views/container/ContainerView.vue:366
 msgid "Please select containers to pause"
-msgstr ""
+msgstr "请选择要暂停的容器"
 
 #: src/views/container/ContainerView.vue:380
 msgid "Please select containers to resume"
-msgstr ""
+msgstr "请选择要恢复的容器"
 
 #: src/views/container/ContainerView.vue:409
 msgid "Cleanup Containers"
-msgstr ""
+msgstr "清理容器"
 
 #: src/views/container/ContainerView.vue:476
 #: src/views/file/ListTable.vue:719
 msgid "New Name"
-msgstr ""
+msgstr "新名称"
 
 #: src/views/container/ContainerView.vue:481
 msgid "Enter new name"
-msgstr ""
+msgstr "输入新名称"
 
 #: src/views/container/ImageView.vue:29
 msgid "Container Count"
-msgstr ""
+msgstr "容器数量"
 
 #: src/views/container/ImageView.vue:84
 #: src/views/container/NetworkView.vue:124
@@ -2461,184 +2456,184 @@ msgstr ""
 #: src/views/firewall/RuleView.vue:172
 #: src/views/task/TaskView.vue:87
 msgid "Are you sure you want to delete?"
-msgstr ""
+msgstr "您确定要删除吗？"
 
 #: src/views/container/ImageView.vue:134
 msgid "Pull successful"
-msgstr ""
+msgstr "拉取成功"
 
 #: src/views/container/ImageView.vue:150
 #: src/views/container/ImageView.vue:180
 msgid "Pull Image"
-msgstr ""
+msgstr "拉取镜像"
 
 #: src/views/container/ImageView.vue:152
 msgid "Cleanup Images"
-msgstr ""
+msgstr "清理镜像"
 
 #: src/views/container/ImageView.vue:187
 msgid "Image Name"
-msgstr ""
+msgstr "镜像名称"
 
 #: src/views/container/ImageView.vue:192
 msgid "docker.io/php:8.3-fpm"
-msgstr ""
+msgstr "docker.io/php:8.3-fpm"
 
 #: src/views/container/ImageView.vue:195
 msgid "Authentication"
-msgstr ""
+msgstr "身份验证"
 
 #: src/views/container/ImageView.vue:212
 #: src/views/database/CreateDatabaseModal.vue:108
 #: src/views/database/CreateUserModal.vue:91
 #: src/views/database/UpdateUserModal.vue:61
 msgid "Enter password"
-msgstr ""
+msgstr "输入密码"
 
 #: src/views/container/IndexView.vue:21
 msgid "Containers"
-msgstr ""
+msgstr "容器"
 
 #: src/views/container/IndexView.vue:27
 msgid "Images"
-msgstr ""
+msgstr "镜像"
 
 #: src/views/container/IndexView.vue:30
 msgid "Networks"
-msgstr ""
+msgstr "网络"
 
 #: src/views/container/IndexView.vue:33
 msgid "Volumes"
-msgstr ""
+msgstr "卷"
 
 #: src/views/container/NetworkView.vue:52
 #: src/views/container/NetworkView.vue:232
 #: src/views/container/VolumeView.vue:33
 #: src/views/container/VolumeView.vue:186
 msgid "Driver"
-msgstr ""
+msgstr "驱动"
 
 #: src/views/container/NetworkView.vue:59
 #: src/views/container/VolumeView.vue:40
 msgid "Scope"
-msgstr ""
+msgstr "范围"
 
 #: src/views/container/NetworkView.vue:66
 #: src/views/container/NetworkView.vue:244
 #: src/views/container/NetworkView.vue:271
 msgid "Subnet"
-msgstr ""
+msgstr "子网"
 
 #: src/views/container/NetworkView.vue:83
 #: src/views/container/NetworkView.vue:252
 #: src/views/container/NetworkView.vue:279
 msgid "Gateway"
-msgstr ""
+msgstr "网关"
 
 #: src/views/container/NetworkView.vue:191
 #: src/views/container/NetworkView.vue:222
 msgid "Create Network"
-msgstr ""
+msgstr "创建网络"
 
 #: src/views/container/NetworkView.vue:194
 msgid "Cleanup Networks"
-msgstr ""
+msgstr "清理网络"
 
 #: src/views/container/NetworkView.vue:229
 msgid "Network Name"
-msgstr ""
+msgstr "网络名称"
 
 #: src/views/container/NetworkView.vue:249
 #: src/views/container/NetworkView.vue:265
 msgid "172.16.10.0/24"
-msgstr ""
+msgstr "172.16.10.0/24"
 
 #: src/views/container/NetworkView.vue:257
 msgid "172.16.10.254"
-msgstr ""
+msgstr "172.16.10.254"
 
 #: src/views/container/NetworkView.vue:260
 #: src/views/container/NetworkView.vue:287
 msgid "IP Range"
-msgstr ""
+msgstr "IP 范围"
 
 #: src/views/container/NetworkView.vue:276
 msgid "2408:400e::/48"
-msgstr ""
+msgstr "2408:400e::/48"
 
 #: src/views/container/NetworkView.vue:284
 msgid "2408:400e::1"
-msgstr ""
+msgstr "2408:400e::1"
 
 #: src/views/container/NetworkView.vue:292
 msgid "2408:400e::/64"
-msgstr ""
+msgstr "2408:400e::/64"
 
 #: src/views/container/NetworkView.vue:303
 #: src/views/container/VolumeView.vue:203
 msgid "Options"
-msgstr ""
+msgstr "选项"
 
 #: src/views/container/NetworkView.vue:307
 #: src/views/container/VolumeView.vue:207
 msgid "Option Name"
-msgstr ""
+msgstr "选项名称"
 
 #: src/views/container/NetworkView.vue:308
 #: src/views/container/VolumeView.vue:208
 msgid "Option Value"
-msgstr ""
+msgstr "选项值"
 
 #: src/views/container/VolumeView.vue:47
 #: src/views/dashboard/IndexView.vue:644
 msgid "Mount Point"
-msgstr ""
+msgstr "挂载点"
 
 #: src/views/container/VolumeView.vue:145
 #: src/views/container/VolumeView.vue:176
 msgid "Create Volume"
-msgstr ""
+msgstr "创建卷"
 
 #: src/views/container/VolumeView.vue:148
 msgid "Cleanup Volumes"
-msgstr ""
+msgstr "清理卷"
 
 #: src/views/container/VolumeView.vue:183
 msgid "Volume Name"
-msgstr ""
+msgstr "卷名称"
 
 #: src/views/dashboard/IndexView.vue:129
 msgid "Running blocked"
-msgstr ""
+msgstr "运行阻塞"
 
 #: src/views/dashboard/IndexView.vue:131
 msgid "Running slowly"
-msgstr ""
+msgstr "运行缓慢"
 
 #: src/views/dashboard/IndexView.vue:133
 msgid "Running normally"
-msgstr ""
+msgstr "运行正常"
 
 #: src/views/dashboard/IndexView.vue:135
 msgid "Running smoothly"
-msgstr ""
+msgstr "运行流畅"
 
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:798
 #: src/views/dashboard/IndexView.vue:818
 #: src/views/toolbox/BenchmarkView.vue:219
 msgid "Disk"
-msgstr ""
+msgstr "磁盘"
 
 #: src/views/dashboard/IndexView.vue:164
 #: src/views/dashboard/IndexView.vue:181
 msgid "Send"
-msgstr ""
+msgstr "发送"
 
 #: src/views/dashboard/IndexView.vue:164
 #: src/views/dashboard/IndexView.vue:205
 msgid "Receive"
-msgstr ""
+msgstr "接收"
 
 #: src/views/dashboard/IndexView.vue:165
 #: src/views/dashboard/IndexView.vue:181
@@ -2647,7 +2642,7 @@ msgstr ""
 #: src/views/file/PermissionModal.vue:97
 #: src/views/file/PermissionModal.vue:106
 msgid "Read"
-msgstr ""
+msgstr "读取"
 
 #: src/views/dashboard/IndexView.vue:165
 #: src/views/dashboard/IndexView.vue:205
@@ -2656,11 +2651,11 @@ msgstr ""
 #: src/views/file/PermissionModal.vue:98
 #: src/views/file/PermissionModal.vue:107
 msgid "Write"
-msgstr ""
+msgstr "写入"
 
 #: src/views/dashboard/IndexView.vue:173
 msgid "Unit %{unit}"
-msgstr ""
+msgstr "单位 %{unit}"
 
 #: src/views/dashboard/IndexView.vue:187
 #: src/views/dashboard/IndexView.vue:211
@@ -2675,7 +2670,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:379
 #: src/views/monitor/IndexView.vue:401
 msgid "Maximum"
-msgstr ""
+msgstr "最大值"
 
 #: src/views/dashboard/IndexView.vue:188
 #: src/views/dashboard/IndexView.vue:212
@@ -2690,7 +2685,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:380
 #: src/views/monitor/IndexView.vue:402
 msgid "Minimum"
-msgstr ""
+msgstr "最小值"
 
 #: src/views/dashboard/IndexView.vue:192
 #: src/views/dashboard/IndexView.vue:216
@@ -2705,263 +2700,263 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:384
 #: src/views/monitor/IndexView.vue:406
 msgid "Average"
-msgstr ""
+msgstr "平均值"
 
 #: src/views/dashboard/IndexView.vue:324
 msgid "Panel restarting..."
-msgstr ""
+msgstr "面板重启中……"
 
 #: src/views/dashboard/IndexView.vue:326
 msgid "Panel restarted successfully"
-msgstr ""
+msgstr "面板重启成功"
 
 #: src/views/dashboard/IndexView.vue:338
 msgid "Current version is the latest"
-msgstr ""
+msgstr "当前版本是最新版本"
 
 #: src/views/dashboard/IndexView.vue:434
 #: src/views/task/IndexView.vue:29
 msgid "Scheduled Tasks"
-msgstr ""
+msgstr "计划任务"
 
 #: src/views/dashboard/IndexView.vue:443
 msgid "Sponsor Support"
-msgstr ""
+msgstr "赞助支持"
 
 #: src/views/dashboard/IndexView.vue:449
 msgid "Are you sure you want to restart the panel?"
-msgstr ""
+msgstr "您确定要重启面板吗？"
 
 #: src/views/dashboard/IndexView.vue:457
 msgid "Resource Overview"
-msgstr ""
+msgstr "资源概览"
 
 #: src/views/dashboard/IndexView.vue:474
 msgid "Last 1 minute"
-msgstr ""
+msgstr "最近 1 分钟"
 
 #: src/views/dashboard/IndexView.vue:481
 msgid "Last 5 minutes"
-msgstr ""
+msgstr "最近 5 分钟"
 
 #: src/views/dashboard/IndexView.vue:488
 msgid "Last 15 minutes"
-msgstr ""
+msgstr "最近 15 分钟"
 
 #: src/views/dashboard/IndexView.vue:506
 #: src/views/dashboard/IndexView.vue:517
 msgid "cores"
-msgstr ""
+msgstr "核心"
 
 #: src/views/dashboard/IndexView.vue:511
 msgid "Model"
-msgstr ""
+msgstr "型号"
 
 #: src/views/dashboard/IndexView.vue:515
 msgid "Parameters"
-msgstr ""
+msgstr "参数"
 
 #: src/views/dashboard/IndexView.vue:518
 msgid "cache"
-msgstr ""
+msgstr "缓存"
 
 #: src/views/dashboard/IndexView.vue:524
 #: src/views/monitor/IndexView.vue:179
 msgid "Usage"
-msgstr ""
+msgstr "使用率"
 
 #: src/views/dashboard/IndexView.vue:525
 msgid "Frequency"
-msgstr ""
+msgstr "频率"
 
 #: src/views/dashboard/IndexView.vue:545
 msgid "Active"
-msgstr ""
+msgstr "活跃"
 
 #: src/views/dashboard/IndexView.vue:551
 msgid "Inactive"
-msgstr ""
+msgstr "非活跃"
 
 #: src/views/dashboard/IndexView.vue:557
 msgid "Free"
-msgstr ""
+msgstr "空闲"
 
 #: src/views/dashboard/IndexView.vue:563
 msgid "Shared"
-msgstr ""
+msgstr "共享"
 
 #: src/views/dashboard/IndexView.vue:569
 msgid "Committed"
-msgstr ""
+msgstr "已提交"
 
 #: src/views/dashboard/IndexView.vue:575
 msgid "Commit Limit"
-msgstr ""
+msgstr "提交限制"
 
 #: src/views/dashboard/IndexView.vue:581
 #: src/views/toolbox/SystemView.vue:149
 msgid "SWAP Size"
-msgstr ""
+msgstr "SWAP 大小"
 
 #: src/views/dashboard/IndexView.vue:587
 msgid "SWAP Used"
-msgstr ""
+msgstr "已用 SWAP"
 
 #: src/views/dashboard/IndexView.vue:593
 msgid "SWAP Available"
-msgstr ""
+msgstr "可用 SWAP"
 
 #: src/views/dashboard/IndexView.vue:599
 msgid "Physical Memory Size"
-msgstr ""
+msgstr "物理内存大小"
 
 #: src/views/dashboard/IndexView.vue:605
 msgid "Physical Memory Used"
-msgstr ""
+msgstr "已用物理内存"
 
 #: src/views/dashboard/IndexView.vue:611
 msgid "Physical Memory Available"
-msgstr ""
+msgstr "可用物理内存"
 
 #: src/views/dashboard/IndexView.vue:648
 msgid "File System"
-msgstr ""
+msgstr "文件系统"
 
 #: src/views/dashboard/IndexView.vue:652
 msgid "Inodes Usage"
-msgstr ""
+msgstr "Inodes 使用率"
 
 #: src/views/dashboard/IndexView.vue:656
 msgid "Inodes Total"
-msgstr ""
+msgstr "Inodes 总数"
 
 #: src/views/dashboard/IndexView.vue:660
 msgid "Inodes Used"
-msgstr ""
+msgstr "已用 Inodes"
 
 #: src/views/dashboard/IndexView.vue:664
 msgid "Inodes Available"
-msgstr ""
+msgstr "可用 Inodes"
 
 #: src/views/dashboard/IndexView.vue:681
 msgid "Quick Apps"
-msgstr ""
+msgstr "快捷应用"
 
 #: src/views/dashboard/IndexView.vue:724
 msgid "You have not set any apps to display here!"
-msgstr ""
+msgstr "您尚未设置任何要在此处显示的应用！"
 
 #: src/views/dashboard/IndexView.vue:728
 msgid "Environment Information"
-msgstr ""
+msgstr "环境信息"
 
 #: src/views/dashboard/IndexView.vue:731
 msgid "System Hostname"
-msgstr ""
+msgstr "系统主机名"
 
 #: src/views/dashboard/IndexView.vue:737
 msgid "System Version"
-msgstr ""
+msgstr "系统版本"
 
 #: src/views/dashboard/IndexView.vue:746
 msgid "System Kernel Version"
-msgstr ""
+msgstr "系统内核版本"
 
 #: src/views/dashboard/IndexView.vue:752
 msgid "System Uptime"
-msgstr ""
+msgstr "系统运行时间"
 
 #: src/views/dashboard/IndexView.vue:758
 msgid "Panel Internal Version"
-msgstr ""
+msgstr "面板内部版本"
 
 #: src/views/dashboard/IndexView.vue:770
 msgid "Panel Compile Information"
-msgstr ""
+msgstr "面板编译信息"
 
 #: src/views/dashboard/IndexView.vue:787
 msgid "Real-time Monitoring"
-msgstr ""
+msgstr "实时监控"
 
 #: src/views/dashboard/IndexView.vue:801
 msgid "Unit"
-msgstr ""
+msgstr "单位"
 
 #: src/views/dashboard/IndexView.vue:809
 msgid "Network Card"
-msgstr ""
+msgstr "网卡"
 
 #: src/views/dashboard/IndexView.vue:829
 msgid "Total Sent"
-msgstr ""
+msgstr "总发送量"
 
 #: src/views/dashboard/IndexView.vue:831
 msgid "Total Received"
-msgstr ""
+msgstr "总接收量"
 
 #: src/views/dashboard/IndexView.vue:834
 msgid "Real-time Sent"
-msgstr ""
+msgstr "实时发送"
 
 #: src/views/dashboard/IndexView.vue:838
 msgid "Real-time Received"
-msgstr ""
+msgstr "实时接收"
 
 #: src/views/dashboard/IndexView.vue:845
 msgid "Real-time Read/Write"
-msgstr ""
+msgstr "实时读/写"
 
 #: src/views/dashboard/IndexView.vue:848
 msgid "Read/Write Latency"
-msgstr ""
+msgstr "读/写延迟"
 
 #: src/views/dashboard/UpdateView.vue:24
 msgid "Update Panel"
-msgstr ""
+msgstr "更新面板"
 
 #: src/views/dashboard/UpdateView.vue:25
 msgid "Are you sure you want to update the panel?"
-msgstr ""
+msgstr "您确定要更新面板吗？"
 
 #: src/views/dashboard/UpdateView.vue:29
 msgid "Panel updating..."
-msgstr ""
+msgstr "面板更新中……"
 
 #: src/views/dashboard/UpdateView.vue:40
 msgid "Panel updated successfully"
-msgstr ""
+msgstr "面板更新成功"
 
 #: src/views/dashboard/UpdateView.vue:47
 msgid "Update canceled"
-msgstr ""
+msgstr "更新已取消"
 
 #: src/views/dashboard/UpdateView.vue:59
 msgid "Update Now"
-msgstr ""
+msgstr "立即更新"
 
 #: src/views/dashboard/UpdateView.vue:85
 msgid "Loading update information, please wait a moment"
-msgstr ""
+msgstr "正在加载更新信息，请稍候"
 
 #: src/views/database/CreateDatabaseModal.vue:20
 #: src/views/database/CreateUserModal.vue:20
 msgid "Local (localhost)"
-msgstr ""
+msgstr "本地 (localhost)"
 
 #: src/views/database/CreateDatabaseModal.vue:21
 #: src/views/database/CreateUserModal.vue:21
 msgid "All (%)"
-msgstr ""
+msgstr "所有 (%)"
 
 #: src/views/database/CreateDatabaseModal.vue:22
 #: src/views/database/CreateUserModal.vue:22
 msgid "Specific"
-msgstr ""
+msgstr "特定"
 
 #: src/views/database/CreateDatabaseModal.vue:55
 #: src/views/database/IndexView.vue:32
 msgid "Create Database"
-msgstr ""
+msgstr "创建数据库"
 
 #: src/views/database/CreateDatabaseModal.vue:63
 #: src/views/database/CreateUserModal.vue:69
@@ -2969,54 +2964,54 @@ msgstr ""
 #: src/views/database/IndexView.vue:51
 #: src/views/database/UserList.vue:91
 msgid "Server"
-msgstr ""
+msgstr "服务器"
 
 #: src/views/database/CreateDatabaseModal.vue:67
 #: src/views/database/CreateUserModal.vue:73
 msgid "Select server"
-msgstr ""
+msgstr "选择服务器"
 
 #: src/views/database/CreateDatabaseModal.vue:85
 msgid "Authorized User"
-msgstr ""
+msgstr "授权用户"
 
 #: src/views/database/CreateDatabaseModal.vue:91
 msgid "Enter authorized username (leave empty for no authorization)"
-msgstr ""
+msgstr "输入授权用户名（留空表示无授权）"
 
 #: src/views/database/CreateDatabaseModal.vue:115
 #: src/views/database/CreateUserModal.vue:98
 msgid "Select host"
-msgstr ""
+msgstr "选择主机"
 
 #: src/views/database/CreateDatabaseModal.vue:122
 #: src/views/database/CreateUserModal.vue:102
 msgid "Specific Host"
-msgstr ""
+msgstr "特定主机"
 
 #: src/views/database/CreateDatabaseModal.vue:128
 #: src/views/database/CreateUserModal.vue:107
 msgid "Enter supported host address"
-msgstr ""
+msgstr "输入支持的主机地址"
 
 #: src/views/database/CreateServerModal.vue:47
 #: src/views/database/IndexView.vue:40
 msgid "Add Server"
-msgstr ""
+msgstr "添加服务器"
 
 #: src/views/database/CreateServerModal.vue:60
 #: src/views/database/UpdateServerModal.vue:60
 msgid "Enter database server name"
-msgstr ""
+msgstr "输入数据库服务器名称"
 
 #: src/views/database/CreateServerModal.vue:67
 msgid "Select database type"
-msgstr ""
+msgstr "选择数据库类型"
 
 #: src/views/database/CreateServerModal.vue:78
 #: src/views/database/UpdateServerModal.vue:70
 msgid "Enter database server host"
-msgstr ""
+msgstr "输入数据库服务器主机"
 
 #: src/views/database/CreateServerModal.vue:84
 #: src/views/database/UpdateServerModal.vue:76
@@ -3027,55 +3022,55 @@ msgstr ""
 #: src/views/ssh/UpdateModal.vue:74
 #: src/views/website/IndexView.vue:468
 msgid "Port"
-msgstr ""
+msgstr "端口"
 
 #: src/views/database/CreateServerModal.vue:89
 #: src/views/database/UpdateServerModal.vue:81
 msgid "Enter database server port"
-msgstr ""
+msgstr "输入数据库服务器端口"
 
 #: src/views/database/CreateServerModal.vue:99
 #: src/views/database/UpdateServerModal.vue:91
 msgid "Enter database server username"
-msgstr ""
+msgstr "输入数据库服务器用户名"
 
 #: src/views/database/CreateServerModal.vue:108
 #: src/views/database/UpdateServerModal.vue:100
 msgid "Enter database server password"
-msgstr ""
+msgstr "输入数据库服务器密码"
 
 #: src/views/database/CreateServerModal.vue:116
 #: src/views/database/UpdateServerModal.vue:108
 msgid "Enter database server comment"
-msgstr ""
+msgstr "输入数据库服务器备注"
 
 #: src/views/database/CreateUserModal.vue:65
 #: src/views/database/UpdateUserModal.vue:51
 msgid "If the privilege databases does not exist, it will be created automatically."
-msgstr ""
+msgstr "如果特权数据库不存在，将会自动创建。"
 
 #: src/views/database/CreateUserModal.vue:94
 msgid "Host (MySQL only)"
-msgstr ""
+msgstr "主机（仅限MySQL）"
 
 #: src/views/database/CreateUserModal.vue:110
 #: src/views/database/UpdateUserModal.vue:64
 #: src/views/database/UserList.vue:99
 msgid "Privileges"
-msgstr ""
+msgstr "权限"
 
 #: src/views/database/CreateUserModal.vue:121
 #: src/views/database/UpdateUserModal.vue:75
 msgid "Enter database user comment"
-msgstr ""
+msgstr "输入数据库用户备注"
 
 #: src/views/database/DatabaseList.vue:47
 msgid "Encoding"
-msgstr ""
+msgstr "编码"
 
 #: src/views/database/DatabaseList.vue:87
 msgid "Are you sure you want to delete this database?"
-msgstr ""
+msgstr "您确定要删除这个数据库吗？"
 
 #: src/views/database/ServerList.vue:76
 #: src/views/database/UserList.vue:70
@@ -3086,7 +3081,7 @@ msgstr ""
 #: src/views/file/ToolBar.vue:165
 #: src/views/setting/TokenModal.vue:165
 msgid "Copied successfully"
-msgstr ""
+msgstr "复制成功"
 
 #: src/views/database/ServerList.vue:80
 #: src/views/database/UserList.vue:74
@@ -3094,70 +3089,70 @@ msgstr ""
 #: src/views/file/ListTable.vue:298
 #: src/views/file/ToolBar.vue:232
 msgid "Copy"
-msgstr ""
+msgstr "复制"
 
 #: src/views/database/ServerList.vue:121
 #: src/views/database/UserList.vue:138
 msgid "Valid"
-msgstr ""
+msgstr "有效"
 
 #: src/views/database/ServerList.vue:121
 #: src/views/database/UserList.vue:138
 msgid "Invalid"
-msgstr ""
+msgstr "无效"
 
 #: src/views/database/ServerList.vue:147
 #: src/views/toolbox/SystemView.vue:87
 msgid "Synchronized successfully"
-msgstr ""
+msgstr "同步成功"
 
 #: src/views/database/ServerList.vue:153
 msgid "Are you sure you want to synchronize database users (excluding password) to the panel?"
-msgstr ""
+msgstr "您确定要将数据库用户（不包括密码）同步到面板吗？"
 
 #: src/views/database/ServerList.vue:165
 msgid "Sync"
-msgstr ""
+msgstr "同步"
 
 #: src/views/database/ServerList.vue:195
 msgid "Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app"
-msgstr ""
+msgstr "内置服务器无法删除。如果需要删除它们，请卸载相应的应用"
 
 #: src/views/database/ServerList.vue:206
 msgid "Are you sure you want to delete the server?"
-msgstr ""
+msgstr "您确定要删除该服务器吗？"
 
 #: src/views/database/UpdateServerModal.vue:47
 msgid "Modify Server"
-msgstr ""
+msgstr "修改服务器"
 
 #: src/views/database/UpdateUserModal.vue:41
 msgid "Modify User"
-msgstr ""
+msgstr "修改用户"
 
 #: src/views/database/UserList.vue:61
 msgid "Not saved"
-msgstr ""
+msgstr "未保存"
 
 #: src/views/database/UserList.vue:180
 msgid "Are you sure you want to delete the user?"
-msgstr ""
+msgstr "您确定要删除该用户吗？"
 
 #: src/views/error-page/NotFound.vue:11
 msgid "Sorry, the page you visited does not exist."
-msgstr ""
+msgstr "抱歉，您访问的页面不存在。"
 
 #: src/views/error-page/NotFound.vue:19
 msgid "Back to Home"
-msgstr ""
+msgstr "返回首页"
 
 #: src/views/file/CompressModal.vue:41
 msgid "Compressing..."
-msgstr ""
+msgstr "压缩中……"
 
 #: src/views/file/CompressModal.vue:49
 msgid "Compressed successfully"
-msgstr ""
+msgstr "压缩成功"
 
 #: src/views/file/CompressModal.vue:73
 #: src/views/file/CompressModal.vue:105
@@ -3166,64 +3161,64 @@ msgstr ""
 #: src/views/file/ListTable.vue:301
 #: src/views/file/ToolBar.vue:234
 msgid "Compress"
-msgstr ""
+msgstr "压缩"
 
 #: src/views/file/CompressModal.vue:81
 msgid "Files to compress"
-msgstr ""
+msgstr "要压缩的文件"
 
 #: src/views/file/CompressModal.vue:84
 msgid "Compress to"
-msgstr ""
+msgstr "压缩到"
 
 #: src/views/file/CompressModal.vue:87
 msgid "Format"
-msgstr ""
+msgstr "格式"
 
 #: src/views/file/EditModal.vue:22
 msgid "Edit - %{ file }"
-msgstr ""
+msgstr "编辑 - %{ file }"
 
 #: src/views/file/EditModal.vue:30
 msgid "Refresh"
-msgstr ""
+msgstr "刷新"
 
 #: src/views/file/ListTable.vue:65
 #: src/views/file/ListTable.vue:222
 msgid "Open"
-msgstr ""
+msgstr "打开"
 
 #: src/views/file/ListTable.vue:67
 #: src/views/file/ListTable.vue:220
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: src/views/file/ListTable.vue:72
 #: src/views/file/ListTable.vue:299
 #: src/views/file/ToolBar.vue:233
 msgid "Move"
-msgstr ""
+msgstr "移动"
 
 #: src/views/file/ListTable.vue:75
 #: src/views/file/ListTable.vue:247
 msgid "Download"
-msgstr ""
+msgstr "下载"
 
 #: src/views/file/ListTable.vue:79
 #: src/views/file/ListTable.vue:303
 #: src/views/file/ListTable.vue:741
 msgid "Uncompress"
-msgstr ""
+msgstr "解压"
 
 #: src/views/file/ListTable.vue:89
 #: src/views/file/ToolBar.vue:229
 msgid "Paste"
-msgstr ""
+msgstr "粘贴"
 
 #: src/views/file/ListTable.vue:279
 #: src/views/file/SearchModal.vue:88
 msgid "Are you sure you want to delete %{ name }?"
-msgstr ""
+msgstr "您确定要删除 %{ name } 吗？"
 
 #: src/views/file/ListTable.vue:320
 #: src/views/file/ListTable.vue:335
@@ -3232,169 +3227,169 @@ msgstr ""
 #: src/views/file/ToolBar.vue:77
 #: src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
-msgstr ""
+msgstr "标记成功，请导航到目标路径进行粘贴"
 
 #: src/views/file/ListTable.vue:412
 #: src/views/file/ListTable.vue:499
 #: src/views/file/ToolBar.vue:128
 msgid "Warning"
-msgstr ""
+msgstr "警告"
 
 #: src/views/file/ListTable.vue:413
 msgid "There are items with the same name. Do you want to overwrite?"
-msgstr ""
+msgstr "存在同名项目。您要覆盖吗？"
 
 #: src/views/file/ListTable.vue:414
 #: src/views/file/ListTable.vue:509
 #: src/views/file/ToolBar.vue:138
 msgid "Overwrite"
-msgstr ""
+msgstr "覆盖"
 
 #: src/views/file/ListTable.vue:421
 #: src/views/file/ListTable.vue:437
 msgid "Renamed %{ source } to %{ target } successfully"
-msgstr ""
+msgstr "成功将 %{ source } 重命名为 %{ target }"
 
 #: src/views/file/ListTable.vue:459
 msgid "Uncompressing..."
-msgstr ""
+msgstr "解压中……"
 
 #: src/views/file/ListTable.vue:466
 msgid "Uncompressed successfully"
-msgstr ""
+msgstr "解压成功"
 
 #: src/views/file/ListTable.vue:475
 #: src/views/file/ToolBar.vue:104
 msgid "Please mark the files/folders to copy or move first"
-msgstr ""
+msgstr "请先标记要复制或移动的文件/文件夹"
 
 #: src/views/file/ListTable.vue:500
 #: src/views/file/ToolBar.vue:129
 msgid "There are items with the same name. %{ items } Do you want to overwrite?"
-msgstr ""
+msgstr "存在同名项目。%{ items } 是否要覆盖？"
 
 #: src/views/file/ListTable.vue:522
 #: src/views/file/ListTable.vue:542
 #: src/views/file/ToolBar.vue:151
 #: src/views/file/ToolBar.vue:171
 msgid "Moved successfully"
-msgstr ""
+msgstr "移动成功"
 
 #: src/views/file/ListTable.vue:528
 #: src/views/file/ToolBar.vue:157
 msgid "Canceled"
-msgstr ""
+msgstr "已取消"
 
 #: src/views/file/ListTable.vue:711
 msgid "Rename - %{ source }"
-msgstr ""
+msgstr "重命名 - %{ source }"
 
 #: src/views/file/ListTable.vue:729
 msgid "Uncompress - %{ file }"
-msgstr ""
+msgstr "解压 - %{ file }"
 
 #: src/views/file/ListTable.vue:737
 msgid "Uncompress to"
-msgstr ""
+msgstr "解压到"
 
 #: src/views/file/PathInput.vue:154
 msgid "Enter search content"
-msgstr ""
+msgstr "输入搜索内容"
 
 #: src/views/file/PathInput.vue:157
 msgid "Include subdirectories"
-msgstr ""
+msgstr "包括子目录"
 
 #: src/views/file/PermissionModal.vue:65
 msgid "Batch modify permissions"
-msgstr ""
+msgstr "批量修改权限"
 
 #: src/views/file/PermissionModal.vue:66
 msgid "Modify permissions - %{ path }"
-msgstr ""
+msgstr "修改权限 - %{ path }"
 
 #: src/views/file/PermissionModal.vue:86
 #: src/views/file/PermissionModal.vue:116
 msgid "Owner"
-msgstr ""
+msgstr "所有者"
 
 #: src/views/file/PermissionModal.vue:90
 #: src/views/file/PermissionModal.vue:99
 #: src/views/file/PermissionModal.vue:108
 msgid "Execute"
-msgstr ""
+msgstr "执行"
 
 #: src/views/file/PermissionModal.vue:95
 #: src/views/file/PermissionModal.vue:119
 msgid "Group"
-msgstr ""
+msgstr "组"
 
 #: src/views/file/PermissionModal.vue:104
 msgid "Others"
-msgstr ""
+msgstr "其他"
 
 #: src/views/file/PreviewModal.vue:31
 msgid "Preview - "
-msgstr ""
+msgstr "预览 - "
 
 #: src/views/file/SearchModal.vue:71
 msgid "Copy Path"
-msgstr ""
+msgstr "复制路径"
 
 #: src/views/file/SearchModal.vue:154
 msgid "%{ keyword } - Search Results"
-msgstr ""
+msgstr "%{ keyword } - 搜索结果"
 
 #: src/views/file/ToolBar.vue:60
 msgid "Download task created successfully"
-msgstr ""
+msgstr "下载任务创建成功"
 
 #: src/views/file/ToolBar.vue:66
 msgid "Please select files/folders to copy"
-msgstr ""
+msgstr "请选择要复制的文件/文件夹"
 
 #: src/views/file/ToolBar.vue:83
 msgid "Please select files/folders to move"
-msgstr ""
+msgstr "请选择要移动的文件/文件夹"
 
 #: src/views/file/ToolBar.vue:180
 msgid "Please select files/folders to delete"
-msgstr ""
+msgstr "请选择要删除的文件/文件夹"
 
 #: src/views/file/ToolBar.vue:219
 #: src/views/file/ToolBar.vue:249
 msgid "New"
-msgstr ""
+msgstr "新建"
 
 #: src/views/file/ToolBar.vue:222
 #: src/views/file/ToolBar.vue:267
 msgid "Remote Download"
-msgstr ""
+msgstr "远程下载"
 
 #: src/views/file/ToolBar.vue:240
 msgid "Are you sure you want to delete in bulk?"
-msgstr ""
+msgstr "您确定要批量删除吗？"
 
 #: src/views/file/ToolBar.vue:275
 msgid "Download URL"
-msgstr ""
+msgstr "下载 URL"
 
 #: src/views/file/ToolBar.vue:278
 msgid "Save as"
-msgstr ""
+msgstr "另存为"
 
 #: src/views/file/UploadModal.vue:20
 msgid "Upload %{ fileName } successful"
-msgstr ""
+msgstr "上传 %{ fileName } 成功"
 
 #: src/views/file/UploadModal.vue:53
 msgid "For large files, it is recommended to use SFTP and other methods to upload"
-msgstr ""
+msgstr "对于大文件，建议使用 SFTP 等方法上传"
 
 #: src/views/firewall/CreateForwardModal.vue:50
 #: src/views/firewall/ForwardView.vue:166
 msgid "Create Forwarding"
-msgstr ""
+msgstr "创建转发"
 
 #: src/views/firewall/CreateForwardModal.vue:58
 #: src/views/firewall/CreateIpModal.vue:100
@@ -3403,554 +3398,554 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:15
 #: src/views/firewall/RuleView.vue:15
 msgid "Transport Protocol"
-msgstr ""
+msgstr "传输协议"
 
 #: src/views/firewall/CreateForwardModal.vue:61
 #: src/views/firewall/ForwardView.vue:44
 msgid "Target IP"
-msgstr ""
+msgstr "目标 IP"
 
 #: src/views/firewall/CreateForwardModal.vue:66
 msgid "Source Port"
-msgstr ""
+msgstr "源端口"
 
 #: src/views/firewall/CreateForwardModal.vue:76
 #: src/views/firewall/ForwardView.vue:62
 msgid "Target Port"
-msgstr ""
+msgstr "目标端口"
 
 #: src/views/firewall/CreateIpModal.vue:38
 #: src/views/firewall/CreateModal.vue:38
 #: src/views/firewall/IpRuleView.vue:69
 #: src/views/firewall/RuleView.vue:103
 msgid "Accept"
-msgstr ""
+msgstr "接受"
 
 #: src/views/firewall/CreateIpModal.vue:42
 #: src/views/firewall/CreateModal.vue:42
 #: src/views/firewall/IpRuleView.vue:71
 #: src/views/firewall/RuleView.vue:105
 msgid "Drop"
-msgstr ""
+msgstr "丢弃"
 
 #: src/views/firewall/CreateIpModal.vue:46
 #: src/views/firewall/CreateModal.vue:46
 #: src/views/firewall/IpRuleView.vue:73
 #: src/views/firewall/RuleView.vue:107
 msgid "Reject"
-msgstr ""
+msgstr "拒绝"
 
 #: src/views/firewall/CreateIpModal.vue:53
 #: src/views/firewall/CreateModal.vue:53
 #: src/views/firewall/IpRuleView.vue:98
 #: src/views/firewall/RuleView.vue:132
 msgid "Inbound"
-msgstr ""
+msgstr "入站"
 
 #: src/views/firewall/CreateIpModal.vue:57
 #: src/views/firewall/CreateModal.vue:57
 #: src/views/firewall/IpRuleView.vue:100
 #: src/views/firewall/RuleView.vue:134
 msgid "Outbound"
-msgstr ""
+msgstr "出站"
 
 #: src/views/firewall/CreateIpModal.vue:81
 #: src/views/firewall/CreateModal.vue:80
 msgid "%{ address } created successfully"
-msgstr ""
+msgstr "%{ address } 创建成功"
 
 #: src/views/firewall/CreateIpModal.vue:92
 #: src/views/firewall/CreateModal.vue:91
 #: src/views/firewall/IpRuleView.vue:208
 #: src/views/firewall/RuleView.vue:245
 msgid "Create Rule"
-msgstr ""
+msgstr "创建规则"
 
 #: src/views/firewall/CreateIpModal.vue:103
 #: src/views/firewall/CreateModal.vue:102
 #: src/views/firewall/IpRuleView.vue:32
 #: src/views/firewall/RuleView.vue:32
 msgid "Network Protocol"
-msgstr ""
+msgstr "网络协议"
 
 #: src/views/firewall/CreateIpModal.vue:106
 msgid "IP Address"
-msgstr ""
+msgstr "IP 地址"
 
 #: src/views/firewall/CreateIpModal.vue:110
 #: src/views/firewall/CreateModal.vue:131
 msgid "IP or IP range: 172.16.0.1 or 172.16.0.0/16"
-msgstr ""
+msgstr "IP 或 IP 范围：172.16.0.1 或 172.16.0.0/16"
 
 #: src/views/firewall/CreateIpModal.vue:113
 #: src/views/firewall/CreateModal.vue:134
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
-msgstr ""
+msgstr "策略"
 
 #: src/views/firewall/CreateIpModal.vue:116
 #: src/views/firewall/CreateModal.vue:137
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
 msgid "Direction"
-msgstr ""
+msgstr "方向"
 
 #: src/views/firewall/CreateModal.vue:107
 msgid "Start Port"
-msgstr ""
+msgstr "起始端口"
 
 #: src/views/firewall/CreateModal.vue:117
 msgid "End Port"
-msgstr ""
+msgstr "结束端口"
 
 #: src/views/firewall/CreateModal.vue:127
 #: src/views/firewall/IpRuleView.vue:110
 #: src/views/firewall/RuleView.vue:144
 msgid "Target"
-msgstr ""
+msgstr "目标"
 
 #: src/views/firewall/ForwardView.vue:137
 #: src/views/firewall/IpRuleView.vue:179
 #: src/views/firewall/RuleView.vue:216
 msgid "Please select rules to delete"
-msgstr ""
+msgstr "请选择要删除的规则"
 
 #: src/views/firewall/ForwardView.vue:172
 #: src/views/firewall/IpRuleView.vue:214
 #: src/views/firewall/RuleView.vue:251
 #: src/views/website/IndexView.vue:389
 msgid "Batch Delete"
-msgstr ""
+msgstr "批量删除"
 
 #: src/views/firewall/ForwardView.vue:175
 #: src/views/firewall/IpRuleView.vue:217
 #: src/views/firewall/RuleView.vue:254
 msgid "Are you sure you want to batch delete?"
-msgstr ""
+msgstr "您确定要批量删除吗？"
 
 #: src/views/firewall/IndexView.vue:19
 msgid "Port Rules"
-msgstr ""
+msgstr "端口规则"
 
 #: src/views/firewall/IndexView.vue:22
 msgid "IP Rules"
-msgstr ""
+msgstr "IP 规则"
 
 #: src/views/firewall/IndexView.vue:25
 msgid "Port Forwarding"
-msgstr ""
+msgstr "端口转发"
 
 #: src/views/firewall/IpRuleView.vue:75
 #: src/views/firewall/RuleView.vue:109
 msgid "Mark"
-msgstr ""
+msgstr "标记"
 
 #: src/views/firewall/RuleView.vue:74
 msgid "In Use"
-msgstr ""
+msgstr "使用中"
 
 #: src/views/firewall/RuleView.vue:76
 msgid "Not Used"
-msgstr ""
+msgstr "未使用"
 
 #: src/views/firewall/RuleView.vue:151
 msgid "All"
-msgstr ""
+msgstr "所有"
 
 #: src/views/firewall/SettingView.vue:27
 #: src/views/firewall/SettingView.vue:33
 #: src/views/firewall/SettingView.vue:39
 msgid "Settings saved successfully"
-msgstr ""
+msgstr "设置保存成功"
 
 #: src/views/firewall/SettingView.vue:46
 msgid "System Firewall"
-msgstr ""
+msgstr "系统防火墙"
 
 #: src/views/firewall/SettingView.vue:49
 msgid "SSH Switch"
-msgstr ""
+msgstr "SSH 开关"
 
 #: src/views/firewall/SettingView.vue:52
 msgid "Allow Ping"
-msgstr ""
+msgstr "允许 Ping"
 
 #: src/views/firewall/SettingView.vue:55
 msgid "SSH Port"
-msgstr ""
+msgstr "SSH 端口"
 
 #: src/views/login/IndexView.vue:49
 msgid "Please enter username and password"
-msgstr ""
+msgstr "请输入用户名和密码"
 
 #: src/views/login/IndexView.vue:54
 msgid "Failed to get encryption public key, please refresh the page and try again"
-msgstr ""
+msgstr "获取加密公钥失败，请刷新页面后重试"
 
 #: src/views/login/IndexView.vue:67
 msgid "Login successful!"
-msgstr ""
+msgstr "登录成功！"
 
 #: src/views/login/IndexView.vue:153
 msgid "2FA Code"
-msgstr ""
+msgstr "两步验证代码"
 
 #: src/views/login/IndexView.vue:161
 msgid "Safe Login"
-msgstr ""
+msgstr "安全登录"
 
 #: src/views/login/IndexView.vue:162
 msgid "Remember Me"
-msgstr ""
+msgstr "记住我"
 
 #: src/views/monitor/IndexView.vue:60
 msgid "Load"
-msgstr ""
+msgstr "负载"
 
 #: src/views/monitor/IndexView.vue:71
 #: src/views/monitor/IndexView.vue:87
 msgid "1 minute"
-msgstr ""
+msgstr "1 分钟"
 
 #: src/views/monitor/IndexView.vue:71
 #: src/views/monitor/IndexView.vue:102
 msgid "5 minutes"
-msgstr ""
+msgstr "5 分钟"
 
 #: src/views/monitor/IndexView.vue:71
 #: src/views/monitor/IndexView.vue:124
 msgid "15 minutes"
-msgstr ""
+msgstr "15 分钟"
 
 #: src/views/monitor/IndexView.vue:162
 msgid "Unit %"
-msgstr ""
+msgstr "单位 %"
 
 #: src/views/monitor/IndexView.vue:221
 #: src/views/monitor/IndexView.vue:307
 msgid "Unit MB"
-msgstr ""
+msgstr "单位 MB"
 
 #: src/views/monitor/IndexView.vue:298
 #: src/views/monitor/IndexView.vue:322
 msgid "Total Out"
-msgstr ""
+msgstr "总出流量"
 
 #: src/views/monitor/IndexView.vue:299
 #: src/views/monitor/IndexView.vue:344
 msgid "Total In"
-msgstr ""
+msgstr "总入流量"
 
 #: src/views/monitor/IndexView.vue:300
 #: src/views/monitor/IndexView.vue:366
 msgid "Per Second Out"
-msgstr ""
+msgstr "每秒出流量"
 
 #: src/views/monitor/IndexView.vue:301
 #: src/views/monitor/IndexView.vue:388
 msgid "Per Second In"
-msgstr ""
+msgstr "每秒入流量"
 
 #: src/views/monitor/IndexView.vue:414
 #: src/views/monitor/IndexView.vue:420
 msgid "Operation successful"
-msgstr ""
+msgstr "操作成功"
 
 #: src/views/monitor/IndexView.vue:451
 msgid "Clear Monitoring Records"
-msgstr ""
+msgstr "清除监控记录"
 
 #: src/views/monitor/IndexView.vue:454
 #: src/views/website/EditView.vue:224
 msgid "Are you sure you want to clear?"
-msgstr ""
+msgstr "确定要清除吗？"
 
 #: src/views/monitor/IndexView.vue:465
 msgid "Enable Monitoring"
-msgstr ""
+msgstr "启用监控"
 
 #: src/views/monitor/IndexView.vue:468
 msgid "Save Days"
-msgstr ""
+msgstr "保存天数"
 
 #: src/views/monitor/IndexView.vue:470
 msgid "days"
-msgstr ""
+msgstr "天"
 
 #: src/views/monitor/IndexView.vue:476
 msgid "Time Selection"
-msgstr ""
+msgstr "时间选择"
 
 #: src/views/setting/CreateModal.vue:44
 msgid "Enter user name"
-msgstr ""
+msgstr "输入用户名"
 
 #: src/views/setting/CreateModal.vue:53
 #: src/views/setting/PasswordModal.vue:40
 msgid "Enter user password"
-msgstr ""
+msgstr "输入用户密码"
 
 #: src/views/setting/CreateModal.vue:60
 msgid "Enter user email"
-msgstr ""
+msgstr "输入用户邮箱"
 
 #: src/views/setting/IndexView.vue:47
 msgid "Panel is restarting, page will refresh in 3 seconds"
-msgstr ""
+msgstr "面板正在重启，页面将在 3 秒后刷新"
 
 #: src/views/setting/IndexView.vue:73
 msgid "Basic"
-msgstr ""
+msgstr "基本"
 
 #: src/views/setting/IndexView.vue:76
 msgid "Safe"
-msgstr ""
+msgstr "安全"
 
 #: src/views/setting/PasswordModal.vue:16
 #: src/views/setting/TokenModal.vue:183
 #: src/views/setting/TwoFaModal.vue:24
 #: src/views/ssh/UpdateModal.vue:30
 msgid "Updated successfully"
-msgstr ""
+msgstr "更新成功"
 
 #: src/views/setting/SettingBase.vue:20
 msgid "Stable"
-msgstr ""
+msgstr "稳定版"
 
 #: src/views/setting/SettingBase.vue:24
 msgid "Beta"
-msgstr ""
+msgstr "测试版"
 
 #: src/views/setting/SettingBase.vue:34
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
-msgstr ""
+msgstr "修改面板端口/入口需要在浏览器地址栏中相应更改以访问面板！"
 
 #: src/views/setting/SettingBase.vue:40
 #: src/views/setting/SettingBase.vue:41
 msgid "Panel Name"
-msgstr ""
+msgstr "面板名称"
 
 #: src/views/setting/SettingBase.vue:43
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: src/views/setting/SettingBase.vue:46
 msgid "Update Channel"
-msgstr ""
+msgstr "更新渠道"
 
 #: src/views/setting/SettingBase.vue:50
 msgid "8888"
-msgstr ""
+msgstr "8888"
 
 #: src/views/setting/SettingBase.vue:52
 msgid "Default Website Directory"
-msgstr ""
+msgstr "默认网站目录"
 
 #: src/views/setting/SettingBase.vue:53
 msgid "/www/wwwroot"
-msgstr ""
+msgstr "/www/wwwroot"
 
 #: src/views/setting/SettingBase.vue:55
 msgid "Default Backup Directory"
-msgstr ""
+msgstr "默认备份目录"
 
 #: src/views/setting/SettingBase.vue:56
 msgid "/www/backup"
-msgstr ""
+msgstr "/www/backup"
 
 #: src/views/setting/SettingSafe.vue:12
 msgid "Login Timeout"
-msgstr ""
+msgstr "登录超时"
 
 #: src/views/setting/SettingSafe.vue:15
 msgid "120"
-msgstr ""
+msgstr "120"
 
 #: src/views/setting/SettingSafe.vue:21
 #: src/views/website/ProxyBuilderModal.vue:188
 msgid "minutes"
-msgstr ""
+msgstr "分钟"
 
 #: src/views/setting/SettingSafe.vue:25
 msgid "Access Entrance"
-msgstr ""
+msgstr "访问入口"
 
 #: src/views/setting/SettingSafe.vue:26
 msgid "/admin"
-msgstr ""
+msgstr "/admin"
 
 #: src/views/setting/SettingSafe.vue:28
 msgid "Bind Domain"
-msgstr ""
+msgstr "绑定域名"
 
 #: src/views/setting/SettingSafe.vue:35
 msgid "Bind IP"
-msgstr ""
+msgstr "绑定 IP"
 
 #: src/views/setting/SettingSafe.vue:38
 msgid "Bind UA"
-msgstr ""
+msgstr "绑定 UA"
 
 #: src/views/setting/SettingSafe.vue:45
 msgid "Offline Mode"
-msgstr ""
+msgstr "离线模式"
 
 #: src/views/setting/SettingSafe.vue:48
 msgid "Auto Update"
-msgstr ""
+msgstr "自动更新"
 
 #: src/views/setting/SettingSafe.vue:51
 msgid "Panel HTTPS"
-msgstr ""
+msgstr "面板 HTTPS"
 
 #: src/views/setting/SettingUser.vue:53
 msgid "2FA"
-msgstr ""
+msgstr "两步验证"
 
 #: src/views/setting/SettingUser.vue:68
 msgid "Disabled successfully"
-msgstr ""
+msgstr "禁用成功"
 
 #: src/views/setting/SettingUser.vue:103
 #: src/views/setting/TokenModal.vue:204
 msgid "Access Tokens"
-msgstr ""
+msgstr "访问令牌"
 
 #: src/views/setting/SettingUser.vue:131
 msgid "Are you sure you want to delete this user?"
-msgstr ""
+msgstr "您确定要删除该用户吗？"
 
 #: src/views/setting/TokenModal.vue:27
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: src/views/setting/TokenModal.vue:81
 msgid "Are you sure you want to delete this access token?"
-msgstr ""
+msgstr "您确定要删除此访问令牌吗？"
 
 #: src/views/setting/TokenModal.vue:144
 msgid "Token is only displayed once, please save it before closing the dialog."
-msgstr ""
+msgstr "令牌只显示一次，请在关闭对话框前保存。"
 
 #: src/views/setting/TokenModal.vue:161
 msgid "Copy and close"
-msgstr ""
+msgstr "复制并关闭"
 
 #: src/views/setting/TokenModal.vue:168
 msgid "Copy failed"
-msgstr ""
+msgstr "复制失败"
 
 #: src/views/setting/TokenModal.vue:214
 #: src/views/setting/TokenModal.vue:242
 msgid "Create Access Token"
-msgstr ""
+msgstr "创建访问令牌"
 
 #: src/views/setting/TokenModal.vue:251
 #: src/views/setting/TokenModal.vue:284
 msgid "IP White List"
-msgstr ""
+msgstr "IP 白名单"
 
 #: src/views/setting/TokenModal.vue:254
 #: src/views/setting/TokenModal.vue:287
 msgid "127.0.0.1"
-msgstr ""
+msgstr "127.0.0.1"
 
 #: src/views/setting/TokenModal.vue:262
 #: src/views/setting/TokenModal.vue:295
 msgid "Please select the expiration time"
-msgstr ""
+msgstr "请选择到期时间"
 
 #: src/views/setting/TokenModal.vue:275
 msgid "Modify Access Token"
-msgstr ""
+msgstr "修改访问令牌"
 
 #: src/views/setting/TwoFaModal.vue:46
 msgid "Enable 2FA"
-msgstr ""
+msgstr "启用两步验证"
 
 #: src/views/setting/TwoFaModal.vue:57
 msgid "QR Code"
-msgstr ""
+msgstr "二维码"
 
 #: src/views/setting/TwoFaModal.vue:62
 msgid "Scan the QR code with your 2FA app and enter the code below"
-msgstr ""
+msgstr "用您的两步验证应用扫描二维码并在下方输入代码"
 
 #: src/views/setting/TwoFaModal.vue:66
 msgid "If you cannot scan the QR code, please enter the URL below in your 2FA app"
-msgstr ""
+msgstr "如果您不能扫描二维码，请在您的两步验证应用中输入下面的 URL"
 
 #: src/views/setting/TwoFaModal.vue:79
 msgid "Code"
-msgstr ""
+msgstr "代码"
 
 #: src/views/setting/TwoFaModal.vue:83
 msgid "Enter the code"
-msgstr ""
+msgstr "输入代码"
 
 #: src/views/ssh/CreateModal.vue:50
 #: src/views/ssh/IndexView.vue:231
 msgid "Create Host"
-msgstr ""
+msgstr "创建主机"
 
 #: src/views/ssh/CreateModal.vue:73
 #: src/views/ssh/UpdateModal.vue:79
 msgid "Authentication Method"
-msgstr ""
+msgstr "认证方式"
 
 #: src/views/ssh/CreateModal.vue:92
 #: src/views/ssh/UpdateModal.vue:98
 msgid "Remarks"
-msgstr ""
+msgstr "备注"
 
 #: src/views/ssh/IndexView.vue:43
 msgid "Please create a host first"
-msgstr ""
+msgstr "请先创建一个主机"
 
 #: src/views/ssh/IndexView.vue:82
 msgid "Are you sure you want to delete this host?"
-msgstr ""
+msgstr "您确定要删除这个主机吗？"
 
 #: src/views/ssh/IndexView.vue:162
 msgid "Connection closed. Please refresh."
-msgstr ""
+msgstr "连接已关闭。请刷新。"
 
 #: src/views/ssh/IndexView.vue:167
 msgid "Connection error. Please refresh."
-msgstr ""
+msgstr "连接错误。请刷新。"
 
 #: src/views/ssh/UpdateModal.vue:56
 msgid "Update Host"
-msgstr ""
+msgstr "更新主机"
 
 #: src/views/task/CreateModal.vue:22
 msgid "# Enter your script content here"
-msgstr ""
+msgstr "# 在此处输入您的脚本内容"
 
 #: src/views/task/CreateModal.vue:89
 msgid "Create Scheduled Task"
-msgstr ""
+msgstr "创建计划任务"
 
 #: src/views/task/CreateModal.vue:96
 #: src/views/task/CronView.vue:36
 msgid "Task Type"
-msgstr ""
+msgstr "任务类型"
 
 #: src/views/task/CreateModal.vue:100
 #: src/views/task/CronView.vue:49
 msgid "Run Script"
-msgstr ""
+msgstr "运行脚本"
 
 #: src/views/task/CreateModal.vue:101
 #: src/views/task/CronView.vue:51
 msgid "Backup Data"
-msgstr ""
+msgstr "备份数据"
 
 #: src/views/task/CreateModal.vue:102
 #: src/views/task/CronView.vue:52
 msgid "Log Rotation"
-msgstr ""
+msgstr "日志切割"
 
 #: src/views/task/CreateModal.vue:107
 #: src/views/task/CreateModal.vue:108
@@ -3959,127 +3954,127 @@ msgstr ""
 #: src/views/task/CronView.vue:258
 #: src/views/task/TaskView.vue:15
 msgid "Task Name"
-msgstr ""
+msgstr "任务名称"
 
 #: src/views/task/CreateModal.vue:110
 #: src/views/task/CronView.vue:73
 #: src/views/task/CronView.vue:260
 msgid "Task Schedule"
-msgstr ""
+msgstr "任务计划"
 
 #: src/views/task/CreateModal.vue:114
 msgid "Script Content"
-msgstr ""
+msgstr "脚本内容"
 
 #: src/views/task/CreateModal.vue:128
 msgid "Backup Type"
-msgstr ""
+msgstr "备份类型"
 
 #: src/views/task/CreateModal.vue:132
 msgid "MySQL Database"
-msgstr ""
+msgstr "MySQL 数据库"
 
 #: src/views/task/CreateModal.vue:135
 msgid "PostgreSQL Database"
-msgstr ""
+msgstr "PostgreSQL 数据库"
 
 #: src/views/task/CreateModal.vue:164
 msgid "Retention Count"
-msgstr ""
+msgstr "保留数量"
 
 #: src/views/task/CronView.vue:59
 msgid "Enabled"
-msgstr ""
+msgstr "已启用"
 
 #: src/views/task/CronView.vue:93
 msgid "Last Update Time"
-msgstr ""
+msgstr "最后更新时间"
 
 #: src/views/task/CronView.vue:144
 msgid "Are you sure you want to delete this task?"
-msgstr ""
+msgstr "您确定要删除此任务吗？"
 
 #: src/views/task/CronView.vue:249
 msgid "Edit Task"
-msgstr ""
+msgstr "编辑任务"
 
 #: src/views/task/IndexView.vue:25
 msgid "Create Task"
-msgstr ""
+msgstr "创建任务"
 
 #: src/views/task/IndexView.vue:32
 msgid "System Processes"
-msgstr ""
+msgstr "系统进程"
 
 #: src/views/task/IndexView.vue:35
 msgid "Panel Tasks"
-msgstr ""
+msgstr "面板任务"
 
 #: src/views/task/SystemView.vue:25
 msgid "Parent PID"
-msgstr ""
+msgstr "父进程 PID"
 
 #: src/views/task/SystemView.vue:31
 msgid "Threads"
-msgstr ""
+msgstr "线程"
 
 #: src/views/task/SystemView.vue:52
 msgid "Sleeping"
-msgstr ""
+msgstr "睡眠"
 
 #: src/views/task/SystemView.vue:56
 msgid "Idle"
-msgstr ""
+msgstr "空闲"
 
 #: src/views/task/SystemView.vue:58
 msgid "Zombie"
-msgstr ""
+msgstr "僵尸进程"
 
 #: src/views/task/SystemView.vue:60
 #: src/views/task/TaskView.vue:30
 msgid "Waiting"
-msgstr ""
+msgstr "等待中"
 
 #: src/views/task/SystemView.vue:62
 msgid "Locked"
-msgstr ""
+msgstr "已锁定"
 
 #: src/views/task/SystemView.vue:87
 msgid "Start Time"
-msgstr ""
+msgstr "启动时间"
 
 #: src/views/task/SystemView.vue:108
 msgid "Process %{ pid } has been terminated"
-msgstr ""
+msgstr "进程 %{ pid } 已被终止"
 
 #: src/views/task/SystemView.vue:115
 msgid "Are you sure you want to terminate process %{ pid }?"
-msgstr ""
+msgstr "您确定要终止进程 %{ pid } 吗？"
 
 #: src/views/task/SystemView.vue:127
 msgid "Terminate"
-msgstr ""
+msgstr "终止"
 
 #: src/views/task/TaskView.vue:28
 msgid "Completed"
-msgstr ""
+msgstr "已完成"
 
 #: src/views/task/TaskView.vue:32
 msgid "Failed"
-msgstr ""
+msgstr "失败"
 
 #: src/views/task/TaskView.vue:46
 msgid "Completion Time"
-msgstr ""
+msgstr "完成时间"
 
 #: src/views/task/TaskView.vue:136
 msgid "If logs cannot be loaded, please disable ad blockers!"
-msgstr ""
+msgstr "如果无法加载日志，请禁用广告拦截器！"
 
 #: src/views/toolbox/BenchmarkView.vue:12
 #: src/views/toolbox/BenchmarkView.vue:123
 msgid "CPU"
-msgstr ""
+msgstr "CPU"
 
 #: src/views/toolbox/BenchmarkView.vue:43
 #: src/views/toolbox/BenchmarkView.vue:44
@@ -4093,518 +4088,518 @@ msgstr ""
 #: src/views/toolbox/BenchmarkView.vue:179
 #: src/views/toolbox/BenchmarkView.vue:210
 msgid "Pending benchmark"
-msgstr ""
+msgstr "待跑分"
 
 #: src/views/toolbox/BenchmarkView.vue:90
 msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
-msgstr ""
+msgstr "跑分结果仅供参考，由于系统资源调度、缓存和其他因素，可能与实际性能有所不同！"
 
 #: src/views/toolbox/BenchmarkView.vue:97
 msgid "Benchmarking in progress, it may take some time..."
-msgstr ""
+msgstr "跑分正在进行中，可能需要一些时间……"
 
 #: src/views/toolbox/BenchmarkView.vue:100
 msgid "Current project: %{ current }"
-msgstr ""
+msgstr "当前项目：%{ current }"
 
 #: src/views/toolbox/BenchmarkView.vue:128
 msgid "Image Processing"
-msgstr ""
+msgstr "图像处理"
 
 #: src/views/toolbox/BenchmarkView.vue:134
 msgid "Machine Learning"
-msgstr ""
+msgstr "机器学习"
 
 #: src/views/toolbox/BenchmarkView.vue:140
 msgid "Program Compilation"
-msgstr ""
+msgstr "程序编译"
 
 #: src/views/toolbox/BenchmarkView.vue:146
 msgid "AES Encryption"
-msgstr ""
+msgstr "AES 加密"
 
 #: src/views/toolbox/BenchmarkView.vue:152
 msgid "Compression/Decompression"
-msgstr ""
+msgstr "压缩/解压缩"
 
 #: src/views/toolbox/BenchmarkView.vue:158
 msgid "Physics Simulation"
-msgstr ""
+msgstr "物理模拟"
 
 #: src/views/toolbox/BenchmarkView.vue:164
 msgid "JSON Parsing"
-msgstr ""
+msgstr "JSON 解析"
 
 #: src/views/toolbox/BenchmarkView.vue:193
 msgid "Memory Bandwidth"
-msgstr ""
+msgstr "内存带宽"
 
 #: src/views/toolbox/BenchmarkView.vue:197
 msgid "Memory Latency"
-msgstr ""
+msgstr "内存延迟"
 
 #: src/views/toolbox/BenchmarkView.vue:224
 msgid "4KB Read"
-msgstr ""
+msgstr "4KB 读取"
 
 #: src/views/toolbox/BenchmarkView.vue:230
 msgid "4KB Write"
-msgstr ""
+msgstr "4KB 写入"
 
 #: src/views/toolbox/BenchmarkView.vue:236
 msgid "64KB Read"
-msgstr ""
+msgstr "64KB 读取"
 
 #: src/views/toolbox/BenchmarkView.vue:242
 msgid "64KB Write"
-msgstr ""
+msgstr "64KB 写入"
 
 #: src/views/toolbox/BenchmarkView.vue:248
 msgid "1MB Read"
-msgstr ""
+msgstr "1MB 读取"
 
 #: src/views/toolbox/BenchmarkView.vue:254
 msgid "1MB Write"
-msgstr ""
+msgstr "1MB 写入"
 
 #: src/views/toolbox/BenchmarkView.vue:273
 msgid "Benchmarking..."
-msgstr ""
+msgstr "跑分中……"
 
 #: src/views/toolbox/BenchmarkView.vue:273
 msgid "Start Benchmark"
-msgstr ""
+msgstr "开始跑分"
 
 #: src/views/toolbox/SystemView.vue:125
 msgid "DNS modifications will revert to default after system restart."
-msgstr ""
+msgstr "DNS 修改将在系统重启后恢复为默认设置。"
 
 #: src/views/toolbox/SystemView.vue:141
 msgid "Total %{ total }, used %{ used }, free %{ free }"
-msgstr ""
+msgstr "总计 %{ total }，已使用 %{ used }，可用 %{ free }"
 
 #: src/views/toolbox/SystemView.vue:159
 msgid "Hostname"
-msgstr ""
+msgstr "主机名"
 
 #: src/views/toolbox/SystemView.vue:177
 msgid "Time"
-msgstr ""
+msgstr "时间"
 
 #: src/views/toolbox/SystemView.vue:181
 msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
-msgstr ""
+msgstr "手动更改时间后，系统自动时间同步可能仍会覆盖设置。"
 
 #: src/views/toolbox/SystemView.vue:187
 msgid "Select Timezone"
-msgstr ""
+msgstr "选择时区"
 
 #: src/views/toolbox/SystemView.vue:190
 msgid "Please select a timezone"
-msgstr ""
+msgstr "请选择时区"
 
 #: src/views/toolbox/SystemView.vue:194
 msgid "Modify Time"
-msgstr ""
+msgstr "修改时间"
 
 #: src/views/toolbox/SystemView.vue:197
 msgid "NTP Time Synchronization"
-msgstr ""
+msgstr "NTP 时间同步"
 
 #: src/views/toolbox/SystemView.vue:199
 msgid "Synchronize Time"
-msgstr ""
+msgstr "同步时间"
 
 #: src/views/website/BulkCreate.vue:21
 msgid "The format is incorrect, please check"
-msgstr ""
+msgstr "格式不正确，请检查"
 
 #: src/views/website/BulkCreate.vue:59
 #: src/views/website/IndexView.vue:327
 msgid "Website %{ name } created successfully"
-msgstr ""
+msgstr "网站 %{ name } 创建成功"
 
 #: src/views/website/BulkCreate.vue:77
 #: src/views/website/IndexView.vue:400
 msgid "Bulk Create Website"
-msgstr ""
+msgstr "批量创建网站"
 
 #: src/views/website/BulkCreate.vue:88
 msgid "Please enter the website name, domain, port, path, and remark in the text area below, one per line."
-msgstr ""
+msgstr "请在下面的文本区域输入网站名称、域名、端口、路径和注释，每行一个。"
 
 #: src/views/website/BulkCreate.vue:96
 msgid "name|domain|port|path|remark"
-msgstr ""
+msgstr "名称|域名|端口|路径|备注"
 
 #: src/views/website/BulkCreate.vue:101
 msgid "Name: The name of the website, which will be displayed in the website list, must be unique."
-msgstr ""
+msgstr "名称：网站的名称，将显示在网站列表中，必须是唯一的。"
 
 #: src/views/website/BulkCreate.vue:108
 msgid "Domain: The domain name of the website, multiple domains can be separated by commas."
-msgstr ""
+msgstr "域名：网站的域名，多个域名可以用英文逗号分隔。"
 
 #: src/views/website/BulkCreate.vue:115
 msgid "Port: The port number of the website, multiple ports can be separated by commas."
-msgstr ""
+msgstr "端口：网站的端口号，多个端口可以用英文逗号分隔。"
 
 #: src/views/website/BulkCreate.vue:121
 msgid "Path: The path of the website, can be empty to use the default path."
-msgstr ""
+msgstr "路径：网站的根目录，可以为空以使用默认路径。"
 
 #: src/views/website/BulkCreate.vue:124
 msgid "Remark: The remark of the website, can be empty."
-msgstr ""
+msgstr "备注：网站的备注，可以为空。"
 
 #: src/views/website/EditView.vue:54
 #: src/views/website/IndexView.vue:241
 msgid "Not used"
-msgstr ""
+msgstr "未使用"
 
 #: src/views/website/EditView.vue:83
 msgid "Edit Website - %{ name }"
-msgstr ""
+msgstr "编辑网站 - %{ name }"
 
 #: src/views/website/EditView.vue:85
 msgid "Edit Website"
-msgstr ""
+msgstr "编辑网站"
 
 #: src/views/website/EditView.vue:122
 msgid "Reset successfully"
-msgstr ""
+msgstr "重置成功"
 
 #: src/views/website/EditView.vue:139
 msgid "Issued successfully"
-msgstr ""
+msgstr "签发成功"
 
 #: src/views/website/EditView.vue:153
 msgid "The selected certificate is invalid"
-msgstr ""
+msgstr "所选证书无效"
 
 #: src/views/website/EditView.vue:179
 msgid "If you modify the original text, other modifications will not take effect after clicking save!"
-msgstr ""
+msgstr "如果修改原文，点击保存后其他修改将不会生效！"
 
 #: src/views/website/EditView.vue:188
 msgid "Reset Configuration"
-msgstr ""
+msgstr "重置配置"
 
 #: src/views/website/EditView.vue:191
 msgid "Are you sure you want to reset the configuration?"
-msgstr ""
+msgstr "您确定要重置配置吗？"
 
 #: src/views/website/EditView.vue:200
 #: src/views/website/ProxyBuilderModal.vue:123
 msgid "Generate Reverse Proxy Configuration"
-msgstr ""
+msgstr "生成反向代理配置"
 
 #: src/views/website/EditView.vue:211
 msgid "One-click Certificate Issuance"
-msgstr ""
+msgstr "一键签发证书"
 
 #: src/views/website/EditView.vue:221
 msgid "Clear Logs"
-msgstr ""
+msgstr "清除日志"
 
 #: src/views/website/EditView.vue:230
 msgid "Domain & Listening"
-msgstr ""
+msgstr "域名和监听"
 
 #: src/views/website/EditView.vue:240
 msgid "Listening Address"
-msgstr ""
+msgstr "监听地址"
 
 #: src/views/website/EditView.vue:258
 msgid "Basic Settings"
-msgstr ""
+msgstr "基本设置"
 
 #: src/views/website/EditView.vue:260
 msgid "Website Directory"
-msgstr ""
+msgstr "网站目录"
 
 #: src/views/website/EditView.vue:263
 msgid "Enter website directory (absolute path)"
-msgstr ""
+msgstr "输入网站目录（绝对路径）"
 
 #: src/views/website/EditView.vue:266
 msgid "Running Directory"
-msgstr ""
+msgstr "运行目录"
 
 #: src/views/website/EditView.vue:270
 msgid "Enter running directory (needed for Laravel etc.) (absolute path)"
-msgstr ""
+msgstr "输入运行目录（Laravel等需要）（绝对路径）"
 
 #: src/views/website/EditView.vue:274
 msgid "Default Document"
-msgstr ""
+msgstr "默认文档"
 
 #: src/views/website/EditView.vue:277
 #: src/views/website/IndexView.vue:480
 msgid "PHP Version"
-msgstr ""
+msgstr "PHP 版本"
 
 #: src/views/website/EditView.vue:282
 #: src/views/website/IndexView.vue:484
 msgid "Select PHP Version"
-msgstr ""
+msgstr "选择 PHP 版本"
 
 #: src/views/website/EditView.vue:287
 msgid "Anti-cross-site Attack (PHP)"
-msgstr ""
+msgstr "防跨站攻击 (PHP)"
 
 #: src/views/website/EditView.vue:296
 msgid "Certificate Information"
-msgstr ""
+msgstr "证书信息"
 
 #: src/views/website/EditView.vue:298
 msgid "Certificate Validity"
-msgstr ""
+msgstr "证书有效期"
 
 #: src/views/website/EditView.vue:312
 msgid "Domains"
-msgstr ""
+msgstr "域名"
 
 #: src/views/website/EditView.vue:327
 msgid "Main Switch"
-msgstr ""
+msgstr "主开关"
 
 #: src/views/website/EditView.vue:333
 msgid "Use Existing Certificate"
-msgstr ""
+msgstr "使用现有证书"
 
 #: src/views/website/EditView.vue:347
 msgid "HTTP Redirect"
-msgstr ""
+msgstr "HTTP 重定向"
 
 #: src/views/website/EditView.vue:350
 msgid "OCSP Stapling"
-msgstr ""
+msgstr "OCSP 装订"
 
 #: src/views/website/EditView.vue:375
 msgid "Rewrite"
-msgstr ""
+msgstr "伪静态"
 
 #: src/views/website/EditView.vue:378
 msgid "Presets"
-msgstr ""
+msgstr "预设"
 
 #: src/views/website/EditView.vue:405
 msgid "If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!"
-msgstr ""
+msgstr "如果您不了解配置规则，请不要随意修改，否则可能导致网站无法访问或面板功能异常！如果您已经遇到问题，请尝试重置配置！"
 
 #: src/views/website/EditView.vue:424
 msgid "Access Log"
-msgstr ""
+msgstr "访问日志"
 
 #: src/views/website/EditView.vue:428
 #: src/views/website/EditView.vue:440
 msgid "All logs can be viewed by downloading the file"
-msgstr ""
+msgstr "所有日志可通过下载文件查看"
 
 #: src/views/website/EditView.vue:430
 #: src/views/website/EditView.vue:442
 msgid "view"
-msgstr ""
+msgstr "查看"
 
 #: src/views/website/EditView.vue:436
 msgid "Error Log"
-msgstr ""
+msgstr "错误日志"
 
 #: src/views/website/IndexView.vue:24
 #: src/views/website/IndexView.vue:443
 msgid "Website Name"
-msgstr ""
+msgstr "网站名称"
 
 #: src/views/website/IndexView.vue:77
 msgid "Certificate expiration"
-msgstr ""
+msgstr "证书有效期"
 
 #: src/views/website/IndexView.vue:91
 msgid "Not configured"
-msgstr ""
+msgstr "未配置"
 
 #: src/views/website/IndexView.vue:94
 msgid "Expired %{ days } days ago"
-msgstr ""
+msgstr "%{ days } 天前过期"
 
 #: src/views/website/IndexView.vue:99
 msgid "Expires in %{ days } days"
-msgstr ""
+msgstr "%{ days } 天后过期"
 
 #: src/views/website/IndexView.vue:109
 #: src/views/website/IndexView.vue:561
 #: src/views/website/IndexView.vue:566
 msgid "Remark"
-msgstr ""
+msgstr "备注"
 
 #: src/views/website/IndexView.vue:165
 msgid "Are you sure you want to delete website %{ name }?"
-msgstr ""
+msgstr "您确定要删除网站 %{ name } 吗？"
 
 #: src/views/website/IndexView.vue:176
 msgid "Delete website directory"
-msgstr ""
+msgstr "删除网站目录"
 
 #: src/views/website/IndexView.vue:184
 msgid "Delete local database with the same name"
-msgstr ""
+msgstr "删除同名的本地数据库"
 
 #: src/views/website/IndexView.vue:348
 msgid "Please select the websites to delete"
-msgstr ""
+msgstr "请选择要删除的网站"
 
 #: src/views/website/IndexView.vue:383
 #: src/views/website/IndexView.vue:577
 msgid "Modify Default Page"
-msgstr ""
+msgstr "修改默认页面"
 
 #: src/views/website/IndexView.vue:393
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
-msgstr ""
+msgstr "这将删除网站目录，但不会删除同名的数据库。您确定要删除所选网站吗？"
 
 #: src/views/website/IndexView.vue:404
 #: src/views/website/IndexView.vue:434
 msgid "Create Website"
-msgstr ""
+msgstr "创建网站"
 
 #: src/views/website/IndexView.vue:449
 msgid "Recommended to use English for the website name, it cannot be modified after setting"
-msgstr ""
+msgstr "建议使用英文作为网站名称，设置后无法修改"
 
 #: src/views/website/IndexView.vue:496
 msgid "Select Database"
-msgstr ""
+msgstr "选择数据库"
 
 #: src/views/website/IndexView.vue:524
 #: src/views/website/IndexView.vue:529
 msgid "Database User"
-msgstr ""
+msgstr "数据库用户"
 
 #: src/views/website/IndexView.vue:538
 #: src/views/website/IndexView.vue:544
 msgid "Database Password"
-msgstr ""
+msgstr "数据库密码"
 
 #: src/views/website/IndexView.vue:555
 msgid "Website root directory (if left empty, defaults to website directory/website name)"
-msgstr ""
+msgstr "网站根目录（如果留空，默认为网站目录/网站名称）"
 
 #: src/views/website/IndexView.vue:585
 #: src/views/website/IndexView.vue:585
 msgid "Default Page"
-msgstr ""
+msgstr "默认页面"
 
 #: src/views/website/IndexView.vue:599
 #: src/views/website/IndexView.vue:599
 msgid "Stop Page"
-msgstr ""
+msgstr "停止页面"
 
 #: src/views/website/ProxyBuilderModal.vue:24
 msgid "Disabled buffer and enabled cache cannot be used simultaneously"
-msgstr ""
+msgstr "禁用缓冲区和启用缓存不能同时使用"
 
 #: src/views/website/ProxyBuilderModal.vue:29
 msgid "Matching expression cannot be empty"
-msgstr ""
+msgstr "匹配表达式不能为空"
 
 #: src/views/website/ProxyBuilderModal.vue:33
 msgid "Proxy address cannot be empty"
-msgstr ""
+msgstr "代理地址不能为空"
 
 #: src/views/website/ProxyBuilderModal.vue:37
 msgid "Exact match expression must start with /"
-msgstr ""
+msgstr "精确匹配表达式必须以 / 开头"
 
 #: src/views/website/ProxyBuilderModal.vue:44
 msgid "Prefix match expression must start with /"
-msgstr ""
+msgstr "前缀匹配表达式必须以 / 开头"
 
 #: src/views/website/ProxyBuilderModal.vue:50
 msgid "Proxy address format error"
-msgstr ""
+msgstr "代理地址格式错误"
 
 #: src/views/website/ProxyBuilderModal.vue:102
 msgid "Configuration generated successfully"
-msgstr ""
+msgstr "配置生成成功"
 
 #: src/views/website/ProxyBuilderModal.vue:132
 msgid "After generating the reverse proxy configuration, the original rewrite rules will be overwritten."
-msgstr ""
+msgstr "生成反向代理配置后，原有的伪静态规则将被覆盖。"
 
 #: src/views/website/ProxyBuilderModal.vue:139
 msgid "If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration."
-msgstr ""
+msgstr "如果您需要代理JS/CSS等静态资源，请从原始配置中删除静态日志记录部分。"
 
 #: src/views/website/ProxyBuilderModal.vue:145
 msgid "Auto Refresh Resolution"
-msgstr ""
+msgstr "自动刷新解析"
 
 #: src/views/website/ProxyBuilderModal.vue:148
 msgid "Enable SNI"
-msgstr ""
+msgstr "启用 SNI"
 
 #: src/views/website/ProxyBuilderModal.vue:151
 msgid "Enable Cache"
-msgstr ""
+msgstr "启用缓存"
 
 #: src/views/website/ProxyBuilderModal.vue:154
 msgid "Disable Buffer"
-msgstr ""
+msgstr "禁用缓冲区"
 
 #: src/views/website/ProxyBuilderModal.vue:159
 msgid "Match Type"
-msgstr ""
+msgstr "匹配类型"
 
 #: src/views/website/ProxyBuilderModal.vue:163
 msgid "Exact Match (=)"
-msgstr ""
+msgstr "精确匹配 (=)"
 
 #: src/views/website/ProxyBuilderModal.vue:164
 msgid "Priority Prefix Match (^~)"
-msgstr ""
+msgstr "优先前缀匹配 (^~)"
 
 #: src/views/website/ProxyBuilderModal.vue:165
 msgid "Normal Prefix Match ( )"
-msgstr ""
+msgstr "普通前缀匹配 ( )"
 
 #: src/views/website/ProxyBuilderModal.vue:166
 msgid "Case Sensitive Regex Match (~)"
-msgstr ""
+msgstr "区分大小写的正则匹配 (~)"
 
 #: src/views/website/ProxyBuilderModal.vue:167
 msgid "Case Insensitive Regex Match (~*)"
-msgstr ""
+msgstr "不区分大小写的正则匹配 (~*)"
 
 #: src/views/website/ProxyBuilderModal.vue:171
 msgid "Match Expression"
-msgstr ""
+msgstr "匹配表达式"
 
 #: src/views/website/ProxyBuilderModal.vue:174
 msgid "Proxy Address"
-msgstr ""
+msgstr "代理地址"
 
 #: src/views/website/ProxyBuilderModal.vue:177
 msgid "Send Domain"
-msgstr ""
+msgstr "发送域名"
 
 #: src/views/website/ProxyBuilderModal.vue:180
 msgid "Cache Time"
-msgstr ""
+msgstr "缓存时间"
 
 #: src/views/website/ProxyBuilderModal.vue:186
 msgid "Cache time (minutes)"
-msgstr ""
+msgstr "缓存时间（分钟）"
 
 #: src/views/website/ProxyBuilderModal.vue:191
 msgid "Content Replacement"
-msgstr ""
+msgstr "内容替换"
 
 #: src/views/website/ProxyBuilderModal.vue:196
 msgid "Target content"
-msgstr ""
+msgstr "目标内容"
 
 #: src/views/website/ProxyBuilderModal.vue:197
 msgid "Replacement content"
-msgstr ""
+msgstr "替换内容"
 
