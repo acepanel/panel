@@ -50,7 +50,7 @@ require (
 	github.com/spf13/cast v1.9.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
-	github.com/urfave/cli/v3 v3.3.8
+	github.com/urfave/cli/v3 v3.3.9
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0

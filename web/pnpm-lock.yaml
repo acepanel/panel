@@ -82,7 +82,7 @@ importers:
         version: 3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))
       pinia-plugin-persistedstate:
         specifier: ^4.3.0
-        version: 4.4.1(pinia@3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2)))
+        version: 4.5.0(pinia@3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2)))
       remove:
         specifier: ^0.1.5
         version: 0.1.5
@@ -2746,8 +2746,8 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  pinia-plugin-persistedstate@4.4.1:
-    resolution: {integrity: sha512-lmuMPpXla2zJKjxEq34e1E9P9jxkWEhcVwwioCCE0izG45kkTOvQfCzvwhW3i38cvnaWC7T1eRdkd15Re59ldw==}
+  pinia-plugin-persistedstate@4.5.0:
+    resolution: {integrity: sha512-QTkP1xJVyCdr2I2p3AKUZM84/e+IS+HktRxKGAIuDzkyaKKV48mQcYkJFVVDuvTxlI5j6X3oZObpqoVB8JnWpw==}
     peerDependencies:
       '@nuxt/kit': '>=3.0.0'
       '@pinia/nuxt': '>=0.10.0'
@@ -6408,7 +6408,7 @@ snapshots:
 
   pidtree@0.6.0: {}
 
-  pinia-plugin-persistedstate@4.4.1(pinia@3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))):
+  pinia-plugin-persistedstate@4.5.0(pinia@3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))):
     dependencies:
       deep-pick-omit: 1.2.1
       defu: 6.1.4
