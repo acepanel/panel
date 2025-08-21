@@ -10,12 +10,12 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-08-04 10:18\n"
+"PO-Revision-Date: 2025-08-21 22:36\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
-msgid "Rat Panel"
-msgstr "耗子面板"
+msgid "AcePanel"
+msgstr ""
 
 #: src/components/common/AppFooter.vue:15
 msgid "All Rights Reserved."
