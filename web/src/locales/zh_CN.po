@@ -2,20 +2,20 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Crowdin-Project: ratpanel\n"
-"X-Crowdin-Project-ID: 778640\n"
+"X-Crowdin-Project: acepanel\n"
+"X-Crowdin-Project-ID: 822366\n"
 "X-Crowdin-Language: zh-CN\n"
-"X-Crowdin-File: /[tnborg.panel] main/web/src/locales/frontend.pot\n"
-"X-Crowdin-File-ID: 1000\n"
-"Project-Id-Version: ratpanel\n"
+"X-Crowdin-File: frontend.pot\n"
+"X-Crowdin-File-ID: 1168\n"
+"Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-08-04 10:18\n"
+"PO-Revision-Date: 2025-08-22 09:01\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
-msgid "Rat Panel"
-msgstr "耗子面板"
+msgid "AcePanel"
+msgstr "AcePanel"
 
 #: src/components/common/AppFooter.vue:15
 msgid "All Rights Reserved."

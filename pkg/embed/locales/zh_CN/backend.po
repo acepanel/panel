@@ -6,14 +6,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_CN\n"
 "X-Generator: xgotext\n"
-"X-Crowdin-Project: ratpanel\n"
-"X-Crowdin-Project-ID: 778640\n"
+"X-Crowdin-Project: acepanel\n"
+"X-Crowdin-Project-ID: 822366\n"
 "X-Crowdin-Language: zh-CN\n"
-"X-Crowdin-File: /[tnborg.panel] main/pkg/embed/locales/backend.pot\n"
-"X-Crowdin-File-ID: 998\n"
-"Project-Id-Version: ratpanel\n"
+"X-Crowdin-File: backend.pot\n"
+"X-Crowdin-File-ID: 1166\n"
+"Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-08-04 10:18\n"
+"PO-Revision-Date: 2025-08-22 09:01\n"
 
 #: internal/data/website.go:279
 #: internal/data/website.go:652
@@ -35,6 +35,14 @@ msgstr "作者"
 #: internal/apps/php/app.go:131
 msgid "Accepted Connections"
 msgstr "已接受连接"
+
+#: internal/service/dashboard.go:58
+msgid "AcePanel"
+msgstr "AcePanel"
+
+#: internal/bootstrap/cli.go:39
+msgid "AcePanel CLI Tool"
+msgstr "AcePanel 命令行工具"
 
 #: internal/apps/mysql/app.go:124
 msgid "Active Connections"
@@ -461,8 +469,8 @@ msgid "Fix panel"
 msgstr "修复面板"
 
 #: internal/bootstrap/cli.go:34
-msgid "Forum：https://bbs.haozi.net"
-msgstr "论坛：https://bbs.haozi.net"
+msgid "Forum：https://tom.moe"
+msgstr "论坛：https://tom.moe"
 
 #: internal/apps/mysql/app.go:130
 msgid "Full Joins without Index"
@@ -863,14 +871,6 @@ msgstr "公网 IPv6：%s://[%s]:%s%s"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/service/dashboard.go:58
-msgid "Rat Panel"
-msgstr "耗子面板"
-
-#: internal/bootstrap/cli.go:39
-msgid "Rat Panel CLI Tool"
-msgstr "耗子面板命令行工具"
-
 #: internal/apps/nginx/app.go:144
 msgid "Reading"
 msgstr "正在读取请求"
@@ -1219,8 +1219,8 @@ msgid "Website name"
 msgstr "网站名称"
 
 #: internal/bootstrap/cli.go:33
-msgid "Website：https://panel.haozi.net"
-msgstr "网站：https://panel.haozi.net"
+msgid "Website：https://acepanel.net"
+msgstr "网站：https://acepanel.net"
 
 #: internal/service/cert.go:72
 msgid "West.cn"
