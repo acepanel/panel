@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-08-22 09:01\n"
+"PO-Revision-Date: 2025-08-22 17:29\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -70,11 +70,11 @@ msgstr "當前狀態無法保存"
 #: src/views/apps/supervisor/IndexView.vue:227
 #: src/views/apps/supervisor/IndexView.vue:292
 #: src/views/setting/IndexView.vue:44
-#: src/views/toolbox/SystemView.vue:51
-#: src/views/toolbox/SystemView.vue:57
-#: src/views/toolbox/SystemView.vue:66
-#: src/views/toolbox/SystemView.vue:72
-#: src/views/toolbox/SystemView.vue:81
+#: src/views/toolbox/SystemView.vue:50
+#: src/views/toolbox/SystemView.vue:56
+#: src/views/toolbox/SystemView.vue:65
+#: src/views/toolbox/SystemView.vue:71
+#: src/views/toolbox/SystemView.vue:80
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr "儲存成功"
@@ -180,7 +180,7 @@ msgstr "文件夾"
 #: src/components/common/PathSelector.vue:323
 #: src/views/setting/TokenModal.vue:268
 #: src/views/website/BulkCreate.vue:127
-#: src/views/website/IndexView.vue:571
+#: src/views/website/IndexView.vue:569
 msgid "Create"
 msgstr "創建"
 
@@ -197,8 +197,8 @@ msgstr "根目錄"
 #: src/views/apps/rsync/IndexView.vue:329
 #: src/views/apps/s3fs/IndexView.vue:184
 #: src/views/apps/supervisor/IndexView.vue:435
-#: src/views/backup/ListView.vue:244
-#: src/views/backup/ListView.vue:268
+#: src/views/backup/ListView.vue:259
+#: src/views/backup/ListView.vue:283
 #: src/views/cert/AccountView.vue:268
 #: src/views/cert/CertView.vue:535
 #: src/views/cert/CertView.vue:559
@@ -429,7 +429,7 @@ msgstr "提示"
 
 #: src/layout/header/components/UserAvatar.vue:29
 #: src/views/dashboard/UpdateView.vue:26
-#: src/views/monitor/IndexView.vue:474
+#: src/views/monitor/IndexView.vue:460
 msgid "Confirm"
 msgstr "確認"
 
@@ -456,23 +456,23 @@ msgid "Unknown"
 msgstr "未知"
 
 #: src/layout/sidebar/components/SideSetting.vue:66
-#: src/layout/sidebar/components/SideSetting.vue:71
+#: src/layout/sidebar/components/SideSetting.vue:72
 msgid "Menu Settings"
 msgstr "選單設定"
 
-#: src/layout/sidebar/components/SideSetting.vue:83
+#: src/layout/sidebar/components/SideSetting.vue:84
 msgid "Settings are saved in the browser and will be reset after clearing the browser cache"
 msgstr "設置保存在瀏覽器中，清除瀏覽器緩存後將重置"
 
-#: src/layout/sidebar/components/SideSetting.vue:88
+#: src/layout/sidebar/components/SideSetting.vue:89
 msgid "Custom Logo"
 msgstr "自定義 Logo"
 
-#: src/layout/sidebar/components/SideSetting.vue:91
+#: src/layout/sidebar/components/SideSetting.vue:92
 msgid "Please enter the complete URL"
 msgstr "請輸入完整的 URL"
 
-#: src/layout/sidebar/components/SideSetting.vue:94
+#: src/layout/sidebar/components/SideSetting.vue:95
 msgid "Hide Menu"
 msgstr "隱藏菜單"
 
@@ -533,10 +533,10 @@ msgid "Update"
 msgstr "更新"
 
 #: src/locales/menu.ts:13
-#: src/views/backup/ListView.vue:264
+#: src/views/backup/ListView.vue:279
 #: src/views/dashboard/IndexView.vue:425
-#: src/views/database/IndexView.vue:45
-#: src/views/website/IndexView.vue:492
+#: src/views/database/IndexView.vue:27
+#: src/views/website/IndexView.vue:490
 msgid "Database"
 msgstr "數據庫"
 
@@ -553,7 +553,7 @@ msgid "Monitoring"
 msgstr "監控"
 
 #: src/locales/menu.ts:17
-#: src/views/firewall/IndexView.vue:28
+#: src/views/firewall/IndexView.vue:23
 msgid "Settings"
 msgstr "設置"
 
@@ -570,18 +570,10 @@ msgid "Toolbox"
 msgstr "工具箱"
 
 #: src/locales/menu.ts:21
-msgid "System"
-msgstr "系統"
-
-#: src/locales/menu.ts:22
-msgid "Benchmark"
-msgstr "跑分"
-
-#: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/backup/IndexView.vue:37
-#: src/views/backup/ListView.vue:220
-#: src/views/backup/ListView.vue:257
+#: src/views/backup/ListView.vue:235
+#: src/views/backup/ListView.vue:272
 #: src/views/cert/CertView.vue:466
 #: src/views/cert/CertView.vue:549
 #: src/views/cert/CreateCertModal.vue:90
@@ -590,27 +582,27 @@ msgstr "跑分"
 msgid "Website"
 msgstr "網站"
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:22
 msgid "Website Edit"
 msgstr "網站編輯"
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:24
 msgid "Fail2ban Manager"
 msgstr "Fail2ban 管理器"
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:25
 msgid "S3fs Manager"
 msgstr "S3fs 管理器"
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:26
 msgid "Supervisor Manager"
 msgstr "Supervisor 管理器"
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:27
 msgid "Rsync Manager"
 msgstr "Rsync 管理器"
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:28
 msgid "Frp Manager"
 msgstr "Frp 管理器"
 
@@ -752,11 +744,12 @@ msgstr "請選擇一個渠道"
 #: src/views/apps/supervisor/IndexView.vue:313
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
-#: src/views/setting/IndexView.vue:65
-#: src/views/toolbox/SystemView.vue:97
-#: src/views/toolbox/SystemView.vue:101
-#: src/views/toolbox/SystemView.vue:105
-#: src/views/toolbox/SystemView.vue:109
+#: src/views/setting/IndexView.vue:82
+#: src/views/toolbox/SystemView.vue:108
+#: src/views/toolbox/SystemView.vue:132
+#: src/views/toolbox/SystemView.vue:158
+#: src/views/toolbox/SystemView.vue:184
+#: src/views/toolbox/SystemView.vue:199
 #: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr "儲存"
@@ -1103,8 +1096,8 @@ msgid "Clear Slow Log"
 msgstr "清除慢查詢日誌"
 
 #: src/views/apps/mysql/IndexView.vue:104
-#: src/views/toolbox/SystemView.vue:205
-#: src/views/toolbox/SystemView.vue:207
+#: src/views/toolbox/SystemView.vue:192
+#: src/views/toolbox/SystemView.vue:194
 msgid "Root Password"
 msgstr "Root 密碼"
 
@@ -1284,9 +1277,9 @@ msgstr "運行日誌"
 #: src/views/apps/pureftpd/IndexView.vue:217
 #: src/views/database/CreateDatabaseModal.vue:79
 #: src/views/database/CreateUserModal.vue:55
-#: src/views/database/IndexView.vue:36
+#: src/views/database/IndexView.vue:44
 #: src/views/setting/CreateModal.vue:32
-#: src/views/setting/IndexView.vue:69
+#: src/views/setting/IndexView.vue:73
 msgid "Create User"
 msgstr "建立使用者"
 
@@ -1330,7 +1323,7 @@ msgstr "建議使用生成器生成隨機密碼"
 #: src/views/apps/rsync/IndexView.vue:342
 #: src/views/container/ComposeView.vue:38
 #: src/views/website/IndexView.vue:44
-#: src/views/website/IndexView.vue:549
+#: src/views/website/IndexView.vue:547
 msgid "Directory"
 msgstr "目錄"
 
@@ -1345,8 +1338,8 @@ msgstr "這將修改 Redis 主配置文件。如果您不了解每個參數的�
 #: src/views/apps/rsync/IndexView.vue:54
 #: src/views/apps/rsync/IndexView.vue:296
 #: src/views/apps/rsync/IndexView.vue:350
-#: src/views/database/IndexView.vue:48
-#: src/views/setting/IndexView.vue:79
+#: src/views/database/IndexView.vue:28
+#: src/views/setting/IndexView.vue:66
 #: src/views/task/SystemView.vue:37
 msgid "User"
 msgstr "用戶"
@@ -1361,7 +1354,7 @@ msgstr "用戶"
 #: src/views/database/UserList.vue:81
 #: src/views/ssh/CreateModal.vue:62
 #: src/views/ssh/UpdateModal.vue:68
-#: src/views/toolbox/SystemView.vue:156
+#: src/views/toolbox/SystemView.vue:137
 msgid "Host"
 msgstr "主機"
 
@@ -1571,49 +1564,49 @@ msgstr "正在恢復……"
 msgid "Restored successfully"
 msgstr "恢復成功"
 
-#: src/views/backup/ListView.vue:182
-#: src/views/backup/ListView.vue:212
+#: src/views/backup/ListView.vue:197
+#: src/views/backup/ListView.vue:227
 msgid "Create Backup"
 msgstr "創建備份"
 
-#: src/views/backup/ListView.vue:185
+#: src/views/backup/ListView.vue:200
 #: src/views/backup/UploadModal.vue:39
 msgid "Upload Backup"
 msgstr "上傳備份"
 
-#: src/views/backup/ListView.vue:224
-#: src/views/backup/ListView.vue:261
+#: src/views/backup/ListView.vue:239
+#: src/views/backup/ListView.vue:276
 msgid "Select website"
 msgstr "選擇網站"
 
-#: src/views/backup/ListView.vue:227
+#: src/views/backup/ListView.vue:242
 #: src/views/database/CreateDatabaseModal.vue:71
 #: src/views/database/DatabaseList.vue:35
 #: src/views/task/CreateModal.vue:154
 #: src/views/task/CreateModal.vue:156
-#: src/views/website/IndexView.vue:513
-#: src/views/website/IndexView.vue:518
+#: src/views/website/IndexView.vue:511
+#: src/views/website/IndexView.vue:516
 msgid "Database Name"
 msgstr "數據庫名稱"
 
-#: src/views/backup/ListView.vue:232
+#: src/views/backup/ListView.vue:247
 #: src/views/database/CreateDatabaseModal.vue:76
 #: src/views/database/CreateUserModal.vue:113
 #: src/views/database/UpdateUserModal.vue:67
 msgid "Enter database name"
 msgstr "輸入數據庫名稱"
 
-#: src/views/backup/ListView.vue:235
+#: src/views/backup/ListView.vue:250
 #: src/views/task/CreateModal.vue:158
 #: src/views/task/CreateModal.vue:161
 msgid "Save Directory"
 msgstr "保存目錄"
 
-#: src/views/backup/ListView.vue:240
+#: src/views/backup/ListView.vue:255
 msgid "Leave empty to use default path"
 msgstr "留空以使用默認路徑"
 
-#: src/views/backup/ListView.vue:249
+#: src/views/backup/ListView.vue:264
 msgid "Restore Backup"
 msgstr "恢復備份"
 
@@ -1653,7 +1646,6 @@ msgstr "密鑰類型"
 #: src/views/database/UserList.vue:169
 #: src/views/file/PermissionModal.vue:123
 #: src/views/setting/TokenModal.vue:69
-#: src/views/toolbox/SystemView.vue:118
 msgid "Modify"
 msgstr "修改"
 
@@ -1731,7 +1723,7 @@ msgstr "輸入 HMAC"
 #: src/views/cert/CreateCertModal.vue:74
 #: src/views/cert/ObtainModal.vue:57
 #: src/views/website/EditView.vue:232
-#: src/views/website/IndexView.vue:457
+#: src/views/website/IndexView.vue:455
 msgid "Domain"
 msgstr "域名"
 
@@ -1890,12 +1882,12 @@ msgid "View Certificate"
 msgstr "查看證書"
 
 #: src/views/cert/CreateAccountModal.vue:64
-#: src/views/cert/IndexView.vue:106
+#: src/views/cert/IndexView.vue:113
 msgid "Create Account"
 msgstr "創建賬戶"
 
 #: src/views/cert/CreateCertModal.vue:59
-#: src/views/cert/IndexView.vue:102
+#: src/views/cert/IndexView.vue:109
 msgid "Create Certificate"
 msgstr "建立憑證"
 
@@ -1904,7 +1896,7 @@ msgid "You can automatically issue and deploy certificates by selecting either W
 msgstr "您可以通過選擇網站或 DNS 來自動頒發和部署憑證，或者手動輸入域名並設置 DNS 解析以頒發憑證"
 
 #: src/views/cert/CreateDnsModal.vue:44
-#: src/views/cert/IndexView.vue:110
+#: src/views/cert/IndexView.vue:117
 msgid "Create DNS"
 msgstr "創建 DNS"
 
@@ -2018,22 +2010,22 @@ msgstr "修改 DNS"
 msgid "Enter note name"
 msgstr "輸入備註名稱"
 
-#: src/views/cert/IndexView.vue:98
-#: src/views/cert/UploadCertModal.vue:30
-msgid "Upload Certificate"
-msgstr "上傳證書"
-
-#: src/views/cert/IndexView.vue:115
+#: src/views/cert/IndexView.vue:96
 msgid "Certificate List"
 msgstr "證書列表"
 
-#: src/views/cert/IndexView.vue:118
+#: src/views/cert/IndexView.vue:97
 msgid "Account List"
 msgstr "賬戶列表"
 
-#: src/views/cert/IndexView.vue:121
+#: src/views/cert/IndexView.vue:98
 msgid "DNS List"
 msgstr "DNS 列表"
+
+#: src/views/cert/IndexView.vue:105
+#: src/views/cert/UploadCertModal.vue:30
+msgid "Upload Certificate"
+msgstr "上傳證書"
 
 #: src/views/cert/ObtainModal.vue:18
 msgid "Automatic"
@@ -2145,7 +2137,7 @@ msgstr "編排名稱"
 
 #: src/views/container/ComposeView.vue:331
 #: src/views/container/ComposeView.vue:361
-#: src/views/container/IndexView.vue:24
+#: src/views/container/IndexView.vue:23
 msgid "Compose"
 msgstr "編排"
 
@@ -2290,7 +2282,7 @@ msgstr "進入點"
 #: src/views/monitor/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:238
 #: src/views/task/SystemView.vue:78
-#: src/views/toolbox/BenchmarkView.vue:188
+#: src/views/toolbox/BenchmarkView.vue:187
 msgid "Memory"
 msgstr "記憶體"
 
@@ -2490,19 +2482,19 @@ msgstr "身份驗證"
 msgid "Enter password"
 msgstr "輸入密碼"
 
-#: src/views/container/IndexView.vue:21
+#: src/views/container/IndexView.vue:22
 msgid "Containers"
 msgstr "容器"
 
-#: src/views/container/IndexView.vue:27
+#: src/views/container/IndexView.vue:24
 msgid "Images"
 msgstr "映像"
 
-#: src/views/container/IndexView.vue:30
+#: src/views/container/IndexView.vue:25
 msgid "Networks"
 msgstr "網絡"
 
-#: src/views/container/IndexView.vue:33
+#: src/views/container/IndexView.vue:26
 msgid "Volumes"
 msgstr "卷"
 
@@ -2621,7 +2613,7 @@ msgstr "運行流暢"
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:798
 #: src/views/dashboard/IndexView.vue:818
-#: src/views/toolbox/BenchmarkView.vue:219
+#: src/views/toolbox/BenchmarkView.vue:218
 msgid "Disk"
 msgstr "磁碟"
 
@@ -2715,7 +2707,7 @@ msgid "Current version is the latest"
 msgstr "當前版本是最新版本"
 
 #: src/views/dashboard/IndexView.vue:434
-#: src/views/task/IndexView.vue:29
+#: src/views/task/IndexView.vue:24
 msgid "Scheduled Tasks"
 msgstr "計劃任務"
 
@@ -2794,7 +2786,7 @@ msgid "Commit Limit"
 msgstr "提交限制"
 
 #: src/views/dashboard/IndexView.vue:581
-#: src/views/toolbox/SystemView.vue:149
+#: src/views/toolbox/SystemView.vue:125
 msgid "SWAP Size"
 msgstr "SWAP 大小"
 
@@ -2954,14 +2946,14 @@ msgid "Specific"
 msgstr "特定"
 
 #: src/views/database/CreateDatabaseModal.vue:55
-#: src/views/database/IndexView.vue:32
+#: src/views/database/IndexView.vue:40
 msgid "Create Database"
 msgstr "創建數據庫"
 
 #: src/views/database/CreateDatabaseModal.vue:63
 #: src/views/database/CreateUserModal.vue:69
 #: src/views/database/DatabaseList.vue:42
-#: src/views/database/IndexView.vue:51
+#: src/views/database/IndexView.vue:29
 #: src/views/database/UserList.vue:91
 msgid "Server"
 msgstr "伺服器"
@@ -2995,7 +2987,7 @@ msgid "Enter supported host address"
 msgstr "輸入支持的主機地址"
 
 #: src/views/database/CreateServerModal.vue:47
-#: src/views/database/IndexView.vue:40
+#: src/views/database/IndexView.vue:52
 msgid "Add Server"
 msgstr "添加伺服器"
 
@@ -3020,7 +3012,7 @@ msgstr "輸入數據庫伺服器主機"
 #: src/views/setting/SettingBase.vue:49
 #: src/views/ssh/CreateModal.vue:68
 #: src/views/ssh/UpdateModal.vue:74
-#: src/views/website/IndexView.vue:468
+#: src/views/website/IndexView.vue:466
 msgid "Port"
 msgstr "端口"
 
@@ -3102,7 +3094,7 @@ msgid "Invalid"
 msgstr "無效"
 
 #: src/views/database/ServerList.vue:147
-#: src/views/toolbox/SystemView.vue:87
+#: src/views/toolbox/SystemView.vue:86
 msgid "Synchronized successfully"
 msgstr "同步成功"
 
@@ -3514,7 +3506,7 @@ msgstr "請選擇要刪除的規則"
 #: src/views/firewall/ForwardView.vue:172
 #: src/views/firewall/IpRuleView.vue:214
 #: src/views/firewall/RuleView.vue:251
-#: src/views/website/IndexView.vue:389
+#: src/views/website/IndexView.vue:397
 msgid "Batch Delete"
 msgstr "批量刪除"
 
@@ -3524,15 +3516,15 @@ msgstr "批量刪除"
 msgid "Are you sure you want to batch delete?"
 msgstr "您確定要批量刪除嗎？"
 
-#: src/views/firewall/IndexView.vue:19
+#: src/views/firewall/IndexView.vue:20
 msgid "Port Rules"
 msgstr "連接埠規則"
 
-#: src/views/firewall/IndexView.vue:22
+#: src/views/firewall/IndexView.vue:21
 msgid "IP Rules"
 msgstr "IP 規則"
 
-#: src/views/firewall/IndexView.vue:25
+#: src/views/firewall/IndexView.vue:22
 msgid "Port Forwarding"
 msgstr "連接埠轉發"
 
@@ -3652,30 +3644,30 @@ msgstr "每秒入流量"
 msgid "Operation successful"
 msgstr "操作成功"
 
-#: src/views/monitor/IndexView.vue:451
-msgid "Clear Monitoring Records"
-msgstr "清除監控記錄"
-
-#: src/views/monitor/IndexView.vue:454
-#: src/views/website/EditView.vue:224
-msgid "Are you sure you want to clear?"
-msgstr "確定要清除嗎？"
-
-#: src/views/monitor/IndexView.vue:465
+#: src/views/monitor/IndexView.vue:450
 msgid "Enable Monitoring"
 msgstr "啟用監控"
 
-#: src/views/monitor/IndexView.vue:468
+#: src/views/monitor/IndexView.vue:454
 msgid "Save Days"
 msgstr "保存天數"
 
-#: src/views/monitor/IndexView.vue:470
+#: src/views/monitor/IndexView.vue:456
 msgid "days"
 msgstr "天"
 
-#: src/views/monitor/IndexView.vue:476
+#: src/views/monitor/IndexView.vue:465
 msgid "Time Selection"
 msgstr "時間選擇"
+
+#: src/views/monitor/IndexView.vue:475
+msgid "Clear Monitoring Records"
+msgstr "清除監控記錄"
+
+#: src/views/monitor/IndexView.vue:478
+#: src/views/website/EditView.vue:224
+msgid "Are you sure you want to clear?"
+msgstr "確定要清除嗎？"
 
 #: src/views/setting/CreateModal.vue:44
 msgid "Enter user name"
@@ -3694,11 +3686,11 @@ msgstr "輸入用戶郵箱"
 msgid "Panel is restarting, page will refresh in 3 seconds"
 msgstr "面板正在重啟，頁面將在 3 秒後刷新"
 
-#: src/views/setting/IndexView.vue:73
+#: src/views/setting/IndexView.vue:64
 msgid "Basic"
 msgstr "基本"
 
-#: src/views/setting/IndexView.vue:76
+#: src/views/setting/IndexView.vue:65
 msgid "Safe"
 msgstr "安全"
 
@@ -3885,7 +3877,7 @@ msgid "Enter the code"
 msgstr "輸入代碼"
 
 #: src/views/ssh/CreateModal.vue:50
-#: src/views/ssh/IndexView.vue:231
+#: src/views/ssh/IndexView.vue:247
 msgid "Create Host"
 msgstr "創建主機"
 
@@ -3999,16 +3991,16 @@ msgid "Edit Task"
 msgstr "編輯任務"
 
 #: src/views/task/IndexView.vue:25
-msgid "Create Task"
-msgstr "創建任務"
-
-#: src/views/task/IndexView.vue:32
 msgid "System Processes"
 msgstr "系統進程"
 
-#: src/views/task/IndexView.vue:35
+#: src/views/task/IndexView.vue:26
 msgid "Panel Tasks"
 msgstr "面板任務"
+
+#: src/views/task/IndexView.vue:33
+msgid "Create Task"
+msgstr "創建任務"
 
 #: src/views/task/SystemView.vue:25
 msgid "Parent PID"
@@ -4072,7 +4064,7 @@ msgid "If logs cannot be loaded, please disable ad blockers!"
 msgstr "如果無法加載日誌，請禁用廣告攔截器！"
 
 #: src/views/toolbox/BenchmarkView.vue:12
-#: src/views/toolbox/BenchmarkView.vue:123
+#: src/views/toolbox/BenchmarkView.vue:122
 msgid "CPU"
 msgstr "CPU"
 
@@ -4084,129 +4076,137 @@ msgstr "CPU"
 #: src/views/toolbox/BenchmarkView.vue:55
 #: src/views/toolbox/BenchmarkView.vue:58
 #: src/views/toolbox/BenchmarkView.vue:59
-#: src/views/toolbox/BenchmarkView.vue:114
-#: src/views/toolbox/BenchmarkView.vue:179
-#: src/views/toolbox/BenchmarkView.vue:210
+#: src/views/toolbox/BenchmarkView.vue:113
+#: src/views/toolbox/BenchmarkView.vue:178
+#: src/views/toolbox/BenchmarkView.vue:209
 msgid "Pending benchmark"
 msgstr "待跑分"
 
-#: src/views/toolbox/BenchmarkView.vue:90
+#: src/views/toolbox/BenchmarkView.vue:89
 msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
 msgstr "跑分結果僅供參考，由於系統資源調度、快取和其他因素，可能與實際性能有所不同！"
 
-#: src/views/toolbox/BenchmarkView.vue:97
+#: src/views/toolbox/BenchmarkView.vue:96
 msgid "Benchmarking in progress, it may take some time..."
 msgstr "跑分正在進行中，可能需要一些時間……"
 
-#: src/views/toolbox/BenchmarkView.vue:100
+#: src/views/toolbox/BenchmarkView.vue:99
 msgid "Current project: %{ current }"
 msgstr "當前項目：%{ current }"
 
-#: src/views/toolbox/BenchmarkView.vue:128
+#: src/views/toolbox/BenchmarkView.vue:127
 msgid "Image Processing"
 msgstr "圖像處理"
 
-#: src/views/toolbox/BenchmarkView.vue:134
+#: src/views/toolbox/BenchmarkView.vue:133
 msgid "Machine Learning"
 msgstr "機器學習"
 
-#: src/views/toolbox/BenchmarkView.vue:140
+#: src/views/toolbox/BenchmarkView.vue:139
 msgid "Program Compilation"
 msgstr "程序編譯"
 
-#: src/views/toolbox/BenchmarkView.vue:146
+#: src/views/toolbox/BenchmarkView.vue:145
 msgid "AES Encryption"
 msgstr "AES 加密"
 
-#: src/views/toolbox/BenchmarkView.vue:152
+#: src/views/toolbox/BenchmarkView.vue:151
 msgid "Compression/Decompression"
 msgstr "壓縮/解壓縮"
 
-#: src/views/toolbox/BenchmarkView.vue:158
+#: src/views/toolbox/BenchmarkView.vue:157
 msgid "Physics Simulation"
 msgstr "物理模擬"
 
-#: src/views/toolbox/BenchmarkView.vue:164
+#: src/views/toolbox/BenchmarkView.vue:163
 msgid "JSON Parsing"
 msgstr "JSON 解析"
 
-#: src/views/toolbox/BenchmarkView.vue:193
+#: src/views/toolbox/BenchmarkView.vue:192
 msgid "Memory Bandwidth"
 msgstr "記憶體頻寬"
 
-#: src/views/toolbox/BenchmarkView.vue:197
+#: src/views/toolbox/BenchmarkView.vue:196
 msgid "Memory Latency"
 msgstr "記憶體延遲"
 
-#: src/views/toolbox/BenchmarkView.vue:224
+#: src/views/toolbox/BenchmarkView.vue:223
 msgid "4KB Read"
 msgstr "4KB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:230
+#: src/views/toolbox/BenchmarkView.vue:229
 msgid "4KB Write"
 msgstr "4KB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:236
+#: src/views/toolbox/BenchmarkView.vue:235
 msgid "64KB Read"
 msgstr "64KB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:242
+#: src/views/toolbox/BenchmarkView.vue:241
 msgid "64KB Write"
 msgstr "64KB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:248
+#: src/views/toolbox/BenchmarkView.vue:247
 msgid "1MB Read"
 msgstr "1MB 讀取"
 
-#: src/views/toolbox/BenchmarkView.vue:254
+#: src/views/toolbox/BenchmarkView.vue:253
 msgid "1MB Write"
 msgstr "1MB 寫入"
 
-#: src/views/toolbox/BenchmarkView.vue:273
+#: src/views/toolbox/BenchmarkView.vue:272
 msgid "Benchmarking..."
 msgstr "跑分中……"
 
-#: src/views/toolbox/BenchmarkView.vue:273
+#: src/views/toolbox/BenchmarkView.vue:272
 msgid "Start Benchmark"
 msgstr "開始跑分"
 
-#: src/views/toolbox/SystemView.vue:125
+#: src/views/toolbox/IndexView.vue:18
+msgid "System"
+msgstr "系統"
+
+#: src/views/toolbox/IndexView.vue:19
+msgid "Benchmark"
+msgstr "跑分"
+
+#: src/views/toolbox/SystemView.vue:96
 msgid "DNS modifications will revert to default after system restart."
 msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
 
-#: src/views/toolbox/SystemView.vue:141
+#: src/views/toolbox/SystemView.vue:117
 msgid "Total %{ total }, used %{ used }, free %{ free }"
 msgstr "總計 %{ total }，已使用 %{ used }，可用 %{ free }"
 
-#: src/views/toolbox/SystemView.vue:159
+#: src/views/toolbox/SystemView.vue:139
 msgid "Hostname"
 msgstr "主機名"
 
-#: src/views/toolbox/SystemView.vue:177
+#: src/views/toolbox/SystemView.vue:142
+msgid "Hosts"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:161
 msgid "Time"
 msgstr "時間"
 
-#: src/views/toolbox/SystemView.vue:181
+#: src/views/toolbox/SystemView.vue:165
 msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
 msgstr "手動更改時間後，系統自動時間同步可能仍會覆蓋設置。"
 
-#: src/views/toolbox/SystemView.vue:187
+#: src/views/toolbox/SystemView.vue:171
 msgid "Select Timezone"
 msgstr "選擇時區"
 
-#: src/views/toolbox/SystemView.vue:190
+#: src/views/toolbox/SystemView.vue:174
 msgid "Please select a timezone"
 msgstr "請選擇時區"
 
-#: src/views/toolbox/SystemView.vue:194
+#: src/views/toolbox/SystemView.vue:178
 msgid "Modify Time"
 msgstr "修改時間"
 
-#: src/views/toolbox/SystemView.vue:197
-msgid "NTP Time Synchronization"
-msgstr "NTP 時間同步"
-
-#: src/views/toolbox/SystemView.vue:199
+#: src/views/toolbox/SystemView.vue:187
 msgid "Synchronize Time"
 msgstr "同步時間"
 
@@ -4220,7 +4220,7 @@ msgid "Website %{ name } created successfully"
 msgstr "網站 %{ name } 創建成功"
 
 #: src/views/website/BulkCreate.vue:77
-#: src/views/website/IndexView.vue:400
+#: src/views/website/IndexView.vue:387
 msgid "Bulk Create Website"
 msgstr "批量創建網站"
 
@@ -4335,12 +4335,12 @@ msgid "Default Document"
 msgstr "預設文件"
 
 #: src/views/website/EditView.vue:277
-#: src/views/website/IndexView.vue:480
+#: src/views/website/IndexView.vue:478
 msgid "PHP Version"
 msgstr "PHP 版本"
 
 #: src/views/website/EditView.vue:282
-#: src/views/website/IndexView.vue:484
+#: src/views/website/IndexView.vue:482
 msgid "Select PHP Version"
 msgstr "選擇 PHP 版本"
 
@@ -4407,7 +4407,7 @@ msgid "Error Log"
 msgstr "錯誤日誌"
 
 #: src/views/website/IndexView.vue:24
-#: src/views/website/IndexView.vue:443
+#: src/views/website/IndexView.vue:441
 msgid "Website Name"
 msgstr "網站名稱"
 
@@ -4428,8 +4428,8 @@ msgid "Expires in %{ days } days"
 msgstr "%{ days } 天後過期"
 
 #: src/views/website/IndexView.vue:109
-#: src/views/website/IndexView.vue:561
-#: src/views/website/IndexView.vue:566
+#: src/views/website/IndexView.vue:559
+#: src/views/website/IndexView.vue:564
 msgid "Remark"
 msgstr "備註"
 
@@ -4450,48 +4450,48 @@ msgid "Please select the websites to delete"
 msgstr "請選擇要刪除的網站"
 
 #: src/views/website/IndexView.vue:383
-#: src/views/website/IndexView.vue:577
-msgid "Modify Default Page"
-msgstr "修改預設頁面"
-
-#: src/views/website/IndexView.vue:393
-msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
-msgstr "這將刪除網站目錄，但不會刪除同名的數據庫。您確定要刪除所選網站嗎？"
-
-#: src/views/website/IndexView.vue:404
-#: src/views/website/IndexView.vue:434
+#: src/views/website/IndexView.vue:432
 msgid "Create Website"
 msgstr "創建網站"
 
-#: src/views/website/IndexView.vue:449
+#: src/views/website/IndexView.vue:391
+#: src/views/website/IndexView.vue:575
+msgid "Modify Default Page"
+msgstr "修改預設頁面"
+
+#: src/views/website/IndexView.vue:401
+msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
+msgstr "這將刪除網站目錄，但不會刪除同名的數據庫。您確定要刪除所選網站嗎？"
+
+#: src/views/website/IndexView.vue:447
 msgid "Recommended to use English for the website name, it cannot be modified after setting"
 msgstr "建議使用英文作為網站名稱，設置後無法修改"
 
-#: src/views/website/IndexView.vue:496
+#: src/views/website/IndexView.vue:494
 msgid "Select Database"
 msgstr "選擇數據庫"
 
-#: src/views/website/IndexView.vue:524
-#: src/views/website/IndexView.vue:529
+#: src/views/website/IndexView.vue:522
+#: src/views/website/IndexView.vue:527
 msgid "Database User"
 msgstr "數據庫用戶"
 
-#: src/views/website/IndexView.vue:538
-#: src/views/website/IndexView.vue:544
+#: src/views/website/IndexView.vue:536
+#: src/views/website/IndexView.vue:542
 msgid "Database Password"
 msgstr "數據庫密碼"
 
-#: src/views/website/IndexView.vue:555
+#: src/views/website/IndexView.vue:553
 msgid "Website root directory (if left empty, defaults to website directory/website name)"
 msgstr "網站根目錄（如果留空，默認為網站目錄/網站名稱）"
 
-#: src/views/website/IndexView.vue:585
-#: src/views/website/IndexView.vue:585
+#: src/views/website/IndexView.vue:583
+#: src/views/website/IndexView.vue:583
 msgid "Default Page"
 msgstr "默認頁面"
 
-#: src/views/website/IndexView.vue:599
-#: src/views/website/IndexView.vue:599
+#: src/views/website/IndexView.vue:597
+#: src/views/website/IndexView.vue:597
 msgid "Stop Page"
 msgstr "停止頁面"
 
