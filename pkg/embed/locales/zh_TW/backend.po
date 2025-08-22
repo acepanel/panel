@@ -6,12 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: zh_TW\n"
 "X-Generator: xgotext\n"
-"X-Crowdin-Project: acepanel\n"
-"X-Crowdin-Project-ID: 822366\n"
+"X-Crowdin-Project: ratpanel\n"
+"X-Crowdin-Project-ID: 778640\n"
 "X-Crowdin-Language: zh-TW\n"
-"X-Crowdin-File: backend.pot\n"
-"X-Crowdin-File-ID: 1166\n"
-"Project-Id-Version: acepanel\n"
+"X-Crowdin-File: /[tnborg.panel] main/pkg/embed/locales/backend.pot\n"
+"X-Crowdin-File-ID: 998\n"
+"Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "PO-Revision-Date: 2025-08-22 09:01\n"
 
@@ -38,11 +38,11 @@ msgstr "已接受連接"
 
 #: internal/service/dashboard.go:58
 msgid "AcePanel"
-msgstr "AcePanel"
+msgstr ""
 
 #: internal/bootstrap/cli.go:39
 msgid "AcePanel CLI Tool"
-msgstr "AcePanel 命令列工具"
+msgstr ""
 
 #: internal/apps/mysql/app.go:124
 msgid "Active Connections"
