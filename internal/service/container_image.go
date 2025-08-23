@@ -26,7 +26,7 @@ func (s *ContainerImageService) List(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	paged, total := Paginate(r, images)
+	paged, total := Paginate(c, images)
 
 	return Success(c, chix.M{
 		"total": total,

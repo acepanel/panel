@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/gofiber/fiber/v3"
+	"context"
 	"net/http"
 	"path/filepath"
 
-	"github.com/libtnb/chix"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/tnborg/panel/internal/app"
 	"github.com/tnborg/panel/internal/biz"
@@ -44,7 +44,7 @@ func (s *WebsiteService) GetDefaultConfig(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	return Success(c, chix.M{
+	return Success(c, fiber.Map{
 		"index": index,
 		"stop":  stop,
 	})
@@ -88,7 +88,7 @@ func (s *WebsiteService) List(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	return Success(c, chix.M{
+	return Success(c, fiber.Map{
 		"total": total,
 		"items": websites,
 	})
@@ -210,7 +210,7 @@ func (s *WebsiteService) ObtainCert(c fiber.Ctx) error {
 		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
-	if err = s.websiteRepo.ObtainCert(r.Context(), req.ID); err != nil {
+	if err = s.websiteRepo.ObtainCert(context.Background(), req.ID); err != nil {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 

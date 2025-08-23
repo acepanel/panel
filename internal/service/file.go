@@ -131,12 +131,8 @@ func (s *FileService) Delete(c fiber.Ctx) error {
 }
 
 func (s *FileService) Upload(c fiber.Ctx) error {
-	if err := r.ParseMultipartForm(2 << 30); err != nil {
-		return Error(c, http.StatusUnprocessableEntity, "%v", err)
-	}
-
-	path := r.FormValue("path")
-	_, handler, err := r.FormFile("file")
+	path := c.FormValue("path")
+	file, err := c.FormFile("file")
 	if err != nil {
 		return Error(c, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
 	}
@@ -150,7 +146,7 @@ func (s *FileService) Upload(c fiber.Ctx) error {
 		}
 	}
 
-	src, _ := handler.Open()
+	src, _ := file.Open()
 	out, err := stdos.OpenFile(path, stdos.O_CREATE|stdos.O_RDWR|stdos.O_TRUNC, 0644)
 	if err != nil {
 		return Error(c, http.StatusInternalServerError, s.t.Get("open file error: %v", err))
@@ -166,11 +162,8 @@ func (s *FileService) Upload(c fiber.Ctx) error {
 }
 
 func (s *FileService) Exist(c fiber.Ctx) error {
-	binder := chix.NewBind(r)
-	defer binder.Release()
-
 	var paths []string
-	if err := binder.Body(&paths); err != nil {
+	if err := c.Bind().Body(&paths); err != nil {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
@@ -183,11 +176,9 @@ func (s *FileService) Exist(c fiber.Ctx) error {
 }
 
 func (s *FileService) Move(c fiber.Ctx) error {
-	binder := chix.NewBind(r)
-	defer binder.Release()
 
 	var req []request.FileControl
-	if err := binder.Body(&req); err != nil {
+	if err := c.Bind().Body(&req); err != nil {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
@@ -209,11 +200,9 @@ func (s *FileService) Move(c fiber.Ctx) error {
 }
 
 func (s *FileService) Copy(c fiber.Ctx) error {
-	binder := chix.NewBind(r)
-	defer binder.Release()
 
 	var req []request.FileControl
-	if err := binder.Body(&req); err != nil {
+	if err := c.Bind().Body(&req); err != nil {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
@@ -248,9 +237,7 @@ func (s *FileService) Download(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, s.t.Get("can't download a directory"))
 	}
 
-	render := chix.NewRender(w, r)
-	defer render.Release()
-	render.Download(req.Path, info.Name())
+	return c.Download(req.Path, info.Name())
 }
 
 func (s *FileService) RemoteDownload(c fiber.Ctx) error {
@@ -363,7 +350,7 @@ func (s *FileService) Search(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	paged, total := Paginate(r, s.formatInfo(results))
+	paged, total := Paginate(c, s.formatInfo(results))
 
 	return Success(c, chix.M{
 		"total": total,
@@ -403,7 +390,7 @@ func (s *FileService) List(c fiber.Ctx) error {
 		})
 	}
 
-	paged, total := Paginate(r, s.formatDir(req.Path, list))
+	paged, total := Paginate(c, s.formatDir(req.Path, list))
 
 	return Success(c, chix.M{
 		"total": total,

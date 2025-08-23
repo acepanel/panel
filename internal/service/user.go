@@ -8,9 +8,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"image/png"
-	"net"
 	"net/http"
-	"strings"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/knadh/koanf/v2"
@@ -93,10 +91,7 @@ func (s *UserService) Login(c fiber.Ctx) error {
 
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
-	ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
-	if err != nil {
-		return Error(c, http.StatusInternalServerError, "%v", err)
-	}
+	ip := c.IP()
 	if req.SafeLogin && !s.conf.Bool("http.tls") {
 		sess.Put("safe_login", true)
 		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))
@@ -144,19 +139,17 @@ func (s *UserService) IsTwoFA(c fiber.Ctx) error {
 }
 
 func (s *UserService) Info(c fiber.Ctx) error {
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	userID := cast.ToUint(c.Locals("user_id"))
 	if userID == 0 {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 
-	return Success(c, chix.M{
+	return Success(c, fiber.Map{
 		"id":       user.ID,
 		"role":     []string{"admin"},
 		"username": user.Username,
@@ -175,7 +168,7 @@ func (s *UserService) List(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	return Success(c, chix.M{
+	return Success(c, fiber.Map{
 		"total": total,
 		"items": users,
 	})
@@ -250,7 +243,7 @@ func (s *UserService) GenerateTwoFA(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	return Success(c, chix.M{
+	return Success(c, fiber.Map{
 		"img":    base64.StdEncoding.EncodeToString(buf.Bytes()),
 		"url":    url,
 		"secret": secret,

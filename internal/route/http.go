@@ -2,6 +2,7 @@ package route
 
 import (
 	"io/fs"
+	"net/http"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
@@ -139,7 +140,39 @@ func (route *Http) Register(app *fiber.App) {
 	userTokens.Put("/:id", route.userToken.Update)
 	userTokens.Delete("/:id", route.userToken.Delete)
 
-	// TODO: Continue with other routes...
+	dashboard := api.Group("/dashboard")
+	dashboard.Get("/panel", route.dashboard.Panel)
+	dashboard.Get("/home_apps", route.dashboard.HomeApps)
+	dashboard.Post("/current", route.dashboard.Current)
+	dashboard.Get("/system_info", route.dashboard.SystemInfo)
+	dashboard.Get("/count_info", route.dashboard.CountInfo)
+	dashboard.Get("/installed_db_and_php", route.dashboard.InstalledDbAndPhp)
+	dashboard.Get("/check_update", route.dashboard.CheckUpdate)
+	dashboard.Get("/update_info", route.dashboard.UpdateInfo)
+	dashboard.Post("/update", route.dashboard.Update)
+	dashboard.Post("/restart", route.dashboard.Restart)
+
+	task := api.Group("/task")
+	task.Get("/status", route.task.Status)
+	task.Get("/", route.task.List)
+	task.Get("/:id", route.task.Get)
+	task.Delete("/:id", route.task.Delete)
+
+	// Add static file serving for frontend
+	// For now, serve from disk - can be optimized later
+	app.Static("/", "./storage/frontend", fiber.Static{
+		Browse: false,
+		Index:  "index.html",
+	})
+	
+	// Handle SPA routing - serve index.html for routes that don't start with /api
+	app.Use(func(c fiber.Ctx) error {
+		if strings.HasPrefix(c.Path(), "/api") {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendFile("./storage/frontend/index.html")
+	})
+}
 
 		r.Route("/dashboard", func(r chi.Router) {
 			r.Get("/panel", route.dashboard.Panel)

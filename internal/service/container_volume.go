@@ -26,7 +26,7 @@ func (s *ContainerVolumeService) List(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	paged, total := Paginate(r, volumes)
+	paged, total := Paginate(c, volumes)
 
 	return Success(c, chix.M{
 		"total": total,

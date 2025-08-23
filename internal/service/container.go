@@ -26,7 +26,7 @@ func (s *ContainerService) List(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	paged, total := Paginate(r, containers)
+	paged, total := Paginate(c, containers)
 
 	return Success(c, chix.M{
 		"total": total,
@@ -35,7 +35,7 @@ func (s *ContainerService) List(c fiber.Ctx) error {
 }
 
 func (s *ContainerService) Search(c fiber.Ctx) error {
-	containers, err := s.containerRepo.ListByName(r.FormValue("name"))
+	containers, err := s.containerRepo.ListByName(c.FormValue("name"))
 	if err != nil {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}

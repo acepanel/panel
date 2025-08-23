@@ -96,7 +96,7 @@ func (s *FirewallService) GetRules(c fiber.Ctx) error {
 		})
 	}
 
-	paged, total := Paginate(r, filledRules)
+	paged, total := Paginate(c, filledRules)
 
 	return Success(c, chix.M{
 		"total": total,
@@ -155,7 +155,7 @@ func (s *FirewallService) GetIPRules(c fiber.Ctx) error {
 		})
 	}
 
-	paged, total := Paginate(r, filledRules)
+	paged, total := Paginate(c, filledRules)
 
 	return Success(c, chix.M{
 		"total": total,
@@ -199,7 +199,7 @@ func (s *FirewallService) GetForwards(c fiber.Ctx) error {
 		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	paged, total := Paginate(r, forwards)
+	paged, total := Paginate(c, forwards)
 
 	return Success(c, chix.M{
 		"total": total,

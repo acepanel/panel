@@ -31,7 +31,7 @@ func (s *ProcessService) List(c fiber.Ctx) error {
 		data = append(data, s.processProcess(proc))
 	}
 
-	paged, total := Paginate(r, data)
+	paged, total := Paginate(c, data)
 
 	return Success(c, chix.M{
 		"total": total,

@@ -245,7 +245,6 @@ func (s *DashboardService) CheckUpdate(c fiber.Ctx) error {
 		return Success(c, chix.M{
 			"update": false,
 		})
-		return
 	}
 
 	return Success(c, chix.M{
@@ -313,8 +312,8 @@ func (s *DashboardService) Update(c fiber.Ctx) error {
 	}
 
 	app.Status = app.StatusNormal
-	return Success(c, nil)
 	tools.RestartPanel()
+	return Success(c, nil)
 }
 
 func (s *DashboardService) Restart(c fiber.Ctx) error {

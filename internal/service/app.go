@@ -75,7 +75,7 @@ func (s *AppService) List(c fiber.Ctx) error {
 		})
 	}
 
-	paged, total := Paginate(r, apps)
+	paged, total := Paginate(c, apps)
 
 	return Success(c, chix.M{
 		"total": total,

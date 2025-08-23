@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gookit/validate"
-	"github.com/libtnb/chix"
 
 	"github.com/tnborg/panel/internal/http/request"
 )

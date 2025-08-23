@@ -35,7 +35,7 @@ func (s *BackupService) List(c fiber.Ctx) error {
 	}
 
 	list, _ := s.backupRepo.List(biz.BackupType(req.Type))
-	paged, total := Paginate(r, list)
+	paged, total := Paginate(c, list)
 
 	return Success(c, chix.M{
 		"total": total,
@@ -57,14 +57,8 @@ func (s *BackupService) Create(c fiber.Ctx) error {
 }
 
 func (s *BackupService) Upload(c fiber.Ctx) error {
-	binder := chix.NewBind(r)
-	defer binder.Release()
-
-	req := new(request.BackupUpload)
-	if err := binder.MultipartForm(req, 2<<30); err != nil {
-		return Error(c, http.StatusUnprocessableEntity, "%v", err)
-	}
-	if err := binder.URI(req); err != nil {
+	req, err := Bind[request.BackupUpload](c)
+	if err != nil {
 		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
