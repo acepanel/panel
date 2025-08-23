@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/gofiber/fiber/v2"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/tnborg/panel/internal/biz"
@@ -31,22 +32,19 @@ func NewWsService(t *gotext.Locale, conf *koanf.Koanf, ssh biz.SSHRepo) *WsServi
 	}
 }
 
-func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *WsService) Session(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	info, err := s.sshRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 	defer func(ws *websocket.Conn) {
 		_ = ws.Close()
@@ -55,7 +53,6 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	client, err := ssh.NewSSHClient(info.Config)
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
-		return
 	}
 	defer func(client *stdssh.Client) {
 		_ = client.Close()
@@ -64,7 +61,6 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	turn, err := ssh.NewTurn(ws, client)
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
-		return
 	}
 	defer func(turn *ssh.Turn) {
 		_ = turn.Close()
@@ -87,11 +83,10 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	cancel()
 }
 
-func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
+func (s *WsService) Exec(c fiber.Ctx) error {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 	defer func(ws *websocket.Conn) {
 		_ = ws.Close()
@@ -101,7 +96,6 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	_, cmd, err := ws.ReadMessage()
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to read command: %v", err)))
-		return
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -109,7 +103,6 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to run command: %v", err)))
 		cancel()
-		return
 	}
 
 	go func() {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"path/filepath"
 
@@ -24,89 +25,79 @@ func NewWebsiteService(website biz.WebsiteRepo, setting biz.SettingRepo) *Websit
 	}
 }
 
-func (s *WebsiteService) GetRewrites(w http.ResponseWriter, r *http.Request) {
+func (s *WebsiteService) GetRewrites(c fiber.Ctx) error {
 	rewrites, err := s.websiteRepo.GetRewrites()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, rewrites)
+	return Success(c, rewrites)
 }
 
-func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request) {
+func (s *WebsiteService) GetDefaultConfig(c fiber.Ctx) error {
 	index, err := io.Read(filepath.Join(app.Root, "server/nginx/html/index.html"))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	stop, err := io.Read(filepath.Join(app.Root, "server/nginx/html/stop.html"))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"index": index,
 		"stop":  stop,
 	})
 }
 
-func (s *WebsiteService) UpdateDefaultConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteDefaultConfig](r)
+func (s *WebsiteService) UpdateDefaultConfig(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteDefaultConfig](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.UpdateDefaultConfig(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
 // UpdateCert 用于自动化工具更新证书
-func (s *WebsiteService) UpdateCert(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteUpdateCert](r)
+func (s *WebsiteService) UpdateCert(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteUpdateCert](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.UpdateCert(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *WebsiteService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	websites, total, err := s.websiteRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": websites,
 	})
 }
 
-func (s *WebsiteService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteCreate](r)
+func (s *WebsiteService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if len(req.Path) == 0 {
@@ -115,130 +106,113 @@ func (s *WebsiteService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err = s.websiteRepo.Create(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) Get(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *WebsiteService) Get(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	config, err := s.websiteRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, config)
+	return Success(c, config)
 }
 
-func (s *WebsiteService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteUpdate](r)
+func (s *WebsiteService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteUpdate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.Update(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteDelete](r)
+func (s *WebsiteService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteDelete](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.Delete(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) ClearLog(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *WebsiteService) ClearLog(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.ClearLog(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) UpdateRemark(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteUpdateRemark](r)
+func (s *WebsiteService) UpdateRemark(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteUpdateRemark](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.UpdateRemark(req.ID, req.Remark); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) ResetConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *WebsiteService) ResetConfig(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.ResetConfig(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteUpdateStatus](r)
+func (s *WebsiteService) UpdateStatus(c fiber.Ctx) error {
+	req, err := Bind[request.WebsiteUpdateStatus](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.UpdateStatus(req.ID, req.Status); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *WebsiteService) ObtainCert(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *WebsiteService) ObtainCert(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.websiteRepo.ObtainCert(r.Context(), req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

@@ -5,6 +5,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -24,35 +25,35 @@ func NewFileService(t *gotext.Locale, task biz.TaskRepo) *FileService {
 	}
 }
 
-func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Create(c fiber.Ctx) error {}
 
-func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Content(c fiber.Ctx) error {}
 
-func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Save(c fiber.Ctx) error {}
 
-func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Delete(c fiber.Ctx) error {}
 
-func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Upload(c fiber.Ctx) error {}
 
-func (s *FileService) Exist(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Exist(c fiber.Ctx) error {}
 
-func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Move(c fiber.Ctx) error {}
 
-func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Copy(c fiber.Ctx) error {}
 
-func (s *FileService) Download(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Download(c fiber.Ctx) error {}
 
-func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
+func (s *FileWindowsService) RemoteDownload(c fiber.Ctx) error {
 }
 
-func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Info(c fiber.Ctx) error {}
 
-func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Permission(c fiber.Ctx) error {}
 
-func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Compress(c fiber.Ctx) error {}
 
-func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) UnCompress(c fiber.Ctx) error {}
 
-func (s *FileService) Search(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) Search(c fiber.Ctx) error {}
 
-func (s *FileService) List(w http.ResponseWriter, r *http.Request) {}
+func (s *FileWindowsService) List(c fiber.Ctx) error {}

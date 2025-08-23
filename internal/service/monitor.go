@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"fmt"
 	"net/http"
 	"time"
@@ -22,51 +23,45 @@ func NewMonitorService(setting biz.SettingRepo, monitor biz.MonitorRepo) *Monito
 	}
 }
 
-func (s *MonitorService) GetSetting(w http.ResponseWriter, r *http.Request) {
+func (s *MonitorService) GetSetting(c fiber.Ctx) error {
 	setting, err := s.monitorRepo.GetSetting()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, setting)
+	return Success(c, setting)
 }
 
-func (s *MonitorService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.MonitorSetting](r)
+func (s *MonitorService) UpdateSetting(c fiber.Ctx) error {
+	req, err := Bind[request.MonitorSetting](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.monitorRepo.UpdateSetting(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *MonitorService) Clear(w http.ResponseWriter, r *http.Request) {
+func (s *MonitorService) Clear(c fiber.Ctx) error {
 	if err := s.monitorRepo.Clear(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.MonitorList](r)
+func (s *MonitorService) List(c fiber.Ctx) error {
+	req, err := Bind[request.MonitorList](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	monitors, err := s.monitorRepo.List(time.UnixMilli(req.Start), time.UnixMilli(req.End))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	var list types.MonitorData
@@ -118,5 +113,5 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 		bytesRecv2 = 0
 	}
 
-	Success(w, list)
+	return Success(c, list)
 }

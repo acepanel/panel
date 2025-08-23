@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
@@ -41,60 +41,61 @@ func NewUserService(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manag
 	}
 }
 
-func (s *UserService) GetKey(w http.ResponseWriter, r *http.Request) {
+// getSession is a helper to get session from Fiber context
+// TODO: This is a temporary adapter - proper session middleware needs to be implemented
+func (s *UserService) getSession(c fiber.Ctx) (*sessions.Session, error) {
+	// For now, we'll need to create a temporary http.Request from Fiber context
+	// This is not ideal and should be replaced with proper Fiber session handling
+	return nil, fmt.Errorf("session handling not yet implemented for Fiber")
+}
+
+func (s *UserService) GetKey(c fiber.Ctx) error {
 	key, err := rsacrypto.GenerateKey()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	sess.Put("key", *key)
+	// TODO: Session handling needs to be adapted for Fiber
+	// sess, err := s.session.getSession(c)
+	// if err != nil {
+	// 	return Error(c, http.StatusInternalServerError, "%v", err)
+	// }
+	// sess.Put("key", *key)
 
 	pk, err := rsacrypto.PublicKeyToString(&key.PublicKey)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, pk)
+	return Success(c, pk)
 }
 
-func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
+func (s *UserService) Login(c fiber.Ctx) error {
+	sess, err := s.getSession(c)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	req, err := Bind[request.UserLogin](r)
+	req, err := Bind[request.UserLogin](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	key, ok := sess.Get("key").(rsa.PrivateKey)
 	if !ok {
-		Error(w, http.StatusForbidden, s.t.Get("invalid key, please refresh the page"))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("invalid key, please refresh the page"))
 	}
 
 	decryptedUsername, _ := rsacrypto.DecryptData(&key, req.Username)
 	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
 	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
 	if err != nil {
-		Error(w, http.StatusForbidden, "%v", err)
-		return
+		return Error(c, http.StatusForbidden, "%v", err)
 	}
 
 	if user.TwoFA != "" {
 		if valid := totp.Validate(req.PassCode, user.TwoFA); !valid {
-			Error(w, http.StatusForbidden, s.t.Get("invalid 2FA code"))
-			return
+			return Error(c, http.StatusForbidden, s.t.Get("invalid 2FA code"))
 		}
 	}
 
@@ -102,8 +103,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	// 安全登录只在未启用面板 HTTPS 时生效
 	ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if req.SafeLogin && !s.conf.Bool("http.tls") {
 		sess.Put("safe_login", true)
@@ -115,13 +115,13 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	sess.Put("user_id", user.ID)
 	sess.Forget("key")
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
+func (s *UserService) Logout(c fiber.Ctx) error {
+	sess, err := s.session.getSession(c)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	sess.Forget("user_id")
@@ -129,43 +129,39 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) IsLogin(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
+func (s *UserService) IsLogin(c fiber.Ctx) error {
+	sess, err := s.session.getSession(c)
 	if err != nil {
-		Success(w, false)
-		return
+		return Success(c, false)
 	}
-	Success(w, sess.Has("user_id"))
+	return Success(c, sess.Has("user_id"))
 }
 
-func (s *UserService) IsTwoFA(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserIsTwoFA](r)
+func (s *UserService) IsTwoFA(c fiber.Ctx) error {
+	req, err := Bind[request.UserIsTwoFA](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	twoFA, _ := s.userRepo.IsTwoFA(req.Username)
-	Success(w, twoFA)
+	return Success(c, twoFA)
 }
 
-func (s *UserService) Info(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Info(c fiber.Ctx) error {
 	userID := cast.ToUint(r.Context().Value("user_id"))
 	if userID == 0 {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
-		ErrorSystem(w)
-		return
+		return ErrorSystem(c)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"id":       user.ID,
 		"role":     []string{"admin"},
 		"username": user.Username,
@@ -173,138 +169,121 @@ func (s *UserService) Info(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *UserService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *UserService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	users, total, err := s.userRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": users,
 	})
 }
 
-func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserCreate](r)
+func (s *UserService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.UserCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	user, err := s.userRepo.Create(req.Username, req.Password, req.Email)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, user)
+	return Success(c, user)
 }
 
-func (s *UserService) UpdateUsername(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserUpdateUsername](r)
+func (s *UserService) UpdateUsername(c fiber.Ctx) error {
+	req, err := Bind[request.UserUpdateUsername](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userRepo.UpdateUsername(req.ID, req.Username); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) UpdatePassword(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserUpdatePassword](r)
+func (s *UserService) UpdatePassword(c fiber.Ctx) error {
+	req, err := Bind[request.UserUpdatePassword](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userRepo.UpdatePassword(req.ID, req.Password); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) UpdateEmail(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserUpdateEmail](r)
+func (s *UserService) UpdateEmail(c fiber.Ctx) error {
+	req, err := Bind[request.UserUpdateEmail](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userRepo.UpdateEmail(req.ID, req.Email); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) GenerateTwoFA(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserID](r)
+func (s *UserService) GenerateTwoFA(c fiber.Ctx) error {
+	req, err := Bind[request.UserID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	img, url, secret, err := s.userRepo.GenerateTwoFA(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	buf := new(bytes.Buffer)
 	if err = png.Encode(buf, img); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"img":    base64.StdEncoding.EncodeToString(buf.Bytes()),
 		"url":    url,
 		"secret": secret,
 	})
 }
 
-func (s *UserService) UpdateTwoFA(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserUpdateTwoFA](r)
+func (s *UserService) UpdateTwoFA(c fiber.Ctx) error {
+	req, err := Bind[request.UserUpdateTwoFA](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userRepo.UpdateTwoFA(req.ID, req.Code, req.Secret); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserID](r)
+func (s *UserService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.UserID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userRepo.Delete(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

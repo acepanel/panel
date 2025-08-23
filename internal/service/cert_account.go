@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,83 +20,73 @@ func NewCertAccountService(certAccount biz.CertAccountRepo) *CertAccountService 
 	}
 }
 
-func (s *CertAccountService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *CertAccountService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	certDNS, total, err := s.certAccountRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": certDNS,
 	})
 }
 
-func (s *CertAccountService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertAccountCreate](r)
+func (s *CertAccountService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.CertAccountCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	account, err := s.certAccountRepo.Create(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, account)
+	return Success(c, account)
 }
 
-func (s *CertAccountService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertAccountUpdate](r)
+func (s *CertAccountService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.CertAccountUpdate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.certAccountRepo.Update(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertAccountService) Get(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertAccountService) Get(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	account, err := s.certAccountRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, account)
+	return Success(c, account)
 }
 
-func (s *CertAccountService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertAccountService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.certAccountRepo.Delete(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

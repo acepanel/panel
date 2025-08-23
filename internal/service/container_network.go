@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,57 +20,51 @@ func NewContainerNetworkService(containerNetwork biz.ContainerNetworkRepo) *Cont
 	}
 }
 
-func (s *ContainerNetworkService) List(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerNetworkService) List(c fiber.Ctx) error {
 	networks, err := s.containerNetworkRepo.List()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	paged, total := Paginate(r, networks)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *ContainerNetworkService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerNetworkCreate](r)
+func (s *ContainerNetworkService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerNetworkCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	id, err := s.containerNetworkRepo.Create(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, id)
+	return Success(c, id)
 }
 
-func (s *ContainerNetworkService) Remove(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerNetworkID](r)
+func (s *ContainerNetworkService) Remove(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerNetworkID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerNetworkRepo.Remove(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerNetworkService) Prune(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerNetworkService) Prune(c fiber.Ctx) error {
 	if err := s.containerNetworkRepo.Prune(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

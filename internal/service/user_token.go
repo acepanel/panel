@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"time"
 
@@ -23,50 +24,44 @@ func NewUserTokenService(t *gotext.Locale, userToken biz.UserTokenRepo) *UserTok
 	}
 }
 
-func (s *UserTokenService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserTokenList](r)
+func (s *UserTokenService) List(c fiber.Ctx) error {
+	req, err := Bind[request.UserTokenList](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	userTokens, total, err := s.userTokenRepo.List(req.UserID, req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": userTokens,
 	})
 }
 
-func (s *UserTokenService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserTokenCreate](r)
+func (s *UserTokenService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.UserTokenCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	expiredAt := time.Unix(0, req.ExpiredAt*int64(time.Millisecond))
 	if expiredAt.Before(time.Now()) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("expiration time must be greater than current time"))
-		return
+		return Error(c, http.StatusUnprocessableEntity, s.t.Get("expiration time must be greater than current time"))
 	}
 	if expiredAt.After(time.Now().AddDate(10, 0, 0)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("expiration time must be less than 10 years"))
-		return
+		return Error(c, http.StatusUnprocessableEntity, s.t.Get("expiration time must be less than 10 years"))
 	}
 
 	userToken, err := s.userTokenRepo.Create(req.UserID, req.IPs, expiredAt)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	// 手动组装响应，因为 Token 设置了 json:"-"
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"id":         userToken.ID,
 		"user_id":    userToken.UserID,
 		"token":      userToken.Token,
@@ -77,43 +72,37 @@ func (s *UserTokenService) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *UserTokenService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.UserTokenUpdate](r)
+func (s *UserTokenService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.UserTokenUpdate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	expiredAt := time.Unix(0, req.ExpiredAt*int64(time.Millisecond))
 	if expiredAt.Before(time.Now()) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("expiration time must be greater than current time"))
-		return
+		return Error(c, http.StatusUnprocessableEntity, s.t.Get("expiration time must be greater than current time"))
 	}
 	if expiredAt.After(time.Now().AddDate(10, 0, 0)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("expiration time must be less than 10 years"))
-		return
+		return Error(c, http.StatusUnprocessableEntity, s.t.Get("expiration time must be less than 10 years"))
 	}
 
 	userToken, err := s.userTokenRepo.Update(req.ID, req.IPs, expiredAt)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, userToken)
+	return Success(c, userToken)
 }
 
-func (s *UserTokenService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *UserTokenService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.userTokenRepo.Delete(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,58 +20,51 @@ func NewContainerVolumeService(containerVolume biz.ContainerVolumeRepo) *Contain
 	}
 }
 
-func (s *ContainerVolumeService) List(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerVolumeService) List(c fiber.Ctx) error {
 	volumes, err := s.containerVolumeRepo.List()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	paged, total := Paginate(r, volumes)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *ContainerVolumeService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerVolumeCreate](r)
+func (s *ContainerVolumeService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerVolumeCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	name, err := s.containerVolumeRepo.Create(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, name)
-
+	return Success(c, name)
 }
 
-func (s *ContainerVolumeService) Remove(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerVolumeID](r)
+func (s *ContainerVolumeService) Remove(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerVolumeID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerVolumeRepo.Remove(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerVolumeService) Prune(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerVolumeService) Prune(c fiber.Ctx) error {
 	if err := s.containerVolumeRepo.Prune(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
