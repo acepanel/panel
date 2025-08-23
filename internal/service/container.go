@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,190 +20,168 @@ func NewContainerService(container biz.ContainerRepo) *ContainerService {
 	}
 }
 
-func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerService) List(c fiber.Ctx) error {
 	containers, err := s.containerRepo.ListAll()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	paged, total := Paginate(r, containers)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *ContainerService) Search(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerService) Search(c fiber.Ctx) error {
 	containers, err := s.containerRepo.ListByName(r.FormValue("name"))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": len(containers),
 		"items": containers,
 	})
 }
 
-func (s *ContainerService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerCreate](r)
+func (s *ContainerService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	id, err := s.containerRepo.Create(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, id)
+	return Success(c, id)
 }
 
-func (s *ContainerService) Remove(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Remove(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Remove(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Start(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Start(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Start(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Stop(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Stop(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Stop(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Restart(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Restart(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Restart(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Pause(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Pause(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Pause(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Unpause(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Unpause(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Unpause(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Kill(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Kill(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Kill(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Rename(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerRename](r)
+func (s *ContainerService) Rename(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerRename](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerRepo.Rename(req.ID, req.Name); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerService) Logs(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
+func (s *ContainerService) Logs(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	logs, err := s.containerRepo.Logs(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, logs)
+	return Success(c, logs)
 }
 
-func (s *ContainerService) Prune(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerService) Prune(c fiber.Ctx) error {
 	if err := s.containerRepo.Prune(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

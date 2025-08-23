@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	stdio "io"
 	"net/http"
 	"os"
@@ -27,109 +28,95 @@ func NewBackupService(t *gotext.Locale, backup biz.BackupRepo) *BackupService {
 	}
 }
 
-func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupList](r)
+func (s *BackupService) List(c fiber.Ctx) error {
+	req, err := Bind[request.BackupList](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	list, _ := s.backupRepo.List(biz.BackupType(req.Type))
 	paged, total := Paginate(r, list)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupCreate](r)
+func (s *BackupService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.BackupCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.backupRepo.Create(biz.BackupType(req.Type), req.Target, req.Path); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
+func (s *BackupService) Upload(c fiber.Ctx) error {
 	binder := chix.NewBind(r)
 	defer binder.Release()
 
 	req := new(request.BackupUpload)
 	if err := binder.MultipartForm(req, 2<<30); err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	if err := binder.URI(req); err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .7z
 	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z"}, filepath.Ext(req.File.Filename)) {
-		Error(w, http.StatusForbidden, s.t.Get("unsupported file type"))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("unsupported file type"))
 	}
 
 	path, err := s.backupRepo.GetPath(biz.BackupType(req.Type))
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if io.Exists(filepath.Join(path, req.File.Filename)) {
-		Error(w, http.StatusForbidden, s.t.Get("target backup %s already exists", path))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("target backup %s already exists", path))
 	}
 
 	src, _ := req.File.Open()
 	out, err := os.OpenFile(filepath.Join(path, req.File.Filename), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if _, err = stdio.Copy(out, src); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	_ = src.Close()
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *BackupService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupFile](r)
+func (s *BackupService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.BackupFile](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.backupRepo.Delete(biz.BackupType(req.Type), req.File); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupRestore](r)
+func (s *BackupService) Restore(c fiber.Ctx) error {
+	req, err := Bind[request.BackupRestore](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.backupRepo.Restore(biz.BackupType(req.Type), req.File, req.Target); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

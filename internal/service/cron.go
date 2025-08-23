@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,97 +20,85 @@ func NewCronService(cron biz.CronRepo) *CronService {
 	}
 }
 
-func (s *CronService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *CronService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	cron, total, err := s.cronRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": cron,
 	})
 }
 
-func (s *CronService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CronCreate](r)
+func (s *CronService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.CronCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.cronRepo.Create(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CronService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CronUpdate](r)
+func (s *CronService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.CronUpdate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.cronRepo.Update(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CronService) Get(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CronService) Get(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	cron, err := s.cronRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, cron)
+	return Success(c, cron)
 }
 
-func (s *CronService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CronService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.cronRepo.Delete(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CronService) Status(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CronStatus](r)
+func (s *CronService) Status(c fiber.Ctx) error {
+	req, err := Bind[request.CronStatus](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.cronRepo.Status(req.ID, req.Status); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

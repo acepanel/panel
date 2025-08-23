@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,56 +20,50 @@ func NewContainerImageService(containerImage biz.ContainerImageRepo) *ContainerI
 	}
 }
 
-func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerImageService) List(c fiber.Ctx) error {
 	images, err := s.containerImageRepo.List()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	paged, total := Paginate(r, images)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerImagePull](r)
+func (s *ContainerImageService) Pull(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerImagePull](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerImageRepo.Pull(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerImageService) Remove(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerImageID](r)
+func (s *ContainerImageService) Remove(c fiber.Ctx) error {
+	req, err := Bind[request.ContainerImageID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.containerImageRepo.Remove(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *ContainerImageService) Prune(w http.ResponseWriter, r *http.Request) {
+func (s *ContainerImageService) Prune(c fiber.Ctx) error {
 	if err := s.containerImageRepo.Prune(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

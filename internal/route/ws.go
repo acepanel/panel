@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/tnborg/panel/internal/service"
 )
@@ -16,9 +16,9 @@ func NewWs(ws *service.WsService) *Ws {
 	}
 }
 
-func (route *Ws) Register(r *chi.Mux) {
-	r.Route("/api/ws", func(r chi.Router) {
-		r.Get("/ssh", route.ws.Session)
-		r.Get("/exec", route.ws.Exec)
-	})
+func (route *Ws) Register(app *fiber.App) {
+	// TODO: WebSocket routes need special handling for Fiber v3
+	// Temporarily disabled during migration
+	// app.Get("/api/ws/ssh", route.ws.Session)
+	// app.Get("/api/ws/exec", route.ws.Exec)
 }

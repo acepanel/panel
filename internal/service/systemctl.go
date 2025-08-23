@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -19,124 +20,108 @@ func NewSystemctlService(t *gotext.Locale) *SystemctlService {
 	}
 }
 
-func (s *SystemctlService) Status(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Status(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	status, err := systemctl.Status(req.Service)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s service running status: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get %s service running status: %v", req.Service, err))
 	}
 
-	Success(w, status)
+	return Success(c, status)
 }
 
-func (s *SystemctlService) IsEnabled(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) IsEnabled(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	enabled, err := systemctl.IsEnabled(req.Service)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s service enable status: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get %s service enable status: %v", req.Service, err))
 	}
 
-	Success(w, enabled)
+	return Success(c, enabled)
 }
 
-func (s *SystemctlService) Enable(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Enable(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Enable(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to enable %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to enable %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *SystemctlService) Disable(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Disable(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Disable(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to disable %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to disable %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *SystemctlService) Restart(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Restart(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Restart(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to restart %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *SystemctlService) Reload(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Reload(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Reload(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to reload %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to reload %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *SystemctlService) Start(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Start(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Start(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to start %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to start %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *SystemctlService) Stop(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SystemctlService](r)
+func (s *SystemctlService) Stop(c fiber.Ctx) error {
+	req, err := Bind[request.SystemctlService](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = systemctl.Stop(req.Service); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to stop %s service: %v", req.Service, err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to stop %s service: %v", req.Service, err))
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

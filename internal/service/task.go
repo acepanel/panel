@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,59 +20,53 @@ func NewTaskService(task biz.TaskRepo) *TaskService {
 	}
 }
 
-func (s *TaskService) Status(w http.ResponseWriter, r *http.Request) {
-	Success(w, chix.M{
+func (s *TaskService) Status(c fiber.Ctx) error {
+	return Success(c, chix.M{
 		"task": s.taskRepo.HasRunningTask(),
 	})
 }
 
-func (s *TaskService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *TaskService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	tasks, total, err := s.taskRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": tasks,
 	})
 }
 
-func (s *TaskService) Get(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *TaskService) Get(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	task, err := s.taskRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, task)
+	return Success(c, task)
 }
 
-func (s *TaskService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *TaskService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	err = s.taskRepo.Delete(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

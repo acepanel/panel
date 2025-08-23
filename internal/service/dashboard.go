@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"fmt"
 	"net"
 	"net/http"
@@ -52,43 +53,41 @@ func NewDashboardService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo,
 	}
 }
 
-func (s *DashboardService) Panel(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) Panel(c fiber.Ctx) error {
 	name, _ := s.settingRepo.Get(biz.SettingKeyName)
 	if name == "" {
 		name = s.t.Get("AcePanel")
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"name":   name,
 		"locale": s.conf.String("app.locale"),
 	})
 }
 
-func (s *DashboardService) HomeApps(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) HomeApps(c fiber.Ctx) error {
 	apps, err := s.appRepo.GetHomeShow()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get home apps: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get home apps: %v", err))
 	}
 
-	Success(w, apps)
+	return Success(c, apps)
 }
 
-func (s *DashboardService) Current(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.DashboardCurrent](r)
+func (s *DashboardService) Current(c fiber.Ctx) error {
+	req, err := Bind[request.DashboardCurrent](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
-	Success(w, tools.CurrentInfo(req.Nets, req.Disks))
+	return Success(c, tools.CurrentInfo(req.Nets, req.Disks))
+	return nil
 }
 
-func (s *DashboardService) SystemInfo(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) SystemInfo(c fiber.Ctx) error {
 	hostInfo, err := host.Info()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get system info: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get system info: %v", err))
 	}
 
 	// 所有网卡名称
@@ -110,7 +109,7 @@ func (s *DashboardService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"procs":          hostInfo.Procs,
 		"hostname":       hostInfo.Hostname,
 		"panel_version":  app.Version,
@@ -130,11 +129,10 @@ func (s *DashboardService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) CountInfo(c fiber.Ctx) error {
 	websiteCount, err := s.websiteRepo.Count()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the total number of websites: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the total number of websites: %v", err))
 	}
 
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
@@ -182,7 +180,7 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		cronCount = -1
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"website":  websiteCount,
 		"database": databaseCount,
 		"ftp":      ftpCount,
@@ -190,7 +188,7 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) InstalledDbAndPhp(c fiber.Ctx) error {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 	php, _ := s.appRepo.GetInstalledAll("slug like ?", "php%")
@@ -217,129 +215,113 @@ func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Requ
 		dbData = append(dbData, types.LV{Value: "postgresql", Label: "PostgreSQL"})
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"php": phpData,
 		"db":  dbData,
 	})
 }
 
-func (s *DashboardService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) CheckUpdate(c fiber.Ctx) error {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
 	}
 
 	current := app.Version
 	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
 	latest, err := s.api.LatestVersion(channel)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 	}
 
 	v1, err := version.NewVersion(current)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 	}
 	v2, err := version.NewVersion(latest.Version)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 	}
 	if v1.GreaterThanOrEqual(v2) {
-		Success(w, chix.M{
+		return Success(c, chix.M{
 			"update": false,
 		})
 		return
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"update": true,
 	})
 }
 
-func (s *DashboardService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) UpdateInfo(c fiber.Ctx) error {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
 	}
 
 	current := app.Version
 	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
 	latest, err := s.api.LatestVersion(channel)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 	}
 
 	v1, err := version.NewVersion(current)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 	}
 	v2, err := version.NewVersion(latest.Version)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 	}
 	if v1.GreaterThanOrEqual(v2) {
-		Error(w, http.StatusInternalServerError, s.t.Get("the current version is the latest version"))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("the current version is the latest version"))
 	}
 
 	versions, err := s.api.IntermediateVersions(channel)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the update information: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the update information: %v", err))
 	}
 
-	Success(w, versions)
+	return Success(c, versions)
 }
 
-func (s *DashboardService) Update(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) Update(c fiber.Ctx) error {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("unable to update in offline mode"))
-		return
+		return Error(c, http.StatusForbidden, s.t.Get("unable to update in offline mode"))
 	}
 
 	if s.taskRepo.HasRunningTask() {
-		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, updating is prohibited, please try again later"))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("background task is running, updating is prohibited, please try again later"))
 	}
 
 	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
 	panel, err := s.api.LatestVersion(channel)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 	}
 
 	download := collect.First(panel.Downloads)
 	if download == nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
 	}
 	ver, url, checksum := panel.Version, download.URL, download.Checksum
 
 	app.Status = app.StatusUpgrade
 	if err = s.backupRepo.UpdatePanel(ver, url, checksum); err != nil {
 		app.Status = app.StatusFailed
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	app.Status = app.StatusNormal
-	Success(w, nil)
+	return Success(c, nil)
 	tools.RestartPanel()
 }
 
-func (s *DashboardService) Restart(w http.ResponseWriter, r *http.Request) {
+func (s *DashboardService) Restart(c fiber.Ctx) error {
 	if s.taskRepo.HasRunningTask() {
-		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, restart is prohibited, please try again later"))
-		return
+		return Error(c, http.StatusInternalServerError, s.t.Get("background task is running, restart is prohibited, please try again later"))
 	}
 
 	tools.RestartPanel()
-	Success(w, nil)
+	return Success(c, nil)
 }

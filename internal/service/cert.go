@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -24,8 +25,8 @@ func NewCertService(t *gotext.Locale, cert biz.CertRepo) *CertService {
 	}
 }
 
-func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
-	Success(w, []types.LV{
+func (s *CertService) CAProviders(c fiber.Ctx) error {
+	return Success(c, []types.LV{
 		{
 			Label: "Let's Encrypt",
 			Value: "letsencrypt",
@@ -54,8 +55,8 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
-	Success(w, []types.LV{
+func (s *CertService) DNSProviders(c fiber.Ctx) error {
+	return Success(c, []types.LV{
 		{
 			Label: s.t.Get("Aliyun"),
 			Value: string(acme.AliYun),
@@ -99,8 +100,8 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *CertService) Algorithms(w http.ResponseWriter, r *http.Request) {
-	Success(w, []types.LV{
+func (s *CertService) Algorithms(c fiber.Ctx) error {
+	return Success(c, []types.LV{
 		{
 			Label: "EC256",
 			Value: string(acme.KeyEC256),
@@ -121,193 +122,169 @@ func (s *CertService) Algorithms(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *CertService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *CertService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	certs, total, err := s.certRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": certs,
 	})
 }
 
-func (s *CertService) Upload(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertUpload](r)
+func (s *CertService) Upload(c fiber.Ctx) error {
+	req, err := Bind[request.CertUpload](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	cert, err := s.certRepo.Upload(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, cert)
+	return Success(c, cert)
 }
 
-func (s *CertService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertCreate](r)
+func (s *CertService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.CertCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	cert, err := s.certRepo.Create(req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, cert)
+	return Success(c, cert)
 }
 
-func (s *CertService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertUpdate](r)
+func (s *CertService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.CertUpdate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.certRepo.Update(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) Get(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) Get(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	cert, err := s.certRepo.Get(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, cert)
+	return Success(c, cert)
 }
 
-func (s *CertService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	err = s.certRepo.Delete(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) ObtainAuto(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) ObtainAuto(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = s.certRepo.ObtainAuto(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) ObtainManual(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) ObtainManual(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = s.certRepo.ObtainManual(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) ObtainSelfSigned(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) ObtainSelfSigned(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.certRepo.ObtainSelfSigned(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) Renew(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) Renew(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	_, err = s.certRepo.Renew(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *CertService) ManualDNS(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+func (s *CertService) ManualDNS(c fiber.Ctx) error {
+	req, err := Bind[request.ID](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	dns, err := s.certRepo.ManualDNS(req.ID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, dns)
+	return Success(c, dns)
 }
 
-func (s *CertService) Deploy(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.CertDeploy](r)
+func (s *CertService) Deploy(c fiber.Ctx) error {
+	req, err := Bind[request.CertDeploy](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	err = s.certRepo.Deploy(req.ID, req.WebsiteID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

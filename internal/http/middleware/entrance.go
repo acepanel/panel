@@ -94,7 +94,8 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fi
 			sess.Put("verify_entrance", true)
 			// 设置入口的情况下进行重定向
 			if entrance != "/" {
-				return c.Redirect("/login")
+				c.Set("Location", "/login")
+				return c.SendStatus(fiber.StatusFound)
 			}
 		}
 
@@ -104,8 +105,8 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fi
 			if entrance != "/" {
 				// For Fiber, we need to modify the path differently
 				newPath := strings.TrimPrefix(c.Path(), entrance)
-				c.Context().Request.Header.Set("X-Original-Path", c.Path())
-				c.Context().Request.URI().SetPath(newPath)
+				c.Request().Header.Set("X-Original-Path", c.Path())
+				c.Request().URI().SetPath(newPath)
 			}
 			return c.Next()
 		}

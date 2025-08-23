@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/filesystem"
+	"github.com/gofiber/fiber/v3/middleware/static"
 
 	"github.com/tnborg/panel/internal/http/middleware"
 	"github.com/tnborg/panel/internal/service"
@@ -113,33 +113,33 @@ func NewHttp(
 }
 
 func (route *Http) Register(app *fiber.App) {
-	r.Route("/api", func(r chi.Router) {
-		r.Route("/user", func(r chi.Router) {
-			r.Get("/key", route.user.GetKey)
-			r.With(middleware.Throttle(5, time.Minute)).Post("/login", route.user.Login)
-			r.Post("/logout", route.user.Logout)
-			r.Get("/is_login", route.user.IsLogin)
-			r.Get("/is_2fa", route.user.IsTwoFA)
-			r.Get("/info", route.user.Info)
-		})
+	api := app.Group("/api")
+	
+	user := api.Group("/user")
+	user.Get("/key", route.user.GetKey)
+	user.Post("/login", route.user.Login, middleware.Throttle(5, time.Minute))
+	user.Post("/logout", route.user.Logout)
+	user.Get("/is_login", route.user.IsLogin)
+	user.Get("/is_2fa", route.user.IsTwoFA)
+	user.Get("/info", route.user.Info)
 
-		r.Route("/users", func(r chi.Router) {
-			r.Get("/", route.user.List)
-			r.Post("/", route.user.Create)
-			r.Post("/{id}/username", route.user.UpdateUsername)
-			r.Post("/{id}/password", route.user.UpdatePassword)
-			r.Post("/{id}/email", route.user.UpdateEmail)
-			r.Get("/{id}/2fa", route.user.GenerateTwoFA)
-			r.Post("/{id}/2fa", route.user.UpdateTwoFA)
-			r.Delete("/{id}", route.user.Delete)
-		})
+	users := api.Group("/users")
+	users.Get("/", route.user.List)
+	users.Post("/", route.user.Create)
+	users.Post("/:id/username", route.user.UpdateUsername)
+	users.Post("/:id/password", route.user.UpdatePassword)
+	users.Post("/:id/email", route.user.UpdateEmail)
+	users.Get("/:id/2fa", route.user.GenerateTwoFA)
+	users.Post("/:id/2fa", route.user.UpdateTwoFA)
+	users.Delete("/:id", route.user.Delete)
 
-		r.Route("/user_tokens", func(r chi.Router) {
-			r.Get("/", route.userToken.List)
-			r.Post("/", route.userToken.Create)
-			r.Put("/{id}", route.userToken.Update)
-			r.Delete("/{id}", route.userToken.Delete)
-		})
+	userTokens := api.Group("/user_tokens")
+	userTokens.Get("/", route.userToken.List)
+	userTokens.Post("/", route.userToken.Create)
+	userTokens.Put("/:id", route.userToken.Update)
+	userTokens.Delete("/:id", route.userToken.Delete)
+
+	// TODO: Continue with other routes...
 
 		r.Route("/dashboard", func(r chi.Router) {
 			r.Get("/panel", route.dashboard.Panel)

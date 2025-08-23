@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"bytes"
 	"compress/gzip"
 	"crypto/aes"
@@ -38,43 +39,42 @@ func NewToolboxBenchmarkService(t *gotext.Locale) *ToolboxBenchmarkService {
 }
 
 // Test 运行测试
-func (s *ToolboxBenchmarkService) Test(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxBenchmarkTest](r)
+func (s *ToolboxBenchmarkService) Test(c fiber.Ctx) error {
+	req, err := Bind[request.ToolboxBenchmarkTest](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	switch req.Name {
 	case "image":
 		result := s.imageProcessing()
-		Success(w, result)
+		return Success(c, result)
 	case "machine":
 		result := s.machineLearning()
-		Success(w, result)
+		return Success(c, result)
 	case "compile":
 		result := s.compileSimulationSingle()
-		Success(w, result)
+		return Success(c, result)
 	case "encryption":
 		result := s.encryptionTest()
-		Success(w, result)
+		return Success(c, result)
 	case "compression":
 		result := s.compressionTest()
-		Success(w, result)
+		return Success(c, result)
 	case "physics":
 		result := s.physicsSimulation()
-		Success(w, result)
+		return Success(c, result)
 	case "json":
 		result := s.jsonProcessing()
-		Success(w, result)
+		return Success(c, result)
 	case "disk":
 		result := s.diskTestTask()
-		Success(w, result)
+		return Success(c, result)
 	case "memory":
 		result := s.memoryTestTask()
-		Success(w, result)
+		return Success(c, result)
 	default:
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown test type"))
+		return Error(c, http.StatusUnprocessableEntity, s.t.Get("unknown test type"))
 	}
 }
 

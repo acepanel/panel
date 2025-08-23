@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/libtnb/sessions"
@@ -20,10 +21,16 @@ func StartSession(manager *sessions.Manager) fiber.Handler {
 func GetSession(c fiber.Ctx) (*sessions.Session, error) {
 	manager := c.Locals("session_manager").(*sessions.Manager)
 	
+	// Create URL from path and query string
+	u, err := url.Parse(c.OriginalURL())
+	if err != nil {
+		return nil, err
+	}
+	
 	// Create a temporary HTTP request from Fiber context
 	req := &http.Request{
 		Method:     c.Method(),
-		URL:        c.Context().URI(),
+		URL:        u,
 		Header:     make(http.Header),
 		RemoteAddr: c.IP(),
 	}

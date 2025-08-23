@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/libtnb/chix"
@@ -19,66 +20,58 @@ func NewDatabaseService(database biz.DatabaseRepo) *DatabaseService {
 	}
 }
 
-func (s *DatabaseService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+func (s *DatabaseService) List(c fiber.Ctx) error {
+	req, err := Bind[request.Paginate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	databases, total, err := s.databaseRepo.List(req.Page, req.Limit)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": databases,
 	})
 }
 
-func (s *DatabaseService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.DatabaseCreate](r)
+func (s *DatabaseService) Create(c fiber.Ctx) error {
+	req, err := Bind[request.DatabaseCreate](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.databaseRepo.Create(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *DatabaseService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.DatabaseDelete](r)
+func (s *DatabaseService) Delete(c fiber.Ctx) error {
+	req, err := Bind[request.DatabaseDelete](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.databaseRepo.Delete(req.ServerID, req.Name); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *DatabaseService) Comment(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.DatabaseComment](r)
+func (s *DatabaseService) Comment(c fiber.Ctx) error {
+	req, err := Bind[request.DatabaseComment](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.databaseRepo.Comment(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

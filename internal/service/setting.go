@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 
 	"github.com/tnborg/panel/internal/biz"
@@ -18,50 +19,45 @@ func NewSettingService(setting biz.SettingRepo) *SettingService {
 	}
 }
 
-func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {
+func (s *SettingService) Get(c fiber.Ctx) error {
 	setting, err := s.settingRepo.GetPanel()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, setting)
+	return Success(c, setting)
 }
 
-func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SettingPanel](r)
+func (s *SettingService) Update(c fiber.Ctx) error {
+	req, err := Bind[request.SettingPanel](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	restart := false
 	if restart, err = s.settingRepo.UpdatePanel(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if restart {
 		tools.RestartPanel()
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
 // UpdateCert 用于自动化工具更新证书
-func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.SettingCert](r)
+func (s *SettingService) UpdateCert(c fiber.Ctx) error {
+	req, err := Bind[request.SettingCert](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.settingRepo.UpdateCert(req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	tools.RestartPanel()
 
-	Success(w, nil)
+	return Success(c, nil)
 }

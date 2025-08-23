@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 	"slices"
 
@@ -22,21 +23,19 @@ func NewFirewallService() *FirewallService {
 	}
 }
 
-func (s *FirewallService) GetStatus(w http.ResponseWriter, r *http.Request) {
+func (s *FirewallService) GetStatus(c fiber.Ctx) error {
 	running, err := s.firewall.Status()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, running)
+	return Success(c, running)
 }
 
-func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallStatus](r)
+func (s *FirewallService) UpdateStatus(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallStatus](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if req.Status {
@@ -52,18 +51,16 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
+func (s *FirewallService) GetRules(c fiber.Ctx) error {
 	rules, err := s.firewall.ListRule()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	var filledRules []map[string]any
@@ -101,51 +98,46 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, filledRules)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *FirewallService) CreateRule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallRule](r)
+func (s *FirewallService) CreateRule(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallRule](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.Port(firewall.FireInfo{
 		Type: firewall.Type(req.Type), Family: req.Family, PortStart: req.PortStart, PortEnd: req.PortEnd, Protocol: firewall.Protocol(req.Protocol), Address: req.Address, Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationAdd); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallRule](r)
+func (s *FirewallService) DeleteRule(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallRule](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.Port(firewall.FireInfo{
 		Type: firewall.Type(req.Type), Family: req.Family, PortStart: req.PortStart, PortEnd: req.PortEnd, Protocol: firewall.Protocol(req.Protocol), Address: req.Address, Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationRemove); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
+func (s *FirewallService) GetIPRules(c fiber.Ctx) error {
 	rules, err := s.firewall.ListRule()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	var filledRules []map[string]any
@@ -165,91 +157,82 @@ func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, filledRules)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *FirewallService) CreateIPRule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallIPRule](r)
+func (s *FirewallService) CreateIPRule(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallIPRule](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.RichRules(firewall.FireInfo{
 		Family: req.Family, Address: req.Address, Protocol: firewall.Protocol(req.Protocol), Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationAdd); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) DeleteIPRule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallIPRule](r)
+func (s *FirewallService) DeleteIPRule(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallIPRule](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.RichRules(firewall.FireInfo{
 		Family: req.Family, Address: req.Address, Protocol: firewall.Protocol(req.Protocol), Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationRemove); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) GetForwards(w http.ResponseWriter, r *http.Request) {
+func (s *FirewallService) GetForwards(c fiber.Ctx) error {
 	forwards, err := s.firewall.ListForward()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	paged, total := Paginate(r, forwards)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *FirewallService) CreateForward(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallForward](r)
+func (s *FirewallService) CreateForward(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallForward](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.Forward(firewall.Forward{
 		Protocol: firewall.Protocol(req.Protocol), Port: req.Port, TargetIP: req.TargetIP, TargetPort: req.TargetPort,
 	}, firewall.OperationAdd); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
-func (s *FirewallService) DeleteForward(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FirewallForward](r)
+func (s *FirewallService) DeleteForward(c fiber.Ctx) error {
+	req, err := Bind[request.FirewallForward](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = s.firewall.Forward(firewall.Forward{
 		Protocol: firewall.Protocol(req.Protocol), Port: req.Port, TargetIP: req.TargetIP, TargetPort: req.TargetPort,
 	}, firewall.OperationRemove); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }

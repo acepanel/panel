@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"net/http"
 	"slices"
 	"time"
@@ -19,11 +20,10 @@ func NewProcessService() *ProcessService {
 	return &ProcessService{}
 }
 
-func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
+func (s *ProcessService) List(c fiber.Ctx) error {
 	processes, err := process.Processes()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	data := make([]types.ProcessData, 0)
@@ -33,31 +33,28 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, data)
 
-	Success(w, chix.M{
+	return Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *ProcessService) Kill(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ProcessKill](r)
+func (s *ProcessService) Kill(c fiber.Ctx) error {
+	req, err := Bind[request.ProcessKill](c)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	proc, err := process.NewProcess(req.PID)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = proc.Kill(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	Success(w, nil)
+	return Success(c, nil)
 }
 
 // processProcess 处理进程数据
