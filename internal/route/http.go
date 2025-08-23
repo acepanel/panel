@@ -2,11 +2,10 @@ package route
 
 import (
 	"io/fs"
-	"net/http"
 	"strings"
-	"time"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/filesystem"
 
 	"github.com/tnborg/panel/internal/http/middleware"
 	"github.com/tnborg/panel/internal/service"
@@ -113,7 +112,7 @@ func NewHttp(
 	}
 }
 
-func (route *Http) Register(r *chi.Mux) {
+func (route *Http) Register(app *fiber.App) {
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
 			r.Get("/key", route.user.GetKey)

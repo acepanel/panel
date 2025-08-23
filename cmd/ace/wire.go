@@ -16,6 +16,6 @@ import (
 )
 
 // initWeb init application.
-func initWeb() (*app.Web, error) {
-	panic(wire.Build(bootstrap.ProviderSet, middleware.ProviderSet, route.ProviderSet, service.ProviderSet, data.ProviderSet, apps.ProviderSet, job.ProviderSet, app.NewAce))
+func initWeb() (*app.Ace, error) {
+	panic(wire.Build(bootstrap.ProviderSet, middleware.ProviderSet, route.ProviderSet, service.ProviderSet, data.ProviderSet, apps.ProviderSet, job.ProviderSet, app.NewWeb))
 }

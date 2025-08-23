@@ -2,27 +2,24 @@ package middleware
 
 import (
 	"log"
-	"net/http"
 	"time"
 
-	"github.com/sethvargo/go-limiter/httplimit"
-	"github.com/sethvargo/go-limiter/memorystore"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
 )
 
 // Throttle 限流器
-func Throttle(tokens uint64, interval time.Duration) func(next http.Handler) http.Handler {
-	store, err := memorystore.New(&memorystore.Config{
-		Tokens:   tokens,
-		Interval: interval,
+func Throttle(tokens int, interval time.Duration) fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        tokens,
+		Expiration: interval,
+		KeyGenerator: func(c fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"msg": "Rate limit exceeded",
+			})
+		},
 	})
-	if err != nil {
-		log.Fatalf("failed to create throttle memorystore: %v", err)
-	}
-
-	limiter, err := httplimit.NewMiddleware(store, httplimit.IPKeyFunc())
-	if err != nil {
-		log.Fatalf("failed to initialize throttle middleware: %v", err)
-	}
-
-	return limiter.Handle
 }
