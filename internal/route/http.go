@@ -2,13 +2,11 @@ package route
 
 import (
 	"io/fs"
-	"net/http"
 	"strings"
-	"time"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 
-	"github.com/tnborg/panel/internal/http/middleware"
 	"github.com/tnborg/panel/internal/service"
 	"github.com/tnborg/panel/pkg/apploader"
 	"github.com/tnborg/panel/pkg/embed"
@@ -113,344 +111,313 @@ func NewHttp(
 	}
 }
 
-func (route *Http) Register(r *chi.Mux) {
-	r.Route("/api", func(r chi.Router) {
-		r.Route("/user", func(r chi.Router) {
-			r.Get("/key", route.user.GetKey)
-			r.With(middleware.Throttle(5, time.Minute)).Post("/login", route.user.Login)
-			r.Post("/logout", route.user.Logout)
-			r.Get("/is_login", route.user.IsLogin)
-			r.Get("/is_2fa", route.user.IsTwoFA)
-			r.Get("/info", route.user.Info)
-		})
+func (route *Http) Register(app *fiber.App) {
+	api := app.Group("/api")
 
-		r.Route("/users", func(r chi.Router) {
-			r.Get("/", route.user.List)
-			r.Post("/", route.user.Create)
-			r.Post("/{id}/username", route.user.UpdateUsername)
-			r.Post("/{id}/password", route.user.UpdatePassword)
-			r.Post("/{id}/email", route.user.UpdateEmail)
-			r.Get("/{id}/2fa", route.user.GenerateTwoFA)
-			r.Post("/{id}/2fa", route.user.UpdateTwoFA)
-			r.Delete("/{id}", route.user.Delete)
-		})
+	// User routes
+	user := api.Group("/user")
+	user.Get("/key", route.user.GetKey)
+	user.Post("/login", route.user.Login) // TODO: Add throttle middleware
+	user.Post("/logout", route.user.Logout)
+	user.Get("/is_login", route.user.IsLogin)
+	user.Get("/is_2fa", route.user.IsTwoFA)
+	user.Get("/info", route.user.Info)
 
-		r.Route("/user_tokens", func(r chi.Router) {
-			r.Get("/", route.userToken.List)
-			r.Post("/", route.userToken.Create)
-			r.Put("/{id}", route.userToken.Update)
-			r.Delete("/{id}", route.userToken.Delete)
-		})
+	// Users management routes
+	users := api.Group("/users")
+	users.Get("/", route.user.List)
+	users.Post("/", route.user.Create)
+	users.Post("/:id/username", route.user.UpdateUsername)
+	users.Post("/:id/password", route.user.UpdatePassword)
+	users.Post("/:id/email", route.user.UpdateEmail)
+	users.Get("/:id/2fa", route.user.GenerateTwoFA)
+	users.Post("/:id/2fa", route.user.UpdateTwoFA)
+	users.Delete("/:id", route.user.Delete)
 
-		r.Route("/dashboard", func(r chi.Router) {
-			r.Get("/panel", route.dashboard.Panel)
-			r.Get("/home_apps", route.dashboard.HomeApps)
-			r.Post("/current", route.dashboard.Current)
-			r.Get("/system_info", route.dashboard.SystemInfo)
-			r.Get("/count_info", route.dashboard.CountInfo)
-			r.Get("/installed_db_and_php", route.dashboard.InstalledDbAndPhp)
-			r.Get("/check_update", route.dashboard.CheckUpdate)
-			r.Get("/update_info", route.dashboard.UpdateInfo)
-			r.Post("/update", route.dashboard.Update)
-			r.Post("/restart", route.dashboard.Restart)
-		})
+	// User tokens routes
+	userTokens := api.Group("/user_tokens")
+	userTokens.Get("/", route.userToken.List)
+	userTokens.Post("/", route.userToken.Create)
+	userTokens.Put("/:id", route.userToken.Update)
+	userTokens.Delete("/:id", route.userToken.Delete)
 
-		r.Route("/task", func(r chi.Router) {
-			r.Get("/status", route.task.Status)
-			r.Get("/", route.task.List)
-			r.Get("/{id}", route.task.Get)
-			r.Delete("/{id}", route.task.Delete)
-		})
+	// Dashboard routes
+	dashboard := api.Group("/dashboard")
+	dashboard.Get("/panel", route.dashboard.Panel)
+	dashboard.Get("/home_apps", route.dashboard.HomeApps)
+	dashboard.Post("/current", route.dashboard.Current)
+	dashboard.Get("/system_info", route.dashboard.SystemInfo)
+	dashboard.Get("/count_info", route.dashboard.CountInfo)
+	dashboard.Get("/installed_db_and_php", route.dashboard.InstalledDbAndPhp)
+	dashboard.Get("/check_update", route.dashboard.CheckUpdate)
+	dashboard.Get("/update_info", route.dashboard.UpdateInfo)
+	dashboard.Post("/update", route.dashboard.Update)
+	dashboard.Post("/restart", route.dashboard.Restart)
 
-		r.Route("/website", func(r chi.Router) {
-			r.Get("/rewrites", route.website.GetRewrites)
-			r.Get("/default_config", route.website.GetDefaultConfig)
-			r.Post("/default_config", route.website.UpdateDefaultConfig)
-			r.Post("/cert", route.website.UpdateCert)
-			r.Get("/", route.website.List)
-			r.Post("/", route.website.Create)
-			r.Get("/{id}", route.website.Get)
-			r.Put("/{id}", route.website.Update)
-			r.Delete("/{id}", route.website.Delete)
-			r.Delete("/{id}/log", route.website.ClearLog)
-			r.Post("/{id}/update_remark", route.website.UpdateRemark)
-			r.Post("/{id}/reset_config", route.website.ResetConfig)
-			r.Post("/{id}/status", route.website.UpdateStatus)
-			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
-		})
+	// Task routes
+	task := api.Group("/task")
+	task.Get("/status", route.task.Status)
+	task.Get("/", route.task.List)
+	task.Get("/:id", route.task.Get)
+	task.Delete("/:id", route.task.Delete)
 
-		r.Route("/database", func(r chi.Router) {
-			r.Get("/", route.database.List)
-			r.Post("/", route.database.Create)
-			r.Delete("/", route.database.Delete)
-			r.Post("/comment", route.database.Comment)
-		})
+	// Website routes
+	website := api.Group("/website")
+	website.Get("/rewrites", route.website.GetRewrites)
+	website.Get("/default_config", route.website.GetDefaultConfig)
+	website.Post("/default_config", route.website.UpdateDefaultConfig)
+	website.Post("/cert", route.website.UpdateCert)
+	website.Get("/", route.website.List)
+	website.Post("/", route.website.Create)
+	website.Get("/:id", route.website.Get)
+	website.Put("/:id", route.website.Update)
+	website.Delete("/:id", route.website.Delete)
+	website.Delete("/:id/log", route.website.ClearLog)
+	website.Post("/:id/update_remark", route.website.UpdateRemark)
+	website.Post("/:id/reset_config", route.website.ResetConfig)
+	website.Post("/:id/status", route.website.UpdateStatus)
+	website.Post("/:id/obtain_cert", route.website.ObtainCert)
 
-		r.Route("/database_server", func(r chi.Router) {
-			r.Get("/", route.databaseServer.List)
-			r.Post("/", route.databaseServer.Create)
-			r.Get("/{id}", route.databaseServer.Get)
-			r.Put("/{id}", route.databaseServer.Update)
-			r.Put("/{id}/remark", route.databaseServer.UpdateRemark)
-			r.Delete("/{id}", route.databaseServer.Delete)
-			r.Post("/{id}/sync", route.databaseServer.Sync)
-		})
+	// Database routes
+	database := api.Group("/database")
+	database.Get("/", route.database.List)
+	database.Post("/", route.database.Create)
+	database.Delete("/", route.database.Delete)
+	database.Post("/comment", route.database.Comment)
 
-		r.Route("/database_user", func(r chi.Router) {
-			r.Get("/", route.databaseUser.List)
-			r.Post("/", route.databaseUser.Create)
-			r.Get("/{id}", route.databaseUser.Get)
-			r.Put("/{id}", route.databaseUser.Update)
-			r.Put("/{id}/remark", route.databaseUser.UpdateRemark)
-			r.Delete("/{id}", route.databaseUser.Delete)
-		})
+	// Database server routes
+	databaseServer := api.Group("/database_server")
+	databaseServer.Get("/", route.databaseServer.List)
+	databaseServer.Post("/", route.databaseServer.Create)
+	databaseServer.Get("/:id", route.databaseServer.Get)
+	databaseServer.Put("/:id", route.databaseServer.Update)
+	databaseServer.Put("/:id/remark", route.databaseServer.UpdateRemark)
+	databaseServer.Delete("/:id", route.databaseServer.Delete)
+	databaseServer.Post("/:id/sync", route.databaseServer.Sync)
 
-		r.Route("/backup", func(r chi.Router) {
-			r.Get("/{type}", route.backup.List)
-			r.Post("/{type}", route.backup.Create)
-			r.Post("/{type}/upload", route.backup.Upload)
-			r.Delete("/{type}/delete", route.backup.Delete)
-			r.Post("/{type}/restore", route.backup.Restore)
-		})
+	// Database user routes
+	databaseUser := api.Group("/database_user")
+	databaseUser.Get("/", route.databaseUser.List)
+	databaseUser.Post("/", route.databaseUser.Create)
+	databaseUser.Get("/:id", route.databaseUser.Get)
+	databaseUser.Put("/:id", route.databaseUser.Update)
+	databaseUser.Put("/:id/remark", route.databaseUser.UpdateRemark)
+	databaseUser.Delete("/:id", route.databaseUser.Delete)
 
-		r.Route("/cert", func(r chi.Router) {
-			r.Get("/ca_providers", route.cert.CAProviders)
-			r.Get("/dns_providers", route.cert.DNSProviders)
-			r.Get("/algorithms", route.cert.Algorithms)
-			r.Route("/cert", func(r chi.Router) {
-				r.Get("/", route.cert.List)
-				r.Post("/", route.cert.Create)
-				r.Post("/upload", route.cert.Upload)
-				r.Put("/{id}", route.cert.Update)
-				r.Get("/{id}", route.cert.Get)
-				r.Delete("/{id}", route.cert.Delete)
-				r.Post("/{id}/obtain_auto", route.cert.ObtainAuto)
-				r.Post("/{id}/obtain_manual", route.cert.ObtainManual)
-				r.Post("/{id}/obtain_self_signed", route.cert.ObtainSelfSigned)
-				r.Post("/{id}/renew", route.cert.Renew)
-				r.Post("/{id}/manual_dns", route.cert.ManualDNS)
-				r.Post("/{id}/deploy", route.cert.Deploy)
-			})
-			r.Route("/dns", func(r chi.Router) {
-				r.Get("/", route.certDNS.List)
-				r.Post("/", route.certDNS.Create)
-				r.Put("/{id}", route.certDNS.Update)
-				r.Get("/{id}", route.certDNS.Get)
-				r.Delete("/{id}", route.certDNS.Delete)
-			})
-			r.Route("/account", func(r chi.Router) {
-				r.Get("/", route.certAccount.List)
-				r.Post("/", route.certAccount.Create)
-				r.Put("/{id}", route.certAccount.Update)
-				r.Get("/{id}", route.certAccount.Get)
-				r.Delete("/{id}", route.certAccount.Delete)
-			})
-		})
+	// Backup routes
+	backup := api.Group("/backup")
+	backup.Get("/:type", route.backup.List)
+	backup.Post("/:type", route.backup.Create)
+	backup.Post("/:type/upload", route.backup.Upload)
+	backup.Delete("/:type/delete", route.backup.Delete)
+	backup.Post("/:type/restore", route.backup.Restore)
 
-		r.Route("/app", func(r chi.Router) {
-			r.Get("/list", route.app.List)
-			r.Post("/install", route.app.Install)
-			r.Post("/uninstall", route.app.Uninstall)
-			r.Post("/update", route.app.Update)
-			r.Post("/update_show", route.app.UpdateShow)
-			r.Get("/is_installed", route.app.IsInstalled)
-			r.Get("/update_cache", route.app.UpdateCache)
-		})
+	// Certificate routes
+	cert := api.Group("/cert")
+	cert.Get("/ca_providers", route.cert.CAProviders)
+	cert.Get("/dns_providers", route.cert.DNSProviders)
+	cert.Get("/algorithms", route.cert.Algorithms)
 
-		r.Route("/cron", func(r chi.Router) {
-			r.Get("/", route.cron.List)
-			r.Post("/", route.cron.Create)
-			r.Put("/{id}", route.cron.Update)
-			r.Get("/{id}", route.cron.Get)
-			r.Delete("/{id}", route.cron.Delete)
-			r.Post("/{id}/status", route.cron.Status)
-		})
+	certCert := cert.Group("/cert")
+	certCert.Get("/", route.cert.List)
+	certCert.Post("/", route.cert.Create)
+	certCert.Post("/upload", route.cert.Upload)
+	certCert.Put("/:id", route.cert.Update)
+	certCert.Get("/:id", route.cert.Get)
+	certCert.Delete("/:id", route.cert.Delete)
+	certCert.Post("/:id/obtain_auto", route.cert.ObtainAuto)
+	certCert.Post("/:id/obtain_manual", route.cert.ObtainManual)
+	certCert.Post("/:id/obtain_self_signed", route.cert.ObtainSelfSigned)
+	certCert.Post("/:id/renew", route.cert.Renew)
+	certCert.Post("/:id/manual_dns", route.cert.ManualDNS)
+	certCert.Post("/:id/deploy", route.cert.Deploy)
 
-		r.Route("/process", func(r chi.Router) {
-			r.Get("/", route.process.List)
-			r.Post("/kill", route.process.Kill)
-		})
+	certDNS := cert.Group("/dns")
+	certDNS.Get("/", route.certDNS.List)
+	certDNS.Post("/", route.certDNS.Create)
+	certDNS.Put("/:id", route.certDNS.Update)
+	certDNS.Get("/:id", route.certDNS.Get)
+	certDNS.Delete("/:id", route.certDNS.Delete)
 
-		r.Route("/safe", func(r chi.Router) {
-			r.Get("/ssh", route.safe.GetSSH)
-			r.Post("/ssh", route.safe.UpdateSSH)
-			r.Get("/ping", route.safe.GetPingStatus)
-			r.Post("/ping", route.safe.UpdatePingStatus)
-		})
+	certAccount := cert.Group("/account")
+	certAccount.Get("/", route.certAccount.List)
+	certAccount.Post("/", route.certAccount.Create)
+	certAccount.Put("/:id", route.certAccount.Update)
+	certAccount.Get("/:id", route.certAccount.Get)
+	certAccount.Delete("/:id", route.certAccount.Delete)
 
-		r.Route("/firewall", func(r chi.Router) {
-			r.Get("/status", route.firewall.GetStatus)
-			r.Post("/status", route.firewall.UpdateStatus)
-			r.Get("/rule", route.firewall.GetRules)
-			r.Post("/rule", route.firewall.CreateRule)
-			r.Delete("/rule", route.firewall.DeleteRule)
-			r.Get("/ip_rule", route.firewall.GetIPRules)
-			r.Post("/ip_rule", route.firewall.CreateIPRule)
-			r.Delete("/ip_rule", route.firewall.DeleteIPRule)
-			r.Get("/forward", route.firewall.GetForwards)
-			r.Post("/forward", route.firewall.CreateForward)
-			r.Delete("/forward", route.firewall.DeleteForward)
-		})
+	// App routes
+	appGroup := api.Group("/app")
+	appGroup.Get("/list", route.app.List)
+	appGroup.Post("/install", route.app.Install)
+	appGroup.Post("/uninstall", route.app.Uninstall)
+	appGroup.Post("/update", route.app.Update)
+	appGroup.Post("/update_show", route.app.UpdateShow)
+	appGroup.Get("/is_installed", route.app.IsInstalled)
+	appGroup.Get("/update_cache", route.app.UpdateCache)
 
-		r.Route("/ssh", func(r chi.Router) {
-			r.Get("/", route.ssh.List)
-			r.Post("/", route.ssh.Create)
-			r.Put("/{id}", route.ssh.Update)
-			r.Get("/{id}", route.ssh.Get)
-			r.Delete("/{id}", route.ssh.Delete)
-		})
+	// Cron routes
+	cron := api.Group("/cron")
+	cron.Get("/", route.cron.List)
+	cron.Post("/", route.cron.Create)
+	cron.Put("/:id", route.cron.Update)
+	cron.Get("/:id", route.cron.Get)
+	cron.Delete("/:id", route.cron.Delete)
+	cron.Post("/:id/status", route.cron.Status)
 
-		r.Route("/container", func(r chi.Router) {
-			r.Route("/container", func(r chi.Router) {
-				r.Get("/", route.container.List)
-				r.Get("/search", route.container.Search)
-				r.Post("/", route.container.Create)
-				r.Delete("/{id}", route.container.Remove)
-				r.Post("/{id}/start", route.container.Start)
-				r.Post("/{id}/stop", route.container.Stop)
-				r.Post("/{id}/restart", route.container.Restart)
-				r.Post("/{id}/pause", route.container.Pause)
-				r.Post("/{id}/unpause", route.container.Unpause)
-				r.Post("/{id}/kill", route.container.Kill)
-				r.Post("/{id}/rename", route.container.Rename)
-				r.Get("/{id}/logs", route.container.Logs)
-				r.Post("/prune", route.container.Prune)
-			})
-			r.Route("/compose", func(r chi.Router) {
-				r.Get("/", route.containerCompose.List)
-				r.Get("/{name}", route.containerCompose.Get)
-				r.Post("/", route.containerCompose.Create)
-				r.Put("/{name}", route.containerCompose.Update)
-				r.Post("/{name}/up", route.containerCompose.Up)
-				r.Post("/{name}/down", route.containerCompose.Down)
-				r.Delete("/{name}", route.containerCompose.Remove)
-			})
-			r.Route("/network", func(r chi.Router) {
-				r.Get("/", route.containerNetwork.List)
-				r.Post("/", route.containerNetwork.Create)
-				r.Delete("/{id}", route.containerNetwork.Remove)
-				r.Post("/prune", route.containerNetwork.Prune)
-			})
-			r.Route("/image", func(r chi.Router) {
-				r.Get("/", route.containerImage.List)
-				r.Post("/", route.containerImage.Pull)
-				r.Delete("/{id}", route.containerImage.Remove)
-				r.Post("/prune", route.containerImage.Prune)
-			})
-			r.Route("/volume", func(r chi.Router) {
-				r.Get("/", route.containerVolume.List)
-				r.Post("/", route.containerVolume.Create)
-				r.Delete("/{id}", route.containerVolume.Remove)
-				r.Post("/prune", route.containerVolume.Prune)
-			})
-		})
+	// Process routes
+	process := api.Group("/process")
+	process.Get("/", route.process.List)
+	process.Post("/kill", route.process.Kill)
 
-		r.Route("/file", func(r chi.Router) {
-			r.Post("/create", route.file.Create)
-			r.Get("/content", route.file.Content)
-			r.Post("/save", route.file.Save)
-			r.Post("/delete", route.file.Delete)
-			r.Post("/upload", route.file.Upload)
-			r.Post("/exist", route.file.Exist)
-			r.Post("/move", route.file.Move)
-			r.Post("/copy", route.file.Copy)
-			r.Get("/download", route.file.Download)
-			r.Post("/remote_download", route.file.RemoteDownload)
-			r.Get("/info", route.file.Info)
-			r.Post("/permission", route.file.Permission)
-			r.Post("/compress", route.file.Compress)
-			r.Post("/un_compress", route.file.UnCompress)
-			r.Get("/search", route.file.Search)
-			r.Get("/list", route.file.List)
-		})
+	// Safe routes
+	safe := api.Group("/safe")
+	safe.Get("/ssh", route.safe.GetSSH)
+	safe.Post("/ssh", route.safe.UpdateSSH)
+	safe.Get("/ping", route.safe.GetPingStatus)
+	safe.Post("/ping", route.safe.UpdatePingStatus)
 
-		r.Route("/monitor", func(r chi.Router) {
-			r.Get("/setting", route.monitor.GetSetting)
-			r.Post("/setting", route.monitor.UpdateSetting)
-			r.Post("/clear", route.monitor.Clear)
-			r.Get("/list", route.monitor.List)
-		})
+	// Firewall routes
+	firewall := api.Group("/firewall")
+	firewall.Get("/status", route.firewall.GetStatus)
+	firewall.Post("/status", route.firewall.UpdateStatus)
+	firewall.Get("/rule", route.firewall.GetRules)
+	firewall.Post("/rule", route.firewall.CreateRule)
+	firewall.Delete("/rule", route.firewall.DeleteRule)
+	firewall.Get("/ip_rule", route.firewall.GetIPRules)
+	firewall.Post("/ip_rule", route.firewall.CreateIPRule)
+	firewall.Delete("/ip_rule", route.firewall.DeleteIPRule)
+	firewall.Get("/forward", route.firewall.GetForwards)
+	firewall.Post("/forward", route.firewall.CreateForward)
+	firewall.Delete("/forward", route.firewall.DeleteForward)
 
-		r.Route("/setting", func(r chi.Router) {
-			r.Get("/", route.setting.Get)
-			r.Post("/", route.setting.Update)
-			r.Post("/cert", route.setting.UpdateCert)
-		})
+	// SSH routes
+	ssh := api.Group("/ssh")
+	ssh.Get("/", route.ssh.List)
+	ssh.Post("/", route.ssh.Create)
+	ssh.Put("/:id", route.ssh.Update)
+	ssh.Get("/:id", route.ssh.Get)
+	ssh.Delete("/:id", route.ssh.Delete)
 
-		r.Route("/systemctl", func(r chi.Router) {
-			r.Get("/status", route.systemctl.Status)
-			r.Get("/is_enabled", route.systemctl.IsEnabled)
-			r.Post("/enable", route.systemctl.Enable)
-			r.Post("/disable", route.systemctl.Disable)
-			r.Post("/restart", route.systemctl.Restart)
-			r.Post("/reload", route.systemctl.Reload)
-			r.Post("/start", route.systemctl.Start)
-			r.Post("/stop", route.systemctl.Stop)
-		})
+	// Container routes
+	container := api.Group("/container")
 
-		r.Route("/toolbox_system", func(r chi.Router) {
-			r.Get("/dns", route.toolboxSystem.GetDNS)
-			r.Post("/dns", route.toolboxSystem.UpdateDNS)
-			r.Get("/swap", route.toolboxSystem.GetSWAP)
-			r.Post("/swap", route.toolboxSystem.UpdateSWAP)
-			r.Get("/timezone", route.toolboxSystem.GetTimezone)
-			r.Post("/timezone", route.toolboxSystem.UpdateTimezone)
-			r.Post("/time", route.toolboxSystem.UpdateTime)
-			r.Post("/sync_time", route.toolboxSystem.SyncTime)
-			r.Get("/hostname", route.toolboxSystem.GetHostname)
-			r.Post("/hostname", route.toolboxSystem.UpdateHostname)
-			r.Get("/hosts", route.toolboxSystem.GetHosts)
-			r.Post("/hosts", route.toolboxSystem.UpdateHosts)
-			r.Post("/root_password", route.toolboxSystem.UpdateRootPassword)
-		})
+	containerContainer := container.Group("/container")
+	containerContainer.Get("/", route.container.List)
+	containerContainer.Get("/search", route.container.Search)
+	containerContainer.Post("/", route.container.Create)
+	containerContainer.Delete("/:id", route.container.Remove)
+	containerContainer.Post("/:id/start", route.container.Start)
+	containerContainer.Post("/:id/stop", route.container.Stop)
+	containerContainer.Post("/:id/restart", route.container.Restart)
+	containerContainer.Post("/:id/pause", route.container.Pause)
+	containerContainer.Post("/:id/unpause", route.container.Unpause)
+	containerContainer.Post("/:id/kill", route.container.Kill)
+	containerContainer.Post("/:id/rename", route.container.Rename)
+	containerContainer.Get("/:id/logs", route.container.Logs)
+	containerContainer.Post("/prune", route.container.Prune)
 
-		r.Route("/toolbox_benchmark", func(r chi.Router) {
-			r.Post("/test", route.toolboxBenchmark.Test)
-		})
+	containerCompose := container.Group("/compose")
+	containerCompose.Get("/", route.containerCompose.List)
+	containerCompose.Get("/:name", route.containerCompose.Get)
+	containerCompose.Post("/", route.containerCompose.Create)
+	containerCompose.Put("/:name", route.containerCompose.Update)
+	containerCompose.Post("/:name/up", route.containerCompose.Up)
+	containerCompose.Post("/:name/down", route.containerCompose.Down)
+	containerCompose.Delete("/:name", route.containerCompose.Remove)
 
-		r.Route("/apps", func(r chi.Router) {
-			route.apps.Register(r)
-		})
-	})
+	containerNetwork := container.Group("/network")
+	containerNetwork.Get("/", route.containerNetwork.List)
+	containerNetwork.Post("/", route.containerNetwork.Create)
+	containerNetwork.Delete("/:id", route.containerNetwork.Remove)
+	containerNetwork.Post("/prune", route.containerNetwork.Prune)
 
-	r.NotFound(func(writer http.ResponseWriter, request *http.Request) {
-		// /api 开头的返回 404
-		if strings.HasPrefix(request.URL.Path, "/api") {
-			http.NotFound(writer, request)
-			return
-		}
-		// 其他返回前端页面
-		frontend, _ := fs.Sub(embed.PublicFS, "frontend")
-		spaHandler := func(fs http.FileSystem) http.HandlerFunc {
-			fileServer := http.FileServer(fs)
-			return func(w http.ResponseWriter, r *http.Request) {
-				path := r.URL.Path
-				f, err := fs.Open(path)
-				if err != nil {
-					indexFile, err := fs.Open("index.html")
-					if err != nil {
-						http.NotFound(w, r)
-						return
-					}
-					defer func(indexFile http.File) {
-						_ = indexFile.Close()
-					}(indexFile)
+	containerImage := container.Group("/image")
+	containerImage.Get("/", route.containerImage.List)
+	containerImage.Post("/", route.containerImage.Pull)
+	containerImage.Delete("/:id", route.containerImage.Remove)
+	containerImage.Post("/prune", route.containerImage.Prune)
 
-					fi, err := indexFile.Stat()
-					if err != nil {
-						http.NotFound(w, r)
-						return
-					}
+	containerVolume := container.Group("/volume")
+	containerVolume.Get("/", route.containerVolume.List)
+	containerVolume.Post("/", route.containerVolume.Create)
+	containerVolume.Delete("/:id", route.containerVolume.Remove)
+	containerVolume.Post("/prune", route.containerVolume.Prune)
 
-					http.ServeContent(w, r, "index.html", fi.ModTime(), indexFile)
-					return
-				}
-				defer func(f http.File) {
-					_ = f.Close()
-				}(f)
-				fileServer.ServeHTTP(w, r)
-			}
-		}
-		spaHandler(http.FS(frontend)).ServeHTTP(writer, request)
-	})
+	// File routes
+	file := api.Group("/file")
+	file.Post("/create", route.file.Create)
+	file.Get("/content", route.file.Content)
+	file.Post("/save", route.file.Save)
+	file.Post("/delete", route.file.Delete)
+	file.Post("/upload", route.file.Upload)
+	file.Post("/exist", route.file.Exist)
+	file.Post("/move", route.file.Move)
+	file.Post("/copy", route.file.Copy)
+	file.Get("/download", route.file.Download)
+	file.Post("/remote_download", route.file.RemoteDownload)
+	file.Get("/info", route.file.Info)
+	file.Post("/permission", route.file.Permission)
+	file.Post("/compress", route.file.Compress)
+	file.Post("/un_compress", route.file.UnCompress)
+	file.Get("/search", route.file.Search)
+	file.Get("/list", route.file.List)
+
+	// Monitor routes
+	monitor := api.Group("/monitor")
+	monitor.Get("/setting", route.monitor.GetSetting)
+	monitor.Post("/setting", route.monitor.UpdateSetting)
+	monitor.Post("/clear", route.monitor.Clear)
+	monitor.Get("/list", route.monitor.List)
+
+	// Setting routes
+	setting := api.Group("/setting")
+	setting.Get("/", route.setting.Get)
+	setting.Post("/", route.setting.Update)
+	setting.Post("/cert", route.setting.UpdateCert)
+
+	// Systemctl routes
+	systemctl := api.Group("/systemctl")
+	systemctl.Get("/status", route.systemctl.Status)
+	systemctl.Get("/is_enabled", route.systemctl.IsEnabled)
+	systemctl.Post("/enable", route.systemctl.Enable)
+	systemctl.Post("/disable", route.systemctl.Disable)
+	systemctl.Post("/restart", route.systemctl.Restart)
+	systemctl.Post("/reload", route.systemctl.Reload)
+	systemctl.Post("/start", route.systemctl.Start)
+	systemctl.Post("/stop", route.systemctl.Stop)
+
+	// Toolbox system routes
+	toolboxSystem := api.Group("/toolbox_system")
+	toolboxSystem.Get("/dns", route.toolboxSystem.GetDNS)
+	toolboxSystem.Post("/dns", route.toolboxSystem.UpdateDNS)
+	toolboxSystem.Get("/swap", route.toolboxSystem.GetSWAP)
+	toolboxSystem.Post("/swap", route.toolboxSystem.UpdateSWAP)
+	toolboxSystem.Get("/timezone", route.toolboxSystem.GetTimezone)
+	toolboxSystem.Post("/timezone", route.toolboxSystem.UpdateTimezone)
+	toolboxSystem.Post("/time", route.toolboxSystem.UpdateTime)
+	toolboxSystem.Post("/sync_time", route.toolboxSystem.SyncTime)
+	toolboxSystem.Get("/hostname", route.toolboxSystem.GetHostname)
+	toolboxSystem.Post("/hostname", route.toolboxSystem.UpdateHostname)
+	toolboxSystem.Get("/hosts", route.toolboxSystem.GetHosts)
+	toolboxSystem.Post("/hosts", route.toolboxSystem.UpdateHosts)
+	toolboxSystem.Post("/root_password", route.toolboxSystem.UpdateRootPassword)
+
+	// Toolbox benchmark routes
+	toolboxBenchmark := api.Group("/toolbox_benchmark")
+	toolboxBenchmark.Post("/test", route.toolboxBenchmark.Test)
+
+	// Apps routes
+	apps := api.Group("/apps")
+	route.apps.Register(apps)
+
+	// Static file serving for frontend
+	frontend, _ := fs.Sub(embed.PublicFS, "frontend")
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:       frontend,
+		PathPrefix: "/",
+		Browse:     false,
+		Index:      "index.html",
+		NotFoundFile: "index.html",
+	}))
 }
