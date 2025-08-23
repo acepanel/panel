@@ -158,6 +158,9 @@ func (route *Http) Register(app *fiber.App) {
 	task.Get("/:id", route.task.Get)
 	task.Delete("/:id", route.task.Delete)
 
+	// TODO: Add remaining routes (database, backup, cert, etc.)
+	// For now, focus on core functionality
+
 	// Add static file serving for frontend
 	// For now, serve from disk - can be optimized later
 	app.Static("/", "./storage/frontend", fiber.Static{
