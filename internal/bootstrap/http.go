@@ -11,12 +11,10 @@ import (
 
 func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *route.Http, ws *route.Ws, conf *koanf.Koanf) (*fiber.App, error) {
 	app := fiber.New(fiber.Config{
-		Prefork:           conf.Bool("http.prefork"),
 		DisableKeepalive:  !conf.Bool("http.keepalive"),
 		ReadBufferSize:    8192,
 		WriteBufferSize:   8192,
 		RequestMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"},
-		EnablePrintRoutes: conf.Bool("http.debug"),
 	})
 
 	// add middleware

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
@@ -28,7 +28,7 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/users", s.List)
 	r.Post("/users", s.Create)
 	r.Delete("/users/{username}", s.Delete)
@@ -38,10 +38,10 @@ func (s *App) Route(r chi.Router) {
 }
 
 // List 获取用户列表
-func (s *App) List(w http.ResponseWriter, r *http.Request) {
+func (s *App) List(c fiber.Ctx) error {
 	listRaw, err := shell.Execf("pure-pw list")
 	if err != nil {
-		service.Success(w, chix.M{
+		return service.Success(c, chix.M{
 			"total": 0,
 			"items": []User{},
 		})
@@ -61,104 +61,91 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	paged, total := service.Paginate(r, users)
+	paged, total := service.Paginate(c, users)
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
 // Create 创建用户
-func (s *App) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Create](r)
+func (s *App) Create(c fiber.Ctx) error {
+	req, err := service.Bind[Create](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if !strings.HasPrefix(req.Path, "/") {
 		req.Path = "/" + req.Path
 	}
 	if !io.Exists(req.Path) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("directory %s does not exist", req.Path))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("directory %s does not exist", req.Path))
 	}
 
 	if _, err = shell.Execf(`yes '%s' | pure-pw useradd '%s' -u www -g www -d '%s'`, req.Password, req.Username, req.Path); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // Delete 删除用户
-func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Delete](r)
+func (s *App) Delete(c fiber.Ctx) error {
+	req, err := service.Bind[Delete](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = shell.Execf("pure-pw userdel '%s' -m", req.Username); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // ChangePassword 修改密码
-func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ChangePassword](r)
+func (s *App) ChangePassword(c fiber.Ctx) error {
+	req, err := service.Bind[ChangePassword](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = shell.Execf(`yes '%s' | pure-pw passwd '%s' -m`, req.Password, req.Username); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // GetPort 获取端口
-func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetPort(c fiber.Ctx) error {
 	port, err := shell.Execf(`cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 	}
 
-	service.Success(w, cast.ToInt(port))
+	return service.Success(c, cast.ToInt(port))
 }
 
 // UpdatePort 设置端口
-func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdatePort](r)
+func (s *App) UpdatePort(c fiber.Ctx) error {
+	req, err := service.Bind[UpdatePort](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = shell.Execf(`sed -i "s/Bind.*/Bind 0.0.0.0,%d/g" %s/server/pure-ftpd/etc/pure-ftpd.conf`, req.Port, app.Root); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	fw := firewall.NewFirewall()
@@ -170,14 +157,12 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		Strategy:  firewall.StrategyAccept,
 	}, firewall.OperationAdd)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("pure-ftpd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

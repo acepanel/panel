@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
@@ -33,7 +33,7 @@ func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
@@ -45,68 +45,58 @@ func (s *App) Route(r chi.Router) {
 }
 
 // GetConfig 获取配置
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
 // UpdateConfig 保存配置
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write(app.Root+"/server/mysql/conf/my.cnf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // Load 获取负载
-func (s *App) Load(w http.ResponseWriter, r *http.Request) {
+func (s *App) Load(c fiber.Ctx) error {
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 
 	}
 	if len(rootPassword) == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("MySQL root password is empty"))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("MySQL root password is empty"))
 	}
 
 	status, _ := systemctl.Status("mysqld")
 	if !status {
-		service.Success(w, []types.NV{})
-		return
+		return service.Success(c, []types.NV{})
 	}
 
 	if err = os.Setenv("MYSQL_PWD", rootPassword); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set MYSQL_PWD env: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to set MYSQL_PWD env: %v", err))
 	}
 	raw, err := shell.Execf(`mysqladmin -u root extended-status`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
 	}
 	if err = os.Unsetenv("MYSQL_PWD"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to unset MYSQL_PWD env: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to unset MYSQL_PWD env: %v", err))
 	}
 
 	var load []map[string]string
@@ -156,51 +146,47 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	bufferPoolReadRequests := cast.ToFloat64(load[12]["value"])
 	load[10]["value"] = fmt.Sprintf("%.2f%%", bufferPoolReadRequests/(bufferPoolReads+bufferPoolReadRequests)*100)
 
-	service.Success(w, load)
+	return service.Success(c, load)
 }
 
 // ClearErrorLog 清空错误日志
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearErrorLog(c fiber.Ctx) error {
 	if err := systemctl.LogClear("mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // SlowLog 获取慢查询日志
-func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/server/mysql/mysql-slow.log", app.Root))
+func (s *App) SlowLog(c fiber.Ctx) error {
+	return service.Success(c, fmt.Sprintf("%s/server/mysql/mysql-slow.log", app.Root))
 }
 
 // ClearSlowLog 清空慢查询日志
-func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearSlowLog(c fiber.Ctx) error {
 	if _, err := shell.Execf("cat /dev/null > %s/server/mysql/mysql-slow.log", app.Root); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // GetRootPassword 获取root密码
-func (s *App) GetRootPassword(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetRootPassword(c fiber.Ctx) error {
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 	}
 
-	service.Success(w, rootPassword)
+	return service.Success(c, rootPassword)
 }
 
 // SetRootPassword 设置root密码
-func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[SetRootPassword](r)
+func (s *App) SetRootPassword(c fiber.Ctx) error {
+	req, err := service.Bind[SetRootPassword](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	oldRootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
@@ -208,24 +194,21 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// 尝试安全模式直接改密
 		if err = db.MySQLResetRootPassword(req.Password); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	} else {
 		defer func(mysql *db.MySQL) {
 			_ = mysql.Close()
 		}(mysql)
 		if err = mysql.UserPassword("root", req.Password, "localhost"); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	}
 	if err = s.settingRepo.Set(biz.SettingKeyMySQLRootPassword, req.Password); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 func (s *App) getSock() string {

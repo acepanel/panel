@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
@@ -31,7 +31,7 @@ func NewApp(t *gotext.Locale, website biz.WebsiteRepo) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/jails", s.List)
 	r.Post("/jails", s.Create)
 	r.Delete("/jails", s.Delete)
@@ -42,11 +42,10 @@ func (s *App) Route(r chi.Router) {
 }
 
 // List 所有规则
-func (s *App) List(w http.ResponseWriter, r *http.Request) {
+func (s *App) List(c fiber.Ctx) error {
 	raw, err := io.Read("/etc/fail2ban/jail.local")
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	jailList := regexp.MustCompile(`\[(.*?)]`).FindAllStringSubmatch(raw, -1)
@@ -76,20 +75,19 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	paged, total := service.Paginate(r, jails)
+	paged, total := service.Paginate(c, jails)
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
 // Create 添加规则
-func (s *App) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Add](r)
+func (s *App) Create(c fiber.Ctx) error {
+	req, err := service.Bind[Add](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	jailName := req.Name
 	jailType := req.Type
@@ -102,20 +100,17 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 
 	raw, err := io.Read("/etc/fail2ban/jail.local")
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	if (strings.Contains(raw, "["+jailName+"]") && jailType == "service") || (strings.Contains(raw, "["+jailWebsiteName+"]"+"-cc") && jailType == "website" && jailWebsiteMode == "cc") || (strings.Contains(raw, "["+jailWebsiteName+"]"+"-path") && jailType == "website" && jailWebsiteMode == "path") {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule already exists"))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("rule already exists"))
 	}
 
 	switch jailType {
 	case "website":
 		website, err := s.websiteRepo.GetByName(jailWebsiteName)
 		if err != nil {
-			service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-			return
+			return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 		}
 		var ports string
 		for _, listen := range website.Listens {
@@ -139,8 +134,7 @@ logpath = ` + app.Root + `/wwwlogs/` + website.Name + `.log
 `
 		raw += rule
 		if err = io.Write("/etc/fail2ban/jail.local", raw, 0644); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 
 		var filter string
@@ -158,8 +152,7 @@ ignoreregex =
 `
 		}
 		if err = io.Write("/etc/fail2ban/filter.d/haozi-"+jailWebsiteName+"-"+jailWebsiteMode+".conf", filter, 0644); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 
 	case "service":
@@ -177,12 +170,10 @@ ignoreregex =
 			filter = "pure-ftpd"
 			port, err = shell.Execf(`cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
 		default:
-			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown service"))
-			return
+			return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("unknown service"))
 		}
 		if len(port) == 0 || err != nil {
-			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("get service port failed, please check if it is installed"))
-			return
+			return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("get service port failed, please check if it is installed"))
 		}
 
 		rule := `
@@ -198,75 +189,64 @@ bantime = ` + jailBanTime + `
 `
 		raw += rule
 		if err := io.Write("/etc/fail2ban/jail.local", raw, 0644); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	}
 
 	if _, err = shell.Execf("fail2ban-client reload"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // Delete 删除规则
-func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Delete](r)
+func (s *App) Delete(c fiber.Ctx) error {
+	req, err := service.Bind[Delete](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	raw, err := io.Read("/etc/fail2ban/jail.local")
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	if !strings.Contains(raw, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule not found"))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("rule not found"))
 	}
 
 	rule := str.Cut(raw, "# "+req.Name+"-START", "# "+req.Name+"-END")
 	raw = strings.ReplaceAll(raw, "\n# "+req.Name+"-START"+rule+"# "+req.Name+"-END", "")
 	raw = strings.TrimSpace(raw)
 	if err := io.Write("/etc/fail2ban/jail.local", raw, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if _, err := shell.Execf("fail2ban-client reload"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // BanList 获取封禁列表
-func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[BanList](r)
+func (s *App) BanList(c fiber.Ctx) error {
+	req, err := service.Bind[BanList](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	currentlyBan, err := shell.Execf(`fail2ban-client status %s | grep "Currently banned" | awk '{print $4}'`, req.Name)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get current banned list"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get current banned list"))
 	}
 	totalBan, err := shell.Execf(`fail2ban-client status %s | grep "Total banned" | awk '{print $4}'`, req.Name)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get total banned list"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get total banned list"))
 	}
 	bannedIp, err := shell.Execf(`fail2ban-client status %s | grep "Banned IP list" | awk -F ":" '{print $2}'`, req.Name)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get banned ip list"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get banned ip list"))
 	}
 	bannedIpList := strings.Split(bannedIp, " ")
 
@@ -283,7 +263,7 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 		list = []map[string]string{}
 	}
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"currently_ban": currentlyBan,
 		"total_ban":     totalBan,
 		"baned_list":    list,
@@ -291,68 +271,59 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 }
 
 // Unban 解封
-func (s *App) Unban(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Unban](r)
+func (s *App) Unban(c fiber.Ctx) error {
+	req, err := service.Bind[Unban](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if _, err = shell.Execf("fail2ban-client set %s unbanip %s", req.Name, req.IP); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // SetWhiteList 设置白名单
-func (s *App) SetWhiteList(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[SetWhiteList](r)
+func (s *App) SetWhiteList(c fiber.Ctx) error {
+	req, err := service.Bind[SetWhiteList](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	raw, err := io.Read("/etc/fail2ban/jail.local")
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	// 正则替换
 	reg := regexp.MustCompile(`ignoreip\s*=\s*.*\n`)
 	if reg.MatchString(raw) {
 		raw = reg.ReplaceAllString(raw, "ignoreip = "+req.IP+"\n")
 	} else {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to parse the ignoreip of fail2ban"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to parse the ignoreip of fail2ban"))
 	}
 
 	if err = io.Write("/etc/fail2ban/jail.local", raw, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if _, err = shell.Execf("fail2ban-client reload"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // GetWhiteList 获取白名单
-func (s *App) GetWhiteList(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetWhiteList(c fiber.Ctx) error {
 	raw, err := io.Read("/etc/fail2ban/jail.local")
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 	reg := regexp.MustCompile(`ignoreip\s*=\s*(.*)\n`)
 	if reg.MatchString(raw) {
 		ignoreIp := reg.FindStringSubmatch(raw)[1]
-		service.Success(w, ignoreIp)
+		return service.Success(c, ignoreIp)
 	} else {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to parse the ignoreip of fail2ban"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to parse the ignoreip of fail2ban"))
 	}
 }

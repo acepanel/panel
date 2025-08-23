@@ -3,7 +3,7 @@ package minio
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/tnborg/panel/internal/service"
 	"github.com/tnborg/panel/pkg/io"
@@ -16,32 +16,29 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/env", s.GetEnv)
 	r.Post("/env", s.UpdateEnv)
 }
 
-func (s *App) GetEnv(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetEnv(c fiber.Ctx) error {
 	env, _ := io.Read("/etc/default/minio")
-	service.Success(w, env)
+	return service.Success(c, env)
 }
 
-func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateEnv](r)
+func (s *App) UpdateEnv(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateEnv](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write("/etc/default/minio", req.Env, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("minio"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

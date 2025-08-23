@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/tnborg/panel/pkg/types"
 )
@@ -22,14 +22,11 @@ func (r *Loader) Add(app ...types.App) {
 	}
 }
 
-func (r *Loader) Register(mux chi.Router) {
-	/*for slug, item := range r.Apps {
-		mux.Route("/"+slug, item.Route)
-	}*/
-
+func (r *Loader) Register(router fiber.Router) {
 	apps.Range(func(key, value any) bool {
-		app := value.(types.App)
-		mux.Route("/"+key.(string), app.Route)
+		appInstance := value.(types.App)
+		appGroup := router.Group("/" + key.(string))
+		appInstance.Route(appGroup)
 		return true
 	})
 }

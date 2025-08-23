@@ -1,10 +1,10 @@
 package types
 
-import "github.com/go-chi/chi/v5"
+import "github.com/gofiber/fiber/v3"
 
 // App 应用接口
 type App interface {
-	Route(r chi.Router)
+	Route(r fiber.Router)
 }
 
 // AppCenter 应用中心结构

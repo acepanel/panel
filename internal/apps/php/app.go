@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -34,8 +34,8 @@ func NewApp(t *gotext.Locale, task biz.TaskRepo) *App {
 	}
 }
 
-func (s *App) Route(version uint) func(r chi.Router) {
-	return func(r chi.Router) {
+func (s *App) Route(version uint) func(r fiber.Router) {
+	return func(r fiber.Router) {
 		php := new(App)
 		php.version = version
 		php.t = s.t
@@ -56,72 +56,64 @@ func (s *App) Route(version uint) func(r chi.Router) {
 	}
 }
 
-func (s *App) SetCli(w http.ResponseWriter, r *http.Request) {
+func (s *App) SetCli(c fiber.Ctx) error {
 	if _, err := shell.Execf("ln -sf %s/server/php/%d/bin/php /usr/bin/php", app.Root, s.version); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read(fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, s.version))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, s.version), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) GetFPMConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetFPMConfig(c fiber.Ctx) error {
 	config, err := io.Read(fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, s.version))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateFPMConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateFPMConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, s.version), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) Load(w http.ResponseWriter, r *http.Request) {
+func (s *App) Load(c fiber.Ctx) error {
 	var raw map[string]any
 	client := resty.New().SetTimeout(10 * time.Second)
 	_, err := client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json", s.version))
 	if err != nil {
-		service.Success(w, []types.NV{})
-		return
+		return service.Success(c, []types.NV{})
 	}
 
 	dataKeys := []string{
@@ -166,41 +158,38 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	service.Success(w, loads)
+	return service.Success(c, loads)
 }
 
-func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/server/php/%d/var/log/php-fpm.log", app.Root, s.version))
+func (s *App) ErrorLog(c fiber.Ctx) error {
+	return service.Success(c, fmt.Sprintf("%s/server/php/%d/var/log/php-fpm.log", app.Root, s.version))
 }
 
-func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/server/php/%d/var/log/slow.log", app.Root, s.version))
+func (s *App) SlowLog(c fiber.Ctx) error {
+	return service.Success(c, fmt.Sprintf("%s/server/php/%d/var/log/slow.log", app.Root, s.version))
 }
 
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearErrorLog(c fiber.Ctx) error {
 	if _, err := shell.Execf("cat /dev/null > %s/server/php/%d/var/log/php-fpm.log", app.Root, s.version); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearSlowLog(c fiber.Ctx) error {
 	if _, err := shell.Execf("cat /dev/null > %s/server/php/%d/var/log/slow.log", app.Root, s.version); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
+func (s *App) ExtensionList(c fiber.Ctx) error {
 	extensions := s.getExtensions()
 	raw, err := shell.Execf("%s/server/php/%d/bin/php -m", app.Root, s.version)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	extensionMap := make(map[string]*Extension)
@@ -215,19 +204,17 @@ func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	service.Success(w, extensions)
+	return service.Success(c, extensions)
 }
 
-func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExtensionSlug](r)
+func (s *App) InstallExtension(c fiber.Ctx) error {
+	req, err := service.Bind[ExtensionSlug](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
 	}
 
 	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'install' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
@@ -242,23 +229,20 @@ func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
 	task.Shell = cmd
 	task.Log = "/tmp/" + req.Slug + ".log"
 	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExtensionSlug](r)
+func (s *App) UninstallExtension(c fiber.Ctx) error {
+	req, err := service.Bind[ExtensionSlug](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
 	}
 
 	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'uninstall' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
@@ -273,11 +257,10 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 	task.Shell = cmd
 	task.Log = "/tmp/" + req.Slug + ".log"
 	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 func (s *App) getExtensions() []Extension {

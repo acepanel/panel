@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnborg/panel/internal/app"
@@ -27,29 +27,26 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) Load(w http.ResponseWriter, r *http.Request) {
+func (s *App) Load(c fiber.Ctx) error {
 	status, err := systemctl.Status("redis")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get redis status: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get redis status: %v", err))
 	}
 	if !status {
-		service.Success(w, []types.NV{})
-		return
+		return service.Success(c, []types.NV{})
 	}
 
 	// 检查 Redis 密码
 	withPassword := ""
 	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	re := regexp.MustCompile(`^requirepass\s+(.+)`)
 	matches := re.FindStringSubmatch(config)
@@ -59,8 +56,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	raw, err := shell.Execf("redis-cli%s info", withPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get redis info: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get redis info: %v", err))
 	}
 
 	infoLines := strings.Split(raw, "\n")
@@ -89,35 +85,31 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		{Name: s.t.Get("Latest Fork Time (ms)"), Value: dataRaw["latest_fork_usec"]},
 	}
 
-	service.Success(w, data)
+	return service.Success(c, data)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/redis/redis.conf", app.Root), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("redis"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

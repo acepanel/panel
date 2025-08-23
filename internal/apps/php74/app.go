@@ -1,7 +1,7 @@
 package php74
 
 import (
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnborg/panel/internal/apps/php"
@@ -18,6 +18,6 @@ func NewApp(t *gotext.Locale, task biz.TaskRepo) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	s.php.Route(74)(r)
 }

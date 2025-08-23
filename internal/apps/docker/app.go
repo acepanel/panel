@@ -3,7 +3,7 @@ package docker
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/tnborg/panel/internal/service"
 	"github.com/tnborg/panel/pkg/io"
@@ -16,37 +16,33 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read("/etc/docker/daemon.json")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write("/etc/docker/daemon.json", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("docker"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

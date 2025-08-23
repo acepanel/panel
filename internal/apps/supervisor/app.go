@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
@@ -35,7 +35,7 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/service", s.Service)
 	r.Post("/clear_log", s.ClearLog)
 	r.Get("/config", s.GetConfig)
@@ -53,22 +53,21 @@ func (s *App) Route(r chi.Router) {
 }
 
 // Service 获取服务名称
-func (s *App) Service(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, s.name)
+func (s *App) Service(c fiber.Ctx) error {
+	return service.Success(c, s.name)
 }
 
 // ClearLog 清空日志
-func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearLog(c fiber.Ctx) error {
 	if _, err := shell.Execf(`cat /dev/null > /var/log/supervisor/supervisord.log`); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // GetConfig 获取配置
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	var config string
 	var err error
 	if os.IsRHEL() {
@@ -78,19 +77,17 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
 // UpdateConfig 保存配置
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if os.IsRHEL() {
@@ -100,24 +97,21 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart(s.name); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart %s: %v", s.name, err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to restart %s: %v", s.name, err))
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // Processes 进程列表
-func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
+func (s *App) Processes(c fiber.Ctx) error {
 	out, err := shell.Execf(`supervisorctl status | awk '{print $1}'`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	var processes []Process
@@ -143,68 +137,61 @@ func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
 		processes = append(processes, p)
 	}
 
-	paged, total := service.Paginate(r, processes)
+	paged, total := service.Paginate(c, processes)
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
 // StartProcess 启动进程
-func (s *App) StartProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) StartProcess(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if out, err := shell.Execf(`supervisorctl start %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v %s", err, out)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // StopProcess 停止进程
-func (s *App) StopProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) StopProcess(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if out, err := shell.Execf(`supervisorctl stop %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v %s", err, out)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // RestartProcess 重启进程
-func (s *App) RestartProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) RestartProcess(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if out, err := shell.Execf(`supervisorctl restart %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v %s", err, out)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // ProcessLog 进程日志
-func (s *App) ProcessLog(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) ProcessLog(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	var logPath string
@@ -215,19 +202,17 @@ func (s *App) ProcessLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 	}
 
-	service.Success(w, logPath)
+	return service.Success(c, logPath)
 }
 
 // ClearProcessLog 清空进程日志
-func (s *App) ClearProcessLog(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) ClearProcessLog(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	var logPath string
@@ -238,24 +223,21 @@ func (s *App) ClearProcessLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 	}
 
 	if _, err = shell.Execf(`cat /dev/null > '%s'`, logPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // ProcessConfig 获取进程配置
-func (s *App) ProcessConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) ProcessConfig(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	var config string
@@ -266,19 +248,17 @@ func (s *App) ProcessConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
 // UpdateProcessConfig 保存进程配置
-func (s *App) UpdateProcessConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateProcessConfig](r)
+func (s *App) UpdateProcessConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateProcessConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if os.IsRHEL() {
@@ -288,23 +268,21 @@ func (s *App) UpdateProcessConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	_, _ = shell.Execf(`supervisorctl reread`)
 	_, _ = shell.Execf(`supervisorctl update`)
 	_, _ = shell.Execf(`supervisorctl restart '%s'`, req.Process)
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // CreateProcess 添加进程
-func (s *App) CreateProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[CreateProcess](r)
+func (s *App) CreateProcess(c fiber.Ctx) error {
+	req, err := service.Bind[CreateProcess](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	config := `[program:` + req.Name + `]
@@ -327,59 +305,51 @@ stdout_logfile_maxbytes=2MB
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	_, _ = shell.Execf(`supervisorctl reread`)
 	_, _ = shell.Execf(`supervisorctl update`)
 	_, _ = shell.Execf(`supervisorctl start '%s'`, req.Name)
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
 // DeleteProcess 删除进程
-func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
+func (s *App) DeleteProcess(c fiber.Ctx) error {
+	req, err := service.Bind[ProcessName](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if out, err := shell.Execf(`supervisorctl stop '%s'`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v %s", err, out)
 	}
 
 	var logPath string
 	if os.IsRHEL() {
 		logPath, err = shell.Execf(`cat '/etc/supervisord.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, req.Process)
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
-			return
+			return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 		}
 		if err = io.Remove(`/etc/supervisord.d/` + req.Process + `.conf`); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	} else {
 		logPath, err = shell.Execf(`cat '/etc/supervisor/conf.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, req.Process)
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
-			return
+			return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 		}
 		if err = io.Remove(`/etc/supervisor/conf.d/` + req.Process + `.conf`); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	}
 
 	if err = io.Remove(logPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	_, _ = shell.Execf(`supervisorctl reread`)
 	_, _ = shell.Execf(`supervisorctl update`)
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

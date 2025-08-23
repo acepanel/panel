@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnborg/panel/internal/service"
@@ -25,27 +25,24 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) Load(w http.ResponseWriter, r *http.Request) {
+func (s *App) Load(c fiber.Ctx) error {
 	status, err := systemctl.Status("memcached")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get Memcached status: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get Memcached status: %v", err))
 	}
 	if !status {
-		service.Success(w, []types.NV{})
-		return
+		return service.Success(c, []types.NV{})
 	}
 
 	conn, err := net.Dial("tcp", "127.0.0.1:11211")
 	if err != nil {
-		service.Success(w, []types.NV{})
-		return
+		return service.Success(c, []types.NV{})
 	}
 	defer func(conn net.Conn) {
 		_ = conn.Close()
@@ -53,8 +50,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	_, err = conn.Write([]byte("stats\nquit\n"))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write to Memcached: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to write to Memcached: %v", err))
 	}
 
 	data := make([]types.NV, 0)
@@ -74,39 +70,34 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = scanner.Err(); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to read from Memcached: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to read from Memcached: %v", err))
 	}
 
-	service.Success(w, data)
+	return service.Success(c, data)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read("/etc/systemd/system/memcached.service")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write("/etc/systemd/system/memcached.service", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("memcached"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

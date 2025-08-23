@@ -46,7 +46,7 @@ import (
 // Injectors from wire.go:
 
 // initWeb init application.
-func initWeb() (*app.Web, error) {
+func initWeb() (*app.Ace, error) {
 	koanf, err := bootstrap.NewConf()
 	if err != nil {
 		return nil, err
@@ -145,11 +145,7 @@ func initWeb() (*app.Web, error) {
 	http := route.NewHttp(userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
 	wsService := service.NewWsService(locale, koanf, sshRepo)
 	ws := route.NewWs(wsService)
-	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
-	if err != nil {
-		return nil, err
-	}
-	server, err := bootstrap.NewHttp(koanf, mux)
+	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws, koanf)
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +156,6 @@ func initWeb() (*app.Web, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(koanf, db)
-	web := app.NewAce(koanf, mux, server, gormigrate, cron, queue, validation)
+	web := app.NewWeb(koanf, mux, gormigrate, cron, queue, validation)
 	return web, nil
 }

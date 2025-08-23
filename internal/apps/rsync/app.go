@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
@@ -27,7 +27,7 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/modules", s.List)
 	r.Post("/modules", s.Create)
 	r.Post("/modules/{name}", s.Update)
@@ -36,11 +36,10 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) List(w http.ResponseWriter, r *http.Request) {
+func (s *App) List(c fiber.Ctx) error {
 	config, err := io.Read("/etc/rsyncd.conf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	var modules []Module
@@ -79,8 +78,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 					currentModule.AuthUser = value
 					currentModule.Secret, err = shell.Execf(`grep -E '^%s:.*$' /etc/rsyncd.secrets | awk -F ':' '{print $2}'`, currentModule.AuthUser)
 					if err != nil {
-						service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get the secret key for module %s", currentModule.AuthUser))
-						return
+						return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to get the secret key for module %s", currentModule.AuthUser))
 					}
 				case "hosts allow":
 					currentModule.HostsAllow = value
@@ -93,29 +91,26 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 		modules = append(modules, *currentModule)
 	}
 
-	paged, total := service.Paginate(r, modules)
+	paged, total := service.Paginate(c, modules)
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"total": total,
 		"items": paged,
 	})
 }
 
-func (s *App) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Create](r)
+func (s *App) Create(c fiber.Ctx) error {
+	req, err := service.Bind[Create](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	config, err := io.Read("/etc/rsyncd.conf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s already exists", req.Name))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("module %s already exists", req.Name))
 	}
 
 	conf := `# ` + req.Name + `-START
@@ -130,37 +125,31 @@ secrets file = /etc/rsyncd.secrets
 `
 
 	if err = io.WriteAppend("/etc/rsyncd.conf", conf, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf(`%s:%s\n`, req.AuthUser, req.Secret), 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("rsyncd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Delete](r)
+func (s *App) Delete(c fiber.Ctx) error {
+	req, err := service.Bind[Delete](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	config, err := io.Read("/etc/rsyncd.conf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if !strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
 	}
 
 	module := str.Cut(config, "# "+req.Name+"-START", "# "+req.Name+"-END")
@@ -170,39 +159,33 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	if len(match) == 2 {
 		authUser := match[1]
 		if _, err = shell.Execf(`sed -i '/^%s:.*$/d' /etc/rsyncd.secrets`, authUser); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	}
 
 	if err = io.Write("/etc/rsyncd.conf", config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("rsyncd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[Update](r)
+func (s *App) Update(c fiber.Ctx) error {
+	req, err := service.Bind[Update](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	config, err := io.Read("/etc/rsyncd.conf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if !strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
 	}
 
 	newConf := `# ` + req.Name + `-START
@@ -222,54 +205,46 @@ secrets file = /etc/rsyncd.secrets
 	if len(match) == 2 {
 		authUser := match[1]
 		if _, err = shell.Execf(`sed -i '/^%s:.*$/d' /etc/rsyncd.secrets`, authUser); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
+			return service.Error(c, http.StatusInternalServerError, "%v", err)
 		}
 	}
 
 	if err = io.Write("/etc/rsyncd.conf", config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf(`%s:%s\n`, req.AuthUser, req.Secret), 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("rsyncd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read("/etc/rsyncd.conf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write("/etc/rsyncd.conf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Restart("rsyncd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }

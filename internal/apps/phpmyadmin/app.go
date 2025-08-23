@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
@@ -30,18 +30,17 @@ func NewApp(t *gotext.Locale) *App {
 	}
 }
 
-func (s *App) Route(r chi.Router) {
+func (s *App) Route(r fiber.Router) {
 	r.Get("/info", s.Info)
 	r.Post("/port", s.UpdatePort)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) Info(w http.ResponseWriter, r *http.Request) {
+func (s *App) Info(c fiber.Ctx) error {
 	files, err := os.ReadDir(fmt.Sprintf("%s/server/phpmyadmin", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
 	}
 
 	var phpmyadmin string
@@ -51,43 +50,37 @@ func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(phpmyadmin) == 0 {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
 	}
 
 	conf, err := io.Read(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	match := regexp.MustCompile(`listen\s+(\d+);`).FindStringSubmatch(conf)
 	if len(match) == 0 {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin port not found"))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("phpMyAdmin port not found"))
 	}
 
-	service.Success(w, chix.M{
+	return service.Success(c, chix.M{
 		"path": phpmyadmin,
 		"port": cast.ToInt(match[1]),
 	})
 }
 
-func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdatePort](r)
+func (s *App) UpdatePort(c fiber.Ctx) error {
+	req, err := service.Bind[UpdatePort](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	conf, err := io.Read(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 	conf = regexp.MustCompile(`listen\s+(\d+);`).ReplaceAllString(conf, "listen "+cast.ToString(req.Port)+";")
 	if err = io.Write(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root), conf, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	fw := firewall.NewFirewall()
@@ -99,46 +92,40 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		Strategy:  firewall.StrategyAccept,
 	}, firewall.OperationAdd)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+func (s *App) GetConfig(c fiber.Ctx) error {
 	config, err := io.Read(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
-	service.Success(w, config)
+	return service.Success(c, config)
 }
 
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
+func (s *App) UpdateConfig(c fiber.Ctx) error {
+	req, err := service.Bind[UpdateConfig](c)
 	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+		return service.Error(c, http.StatusUnprocessableEntity, "%v", err)
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return service.Error(c, http.StatusInternalServerError, "%v", err)
 	}
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
+		return service.Error(c, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 	}
 
-	service.Success(w, nil)
+	return service.Success(c, nil)
 }
