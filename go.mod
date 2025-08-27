@@ -7,7 +7,7 @@ require (
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
-	github.com/go-chi/chi/v5 v5.2.2
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.9.3
@@ -48,7 +48,7 @@ require (
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.9.2
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.4.1
 	go.yaml.in/yaml/v3 v3.0.4
