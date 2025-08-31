@@ -14,7 +14,7 @@ require (
 	github.com/golang-cz/httplog v0.0.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.7.0
-	github.com/gookit/color v1.5.4
+	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.5
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
@@ -29,7 +29,7 @@ require (
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/hetzner v1.0.0
 	github.com/libdns/huaweicloud v1.0.0
-	github.com/libdns/libdns v1.1.0
+	github.com/libdns/libdns v1.1.1
 	github.com/libdns/namesilo v1.0.0
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.2
@@ -55,7 +55,7 @@ require (
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gorm.io/gorm v1.30.1
+	gorm.io/gorm v1.30.2
 )
 
 require (
