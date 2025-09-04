@@ -38,7 +38,7 @@ require (
 	github.com/libtnb/gormstore v1.1.0
 	github.com/libtnb/sessions v1.2.0
 	github.com/libtnb/utils v1.2.0
-	github.com/mholt/acmez/v3 v3.1.2
+	github.com/mholt/acmez/v3 v3.1.3
 	github.com/ncruces/go-sqlite3 v0.28.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
@@ -55,7 +55,7 @@ require (
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gorm.io/gorm v1.30.2
+	gorm.io/gorm v1.30.3
 )
 
 require (
