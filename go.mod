@@ -8,7 +8,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
 	github.com/go-chi/chi/v5 v5.2.3
-	github.com/go-gormigrate/gormigrate/v2 v2.1.4
+	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-cz/httplog v0.0.2
