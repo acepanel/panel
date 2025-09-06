@@ -15,7 +15,7 @@ require (
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
-	github.com/gookit/validate v1.5.5
+	github.com/gookit/validate v1.5.6
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
 	github.com/knadh/koanf/parsers/yaml v1.1.0
@@ -68,8 +68,8 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofiber/schema v1.6.0 // indirect
-	github.com/gookit/filter v1.2.2 // indirect
-	github.com/gookit/goutil v0.7.0 // indirect
+	github.com/gookit/filter v1.2.3 // indirect
+	github.com/gookit/goutil v0.7.1 // indirect
 	github.com/imega/luaformatter v0.0.0-20211025140405-86b0a68d6bef // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
