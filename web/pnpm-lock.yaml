@@ -19,7 +19,7 @@ importers:
         version: 5.2.6
       '@guolao/vue-monaco-editor':
         specifier: ^1.5.5
-        version: 1.5.5(monaco-editor@0.52.2)(vue@3.5.21(typescript@5.9.2))
+        version: 1.5.5(monaco-editor@0.53.0)(vue@3.5.21(typescript@5.9.2))
       '@vavt/copy2clipboard':
         specifier: ^1.0.3
         version: 1.0.3
@@ -154,8 +154,8 @@ importers:
         specifier: ^5.6.0
         version: 5.8.4(vue@3.5.21(typescript@5.9.2))
       monaco-editor:
-        specifier: ^0.52.2
-        version: 0.52.2
+        specifier: ^0.53.0
+        version: 0.53.0
       naive-ui:
         specifier: ^2.41.0
         version: 2.42.0(vue@3.5.21(typescript@5.9.2))
@@ -1068,6 +1068,9 @@ packages:
 
   '@types/node@22.18.1':
     resolution: {integrity: sha512-rzSDyhn4cYznVG+PCzGe1lwuMYJrcBS1fc3JqSa2PvtABwWo+dZ1ij5OVok3tqfpEBCBoaR4d7upFJk73HRJDw==}
+
+  '@types/trusted-types@1.0.6':
+    resolution: {integrity: sha512-230RC8sFeHoT6sSUlRO6a8cAnclO06eeiq1QDfiv2FGCLWFvvERWgwIQD4FWqD9A69BN7Lzee4OXwoMVnnsWDw==}
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
@@ -2560,8 +2563,8 @@ packages:
     resolution: {integrity: sha512-eQsKcWzIaZzEZ07NuEyO4Nw65g0hdWAyurVol1IPl1gahRwY+svqzfgfey8U8dahLwG44d6/RwEzuK52rSa/JQ==}
     hasBin: true
 
-  monaco-editor@0.52.2:
-    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+  monaco-editor@0.53.0:
+    resolution: {integrity: sha512-0WNThgC6CMWNXXBxTbaYYcunj08iB5rnx4/G56UOPeL9UVIUGGHA1GR0EWIh9Ebabj7NpCRawQ5b0hfN1jQmYQ==}
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -4134,10 +4137,10 @@ snapshots:
 
   '@fontsource-variable/jetbrains-mono@5.2.6': {}
 
-  '@guolao/vue-monaco-editor@1.5.5(monaco-editor@0.52.2)(vue@3.5.21(typescript@5.9.2))':
+  '@guolao/vue-monaco-editor@1.5.5(monaco-editor@0.53.0)(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@monaco-editor/loader': 1.5.0
-      monaco-editor: 0.52.2
+      monaco-editor: 0.53.0
       vue: 3.5.21(typescript@5.9.2)
       vue-demi: 0.14.10(vue@3.5.21(typescript@5.9.2))
 
@@ -4519,6 +4522,8 @@ snapshots:
   '@types/node@22.18.1':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/trusted-types@1.0.6': {}
 
   '@types/web-bluetooth@0.0.21': {}
 
@@ -6251,7 +6256,9 @@ snapshots:
     dependencies:
       commander: 14.0.0
 
-  monaco-editor@0.52.2: {}
+  monaco-editor@0.53.0:
+    dependencies:
+      '@types/trusted-types': 1.0.6
 
   mrmime@2.0.1: {}
 

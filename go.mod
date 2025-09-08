@@ -39,7 +39,7 @@ require (
 	github.com/libtnb/sessions v1.2.0
 	github.com/libtnb/utils v1.2.0
 	github.com/mholt/acmez/v3 v3.1.3
-	github.com/ncruces/go-sqlite3 v0.28.0
+	github.com/ncruces/go-sqlite3 v0.29.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pquerna/otp v1.5.0
@@ -47,15 +47,15 @@ require (
 	github.com/samber/lo v1.51.0
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/spf13/cast v1.9.2
+	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.4.1
 	go.yaml.in/yaml/v3 v3.0.4
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.42.0
 	golang.org/x/net v0.43.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gorm.io/gorm v1.30.4
+	gorm.io/gorm v1.30.5
 )
 
 require (
@@ -89,9 +89,9 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
