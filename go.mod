@@ -55,7 +55,7 @@ require (
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gorm.io/gorm v1.30.3
+	gorm.io/gorm v1.30.4
 )
 
 require (
