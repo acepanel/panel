@@ -16,7 +16,7 @@ importers:
         version: 3.3.1
       '@fontsource-variable/jetbrains-mono':
         specifier: ^5.2.5
-        version: 5.2.6
+        version: 5.2.7
       '@guolao/vue-monaco-editor':
         specifier: ^1.5.5
         version: 1.5.5(monaco-editor@0.53.0)(vue@3.5.21(typescript@5.9.2))
@@ -152,13 +152,13 @@ importers:
         version: 10.4.0(@typescript-eslint/parser@8.42.0(eslint@9.35.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.35.0(jiti@2.5.1))(vue-eslint-parser@10.2.0(eslint@9.35.0(jiti@2.5.1)))
       md-editor-v3:
         specifier: ^6.0.0
-        version: 6.0.0(vue@3.5.21(typescript@5.9.2))
+        version: 6.0.1(vue@3.5.21(typescript@5.9.2))
       monaco-editor:
         specifier: ^0.53.0
         version: 0.53.0
       naive-ui:
         specifier: ^2.41.0
-        version: 2.43.0(vue@3.5.21(typescript@5.9.2))
+        version: 2.43.1(vue@3.5.21(typescript@5.9.2))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -667,8 +667,8 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fontsource-variable/jetbrains-mono@5.2.6':
-    resolution: {integrity: sha512-1pvtyK6H1paBOixbtZ9xfQgArVQ4SJMW3WSGZPOd5PiW3yg0t8umwKnjDMzW2ofb7qSdiXnsnIaHPT36vEOdlg==}
+  '@fontsource-variable/jetbrains-mono@5.2.7':
+    resolution: {integrity: sha512-vwU6O4wv1h1BvEJUWaylorj0WZ3+GB3uVsgUH7IpGX/euSXm0UyTu6MWusk1pph562F8cBvuv41P4jufRogF4Q==}
 
   '@guolao/vue-monaco-editor@1.5.5':
     resolution: {integrity: sha512-NFGImQ8dBYj6ehIxy1DngPRkctB9b6GbxvCm6aXZztNsgm/TtM4u+YM9ZwZHQPlXt7a4IODXoKCcTYEVycBSyA==}
@@ -2503,8 +2503,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@6.0.0:
-    resolution: {integrity: sha512-frPjN87iGRlfSOWgE2FZqob/OYd2fBrg9DT3461n7uWGFOzw86Bso2fklO05VT3tMDTjC8WaPe6bg9fFGdd43A==}
+  md-editor-v3@6.0.1:
+    resolution: {integrity: sha512-ZZQpUsC6DkKYfFsDMck0kJabP/vYSDfNkB6Zmb6+v50orKOO7KG2SGgm6yGv78YWxh8ehqJL4IpZwhWneQzg1w==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -2581,8 +2581,8 @@ packages:
     resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
     hasBin: true
 
-  naive-ui@2.43.0:
-    resolution: {integrity: sha512-PB8sxGs+yhTYwJtWFKz5GCAPwxlgoRx3CvxIbuWd3K3JLOlvwVCbXksB91ky0MWDU7eEItW4sg4hE1vEnm4gJQ==}
+  naive-ui@2.43.1:
+    resolution: {integrity: sha512-w52W0mOhdOGt4uucFSZmP0DI44PCsFyuxeLSs9aoUThfIuxms90MYjv46Qrr7xprjyJRw5RU6vYpCx4o9ind3A==}
     peerDependencies:
       vue: ^3.0.0
 
@@ -4131,7 +4131,7 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@fontsource-variable/jetbrains-mono@5.2.6': {}
+  '@fontsource-variable/jetbrains-mono@5.2.7': {}
 
   '@guolao/vue-monaco-editor@1.5.5(monaco-editor@0.53.0)(vue@3.5.21(typescript@5.9.2))':
     dependencies:
@@ -6169,7 +6169,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  md-editor-v3@6.0.0(vue@3.5.21(typescript@5.9.2)):
+  md-editor-v3@6.0.1(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@codemirror/autocomplete': 6.18.7
       '@codemirror/commands': 6.8.1
@@ -6256,7 +6256,7 @@ snapshots:
 
   mustache@4.2.0: {}
 
-  naive-ui@2.43.0(vue@3.5.21(typescript@5.9.2)):
+  naive-ui@2.43.1(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@css-render/plugin-bem': 0.15.14(css-render@0.15.14)
       '@css-render/vue3-ssr': 0.15.14(vue@3.5.21(typescript@5.9.2))
