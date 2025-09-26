@@ -3,10 +3,10 @@ module github.com/acepanel/panel
 go 1.25
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.39.1
-	github.com/aws/aws-sdk-go-v2/config v1.31.10
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.14
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.2
+	github.com/aws/aws-sdk-go-v2 v1.39.2
+	github.com/aws/aws-sdk-go-v2/config v1.31.11
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.15
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.3
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
@@ -43,7 +43,7 @@ require (
 	github.com/libtnb/gormstore v1.1.1
 	github.com/libtnb/sessions v1.2.1
 	github.com/libtnb/utils v1.2.0
-	github.com/mholt/acmez/v3 v3.1.3
+	github.com/mholt/acmez/v3 v3.1.4
 	github.com/ncruces/go-sqlite3 v0.29.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
@@ -69,18 +69,18 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.3.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.1 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.8 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.9 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.8 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.8.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.29.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.38.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.8.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.29.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.6 // indirect
 	github.com/aws/smithy-go v1.23.0 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -119,5 +119,5 @@ require (
 
 replace (
 	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20250917195625-c4ce771540f8
-	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413
+	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250926183442-f904007577f7
 )
