@@ -82,7 +82,7 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "sass": "^1.89.0",
     "tsx": "^4.19.4",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "unocss": "^66.1.2",
     "unplugin-auto-import": "^20.0.0",
     "unplugin-icons": "^22.1.0",
