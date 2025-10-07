@@ -70,7 +70,7 @@ importers:
         version: 3.7.2
       marked:
         specifier: ^16.0.0
-        version: 16.3.0
+        version: 16.4.0
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
@@ -2497,8 +2497,8 @@ packages:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
     hasBin: true
 
-  marked@16.3.0:
-    resolution: {integrity: sha512-K3UxuKu6l6bmA5FUwYho8CfJBlsUWAooKtdGgMcERSpF7gcBUrCGsLH7wDaaNOzwq18JzSUDyoEb/YsrqMac3w==}
+  marked@16.4.0:
+    resolution: {integrity: sha512-CTPAcRBq57cn3R8n3hwc2REddc28hjR7RzDXQ+lXLmMJYqn20BaI2cGw6QjgZGIgVfp2Wdfw4aMzgNteQ6qJgQ==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -6144,7 +6144,7 @@ snapshots:
       punycode.js: 2.3.1
       uc.micro: 2.1.0
 
-  marked@16.3.0: {}
+  marked@16.4.0: {}
 
   math-intrinsics@1.1.0: {}
 
