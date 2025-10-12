@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-10-10 19:57\n"
+"PO-Revision-Date: 2025-10-12 00:28\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:440
@@ -3248,7 +3248,7 @@ msgstr "请先标记要复制或移动的文件/文件夹"
 #: src/views/file/ListTable.vue:503
 #: src/views/file/ToolBar.vue:129
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
-msgstr ""
+msgstr "存在同名项目 %{ items } 是否要覆盖？"
 
 #: src/views/file/ListTable.vue:525
 #: src/views/file/ListTable.vue:545
@@ -3734,7 +3734,7 @@ msgstr "登录超时"
 
 #: src/views/setting/SettingSafe.vue:22
 msgid "Set the maximum lifetime (in minutes) of the login state, after which you need to log in again"
-msgstr ""
+msgstr "设置登录状态的最长生命周期（单位：分钟），超过该时间后需要重新登录"
 
 #: src/views/setting/SettingSafe.vue:30
 msgid "120"
@@ -3751,19 +3751,19 @@ msgstr "访问入口"
 
 #: src/views/setting/SettingSafe.vue:50
 msgid "Set the access entrance of the panel (e.g. /mypanel) to prevent some malicious access. Leave blank to disable (not recommended)"
-msgstr ""
+msgstr "设置面板的访问入口（例如 /mypanel）以防止恶意访问。留空以禁用（不推荐）"
 
 #: src/views/setting/SettingSafe.vue:63
 msgid "Request IP Header"
-msgstr ""
+msgstr "请求 IP 头"
 
 #: src/views/setting/SettingSafe.vue:68
 msgid "Set the header that carries the real IP of the client, useful when using CDN or reverse proxy. Leave blank to use the client IP directly"
-msgstr ""
+msgstr "设置承载客户端真实 IP 的请求头，在使用 CDN 或反向代理时非常有用。留空以直接使用客户端 IP"
 
 #: src/views/setting/SettingSafe.vue:74
 msgid "X-Real-IP"
-msgstr ""
+msgstr "X-Real-IP"
 
 #: src/views/setting/SettingSafe.vue:81
 msgid "Bind Domain"
@@ -3771,7 +3771,7 @@ msgstr "绑定域名"
 
 #: src/views/setting/SettingSafe.vue:86
 msgid "Restrict panel access to the specified domain names. Leave blank to allow access from any domain"
-msgstr ""
+msgstr "限制面板访问为指定的域名。留空以允许来自任何域名的访问"
 
 #: src/views/setting/SettingSafe.vue:103
 msgid "Bind IP"
@@ -3779,7 +3779,7 @@ msgstr "绑定 IP"
 
 #: src/views/setting/SettingSafe.vue:108
 msgid "Restrict panel access to the specified IP addresses. Leave blank to allow access from any IP"
-msgstr ""
+msgstr "限制面板访问为指定的 IP 地址。留空以允许来自任何 IP 的访问"
 
 #: src/views/setting/SettingSafe.vue:121
 msgid "Bind UA"
@@ -3787,7 +3787,7 @@ msgstr "绑定 UA"
 
 #: src/views/setting/SettingSafe.vue:126
 msgid "Restrict panel access to the specified User-Agent strings. Leave blank to allow access from any User-Agent"
-msgstr ""
+msgstr "限制面板访问为指定的用户代理字符串。留空以允许任何用户代理的访问"
 
 #: src/views/setting/SettingSafe.vue:143
 msgid "Offline Mode"
@@ -3795,7 +3795,7 @@ msgstr "离线模式"
 
 #: src/views/setting/SettingSafe.vue:148
 msgid "When enabled, the panel will not attempt to connect to external services for updates or other features. This may limit some functionalities"
-msgstr ""
+msgstr "启用后，面板将不会尝试连接外部服务以获取更新或其他功能。这可能会限制某些功能"
 
 #: src/views/setting/SettingSafe.vue:161
 msgid "Auto Update"
@@ -3803,7 +3803,7 @@ msgstr "自动更新"
 
 #: src/views/setting/SettingSafe.vue:166
 msgid "When enabled, the panel will automatically check for and install updates when they are available. It is recommended to keep this enabled to ensure you have the latest features and security patches"
-msgstr ""
+msgstr "启用后，面板将自动检查并安装可用的更新。建议保持此功能启用，以确保您拥有最新的功能和安全补丁"
 
 #: src/views/setting/SettingSafe.vue:179
 msgid "Panel HTTPS"
@@ -3811,7 +3811,7 @@ msgstr "面板 HTTPS"
 
 #: src/views/setting/SettingSafe.vue:184
 msgid "Enable HTTPS for the panel to ensure secure communication. You need to provide a valid SSL certificate and private key"
-msgstr ""
+msgstr "为面板启用 HTTPS 以确保安全通信。您需要提供有效的 SSL 证书和私钥"
 
 #: src/views/setting/SettingUser.vue:53
 msgid "2FA"
@@ -4206,7 +4206,7 @@ msgstr "主机名"
 
 #: src/views/toolbox/SystemView.vue:142
 msgid "Hosts"
-msgstr ""
+msgstr "Hosts"
 
 #: src/views/toolbox/SystemView.vue:160
 msgid "Time"
@@ -4430,15 +4430,15 @@ msgstr "错误日志"
 
 #: src/views/website/IndexView.vue:16
 msgid "Reverse Proxy"
-msgstr ""
+msgstr "反向代理"
 
 #: src/views/website/IndexView.vue:17
 msgid "Classic PHP"
-msgstr ""
+msgstr "经典 PHP"
 
 #: src/views/website/IndexView.vue:18
 msgid "Pure Static"
-msgstr ""
+msgstr "纯静态"
 
 #: src/views/website/PhpView.vue:19
 #: src/views/website/PhpView.vue:406
@@ -4628,7 +4628,7 @@ msgstr "默认页面"
 
 #: src/views/website/SettingView.vue:60
 msgid "404 Page"
-msgstr ""
+msgstr "404 页面"
 
 #: src/views/website/SettingView.vue:80
 msgid "Stop Page"
@@ -4636,21 +4636,21 @@ msgstr "停止页面"
 
 #: src/views/website/SettingView.vue:100
 msgid "Default Site"
-msgstr ""
+msgstr "默认网站"
 
 #: src/views/website/SettingView.vue:103
 msgid "Default Settings"
-msgstr ""
+msgstr "默认设置"
 
 #: src/views/website/SettingView.vue:105
 msgid "Default TLS Version"
-msgstr ""
+msgstr "默认 TLS 版本"
 
 #: src/views/website/SettingView.vue:117
 msgid "Default Cipher Suites"
-msgstr ""
+msgstr "默认密码套件"
 
 #: src/views/website/SettingView.vue:122
 msgid "Enter the default cipher suite, leave blank to reset to default"
-msgstr ""
+msgstr "输入默认密码套件，留空以重置为默认值"
 
