@@ -107,7 +107,7 @@ importers:
         version: 5.0.0(vue@3.5.22(typescript@5.9.3))
       '@rushstack/eslint-patch':
         specifier: ^1.11.0
-        version: 1.13.0
+        version: 1.14.0
       '@tsconfig/node22':
         specifier: ^22.0.2
         version: 22.0.2
@@ -1022,8 +1022,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rushstack/eslint-patch@1.13.0':
-    resolution: {integrity: sha512-2ih5qGw5SZJ+2fLZxP6Lr6Na2NTIgPRL/7Kmyuw0uIyBQnuhQ8fi8fzUTd38eIQmqp+GYLC00cI6WgtqHxBwmw==}
+  '@rushstack/eslint-patch@1.14.0':
+    resolution: {integrity: sha512-WJFej426qe4RWOm9MMtP4V3CV4AucXolQty+GRgAWLgQXmpCuwzs7hEpxxhSc/znXUSxum9d/P/32MW0FlAAlA==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -4453,7 +4453,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.52.4':
     optional: true
 
-  '@rushstack/eslint-patch@1.13.0': {}
+  '@rushstack/eslint-patch@1.14.0': {}
 
   '@sec-ant/readable-stream@0.4.1': {}
 
