@@ -19,7 +19,7 @@ importers:
         version: 5.2.8
       '@guolao/vue-monaco-editor':
         specifier: ^1.5.5
-        version: 1.5.5(monaco-editor@0.52.2)(vue@3.5.22(typescript@5.9.3))
+        version: 1.6.0(monaco-editor@0.52.2)(vue@3.5.22(typescript@5.9.3))
       '@vavt/copy2clipboard':
         specifier: ^1.0.3
         version: 1.0.3
@@ -185,10 +185,10 @@ importers:
         version: 20.2.0(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))
       unplugin-icons:
         specifier: ^22.1.0
-        version: 22.4.2(@vue/compiler-sfc@3.5.22)
+        version: 22.5.0(@vue/compiler-sfc@3.5.22)
       unplugin-vue-components:
         specifier: ^29.0.0
-        version: 29.1.0(@babel/parser@7.28.4)(vue@3.5.22(typescript@5.9.3))
+        version: 29.2.0(@babel/parser@7.28.4)(vue@3.5.22(typescript@5.9.3))
       vite:
         specifier: ^7.0.0
         version: 7.1.10(@types/node@22.18.11)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)
@@ -670,10 +670,10 @@ packages:
   '@fontsource-variable/jetbrains-mono@5.2.8':
     resolution: {integrity: sha512-WBA9elru6Jdp5df2mES55wuOO0WIrn3kpXnI4+W2ek5u3ZgLS9XS4gmIlcQhiZOWEKl95meYdvK7xI+ETLCq/Q==}
 
-  '@guolao/vue-monaco-editor@1.5.5':
-    resolution: {integrity: sha512-NFGImQ8dBYj6ehIxy1DngPRkctB9b6GbxvCm6aXZztNsgm/TtM4u+YM9ZwZHQPlXt7a4IODXoKCcTYEVycBSyA==}
+  '@guolao/vue-monaco-editor@1.6.0':
+    resolution: {integrity: sha512-w2IiJ6eJGGeuIgCK6EKZOAfhHTTUB5aZwslzwGbZ5e89Hb4avx6++GkLTW8p84Sng/arFMjLPPxSBI56cFudyQ==}
     peerDependencies:
-      '@vue/composition-api': ^1.7.1
+      '@vue/composition-api': ^1.7.2
       monaco-editor: '>=0.43.0'
       vue: ^2.6.14 || >=3.0.0
     peerDependenciesMeta:
@@ -798,8 +798,8 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@monaco-editor/loader@1.6.0':
-    resolution: {integrity: sha512-PdWBZkPb2Amc1kxRsIEyQFkAya6PzUvSf4waXMPt7I05Azm4e2hQuViBVjfw1Mmck98GG2TqecLzWtg1tbyriw==}
+  '@monaco-editor/loader@1.6.1':
+    resolution: {integrity: sha512-w3tEnj9HYEC73wtjdpR089AqkUPskFRcdkxsiSFt3SoUc3OHpmu+leP94CXBm4mHfefmhsdfI0ZQu6qJ0wgtPg==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2688,8 +2688,8 @@ packages:
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
 
-  package-manager-detector@1.4.0:
-    resolution: {integrity: sha512-rRZ+pR1Usc+ND9M2NkmCvE/LYJS+8ORVV9X0KuNSY/gFsp7RBHJM/ADh9LYq4Vvfq6QkKrW6/weuh8SMEtN5gw==}
+  package-manager-detector@1.5.0:
+    resolution: {integrity: sha512-uBj69dVlYe/+wxj8JOpr97XfsxH/eumMt6HqjNTmJDf/6NO9s+0uxeOneIz3AsPt2m6y9PqzDzd3ATcU17MNfw==}
 
   param-case@3.0.4:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
@@ -3204,8 +3204,8 @@ packages:
       '@vueuse/core':
         optional: true
 
-  unplugin-icons@22.4.2:
-    resolution: {integrity: sha512-Yv15405unO67Chme0Slk0JRA/H2AiAZLK5t7ebt8/ZpTDlBfM4d4En2qD3MX2rzOSkIteQ0syIm3q8MSofeoBA==}
+  unplugin-icons@22.5.0:
+    resolution: {integrity: sha512-MBlMtT5RuMYZy4TZgqUL2OTtOdTUVsS1Mhj6G1pEzMlFJlEnq6mhUfoIt45gBWxHcsOdXJDWLg3pRZ+YmvAVWQ==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -3231,8 +3231,8 @@ packages:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
 
-  unplugin-vue-components@29.1.0:
-    resolution: {integrity: sha512-z/9ACPXth199s9aCTCdKZAhe5QGOpvzJYP+Hkd0GN1/PpAmsu+W3UlRY3BJAewPqQxh5xi56+Og6mfiCV1Jzpg==}
+  unplugin-vue-components@29.2.0:
+    resolution: {integrity: sha512-QxBeBdmEflgtJRgMQMc/z/JVV5lcwXN5nOy5ehX6CKDGylIu6Qn4Goy8X95S0qOxF7EdI+uNhdBd4v5i0bvzCw==}
     engines: {node: '>=14'}
     peerDependencies:
       '@babel/parser': ^7.15.8
@@ -3503,7 +3503,7 @@ snapshots:
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
-      package-manager-detector: 1.4.0
+      package-manager-detector: 1.5.0
       tinyexec: 1.0.1
 
   '@antfu/utils@9.3.0': {}
@@ -4090,9 +4090,9 @@ snapshots:
 
   '@fontsource-variable/jetbrains-mono@5.2.8': {}
 
-  '@guolao/vue-monaco-editor@1.5.5(monaco-editor@0.52.2)(vue@3.5.22(typescript@5.9.3))':
+  '@guolao/vue-monaco-editor@1.6.0(monaco-editor@0.52.2)(vue@3.5.22(typescript@5.9.3))':
     dependencies:
-      '@monaco-editor/loader': 1.6.0
+      '@monaco-editor/loader': 1.6.1
       monaco-editor: 0.52.2
       vue: 3.5.22(typescript@5.9.3)
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.9.3))
@@ -4269,7 +4269,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@monaco-editor/loader@1.6.0':
+  '@monaco-editor/loader@1.6.1':
     dependencies:
       state-local: 1.0.7
 
@@ -6348,7 +6348,7 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
-  package-manager-detector@1.4.0: {}
+  package-manager-detector@1.5.0: {}
 
   param-case@3.0.4:
     dependencies:
@@ -6933,7 +6933,7 @@ snapshots:
     optionalDependencies:
       '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
 
-  unplugin-icons@22.4.2(@vue/compiler-sfc@3.5.22):
+  unplugin-icons@22.5.0(@vue/compiler-sfc@3.5.22):
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/utils': 3.0.2
@@ -6950,7 +6950,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin-vue-components@29.1.0(@babel/parser@7.28.4)(vue@3.5.22(typescript@5.9.3)):
+  unplugin-vue-components@29.2.0(@babel/parser@7.28.4)(vue@3.5.22(typescript@5.9.3)):
     dependencies:
       chokidar: 3.6.0
       debug: 4.4.3
