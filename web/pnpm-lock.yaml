@@ -101,7 +101,7 @@ importers:
     devDependencies:
       '@iconify/json':
         specifier: ^2.2.397
-        version: 2.2.397
+        version: 2.2.398
       '@iconify/vue':
         specifier: ^5.0.0
         version: 5.0.0(vue@3.5.22(typescript@5.9.3))
@@ -696,8 +696,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.397':
-    resolution: {integrity: sha512-osoLxaGe85Vxec/fGOlx3NwKzdN3JWH8fNITn4o4P+i2UBYGMJTDGSjgl6CIM0OX50IAAFz5jYQebtxInsRnSQ==}
+  '@iconify/json@2.2.398':
+    resolution: {integrity: sha512-SEUDjkyAenAKMd5hDfzNzeObZw+KgQdIHaOuWA4yv89qSf2s0dJ7L1iXhRjtEZxFnuXQ2D67uFiHmE+90jvDGQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3654,14 +3654,14 @@ snapshots:
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/parser': 7.27.7
+      '@babel/parser': 7.28.4
       '@babel/types': 7.28.4
 
   '@babel/traverse@7.27.7':
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/generator': 7.28.3
-      '@babel/parser': 7.27.7
+      '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.4
       debug: 4.4.3
@@ -4079,7 +4079,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@iconify/json@2.2.397':
+  '@iconify/json@2.2.398':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 2.0.3
