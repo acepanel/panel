@@ -29,7 +29,7 @@ require (
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.5-libdns.v1.beta1
-	github.com/libdns/cloudflare v0.2.2-0.20250923141901-bf85afaed175
+	github.com/libdns/cloudflare v0.2.2-0.20251021224738-57f633acd756
 	github.com/libdns/cloudns v1.1.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/hetzner v1.0.0
@@ -57,7 +57,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/studio-b12/gowebdav v0.11.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
-	github.com/urfave/cli/v3 v3.4.1
+	github.com/urfave/cli/v3 v3.5.0
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/crypto v0.43.0
 	golang.org/x/net v0.46.0
