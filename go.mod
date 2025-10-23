@@ -4,9 +4,9 @@ go 1.25
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.39.3
-	github.com/aws/aws-sdk-go-v2/config v1.31.13
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.17
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.5
+	github.com/aws/aws-sdk-go-v2/config v1.31.14
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.18
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.6
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.5.0
 	github.com/creack/pty v1.1.24
@@ -29,7 +29,7 @@ require (
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.5-libdns.v1.beta1
-	github.com/libdns/cloudflare v0.2.2-0.20251021224738-57f633acd756
+	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/hetzner v1.0.0
@@ -47,7 +47,7 @@ require (
 	github.com/ncruces/go-sqlite3 v0.29.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
-	github.com/pkg/sftp v1.13.9
+	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.52.0
@@ -80,7 +80,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.29.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.38.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.8 // indirect
 	github.com/aws/smithy-go v1.23.1 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
