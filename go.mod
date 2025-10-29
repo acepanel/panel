@@ -6,8 +6,8 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.39.4
 	github.com/aws/aws-sdk-go-v2/config v1.31.15
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.19
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.7
-	github.com/bddjr/hlfhr v1.3.8
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.89.0
+	github.com/bddjr/hlfhr v1.4.0
 	github.com/beevik/ntp v1.5.0
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
@@ -39,7 +39,7 @@ require (
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.2
 	github.com/libdns/westcn v1.0.2
-	github.com/libtnb/chix v1.3.1
+	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/gormstore v1.1.1
 	github.com/libtnb/sessions v1.2.1
 	github.com/libtnb/utils v1.2.1
@@ -118,6 +118,6 @@ require (
 )
 
 replace (
-	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20250917195625-c4ce771540f8
+	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20251026020215-748806806e1e
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250926183442-f904007577f7
 )
