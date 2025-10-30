@@ -118,6 +118,6 @@ require (
 )
 
 replace (
-	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20251026020215-748806806e1e
+	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20251029164318-d47d120a5239
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250926183442-f904007577f7
 )
