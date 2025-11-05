@@ -44,7 +44,7 @@ require (
 	github.com/libtnb/sessions v1.2.1
 	github.com/libtnb/utils v1.2.1
 	github.com/mholt/acmez/v3 v3.1.4
-	github.com/ncruces/go-sqlite3 v0.29.1
+	github.com/ncruces/go-sqlite3 v0.30.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
