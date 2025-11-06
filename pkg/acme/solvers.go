@@ -11,7 +11,7 @@ import (
 	"github.com/libdns/cloudflare"
 	"github.com/libdns/cloudns"
 	"github.com/libdns/gcore"
-	"github.com/libdns/hetzner"
+	"github.com/libdns/hetzner/v2"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
 	"github.com/libdns/namesilo"
