@@ -266,8 +266,8 @@ github.com/libdns/namesilo v1.0.0 h1:Shwbj9YnSp4NR617sBOSfDkFozEnWInWCxNwrDvPkCg
 github.com/libdns/namesilo v1.0.0/go.mod h1:qdojVsogA6eZDjDPdpIUIfv4ymiX+FuqcVV1eNmHDss=
 github.com/libdns/porkbun v1.1.0 h1:X763NqXjW26VEl7GvBtF/3CGeuGt9JqoQ35mwIlx40E=
 github.com/libdns/porkbun v1.1.0/go.mod h1:JL6NfXkkSlLr24AI5Fv0t3/Oa6PXOSOerVsOmr8+URs=
-github.com/libdns/tencentcloud v1.4.2 h1:UXvNISlwmdAapYxMgwDZW7uvn8+Bor+puLx1p6VH0c0=
-github.com/libdns/tencentcloud v1.4.2/go.mod h1:Be9gY3tDa12DuAPU79RV9NZIcjY6qg5s7zKPsP26yAM=
+github.com/libdns/tencentcloud v1.4.3 h1:xJHYLL1TdPeOtUr6Bu6dHTd1TU6/VFm7BFc2EAzAlvc=
+github.com/libdns/tencentcloud v1.4.3/go.mod h1:Be9gY3tDa12DuAPU79RV9NZIcjY6qg5s7zKPsP26yAM=
 github.com/libdns/westcn v1.0.2 h1:PA2M3tME5/0T3klPMzSHvGk1EWnGNNkJiKxaJjFalnM=
 github.com/libdns/westcn v1.0.2/go.mod h1:iKpk8jjOU+793Yp8nHoihPTCR6N1KWtm4/r8BB9mVnk=
 github.com/libtnb/acmez/v3 v3.0.0-20250926183442-f904007577f7 h1:lyQgUomlXxgp3e/SoK5q8S5PBAdL8P+sZ9iPFx2dhYk=
