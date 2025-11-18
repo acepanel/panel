@@ -52,7 +52,7 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.52.0
-	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
+	github.com/sethvargo/go-limiter v1.1.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
