@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.92.0
 	github.com/bddjr/hlfhr v1.4.0
 	github.com/beevik/ntp v1.5.0
-	github.com/coder/websocket v1.8.12
+	github.com/coder/websocket v1.8.14
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
 	github.com/go-chi/chi/v5 v5.2.3
