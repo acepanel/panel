@@ -45,8 +45,8 @@ require (
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.52.0
 	github.com/moby/moby/client v0.1.0
-	github.com/ncruces/go-sqlite3 v0.30.1
-	github.com/ncruces/go-sqlite3/gormlite v0.30.1
+	github.com/ncruces/go-sqlite3 v0.30.2
+	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
@@ -117,7 +117,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/tetratelabs/wazero v1.10.0 // indirect
+	github.com/tetratelabs/wazero v1.10.1 // indirect
 	github.com/timtadh/data-structures v0.6.2 // indirect
 	github.com/timtadh/lexmachine v0.2.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
