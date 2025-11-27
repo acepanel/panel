@@ -44,7 +44,7 @@ require (
 	github.com/libtnb/utils v1.2.1
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.52.0
-	github.com/moby/moby/client v0.1.0
+	github.com/moby/moby/client v0.2.1
 	github.com/ncruces/go-sqlite3 v0.30.2
 	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/orandin/slog-gorm v1.4.0
