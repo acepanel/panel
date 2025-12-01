@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-10-12 00:28\n"
+"PO-Revision-Date: 2025-12-01 11:49\n"
 
 #: internal/data/website.go:276
 #: internal/data/website.go:653
@@ -36,7 +36,7 @@ msgstr "作者"
 msgid "Accepted Connections"
 msgstr "已接受连接"
 
-#: internal/service/dashboard.go:58
+#: internal/service/home.go:58
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -516,10 +516,6 @@ msgstr "HTTPS 已禁用"
 msgid "HTTPS enabled"
 msgstr "HTTPS 已启用"
 
-#: internal/service/cert.go:96
-msgid "Hetzner"
-msgstr "Hetzner"
-
 #: internal/service/cert.go:68
 msgid "Huawei Cloud"
 msgstr "华为云"
@@ -702,8 +698,8 @@ msgstr "未找到备份文件，无法自动修复"
 msgid "Not supported"
 msgstr "不支持"
 
-#: internal/service/dashboard.go:200
-#: internal/service/dashboard.go:201
+#: internal/service/home.go:200
+#: internal/service/home.go:201
 msgid "Not used"
 msgstr "未使用"
 
@@ -1289,11 +1285,11 @@ msgstr "应用未找到"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
-#: internal/service/dashboard.go:339
+#: internal/service/home.go:339
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
-#: internal/service/dashboard.go:307
+#: internal/service/home.go:307
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
@@ -1476,7 +1472,7 @@ msgstr "获取当前被禁止的列表失败"
 msgid "failed to get disk space: %v"
 msgstr "获取磁盘空间失败： %v"
 
-#: internal/service/dashboard.go:70
+#: internal/service/home.go:70
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
@@ -1522,17 +1518,17 @@ msgstr "获取 redis 状态失败： %v"
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
-#: internal/service/dashboard.go:90
+#: internal/service/home.go:90
 msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
-#: internal/service/dashboard.go:320
+#: internal/service/home.go:320
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
-#: internal/service/dashboard.go:236
-#: internal/service/dashboard.go:272
-#: internal/service/dashboard.go:314
+#: internal/service/home.go:236
+#: internal/service/home.go:272
+#: internal/service/home.go:314
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
@@ -1540,11 +1536,11 @@ msgstr "获取最新版本失败： %v"
 msgid "failed to get the secret key for module %s"
 msgstr "获取模块 %s 的密钥失败"
 
-#: internal/service/dashboard.go:136
+#: internal/service/home.go:136
 msgid "failed to get the total number of websites: %v"
 msgstr "获取网站总数失败： %v"
 
-#: internal/service/dashboard.go:293
+#: internal/service/home.go:293
 msgid "failed to get the update information: %v"
 msgstr "获取更新信息失败： %v"
 
@@ -1586,18 +1582,18 @@ msgstr "解析私钥失败： %v"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "解析 fail2ban 的 ignoreip 失败"
 
-#: internal/service/dashboard.go:242
-#: internal/service/dashboard.go:247
-#: internal/service/dashboard.go:278
-#: internal/service/dashboard.go:283
+#: internal/service/home.go:242
+#: internal/service/home.go:247
+#: internal/service/home.go:278
+#: internal/service/home.go:283
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
-#: internal/service/ws.go:122
+#: internal/service/ws.go:110
 msgid "failed to read command output: %v"
 msgstr "读取命令输出失败： %v"
 
-#: internal/service/ws.go:103
+#: internal/service/ws.go:93
 msgid "failed to read command: %v"
 msgstr "读取命令失败： %v"
 
@@ -1637,7 +1633,7 @@ msgstr "重启 %s 失败： %v"
 msgid "failed to restart MySQL: %v"
 msgstr "重启 MySQL 失败： %v"
 
-#: internal/service/ws.go:110
+#: internal/service/ws.go:99
 msgid "failed to run command: %v"
 msgstr "运行命令失败： %v"
 
@@ -1649,15 +1645,15 @@ msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 msgid "failed to set SWAP permission: %v"
 msgstr "设置 SWAP 权限失败： %v"
 
-#: internal/service/toolbox_system.go:276
+#: internal/service/toolbox_system.go:279
 msgid "failed to set hostname: %v"
 msgstr "设置主机名失败： %v"
 
-#: internal/service/toolbox_system.go:299
+#: internal/service/toolbox_system.go:302
 msgid "failed to set hosts: %v"
 msgstr "设置 hosts 失败： %v"
 
-#: internal/service/toolbox_system.go:316
+#: internal/service/toolbox_system.go:319
 msgid "failed to set root password: %v"
 msgstr "设置 root 密码失败： %v"
 
@@ -1703,7 +1699,7 @@ msgstr "获取服务端口失败，请检查是否安装"
 msgid "invalid 2FA code"
 msgstr "无效的两步验证代码"
 
-#: internal/http/middleware/entrance.go:118
+#: internal/http/middleware/entrance.go:119
 msgid "invalid access entrance"
 msgstr "无效的访问入口"
 
@@ -1715,16 +1711,16 @@ msgstr "无效的请求头： %v"
 msgid "invalid key, please refresh the page"
 msgstr "无效的密钥，请刷新页面"
 
-#: internal/http/middleware/entrance.go:43
+#: internal/http/middleware/entrance.go:44
 msgid "invalid request domain: %s"
 msgstr "无效的请求域名：%s"
 
 #: internal/data/user_token.go:176
-#: internal/http/middleware/entrance.go:79
+#: internal/http/middleware/entrance.go:80
 msgid "invalid request ip: %s"
 msgstr "无效的请求 IP：%s"
 
-#: internal/http/middleware/entrance.go:84
+#: internal/http/middleware/entrance.go:85
 msgid "invalid request user agent: %s"
 msgstr "无效的请求UA：%s"
 
@@ -1893,7 +1889,7 @@ msgstr "目标是一个目录"
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
-#: internal/service/dashboard.go:287
+#: internal/service/home.go:287
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
@@ -1918,12 +1914,12 @@ msgstr "此证书未与 ACME 帐户关联，无法签发"
 msgid "token expired"
 msgstr "令牌已过期"
 
-#: internal/service/dashboard.go:228
-#: internal/service/dashboard.go:264
+#: internal/service/home.go:228
+#: internal/service/home.go:264
 msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
-#: internal/service/dashboard.go:302
+#: internal/service/home.go:302
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
