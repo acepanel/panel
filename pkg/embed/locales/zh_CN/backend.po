@@ -13,10 +13,9 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-12-01 11:49\n"
+"PO-Revision-Date: 2025-12-01 15:34\n"
 
-#: internal/data/website.go:276
-#: internal/data/website.go:653
+#: internal/data/website.go:693
 msgid "# Rewrite rule"
 msgstr "# 伪静态规则"
 
@@ -1303,7 +1302,7 @@ msgstr "备份文件 %s 不存在"
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/data/website.go:383
+#: internal/data/website.go:423
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -1331,11 +1330,11 @@ msgstr "创建目录错误：%v"
 msgid "database does not exist: %s"
 msgstr "数据库不存在：%s"
 
-#: internal/data/website.go:735
+#: internal/data/website.go:775
 msgid "default document comment count is incorrect, expected 1, actual %d"
 msgstr "默认文档注释数量不正确，预期为1，实际为 %d"
 
-#: internal/data/website.go:732
+#: internal/data/website.go:772
 msgid "default document comment not found"
 msgstr "未找到默认文档注释"
 
@@ -1403,7 +1402,7 @@ msgstr "获取 %s 服务启用状态失败：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "获取 %s 服务运行状态失败：%v"
 
-#: internal/data/website.go:318
+#: internal/data/website.go:358
 msgid "failed to get 404 template file: %v"
 msgstr "获取404模板文件失败：%v"
 
@@ -1476,7 +1475,7 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:303
+#: internal/data/website.go:343
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -1564,16 +1563,16 @@ msgstr "加载 MySQL root 密码失败： %v"
 #: internal/data/cert.go:92
 #: internal/data/setting.go:289
 #: internal/data/setting.go:363
-#: internal/data/website.go:487
-#: internal/data/website.go:774
+#: internal/data/website.go:527
+#: internal/data/website.go:814
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
 #: internal/data/cert.go:95
 #: internal/data/setting.go:292
 #: internal/data/setting.go:366
-#: internal/data/website.go:490
-#: internal/data/website.go:777
+#: internal/data/website.go:530
+#: internal/data/website.go:817
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -1771,7 +1770,7 @@ msgstr "挂载路径不为空"
 msgid "mysql not support database comment"
 msgstr "mysql 不支持数据库注释"
 
-#: internal/data/website.go:805
+#: internal/data/website.go:845
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -1847,16 +1846,16 @@ msgstr "规则已存在"
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/data/website.go:722
+#: internal/data/website.go:762
 msgid "runtime directory comment count is incorrect, expected 1, actual %d"
 msgstr "运行时目录注释数量不正确，预期为1，实际为%d"
 
-#: internal/data/website.go:719
+#: internal/data/website.go:759
 msgid "runtime directory comment not found"
 msgstr "未找到运行目录注释"
 
-#: internal/data/website.go:461
-#: internal/data/website.go:726
+#: internal/data/website.go:501
+#: internal/data/website.go:766
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -1950,6 +1949,10 @@ msgstr "不支持的文件类型"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
+#: internal/data/website.go:264
+msgid "unsupported website type: %s"
+msgstr ""
+
 #: internal/data/cert.go:132
 msgid "upload certificate cannot be set to auto renew"
 msgstr "上传的证书无法设置为自动续签"
@@ -1964,11 +1967,11 @@ msgstr "上传文件错误：%v"
 msgid "username or password error"
 msgstr "用户名或密码错误"
 
-#: internal/data/website.go:573
+#: internal/data/website.go:613
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
-#: internal/data/website.go:468
+#: internal/data/website.go:508
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
