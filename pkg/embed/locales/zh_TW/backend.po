@@ -13,11 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2025-12-01 15:34\n"
-
-#: internal/data/website.go:693
-msgid "# Rewrite rule"
-msgstr "# 重寫規則"
+"PO-Revision-Date: 2025-12-01 18:05\n"
 
 #: internal/service/cli.go:287
 msgid "2FA disabled for user %s"
@@ -1302,7 +1298,7 @@ msgstr "備份檔案 %s 不存在"
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/data/website.go:423
+#: internal/data/website.go:416
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 數據庫服務器，請先添加"
 
@@ -1330,11 +1326,11 @@ msgstr "創建目錄錯誤：%v"
 msgid "database does not exist: %s"
 msgstr "資料庫不存在：%s"
 
-#: internal/data/website.go:775
+#: internal/data/website.go:757
 msgid "default document comment count is incorrect, expected 1, actual %d"
 msgstr "默認文檔註釋數量不正確，預期為1，實際為 %d"
 
-#: internal/data/website.go:772
+#: internal/data/website.go:754
 msgid "default document comment not found"
 msgstr "未找到預設文件註釋"
 
@@ -1402,7 +1398,7 @@ msgstr "無法獲取 %s 服務啟用狀態：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "無法獲取 %s 服務運行狀態：%v"
 
-#: internal/data/website.go:358
+#: internal/data/website.go:354
 msgid "failed to get 404 template file: %v"
 msgstr "獲取404模板文件失敗：%v"
 
@@ -1475,7 +1471,7 @@ msgstr "無法獲取磁盤空間：%v"
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
-#: internal/data/website.go:343
+#: internal/data/website.go:339
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
@@ -1563,16 +1559,16 @@ msgstr "無法載入 MySQL root 密碼：%v"
 #: internal/data/cert.go:92
 #: internal/data/setting.go:289
 #: internal/data/setting.go:363
-#: internal/data/website.go:527
-#: internal/data/website.go:814
+#: internal/data/website.go:501
+#: internal/data/website.go:791
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
 #: internal/data/cert.go:95
 #: internal/data/setting.go:292
 #: internal/data/setting.go:366
-#: internal/data/website.go:530
-#: internal/data/website.go:817
+#: internal/data/website.go:504
+#: internal/data/website.go:794
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -1770,7 +1766,7 @@ msgstr "掛載路徑不為空"
 msgid "mysql not support database comment"
 msgstr "mysql 不支援資料庫註釋"
 
-#: internal/data/website.go:845
+#: internal/data/website.go:819
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
@@ -1846,16 +1842,16 @@ msgstr "規則已存在"
 msgid "rule not found"
 msgstr "找不到規則"
 
-#: internal/data/website.go:762
+#: internal/data/website.go:744
 msgid "runtime directory comment count is incorrect, expected 1, actual %d"
 msgstr "運行時目錄註釋數量不正確，預期為1，實際為%d"
 
-#: internal/data/website.go:759
+#: internal/data/website.go:741
 msgid "runtime directory comment not found"
 msgstr "未找到運行目錄註釋"
 
-#: internal/data/website.go:501
-#: internal/data/website.go:766
+#: internal/data/website.go:479
+#: internal/data/website.go:748
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
@@ -1949,7 +1945,10 @@ msgstr "不支援的檔案類型"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:264
+#: internal/data/website.go:122
+#: internal/data/website.go:257
+#: internal/data/website.go:455
+#: internal/data/website.go:662
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -1967,11 +1966,11 @@ msgstr "上傳檔案錯誤：%v"
 msgid "username or password error"
 msgstr "使用者名稱或密碼錯誤"
 
-#: internal/data/website.go:613
+#: internal/data/website.go:589
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
-#: internal/data/website.go:508
+#: internal/data/website.go:486
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
