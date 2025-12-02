@@ -310,8 +310,8 @@ github.com/moby/moby/client v0.2.1/go.mod h1:O+/tw5d4a1Ha/ZA/tPxIZJapJRUS6LNZ1wi
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/ncruces/go-sqlite3 v0.30.2 h1:1GVbHAkKAOwjJd3JYl8ldrYROudfZUOah7oXPD7VZbQ=
-github.com/ncruces/go-sqlite3 v0.30.2/go.mod h1:AxKu9sRxkludimFocbktlY6LiYSkxiI5gTA8r+os/Nw=
+github.com/ncruces/go-sqlite3 v0.30.3 h1:X/CgWW9GzmIAkEPrifhKqf0cC15DuOVxAJaHFTTAURQ=
+github.com/ncruces/go-sqlite3 v0.30.3/go.mod h1:AxKu9sRxkludimFocbktlY6LiYSkxiI5gTA8r+os/Nw=
 github.com/ncruces/go-sqlite3/gormlite v0.30.2 h1:FZ8mic14xTatssTkHCrelh9nPeFdXuzgMoNGkfuFbBU=
 github.com/ncruces/go-sqlite3/gormlite v0.30.2/go.mod h1:W9WLBbqrrOIh2dqFZkeC/xKALG2LDIHY91jowahOdtI=
 github.com/ncruces/julianday v1.0.0 h1:fH0OKwa7NWvniGQtxdJRxAgkBMolni2BjDHaWTxqt7M=
