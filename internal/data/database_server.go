@@ -28,7 +28,7 @@ func NewDatabaseServerRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.
 	}
 }
 
-func (r databaseServerRepo) Count() (int64, error) {
+func (r *databaseServerRepo) Count() (int64, error) {
 	var count int64
 	if err := r.db.Model(&biz.DatabaseServer{}).Count(&count).Error; err != nil {
 		return 0, err
@@ -37,7 +37,7 @@ func (r databaseServerRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r databaseServerRepo) List(page, limit uint) ([]*biz.DatabaseServer, int64, error) {
+func (r *databaseServerRepo) List(page, limit uint) ([]*biz.DatabaseServer, int64, error) {
 	databaseServer := make([]*biz.DatabaseServer, 0)
 	var total int64
 	err := r.db.Model(&biz.DatabaseServer{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
@@ -49,7 +49,7 @@ func (r databaseServerRepo) List(page, limit uint) ([]*biz.DatabaseServer, int64
 	return databaseServer, total, err
 }
 
-func (r databaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
+func (r *databaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
 	databaseServer := new(biz.DatabaseServer)
 	if err := r.db.Where("id = ?", id).First(databaseServer).Error; err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (r databaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
 	return databaseServer, nil
 }
 
-func (r databaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error) {
+func (r *databaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error) {
 	databaseServer := new(biz.DatabaseServer)
 	if err := r.db.Where("name = ?", name).First(databaseServer).Error; err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (r databaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error) 
 	return databaseServer, nil
 }
 
-func (r databaseServerRepo) Create(req *request.DatabaseServerCreate) error {
+func (r *databaseServerRepo) Create(req *request.DatabaseServerCreate) error {
 	databaseServer := &biz.DatabaseServer{
 		Name:     req.Name,
 		Type:     biz.DatabaseType(req.Type),
@@ -89,7 +89,7 @@ func (r databaseServerRepo) Create(req *request.DatabaseServerCreate) error {
 	return r.db.Create(databaseServer).Error
 }
 
-func (r databaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
+func (r *databaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
 	server, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -109,11 +109,11 @@ func (r databaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
 	return r.db.Save(server).Error
 }
 
-func (r databaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
+func (r *databaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
 	return r.db.Model(&biz.DatabaseServer{}).Where("id = ?", req.ID).Update("remark", req.Remark).Error
 }
 
-func (r databaseServerRepo) Delete(id uint) error {
+func (r *databaseServerRepo) Delete(id uint) error {
 	if err := r.ClearUsers(id); err != nil {
 		return err
 	}
@@ -122,11 +122,11 @@ func (r databaseServerRepo) Delete(id uint) error {
 }
 
 // ClearUsers 删除指定服务器的所有用户，只是删除面板记录，不会实际删除
-func (r databaseServerRepo) ClearUsers(serverID uint) error {
+func (r *databaseServerRepo) ClearUsers(serverID uint) error {
 	return r.db.Where("server_id = ?", serverID).Delete(&biz.DatabaseUser{}).Error
 }
 
-func (r databaseServerRepo) Sync(id uint) error {
+func (r *databaseServerRepo) Sync(id uint) error {
 	server, err := r.Get(id)
 	if err != nil {
 		return err
@@ -137,16 +137,15 @@ func (r databaseServerRepo) Sync(id uint) error {
 		return err
 	}
 
+	operator, err := r.getOperator(server)
+	if err != nil {
+		return err
+	}
+	defer operator.Close()
+
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return err
-		}
-		defer func(mysql *db.MySQL) {
-			_ = mysql.Close()
-		}(mysql)
-		allUsers, err := mysql.Users()
+		allUsers, err := operator.Users()
 		if err != nil {
 			return err
 		}
@@ -166,24 +165,17 @@ func (r databaseServerRepo) Sync(id uint) error {
 			}
 		}
 	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
-		if err != nil {
-			return err
-		}
-		defer func(postgres *db.Postgres) {
-			_ = postgres.Close()
-		}(postgres)
-		allUsers, err := postgres.Users()
+		allUsers, err := operator.Users()
 		if err != nil {
 			return err
 		}
 		for user := range slices.Values(allUsers) {
 			if !slices.ContainsFunc(users, func(a *biz.DatabaseUser) bool {
-				return a.Username == user.Role
-			}) && !slices.Contains([]string{"postgres"}, user.Role) {
+				return a.Username == user.User
+			}) && !slices.Contains([]string{"postgres"}, user.User) {
 				newUser := &biz.DatabaseUser{
 					ServerID: id,
-					Username: user.Role,
+					Username: user.User,
 					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				r.db.Create(newUser)
@@ -195,26 +187,19 @@ func (r databaseServerRepo) Sync(id uint) error {
 }
 
 // checkServer 检查服务器连接
-func (r databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
+func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql:
+		operator, err := r.getOperator(server)
 		if err == nil {
-			_ = mysql.Close()
-			server.Status = biz.DatabaseServerStatusValid
-			return true
-		}
-	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
-		if err == nil {
-			_ = postgres.Close()
+			operator.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}
 	case biz.DatabaseTypeRedis:
 		redis, err := db.NewRedis(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err == nil {
-			_ = redis.Close()
+			redis.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}
@@ -222,4 +207,23 @@ func (r databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 
 	server.Status = biz.DatabaseServerStatusInvalid
 	return false
+}
+
+func (r *databaseServerRepo) getOperator(server *biz.DatabaseServer) (db.Operator, error) {
+	switch server.Type {
+	case biz.DatabaseTypeMysql:
+		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if err != nil {
+			return nil, err
+		}
+		return mysql, nil
+	case biz.DatabaseTypePostgresql:
+		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
+		if err != nil {
+			return nil, err
+		}
+		return postgres, nil
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
+	}
 }

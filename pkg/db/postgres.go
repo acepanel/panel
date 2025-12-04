@@ -9,7 +9,6 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/acepanel/panel/pkg/systemctl"
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type Postgres struct {
@@ -20,7 +19,7 @@ type Postgres struct {
 	port     uint
 }
 
-func NewPostgres(username, password, address string, port uint) (*Postgres, error) {
+func NewPostgres(username, password, address string, port uint) (Operator, error) {
 	username = strings.ReplaceAll(username, `'`, `\'`)
 	password = strings.ReplaceAll(password, `'`, `\'`)
 	dsn := fmt.Sprintf(`host=%s port=%d user='%s' password='%s' dbname=postgres sslmode=disable`, address, port, username, password)
@@ -46,8 +45,8 @@ func NewPostgres(username, password, address string, port uint) (*Postgres, erro
 	}, nil
 }
 
-func (r *Postgres) Close() error {
-	return r.db.Close()
+func (r *Postgres) Close() {
+	_ = r.db.Close()
 }
 
 func (r *Postgres) Ping() error {
@@ -72,7 +71,7 @@ func (r *Postgres) Prepare(query string) (*sql.Stmt, error) {
 
 func (r *Postgres) DatabaseCreate(name string) error {
 	// postgres 不支持 CREATE DATABASE IF NOT EXISTS，但是为了保持与 MySQL 一致，先检查数据库是否存在
-	exist, err := r.DatabaseExist(name)
+	exist, err := r.DatabaseExists(name)
 	if err != nil {
 		return err
 	}
@@ -88,7 +87,7 @@ func (r *Postgres) DatabaseDrop(name string) error {
 	return err
 }
 
-func (r *Postgres) DatabaseExist(name string) (bool, error) {
+func (r *Postgres) DatabaseExists(name string) (bool, error) {
 	var count int
 	if err := r.QueryRow("SELECT COUNT(*) FROM pg_database WHERE datname = $1", name).Scan(&count); err != nil {
 		return false, err
@@ -110,7 +109,7 @@ func (r *Postgres) DatabaseComment(name, comment string) error {
 	return err
 }
 
-func (r *Postgres) UserCreate(user, password string) error {
+func (r *Postgres) UserCreate(user, password string, host ...string) error {
 	_, err := r.Exec(fmt.Sprintf("CREATE USER %s WITH PASSWORD '%s'", user, password))
 	if err != nil {
 		return err
@@ -119,7 +118,7 @@ func (r *Postgres) UserCreate(user, password string) error {
 	return nil
 }
 
-func (r *Postgres) UserDrop(user string) error {
+func (r *Postgres) UserDrop(user string, host ...string) error {
 	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS %s", user))
 	if err != nil {
 		return err
@@ -128,12 +127,12 @@ func (r *Postgres) UserDrop(user string) error {
 	return systemctl.Reload("postgresql")
 }
 
-func (r *Postgres) UserPassword(user, password string) error {
+func (r *Postgres) UserPassword(user, password string, host ...string) error {
 	_, err := r.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s'", user, password))
 	return err
 }
 
-func (r *Postgres) UserPrivileges(user string) ([]string, error) {
+func (r *Postgres) UserPrivileges(user string, host ...string) ([]string, error) {
 	query := `
         SELECT d.datname
         FROM pg_catalog.pg_database d
@@ -169,7 +168,7 @@ func (r *Postgres) UserPrivileges(user string) ([]string, error) {
 	return databases, nil
 }
 
-func (r *Postgres) PrivilegesGrant(user, database string) error {
+func (r *Postgres) PrivilegesGrant(user, database string, host ...string) error {
 	if _, err := r.Exec(fmt.Sprintf("ALTER DATABASE %s OWNER TO %s", database, user)); err != nil {
 		return err
 	}
@@ -180,12 +179,12 @@ func (r *Postgres) PrivilegesGrant(user, database string) error {
 	return nil
 }
 
-func (r *Postgres) PrivilegesRevoke(user, database string) error {
+func (r *Postgres) PrivilegesRevoke(user, database string, host ...string) error {
 	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON DATABASE %s FROM %s", database, user))
 	return err
 }
 
-func (r *Postgres) Users() ([]types.PostgresUser, error) {
+func (r *Postgres) Users() ([]User, error) {
 	query := `
         SELECT rolname,
                rolsuper,
@@ -204,11 +203,11 @@ func (r *Postgres) Users() ([]types.PostgresUser, error) {
 		_ = rows.Close()
 	}(rows)
 
-	var users []types.PostgresUser
+	var users []User
 	for rows.Next() {
-		var user types.PostgresUser
+		var user User
 		var super, canCreateRole, canCreateDb, replication, bypassRls bool
-		if err = rows.Scan(&user.Role, &super, &canCreateRole, &canCreateDb, &replication, &bypassRls); err != nil {
+		if err = rows.Scan(&user.User, &super, &canCreateRole, &canCreateDb, &replication, &bypassRls); err != nil {
 			return nil, err
 		}
 
@@ -221,12 +220,12 @@ func (r *Postgres) Users() ([]types.PostgresUser, error) {
 		}
 		for perm, enabled := range permissions {
 			if enabled {
-				user.Attributes = append(user.Attributes, perm)
+				user.Grants = append(user.Grants, perm)
 			}
 		}
 
-		if len(user.Attributes) == 0 {
-			user.Attributes = append(user.Attributes, "无")
+		if len(user.Grants) == 0 {
+			user.Grants = append(user.Grants, "None")
 		}
 
 		users = append(users, user)
@@ -239,7 +238,7 @@ func (r *Postgres) Users() ([]types.PostgresUser, error) {
 	return users, nil
 }
 
-func (r *Postgres) Databases() ([]types.PostgresDatabase, error) {
+func (r *Postgres) Databases() ([]Database, error) {
 	query := `
         SELECT 
             d.datname, 
@@ -257,10 +256,10 @@ func (r *Postgres) Databases() ([]types.PostgresDatabase, error) {
 		_ = rows.Close()
 	}(rows)
 
-	var databases []types.PostgresDatabase
+	var databases []Database
 	for rows.Next() {
-		var db types.PostgresDatabase
-		if err := rows.Scan(&db.Name, &db.Owner, &db.Encoding, &db.Comment); err != nil {
+		var db Database
+		if err := rows.Scan(&db.Name, &db.Owner, &db.CharSet, &db.Comment); err != nil {
 			return nil, err
 		}
 		if slices.Contains([]string{"template0", "template1", "postgres"}, db.Name) {

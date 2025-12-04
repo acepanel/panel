@@ -7,8 +7,6 @@ import (
 	"slices"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type MySQL struct {
@@ -18,7 +16,7 @@ type MySQL struct {
 	address  string
 }
 
-func NewMySQL(username, password, address string, typ ...string) (*MySQL, error) {
+func NewMySQL(username, password, address string, typ ...string) (Operator, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/", username, password, address)
 	if len(typ) > 0 && typ[0] == "unix" {
 		dsn = fmt.Sprintf("%s:%s@unix(%s)/", username, password, address)
@@ -38,8 +36,8 @@ func NewMySQL(username, password, address string, typ ...string) (*MySQL, error)
 	}, nil
 }
 
-func (r *MySQL) Close() error {
-	return r.db.Close()
+func (r *MySQL) Close() {
+	_ = r.db.Close()
 }
 
 func (r *MySQL) Ping() error {
@@ -101,44 +99,43 @@ func (r *MySQL) DatabaseSize(name string) (int64, error) {
 	return size, err
 }
 
-func (r *MySQL) UserCreate(user, password, host string) error {
-	_, err := r.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%s' IDENTIFIED BY '%s'", user, host, password))
+func (r *MySQL) UserCreate(user, password string, host ...string) error {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
+	_, err := r.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
 	r.flushPrivileges()
 	return err
 }
 
-func (r *MySQL) UserDrop(user, host string) error {
-	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS '%s'@'%s'", user, host))
+func (r *MySQL) UserDrop(user string, host ...string) error {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
+	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS '%s'@'%s'", user, host[0]))
 	r.flushPrivileges()
 	return err
 }
 
-func (r *MySQL) UserPassword(user, password, host string) error {
-	_, err := r.Exec(fmt.Sprintf("ALTER USER '%s'@'%s' IDENTIFIED BY '%s'", user, host, password))
+func (r *MySQL) UserPassword(user, password string, host ...string) error {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
+	_, err := r.Exec(fmt.Sprintf("ALTER USER '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
 	r.flushPrivileges()
 	return err
 }
 
-func (r *MySQL) PrivilegesGrant(user, database, host string) error {
-	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%s'", database, user, host))
-	r.flushPrivileges()
-	return err
-}
+func (r *MySQL) UserPrivileges(user string, host ...string) ([]string, error) {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
 
-func (r *MySQL) PrivilegesRevoke(user, database, host string) error {
-	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON %s.* FROM '%s'@'%s'", database, user, host))
-	r.flushPrivileges()
-	return err
-}
-
-func (r *MySQL) UserPrivileges(user, host string) ([]string, error) {
-	rows, err := r.Query(fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host))
+	rows, err := r.Query(fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host[0]))
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		_ = rows.Close()
-	}(rows)
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	re := regexp.MustCompile(`GRANT\s+ALL PRIVILEGES\s+ON\s+[\x60'"]?([^\s\x60'"]+)[\x60'"]?\.\*\s+TO\s+`)
 	var databases []string
@@ -166,16 +163,32 @@ func (r *MySQL) UserPrivileges(user, host string) ([]string, error) {
 	return slices.Compact(databases), nil
 }
 
-func (r *MySQL) Users() ([]types.MySQLUser, error) {
+func (r *MySQL) PrivilegesGrant(user, database string, host ...string) error {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
+	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%s'", database, user, host[0]))
+	r.flushPrivileges()
+	return err
+}
+
+func (r *MySQL) PrivilegesRevoke(user, database string, host ...string) error {
+	if len(host) == 0 {
+		host = append(host, "%")
+	}
+	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON %s.* FROM '%s'@'%s'", database, user, host[0]))
+	r.flushPrivileges()
+	return err
+}
+
+func (r *MySQL) Users() ([]User, error) {
 	rows, err := r.Query("SELECT user, host FROM mysql.user")
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		_ = rows.Close()
-	}(rows)
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
-	var users []types.MySQLUser
+	var users []User
 	for rows.Next() {
 		var user, host string
 		if err := rows.Scan(&user, &host); err != nil {
@@ -186,7 +199,7 @@ func (r *MySQL) Users() ([]types.MySQLUser, error) {
 			continue
 		}
 
-		users = append(users, types.MySQLUser{
+		users = append(users, User{
 			User:   user,
 			Host:   host,
 			Grants: grants,
@@ -196,7 +209,7 @@ func (r *MySQL) Users() ([]types.MySQLUser, error) {
 	return users, nil
 }
 
-func (r *MySQL) Databases() ([]types.MySQLDatabase, error) {
+func (r *MySQL) Databases() ([]Database, error) {
 	query := `
         SELECT 
             SCHEMA_NAME,
@@ -214,9 +227,9 @@ func (r *MySQL) Databases() ([]types.MySQLDatabase, error) {
 		_ = rows.Close()
 	}(rows)
 
-	var databases []types.MySQLDatabase
+	var databases []Database
 	for rows.Next() {
-		var db types.MySQLDatabase
+		var db Database
 		if err = rows.Scan(&db.Name, &db.CharSet, &db.Collation); err != nil {
 			return nil, err
 		}

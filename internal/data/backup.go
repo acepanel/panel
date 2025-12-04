@@ -256,9 +256,7 @@ func (r *backupRepo) createMySQL(to string, name string) error {
 	if err != nil {
 		return err
 	}
-	defer func(mysql *db.MySQL) {
-		_ = mysql.Close()
-	}(mysql)
+	defer mysql.Close()
 	if exist, _ := mysql.DatabaseExists(name); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", name))
 	}
@@ -302,10 +300,8 @@ func (r *backupRepo) createPostgres(to string, name string) error {
 	if err != nil {
 		return err
 	}
-	defer func(postgres *db.Postgres) {
-		_ = postgres.Close()
-	}(postgres)
-	if exist, _ := postgres.DatabaseExist(name); !exist {
+	defer postgres.Close()
+	if exist, _ := postgres.DatabaseExists(name); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", name))
 	}
 	size, err := postgres.DatabaseSize(name)
@@ -418,9 +414,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	defer func(mysql *db.MySQL) {
-		_ = mysql.Close()
-	}(mysql)
+	defer mysql.Close()
 	if exist, _ := mysql.DatabaseExists(target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
@@ -460,10 +454,8 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	defer func(postgres *db.Postgres) {
-		_ = postgres.Close()
-	}(postgres)
-	if exist, _ := postgres.DatabaseExist(target); !exist {
+	defer postgres.Close()
+	if exist, _ := postgres.DatabaseExists(target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 

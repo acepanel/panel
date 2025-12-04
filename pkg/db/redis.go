@@ -39,8 +39,8 @@ func NewRedis(username, password, address string) (*Redis, error) {
 	}, nil
 }
 
-func (r *Redis) Close() error {
-	return r.conn.Close()
+func (r *Redis) Close() {
+	_ = r.conn.Close()
 }
 
 func (r *Redis) Exec(command string, args ...any) (any, error) {
