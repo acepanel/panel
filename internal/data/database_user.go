@@ -122,6 +122,7 @@ func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 		if err = operator.UserPassword(user.Username, req.Password); err != nil {
 			return err
 		}
+		user.Password = req.Password
 	}
 
 	// 创建数据库并授权
@@ -134,7 +135,6 @@ func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 		}
 	}
 
-	user.Password = req.Password
 	user.Remark = req.Remark
 
 	return r.db.Save(user).Error
