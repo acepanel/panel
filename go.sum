@@ -251,8 +251,8 @@ github.com/leonelquinteros/gotext v1.7.2 h1:bDPndU8nt+/kRo1m4l/1OXiiy2v7Z7dfPQ9+
 github.com/leonelquinteros/gotext v1.7.2/go.mod h1:9/haCkm5P7Jay1sxKDGJ5WIg4zkz8oZKw4ekNpALob8=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
-github.com/libdns/alidns v1.0.5-libdns.v1.beta1 h1:txHK7UxDed3WFBDjrTZPuMn8X+WmhjBTTAMW5xdy5pQ=
-github.com/libdns/alidns v1.0.5-libdns.v1.beta1/go.mod h1:ystHmPwcGoWjPrGpensQSMY9VoCx4cpR2hXNlwk9H/g=
+github.com/libdns/alidns v1.0.5-libdns.v1.beta2 h1:zbk3JyBn+3fTbP4tFOpPI+KW8/H8czJVNVdmqAxvY40=
+github.com/libdns/alidns v1.0.5-libdns.v1.beta2/go.mod h1:RECwyQ88e9VqQVtSrvX76o1ux3gQUKGzMgxICi+u7Ec=
 github.com/libdns/cloudflare v0.2.2 h1:XWHv+C1dDcApqazlh08Q6pjytYLgR2a+Y3xrXFu0vsI=
 github.com/libdns/cloudflare v0.2.2/go.mod h1:w9uTmRCDlAoafAsTPnn2nJ0XHK/eaUMh86DUk8BWi60=
 github.com/libdns/cloudns v1.1.0 h1:W+1MadtxKySn3b5RITFTsXgTIvr5VoO5x97cewjlDcs=
@@ -261,7 +261,6 @@ github.com/libdns/gcore v0.0.0-20250427050847-9964da923833 h1:/gsawtsq03cI7qgK65
 github.com/libdns/gcore v0.0.0-20250427050847-9964da923833/go.mod h1:jZJEV7pCTOJFlaUhHty+YwR05dzoSmInXK/vT3wOeVg=
 github.com/libdns/huaweicloud v1.0.0 h1:BQUIkOAjF++ouiANRIE3jdMlCfeiAAr6tGqb+8hM1jo=
 github.com/libdns/huaweicloud v1.0.0/go.mod h1:W+XywkW+C93fM50Ayklf6KuoCHZTqbrmFUEtpQnVvcU=
-github.com/libdns/libdns v1.0.0-beta.1/go.mod h1:4Bj9+5CQiNMVGf87wjX4CY3HQJypUHRuLvlsfsZqLWQ=
 github.com/libdns/libdns v1.1.1 h1:wPrHrXILoSHKWJKGd0EiAVmiJbFShguILTg9leS/P/U=
 github.com/libdns/libdns v1.1.1/go.mod h1:4Bj9+5CQiNMVGf87wjX4CY3HQJypUHRuLvlsfsZqLWQ=
 github.com/libdns/namesilo v1.0.0 h1:Shwbj9YnSp4NR617sBOSfDkFozEnWInWCxNwrDvPkCg=
