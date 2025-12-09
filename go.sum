@@ -251,8 +251,8 @@ github.com/leonelquinteros/gotext v1.7.2 h1:bDPndU8nt+/kRo1m4l/1OXiiy2v7Z7dfPQ9+
 github.com/leonelquinteros/gotext v1.7.2/go.mod h1:9/haCkm5P7Jay1sxKDGJ5WIg4zkz8oZKw4ekNpALob8=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
-github.com/libdns/alidns v1.0.6-beta.2 h1:cRhpaFGoQfGgsVWj+rpUdmbP74BCsH96tv3ZOwBPf38=
-github.com/libdns/alidns v1.0.6-beta.2/go.mod h1:RECwyQ88e9VqQVtSrvX76o1ux3gQUKGzMgxICi+u7Ec=
+github.com/libdns/alidns v1.0.6-beta.3 h1:KAmb7FQ1tRzKsaAUGa7ZpGKAMRANwg7+1c7tUbSELq8=
+github.com/libdns/alidns v1.0.6-beta.3/go.mod h1:RECwyQ88e9VqQVtSrvX76o1ux3gQUKGzMgxICi+u7Ec=
 github.com/libdns/cloudflare v0.2.2 h1:XWHv+C1dDcApqazlh08Q6pjytYLgR2a+Y3xrXFu0vsI=
 github.com/libdns/cloudflare v0.2.2/go.mod h1:w9uTmRCDlAoafAsTPnn2nJ0XHK/eaUMh86DUk8BWi60=
 github.com/libdns/cloudns v1.1.0 h1:W+1MadtxKySn3b5RITFTsXgTIvr5VoO5x97cewjlDcs=
