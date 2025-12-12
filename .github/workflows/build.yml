@@ -31,7 +31,7 @@ jobs:
           pnpm run gettext:compile
           pnpm build
       - name: Upload frontend
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: frontend
           path: web/dist/
@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
       - name: Download frontend
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: frontend
           path: pkg/embed/frontend
@@ -89,7 +89,7 @@ jobs:
           upx --best --lzma ace-${{ matrix.goarch }}
           upx --best --lzma cli-${{ matrix.goarch }}
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: backend-${{ matrix.goarch }}
           path: |
