@@ -31,25 +31,25 @@ importers:
         version: 14.1.0(vue@3.5.26(typescript@5.9.3))
       '@xterm/addon-attach':
         specifier: ^0.11.0
-        version: 0.11.0(@xterm/xterm@5.5.0)
+        version: 0.11.0(@xterm/xterm@6.0.0)
       '@xterm/addon-clipboard':
         specifier: ^0.1.0
-        version: 0.1.0(@xterm/xterm@5.5.0)
+        version: 0.1.0(@xterm/xterm@6.0.0)
       '@xterm/addon-fit':
         specifier: ^0.10.0
-        version: 0.10.0(@xterm/xterm@5.5.0)
+        version: 0.10.0(@xterm/xterm@6.0.0)
       '@xterm/addon-unicode11':
         specifier: ^0.8.0
-        version: 0.8.0(@xterm/xterm@5.5.0)
+        version: 0.8.0(@xterm/xterm@6.0.0)
       '@xterm/addon-web-links':
         specifier: ^0.11.0
-        version: 0.11.0(@xterm/xterm@5.5.0)
+        version: 0.11.0(@xterm/xterm@6.0.0)
       '@xterm/addon-webgl':
         specifier: ^0.18.0
-        version: 0.18.0(@xterm/xterm@5.5.0)
+        version: 0.18.0(@xterm/xterm@6.0.0)
       '@xterm/xterm':
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^6.0.0
+        version: 6.0.0
       alova:
         specifier: ^3.3.4
         version: 3.4.1
@@ -1393,8 +1393,8 @@ packages:
     peerDependencies:
       '@xterm/xterm': ^5.0.0
 
-  '@xterm/xterm@5.5.0':
-    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
+  '@xterm/xterm@6.0.0':
+    resolution: {integrity: sha512-TQwDdQGtwwDt+2cgKDLn0IRaSxYu1tSUjgKarSDkUM0ZNiSRXFpjxEsvc/Zgc5kq5omJ+V0a8/kIM2WD3sMOYg==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4905,32 +4905,32 @@ snapshots:
     dependencies:
       vue: 3.5.26(typescript@5.9.3)
 
-  '@xterm/addon-attach@0.11.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-attach@0.11.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
-  '@xterm/addon-clipboard@0.1.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-clipboard@0.1.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
       js-base64: 3.7.8
 
-  '@xterm/addon-fit@0.10.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-fit@0.10.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
-  '@xterm/addon-unicode11@0.8.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-unicode11@0.8.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
-  '@xterm/addon-web-links@0.11.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-web-links@0.11.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
-  '@xterm/addon-webgl@0.18.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-webgl@0.18.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
-  '@xterm/xterm@5.5.0': {}
+  '@xterm/xterm@6.0.0': {}
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
