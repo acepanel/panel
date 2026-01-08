@@ -39,20 +39,30 @@ const extendResize = ref(true)
 
 // 加载磁盘列表
 const loadDiskList = () => {
-  useRequest(disk.list()).onSuccess(({ data }) => {
-    try {
-      diskList.value = JSON.parse(data)
-    } catch (e) {
-      diskList.value = {}
-    }
-  })
+  useRequest(disk.list())
+    .onSuccess(({ data }) => {
+      try {
+        diskList.value = JSON.parse(data)
+      } catch (e) {
+        diskList.value = {}
+        console.error('解析磁盘列表数据失败:', e)
+        window.$message.error($gettext('Failed to parse disk data, please refresh and try again'))
+      }
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to get disk list: ') + error.message)
+    })
 }
 
 // 加载LVM信息
 const loadLVMInfo = () => {
-  useRequest(disk.lvmInfo()).onSuccess(({ data }) => {
-    lvmInfo.value = data
-  })
+  useRequest(disk.lvmInfo())
+    .onSuccess(({ data }) => {
+      lvmInfo.value = data
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to get LVM info: ') + error.message)
+    })
 }
 
 onMounted(() => {
@@ -67,12 +77,16 @@ const handleMount = () => {
     return
   }
 
-  useRequest(disk.mount(selectedDevice.value, mountPath.value)).onSuccess(() => {
-    window.$message.success($gettext('Mounted successfully'))
-    loadDiskList()
-    selectedDevice.value = ''
-    mountPath.value = ''
-  })
+  useRequest(disk.mount(selectedDevice.value, mountPath.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Mounted successfully'))
+      loadDiskList()
+      selectedDevice.value = ''
+      mountPath.value = ''
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Mount failed: ') + error.message)
+    })
 }
 
 // 卸载分区
@@ -83,10 +97,14 @@ const handleUmount = (path: string) => {
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      useRequest(disk.umount(path)).onSuccess(() => {
-        window.$message.success($gettext('Unmounted successfully'))
-        loadDiskList()
-      })
+      useRequest(disk.umount(path))
+        .onSuccess(() => {
+          window.$message.success($gettext('Unmounted successfully'))
+          loadDiskList()
+        })
+        .onError((error) => {
+          window.$message.error($gettext('Unmount failed: ') + error.message)
+        })
     }
   })
 }
@@ -106,11 +124,16 @@ const handleFormat = () => {
     positiveText: $gettext('Confirm Format'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      useRequest(disk.format(formatDevice.value, formatFsType.value)).onSuccess(() => {
-        window.$message.success($gettext('Formatted successfully'))
-        loadDiskList()
-        formatDevice.value = ''
-      })
+      useRequest(disk.format(formatDevice.value, formatFsType.value))
+        .onSuccess(() => {
+          window.$message.success($gettext('Formatted successfully'))
+          loadDiskList()
+          formatDevice.value = ''
+          formatFsType.value = 'ext4'
+        })
+        .onError((error) => {
+          window.$message.error($gettext('Format failed: ') + error.message)
+        })
     }
   })
 }
@@ -122,11 +145,15 @@ const handleCreatePV = () => {
     return
   }
 
-  useRequest(disk.createPV(pvDevice.value)).onSuccess(() => {
-    window.$message.success($gettext('Physical volume created successfully'))
-    loadLVMInfo()
-    pvDevice.value = ''
-  })
+  useRequest(disk.createPV(pvDevice.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Physical volume created successfully'))
+      loadLVMInfo()
+      pvDevice.value = ''
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to create physical volume: ') + error.message)
+    })
 }
 
 // 删除物理卷
@@ -137,10 +164,14 @@ const handleRemovePV = (device: string) => {
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      useRequest(disk.removePV(device)).onSuccess(() => {
-        window.$message.success($gettext('Physical volume removed successfully'))
-        loadLVMInfo()
-      })
+      useRequest(disk.removePV(device))
+        .onSuccess(() => {
+          window.$message.success($gettext('Physical volume removed successfully'))
+          loadLVMInfo()
+        })
+        .onError((error) => {
+          window.$message.error($gettext('Failed to remove physical volume: ') + error.message)
+        })
     }
   })
 }
@@ -152,12 +183,16 @@ const handleCreateVG = () => {
     return
   }
 
-  useRequest(disk.createVG(vgName.value, vgDevices.value)).onSuccess(() => {
-    window.$message.success($gettext('Volume group created successfully'))
-    loadLVMInfo()
-    vgName.value = ''
-    vgDevices.value = []
-  })
+  useRequest(disk.createVG(vgName.value, vgDevices.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Volume group created successfully'))
+      loadLVMInfo()
+      vgName.value = ''
+      vgDevices.value = []
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to create volume group: ') + error.message)
+    })
 }
 
 // 删除卷组
@@ -168,10 +203,14 @@ const handleRemoveVG = (name: string) => {
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      useRequest(disk.removeVG(name)).onSuccess(() => {
-        window.$message.success($gettext('Volume group removed successfully'))
-        loadLVMInfo()
-      })
+      useRequest(disk.removeVG(name))
+        .onSuccess(() => {
+          window.$message.success($gettext('Volume group removed successfully'))
+          loadLVMInfo()
+        })
+        .onError((error) => {
+          window.$message.error($gettext('Failed to remove volume group: ') + error.message)
+        })
     }
   })
 }
@@ -183,13 +222,17 @@ const handleCreateLV = () => {
     return
   }
 
-  useRequest(disk.createLV(lvName.value, lvVgName.value, lvSize.value)).onSuccess(() => {
-    window.$message.success($gettext('Logical volume created successfully'))
-    loadLVMInfo()
-    lvName.value = ''
-    lvVgName.value = ''
-    lvSize.value = 1
-  })
+  useRequest(disk.createLV(lvName.value, lvVgName.value, lvSize.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Logical volume created successfully'))
+      loadLVMInfo()
+      lvName.value = ''
+      lvVgName.value = ''
+      lvSize.value = 1
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to create logical volume: ') + error.message)
+    })
 }
 
 // 删除逻辑卷
@@ -200,10 +243,14 @@ const handleRemoveLV = (path: string) => {
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      useRequest(disk.removeLV(path)).onSuccess(() => {
-        window.$message.success($gettext('Logical volume removed successfully'))
-        loadLVMInfo()
-      })
+      useRequest(disk.removeLV(path))
+        .onSuccess(() => {
+          window.$message.success($gettext('Logical volume removed successfully'))
+          loadLVMInfo()
+        })
+        .onError((error) => {
+          window.$message.error($gettext('Failed to remove logical volume: ') + error.message)
+        })
     }
   })
 }
@@ -215,14 +262,16 @@ const handleExtendLV = () => {
     return
   }
 
-  useRequest(disk.extendLV(extendLvPath.value, extendSize.value, extendResize.value)).onSuccess(
-    () => {
+  useRequest(disk.extendLV(extendLvPath.value, extendSize.value, extendResize.value))
+    .onSuccess(() => {
       window.$message.success($gettext('Logical volume extended successfully'))
       loadLVMInfo()
       extendLvPath.value = ''
       extendSize.value = 1
-    }
-  )
+    })
+    .onError((error) => {
+      window.$message.error($gettext('Failed to extend logical volume: ') + error.message)
+    })
 }
 </script>
 
