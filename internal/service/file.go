@@ -23,6 +23,7 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/chattr"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/shell"
@@ -495,21 +496,31 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 		if !info.IsDir() {
 			size = tools.FormatBytes(float64(info.Size()))
 		}
+
+		// 检查文件是否有 immutable 属性
+		fullPath := filepath.Join(base, info.Name())
+		immutable := false
+		if f, err := stdos.OpenFile(fullPath, stdos.O_RDONLY, 0); err == nil {
+			immutable, _ = chattr.IsAttr(f, chattr.FS_IMMUTABLE_FL)
+			_ = f.Close()
+		}
+
 		paths = append(paths, map[string]any{
-			"name":     info.Name(),
-			"full":     filepath.Join(base, info.Name()),
-			"size":     size,
-			"mode_str": info.Mode().String(),
-			"mode":     fmt.Sprintf("%04o", info.Mode().Perm()),
-			"owner":    os.GetUser(stat.Uid),
-			"group":    os.GetGroup(stat.Gid),
-			"uid":      stat.Uid,
-			"gid":      stat.Gid,
-			"hidden":   io.IsHidden(info.Name()),
-			"symlink":  io.IsSymlink(info.Mode()),
-			"link":     io.GetSymlink(filepath.Join(base, info.Name())),
-			"dir":      info.IsDir(),
-			"modify":   info.ModTime().Format(time.DateTime),
+			"name":      info.Name(),
+			"full":      fullPath,
+			"size":      size,
+			"mode_str":  info.Mode().String(),
+			"mode":      fmt.Sprintf("%04o", info.Mode().Perm()),
+			"owner":     os.GetUser(stat.Uid),
+			"group":     os.GetGroup(stat.Gid),
+			"uid":       stat.Uid,
+			"gid":       stat.Gid,
+			"hidden":    io.IsHidden(info.Name()),
+			"symlink":   io.IsSymlink(info.Mode()),
+			"link":      io.GetSymlink(fullPath),
+			"dir":       info.IsDir(),
+			"modify":    info.ModTime().Format(time.DateTime),
+			"immutable": immutable,
 		})
 	}
 
