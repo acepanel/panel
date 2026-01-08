@@ -100,7 +100,7 @@ const handleTest = async () => {
     </n-alert>
     <n-progress v-if="inTest" :percentage="progress" processing />
   </n-flex>
-  <n-flex vertical items-center pt-40>
+  <n-flex    vertical pt-40 items-center >
     <div w-800>
       <n-grid :cols="3">
         <n-gi>
