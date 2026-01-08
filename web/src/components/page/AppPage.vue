@@ -10,7 +10,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <transition appear mode="out-in" name="fade-slide">
-    <section class="cus-scroll-y wh-full flex-col bg-[#f5f6fb] p-15" dark:bg-hex-121212>
+    <section class="cus-scroll-y p-15 bg-[#f5f6fb] flex-col wh-full" dark:bg-hex-121212>
       <slot />
       <app-footer v-if="showFooter" mt-auto pt-20 />
     </section>

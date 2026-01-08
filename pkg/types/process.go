@@ -20,6 +20,8 @@ type ProcessData struct {
 	DiskWrite uint64 `json:"disk_write"`
 
 	CmdLine string `json:"cmd_line"`
+	Exe     string `json:"exe"` // 可执行文件路径
+	Cwd     string `json:"cwd"` // 工作目录
 
 	RSS    uint64 `json:"rss"`
 	VMS    uint64 `json:"vms"`

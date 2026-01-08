@@ -6,7 +6,7 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer color="#6a6a6a" f-c-c flex-col text-14>
+  <footer color="#6a6a6a"    text-14 f-c-c flex-col >
     <p>
       © 2022 - {{ year }}
       <a hover="decoration-primary color-primary" target="__blank" href="https://acepanel.net/">

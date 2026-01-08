@@ -2,7 +2,7 @@
 import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import process from '@/api/panel/process'
+import process, { type ProcessListParams } from '@/api/panel/process'
 import { formatBytes, formatDateTime, formatPercent } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -135,7 +135,10 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => process.list(page, pageSize),
+  (page, pageSize) => {
+    const params: ProcessListParams = { page, limit: pageSize }
+    return process.list(params)
+  },
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,

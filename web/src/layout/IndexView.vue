@@ -39,12 +39,12 @@ const themeStore = useThemeStore()
       <header
         :style="`height: ${themeStore.header.height}px`"
         dark="bg-dark border-0"
-        flex
-        items-center
-        border-b
-        bg-white
-        px-15
-        bc-eee
+        
+        
+        
+        
+        
+         px-15 border-b bg-white flex items-center bc-eee 
       >
         <app-header />
       </header>

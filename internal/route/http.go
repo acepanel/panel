@@ -306,7 +306,9 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/process", func(r chi.Router) {
 			r.Get("/", route.process.List)
+			r.Get("/detail", route.process.Detail)
 			r.Post("/kill", route.process.Kill)
+			r.Post("/signal", route.process.Signal)
 		})
 
 		r.Route("/safe", func(r chi.Router) {
