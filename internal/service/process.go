@@ -75,16 +75,16 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 		s.sortProcesses(data, req.Sort, req.Order)
 	}
 
-	// 分页
+	// 分页 - 使用 int64 避免溢出
 	total := uint(len(data))
-	start := (req.Page - 1) * req.Limit
-	end := req.Page * req.Limit
+	start := uint64(req.Page-1) * uint64(req.Limit)
+	end := uint64(req.Page) * uint64(req.Limit)
 
-	if start > total {
+	if start > uint64(total) {
 		data = []types.ProcessData{}
 	} else {
-		if end > total {
-			end = total
+		if end > uint64(total) {
+			end = uint64(total)
 		}
 		data = data[start:end]
 	}
@@ -169,7 +169,7 @@ func (s *ProcessService) Signal(w http.ResponseWriter, r *http.Request) {
 
 // Detail 获取进程详情
 func (s *ProcessService) Detail(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ProcessKill](r)
+	req, err := Bind[request.ProcessDetail](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
