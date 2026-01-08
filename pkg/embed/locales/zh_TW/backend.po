@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-08 19:24\n"
+"PO-Revision-Date: 2026-01-08 22:45\n"
 
 #: internal/service/cli.go:290
 msgid "2FA disabled for user %s"
@@ -318,7 +318,7 @@ msgstr "下載失敗：%v"
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
-#: internal/service/file.go:294
+#: internal/service/file.go:295
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
@@ -713,8 +713,8 @@ msgstr "未找到備份檔案，無法自動修復"
 msgid "Not supported"
 msgstr "不支援"
 
-#: internal/service/home.go:196
-#: internal/service/home.go:197
+#: internal/service/home.go:200
+#: internal/service/home.go:201
 msgid "Not used"
 msgstr "未使用"
 
@@ -1342,17 +1342,17 @@ msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 msgid "app not found"
 msgstr "找不到應用"
 
-#: internal/data/setting.go:299
-#: internal/data/setting.go:356
-#: internal/data/setting.go:369
+#: internal/data/setting.go:311
+#: internal/data/setting.go:368
+#: internal/data/setting.go:381
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
-#: internal/service/home.go:335
+#: internal/service/home.go:339
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 
-#: internal/service/home.go:303
+#: internal/service/home.go:307
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
@@ -1366,7 +1366,7 @@ msgstr "備份檔案 %s 不存在"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:276
+#: internal/service/file.go:277
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -1395,7 +1395,7 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
-#: internal/service/file.go:165
+#: internal/service/file.go:166
 msgid "create directory error: %v"
 msgstr "創建目錄錯誤：%v"
 
@@ -1414,7 +1414,7 @@ msgstr ""
 msgid "directory %s does not exist"
 msgstr "目錄 %s 不存在"
 
-#: internal/service/toolbox_system.go:139
+#: internal/service/toolbox_system.go:133
 msgid "disk space is insufficient, current free %s"
 msgstr "磁盤空間不足，當前可用 %s"
 
@@ -1454,7 +1454,7 @@ msgstr "檢查 ssh 連接失敗：%v"
 msgid "failed to clean temporary files: %v"
 msgstr "清理臨時文件失敗：%v"
 
-#: internal/service/toolbox_ssh.go:253
+#: internal/service/toolbox_ssh.go:211
 msgid "failed to create .ssh directory: %v"
 msgstr ""
 
@@ -1511,7 +1511,7 @@ msgstr ""
 msgid "failed to format partition: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:263
+#: internal/service/toolbox_ssh.go:221
 msgid "failed to generate SSH key: %v"
 msgstr ""
 
@@ -1563,8 +1563,8 @@ msgstr "無法獲取 PostgreSQL 進程：%v"
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 
-#: internal/service/toolbox_system.go:77
-#: internal/service/toolbox_system.go:90
+#: internal/service/toolbox_system.go:71
+#: internal/service/toolbox_system.go:84
 msgid "failed to get SWAP: %v"
 msgstr "無法獲取 SWAP：%v"
 
@@ -1576,7 +1576,7 @@ msgstr "無法獲取 ZeroSSL EAB"
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法獲取 ZeroSSL EAB：%v"
 
-#: internal/service/toolbox_system.go:191
+#: internal/service/toolbox_system.go:185
 msgid "failed to get available timezones: %v"
 msgstr "無法獲取可用時區：%v"
 
@@ -1592,7 +1592,7 @@ msgstr "無法獲取當前被禁止的列表"
 msgid "failed to get disk list: %v"
 msgstr ""
 
-#: internal/service/toolbox_system.go:135
+#: internal/service/toolbox_system.go:129
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
 
@@ -1600,7 +1600,7 @@ msgstr "無法獲取磁盤空間：%v"
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:70
+#: internal/service/home.go:74
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
@@ -1654,17 +1654,17 @@ msgstr "無法獲取 redis 狀態：%v"
 msgid "failed to get s3fs list: %v"
 msgstr "無法獲取 s3fs 列表：%v"
 
-#: internal/service/home.go:90
+#: internal/service/home.go:94
 msgid "failed to get system info: %v"
 msgstr "無法獲取系統信息：%v"
 
-#: internal/service/home.go:316
+#: internal/service/home.go:320
 msgid "failed to get the latest version download link"
 msgstr "無法獲取最新版本下載鏈接"
 
-#: internal/service/home.go:232
-#: internal/service/home.go:268
-#: internal/service/home.go:310
+#: internal/service/home.go:236
+#: internal/service/home.go:272
+#: internal/service/home.go:314
 msgid "failed to get the latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
@@ -1672,15 +1672,15 @@ msgstr "無法獲取最新版本：%v"
 msgid "failed to get the secret key for module %s"
 msgstr "無法獲取模組 %s 的密鑰"
 
-#: internal/service/home.go:136
+#: internal/service/home.go:140
 msgid "failed to get the total number of websites: %v"
 msgstr "無法獲取網站總數：%v"
 
-#: internal/service/home.go:289
+#: internal/service/home.go:293
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
-#: internal/service/toolbox_system.go:180
+#: internal/service/toolbox_system.go:174
 msgid "failed to get timezone: %v"
 msgstr "無法獲取時區：%v"
 
@@ -1702,8 +1702,8 @@ msgid "failed to mount partition: %v"
 msgstr ""
 
 #: internal/data/cert.go:94
-#: internal/data/setting.go:304
-#: internal/data/setting.go:372
+#: internal/data/setting.go:316
+#: internal/data/setting.go:384
 #: internal/data/website.go:478
 #: internal/data/website.go:704
 msgid "failed to parse certificate: %v"
@@ -1714,8 +1714,8 @@ msgid "failed to parse disk list: %v"
 msgstr ""
 
 #: internal/data/cert.go:97
-#: internal/data/setting.go:307
-#: internal/data/setting.go:375
+#: internal/data/setting.go:319
+#: internal/data/setting.go:387
 #: internal/data/website.go:481
 #: internal/data/website.go:707
 msgid "failed to parse private key: %v"
@@ -1726,10 +1726,10 @@ msgstr "解析私鑰失敗：%v"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "無法解析 fail2ban 的 ignoreip"
 
-#: internal/service/home.go:238
-#: internal/service/home.go:243
-#: internal/service/home.go:274
-#: internal/service/home.go:279
+#: internal/service/home.go:242
+#: internal/service/home.go:247
+#: internal/service/home.go:278
+#: internal/service/home.go:283
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
@@ -1749,11 +1749,11 @@ msgstr "從 Memcached 讀取失敗：%v"
 msgid "failed to read fstab: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:284
+#: internal/service/toolbox_ssh.go:242
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:33
+#: internal/service/toolbox_ssh.go:41
 msgid "failed to read sshd_config: %v"
 msgstr ""
 
@@ -1811,14 +1811,6 @@ msgstr "重新啟動 %s 失敗：%v"
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
-#: internal/service/toolbox_ssh.go:116
-#: internal/service/toolbox_ssh.go:138
-#: internal/service/toolbox_ssh.go:164
-#: internal/service/toolbox_ssh.go:190
-#: internal/service/toolbox_ssh.go:211
-msgid "failed to restart SSH service: %v"
-msgstr ""
-
 #: internal/service/ws.go:99
 msgid "failed to run command: %v"
 msgstr "運行命令失敗：%v"
@@ -1827,15 +1819,15 @@ msgstr "運行命令失敗：%v"
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 
-#: internal/service/toolbox_system.go:159
+#: internal/service/toolbox_system.go:153
 msgid "failed to set SWAP permission: %v"
 msgstr "設置 SWAP 權限失敗： %v"
 
-#: internal/service/toolbox_system.go:279
+#: internal/service/toolbox_system.go:273
 msgid "failed to set hostname: %v"
 msgstr "設置主機名失敗： %v"
 
-#: internal/service/toolbox_system.go:302
+#: internal/service/toolbox_system.go:296
 msgid "failed to set hosts: %v"
 msgstr "設置 hosts 失敗： %v"
 
@@ -1843,17 +1835,9 @@ msgstr "設置 hosts 失敗： %v"
 msgid "failed to start %s service: %v"
 msgstr "啟動 %s 服務失敗：%v"
 
-#: internal/service/toolbox_ssh.go:90
-msgid "failed to start SSH service: %v"
-msgstr ""
-
 #: internal/service/systemctl.go:137
 msgid "failed to stop %s service: %v"
 msgstr "停止 %s 服務失敗：%v"
-
-#: internal/service/toolbox_ssh.go:103
-msgid "failed to stop SSH service: %v"
-msgstr ""
 
 #: internal/service/toolbox_disk.go:167
 msgid "failed to umount partition: %v"
@@ -1867,31 +1851,31 @@ msgstr "卸載失敗：%v"
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr "取消設置 MYSQL_PWD 環境變量失敗：%v"
 
-#: internal/service/toolbox_system.go:63
+#: internal/service/toolbox_system.go:57
 msgid "failed to update DNS: %v"
 msgstr "更新 DNS 失敗： %v"
 
-#: internal/service/toolbox_ssh.go:132
+#: internal/service/toolbox_ssh.go:91
 msgid "failed to update SSH port: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:301
+#: internal/service/toolbox_ssh.go:259
 msgid "failed to update authorized_keys: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:159
+#: internal/service/toolbox_ssh.go:117
 msgid "failed to update password authentication: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:185
+#: internal/service/toolbox_ssh.go:143
 msgid "failed to update pubkey authentication: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:206
+#: internal/service/toolbox_ssh.go:164
 msgid "failed to update root login setting: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:228
+#: internal/service/toolbox_ssh.go:186
 msgid "failed to update root password: %v"
 msgstr ""
 
@@ -1912,7 +1896,7 @@ msgstr "寫入 Memcached 失敗： %v"
 msgid "failed to write webhook script: %v"
 msgstr ""
 
-#: internal/service/file.go:83
+#: internal/service/file.go:84
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
@@ -2020,7 +2004,7 @@ msgstr "mysql 不支援資料庫註釋"
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
-#: internal/service/file.go:173
+#: internal/service/file.go:174
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
@@ -2066,9 +2050,9 @@ msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
 #: internal/data/user.go:106
-#: internal/service/file.go:134
-#: internal/service/file.go:221
-#: internal/service/file.go:250
+#: internal/service/file.go:135
+#: internal/service/file.go:222
+#: internal/service/file.go:251
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -2080,7 +2064,7 @@ msgstr "請重新操作手動簽發"
 msgid "please set public ips first"
 msgstr ""
 
-#: internal/data/setting.go:324
+#: internal/data/setting.go:336
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
@@ -2125,15 +2109,15 @@ msgstr "從伺服器 %s 同步"
 msgid "target backup %s already exists"
 msgstr "目標備份 %s 已存在"
 
-#: internal/service/file.go:79
+#: internal/service/file.go:80
 msgid "target is a directory"
 msgstr "目標是一個目錄"
 
-#: internal/service/file.go:159
+#: internal/service/file.go:160
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
-#: internal/service/home.go:283
+#: internal/service/home.go:287
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
@@ -2158,12 +2142,12 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 msgid "token expired"
 msgstr "令牌已過期"
 
-#: internal/service/home.go:224
-#: internal/service/home.go:260
+#: internal/service/home.go:228
+#: internal/service/home.go:264
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/home.go:298
+#: internal/service/home.go:302
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
@@ -2211,7 +2195,7 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renew"
 msgstr "上傳的憑證無法設定為自動續簽"
 
-#: internal/service/file.go:155
+#: internal/service/file.go:156
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
@@ -2246,7 +2230,7 @@ msgstr "網站目錄不存在"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/service/file.go:178
+#: internal/service/file.go:179
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
