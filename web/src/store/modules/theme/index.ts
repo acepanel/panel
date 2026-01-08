@@ -53,7 +53,13 @@ export const useThemeStore = defineStore('theme', {
     /** 设置名称 */
     setName(name: string) {
       this.name = name
+    },
+    /** 设置 Logo */
+    setLogo(logo: string) {
+      this.logo = logo
     }
   },
-  persist: true
+  persist: {
+    pick: ['isMobile', 'darkMode', 'sider', 'header', 'tab', 'locale', 'name']
+  }
 })

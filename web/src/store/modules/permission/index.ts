@@ -32,9 +32,10 @@ export const usePermissionStore = defineStore('permission', {
     },
     resetPermission() {
       this.$reset()
+    },
+    /** 设置隐藏的菜单 */
+    setHiddenRoutes(hiddenRoutes: string[]) {
+      this.hiddenRoutes = hiddenRoutes
     }
-  },
-  persist: {
-    pick: ['hiddenRoutes']
   }
 })

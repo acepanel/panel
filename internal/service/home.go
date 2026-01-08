@@ -57,10 +57,14 @@ func (s *HomeService) Panel(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = s.t.Get("AcePanel")
 	}
+	hiddenMenu, _ := s.settingRepo.GetSlice(biz.SettingHiddenMenu)
+	customLogo, _ := s.settingRepo.Get(biz.SettingKeyCustomLogo)
 
 	Success(w, chix.M{
-		"name":   name,
-		"locale": s.conf.App.Locale,
+		"name":        name,
+		"locale":      s.conf.App.Locale,
+		"hidden_menu": hiddenMenu,
+		"custom_logo": customLogo,
 	})
 }
 

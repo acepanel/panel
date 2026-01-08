@@ -23,6 +23,8 @@ type SettingPanel struct {
 	PublicIP    []string `json:"public_ip"`
 	Cert        string   `json:"cert" validate:"required"`
 	Key         string   `json:"key" validate:"required"`
+	HiddenMenu  []string `json:"hidden_menu"` // 隐藏的菜单项
+	CustomLogo  string   `json:"custom_logo"` // 自定义 Logo URL
 }
 
 func (r *SettingPanel) Rules(_ *http.Request) map[string]string {

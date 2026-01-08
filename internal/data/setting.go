@@ -238,6 +238,14 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	hiddenMenu, err := r.GetSlice(biz.SettingHiddenMenu)
+	if err != nil {
+		return nil, err
+	}
+	customLogo, err := r.Get(biz.SettingKeyCustomLogo)
+	if err != nil {
+		return nil, err
+	}
 
 	return &request.SettingPanel{
 		Name:        name,
@@ -259,6 +267,8 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		PublicIP:    publicIP,
 		Cert:        crt,
 		Key:         key,
+		HiddenMenu:  hiddenMenu,
+		CustomLogo:  customLogo,
 	}, nil
 }
 
@@ -286,6 +296,13 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 		return false, err
 	}
 	if err = r.Set(biz.SettingKeyPublicIPs, string(publicIPBytes)); err != nil {
+		return false, err
+	}
+	// 保存隐藏菜单和自定义Logo
+	if err := r.SetSlice(biz.SettingHiddenMenu, req.HiddenMenu); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyCustomLogo, req.CustomLogo); err != nil {
 		return false, err
 	}
 

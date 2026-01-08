@@ -7,7 +7,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import setting from '@/api/panel/setting'
-import { useThemeStore } from '@/store'
+import { usePermissionStore, useThemeStore } from '@/store'
 import CreateModal from '@/views/setting/CreateModal.vue'
 import SettingBase from '@/views/setting/SettingBase.vue'
 import SettingSafe from '@/views/setting/SettingSafe.vue'
@@ -15,6 +15,7 @@ import SettingUser from '@/views/setting/SettingUser.vue'
 
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()
+const permissionStore = usePermissionStore()
 const currentTab = ref('base')
 const createModal = ref(false)
 
@@ -38,7 +39,9 @@ const { data: model } = useRequest(setting.list, {
     acme: false,
     public_ip: [],
     cert: '',
-    key: ''
+    key: '',
+    hidden_menu: [],
+    custom_logo: ''
   }
 })
 
@@ -53,6 +56,10 @@ const handleSave = () => {
     if (model.value.locale !== themeStore.locale) {
       themeStore.setLocale(model.value.locale)
     }
+
+    // 更新隐藏菜单和自定义 Logo
+    themeStore.setLogo(model.value.custom_logo || '')
+    permissionStore.setHiddenRoutes(model.value.hidden_menu || [])
 
     // 如果需要重启，则自动刷新页面
     if (data.restart) {
