@@ -13,6 +13,15 @@ import (
 	"github.com/acepanel/panel/pkg/systemctl"
 )
 
+// 预编译正则表达式
+var (
+	userCaptureRegex  = regexp.MustCompile(`(?m)^User=(.*)$`)
+	groupCaptureRegex = regexp.MustCompile(`(?m)^Group=(.*)$`)
+	userRegex         = regexp.MustCompile(`(?m)^User=.*$`)
+	groupRegex        = regexp.MustCompile(`(?m)^Group=.*$`)
+	serviceRegex      = regexp.MustCompile(`(?m)^\[Service\]$`)
+)
+
 type App struct{}
 
 func NewApp() *App {
@@ -89,13 +98,10 @@ func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 解析 User 和 Group
-	userRegex := regexp.MustCompile(`(?m)^User=(.*)$`)
-	groupRegex := regexp.MustCompile(`(?m)^Group=(.*)$`)
-
-	if matches := userRegex.FindStringSubmatch(content); len(matches) > 1 {
+	if matches := userCaptureRegex.FindStringSubmatch(content); len(matches) > 1 {
 		userInfo.User = matches[1]
 	}
-	if matches := groupRegex.FindStringSubmatch(content); len(matches) > 1 {
+	if matches := groupCaptureRegex.FindStringSubmatch(content); len(matches) > 1 {
 		userInfo.Group = matches[1]
 	}
 
@@ -117,24 +123,25 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 检查 User 和 Group 是否存在
+	hasUser := userRegex.MatchString(content)
+	hasGroup := groupRegex.MatchString(content)
+
 	// 替换或添加 User 和 Group 配置
-	userRegex := regexp.MustCompile(`(?m)^User=.*$`)
-	groupRegex := regexp.MustCompile(`(?m)^Group=.*$`)
-
-	if userRegex.MatchString(content) {
+	if hasUser && hasGroup {
+		// 两者都存在，分别替换
 		content = userRegex.ReplaceAllString(content, fmt.Sprintf("User=%s", req.User))
-	} else {
-		// 在 [Service] 后添加 User
-		serviceRegex := regexp.MustCompile(`(?m)^\[Service\]$`)
+		content = groupRegex.ReplaceAllString(content, fmt.Sprintf("Group=%s", req.Group))
+	} else if hasUser && !hasGroup {
+		// 只有 User，替换 User 并添加 Group
+		content = userRegex.ReplaceAllString(content, fmt.Sprintf("User=%s\nGroup=%s", req.User, req.Group))
+	} else if !hasUser && hasGroup {
+		// 只有 Group，添加 User 并替换 Group
 		content = serviceRegex.ReplaceAllString(content, fmt.Sprintf("[Service]\nUser=%s", req.User))
-	}
-
-	if groupRegex.MatchString(content) {
 		content = groupRegex.ReplaceAllString(content, fmt.Sprintf("Group=%s", req.Group))
 	} else {
-		// 在 User 后添加 Group
-		userLineRegex := regexp.MustCompile(`(?m)^User=.*$`)
-		content = userLineRegex.ReplaceAllString(content, fmt.Sprintf("User=%s\nGroup=%s", req.User, req.Group))
+		// 两者都不存在，在 [Service] 后添加两者
+		content = serviceRegex.ReplaceAllString(content, fmt.Sprintf("[Service]\nUser=%s\nGroup=%s", req.User, req.Group))
 	}
 
 	if err = io.Write(servicePath, content, 0644); err != nil {
