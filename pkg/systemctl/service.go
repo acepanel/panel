@@ -84,3 +84,9 @@ func LogClear(name string) error {
 	_, err := shell.Execf("journalctl --vacuum-time=1s -u '%s'", name)
 	return err
 }
+
+// DaemonReload 重载 systemd 服务配置
+func DaemonReload() error {
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl daemon-reload")
+	return err
+}
