@@ -75,10 +75,7 @@ func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userInfo := UserInfo{
-		User:  "",
-		Group: "",
-	}
+	userInfo := UserInfo{}
 
 	// 解析 User 和 Group
 	if matches := userCaptureRegex.FindStringSubmatch(content); len(matches) > 1 {

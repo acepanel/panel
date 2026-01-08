@@ -339,7 +339,7 @@ onMounted(() => {
       </n-form-item>
       <n-form-item :label="$gettext('Raw Output')">
         <n-switch v-model:value="createModel.raw" />
-        <span   text-gray ml-10 >
+        <span text-gray ml-10>
           {{ $gettext('Return script output as raw text instead of JSON') }}
         </span>
       </n-form-item>
@@ -374,7 +374,7 @@ onMounted(() => {
       </n-form-item>
       <n-form-item :label="$gettext('Raw Output')">
         <n-switch v-model:value="editModel.raw" />
-        <span   text-gray ml-10 >
+        <span text-gray ml-10>
           {{ $gettext('Return script output as raw text instead of JSON') }}
         </span>
       </n-form-item>

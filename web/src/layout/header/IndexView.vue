@@ -12,13 +12,13 @@ const themeStore = useThemeStore()
 </script>
 
 <template>
-  <div w-full flex items-center justify-between>
+  <div     flex w-full items-center justify-between >
     <menu-collapse v-if="themeStore.isMobile" />
-    <section v-if="!themeStore.isMobile && themeStore.tab.visible" w-0 flex-1 pr-12>
+    <section v-if="!themeStore.isMobile && themeStore.tab.visible"    pr-12 flex-1 w-0 >
       <app-tab />
     </section>
     <span v-if="!themeStore.isMobile && themeStore.tab.visible" mx-6 opacity-20>|</span>
-    <div ml-auto flex flex-shrink-0 items-center px-12>
+    <div      ml-auto px-12 flex flex-shrink-0 items-center >
       <reload-page />
       <full-screen />
       <theme-mode />

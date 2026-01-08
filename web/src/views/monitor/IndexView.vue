@@ -444,13 +444,13 @@ watch(data, () => {
 <template>
   <common-page show-header show-footer>
     <template #tabbar>
-      <div class="flex items-center justify-between gap-8 py-4">
-        <div class="flex items-center gap-6">
-          <div class="flex items-center gap-10">
+      <div class="py-4 flex gap-8 items-center justify-between">
+        <div class="flex gap-6 items-center">
+          <div class="flex gap-10 items-center">
             {{ $gettext('Enable Monitoring') }}
             <n-switch v-model:value="monitorSwitch" @update-value="handleUpdate" />
           </div>
-          <div class="flex items-center gap-10 pl-20">
+          <div class="pl-20 flex gap-10 items-center">
             {{ $gettext('Save Days') }}
             <n-input-number v-model:value="saveDay">
               <template #suffix> {{ $gettext('days') }} </template>
@@ -461,9 +461,9 @@ watch(data, () => {
           </div>
         </div>
 
-        <div class="flex items-center gap-10">
+        <div class="flex gap-10 items-center">
           <span>{{ $gettext('Time Selection') }}</span>
-          <div class="flex items-center gap-2">
+          <div class="flex gap-2 items-center">
             <n-date-picker v-model:value="start" type="datetime" />
             <span class="mx-1">-</span>
             <n-date-picker v-model:value="end" type="datetime" />

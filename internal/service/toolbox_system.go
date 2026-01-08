@@ -305,20 +305,3 @@ func (s *ToolboxSystemService) UpdateHosts(w http.ResponseWriter, r *http.Reques
 
 	Success(w, nil)
 }
-
-// UpdateRootPassword 设置 root 密码
-func (s *ToolboxSystemService) UpdateRootPassword(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxSystemPassword](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	req.Password = strings.ReplaceAll(req.Password, `'`, `\'`)
-	if _, err = shell.Execf(`yes '%s' | passwd root`, req.Password); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", s.t.Get("failed to set root password: %v", err))
-		return
-	}
-
-	Success(w, nil)
-}

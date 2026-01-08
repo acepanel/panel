@@ -21,7 +21,6 @@ const hosts = ref('')
 const timezone = ref('')
 const timezones = ref<any[]>([])
 const time = ref(DateTime.now().toMillis())
-const rootPassword = ref('')
 
 useRequest(system.dns()).onSuccess(({ data }) => {
   dns1.value = data[0]
@@ -61,12 +60,6 @@ const handleUpdateHost = async () => {
     useRequest(system.updateHostname(hostname.value)),
     useRequest(system.updateHosts(hosts.value))
   ]).then(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
-}
-
-const handleUpdateRootPassword = () => {
-  useRequest(system.updateRootPassword(rootPassword.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
@@ -179,16 +172,6 @@ const handleSyncTime = () => {
           </n-button>
         </n-flex>
       </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="root-password" :tab="$gettext('Root Password')">
-      <n-form>
-        <n-form-item :label="$gettext('Root Password')">
-          <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
-        </n-form-item>
-      </n-form>
-      <n-button type="primary" @click="handleUpdateRootPassword">
-        {{ $gettext('Save') }}
-      </n-button>
     </n-tab-pane>
   </n-tabs>
 </template>

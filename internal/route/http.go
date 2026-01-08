@@ -48,6 +48,7 @@ type Http struct {
 	systemctl        *service.SystemctlService
 	toolboxSystem    *service.ToolboxSystemService
 	toolboxBenchmark *service.ToolboxBenchmarkService
+	toolboxSSH       *service.ToolboxSSHService
 	toolboxDisk      *service.ToolboxDiskService
 	webhook          *service.WebHookService
 	apps             *apploader.Loader
@@ -86,6 +87,7 @@ func NewHttp(
 	systemctl *service.SystemctlService,
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
+	toolboxSSH *service.ToolboxSSHService,
 	toolboxDisk *service.ToolboxDiskService,
 	webhook *service.WebHookService,
 	apps *apploader.Loader,
@@ -123,6 +125,7 @@ func NewHttp(
 		systemctl:        systemctl,
 		toolboxSystem:    toolboxSystem,
 		toolboxBenchmark: toolboxBenchmark,
+		toolboxSSH:       toolboxSSH,
 		toolboxDisk:      toolboxDisk,
 		webhook:          webhook,
 		apps:             apps,
@@ -309,7 +312,9 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/process", func(r chi.Router) {
 			r.Get("/", route.process.List)
+			r.Get("/detail", route.process.Detail)
 			r.Post("/kill", route.process.Kill)
+			r.Post("/signal", route.process.Signal)
 		})
 
 		r.Route("/safe", func(r chi.Router) {
@@ -441,11 +446,24 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/hostname", route.toolboxSystem.UpdateHostname)
 			r.Get("/hosts", route.toolboxSystem.GetHosts)
 			r.Post("/hosts", route.toolboxSystem.UpdateHosts)
-			r.Post("/root_password", route.toolboxSystem.UpdateRootPassword)
 		})
 
 		r.Route("/toolbox_benchmark", func(r chi.Router) {
 			r.Post("/test", route.toolboxBenchmark.Test)
+		})
+
+		r.Route("/toolbox_ssh", func(r chi.Router) {
+			r.Get("/info", route.toolboxSSH.GetInfo)
+			r.Post("/start", route.toolboxSSH.Start)
+			r.Post("/stop", route.toolboxSSH.Stop)
+			r.Post("/restart", route.toolboxSSH.Restart)
+			r.Post("/port", route.toolboxSSH.UpdatePort)
+			r.Post("/password_auth", route.toolboxSSH.UpdatePasswordAuth)
+			r.Post("/pubkey_auth", route.toolboxSSH.UpdatePubKeyAuth)
+			r.Post("/root_login", route.toolboxSSH.UpdateRootLogin)
+			r.Post("/root_password", route.toolboxSSH.UpdateRootPassword)
+			r.Get("/root_key", route.toolboxSSH.GetRootKey)
+			r.Post("/root_key", route.toolboxSSH.GenerateRootKey)
 		})
 
 		r.Route("/toolbox_disk", func(r chi.Router) {

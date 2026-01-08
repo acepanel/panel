@@ -638,7 +638,7 @@ if (import.meta.hot) {
               trigger="hover"
             >
               <template #trigger>
-                <n-flex vertical flex items-center p-20 pl-40 pr-40>
+                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
                   <p>{{ item.path }}</p>
                   <n-progress
                     type="dashboard"
@@ -855,7 +855,7 @@ if (import.meta.hot) {
                   >
                   <n-tag>{{ $gettext('Read/Write Latency') }} {{ current.diskRWTime }}ms</n-tag>
                 </n-flex>
-                <n-card :bordered="false" h-530 pt-10>
+                <n-card :bordered="false" pt-10 h-530>
                   <v-chart class="chart" :option="chartOptions" autoresize />
                 </n-card>
               </n-flex>
