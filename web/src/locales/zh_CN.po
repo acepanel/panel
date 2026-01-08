@@ -4874,6 +4874,10 @@ msgstr "下载私钥"
 msgid "DNS modifications will revert to default after system restart."
 msgstr "DNS 修改将在系统重启后恢复为默认设置。"
 
+#: src/views/toolbox/SystemView.vue:93
+msgid "Current DNS manager: %{ manager }"
+msgstr "当前 DNS 管理方式：%{ manager }"
+
 #: src/views/toolbox/SystemView.vue:92
 msgid "Enter primary DNS server"
 msgstr "输入主 DNS 服务器"

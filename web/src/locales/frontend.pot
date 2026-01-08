@@ -5163,6 +5163,10 @@ msgstr ""
 msgid "DNS modifications will revert to default after system restart."
 msgstr ""
 
+#: src/views/toolbox/SystemView.vue:93
+msgid "Current DNS manager: %{ manager }"
+msgstr ""
+
 #: src/views/toolbox/SystemView.vue:92
 msgid "Enter primary DNS server"
 msgstr ""

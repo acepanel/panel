@@ -4856,6 +4856,10 @@ msgstr ""
 msgid "DNS modifications will revert to default after system restart."
 msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
 
+#: src/views/toolbox/SystemView.vue:93
+msgid "Current DNS manager: %{ manager }"
+msgstr "目前 DNS 管理方式：%{ manager }"
+
 #: src/views/toolbox/SystemView.vue:92
 msgid "Enter primary DNS server"
 msgstr ""

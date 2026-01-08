@@ -5020,6 +5020,10 @@ msgstr "Private Key"
 msgid "DNS modifications will revert to default after system restart."
 msgstr "DNS modifications will revert to default after system restart."
 
+#: src/views/toolbox/SystemView.vue:93
+msgid "Current DNS manager: %{ manager }"
+msgstr "Current DNS manager: %{ manager }"
+
 #: src/views/toolbox/SystemView.vue:92
 msgid "Enter primary DNS server"
 msgstr ""

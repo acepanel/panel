@@ -13,6 +13,7 @@ import (
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/dns"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/ntp"
 	"github.com/acepanel/panel/pkg/shell"
@@ -32,19 +33,16 @@ func NewToolboxSystemService(t *gotext.Locale) *ToolboxSystemService {
 
 // GetDNS 获取 DNS 信息
 func (s *ToolboxSystemService) GetDNS(w http.ResponseWriter, r *http.Request) {
-	raw, err := io.Read("/etc/resolv.conf")
+	dnsServers, manager, err := dns.GetDNS()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	match := regexp.MustCompile(`nameserver\s+(\S+)`).FindAllStringSubmatch(raw, -1)
-	dns := make([]string, 0)
-	for _, m := range match {
-		dns = append(dns, m[1])
-	}
-
-	Success(w, dns)
+	Success(w, chix.M{
+		"dns":     dnsServers,
+		"manager": manager.String(),
+	})
 }
 
 // UpdateDNS 设置 DNS 信息
@@ -55,11 +53,7 @@ func (s *ToolboxSystemService) UpdateDNS(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var dns string
-	dns += "nameserver " + req.DNS1 + "\n"
-	dns += "nameserver " + req.DNS2 + "\n"
-
-	if err := io.Write("/etc/resolv.conf", dns, 0644); err != nil {
+	if err := dns.SetDNS(req.DNS1, req.DNS2); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update DNS: %v", err))
 		return
 	}
