@@ -17,8 +17,8 @@ type SettingPanel struct {
 	BindUA      []string `json:"bind_ua"`
 	WebsitePath string   `json:"website_path" validate:"required"`
 	BackupPath  string   `json:"backup_path" validate:"required"`
-	HiddenMenu  []string `json:"hidden_menu"` // 隐藏的菜单项
-	CustomLogo  string   `json:"custom_logo"` // 自定义 Logo URL
+	HiddenMenu  []string `json:"hidden_menu"`                      // 隐藏的菜单项
+	CustomLogo  string   `json:"custom_logo" validate:"isFullURL"` // 自定义 Logo URL
 	Port        uint     `json:"port" validate:"required|min:1|max:65535"`
 	HTTPS       bool     `json:"https"`
 	ACME        bool     `json:"acme"`
