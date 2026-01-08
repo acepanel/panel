@@ -18,6 +18,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/file"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
@@ -327,7 +328,7 @@ func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Size 计算目录大小
+// Size 计算大小
 func (s *FileService) Size(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FilePath](r)
 	if err != nil {
@@ -349,28 +350,13 @@ func (s *FileService) Size(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 计算目录大小
-	var totalSize int64
-	err = filepath.WalkDir(req.Path, func(_ string, d stdos.DirEntry, err error) error {
-		if err != nil {
-			return nil // 忽略无法访问的文件
-		}
-		if !d.IsDir() {
-			fileInfo, err := d.Info()
-			if err != nil {
-				return nil // 忽略无法获取信息的文件
-			}
-			totalSize += fileInfo.Size()
-		}
-		return nil
-	})
+	output, err := shell.Execf("du -sb '%s' | awk '{print $1}'", req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	Success(w, chix.M{
-		"size": tools.FormatBytes(float64(totalSize)),
-	})
+	Success(w, tools.FormatBytes(cast.ToFloat64(output)))
 }
 
 func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
