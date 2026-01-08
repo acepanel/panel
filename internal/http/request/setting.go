@@ -17,14 +17,14 @@ type SettingPanel struct {
 	BindUA      []string `json:"bind_ua"`
 	WebsitePath string   `json:"website_path" validate:"required"`
 	BackupPath  string   `json:"backup_path" validate:"required"`
+	HiddenMenu  []string `json:"hidden_menu"` // 隐藏的菜单项
+	CustomLogo  string   `json:"custom_logo"` // 自定义 Logo URL
 	Port        uint     `json:"port" validate:"required|min:1|max:65535"`
 	HTTPS       bool     `json:"https"`
 	ACME        bool     `json:"acme"`
 	PublicIP    []string `json:"public_ip"`
 	Cert        string   `json:"cert" validate:"required"`
 	Key         string   `json:"key" validate:"required"`
-	HiddenMenu  []string `json:"hidden_menu"` // 隐藏的菜单项
-	CustomLogo  string   `json:"custom_logo"` // 自定义 Logo URL
 }
 
 func (r *SettingPanel) Rules(_ *http.Request) map[string]string {

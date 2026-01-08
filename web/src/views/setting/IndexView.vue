@@ -35,13 +35,13 @@ const { data: model } = useRequest(setting.list, {
     bind_ua: [],
     website_path: '',
     backup_path: '',
+    hidden_menu: [],
+    custom_logo: '',
     https: false,
     acme: false,
     public_ip: [],
     cert: '',
-    key: '',
-    hidden_menu: [],
-    custom_logo: ''
+    key: ''
   }
 })
 
