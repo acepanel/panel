@@ -177,24 +177,27 @@ const columns: DataTableColumns<RowData> = [
     key: 'size',
     minWidth: 100,
     render(row: any): any {
-      // 对于文件，直接显示大小
+      // 文件
       if (!row.dir) {
-        return h(NTag, { type: 'info', size: 'small', bordered: false }, { default: () => row.size })
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => row.size }
+        )
       }
-
-      // 对于目录，检查是否已有缓存大小
+      // 目录
       const cachedSize = sizeCache.value.get(row.full)
       if (cachedSize) {
-        return h(NTag, { type: 'info', size: 'small', bordered: false }, { default: () => cachedSize })
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => cachedSize }
+        )
       }
-
-      // 检查是否正在计算中
       const isLoading = sizeLoading.value.get(row.full)
       if (isLoading) {
-        return h(NSpin, { size: 'small' })
+        return h(NSpin, { size: 16, style: { paddingTop: '4px' } })
       }
-
-      // 显示"计算"链接
       return h(
         'a',
         {
@@ -441,10 +444,7 @@ const calculateDirSize = (dirPath: string) => {
   sizeLoading.value.set(dirPath, true)
   useRequest(file.size(dirPath))
     .onSuccess(({ data }) => {
-      sizeCache.value.set(dirPath, data.size)
-    })
-    .onError(() => {
-      window.$message.error($gettext('Failed to calculate size'))
+      sizeCache.value.set(dirPath, data)
     })
     .onComplete(() => {
       sizeLoading.value.set(dirPath, false)
@@ -715,7 +715,6 @@ onMounted(() => {
       selected.value = []
       keyword.value = ''
       sub.value = false
-      // 清空目录大小缓存
       sizeCache.value.clear()
       sizeLoading.value.clear()
       nextTick(() => {
