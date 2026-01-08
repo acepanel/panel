@@ -58,8 +58,7 @@ const sizeCache = ref<Map<string, string>>(new Map())
 const renameModal = ref(false)
 const renameModel = ref({
   source: '',
-  target: '',
-  immutable: false
+  target: ''
 })
 const unCompressModal = ref(false)
 const unCompressModel = ref({
@@ -327,7 +326,6 @@ const columns: DataTableColumns<RowData> = [
                   confirmImmutableOperation(row, 'rename', () => {
                     renameModel.value.source = getFilename(row.name)
                     renameModel.value.target = getFilename(row.name)
-                    renameModel.value.immutable = row.immutable
                     renameModal.value = true
                   })
                 }
@@ -698,7 +696,6 @@ const handleSelect = (key: string) => {
       confirmImmutableOperation(selectedRow.value, 'rename', () => {
         renameModel.value.source = getFilename(selectedRow.value.name)
         renameModel.value.target = getFilename(selectedRow.value.name)
-        renameModel.value.immutable = selectedRow.value.immutable
         renameModal.value = true
       })
       break
