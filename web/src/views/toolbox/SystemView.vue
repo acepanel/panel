@@ -27,7 +27,7 @@ const dnsManager = ref('')
 useRequest(system.dns()).onSuccess(({ data }) => {
   dns1.value = data.dns?.[0] ?? ''
   dns2.value = data.dns?.[1] ?? ''
-  dnsManager.value = data.manager ?? ''
+  dnsManager.value = data.manager
 })
 useRequest(system.swap()).onSuccess(({ data }) => {
   swap.value = data.size
@@ -87,15 +87,15 @@ const handleSyncTime = () => {
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="dns" tab="DNS">
       <n-flex vertical>
-        <n-alert v-if="dnsManager === 'resolv.conf'" type="warning">
-          {{ $gettext('DNS modifications will revert to default after system restart.') }}
-        </n-alert>
-        <n-alert v-else type="info">
+        <n-alert type="info">
           {{
             $gettext('Current DNS manager: %{ manager }', {
               manager: dnsManager
             })
           }}
+        </n-alert>
+        <n-alert v-if="dnsManager === 'resolv.conf'" type="warning">
+          {{ $gettext('DNS modifications will revert to default after system restart.') }}
         </n-alert>
         <n-form>
           <n-form-item label="DNS1">

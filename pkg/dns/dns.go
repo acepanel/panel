@@ -1,5 +1,4 @@
 // Package dns 提供 DNS 配置管理功能
-// 支持 NetworkManager (RHEL 9.x/10.x)、netplan (Debian 12+/Ubuntu 22+) 和直接修改 resolv.conf
 package dns
 
 import (
@@ -8,21 +7,20 @@ import (
 	"regexp"
 	"strings"
 
+	"go.yaml.in/yaml/v4"
+
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 // Manager 定义了 DNS 管理的类型
 type Manager int
 
 const (
-	// ManagerUnknown 未知的 DNS 管理方式
 	ManagerUnknown Manager = iota
-	// ManagerNetworkManager 使用 NetworkManager 管理 DNS
 	ManagerNetworkManager
-	// ManagerNetplan 使用 netplan 管理 DNS
 	ManagerNetplan
-	// ManagerResolvConf 直接修改 /etc/resolv.conf
 	ManagerResolvConf
 )
 
@@ -42,17 +40,12 @@ func (m Manager) String() string {
 
 // DetectManager 检测当前系统使用的 DNS 管理方式
 func DetectManager() Manager {
-	// 检查 NetworkManager 是否正在运行
 	if isNetworkManagerActive() {
 		return ManagerNetworkManager
 	}
-
-	// 检查 netplan 是否存在且有配置文件
 	if isNetplanAvailable() {
 		return ManagerNetplan
 	}
-
-	// 回退到直接修改 resolv.conf
 	return ManagerResolvConf
 }
 
@@ -79,23 +72,20 @@ func SetDNS(dns1, dns2 string) error {
 
 // isNetworkManagerActive 检查 NetworkManager 是否正在运行
 func isNetworkManagerActive() bool {
-	output, _ := shell.Execf("systemctl is-active NetworkManager")
-	return output == "active"
+	active, _ := systemctl.Status("NetworkManager")
+	return active
 }
 
 // isNetplanAvailable 检查 netplan 是否可用
 func isNetplanAvailable() bool {
-	// 检查 netplan 命令是否存在
 	if _, err := shell.Execf("command -v netplan"); err != nil {
 		return false
 	}
 
-	// 检查是否有 netplan 配置文件
 	configFiles := []string{
 		"/etc/netplan/*.yaml",
 		"/etc/netplan/*.yml",
 	}
-
 	for _, pattern := range configFiles {
 		files, _ := filepath.Glob(pattern)
 		if len(files) > 0 {
@@ -124,10 +114,10 @@ func getDNSFromResolvConf() ([]string, error) {
 
 // setDNSWithNetworkManager 使用 NetworkManager 设置 DNS
 func setDNSWithNetworkManager(dns1, dns2 string) error {
-	// 获取当前活动的连接
-	connName, err := getActiveNMConnection()
-	if err != nil {
-		// 如果获取失败，回退到直接修改 resolv.conf
+	// 获取所有活动的连接
+	connections, err := getActiveNMConnections()
+	if err != nil || len(connections) == 0 {
+		// 回退到直接修改 resolv.conf
 		return setDNSWithResolvConf(dns1, dns2)
 	}
 
@@ -137,36 +127,51 @@ func setDNSWithNetworkManager(dns1, dns2 string) error {
 		dnsServers = dns1 + "," + dns2
 	}
 
-	// 使用 nmcli 设置 DNS
-	if _, err := shell.Execf("nmcli connection modify %s ipv4.dns %s", connName, dnsServers); err != nil {
-		return fmt.Errorf("设置 DNS 失败: %w", err)
+	var lastErr error
+	successCount := 0
+
+	// 为所有活动的连接设置 DNS
+	for _, conn := range connections {
+		connName := conn.name
+		// 使用 nmcli 设置 DNS
+		if _, err = shell.Execf("nmcli connection modify %s ipv4.dns %s", connName, dnsServers); err != nil {
+			lastErr = fmt.Errorf("failed to set DNS for connection %s: %w", connName, err)
+			continue
+		}
+		// 设置 DNS 优先级，确保自定义 DNS 优先
+		_, _ = shell.Execf("nmcli connection modify %s ipv4.dns-priority -1", connName)
+		// 忽略 DHCP 提供的 DNS
+		_, _ = shell.Execf("nmcli connection modify %s ipv4.ignore-auto-dns yes", connName)
+		// 重新激活连接以应用更改
+		if _, err = shell.Execf("nmcli connection up %s", connName); err != nil {
+			lastErr = fmt.Errorf("failed to reactivate connection %s: %w", connName, err)
+			continue
+		}
+		successCount++
 	}
 
-	// 设置 DNS 优先级，确保自定义 DNS 优先
-	if _, err := shell.Execf("nmcli connection modify %s ipv4.dns-priority -1", connName); err != nil {
-		// 非致命错误，继续执行
-	}
-
-	// 忽略 DHCP 提供的 DNS
-	if _, err := shell.Execf("nmcli connection modify %s ipv4.ignore-auto-dns yes", connName); err != nil {
-		// 非致命错误，继续执行
-	}
-
-	// 重新激活连接以应用更改
-	if _, err := shell.Execf("nmcli connection up %s", connName); err != nil {
-		return fmt.Errorf("重新激活网络连接失败: %w", err)
+	// 只要有一个连接成功设置就算成功
+	if successCount == 0 && lastErr != nil {
+		return lastErr
 	}
 
 	return nil
 }
 
-// getActiveNMConnection 获取当前活动的 NetworkManager 连接名称
-func getActiveNMConnection() (string, error) {
+// nmConnection NetworkManager 连接信息
+type nmConnection struct {
+	name   string // 连接名称（带引号处理空格）
+	device string // 设备名
+}
+
+// getActiveNMConnections 获取所有活动的 NetworkManager 连接
+func getActiveNMConnections() ([]nmConnection, error) {
 	output, err := shell.Execf("nmcli -t -f NAME,DEVICE connection show --active")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
+	var connections []nmConnection
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -175,22 +180,21 @@ func getActiveNMConnection() (string, error) {
 		}
 		// 格式: NAME:DEVICE
 		parts := strings.SplitN(line, ":", 2)
-		if len(parts) >= 2 && parts[1] != "" && parts[1] != "lo" {
+		if len(parts) >= 2 && parts[1] != "" && isValidNetworkInterface(parts[1]) {
 			// 返回带引号的连接名称，以处理包含空格的名称
-			return escapeShellArg(parts[0]), nil
+			quotedName := "'" + strings.ReplaceAll(parts[0], "'", "'\"'\"'") + "'"
+			connections = append(connections, nmConnection{
+				name:   quotedName,
+				device: parts[1],
+			})
 		}
 	}
 
-	return "", fmt.Errorf("未找到活动的网络连接")
-}
+	if len(connections) == 0 {
+		return nil, fmt.Errorf("no active NetworkManager connections found")
+	}
 
-// escapeShellArg 安全转义 shell 参数
-// 使用单引号包裹参数，并对参数中的单引号进行转义
-func escapeShellArg(arg string) string {
-	// 单引号内的内容不会被 shell 解析，除了单引号本身
-	// 对于单引号，需要使用 '\'' 来转义：结束单引号、转义单引号、重新开始单引号
-	escaped := strings.ReplaceAll(arg, "'", "'\"'\"'")
-	return "'" + escaped + "'"
+	return connections, nil
 }
 
 // setDNSWithNetplan 使用 netplan 设置 DNS
@@ -198,7 +202,7 @@ func setDNSWithNetplan(dns1, dns2 string) error {
 	// 查找 netplan 配置文件
 	configPath, err := findNetplanConfig()
 	if err != nil {
-		// 如果找不到配置文件，回退到直接修改 resolv.conf
+		// 回退到直接修改 resolv.conf
 		return setDNSWithResolvConf(dns1, dns2)
 	}
 
@@ -207,21 +211,18 @@ func setDNSWithNetplan(dns1, dns2 string) error {
 	if err != nil {
 		return setDNSWithResolvConf(dns1, dns2)
 	}
-
 	// 更新 DNS 配置
 	newContent, err := updateNetplanDNS(content, dns1, dns2)
 	if err != nil {
 		return setDNSWithResolvConf(dns1, dns2)
 	}
-
 	// 写入配置文件
-	if err := io.Write(configPath, newContent, 0600); err != nil {
-		return fmt.Errorf("写入 netplan 配置失败: %w", err)
+	if err = io.Write(configPath, newContent, 0600); err != nil {
+		return fmt.Errorf("failed to write netplan config: %w", err)
 	}
-
 	// 应用 netplan 配置
-	if _, err := shell.Execf("netplan apply"); err != nil {
-		return fmt.Errorf("应用 netplan 配置失败: %w", err)
+	if _, err = shell.Execf("netplan apply"); err != nil {
+		return fmt.Errorf("failed to apply netplan config: %w", err)
 	}
 
 	return nil
@@ -246,116 +247,227 @@ func findNetplanConfig() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("未找到 netplan 配置文件")
+	return "", fmt.Errorf("failed to find netplan config file")
+}
+
+// netplanConfig netplan 配置结构
+type netplanConfig struct {
+	Network netplanNetwork `yaml:"network"`
+}
+
+// netplanNetwork 网络配置
+type netplanNetwork struct {
+	Version   int                          `yaml:"version,omitempty"`
+	Renderer  string                       `yaml:"renderer,omitempty"`
+	Ethernets map[string]*netplanInterface `yaml:"ethernets,omitempty"`
+	Wifis     map[string]*netplanInterface `yaml:"wifis,omitempty"`
+	Bonds     map[string]*netplanInterface `yaml:"bonds,omitempty"`
+	Bridges   map[string]*netplanInterface `yaml:"bridges,omitempty"`
+	Vlans     map[string]*netplanInterface `yaml:"vlans,omitempty"`
+}
+
+// netplanInterface 网络接口配置
+type netplanInterface struct {
+	DHCP4       any                  `yaml:"dhcp4,omitempty"`
+	DHCP6       any                  `yaml:"dhcp6,omitempty"`
+	Addresses   []string             `yaml:"addresses,omitempty"`
+	Gateway4    string               `yaml:"gateway4,omitempty"`
+	Gateway6    string               `yaml:"gateway6,omitempty"`
+	Routes      []netplanRoute       `yaml:"routes,omitempty"`
+	Nameservers *netplanNameservers  `yaml:"nameservers,omitempty"`
+	MTU         int                  `yaml:"mtu,omitempty"`
+	MACAddress  string               `yaml:"macaddress,omitempty"`
+	Optional    any                  `yaml:"optional,omitempty"`
+	Match       *netplanMatch        `yaml:"match,omitempty"`
+	SetName     string               `yaml:"set-name,omitempty"`
+	Interfaces  []string             `yaml:"interfaces,omitempty"`
+	Parameters  map[string]any       `yaml:"parameters,omitempty"`
+	ID          int                  `yaml:"id,omitempty"`
+	Link        string               `yaml:"link,omitempty"`
+	Extra       map[string]yaml.Node `yaml:",inline"` // 保留未知字段
+}
+
+// netplanRoute 路由配置
+type netplanRoute struct {
+	To     string `yaml:"to,omitempty"`
+	Via    string `yaml:"via,omitempty"`
+	Metric int    `yaml:"metric,omitempty"`
+}
+
+// netplanNameservers DNS 配置
+type netplanNameservers struct {
+	Addresses []string `yaml:"addresses,omitempty"`
+	Search    []string `yaml:"search,omitempty"`
+}
+
+// netplanMatch 网卡匹配规则
+type netplanMatch struct {
+	MACAddress string `yaml:"macaddress,omitempty"`
+	Driver     string `yaml:"driver,omitempty"`
 }
 
 // updateNetplanDNS 更新 netplan 配置中的 DNS
 func updateNetplanDNS(content, dns1, dns2 string) (string, error) {
-	// netplan 配置是 YAML 格式
-	// 我们需要在网络接口下添加或更新 nameservers 配置
-	// 由于 YAML 解析复杂，这里使用简单的正则替换策略
-
-	lines := strings.Split(content, "\n")
-	var result []string
-	var insideEthernets bool
-	var insideInterface bool
-	var interfaceIndent int
-	var dnsAdded bool
-
-	dnsConfig := buildNetplanDNSConfig(dns1, dns2)
-
-	for i := 0; i < len(lines); i++ {
-		line := lines[i]
-		trimmedLine := strings.TrimSpace(line)
-
-		// 计算当前行的缩进
-		currentIndent := len(line) - len(strings.TrimLeft(line, " "))
-
-		// 检测 ethernets 或 wifis 部分
-		if strings.HasPrefix(trimmedLine, "ethernets:") || strings.HasPrefix(trimmedLine, "wifis:") {
-			insideEthernets = true
-			result = append(result, line)
-			continue
-		}
-
-		// 如果在 ethernets 部分内
-		if insideEthernets {
-			// 检测接口名（如 eth0:, ens3: 等）
-			if strings.HasSuffix(trimmedLine, ":") && !strings.HasPrefix(trimmedLine, "nameservers:") &&
-				!strings.HasPrefix(trimmedLine, "addresses:") && !strings.HasPrefix(trimmedLine, "routes:") &&
-				!strings.HasPrefix(trimmedLine, "dhcp4:") && !strings.HasPrefix(trimmedLine, "dhcp6:") {
-				insideInterface = true
-				interfaceIndent = currentIndent
-				dnsAdded = false
-				result = append(result, line)
-				continue
-			}
-
-			// 在接口内部处理 nameservers
-			if insideInterface && currentIndent > interfaceIndent {
-				// 跳过现有的 nameservers 配置块
-				if strings.HasPrefix(trimmedLine, "nameservers:") {
-					// 跳过 nameservers 及其子项
-					for i+1 < len(lines) {
-						nextLine := lines[i+1]
-						nextTrimmed := strings.TrimSpace(nextLine)
-						nextIndent := len(nextLine) - len(strings.TrimLeft(nextLine, " "))
-						if nextIndent > currentIndent && (strings.HasPrefix(nextTrimmed, "addresses:") ||
-							strings.HasPrefix(nextTrimmed, "-") || strings.HasPrefix(nextTrimmed, "search:")) {
-							i++
-							continue
-						}
-						break
-					}
-					// 添加新的 DNS 配置
-					if !dnsAdded {
-						result = append(result, strings.Repeat(" ", currentIndent)+dnsConfig)
-						dnsAdded = true
-					}
-					continue
-				}
-				result = append(result, line)
-				continue
-			}
-
-			// 离开当前接口，如果还没添加 DNS 配置，在这里添加
-			if insideInterface && currentIndent <= interfaceIndent && !dnsAdded {
-				// 在接口块末尾添加 DNS 配置
-				result = append(result, strings.Repeat(" ", interfaceIndent+2)+dnsConfig)
-				dnsAdded = true
-				insideInterface = false
-			}
-
-			// 检测是否离开 ethernets 部分
-			if currentIndent == 0 && trimmedLine != "" {
-				insideEthernets = false
-			}
-		}
-
-		result = append(result, line)
+	var config netplanConfig
+	if err := yaml.Unmarshal([]byte(content), &config); err != nil {
+		return "", fmt.Errorf("failed to parse netplan config: %w", err)
 	}
 
-	// 如果在文件末尾还在接口内且没添加 DNS
-	if insideInterface && !dnsAdded {
-		result = append(result, strings.Repeat(" ", interfaceIndent+2)+dnsConfig)
+	// 构建新的 DNS 地址列表
+	dnsAddresses := []string{dns1}
+	if dns2 != "" {
+		dnsAddresses = append(dnsAddresses, dns2)
 	}
 
-	return strings.Join(result, "\n"), nil
+	// 更新所有网络接口的 DNS 配置
+	updated := false
+
+	// 更新 ethernets
+	for _, iface := range config.Network.Ethernets {
+		if iface != nil {
+			if iface.Nameservers == nil {
+				iface.Nameservers = &netplanNameservers{}
+			}
+			iface.Nameservers.Addresses = dnsAddresses
+			updated = true
+		}
+	}
+
+	// 更新 wifis
+	for _, iface := range config.Network.Wifis {
+		if iface != nil {
+			if iface.Nameservers == nil {
+				iface.Nameservers = &netplanNameservers{}
+			}
+			iface.Nameservers.Addresses = dnsAddresses
+			updated = true
+		}
+	}
+
+	// 更新 bonds
+	for _, iface := range config.Network.Bonds {
+		if iface != nil {
+			if iface.Nameservers == nil {
+				iface.Nameservers = &netplanNameservers{}
+			}
+			iface.Nameservers.Addresses = dnsAddresses
+			updated = true
+		}
+	}
+
+	// 更新 bridges
+	for _, iface := range config.Network.Bridges {
+		if iface != nil {
+			if iface.Nameservers == nil {
+				iface.Nameservers = &netplanNameservers{}
+			}
+			iface.Nameservers.Addresses = dnsAddresses
+			updated = true
+		}
+	}
+
+	// 更新 vlans
+	for _, iface := range config.Network.Vlans {
+		if iface != nil {
+			if iface.Nameservers == nil {
+				iface.Nameservers = &netplanNameservers{}
+			}
+			iface.Nameservers.Addresses = dnsAddresses
+			updated = true
+		}
+	}
+
+	// 如果配置中没有任何接口，尝试检测当前活动的网络接口并添加配置
+	if !updated {
+		activeIface := detectActiveInterface()
+		if activeIface == "" {
+			return "", fmt.Errorf("no network interface found in config and failed to detect active interface")
+		}
+
+		// 创建 ethernets 配置
+		if config.Network.Ethernets == nil {
+			config.Network.Ethernets = make(map[string]*netplanInterface)
+		}
+
+		// 为检测到的接口添加配置
+		config.Network.Ethernets[activeIface] = &netplanInterface{
+			Nameservers: &netplanNameservers{
+				Addresses: dnsAddresses,
+			},
+		}
+
+		// 设置默认版本
+		if config.Network.Version == 0 {
+			config.Network.Version = 2
+		}
+
+		updated = true
+	}
+
+	// 序列化为 YAML
+	output, err := yaml.Marshal(&config)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal netplan config: %w", err)
+	}
+
+	return string(output), nil
 }
 
-// netplan YAML 配置的标准缩进级别
-const (
-	netplanIndentSize     = 2  // 每级缩进的空格数
-	netplanAddressIndent  = 10 // addresses 行的缩进空格数（nameservers 下一级）
-)
-
-// buildNetplanDNSConfig 构建 netplan DNS 配置
-func buildNetplanDNSConfig(dns1, dns2 string) string {
-	addressIndent := strings.Repeat(" ", netplanAddressIndent)
-	if dns2 != "" {
-		return fmt.Sprintf("nameservers:\n%saddresses: [%s, %s]", addressIndent, dns1, dns2)
+// detectActiveInterface 检测当前活动的网络接口名称
+// 返回第一个非 lo/docker/veth/br- 的活动接口
+func detectActiveInterface() string {
+	// 尝试获取默认路由的网络接口
+	output, err := shell.Execf("ip route show default 2>/dev/null | awk '/default/ {print $5}' | head -n1")
+	if err == nil {
+		iface := strings.TrimSpace(output)
+		if iface != "" && isValidNetworkInterface(iface) {
+			return iface
+		}
 	}
-	return fmt.Sprintf("nameservers:\n%saddresses: [%s]", addressIndent, dns1)
+
+	// 回退：获取所有 UP 状态的接口
+	output, err = shell.Execf("ip -o link show up 2>/dev/null | awk -F': ' '{print $2}'")
+	if err == nil {
+		lines := strings.Split(strings.TrimSpace(output), "\n")
+		for _, line := range lines {
+			iface := strings.TrimSpace(line)
+			if isValidNetworkInterface(iface) {
+				return iface
+			}
+		}
+	}
+
+	return ""
+}
+
+// isValidNetworkInterface 检查接口名是否为有效的物理/外部网络接口
+func isValidNetworkInterface(name string) bool {
+	if name == "" {
+		return false
+	}
+
+	// 排除虚拟接口和回环接口
+	excludePrefixes := []string{
+		"lo",      // 回环
+		"docker",  // Docker
+		"veth",    // Docker/容器虚拟网卡
+		"br-",     // Docker 桥接
+		"virbr",   // libvirt 虚拟桥接
+		"vnet",    // 虚拟网络
+		"tun",     // VPN 隧道
+		"tap",     // TAP 设备
+		"flannel", // Kubernetes flannel
+		"cni",     // Kubernetes CNI
+		"cali",    // Calico
+	}
+
+	for _, prefix := range excludePrefixes {
+		if strings.HasPrefix(name, prefix) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // setDNSWithResolvConf 直接修改 /etc/resolv.conf 设置 DNS
@@ -367,7 +479,7 @@ func setDNSWithResolvConf(dns1, dns2 string) error {
 	}
 
 	if err := io.Write("/etc/resolv.conf", dns, 0644); err != nil {
-		return fmt.Errorf("写入 /etc/resolv.conf 失败: %w", err)
+		return fmt.Errorf("failed to write /etc/resolv.conf: %w", err)
 	}
 
 	return nil
