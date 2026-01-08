@@ -4,14 +4,52 @@ defineOptions({
 })
 
 import { useRequest } from 'alova/client'
-import { onMounted, ref } from 'vue'
+import type { DataTableColumns } from 'naive-ui'
+import { NButton, NProgress, NTag } from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import disk from '@/api/panel/toolbox-disk'
+import { formatBytes } from '@/utils'
+
+// lsblk JSON 输出的数据结构
+interface BlockDevice {
+  name: string
+  size: number
+  type: string
+  mountpoint: string | null
+  fstype: string | null
+  uuid: string | null
+  label: string | null
+  model: string | null
+  children?: BlockDevice[]
+}
+
+// 分区展示数据
+interface PartitionData {
+  name: string
+  size: number
+  used: number
+  available: number
+  usagePercent: number
+  mountpoint: string | null
+  fstype: string | null
+  isSystemDisk: boolean
+}
+
+// 磁盘展示数据
+interface DiskData {
+  name: string
+  size: number
+  type: string
+  model: string | null
+  isSystemDisk: boolean
+  partitions: PartitionData[]
+}
 
 const { $gettext } = useGettext()
 const currentTab = ref('disk')
-const diskList = ref<any>({})
+const diskList = ref<DiskData[]>([])
 const lvmInfo = ref<any>({ pvs: [], vgs: [], lvs: [] })
 
 // 磁盘管理
@@ -37,18 +75,188 @@ const extendLvPath = ref('')
 const extendSize = ref(1)
 const extendResize = ref(true)
 
+// df 数据类型
+interface DfInfo {
+  size: string
+  used: string
+  avail: string
+  percent: string
+}
+
 // 加载磁盘列表
 const loadDiskList = () => {
   useRequest(disk.list()).onSuccess(({ data }) => {
     try {
-      diskList.value = JSON.parse(data)
+      const devices: BlockDevice[] = data.disks || []
+      const dfData: Record<string, DfInfo> = data.df || {}
+      diskList.value = parseDiskData(devices, dfData)
     } catch (e) {
-      diskList.value = {}
-      console.error('解析磁盘列表数据失败:', e)
+      diskList.value = []
       window.$message.error($gettext('Failed to parse disk data, please refresh and try again'))
     }
   })
 }
+
+// 解析磁盘数据
+const parseDiskData = (devices: BlockDevice[], dfData: Record<string, DfInfo>): DiskData[] => {
+  const disks: DiskData[] = []
+
+  for (const device of devices) {
+    // 只处理磁盘类型
+    if (device.type !== 'disk') continue
+
+    const partitions: PartitionData[] = []
+    let isSystemDisk = false
+
+    // 先遍历一遍判断是否为系统盘
+    if (device.children) {
+      for (const child of device.children) {
+        if (child.type === 'part' && child.mountpoint === '/') {
+          isSystemDisk = true
+          break
+        }
+      }
+    }
+
+    // 处理分区
+    if (device.children) {
+      for (const child of device.children) {
+        if (child.type === 'part') {
+          // 获取 df 数据
+          const mountpoint = child.mountpoint
+          const dfInfo = mountpoint ? dfData[mountpoint] : null
+
+          partitions.push({
+            name: child.name,
+            size: child.size,
+            used: dfInfo ? parseInt(dfInfo.used) : 0,
+            available: dfInfo ? parseInt(dfInfo.avail) : 0,
+            usagePercent: dfInfo ? parseInt(dfInfo.percent) : 0,
+            mountpoint: child.mountpoint,
+            fstype: child.fstype,
+            isSystemDisk
+          })
+        }
+      }
+    }
+
+    disks.push({
+      name: device.name,
+      size: device.size,
+      type: device.type,
+      model: device.model,
+      isSystemDisk,
+      partitions
+    })
+  }
+
+  return disks
+}
+
+// 获取磁盘类型标签
+const getDiskTypeLabel = (model: string | null): string => {
+  if (!model) return 'HDD'
+  const modelLower = model.toLowerCase()
+  if (modelLower.includes('ssd') || modelLower.includes('nvme')) {
+    return 'SSD'
+  }
+  return 'HDD'
+}
+
+// 分区表格列定义
+const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
+  {
+    title: $gettext('Partition Name'),
+    key: 'name',
+    width: 200
+  },
+  {
+    title: $gettext('Size'),
+    key: 'size',
+    width: 120,
+    render(row) {
+      return formatBytes(row.size)
+    }
+  },
+  {
+    title: $gettext('Used'),
+    key: 'used',
+    width: 120,
+    render(row) {
+      if (!row.mountpoint) return '-'
+      return formatBytes(row.used)
+    }
+  },
+  {
+    title: $gettext('Available'),
+    key: 'available',
+    width: 120,
+    render(row) {
+      if (!row.mountpoint) return '-'
+      return formatBytes(row.available)
+    }
+  },
+  {
+    title: $gettext('Usage'),
+    key: 'usagePercent',
+    width: 160,
+    render(row) {
+      if (!row.mountpoint) {
+        return h(
+          NTag,
+          { type: 'warning', size: 'small' },
+          { default: () => $gettext('Not Mounted') }
+        )
+      }
+      const percent = row.usagePercent
+      const status = percent > 90 ? 'error' : percent > 70 ? 'warning' : 'success'
+      return h(NProgress, {
+        type: 'line',
+        percentage: percent,
+        status,
+        indicatorPlacement: 'inside',
+        style: { width: '120px' }
+      })
+    }
+  },
+  {
+    title: $gettext('Mount Point'),
+    key: 'mountpoint',
+    width: 200,
+    render(row) {
+      return row.mountpoint || '-'
+    }
+  },
+  {
+    title: $gettext('Filesystem'),
+    key: 'fstype',
+    width: 100,
+    render(row) {
+      return row.fstype || '-'
+    }
+  },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 120,
+    render(row) {
+      if (row.mountpoint) {
+        return h(
+          NButton,
+          {
+            size: 'small',
+            type: 'warning',
+            secondary: true,
+            disabled: row.isSystemDisk,
+            onClick: () => handleUmount(row.mountpoint!)
+          },
+          { default: () => $gettext('Unmount') }
+        )
+      }
+      return null
+    }
+  }
+])
 
 // 加载LVM信息
 const loadLVMInfo = () => {
@@ -233,38 +441,94 @@ const handleExtendLV = () => {
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <!-- 磁盘管理标签页 -->
     <n-tab-pane name="disk" :tab="$gettext('Disk Management')">
-      <n-flex vertical>
-        <n-card :title="$gettext('Disk List')">
-          <n-space vertical>
-            <n-button @click="loadDiskList">{{ $gettext('Refresh') }}</n-button>
-            <pre>{{ JSON.stringify(diskList, null, 2) }}</pre>
-          </n-space>
+      <n-flex vertical :size="16">
+        <!-- 磁盘卡片列表 -->
+        <n-card v-for="diskItem in diskList" :key="diskItem.name">
+          <template #header>
+            <n-flex align="center" :size="12">
+              <span style="font-weight: 600">{{ $gettext('Disk Name') }}: {{ diskItem.name }}</span>
+              <n-tag v-if="diskItem.isSystemDisk" type="error" size="small">
+                {{ $gettext('System Disk') }}
+              </n-tag>
+            </n-flex>
+          </template>
+          <template #header-extra>
+            <n-flex align="center" :size="16">
+              <span>{{ $gettext('Size') }}: {{ formatBytes(diskItem.size) }}</span>
+              <span>{{ $gettext('Partitions') }}: {{ diskItem.partitions.length }}</span>
+              <span>{{ $gettext('Disk Type') }}:</span>
+              <n-tag size="small">{{ getDiskTypeLabel(diskItem.model) }}</n-tag>
+            </n-flex>
+          </template>
+
+          <n-data-table
+            :columns="partitionColumns"
+            :data="diskItem.partitions"
+            :bordered="false"
+            :single-line="false"
+            size="small"
+            :row-key="(row: PartitionData) => row.name"
+          />
+
+          <n-alert
+            v-if="diskItem.isSystemDisk"
+            type="warning"
+            :show-icon="false"
+            style="margin-top: 12px"
+          >
+            {{ $gettext('Note: This is the system disk and cannot be operated on.') }}
+          </n-alert>
         </n-card>
 
+        <!-- 无磁盘时显示 -->
+        <n-empty v-if="diskList.length === 0" :description="$gettext('No disks found')" />
+
+        <!-- 挂载分区 -->
         <n-card :title="$gettext('Mount Partition')">
-          <n-form>
+          <n-form inline>
             <n-form-item :label="$gettext('Device')">
-              <n-input v-model:value="selectedDevice" :placeholder="$gettext('e.g., sdb1')" />
+              <n-input
+                v-model:value="selectedDevice"
+                :placeholder="$gettext('e.g., sdb1')"
+                style="width: 200px"
+              />
             </n-form-item>
             <n-form-item :label="$gettext('Mount Path')">
-              <n-input v-model:value="mountPath" :placeholder="$gettext('e.g., /mnt/data')" />
+              <n-input
+                v-model:value="mountPath"
+                :placeholder="$gettext('e.g., /mnt/data')"
+                style="width: 200px"
+              />
             </n-form-item>
-            <n-button type="primary" @click="handleMount">{{ $gettext('Mount') }}</n-button>
+            <n-form-item>
+              <n-button type="primary" @click="handleMount">{{ $gettext('Mount') }}</n-button>
+            </n-form-item>
           </n-form>
         </n-card>
 
+        <!-- 格式化分区 -->
         <n-card :title="$gettext('Format Partition')">
           <n-alert type="error" style="margin-bottom: 16px">
             {{ $gettext('Warning: Formatting will erase all data!') }}
           </n-alert>
-          <n-form>
+          <n-form inline>
             <n-form-item :label="$gettext('Device')">
-              <n-input v-model:value="formatDevice" :placeholder="$gettext('e.g., sdb1')" />
+              <n-input
+                v-model:value="formatDevice"
+                :placeholder="$gettext('e.g., sdb1')"
+                style="width: 200px"
+              />
             </n-form-item>
             <n-form-item :label="$gettext('Filesystem Type')">
-              <n-select v-model:value="formatFsType" :options="fsTypeOptions" />
+              <n-select
+                v-model:value="formatFsType"
+                :options="fsTypeOptions"
+                style="width: 150px"
+              />
             </n-form-item>
-            <n-button type="error" @click="handleFormat">{{ $gettext('Format') }}</n-button>
+            <n-form-item>
+              <n-button type="error" @click="handleFormat">{{ $gettext('Format') }}</n-button>
+            </n-form-item>
           </n-form>
         </n-card>
       </n-flex>

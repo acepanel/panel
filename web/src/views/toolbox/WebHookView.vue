@@ -290,7 +290,7 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-flex justify="end">
+    <n-flex>
       <n-button type="primary" @click="createModal = true">
         {{ $gettext('Create WebHook') }}
       </n-button>

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -25,13 +26,49 @@ func NewToolboxDiskService(t *gotext.Locale) *ToolboxDiskService {
 
 // List 获取磁盘列表
 func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
-	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL,MODEL")
+	// 获取磁盘基本信息
+	lsblkOutput, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL,MODEL")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get disk list: %v", err))
 		return
 	}
 
-	Success(w, output)
+	// 解析 lsblk JSON
+	var lsblkData struct {
+		BlockDevices []any `json:"blockdevices"`
+	}
+	if err = json.Unmarshal([]byte(lsblkOutput), &lsblkData); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse disk list: %v", err))
+		return
+	}
+
+	// 获取磁盘使用情况
+	dfOutput, _ := shell.Execf("df -B1 --output=source,size,used,avail,pcent,target 2>/dev/null | tail -n +2")
+
+	// 解析 df 输出为 map
+	dfMap := make(map[string]map[string]string)
+	lines := strings.Split(strings.TrimSpace(dfOutput), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) >= 6 {
+			mountpoint := fields[5]
+			dfMap[mountpoint] = map[string]string{
+				"size":    fields[1],
+				"used":    fields[2],
+				"avail":   fields[3],
+				"percent": strings.TrimSuffix(fields[4], "%"),
+			}
+		}
+	}
+
+	Success(w, chix.M{
+		"disks": lsblkData.BlockDevices,
+		"df":    dfMap,
+	})
 }
 
 // GetPartitions 获取分区列表

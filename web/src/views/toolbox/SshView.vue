@@ -224,20 +224,16 @@ onMounted(() => {
 <template>
   <n-spin :show="loading">
     <n-flex vertical :size="24">
-      <!-- SSH 服务状态 -->
+      <!-- SSH 服务 -->
       <n-card :title="$gettext('SSH Service')">
-        <n-flex align="center" :size="12">
-          <n-text strong>{{ $gettext('SSH Service Status') }}</n-text>
-          <n-switch :value="sshStatus" :loading="loading" @update:value="handleToggleSSH" />
-          <n-button :loading="loading" @click="handleRestartSSH">
-            {{ $gettext('Restart') }}
-          </n-button>
-        </n-flex>
-      </n-card>
-
-      <!-- SSH 基础设置 -->
-      <n-card :title="$gettext('SSH Basic Settings')">
         <n-flex vertical :size="16">
+          <n-flex align="center" :size="12">
+            <n-text strong>{{ $gettext('SSH Service Status') }}</n-text>
+            <n-switch :value="sshStatus" :loading="loading" @update:value="handleToggleSSH" />
+            <n-button :loading="loading" @click="handleRestartSSH">
+              {{ $gettext('Restart') }}
+            </n-button>
+          </n-flex>
           <!-- SSH 密码登录 -->
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
@@ -250,7 +246,6 @@ onMounted(() => {
             </n-flex>
             <n-text depth="3">{{ $gettext('Allow password authentication for SSH login') }}</n-text>
           </n-flex>
-
           <!-- SSH 密钥登录 -->
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
@@ -265,7 +260,6 @@ onMounted(() => {
               $gettext('Allow public key authentication for SSH login')
             }}</n-text>
           </n-flex>
-
           <!-- SSH 端口 -->
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
@@ -299,7 +293,6 @@ onMounted(() => {
               @update:value="handleUpdateRootLogin"
             />
           </n-flex>
-
           <!-- Root 密码 -->
           <n-flex vertical :size="8">
             <n-text strong>{{ $gettext('Root Password') }}</n-text>
@@ -332,7 +325,6 @@ onMounted(() => {
               }}
             </n-text>
           </n-flex>
-
           <!-- Root 密钥 -->
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
