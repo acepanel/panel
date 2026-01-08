@@ -48,6 +48,7 @@ type Http struct {
 	systemctl        *service.SystemctlService
 	toolboxSystem    *service.ToolboxSystemService
 	toolboxBenchmark *service.ToolboxBenchmarkService
+	toolboxDisk      *service.ToolboxDiskService
 	webhook          *service.WebHookService
 	apps             *apploader.Loader
 }
@@ -85,6 +86,7 @@ func NewHttp(
 	systemctl *service.SystemctlService,
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
+	toolboxDisk *service.ToolboxDiskService,
 	webhook *service.WebHookService,
 	apps *apploader.Loader,
 ) *Http {
@@ -121,6 +123,7 @@ func NewHttp(
 		systemctl:        systemctl,
 		toolboxSystem:    toolboxSystem,
 		toolboxBenchmark: toolboxBenchmark,
+		toolboxDisk:      toolboxDisk,
 		webhook:          webhook,
 		apps:             apps,
 	}
@@ -443,6 +446,22 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/toolbox_benchmark", func(r chi.Router) {
 			r.Post("/test", route.toolboxBenchmark.Test)
+		})
+
+		r.Route("/toolbox_disk", func(r chi.Router) {
+			r.Get("/list", route.toolboxDisk.List)
+			r.Post("/partitions", route.toolboxDisk.GetPartitions)
+			r.Post("/mount", route.toolboxDisk.Mount)
+			r.Post("/umount", route.toolboxDisk.Umount)
+			r.Post("/format", route.toolboxDisk.Format)
+			r.Get("/lvm", route.toolboxDisk.GetLVMInfo)
+			r.Post("/lvm/pv", route.toolboxDisk.CreatePV)
+			r.Delete("/lvm/pv", route.toolboxDisk.RemovePV)
+			r.Post("/lvm/vg", route.toolboxDisk.CreateVG)
+			r.Delete("/lvm/vg", route.toolboxDisk.RemoveVG)
+			r.Post("/lvm/lv", route.toolboxDisk.CreateLV)
+			r.Delete("/lvm/lv", route.toolboxDisk.RemoveLV)
+			r.Post("/lvm/lv/extend", route.toolboxDisk.ExtendLV)
 		})
 
 		r.Route("/webhook", func(r chi.Router) {
