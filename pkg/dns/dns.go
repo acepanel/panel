@@ -400,8 +400,6 @@ func updateNetplanDNS(content, dns1, dns2 string) (string, error) {
 		if config.Network.Version == 0 {
 			config.Network.Version = 2
 		}
-
-		updated = true
 	}
 
 	// 序列化为 YAML
