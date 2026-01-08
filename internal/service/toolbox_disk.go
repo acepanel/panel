@@ -106,6 +106,52 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 如果需要写入 fstab
+	if req.WriteFstab {
+		// 获取分区的 UUID
+		uuid, err := shell.Execf("blkid -s UUID -o value '/dev/%s'", req.Device)
+		if err != nil {
+			Error(w, http.StatusInternalServerError, s.t.Get("failed to get partition UUID: %v", err))
+			return
+		}
+		uuid = strings.TrimSpace(uuid)
+		if uuid == "" {
+			Error(w, http.StatusInternalServerError, s.t.Get("partition has no UUID"))
+			return
+		}
+
+		// 获取文件系统类型
+		fsType, err := shell.Execf("blkid -s TYPE -o value '/dev/%s'", req.Device)
+		if err != nil {
+			Error(w, http.StatusInternalServerError, s.t.Get("failed to get filesystem type: %v", err))
+			return
+		}
+		fsType = strings.TrimSpace(fsType)
+		if fsType == "" {
+			fsType = "auto"
+		}
+
+		// 挂载选项
+		mountOption := req.MountOption
+		if mountOption == "" {
+			mountOption = "defaults"
+		}
+
+		// 检查 fstab 中是否已存在该挂载点
+		existCheck, _ := shell.Execf("grep -E '^[^#].*\\s+%s\\s+' /etc/fstab", req.Path)
+		if strings.TrimSpace(existCheck) != "" {
+			Error(w, http.StatusBadRequest, s.t.Get("mount point %s already exists in fstab", req.Path))
+			return
+		}
+
+		// 写入 fstab
+		fstabEntry := fmt.Sprintf("UUID=%s %s %s %s 0 2", uuid, req.Path, fsType, mountOption)
+		if _, err = shell.Execf("echo '%s' >> /etc/fstab", fstabEntry); err != nil {
+			Error(w, http.StatusInternalServerError, s.t.Get("failed to write fstab: %v", err))
+			return
+		}
+	}
+
 	Success(w, nil)
 }
 
@@ -143,6 +189,80 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 		formatCmd = fmt.Sprintf("mkfs.xfs -f '/dev/%s'", req.Device)
 	case "btrfs":
 		formatCmd = fmt.Sprintf("mkfs.btrfs -f '/dev/%s'", req.Device)
+	default:
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("unsupported filesystem type: %s", req.FsType))
+		return
+	}
+
+	if _, err = shell.Execf(formatCmd); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to format partition: %v", err))
+		return
+	}
+
+	Success(w, nil)
+}
+
+// Init 初始化磁盘（删除所有分区，创建单个分区并格式化）
+func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxDiskInit](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	device := "/dev/" + req.Device
+
+	// 检查设备是否存在
+	if _, err = shell.Execf("test -b '%s'", device); err != nil {
+		Error(w, http.StatusBadRequest, s.t.Get("device not found: %s", device))
+		return
+	}
+
+	// 检查是否为系统盘（检查是否有分区挂载在 /）
+	mountInfo, _ := shell.Execf("lsblk -no MOUNTPOINT '%s' 2>/dev/null", device)
+	if strings.Contains(mountInfo, "/\n") || strings.TrimSpace(mountInfo) == "/" {
+		Error(w, http.StatusBadRequest, s.t.Get("cannot initialize system disk"))
+		return
+	}
+
+	// 卸载该磁盘的所有分区
+	_, _ = shell.Execf("umount '%s'* 2>/dev/null || true", device)
+
+	// 先清除分区表
+	if _, err = shell.Execf("wipefs -a '%s'", device); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to wipe disk: %v", err))
+		return
+	}
+
+	// sfdisk 创建 GPT 分区表和单个分区
+	if _, err = shell.Execf("echo 'type=linux' | sfdisk '%s'", device); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to create partition: %v", err))
+		return
+	}
+
+	// 等待内核更新分区表
+	_, _ = shell.Execf("partprobe '%s' 2>/dev/null || true", device)
+	_, _ = shell.Execf("sleep 1")
+
+	// 确定新分区的设备名（device + "1"，如 sdb1 或 nvme0n1p1）
+	var partDevice string
+	if strings.Contains(req.Device, "nvme") || strings.Contains(req.Device, "loop") {
+		partDevice = device + "p1"
+	} else {
+		partDevice = device + "1"
+	}
+
+	// 格式化新分区
+	var formatCmd string
+	switch req.FsType {
+	case "ext4":
+		formatCmd = fmt.Sprintf("mkfs.ext4 -F '%s'", partDevice)
+	case "ext3":
+		formatCmd = fmt.Sprintf("mkfs.ext3 -F '%s'", partDevice)
+	case "xfs":
+		formatCmd = fmt.Sprintf("mkfs.xfs -f '%s'", partDevice)
+	case "btrfs":
+		formatCmd = fmt.Sprintf("mkfs.btrfs -f '%s'", partDevice)
 	default:
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("unsupported filesystem type: %s", req.FsType))
 		return
@@ -200,12 +320,13 @@ func (s *ToolboxDiskService) CreateVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	devices := make([]string, len(req.Devices))
-	for i, dev := range req.Devices {
-		devices[i] = "/dev/" + dev
+	// 构建设备列表，每个设备单独引用
+	var deviceArgs []string
+	for _, dev := range req.Devices {
+		deviceArgs = append(deviceArgs, fmt.Sprintf("'%s'", dev))
 	}
 
-	if _, err = shell.Execf("vgcreate '%s' '%s'", req.Name, strings.Join(devices, " ")); err != nil {
+	if _, err = shell.Execf("vgcreate '%s' %s", req.Name, strings.Join(deviceArgs, " ")); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create volume group: %v", err))
 		return
 	}
@@ -244,7 +365,7 @@ func (s *ToolboxDiskService) RemovePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pvremove '/dev/%s'", req.Device); err != nil {
+	if _, err = shell.Execf("pvremove '%s'", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove physical volume: %v", err))
 		return
 	}
@@ -340,6 +461,10 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 					Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 					return
 				}
+			} else {
+				// btrfs未挂载时，返回错误信息
+				Error(w, http.StatusInternalServerError, s.t.Get("btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"))
+				return
 			}
 		}
 	}
@@ -374,4 +499,69 @@ func (s *ToolboxDiskService) parseLVMOutput(output string) []map[string]string {
 	}
 
 	return result
+}
+
+// GetFstab 获取 fstab 列表
+func (s *ToolboxDiskService) GetFstab(w http.ResponseWriter, r *http.Request) {
+	content, err := shell.Execf("cat /etc/fstab")
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to read fstab: %v", err))
+		return
+	}
+
+	var entries []request.ToolboxDiskFstabEntry
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 跳过空行和注释
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) >= 4 {
+			entry := request.ToolboxDiskFstabEntry{
+				Device:     fields[0],
+				MountPoint: fields[1],
+				FsType:     fields[2],
+				Options:    fields[3],
+			}
+			if len(fields) >= 5 {
+				entry.Dump = fields[4]
+			}
+			if len(fields) >= 6 {
+				entry.Pass = fields[5]
+			}
+			entries = append(entries, entry)
+		}
+	}
+
+	Success(w, entries)
+}
+
+// DeleteFstab 删除 fstab 条目
+func (s *ToolboxDiskService) DeleteFstab(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxDiskFstabDelete](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 不允许删除根目录挂载
+	if req.MountPoint == "/" {
+		Error(w, http.StatusBadRequest, s.t.Get("cannot delete root mount point"))
+		return
+	}
+
+	if _, err = shell.Execf(`sed -i 's@^[^#].*\s%s\s.*$@@g' /etc/fstab`, req.MountPoint); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to delete fstab entry: %v", err))
+		return
+	}
+
+	if _, err = shell.Execf("mount -a"); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to remount filesystems: %v", err))
+		return
+	}
+
+	Success(w, nil)
 }

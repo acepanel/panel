@@ -7,8 +7,10 @@ type ToolboxDiskDevice struct {
 
 // ToolboxDiskMount 挂载请求
 type ToolboxDiskMount struct {
-	Device string `form:"device" json:"device" validate:"required"`
-	Path   string `form:"path" json:"path" validate:"required"`
+	Device      string `form:"device" json:"device" validate:"required"`
+	Path        string `form:"path" json:"path" validate:"required"`
+	WriteFstab  bool   `form:"write_fstab" json:"write_fstab"`
+	MountOption string `form:"mount_option" json:"mount_option"`
 }
 
 // ToolboxDiskUmount 卸载请求
@@ -50,4 +52,25 @@ type ToolboxDiskExtendLV struct {
 	Path   string `form:"path" json:"path" validate:"required"`
 	Size   int    `form:"size" json:"size" validate:"required|min:1"`
 	Resize bool   `form:"resize" json:"resize"`
+}
+
+// ToolboxDiskInit 初始化磁盘请求
+type ToolboxDiskInit struct {
+	Device string `form:"device" json:"device" validate:"required"`
+	FsType string `form:"fs_type" json:"fs_type" validate:"required|in:ext4,ext3,xfs,btrfs"`
+}
+
+// ToolboxDiskFstabEntry fstab 条目结构
+type ToolboxDiskFstabEntry struct {
+	Device     string `json:"device"`      // 设备（UUID=xxx 或 /dev/xxx）
+	MountPoint string `json:"mount_point"` // 挂载点
+	FsType     string `json:"fs_type"`     // 文件系统类型
+	Options    string `json:"options"`     // 挂载选项
+	Dump       string `json:"dump"`        // 备份标志
+	Pass       string `json:"pass"`        // 检查顺序
+}
+
+// ToolboxDiskFstabDelete 删除 fstab 条目请求
+type ToolboxDiskFstabDelete struct {
+	MountPoint string `form:"mount_point" json:"mount_point" validate:"required"`
 }

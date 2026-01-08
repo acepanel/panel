@@ -6,12 +6,24 @@ export default {
   // 获取分区列表
   partitions: (device: string): any => http.Post('/toolbox_disk/partitions', { device }),
   // 挂载分区
-  mount: (device: string, path: string): any => http.Post('/toolbox_disk/mount', { device, path }),
+  mount: (
+    device: string,
+    path: string,
+    write_fstab: boolean = false,
+    mount_option: string = ''
+  ): any => http.Post('/toolbox_disk/mount', { device, path, write_fstab, mount_option }),
   // 卸载分区
   umount: (path: string): any => http.Post('/toolbox_disk/umount', { path }),
   // 格式化分区
   format: (device: string, fs_type: string): any =>
     http.Post('/toolbox_disk/format', { device, fs_type }),
+  // 初始化磁盘
+  init: (device: string, fs_type: string): any =>
+    http.Post('/toolbox_disk/init', { device, fs_type }),
+  // 获取 fstab 列表
+  fstabList: (): any => http.Get('/toolbox_disk/fstab'),
+  // 删除 fstab 条目
+  fstabDelete: (mount_point: string): any => http.Delete('/toolbox_disk/fstab', { mount_point }),
   // 获取LVM信息
   lvmInfo: (): any => http.Get('/toolbox_disk/lvm'),
   // 创建物理卷
