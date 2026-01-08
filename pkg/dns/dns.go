@@ -177,11 +177,20 @@ func getActiveNMConnection() (string, error) {
 		parts := strings.SplitN(line, ":", 2)
 		if len(parts) >= 2 && parts[1] != "" && parts[1] != "lo" {
 			// 返回带引号的连接名称，以处理包含空格的名称
-			return "'" + strings.ReplaceAll(parts[0], "'", "'\"'\"'") + "'", nil
+			return escapeShellArg(parts[0]), nil
 		}
 	}
 
 	return "", fmt.Errorf("未找到活动的网络连接")
+}
+
+// escapeShellArg 安全转义 shell 参数
+// 使用单引号包裹参数，并对参数中的单引号进行转义
+func escapeShellArg(arg string) string {
+	// 单引号内的内容不会被 shell 解析，除了单引号本身
+	// 对于单引号，需要使用 '\'' 来转义：结束单引号、转义单引号、重新开始单引号
+	escaped := strings.ReplaceAll(arg, "'", "'\"'\"'")
+	return "'" + escaped + "'"
 }
 
 // setDNSWithNetplan 使用 netplan 设置 DNS
@@ -231,8 +240,8 @@ func findNetplanConfig() (string, error) {
 			continue
 		}
 		if len(files) > 0 {
-			// 返回第一个配置文件（通常是主配置）
-			// 按字母顺序排序，优先级较高的文件通常有较大的数字前缀
+			// netplan 按文件名字母顺序处理配置文件
+			// 返回最后一个文件，因为它的配置会覆盖之前的配置
 			return files[len(files)-1], nil
 		}
 	}
@@ -334,12 +343,19 @@ func updateNetplanDNS(content, dns1, dns2 string) (string, error) {
 	return strings.Join(result, "\n"), nil
 }
 
+// netplan YAML 配置的标准缩进级别
+const (
+	netplanIndentSize     = 2  // 每级缩进的空格数
+	netplanAddressIndent  = 10 // addresses 行的缩进空格数（nameservers 下一级）
+)
+
 // buildNetplanDNSConfig 构建 netplan DNS 配置
 func buildNetplanDNSConfig(dns1, dns2 string) string {
+	addressIndent := strings.Repeat(" ", netplanAddressIndent)
 	if dns2 != "" {
-		return fmt.Sprintf("nameservers:\n          addresses: [%s, %s]", dns1, dns2)
+		return fmt.Sprintf("nameservers:\n%saddresses: [%s, %s]", addressIndent, dns1, dns2)
 	}
-	return fmt.Sprintf("nameservers:\n          addresses: [%s]", dns1)
+	return fmt.Sprintf("nameservers:\n%saddresses: [%s]", addressIndent, dns1)
 }
 
 // setDNSWithResolvConf 直接修改 /etc/resolv.conf 设置 DNS

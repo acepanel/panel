@@ -25,9 +25,9 @@ const time = ref(DateTime.now().toMillis())
 const dnsManager = ref('')
 
 useRequest(system.dns()).onSuccess(({ data }) => {
-  dns1.value = data.dns[0] ?? ''
-  dns2.value = data.dns[1] ?? ''
-  dnsManager.value = data.manager
+  dns1.value = data.dns?.[0] ?? ''
+  dns2.value = data.dns?.[1] ?? ''
+  dnsManager.value = data.manager ?? ''
 })
 useRequest(system.swap()).onSuccess(({ data }) => {
   swap.value = data.size
