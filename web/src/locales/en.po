@@ -3001,6 +3001,10 @@ msgstr "Uncompress"
 msgid "Paste"
 msgstr "Paste"
 
+#: src/views/file/ListTable.vue:209
+msgid "Calculate"
+msgstr "Calculate"
+
 #: src/views/file/ListTable.vue:281
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
@@ -3010,6 +3014,10 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/file/ToolBar.vue:77 src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "Marked successfully, please navigate to the destination path to paste"
+
+#: src/views/file/ListTable.vue:447
+msgid "Failed to calculate size"
+msgstr "Failed to calculate size"
 
 #: src/views/file/ListTable.vue:415 src/views/file/ListTable.vue:502
 #: src/views/file/ToolBar.vue:128

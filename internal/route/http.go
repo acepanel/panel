@@ -403,6 +403,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/download", route.file.Download)
 			r.Post("/remote_download", route.file.RemoteDownload)
 			r.Get("/info", route.file.Info)
+			r.Get("/size", route.file.Size)
 			r.Post("/permission", route.file.Permission)
 			r.Post("/compress", route.file.Compress)
 			r.Post("/un_compress", route.file.UnCompress)

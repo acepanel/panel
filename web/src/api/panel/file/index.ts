@@ -22,6 +22,8 @@ export default {
     http.Post('/file/remote_download', { path, url }),
   // 获取文件信息
   info: (path: string): any => http.Get('/file/info', { params: { path } }),
+  // 获取目录/文件大小
+  size: (path: string): any => http.Get('/file/size', { params: { path } }),
   // 修改文件权限
   permission: (path: string, mode: string, owner: string, group: string): any =>
     http.Post('/file/permission', { path, mode, owner, group }),

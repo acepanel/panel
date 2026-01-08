@@ -2939,6 +2939,10 @@ msgstr "解壓縮"
 msgid "Paste"
 msgstr "貼上"
 
+#: src/views/file/ListTable.vue:209
+msgid "Calculate"
+msgstr "計算"
+
 #: src/views/file/ListTable.vue:281
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "您確定要刪除 %{ name } 嗎？"
@@ -2948,6 +2952,10 @@ msgstr "您確定要刪除 %{ name } 嗎？"
 #: src/views/file/ToolBar.vue:77 src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "標記成功，請導航到目標路徑進行粘貼"
+
+#: src/views/file/ListTable.vue:447
+msgid "Failed to calculate size"
+msgstr "計算大小失敗"
 
 #: src/views/file/ListTable.vue:415 src/views/file/ListTable.vue:502
 #: src/views/file/ToolBar.vue:128
