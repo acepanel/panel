@@ -6,7 +6,7 @@ defineOptions({
 import BenchmarkView from '@/views/toolbox/BenchmarkView.vue'
 import DiskView from '@/views/toolbox/DiskView.vue'
 import ProcessView from '@/views/toolbox/ProcessView.vue'
-import SSHView from '@/views/toolbox/SSHView.vue'
+import SshView from '@/views/toolbox/SshView.vue'
 import SystemView from '@/views/toolbox/SystemView.vue'
 import WebHookView from '@/views/toolbox/WebHookView.vue'
 import { useGettext } from 'vue3-gettext'
@@ -30,7 +30,7 @@ const current = ref('process')
     <n-flex vertical>
       <process-view v-if="current === 'process'" />
       <system-view v-if="current === 'system'" />
-      <s-s-h-view v-if="current === 'ssh'" />
+      <ssh-view v-if="current === 'ssh'" />
       <disk-view v-if="current === 'disk'" />
       <web-hook-view v-if="current === 'webhook'" />
       <benchmark-view v-if="current === 'benchmark'" />

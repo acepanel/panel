@@ -25,7 +25,6 @@ func NewToolboxDiskService(t *gotext.Locale) *ToolboxDiskService {
 
 // List 获取磁盘列表
 func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
-	// 使用 lsblk 获取磁盘信息
 	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL,MODEL")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get disk list: %v", err))
@@ -43,8 +42,7 @@ func (s *ToolboxDiskService) GetPartitions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// 获取指定磁盘的分区信息
-	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL /dev/%s", req.Device)
+	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL '/dev/%s'", req.Device)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get partitions: %v", err))
 		return
@@ -61,15 +59,12 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查挂载点是否存在，不存在则创建
 	if _, err = shell.Execf("test -d '%s' || mkdir -p '%s'", req.Path, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create mount point: %v", err))
 		return
 	}
 
-	// 挂载分区
-	mountCmd := fmt.Sprintf("mount /dev/%s '%s'", req.Device, req.Path)
-	if _, err = shell.Execf(mountCmd); err != nil {
+	if _, err = shell.Execf("mount '/dev/%s' '%s'", req.Device, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to mount partition: %v", err))
 		return
 	}
@@ -85,7 +80,6 @@ func (s *ToolboxDiskService) Umount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 卸载分区
 	if _, err = shell.Execf("umount '%s'", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to umount partition: %v", err))
 		return
@@ -102,17 +96,16 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 根据文件系统类型格式化
 	var formatCmd string
 	switch req.FsType {
 	case "ext4":
-		formatCmd = fmt.Sprintf("mkfs.ext4 -F /dev/%s", req.Device)
+		formatCmd = fmt.Sprintf("mkfs.ext4 -F '/dev/%s'", req.Device)
 	case "ext3":
-		formatCmd = fmt.Sprintf("mkfs.ext3 -F /dev/%s", req.Device)
+		formatCmd = fmt.Sprintf("mkfs.ext3 -F '/dev/%s'", req.Device)
 	case "xfs":
-		formatCmd = fmt.Sprintf("mkfs.xfs -f /dev/%s", req.Device)
+		formatCmd = fmt.Sprintf("mkfs.xfs -f '/dev/%s'", req.Device)
 	case "btrfs":
-		formatCmd = fmt.Sprintf("mkfs.btrfs -f /dev/%s", req.Device)
+		formatCmd = fmt.Sprintf("mkfs.btrfs -f '/dev/%s'", req.Device)
 	default:
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("unsupported filesystem type: %s", req.FsType))
 		return
@@ -154,7 +147,7 @@ func (s *ToolboxDiskService) CreatePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pvcreate /dev/%s", req.Device); err != nil {
+	if _, err = shell.Execf("pvcreate '/dev/%s'", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create physical volume: %v", err))
 		return
 	}
@@ -170,13 +163,12 @@ func (s *ToolboxDiskService) CreateVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 构建设备列表
 	devices := make([]string, len(req.Devices))
 	for i, dev := range req.Devices {
 		devices[i] = "/dev/" + dev
 	}
 
-	if _, err = shell.Execf("vgcreate %s %s", req.Name, strings.Join(devices, " ")); err != nil {
+	if _, err = shell.Execf("vgcreate '%s' '%s'", req.Name, strings.Join(devices, " ")); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create volume group: %v", err))
 		return
 	}
@@ -199,7 +191,7 @@ func (s *ToolboxDiskService) CreateLV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建逻辑卷
-	if _, err = shell.Execf("lvcreate -L %dG -n %s %s", req.Size, req.Name, req.VGName); err != nil {
+	if _, err = shell.Execf("lvcreate -L '%dG' -n '%s' '%s'", req.Size, req.Name, req.VGName); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create logical volume: %v", err))
 		return
 	}
@@ -215,7 +207,7 @@ func (s *ToolboxDiskService) RemovePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pvremove /dev/%s", req.Device); err != nil {
+	if _, err = shell.Execf("pvremove '/dev/%s'", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove physical volume: %v", err))
 		return
 	}
@@ -231,7 +223,7 @@ func (s *ToolboxDiskService) RemoveVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("vgremove -f %s", req.Name); err != nil {
+	if _, err = shell.Execf("vgremove -f '%s'", req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove volume group: %v", err))
 		return
 	}
@@ -247,7 +239,7 @@ func (s *ToolboxDiskService) RemoveLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("lvremove -f %s", req.Path); err != nil {
+	if _, err = shell.Execf("lvremove -f '%s'", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove logical volume: %v", err))
 		return
 	}
@@ -270,7 +262,7 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 扩容逻辑卷
-	if _, err = shell.Execf("lvextend -L +%dG %s", req.Size, req.Path); err != nil {
+	if _, err = shell.Execf("lvextend -L +%dG '%s'", req.Size, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to extend logical volume: %v", err))
 		return
 	}
@@ -278,21 +270,21 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 	// 扩展文件系统
 	if req.Resize {
 		// 检测文件系统类型并扩展
-		fsType, _ := shell.Execf("blkid -o value -s TYPE %s", req.Path)
+		fsType, _ := shell.Execf("blkid -o value -s TYPE '%s'", req.Path)
 		fsType = strings.TrimSpace(fsType)
 
 		switch fsType {
 		case "ext4", "ext3":
-			if _, err = shell.Execf("resize2fs %s", req.Path); err != nil {
+			if _, err = shell.Execf("resize2fs '%s'", req.Path); err != nil {
 				Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 				return
 			}
 		case "xfs":
 			// XFS需要挂载后才能扩展
-			mountPoint, _ := shell.Execf("findmnt -n -o TARGET %s", req.Path)
+			mountPoint, _ := shell.Execf("findmnt -n -o TARGET '%s'", req.Path)
 			mountPoint = strings.TrimSpace(mountPoint)
 			if mountPoint != "" {
-				if _, err = shell.Execf("xfs_growfs %s", mountPoint); err != nil {
+				if _, err = shell.Execf("xfs_growfs '%s'", mountPoint); err != nil {
 					Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 					return
 				}
@@ -303,11 +295,11 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 			}
 		case "btrfs":
 			// btrfs需要挂载后才能扩展
-			mountPoint, _ := shell.Execf("findmnt -n -o TARGET %s", req.Path)
+			mountPoint, _ := shell.Execf("findmnt -n -o TARGET '%s'", req.Path)
 			mountPoint = strings.TrimSpace(mountPoint)
 			if mountPoint != "" {
 				// 扩展到当前可用的最大空间
-				if _, err = shell.Execf("btrfs filesystem resize max %s", mountPoint); err != nil {
+				if _, err = shell.Execf("btrfs filesystem resize max '%s'", mountPoint); err != nil {
 					Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 					return
 				}
@@ -332,7 +324,6 @@ func (s *ToolboxDiskService) parseLVMOutput(output string) []map[string]string {
 			continue
 		}
 
-		// 使用预编译的正则去除多余空格
 		line = spaceRegex.ReplaceAllString(line, " ")
 
 		fields := strings.Split(line, "|")
