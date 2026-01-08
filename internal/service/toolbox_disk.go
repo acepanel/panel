@@ -44,6 +44,12 @@ func (s *ToolboxDiskService) GetPartitions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// 验证设备名称格式，防止命令注入
+	if !isValidDeviceName(req.Device) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name"))
+		return
+	}
+
 	// 获取指定磁盘的分区信息
 	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL /dev/%s", req.Device)
 	if err != nil {
@@ -59,6 +65,18 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxDiskMount](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 验证设备名称
+	if !isValidDeviceName(req.Device) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name"))
+		return
+	}
+
+	// 验证挂载路径
+	if !isValidPath(req.Path) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid mount path"))
 		return
 	}
 
@@ -86,6 +104,12 @@ func (s *ToolboxDiskService) Umount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证路径
+	if !isValidPath(req.Path) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid path"))
+		return
+	}
+
 	// 卸载分区
 	if _, err = shell.Execf("umount '%s'", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to umount partition: %v", err))
@@ -100,6 +124,12 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxDiskFormat](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 验证设备名称
+	if !isValidDeviceName(req.Device) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name"))
 		return
 	}
 
@@ -155,6 +185,12 @@ func (s *ToolboxDiskService) CreatePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证设备名称
+	if !isValidDeviceName(req.Device) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name"))
+		return
+	}
+
 	if _, err = shell.Execf("pvcreate /dev/%s", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create physical volume: %v", err))
 		return
@@ -169,6 +205,20 @@ func (s *ToolboxDiskService) CreateVG(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
+	}
+
+	// 验证卷组名称
+	if !isValidVGName(req.Name) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid volume group name"))
+		return
+	}
+
+	// 验证所有设备名称
+	for _, dev := range req.Devices {
+		if !isValidDeviceName(dev) {
+			Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name: %s", dev))
+			return
+		}
 	}
 
 	// 构建设备列表
@@ -193,6 +243,12 @@ func (s *ToolboxDiskService) CreateLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证名称
+	if !isValidVGName(req.Name) || !isValidVGName(req.VGName) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid volume name"))
+		return
+	}
+
 	// 创建逻辑卷
 	if _, err = shell.Execf("lvcreate -L %sG -n %s %s", cast.ToString(req.Size), req.Name, req.VGName); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create logical volume: %v", err))
@@ -207,6 +263,12 @@ func (s *ToolboxDiskService) RemovePV(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxDiskDevice](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 验证设备名称
+	if !isValidDeviceName(req.Device) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid device name"))
 		return
 	}
 
@@ -226,6 +288,12 @@ func (s *ToolboxDiskService) RemoveVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证卷组名称
+	if !isValidVGName(req.Name) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid volume group name"))
+		return
+	}
+
 	if _, err = shell.Execf("vgremove -f %s", req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove volume group: %v", err))
 		return
@@ -242,6 +310,12 @@ func (s *ToolboxDiskService) RemoveLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证路径格式（LV路径通常是/dev/vgname/lvname）
+	if !isValidPath(req.Path) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid LV path"))
+		return
+	}
+
 	if _, err = shell.Execf("lvremove -f %s", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove logical volume: %v", err))
 		return
@@ -255,6 +329,12 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxDiskExtendLV](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 验证路径
+	if !isValidPath(req.Path) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid LV path"))
 		return
 	}
 
@@ -318,4 +398,34 @@ func (s *ToolboxDiskService) parseLVMOutput(output string) []map[string]string {
 	}
 
 	return result
+}
+
+// isValidDeviceName 验证设备名称是否合法
+func isValidDeviceName(name string) bool {
+	// 设备名称只能包含字母、数字、下划线、横杠和斜杠
+	match, _ := regexp.MatchString(`^[a-zA-Z0-9_/-]+$`, name)
+	return match && !strings.Contains(name, "..") && !strings.Contains(name, ";")
+}
+
+// isValidPath 验证路径是否合法
+func isValidPath(path string) bool {
+	// 路径必须以/开头，不能包含危险字符
+	if !strings.HasPrefix(path, "/") {
+		return false
+	}
+	// 不能包含单引号、反引号、分号等危险字符
+	dangerousChars := []string{"'", "`", ";", "&", "|", "$", "(", ")", "<", ">"}
+	for _, char := range dangerousChars {
+		if strings.Contains(path, char) {
+			return false
+		}
+	}
+	return true
+}
+
+// isValidVGName 验证卷组名称是否合法
+func isValidVGName(name string) bool {
+	// VG名称只能包含字母、数字、下划线、横杠和点
+	match, _ := regexp.MatchString(`^[a-zA-Z0-9_.-]+$`, name)
+	return match && len(name) > 0 && len(name) <= 128
 }

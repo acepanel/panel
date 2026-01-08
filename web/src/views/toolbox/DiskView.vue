@@ -3,7 +3,10 @@ defineOptions({
   name: 'toolbox-disk'
 })
 
+import { onMounted, ref } from 'vue'
+import { useRequest } from 'alova/client'
 import { useGettext } from 'vue3-gettext'
+
 import disk from '@/api/panel/toolbox-disk'
 
 const { $gettext } = useGettext()
