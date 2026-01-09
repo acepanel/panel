@@ -38,8 +38,23 @@ func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, 
 				return
 			}
 		}
-		// 如果无法 hijack，则返回空响应
-		w.WriteHeader(http.StatusOK)
+		// 如果无法 hijack，回退到 418 错误页
+		fileName := "error/418.html"
+		if locale == "zh_CN" {
+			fileName = "error/418_zh_CN.html"
+		} else if locale == "zh_TW" {
+			fileName = "error/418_zh_TW.html"
+		}
+		content, err := embed.ErrorFS.ReadFile(fileName)
+		if err != nil {
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.WriteHeader(http.StatusTeapot)
+			_, _ = w.Write([]byte("418 I'm a teapot"))
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusTeapot)
+		_, _ = w.Write(content)
 		return
 
 	case EntranceErrorNginx404:

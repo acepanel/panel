@@ -74,7 +74,8 @@ async function handleLogin() {
     window.$message.warning($gettext('Please enter username and password'))
     return
   }
-  if (captchaRequired.value && !captcha_code) {
+  const trimmedCaptcha = captcha_code?.trim() || ''
+  if (captchaRequired.value && !trimmedCaptcha) {
     window.$message.warning($gettext('Please enter captcha code'))
     return
   }
@@ -90,7 +91,7 @@ async function handleLogin() {
       rsaEncrypt(password, String(unref(key))),
       pass_code,
       safe_login,
-      captcha_code
+      trimmedCaptcha
     )
   )
     .onSuccess(async () => {
