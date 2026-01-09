@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-09 19:17\n"
+"PO-Revision-Date: 2026-01-09 21:56\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -31,7 +31,7 @@ msgstr "作者"
 msgid "Accepted Connections"
 msgstr "已接受连接"
 
-#: internal/service/home.go:59
+#: internal/service/home.go:60
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -710,7 +710,7 @@ msgstr "未找到备份文件，无法自动修复"
 msgid "Not supported"
 msgstr "不支持"
 
-#: internal/service/home.go:200
+#: internal/service/home.go:230
 msgid "Not used"
 msgstr "不使用"
 
@@ -1342,17 +1342,17 @@ msgstr "应用 %s 需要面板版本 %s，当前版本 %s"
 msgid "app not found"
 msgstr "应用未找到"
 
-#: internal/data/setting.go:311
-#: internal/data/setting.go:368
-#: internal/data/setting.go:381
+#: internal/data/setting.go:313
+#: internal/data/setting.go:372
+#: internal/data/setting.go:385
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
-#: internal/service/home.go:336
+#: internal/service/home.go:366
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
-#: internal/service/home.go:302
+#: internal/service/home.go:332
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
@@ -1387,7 +1387,7 @@ msgstr "无法初始化系统磁盘"
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/http/middleware/must_login.go:80
+#: internal/http/middleware/must_login.go:81
 msgid "client ip changed, please login again"
 msgstr "客户端 IP 已更改，请重新登录"
 
@@ -1596,7 +1596,7 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
-#: internal/service/home.go:75
+#: internal/service/home.go:76
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
@@ -1650,17 +1650,17 @@ msgstr "获取 redis 状态失败： %v"
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
-#: internal/service/home.go:95
+#: internal/service/home.go:96
 msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
-#: internal/service/home.go:315
+#: internal/service/home.go:345
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
-#: internal/service/home.go:231
-#: internal/service/home.go:267
-#: internal/service/home.go:309
+#: internal/service/home.go:261
+#: internal/service/home.go:297
+#: internal/service/home.go:339
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
@@ -1668,11 +1668,11 @@ msgstr "获取最新版本失败： %v"
 msgid "failed to get the secret key for module %s"
 msgstr "获取模块 %s 的密钥失败"
 
-#: internal/service/home.go:141
+#: internal/service/home.go:171
 msgid "failed to get the total number of websites: %v"
 msgstr "获取网站总数失败： %v"
 
-#: internal/service/home.go:288
+#: internal/service/home.go:318
 msgid "failed to get the update information: %v"
 msgstr "获取更新信息失败： %v"
 
@@ -1698,8 +1698,8 @@ msgid "failed to mount partition: %v"
 msgstr "无法挂载分区：%v"
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:316
-#: internal/data/setting.go:384
+#: internal/data/setting.go:318
+#: internal/data/setting.go:388
 #: internal/data/website.go:507
 #: internal/data/website.go:755
 msgid "failed to parse certificate: %v"
@@ -1710,8 +1710,8 @@ msgid "failed to parse disk list: %v"
 msgstr "无法解析磁盘列表：%v"
 
 #: internal/data/cert.go:98
-#: internal/data/setting.go:319
-#: internal/data/setting.go:387
+#: internal/data/setting.go:321
+#: internal/data/setting.go:391
 #: internal/data/website.go:510
 #: internal/data/website.go:758
 msgid "failed to parse private key: %v"
@@ -1722,10 +1722,10 @@ msgstr "解析私钥失败： %v"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "解析 fail2ban 的 ignoreip 失败"
 
-#: internal/service/home.go:237
-#: internal/service/home.go:242
-#: internal/service/home.go:273
-#: internal/service/home.go:278
+#: internal/service/home.go:267
+#: internal/service/home.go:272
+#: internal/service/home.go:303
+#: internal/service/home.go:308
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
@@ -1906,19 +1906,19 @@ msgstr "获取服务端口失败，请检查是否安装"
 
 #: internal/data/user.go:180
 #: internal/data/user.go:199
-#: internal/service/user.go:97
+#: internal/service/user.go:143
 msgid "invalid 2FA code"
 msgstr "无效的两步验证代码"
 
-#: internal/http/middleware/entrance.go:125
-msgid "invalid access entrance"
-msgstr "无效的访问入口"
+#: internal/service/user.go:120
+msgid "invalid captcha code"
+msgstr "验证码无效"
 
 #: internal/data/user_token.go:104
 msgid "invalid header: %v"
 msgstr "无效的请求头： %v"
 
-#: internal/service/user.go:83
+#: internal/service/user.go:128
 msgid "invalid key, please refresh the page"
 msgstr "无效的密钥，请刷新页面"
 
@@ -1926,18 +1926,9 @@ msgstr "无效的密钥，请刷新页面"
 msgid "invalid logical volume size"
 msgstr "无效的逻辑卷大小"
 
-#: internal/http/middleware/entrance.go:44
-msgid "invalid request domain: %s"
-msgstr "无效的请求域名：%s"
-
 #: internal/data/user_token.go:176
-#: internal/http/middleware/entrance.go:80
 msgid "invalid request ip: %s"
 msgstr "无效的请求 IP：%s"
-
-#: internal/http/middleware/entrance.go:85
-msgid "invalid request user agent: %s"
-msgstr "无效的请求UA：%s"
 
 #: internal/data/user_token.go:107
 #: internal/data/user_token.go:113
@@ -1949,7 +1940,7 @@ msgstr "无效的签名"
 msgid "invalid size"
 msgstr "无效的大小"
 
-#: internal/http/middleware/must_login.go:104
+#: internal/http/middleware/must_login.go:105
 msgid "invalid user id, please login again"
 msgstr "无效的用户ID，请重新登录"
 
@@ -2060,7 +2051,7 @@ msgstr "请重新操作手动签发"
 msgid "please set public ips first"
 msgstr "请先设置公网 IP 地址"
 
-#: internal/data/setting.go:336
+#: internal/data/setting.go:338
 msgid "port is already in use"
 msgstr "端口已被占用"
 
@@ -2084,7 +2075,7 @@ msgstr "找不到规则"
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
-#: internal/http/middleware/must_login.go:60
+#: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
 msgstr "会话已过期，请重新登录"
 
@@ -2113,7 +2104,7 @@ msgstr "目标是一个目录"
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
-#: internal/service/home.go:282
+#: internal/service/home.go:312
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
@@ -2138,12 +2129,12 @@ msgstr "此证书未与 ACME 帐户关联，无法签发"
 msgid "token expired"
 msgstr "令牌已过期"
 
-#: internal/service/home.go:223
-#: internal/service/home.go:259
+#: internal/service/home.go:253
+#: internal/service/home.go:289
 msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
-#: internal/service/home.go:297
+#: internal/service/home.go:327
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
@@ -2230,7 +2221,7 @@ msgstr "通配符域名不能使用 HTTP 验证"
 msgid "write file error: %v"
 msgstr "写入文件错误：%v"
 
-#: internal/http/middleware/must_login.go:50
+#: internal/http/middleware/must_login.go:51
 msgid "ws not allowed"
 msgstr "不允许 ws"
 
