@@ -5,10 +5,11 @@ type UserID struct {
 }
 
 type UserLogin struct {
-	Username  string `json:"username" validate:"required"` // encrypted with RSA-OAEP
-	Password  string `json:"password" validate:"required"` // encrypted with RSA-OAEP
-	SafeLogin bool   `json:"safe_login"`
-	PassCode  string `json:"pass_code"`
+	Username    string `json:"username" validate:"required"` // encrypted with RSA-OAEP
+	Password    string `json:"password" validate:"required"` // encrypted with RSA-OAEP
+	SafeLogin   bool   `json:"safe_login"`
+	PassCode    string `json:"pass_code"`
+	CaptchaCode string `json:"captcha_code"` // 验证码
 }
 
 type UserIsTwoFA struct {

@@ -26,6 +26,8 @@ const { data: model } = useRequest(setting.list, {
     locale: 'en',
     port: 8888,
     entrance: '',
+    entrance_error: '418',
+    login_captcha: false,
     offline_mode: false,
     two_fa: false,
     lifetime: 0,

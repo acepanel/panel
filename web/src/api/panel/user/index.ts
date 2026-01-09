@@ -3,13 +3,22 @@ import { http } from '@/utils'
 export default {
   // 公钥
   key: () => http.Get('/user/key'),
+  // 获取验证码
+  captcha: () => http.Get('/user/captcha'),
   // 登录
-  login: (username: string, password: string, pass_code: string, safe_login: boolean) =>
+  login: (
+    username: string,
+    password: string,
+    pass_code: string,
+    safe_login: boolean,
+    captcha_code: string
+  ) =>
     http.Post('/user/login', {
       username,
       password,
       pass_code,
-      safe_login
+      safe_login,
+      captcha_code
     }),
   // 登出
   logout: () => http.Post('/user/logout'),

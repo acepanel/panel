@@ -248,27 +248,29 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	}
 
 	return &request.SettingPanel{
-		Name:        name,
-		Channel:     channel,
-		Locale:      r.conf.App.Locale,
-		Entrance:    r.conf.HTTP.Entrance,
-		OfflineMode: offlineMode,
-		AutoUpdate:  autoUpdate,
-		Lifetime:    r.conf.Session.Lifetime,
-		IPHeader:    r.conf.HTTP.IPHeader,
-		BindDomain:  r.conf.HTTP.BindDomain,
-		BindIP:      r.conf.HTTP.BindIP,
-		BindUA:      r.conf.HTTP.BindUA,
-		WebsitePath: websitePath,
-		BackupPath:  backupPath,
-		HiddenMenu:  hiddenMenu,
-		CustomLogo:  customLogo,
-		Port:        r.conf.HTTP.Port,
-		HTTPS:       r.conf.HTTP.TLS,
-		ACME:        r.conf.HTTP.ACME,
-		PublicIP:    publicIP,
-		Cert:        crt,
-		Key:         key,
+		Name:          name,
+		Channel:       channel,
+		Locale:        r.conf.App.Locale,
+		Entrance:      r.conf.HTTP.Entrance,
+		EntranceError: r.conf.HTTP.EntranceError,
+		LoginCaptcha:  r.conf.HTTP.LoginCaptcha,
+		OfflineMode:   offlineMode,
+		AutoUpdate:    autoUpdate,
+		Lifetime:      r.conf.Session.Lifetime,
+		IPHeader:      r.conf.HTTP.IPHeader,
+		BindDomain:    r.conf.HTTP.BindDomain,
+		BindIP:        r.conf.HTTP.BindIP,
+		BindUA:        r.conf.HTTP.BindUA,
+		WebsitePath:   websitePath,
+		BackupPath:    backupPath,
+		HiddenMenu:    hiddenMenu,
+		CustomLogo:    customLogo,
+		Port:          r.conf.HTTP.Port,
+		HTTPS:         r.conf.HTTP.TLS,
+		ACME:          r.conf.HTTP.ACME,
+		PublicIP:      publicIP,
+		Cert:          crt,
+		Key:           key,
 	}, nil
 }
 
@@ -354,6 +356,8 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	conf.App.Locale = req.Locale
 	conf.HTTP.Port = req.Port
 	conf.HTTP.Entrance = req.Entrance
+	conf.HTTP.EntranceError = req.EntranceError
+	conf.HTTP.LoginCaptcha = req.LoginCaptcha
 	conf.HTTP.TLS = req.HTTPS
 	conf.HTTP.ACME = req.ACME
 	conf.HTTP.IPHeader = req.IPHeader

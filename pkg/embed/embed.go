@@ -10,3 +10,6 @@ var WebsiteFS embed.FS
 
 //go:embed all:locales/*
 var LocalesFS embed.FS
+
+//go:embed all:error/*
+var ErrorFS embed.FS

@@ -20,13 +20,15 @@ interface LoginInfo {
   password: string
   safe_login: boolean
   pass_code: string
+  captcha_code: string
 }
 
 const loginInfo = ref<LoginInfo>({
   username: '',
   password: '',
   safe_login: true,
-  pass_code: ''
+  pass_code: '',
+  captcha_code: ''
 })
 
 const localLoginInfo = getLocal('loginInfo') as LoginInfo
@@ -41,12 +43,39 @@ const logining = ref<boolean>(false)
 const isRemember = useStorage('isRemember', false)
 const showTwoFA = ref(false)
 
+// 验证码相关
+const captchaRequired = ref(false)
+const captchaImage = ref('')
+
 const logo = computed(() => themeStore.logo || logoImg)
 
+// 刷新验证码
+const refreshCaptcha = () => {
+  useRequest(user.captcha())
+    .onSuccess(({ data }) => {
+      captchaRequired.value = Boolean(data.required)
+      captchaImage.value = data.image || ''
+      loginInfo.value.captcha_code = ''
+    })
+    .onError(() => {
+      captchaRequired.value = false
+      captchaImage.value = ''
+    })
+}
+
+// 初始加载验证码
+onMounted(() => {
+  refreshCaptcha()
+})
+
 async function handleLogin() {
-  const { username, password, pass_code, safe_login } = loginInfo.value
+  const { username, password, pass_code, safe_login, captcha_code } = loginInfo.value
   if (!username || !password) {
     window.$message.warning($gettext('Please enter username and password'))
+    return
+  }
+  if (captchaRequired.value && !captcha_code) {
+    window.$message.warning($gettext('Please enter captcha code'))
     return
   }
   if (!key) {
@@ -60,29 +89,35 @@ async function handleLogin() {
       rsaEncrypt(username, String(unref(key))),
       rsaEncrypt(password, String(unref(key))),
       pass_code,
-      safe_login
+      safe_login,
+      captcha_code
     )
-  ).onSuccess(async () => {
-    logining.value = true
-    window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
-    if (isRemember.value) {
-      setLocal('loginInfo', { username, password })
-    } else {
-      removeLocal('loginInfo')
-    }
+  )
+    .onSuccess(async () => {
+      logining.value = true
+      window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
+      if (isRemember.value) {
+        setLocal('loginInfo', { username, password })
+      } else {
+        removeLocal('loginInfo')
+      }
 
-    await addDynamicRoutes()
-    useRequest(user.info()).onSuccess(({ data }) => {
-      userStore.set(data as any)
+      await addDynamicRoutes()
+      useRequest(user.info()).onSuccess(({ data }) => {
+        userStore.set(data as any)
+      })
+      if (query.redirect) {
+        const path = query.redirect as string
+        Reflect.deleteProperty(query, 'redirect')
+        await router.push({ path, query })
+      } else {
+        await router.push('/')
+      }
     })
-    if (query.redirect) {
-      const path = query.redirect as string
-      Reflect.deleteProperty(query, 'redirect')
-      await router.push({ path, query })
-    } else {
-      await router.push('/')
-    }
-  })
+    .onError(() => {
+      // 登录失败后刷新验证码状态
+      refreshCaptcha()
+    })
   logining.value = false
 }
 
@@ -154,6 +189,26 @@ watch(isLogin, async () => {
             type="text"
             @keydown.enter="handleLogin"
           />
+        </div>
+        <div v-if="captchaRequired" mt-30>
+          <n-flex align="center">
+            <n-input
+              v-model:value="loginInfo.captcha_code"
+              :maxlength="4"
+              class="text-16 pl-10 h-50 items-center"
+              style="flex: 1"
+              :placeholder="$gettext('Captcha Code')"
+              type="text"
+              @keydown.enter="handleLogin"
+            />
+            <n-image
+              :src="'data:image/png;base64,' + captchaImage"
+              preview-disabled
+              class="cursor-pointer h-50"
+              style="border-radius: 4px"
+              @click="refreshCaptcha"
+            />
+          </n-flex>
         </div>
 
         <div mt-20>

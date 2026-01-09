@@ -136,6 +136,7 @@ func (route *Http) Register(r *chi.Mux) {
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
 			r.Get("/key", route.user.GetKey)
+			r.Get("/captcha", route.user.GetCaptcha)
 			r.With(middleware.Throttle(route.conf.HTTP.IPHeader, 5, time.Minute)).Post("/login", route.user.Login)
 			r.Post("/logout", route.user.Logout)
 			r.Get("/is_login", route.user.IsLogin)
