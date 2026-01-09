@@ -77,10 +77,7 @@ func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 获取登录失败次数
 	failCount := cast.ToInt(sess.Get("login_fail_count"))
-
-	// 如果未启用登录验证码或失败次数未达到阈值，返回不需要验证码
 	if !s.conf.HTTP.LoginCaptcha || failCount < loginFailThreshold {
 		Success(w, chix.M{
 			"required": false,
@@ -88,20 +85,15 @@ func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 生成验证码 ID
-	captchaID := captcha.NewLen(4) // 4 位验证码
-
-	// 将验证码 ID 存储到 session 中
+	captchaID := captcha.NewLen(4)
 	sess.Put("captcha_id", captchaID)
 
-	// 生成验证码图片
 	var buf bytes.Buffer
 	if err := captcha.WriteImage(&buf, captchaID, 150, 50); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	// 返回 base64 编码的图片
 	Success(w, chix.M{
 		"required": true,
 		"image":    base64.StdEncoding.EncodeToString(buf.Bytes()),
@@ -121,17 +113,13 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 获取登录失败次数
 	failCount := cast.ToInt(sess.Get("login_fail_count"))
-
-	// 如果启用了验证码且失败次数达到阈值，验证验证码
 	if s.conf.HTTP.LoginCaptcha && failCount >= loginFailThreshold {
 		captchaID, ok := sess.Get("captcha_id").(string)
 		if !ok || captchaID == "" || !captcha.VerifyString(captchaID, req.CaptchaCode) {
 			Error(w, http.StatusForbidden, s.t.Get("invalid captcha code"))
 			return
 		}
-		// 验证后清除验证码，防止重复使用
 		sess.Forget("captcha_id")
 	}
 
@@ -145,7 +133,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
 	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
 	if err != nil {
-		// 登录失败，增加失败计数
 		sess.Put("login_fail_count", failCount+1)
 		Error(w, http.StatusForbidden, "%v", err)
 		return
@@ -187,6 +174,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	sess.Put("user_id", user.ID)
 	sess.Put("refresh_at", time.Now().Unix())
 	sess.Forget("key")
+	sess.Forget("login_fail_count")
 	Success(w, nil)
 }
 

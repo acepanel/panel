@@ -23,6 +23,7 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 	// 白名单
 	whiteList := []string{
 		"/api/user/key",
+		"/api/user/captcha",
 		"/api/user/login",
 		"/api/user/logout",
 		"/api/user/is_login",

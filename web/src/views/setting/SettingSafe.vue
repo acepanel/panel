@@ -29,19 +29,6 @@ const httpsMode = computed({
     }
   }
 })
-
-const httpsModeOptions = computed(() => [
-  { label: $gettext('Disabled'), value: 'off' },
-  { label: $gettext('ACME (Auto)'), value: 'acme' },
-  { label: $gettext('Custom Certificate'), value: 'custom' }
-])
-
-// 安全入口错误页伪装类型选项
-const entranceErrorOptions = computed(() => [
-  { label: $gettext('418 I\'m a teapot'), value: '418' },
-  { label: $gettext('Nginx 404'), value: 'nginx' },
-  { label: $gettext('Close Connection'), value: 'close' }
-])
 </script>
 
 <template>
@@ -111,8 +98,12 @@ const entranceErrorOptions = computed(() => [
         </template>
         <n-select
           v-model:value="model.entrance_error"
-          :options="entranceErrorOptions"
-          :placeholder="$gettext('418 I\'m a teapot')"
+          :options="[
+            { label: $gettext(`418 I'm a teapot`), value: '418' },
+            { label: $gettext('Nginx 404'), value: 'nginx' },
+            { label: $gettext('Close Connection'), value: 'close' }
+          ]"
+          :placeholder="$gettext(`418 I'm a teapot`)"
         />
       </n-form-item>
       <n-form-item>
@@ -267,7 +258,11 @@ const entranceErrorOptions = computed(() => [
         </template>
         <n-radio-group v-model:value="httpsMode">
           <n-radio-button
-            v-for="option in httpsModeOptions"
+            v-for="option in [
+              { label: $gettext('Disabled'), value: 'off' },
+              { label: $gettext('ACME (Auto)'), value: 'acme' },
+              { label: $gettext('Custom Certificate'), value: 'custom' }
+            ]"
             :key="option.value"
             :value="option.value"
             :label="option.label"

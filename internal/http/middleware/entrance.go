@@ -16,83 +16,6 @@ import (
 	"github.com/acepanel/panel/pkg/punycode"
 )
 
-// EntranceError 入口错误页面伪装类型
-const (
-	EntranceErrorTeapot   = "418"   // 418 I'm a teapot
-	EntranceErrorNginx404 = "nginx" // Nginx 404 错误页
-	EntranceErrorClose    = "close" // 直接关闭连接（类似 Nginx 444）
-)
-
-// abortEntrance 根据配置的错误页面伪装类型返回错误响应
-func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, locale string) {
-	errorType := conf.HTTP.EntranceError
-
-	switch errorType {
-	case EntranceErrorClose:
-		// 直接关闭连接，不返回任何内容
-		hj, ok := w.(http.Hijacker)
-		if ok {
-			conn, _, err := hj.Hijack()
-			if err == nil {
-				_ = conn.Close()
-				return
-			}
-		}
-		// 如果无法 hijack，回退到 418 错误页
-		fileName := "error/418.html"
-		if locale == "zh_CN" {
-			fileName = "error/418_zh_CN.html"
-		} else if locale == "zh_TW" {
-			fileName = "error/418_zh_TW.html"
-		}
-		content, err := embed.ErrorFS.ReadFile(fileName)
-		if err != nil {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(http.StatusTeapot)
-			_, _ = w.Write([]byte("418 I'm a teapot"))
-			return
-		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(http.StatusTeapot)
-		_, _ = w.Write(content)
-		return
-
-	case EntranceErrorNginx404:
-		// 返回 Nginx 风格的 404 页面
-		content, err := embed.ErrorFS.ReadFile("error/nginx_404.html")
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Header().Set("Server", "nginx")
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write(content)
-		return
-
-	default:
-		// 默认返回 418 I'm a teapot 页面
-		fileName := "error/418.html"
-		if locale == "zh_CN" {
-			fileName = "error/418_zh_CN.html"
-		} else if locale == "zh_TW" {
-			fileName = "error/418_zh_TW.html"
-		}
-		content, err := embed.ErrorFS.ReadFile(fileName)
-		if err != nil {
-			// 如果读取失败，返回简单的 418 响应
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(http.StatusTeapot)
-			_, _ = w.Write([]byte("418 I'm a teapot"))
-			return
-		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(http.StatusTeapot)
-		_, _ = w.Write(content)
-		return
-	}
-}
-
 // Entrance 确保通过正确的入口访问
 func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -206,5 +129,45 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, locale string) {
+	errorType := conf.HTTP.EntranceError
+
+	switch errorType {
+	case "close":
+		hj, ok := w.(http.Hijacker)
+		if ok {
+			conn, _, err := hj.Hijack()
+			if err == nil {
+				_ = conn.Close()
+				return
+			}
+		}
+		// 如果无法 hijack，则返回空响应
+		w.WriteHeader(http.StatusTeapot)
+		return
+	case "nginx":
+		content, err := embed.ErrorFS.ReadFile("error/nginx_404.html")
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Server", "nginx")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write(content)
+		return
+	default:
+		fileName := "error/418.html"
+		if locale == "zh_CN" {
+			fileName = "error/418_zh_CN.html"
+		}
+		content, _ := embed.ErrorFS.ReadFile(fileName)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusTeapot)
+		_, _ = w.Write(content)
+		return
 	}
 }
