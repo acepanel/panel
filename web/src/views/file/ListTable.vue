@@ -66,13 +66,13 @@ const unCompressModel = ref({
   file: ''
 })
 
-// 检查文件是否有 immutable 属性，如果有则弹出确认对话框
+// 检查是否有 immutable 属性，如果有则弹出确认对话框
 const confirmImmutableOperation = (row: any, operation: string, callback: () => void) => {
   if (row.immutable) {
     window.$dialog.warning({
       title: $gettext('Warning'),
       content: $gettext(
-        'The file %{ name } has immutable attribute. The system will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
+        '%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
         { name: row.name }
       ),
       positiveText: $gettext('Continue'),

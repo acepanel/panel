@@ -497,7 +497,7 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 			size = tools.FormatBytes(float64(info.Size()))
 		}
 
-		// 检查文件是否有 immutable 属性
+		// 检查是否有 immutable 属性
 		fullPath := filepath.Join(base, info.Name())
 		immutable := false
 		if f, err := stdos.OpenFile(fullPath, stdos.O_RDONLY, 0); err == nil {
