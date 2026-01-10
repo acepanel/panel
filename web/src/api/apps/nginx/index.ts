@@ -10,5 +10,22 @@ export default {
   // 获取错误日志
   errorLog: (): any => http.Get('/apps/nginx/error_log'),
   // 清空错误日志
-  clearErrorLog: (): any => http.Post('/apps/nginx/clear_error_log')
+  clearErrorLog: (): any => http.Post('/apps/nginx/clear_error_log'),
+
+  // Stream Server 接口
+  stream: {
+    // Server 相关
+    listServers: (): any => http.Get('/apps/nginx/stream/servers'),
+    createServer: (data: any): any => http.Post('/apps/nginx/stream/servers', data),
+    getServer: (name: string): any => http.Get(`/apps/nginx/stream/servers/${name}`),
+    updateServer: (name: string, data: any): any => http.Put(`/apps/nginx/stream/servers/${name}`, data),
+    deleteServer: (name: string): any => http.Delete(`/apps/nginx/stream/servers/${name}`),
+
+    // Upstream 相关
+    listUpstreams: (): any => http.Get('/apps/nginx/stream/upstreams'),
+    createUpstream: (data: any): any => http.Post('/apps/nginx/stream/upstreams', data),
+    getUpstream: (name: string): any => http.Get(`/apps/nginx/stream/upstreams/${name}`),
+    updateUpstream: (name: string, data: any): any => http.Put(`/apps/nginx/stream/upstreams/${name}`, data),
+    deleteUpstream: (name: string): any => http.Delete(`/apps/nginx/stream/upstreams/${name}`)
+  }
 }

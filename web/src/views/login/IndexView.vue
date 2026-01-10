@@ -205,7 +205,7 @@ watch(isLogin, async () => {
             <n-image
               :src="'data:image/png;base64,' + captchaImage"
               preview-disabled
-              class="cursor-pointer h-50"
+              class="h-50 cursor-pointer"
               style="border-radius: 4px"
               @click="refreshCaptcha"
             />
