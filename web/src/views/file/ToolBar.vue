@@ -3,7 +3,6 @@ import file from '@/api/panel/file'
 import { checkName, lastDirectory } from '@/utils/file'
 import UploadModal from '@/views/file/UploadModal.vue'
 import type { Marked } from '@/views/file/types'
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()

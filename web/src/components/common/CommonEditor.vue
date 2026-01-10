@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useThemeVars } from 'naive-ui'
-
 import { useThemeStore } from '@/store'
 import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
+import { useThemeVars } from 'naive-ui'
 
 const value = defineModel<string>('value', { type: String, required: true })
 const props = defineProps({
@@ -95,10 +94,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    class="common-editor"
-    :style="{ height: props.height, borderColor: themeVars.borderColor }"
-  >
+  <div class="common-editor" :style="{ height: props.height, borderColor: themeVars.borderColor }">
     <div v-if="loading" class="editor-loading">
       <n-spin size="medium" />
     </div>

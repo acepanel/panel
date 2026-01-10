@@ -127,16 +127,21 @@ const handleSubmit = () => {
   doSubmit.value = true
 
   // 检查镜像是否存在
-  useRequest(container.imageExist(createModel.image)).onSuccess(({ data }) => {
-    if (data) {
-      // 镜像存在，直接创建容器
-      createContainer()
-    } else {
-      // 镜像不存在，显示拉取弹窗
-      doSubmit.value = false
-      showPullModal.value = true
-    }
-  })
+  useRequest(container.imageExist(createModel.image))
+    .onSuccess(({ data }) => {
+      if (data) {
+        // 镜像存在，直接创建容器
+        createContainer()
+      } else {
+        // 镜像不存在，显示拉取弹窗
+        showPullModal.value = true
+      }
+    })
+    .onComplete(() => {
+      if (!showPullModal.value) {
+        doSubmit.value = false
+      }
+    })
 }
 
 const resetForm = () => {

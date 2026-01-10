@@ -190,7 +190,11 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	_, message, _ := ws.Read(ctx)
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
 	var req request.ContainerImagePull
 	if err = json.Unmarshal(message, &req); err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
