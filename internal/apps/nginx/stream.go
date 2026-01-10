@@ -34,28 +34,18 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查配置文件是否已存在
 	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", req.Name))
 	if _, statErr := os.Stat(configPath); statErr == nil {
 		service.Error(w, http.StatusConflict, s.t.Get("stream server config already exists: %s", req.Name))
 		return
 	}
 
-	// 确保目录存在
-	if err = os.MkdirAll(s.streamDir(), 0755); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create stream directory: %v", err))
-		return
-	}
-
-	// 使用 parser 生成配置并保存
 	if err = s.saveStreamServerConfig(configPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
 		return
 	}
 
-	// 重载 nginx
 	if err = systemctl.Reload("nginx"); err != nil {
-		// 删除刚创建的配置文件
 		_ = os.Remove(configPath)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -78,14 +68,12 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查配置文件是否存在
 	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", name))
 	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
 		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
 		return
 	}
 
-	// 如果名称变更，需要重命名文件
 	newConfigPath := configPath
 	if req.Name != name {
 		newConfigPath = filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", req.Name))
@@ -95,18 +83,15 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// 使用 parser 生成配置并保存
 	if err = s.saveStreamServerConfig(newConfigPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
 		return
 	}
 
-	// 删除旧配置文件（如果名称变更）
 	if newConfigPath != configPath {
 		_ = os.Remove(configPath)
 	}
 
-	// 重载 nginx
 	if err = systemctl.Reload("nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -134,7 +119,6 @@ func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重载 nginx
 	if err := systemctl.Reload("nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -161,28 +145,18 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查配置文件是否已存在
 	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", req.Name))
 	if _, statErr := os.Stat(configPath); statErr == nil {
 		service.Error(w, http.StatusConflict, s.t.Get("stream upstream config already exists: %s", req.Name))
 		return
 	}
 
-	// 确保目录存在
-	if err = os.MkdirAll(s.streamDir(), 0755); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create stream directory: %v", err))
-		return
-	}
-
-	// 使用 parser 生成配置并保存
 	if err = s.saveStreamUpstreamConfig(configPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
 		return
 	}
 
-	// 重载 nginx
 	if err = systemctl.Reload("nginx"); err != nil {
-		// 删除刚创建的配置文件
 		_ = os.Remove(configPath)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -205,14 +179,12 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查配置文件是否存在
 	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", name))
 	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
 		service.Error(w, http.StatusNotFound, s.t.Get("stream upstream not found: %s", name))
 		return
 	}
 
-	// 如果名称变更，需要重命名文件
 	newConfigPath := configPath
 	if req.Name != name {
 		newConfigPath = filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", req.Name))
@@ -222,18 +194,15 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// 使用 parser 生成配置并保存
 	if err = s.saveStreamUpstreamConfig(newConfigPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
 		return
 	}
 
-	// 删除旧配置文件（如果名称变更）
 	if newConfigPath != configPath {
 		_ = os.Remove(configPath)
 	}
 
-	// 重载 nginx
 	if err = systemctl.Reload("nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -261,7 +230,6 @@ func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重载 nginx
 	if err := systemctl.Reload("nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -288,7 +256,6 @@ func (s *App) parseStreamServers() ([]StreamServer, error) {
 		if strings.HasPrefix(fileName, "upstream_") {
 			continue
 		}
-
 		if !strings.HasSuffix(fileName, ".conf") {
 			continue
 		}
@@ -312,7 +279,7 @@ func (s *App) parseStreamServers() ([]StreamServer, error) {
 	return servers, nil
 }
 
-// parseStreamServerFile 使用 parser 解析单个 Stream Server 配置文件
+// parseStreamServerFile 解析单个 Stream Server 配置文件
 func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer, error) {
 	p, err := webserverNginx.NewParserFromFile(filePath)
 	if err != nil {
@@ -339,7 +306,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			}
 		}
 	}
-
 	// 解析 proxy_pass 指令
 	proxyPassDir, err := p.FindOne("server.proxy_pass")
 	if err == nil {
@@ -348,7 +314,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			server.ProxyPass = params[0].Value
 		}
 	}
-
 	// 解析 proxy_protocol 指令
 	proxyProtocolDir, err := p.FindOne("server.proxy_protocol")
 	if err == nil {
@@ -357,7 +322,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			server.ProxyProtocol = true
 		}
 	}
-
 	// 解析 proxy_timeout 指令
 	proxyTimeoutDir, err := p.FindOne("server.proxy_timeout")
 	if err == nil {
@@ -366,7 +330,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			server.ProxyTimeout = parseNginxDuration(params[0].Value)
 		}
 	}
-
 	// 解析 proxy_connect_timeout 指令
 	proxyConnectTimeoutDir, err := p.FindOne("server.proxy_connect_timeout")
 	if err == nil {
@@ -375,7 +338,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			server.ProxyConnectTimeout = parseNginxDuration(params[0].Value)
 		}
 	}
-
 	// 解析 ssl_certificate 指令
 	sslCertDir, err := p.FindOne("server.ssl_certificate")
 	if err == nil {
@@ -384,7 +346,6 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 			server.SSLCertificate = params[0].Value
 		}
 	}
-
 	// 解析 ssl_certificate_key 指令
 	sslKeyDir, err := p.FindOne("server.ssl_certificate_key")
 	if err == nil {
@@ -415,7 +376,6 @@ func (s *App) parseStreamUpstreams() ([]StreamUpstream, error) {
 		if !strings.HasPrefix(fileName, "upstream_") {
 			continue
 		}
-
 		if !strings.HasSuffix(fileName, ".conf") {
 			continue
 		}
@@ -440,7 +400,7 @@ func (s *App) parseStreamUpstreams() ([]StreamUpstream, error) {
 	return upstreams, nil
 }
 
-// parseStreamUpstreamFile 使用 parser 解析单个 Stream Upstream 配置文件
+// parseStreamUpstreamFile 解析单个 Stream Upstream 配置文件
 func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*StreamUpstream, error) {
 	p, err := webserverNginx.NewParserFromFile(filePath)
 	if err != nil {
@@ -514,9 +474,8 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 	return upstream, nil
 }
 
-// saveStreamServerConfig 使用 parser 生成并保存 Stream Server 配置
+// saveStreamServerConfig 生成并保存 Stream Server 配置
 func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) error {
-	// 创建空配置的 parser
 	p, err := webserverNginx.NewParserFromString("server {}")
 	if err != nil {
 		return err
@@ -534,33 +493,28 @@ func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) erro
 	if err = p.SetOne("server.listen", listenParams); err != nil {
 		return err
 	}
-
 	// proxy_pass 指令
 	if err = p.SetOne("server.proxy_pass", []string{server.ProxyPass}); err != nil {
 		return err
 	}
-
 	// proxy_protocol 指令
 	if server.ProxyProtocol {
 		if err = p.SetOne("server.proxy_protocol", []string{"on"}); err != nil {
 			return err
 		}
 	}
-
 	// proxy_timeout 指令
 	if server.ProxyTimeout > 0 {
 		if err = p.SetOne("server.proxy_timeout", []string{formatNginxDuration(server.ProxyTimeout)}); err != nil {
 			return err
 		}
 	}
-
 	// proxy_connect_timeout 指令
 	if server.ProxyConnectTimeout > 0 {
 		if err = p.SetOne("server.proxy_connect_timeout", []string{formatNginxDuration(server.ProxyConnectTimeout)}); err != nil {
 			return err
 		}
 	}
-
 	// SSL 配置
 	if server.SSL {
 		if server.SSLCertificate != "" {
@@ -578,7 +532,7 @@ func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) erro
 	return os.WriteFile(filePath, []byte(p.Dump()), 0600)
 }
 
-// saveStreamUpstreamConfig 使用 parser 生成并保存 Stream Upstream 配置
+// saveStreamUpstreamConfig 生成并保存 Stream Upstream 配置
 func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream) error {
 	// 创建空配置的 parser
 	p, err := webserverNginx.NewParserFromString(fmt.Sprintf("upstream %s {}", upstream.Name))
