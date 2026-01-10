@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-10 11:31\n"
+"PO-Revision-Date: 2026-01-10 12:46\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -1414,7 +1414,7 @@ msgstr ""
 msgid "directory %s does not exist"
 msgstr "目錄 %s 不存在"
 
-#: internal/service/toolbox_system.go:133
+#: internal/service/toolbox_system.go:128
 msgid "disk space is insufficient, current free %s"
 msgstr "磁盤空間不足，當前可用 %s"
 
@@ -1567,8 +1567,7 @@ msgstr "無法獲取 PostgreSQL 進程：%v"
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 
-#: internal/service/toolbox_system.go:71
-#: internal/service/toolbox_system.go:84
+#: internal/service/toolbox_system.go:78
 msgid "failed to get SWAP: %v"
 msgstr "無法獲取 SWAP：%v"
 
@@ -1580,7 +1579,7 @@ msgstr "無法獲取 ZeroSSL EAB"
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法獲取 ZeroSSL EAB：%v"
 
-#: internal/service/toolbox_system.go:185
+#: internal/service/toolbox_system.go:180
 msgid "failed to get available timezones: %v"
 msgstr "無法獲取可用時區：%v"
 
@@ -1596,7 +1595,7 @@ msgstr "無法獲取當前被禁止的列表"
 msgid "failed to get disk list: %v"
 msgstr ""
 
-#: internal/service/toolbox_system.go:129
+#: internal/service/toolbox_system.go:124
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
 
@@ -1684,7 +1683,7 @@ msgstr "無法獲取網站總數：%v"
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
-#: internal/service/toolbox_system.go:174
+#: internal/service/toolbox_system.go:169
 msgid "failed to get timezone: %v"
 msgstr "無法獲取時區：%v"
 
@@ -1837,15 +1836,15 @@ msgstr "運行命令失敗：%v"
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 
-#: internal/service/toolbox_system.go:153
+#: internal/service/toolbox_system.go:148
 msgid "failed to set SWAP permission: %v"
 msgstr "設置 SWAP 權限失敗： %v"
 
-#: internal/service/toolbox_system.go:273
+#: internal/service/toolbox_system.go:268
 msgid "failed to set hostname: %v"
 msgstr "設置主機名失敗： %v"
 
-#: internal/service/toolbox_system.go:296
+#: internal/service/toolbox_system.go:291
 msgid "failed to set hosts: %v"
 msgstr "設置 hosts 失敗： %v"
 
