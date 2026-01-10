@@ -34,6 +34,22 @@ func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *ContainerImageService) Exist(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerImagePull](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	exist, err := s.containerImageRepo.Exist(req.Name)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, exist)
+}
+
 func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerImagePull](r)
 	if err != nil {

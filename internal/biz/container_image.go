@@ -7,6 +7,7 @@ import (
 
 type ContainerImageRepo interface {
 	List() ([]types.ContainerImage, error)
+	Exist(name string) (bool, error)
 	Pull(req *request.ContainerImagePull) error
 	Remove(id string) error
 	Prune() error

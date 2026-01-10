@@ -391,6 +391,7 @@ func (route *Http) Register(r *chi.Mux) {
 			})
 			r.Route("/image", func(r chi.Router) {
 				r.Get("/", route.containerImage.List)
+				r.Get("/exist", route.containerImage.Exist)
 				r.Post("/", route.containerImage.Pull)
 				r.Delete("/{id}", route.containerImage.Remove)
 				r.Post("/prune", route.containerImage.Prune)

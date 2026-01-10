@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
+import ws from '@/api/ws'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -15,6 +16,26 @@ const pullModel = ref({
 })
 const pullModal = ref(false)
 const selectedRowKeys = ref<any>([])
+
+// 镜像拉取进度状态
+const isPulling = ref(false)
+const pullProgress = ref<Map<string, any>>(new Map())
+const pullStatus = ref('')
+const pullError = ref('')
+let pullWs: WebSocket | null = null
+
+// 计算总体拉取进度
+const totalProgress = computed(() => {
+  const layers = Array.from(pullProgress.value.values())
+  if (layers.length === 0) return 0
+
+  const completed = layers.filter(
+    (p) => p.status === 'Pull complete' || p.status === 'Already exists'
+  ).length
+  const total = layers.filter((p) => p.id && p.id.length === 12).length
+
+  return total > 0 ? Math.round((completed / total) * 100) : 0
+})
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -126,21 +147,118 @@ const handlePrune = () => {
   })
 }
 
+const handleBulkDelete = async () => {
+  const promises = selectedRowKeys.value.map((id: any) => container.imageRemove(id))
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
+// 取消拉取
+const cancelPull = () => {
+  if (pullWs) {
+    pullWs.close()
+    pullWs = null
+  }
+  resetState()
+}
+
+// 重置拉取状态
+const resetState = () => {
+  isPulling.value = false
+  pullProgress.value = new Map()
+  pullStatus.value = ''
+  pullError.value = ''
+}
+
+// 拉取镜像
 const handlePull = () => {
-  loading.value = true
-  useRequest(container.imagePull(pullModel.value))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Pull successful'))
+  if (!pullModel.value.name) {
+    window.$message.warning($gettext('Please enter image name'))
+    return
+  }
+
+  isPulling.value = true
+  pullProgress.value = new Map()
+  pullStatus.value = $gettext('Connecting...')
+  pullError.value = ''
+
+  const auth = pullModel.value.auth
+    ? { username: pullModel.value.username, password: pullModel.value.password }
+    : undefined
+
+  ws.imagePull(pullModel.value.name, auth)
+    .then((socket) => {
+      pullWs = socket
+      pullStatus.value = $gettext('Pulling image...')
+
+      socket.onmessage = (event) => {
+        try {
+          const data: any = JSON.parse(event.data)
+
+          if (data.error) {
+            pullError.value = data.error
+            isPulling.value = false
+            return
+          }
+
+          if (data.complete) {
+            pullStatus.value = $gettext('Pull completed')
+            isPulling.value = false
+            pullModal.value = false
+            refresh()
+            window.$message.success($gettext('Pull successful'))
+            return
+          }
+
+          // 更新进度
+          if (data.id) {
+            pullProgress.value.set(data.id, data)
+            pullProgress.value = new Map(pullProgress.value)
+          }
+          pullStatus.value = data.status
+        } catch {
+          // 忽略解析错误
+        }
+      }
+
+      socket.onclose = () => {
+        if (isPulling.value) {
+          isPulling.value = false
+        }
+      }
+
+      socket.onerror = () => {
+        pullError.value = $gettext('Connection error')
+        isPulling.value = false
+      }
     })
-    .onComplete(() => {
-      loading.value = false
-      pullModal.value = false
+    .catch((err) => {
+      pullError.value = err.message || $gettext('Failed to connect')
+      isPulling.value = false
     })
 }
 
+// 监听弹窗打开，重置状态
+watch(pullModal, (val) => {
+  if (val) {
+    resetState()
+  } else {
+    if (pullWs) {
+      pullWs.close()
+      pullWs = null
+    }
+  }
+})
+
 onMounted(() => {
   refresh()
+})
+
+onUnmounted(() => {
+  cancelPull()
 })
 </script>
 
@@ -148,9 +266,17 @@ onMounted(() => {
   <n-flex vertical :size="20">
     <n-flex>
       <n-button type="primary" @click="pullModal = true">{{ $gettext('Pull Image') }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{
-        $gettext('Cleanup Images')
-      }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>
+        {{ $gettext('Cleanup Images') }}
+      </n-button>
+      <n-popconfirm @positive-click="handleBulkDelete">
+        <template #trigger>
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </template>
+        {{ $gettext('Are you sure you want to delete the selected images?') }}
+      </n-popconfirm>
     </n-flex>
     <n-data-table
       striped
@@ -182,39 +308,102 @@ onMounted(() => {
     size="huge"
     :bordered="false"
     :segmented="false"
+    :mask-closable="!isPulling"
+    :closable="!isPulling"
   >
-    <n-form :model="pullModel">
-      <n-form-item path="name" :label="$gettext('Image Name')">
-        <n-input
-          v-model:value="pullModel.name"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('docker.io/php:8.3-fpm')"
+    <!-- 拉取进度 -->
+    <template v-if="isPulling || pullProgress.size > 0">
+      <n-flex vertical :size="16">
+        <n-progress
+          type="line"
+          :percentage="totalProgress"
+          :indicator-placement="'inside'"
+          processing
         />
-      </n-form-item>
-      <n-form-item path="auth" :label="$gettext('Authentication')">
-        <n-switch v-model:value="pullModel.auth" />
-      </n-form-item>
-      <n-form-item v-if="pullModel.auth" path="username" :label="$gettext('Username')">
-        <n-input
-          v-model:value="pullModel.username"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter username')"
-        />
-      </n-form-item>
-      <n-form-item v-if="pullModel.auth" path="password" :label="$gettext('Password')">
-        <n-input
-          v-model:value="pullModel.password"
-          type="password"
-          show-password-on="click"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter password')"
-        />
-      </n-form-item>
-    </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handlePull">
-      {{ $gettext('Submit') }}
-    </n-button>
+
+        <n-card size="small" :bordered="true" class="max-h-300 overflow-y-auto">
+          <n-flex vertical :size="8">
+            <div
+              v-for="[id, progress] in pullProgress"
+              :key="id"
+              class="p-1 px-2 rounded bg-gray-100 dark:bg-gray-800"
+            >
+              <n-flex justify="space-between" align="center">
+                <n-text depth="3" class="text-12 font-mono">
+                  {{ id.substring(0, 12) }}
+                </n-text>
+                <n-text depth="2" class="text-12">
+                  {{ progress.status }}
+                  <template v-if="progress.progress">
+                    {{ progress.progress }}
+                  </template>
+                </n-text>
+              </n-flex>
+            </div>
+            <n-text v-if="pullProgress.size === 0" depth="3">
+              {{ pullStatus }}
+            </n-text>
+          </n-flex>
+        </n-card>
+
+        <n-flex justify="center">
+          <n-button @click="cancelPull" type="error" ghost>
+            {{ $gettext('Cancel') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
+    </template>
+
+    <!-- 拉取错误 -->
+    <n-result
+      v-else-if="pullError"
+      status="error"
+      :title="$gettext('Pull Failed')"
+      :description="pullError"
+    >
+      <template #footer>
+        <n-flex justify="center">
+          <n-button @click="resetState">{{ $gettext('Cancel') }}</n-button>
+          <n-button type="primary" @click="handlePull">{{ $gettext('Retry') }}</n-button>
+        </n-flex>
+      </template>
+    </n-result>
+
+    <!-- 拉取表单 -->
+    <template v-else>
+      <n-form :model="pullModel">
+        <n-form-item path="name" :label="$gettext('Image Name')">
+          <n-input
+            v-model:value="pullModel.name"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="$gettext('docker.io/php:8.3-fpm')"
+          />
+        </n-form-item>
+        <n-form-item path="auth" :label="$gettext('Authentication')">
+          <n-switch v-model:value="pullModel.auth" />
+        </n-form-item>
+        <n-form-item v-if="pullModel.auth" path="username" :label="$gettext('Username')">
+          <n-input
+            v-model:value="pullModel.username"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter username')"
+          />
+        </n-form-item>
+        <n-form-item v-if="pullModel.auth" path="password" :label="$gettext('Password')">
+          <n-input
+            v-model:value="pullModel.password"
+            type="password"
+            show-password-on="click"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter password')"
+          />
+        </n-form-item>
+      </n-form>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handlePull">
+        {{ $gettext('Submit') }}
+      </n-button>
+    </template>
   </n-modal>
 </template>

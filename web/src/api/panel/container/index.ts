@@ -55,6 +55,8 @@ export default {
   // 获取镜像列表
   imageList: (page: number, limit: number): any =>
     http.Get(`/container/image`, { params: { page, limit } }),
+  // 检查镜像是否存在
+  imageExist: (name: string): any => http.Get(`/container/image/exist`, { params: { name } }),
   // 拉取镜像
   imagePull: (config: any): any => http.Post(`/container/image`, config),
   // 删除镜像

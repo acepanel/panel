@@ -166,6 +166,15 @@ const handlePrune = () => {
   })
 }
 
+const handleBulkDelete = async () => {
+  const promises = selectedRowKeys.value.map((id: any) => container.networkRemove(id))
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
 const handleCreate = () => {
   loading.value = true
   useRequest(container.networkCreate(createModel.value))
@@ -193,6 +202,14 @@ onMounted(() => {
       <n-button type="primary" @click="handlePrune" ghost>{{
         $gettext('Cleanup Networks')
       }}</n-button>
+      <n-popconfirm @positive-click="handleBulkDelete">
+        <template #trigger>
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </template>
+        {{ $gettext('Are you sure you want to delete the selected networks?') }}
+      </n-popconfirm>
     </n-flex>
     <n-data-table
       striped

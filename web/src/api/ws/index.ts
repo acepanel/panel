@@ -28,5 +28,18 @@ export default {
       ws.onopen = () => resolve(ws)
       ws.onerror = (e) => reject(e)
     })
+  },
+  // 拉取镜像
+  imagePull: (name: string, auth?: { username: string; password: string }): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/container/image/pull`)
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({ name, auth: !!auth, username: auth?.username, password: auth?.password })
+        )
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
   }
 }

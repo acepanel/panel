@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
-import { FitAddon } from '@xterm/addon-fit'
 import { AttachAddon } from '@xterm/addon-attach'
 import { ClipboardAddon } from '@xterm/addon-clipboard'
+import { FitAddon } from '@xterm/addon-fit'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
+import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import ws from '@/api/ws'
@@ -324,11 +324,6 @@ const handlePrune = () => {
 }
 
 const bulkStart = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to start'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerStart(id))
   await Promise.all(promises)
 
@@ -338,11 +333,6 @@ const bulkStart = async () => {
 }
 
 const bulkStop = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to stop'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerStop(id))
   await Promise.all(promises)
 
@@ -352,11 +342,6 @@ const bulkStop = async () => {
 }
 
 const bulkRestart = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to restart'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerRestart(id))
   await Promise.all(promises)
 
@@ -366,11 +351,6 @@ const bulkRestart = async () => {
 }
 
 const bulkForceStop = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to force stop'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerKill(id))
   await Promise.all(promises)
 
@@ -380,11 +360,6 @@ const bulkForceStop = async () => {
 }
 
 const bulkDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to delete'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerRemove(id))
   await Promise.all(promises)
 
@@ -394,11 +369,6 @@ const bulkDelete = async () => {
 }
 
 const bulkPause = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to pause'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerPause(id))
   await Promise.all(promises)
 
@@ -408,11 +378,6 @@ const bulkPause = async () => {
 }
 
 const bulkUnpause = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select containers to resume'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => container.containerUnpause(id))
   await Promise.all(promises)
 
@@ -430,7 +395,6 @@ const handleOpenTerminal = async (row: any) => {
   terminalContainerName.value = row.name
   terminalModal.value = true
 
-  // 等待 DOM 更新后初始化终端
   await nextTick()
 
   // 确保终端容器存在
@@ -557,20 +521,34 @@ onUnmounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="containerCreateModal = true">{{
-        $gettext('Create Container')
-      }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{
-        $gettext('Cleanup Containers')
-      }}</n-button>
+      <n-button type="primary" @click="containerCreateModal = true">
+        {{ $gettext('Create Container') }}
+      </n-button>
+      <n-button type="primary" @click="handlePrune" ghost>
+        {{ $gettext('Cleanup Containers') }}
+      </n-button>
       <n-button-group>
-        <n-button @click="bulkStart">{{ $gettext('Start') }}</n-button>
-        <n-button @click="bulkStop">{{ $gettext('Stop') }}</n-button>
-        <n-button @click="bulkRestart">{{ $gettext('Restart') }}</n-button>
-        <n-button @click="bulkForceStop">{{ $gettext('Force Stop') }}</n-button>
-        <n-button @click="bulkPause">{{ $gettext('Pause') }}</n-button>
-        <n-button @click="bulkUnpause">{{ $gettext('Resume') }}</n-button>
-        <n-button @click="bulkDelete">{{ $gettext('Delete') }}</n-button>
+        <n-button @click="bulkStart" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Start') }}
+        </n-button>
+        <n-button @click="bulkStop" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Stop') }}
+        </n-button>
+        <n-button @click="bulkRestart" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Restart') }}
+        </n-button>
+        <n-button @click="bulkForceStop" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Force Stop') }}
+        </n-button>
+        <n-button @click="bulkPause" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Pause') }}
+        </n-button>
+        <n-button @click="bulkUnpause" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Resume') }}
+        </n-button>
+        <n-button @click="bulkDelete" :disabled="selectedRowKeys.length === 0" ghost>
+          {{ $gettext('Delete') }}
+        </n-button>
       </n-button-group>
     </n-flex>
     <n-data-table

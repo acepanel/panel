@@ -120,6 +120,15 @@ const handlePrune = () => {
   })
 }
 
+const handleBulkDelete = async () => {
+  const promises = selectedRowKeys.value.map((name: any) => container.volumeRemove(name))
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
 const handleCreate = () => {
   loading.value = true
   useRequest(container.volumeCreate(createModel.value))
@@ -147,6 +156,14 @@ onMounted(() => {
       <n-button type="primary" @click="handlePrune" ghost>{{
         $gettext('Cleanup Volumes')
       }}</n-button>
+      <n-popconfirm @positive-click="handleBulkDelete">
+        <template #trigger>
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </template>
+        {{ $gettext('Are you sure you want to delete the selected volumes?') }}
+      </n-popconfirm>
     </n-flex>
     <n-data-table
       striped

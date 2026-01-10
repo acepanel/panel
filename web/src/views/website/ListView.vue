@@ -256,11 +256,6 @@ const handleDelete = (id: number) => {
 }
 
 const bulkDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select the websites to delete'))
-    return
-  }
-
   const promises = selectedRowKeys.value.map((id: any) => website.delete(id, true, false))
   await Promise.all(promises)
 
@@ -290,8 +285,8 @@ onMounted(() => {
       </n-button>
       <n-popconfirm @positive-click="bulkDelete">
         <template #trigger>
-          <n-button type="error">
-            {{ $gettext('Batch Delete') }}
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
           </n-button>
         </template>
         {{

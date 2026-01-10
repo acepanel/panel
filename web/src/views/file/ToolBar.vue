@@ -3,6 +3,7 @@ import file from '@/api/panel/file'
 import { checkName, lastDirectory } from '@/utils/file'
 import UploadModal from '@/views/file/UploadModal.vue'
 import type { Marked } from '@/views/file/types'
+import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -176,11 +177,6 @@ const handlePaste = () => {
 }
 
 const bulkDelete = async () => {
-  if (!selected.value.length) {
-    window.$message.error($gettext('Please select files/folders to delete'))
-    return
-  }
-
   const promises = selected.value.map((path) => file.delete(path))
   await Promise.all(promises)
 
@@ -235,7 +231,9 @@ watch(
           <n-button @click="permission = true">{{ $gettext('Permission') }}</n-button>
           <n-popconfirm @positive-click="bulkDelete">
             <template #trigger>
-              <n-button>{{ $gettext('Delete') }}</n-button>
+              <n-button :disabled="selected.length === 0" ghost>
+                {{ $gettext('Delete') }}
+              </n-button>
             </template>
             {{ $gettext('Are you sure you want to delete in bulk?') }}
           </n-popconfirm>
