@@ -13,6 +13,7 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/config"
+	"github.com/acepanel/panel/pkg/docker"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/ssh"
 )
@@ -135,4 +136,39 @@ func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
 			break
 		}
 	}
+}
+
+// ContainerTerminal 容器终端 WebSocket 处理
+func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerID](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade container terminal ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 默认使用 /bin/sh 作为 shell，如果不存在则回退到 sh
+	command := []string{"/bin/sh"}
+
+	turn, err := docker.NewTurn(ctx, ws, req.ID, command)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+
+	go func() {
+		defer turn.Close()
+		_ = turn.Handle(ctx)
+	}()
+
+	turn.Wait()
 }

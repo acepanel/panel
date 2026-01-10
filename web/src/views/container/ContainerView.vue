@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+import '@fontsource-variable/jetbrains-mono/wght-italic.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import { FitAddon } from '@xterm/addon-fit'
+import { AttachAddon } from '@xterm/addon-attach'
+import { ClipboardAddon } from '@xterm/addon-clipboard'
+import { Unicode11Addon } from '@xterm/addon-unicode11'
+import { WebLinksAddon } from '@xterm/addon-web-links'
+import { WebglAddon } from '@xterm/addon-webgl'
+import { Terminal } from '@xterm/xterm'
+import '@xterm/xterm/css/xterm.css'
 
 import container from '@/api/panel/container'
+import ws from '@/api/ws'
 import ContainerCreate from '@/views/container/ContainerCreate.vue'
 
 const { $gettext } = useGettext()
@@ -14,6 +25,15 @@ const renameModel = ref({
   id: '',
   name: ''
 })
+
+// 终端相关状态
+const terminalModal = ref(false)
+const terminalContainerName = ref('')
+const terminalRef = ref<HTMLElement | null>(null)
+const term = ref<Terminal | null>(null)
+let containerWs: WebSocket | null = null
+const fitAddon = new FitAddon()
+const webglAddon = new WebglAddon()
 
 const containerCreateModal = ref(false)
 const selectedRowKeys = ref<any>([])
@@ -89,7 +109,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 250,
+    width: 320,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -97,8 +117,21 @@ const columns: any = [
           NButton,
           {
             size: 'small',
+            type: 'info',
+            onClick: () => handleOpenTerminal(row),
+            disabled: row.state !== 'running'
+          },
+          {
+            default: () => $gettext('Terminal')
+          }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
             type: 'warning',
             secondary: true,
+            style: 'margin-left: 10px;',
             onClick: () => handleShowLog(row)
           },
           {
@@ -110,7 +143,7 @@ const columns: any = [
           {
             size: 'small',
             type: 'success',
-            style: 'margin-left: 15px;',
+            style: 'margin-left: 10px;',
             onClick: () => {
               renameModel.value.id = row.id
               renameModel.value.name = row.name
@@ -193,7 +226,7 @@ const columns: any = [
                 {
                   size: 'small',
                   type: 'primary',
-                  style: 'margin-left: 15px;'
+                  style: 'margin-left: 10px;'
                 },
                 {
                   default: () => $gettext('More')
@@ -393,8 +426,132 @@ const closeContainerCreateModal = () => {
   refresh()
 }
 
+// 打开容器终端
+const handleOpenTerminal = async (row: any) => {
+  terminalContainerName.value = row.name
+  terminalModal.value = true
+
+  // 等待 DOM 更新后初始化终端
+  await nextTick()
+
+  // 确保终端容器存在
+  if (!terminalRef.value) {
+    window.$message.error($gettext('Terminal container not found'))
+    return
+  }
+
+  try {
+    containerWs = await ws.container(row.id)
+
+    term.value = new Terminal({
+      allowProposedApi: true,
+      lineHeight: 1.2,
+      fontSize: 14,
+      fontFamily: `'JetBrains Mono Variable', monospace`,
+      cursorBlink: true,
+      cursorStyle: 'underline',
+      tabStopWidth: 4,
+      theme: { background: '#111', foreground: '#fff' }
+    })
+
+    term.value.loadAddon(new AttachAddon(containerWs))
+    term.value.loadAddon(fitAddon)
+    term.value.loadAddon(new ClipboardAddon())
+    term.value.loadAddon(new WebLinksAddon())
+    term.value.loadAddon(new Unicode11Addon())
+    term.value.unicode.activeVersion = '11'
+    term.value.loadAddon(webglAddon)
+    webglAddon.onContextLoss(() => {
+      webglAddon.dispose()
+    })
+    term.value.open(terminalRef.value)
+
+    onTerminalResize()
+    term.value.focus()
+    window.addEventListener('resize', onTerminalResize, false)
+
+    containerWs.onclose = () => {
+      if (term.value) {
+        term.value.write('\r\n' + $gettext('Connection closed.'))
+      }
+      window.removeEventListener('resize', onTerminalResize)
+    }
+
+    containerWs.onerror = (event) => {
+      if (term.value) {
+        term.value.write('\r\n' + $gettext('Connection error.'))
+      }
+      console.error(event)
+      containerWs?.close()
+    }
+  } catch (error) {
+    console.error('Failed to connect to container terminal:', error)
+    window.$message.error($gettext('Failed to connect to container terminal'))
+    terminalModal.value = false
+  }
+}
+
+// 关闭容器终端
+const closeTerminal = () => {
+  try {
+    if (term.value) {
+      term.value.dispose()
+      term.value = null
+    }
+    if (containerWs) {
+      containerWs.close()
+      containerWs = null
+    }
+    if (terminalRef.value) {
+      terminalRef.value.innerHTML = ''
+    }
+    window.removeEventListener('resize', onTerminalResize)
+  } catch {
+    /* empty */
+  }
+}
+
+// 终端大小调整
+const onTerminalResize = () => {
+  fitAddon.fit()
+  if (containerWs != null && containerWs.readyState === 1 && term.value) {
+    const { cols, rows } = term.value
+    containerWs.send(
+      JSON.stringify({
+        resize: true,
+        columns: cols,
+        rows: rows
+      })
+    )
+  }
+}
+
+// 终端滚轮缩放
+const onTerminalWheel = (event: WheelEvent) => {
+  if (event.ctrlKey && term.value) {
+    event.preventDefault()
+    if (event.deltaY > 0) {
+      if (term.value.options.fontSize! > 12) {
+        term.value.options.fontSize = term.value.options.fontSize! - 1
+      }
+    } else {
+      term.value.options.fontSize = term.value.options.fontSize! + 1
+    }
+    fitAddon.fit()
+  }
+}
+
+// 终端模态框关闭后清理
+const handleTerminalModalClose = () => {
+  closeTerminal()
+}
+
 onMounted(() => {
   refresh()
+})
+
+onUnmounted(() => {
+  closeTerminal()
 })
 </script>
 
@@ -471,5 +628,55 @@ onMounted(() => {
     </n-form>
     <n-button type="info" block @click="handleRename">{{ $gettext('Submit') }}</n-button>
   </n-modal>
+  <n-modal
+    v-model:show="terminalModal"
+    preset="card"
+    :title="$gettext('Terminal') + ' - ' + terminalContainerName"
+    style="width: 90vw; height: 80vh"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+    @after-leave="handleTerminalModalClose"
+  >
+    <div
+      ref="terminalRef"
+      @wheel="onTerminalWheel"
+      style="height: 100%; min-height: 60vh; background: #111"
+    ></div>
+  </n-modal>
   <ContainerCreate :show="containerCreateModal" @close="closeContainerCreateModal" />
 </template>
+
+<style scoped lang="scss">
+:deep(.xterm) {
+  padding: 1rem !important;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar) {
+  border-radius: 0.4rem;
+  height: 6px;
+  width: 8px;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar-thumb) {
+  background-color: #666;
+  border-radius: 0.4rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: all 1s;
+}
+
+:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-thumb) {
+  background-color: #aaa;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar-track) {
+  background-color: #111;
+  border-radius: 0.4rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: all 1s;
+}
+
+:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-track) {
+  background-color: #444;
+}
+</style>

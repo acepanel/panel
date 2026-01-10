@@ -20,5 +20,13 @@ export default {
       ws.onopen = () => resolve(ws)
       ws.onerror = (e) => reject(e)
     })
+  },
+  // 连接容器终端
+  container: (id: string): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/container/${id}`)
+      ws.onopen = () => resolve(ws)
+      ws.onerror = (e) => reject(e)
+    })
   }
 }
