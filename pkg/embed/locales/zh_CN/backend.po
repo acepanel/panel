@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-10 12:46\n"
+"PO-Revision-Date: 2026-01-10 18:06\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -1502,6 +1502,10 @@ msgstr "删除 Stream 服务器配置失败：%v"
 msgid "failed to delete stream upstream config: %v"
 msgstr "删除 Stream 上游配置失败：%v"
 
+#: internal/data/project.go:146
+msgid "failed to delete systemd config"
+msgstr "删除 systemd 配置失败"
+
 #: internal/service/systemctl.go:77
 msgid "failed to disable %s service: %v"
 msgstr "禁用 %s 服务失败：%v"
@@ -1522,6 +1526,10 @@ msgstr "格式化分区失败：%v"
 #: internal/service/toolbox_ssh.go:221
 msgid "failed to generate SSH key: %v"
 msgstr "生成 SSH 密钥失败：%v"
+
+#: internal/data/project.go:100
+msgid "failed to generate systemd config"
+msgstr "生成 systemd 配置失败"
 
 #: internal/service/systemctl.go:47
 msgid "failed to get %s service enable status: %v"
@@ -1732,6 +1740,10 @@ msgstr "无法解析磁盘列表：%v"
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
+#: internal/data/project.go:179
+msgid "failed to parse systemd config"
+msgstr "解析 systemd 配置失败"
+
 #: internal/apps/fail2ban/app.go:327
 #: internal/apps/fail2ban/app.go:355
 msgid "failed to parse the ignoreip of fail2ban"
@@ -1809,6 +1821,10 @@ msgstr "删除物理卷失败：%v"
 #: internal/service/toolbox_disk.go:385
 msgid "failed to remove volume group: %v"
 msgstr "删除卷组失败：%v"
+
+#: internal/data/project.go:123
+msgid "failed to rename systemd config"
+msgstr "重命名 systemd 配置失败"
 
 #: internal/service/toolbox_disk.go:437
 #: internal/service/toolbox_disk.go:446
@@ -2092,6 +2108,10 @@ msgstr "请先设置公网 IP 地址"
 #: internal/data/setting.go:332
 msgid "port is already in use"
 msgstr "端口已被占用"
+
+#: internal/data/project.go:83
+msgid "project name already exists"
+msgstr "项目名已存在"
 
 #: internal/service/environment_php.go:515
 msgid "protobuf is a library for serializing and deserializing data"

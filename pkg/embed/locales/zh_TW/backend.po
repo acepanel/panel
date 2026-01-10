@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-10 12:46\n"
+"PO-Revision-Date: 2026-01-10 17:53\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -1502,6 +1502,10 @@ msgstr ""
 msgid "failed to delete stream upstream config: %v"
 msgstr ""
 
+#: internal/data/project.go:146
+msgid "failed to delete systemd config"
+msgstr ""
+
 #: internal/service/systemctl.go:77
 msgid "failed to disable %s service: %v"
 msgstr "禁用 %s 服務失敗：%v"
@@ -1521,6 +1525,10 @@ msgstr ""
 
 #: internal/service/toolbox_ssh.go:221
 msgid "failed to generate SSH key: %v"
+msgstr ""
+
+#: internal/data/project.go:100
+msgid "failed to generate systemd config"
 msgstr ""
 
 #: internal/service/systemctl.go:47
@@ -1732,6 +1740,10 @@ msgstr ""
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
+#: internal/data/project.go:179
+msgid "failed to parse systemd config"
+msgstr ""
+
 #: internal/apps/fail2ban/app.go:327
 #: internal/apps/fail2ban/app.go:355
 msgid "failed to parse the ignoreip of fail2ban"
@@ -1808,6 +1820,10 @@ msgstr ""
 
 #: internal/service/toolbox_disk.go:385
 msgid "failed to remove volume group: %v"
+msgstr ""
+
+#: internal/data/project.go:123
+msgid "failed to rename systemd config"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:437
@@ -2092,6 +2108,10 @@ msgstr ""
 #: internal/data/setting.go:332
 msgid "port is already in use"
 msgstr "端口已被佔用"
+
+#: internal/data/project.go:83
+msgid "project name already exists"
+msgstr ""
 
 #: internal/service/environment_php.go:515
 msgid "protobuf is a library for serializing and deserializing data"
