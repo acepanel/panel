@@ -34,7 +34,7 @@ func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, comman
 		client.WithAPIVersionNegotiation(),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("创建 Docker 客户端失败: %w", err)
+		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
 
 	// 创建 exec 实例
@@ -47,7 +47,7 @@ func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, comman
 	})
 	if err != nil {
 		_ = apiClient.Close()
-		return nil, fmt.Errorf("创建 exec 实例失败: %w", err)
+		return nil, fmt.Errorf("failed to create exec instance: %w", err)
 	}
 
 	// 附加到 exec 实例
@@ -56,7 +56,7 @@ func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, comman
 	})
 	if err != nil {
 		_ = apiClient.Close()
-		return nil, fmt.Errorf("附加到 exec 实例失败: %w", err)
+		return nil, fmt.Errorf("failed to attach to exec instance: %w", err)
 	}
 
 	turn := &Turn{
@@ -100,7 +100,7 @@ func (t *Turn) Handle(ctx context.Context) error {
 			_, data, err := t.ws.Read(ctx)
 			if err != nil {
 				// 通常是客户端关闭连接
-				return fmt.Errorf("读取 ws 消息错误: %w", err)
+				return fmt.Errorf("failed to read ws message: %w", err)
 			}
 
 			// 判断是否是 resize 消息
@@ -110,14 +110,14 @@ func (t *Turn) Handle(ctx context.Context) error {
 						Height: resize.Rows,
 						Width:  resize.Columns,
 					}); err != nil {
-						return fmt.Errorf("调整终端大小错误: %w", err)
+						return fmt.Errorf("failed to resize terminal: %w", err)
 					}
 				}
 				continue
 			}
 
 			if _, err = t.hijack.Conn.Write(data); err != nil {
-				return fmt.Errorf("写入容器 stdin 错误: %w", err)
+				return fmt.Errorf("failed to write to container stdin: %w", err)
 			}
 		}
 	}
