@@ -41,5 +41,16 @@ export default {
       }
       ws.onerror = (e) => reject(e)
     })
+  },
+  // PTY 命令执行（通用接口）
+  pty: (command: string): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/pty`)
+      ws.onopen = () => {
+        ws.send(command)
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
   }
 }

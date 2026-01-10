@@ -229,6 +229,62 @@ func preCheckArg(args []any) bool {
 	return true
 }
 
+// PTYResult 封装 PTY 执行结果
+type PTYResult struct {
+	ptmx *os.File
+	cmd  *exec.Cmd
+}
+
+// Read 读取 PTY 输出
+func (p *PTYResult) Read(buf []byte) (int, error) {
+	return p.ptmx.Read(buf)
+}
+
+// Wait 等待命令完成
+func (p *PTYResult) Wait() error {
+	return p.cmd.Wait()
+}
+
+// Close 关闭 PTY
+func (p *PTYResult) Close() error {
+	return p.ptmx.Close()
+}
+
+// ExecWithPTY 使用 PTY 执行命令，返回 PTYResult 用于流式读取输出
+// 调用方需要负责调用 Close() 和 Wait()
+func ExecWithPTY(ctx context.Context, name string, args ...string) (*PTYResult, error) {
+	_ = os.Setenv("LC_ALL", "C")
+	cmd := exec.CommandContext(ctx, name, args...)
+
+	ptmx, err := pty.Start(cmd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to start pty: %w", err)
+	}
+
+	return &PTYResult{
+		ptmx: ptmx,
+		cmd:  cmd,
+	}, nil
+}
+
+// IsPTYError 检查 PTY 错误是否可忽略
+// Linux kernel return EIO when attempting to read from a master pseudo
+// terminal which no longer has an open slave. So ignore error here.
+// See https://github.com/creack/pty/issues/21
+func IsPTYError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var pathErr *os.PathError
+	if errors.As(err, &pathErr) && errors.Is(pathErr.Err, syscall.EIO) {
+		return false // 可忽略的错误
+	}
+	if errors.Is(err, io.EOF) {
+		return false // 可忽略的错误
+	}
+	return true // 真正的错误
+}
+
 // Linux kernel return EIO when attempting to read from a master pseudo
 // terminal which no longer has an open slave. So ignore error here.
 // See https://github.com/creack/pty/issues/21

@@ -20,6 +20,7 @@ func (route *Ws) Register(r *chi.Mux) {
 	r.Route("/api/ws", func(r chi.Router) {
 		r.Get("/ssh", route.ws.Session)
 		r.Get("/exec", route.ws.Exec)
+		r.Get("/pty", route.ws.PTY)
 		r.Get("/container/{id}", route.ws.ContainerTerminal)
 		r.Get("/container/image/pull", route.ws.ContainerImagePull)
 	})

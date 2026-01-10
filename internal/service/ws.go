@@ -269,3 +269,66 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
 	_ = ws.Close(websocket.StatusNormalClosure, "")
 }
+
+// PTY 通用 PTY 命令执行 WebSocket 处理
+// 前端发送第一条消息为要执行的命令，后端通过 PTY 执行并实时返回输出
+func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade pty ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 读取第一条消息获取要执行的命令
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command: %v", err))
+		return
+	}
+
+	command := string(message)
+	if command == "" {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("command is empty"))
+		return
+	}
+
+	// 使用 PTY 执行命令
+	ptyResult, err := shell.ExecWithPTY(ctx, "bash", "-c", command)
+	if err != nil {
+		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Failed to start command: %v", err)+"\r\n"))
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+	defer func() { _ = ptyResult.Close() }()
+
+	// 读取 PTY 输出并发送到 WebSocket（直接发送原始数据给 xterm.js）
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := ptyResult.Read(buf)
+			if n > 0 {
+				if writeErr := ws.Write(ctx, websocket.MessageBinary, buf[:n]); writeErr != nil {
+					s.log.Warn("[Websocket] write pty output error", slog.Any("err", writeErr))
+					return
+				}
+			}
+			if err != nil {
+				if shell.IsPTYError(err) {
+					s.log.Debug("[Websocket] pty read error", slog.Any("err", err))
+				}
+				return
+			}
+		}
+	}()
+
+	// 等待命令完成
+	if err = ptyResult.Wait(); err != nil {
+		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Command failed: %v", err)+"\r\n"))
+	}
+
+	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
