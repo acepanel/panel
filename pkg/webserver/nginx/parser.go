@@ -47,6 +47,17 @@ func NewParserFromFile(filePath string) (*Parser, error) {
 	return &Parser{cfg: cfg, cfgPath: filePath}, nil
 }
 
+// NewParserFromString 从字符串创建解析器
+func NewParserFromString(content string) (*Parser, error) {
+	p := parser.NewStringParser(content, parser.WithSkipIncludeParsingErr(), parser.WithSkipValidDirectivesErr())
+	cfg, err := p.Parse()
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	return &Parser{cfg: cfg, cfgPath: ""}, nil
+}
+
 func (p *Parser) Config() *config.Config {
 	return p.cfg
 }
@@ -182,6 +193,24 @@ func (p *Parser) Set(key string, directives []*config.Directive, after ...string
 	}
 
 	return nil
+}
+
+// SetOne 设置单个指令，如: SetOne("server.listen", []string{"80"})
+func (p *Parser) SetOne(key string, params []string) error {
+	parts := strings.Split(key, ".")
+	if len(parts) < 2 {
+		return fmt.Errorf("key must have at least 2 parts: %s", key)
+	}
+
+	directiveName := parts[len(parts)-1]
+	blockKey := strings.Join(parts[:len(parts)-1], ".")
+
+	return p.Set(blockKey, []*config.Directive{
+		{
+			Name:       directiveName,
+			Parameters: p.slices2Parameters(params),
+		},
+	})
 }
 
 // Dump 将指令结构导出为配置内容

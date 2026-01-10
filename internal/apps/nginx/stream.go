@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -15,8 +14,6 @@ import (
 	"github.com/acepanel/panel/pkg/systemctl"
 	webserverNginx "github.com/acepanel/panel/pkg/webserver/nginx"
 	"github.com/go-chi/chi/v5"
-	"github.com/tufanbarisyildirim/gonginx/config"
-	"github.com/tufanbarisyildirim/gonginx/dumper"
 )
 
 // ListStreamServers 获取 Stream Server 列表
@@ -326,69 +323,74 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 		Name: name,
 	}
 
-	// 查找 server 块中的指令
-	cfg := p.Config()
-	if cfg == nil || cfg.Block == nil {
-		return nil, fmt.Errorf("invalid config")
-	}
-
-	// 查找 server 块
-	serverDirectives := cfg.Block.FindDirectives("server")
-	if len(serverDirectives) == 0 {
-		return nil, fmt.Errorf("no server block found")
-	}
-
-	serverBlock := serverDirectives[0].GetBlock()
-	if serverBlock == nil {
-		return nil, fmt.Errorf("server block is empty")
-	}
-
 	// 解析 listen 指令
-	for _, dir := range serverBlock.GetDirectives() {
-		switch dir.GetName() {
-		case "listen":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.Listen = params[0].Value
-				for i := 1; i < len(params); i++ {
-					switch params[i].Value {
-					case "udp":
-						server.UDP = true
-					case "ssl":
-						server.SSL = true
-					}
+	listenDirs, err := p.Find("server.listen")
+	if err == nil && len(listenDirs) > 0 {
+		params := listenDirs[0].GetParameters()
+		if len(params) > 0 {
+			server.Listen = params[0].Value
+			for i := 1; i < len(params); i++ {
+				switch params[i].Value {
+				case "udp":
+					server.UDP = true
+				case "ssl":
+					server.SSL = true
 				}
 			}
-		case "proxy_pass":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.ProxyPass = params[0].Value
-			}
-		case "proxy_protocol":
-			params := dir.GetParameters()
-			if len(params) > 0 && params[0].Value == "on" {
-				server.ProxyProtocol = true
-			}
-		case "proxy_timeout":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.ProxyTimeout = parseNginxDuration(params[0].Value)
-			}
-		case "proxy_connect_timeout":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.ProxyConnectTimeout = parseNginxDuration(params[0].Value)
-			}
-		case "ssl_certificate":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.SSLCertificate = params[0].Value
-			}
-		case "ssl_certificate_key":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				server.SSLCertificateKey = params[0].Value
-			}
+		}
+	}
+
+	// 解析 proxy_pass 指令
+	proxyPassDir, err := p.FindOne("server.proxy_pass")
+	if err == nil {
+		params := proxyPassDir.GetParameters()
+		if len(params) > 0 {
+			server.ProxyPass = params[0].Value
+		}
+	}
+
+	// 解析 proxy_protocol 指令
+	proxyProtocolDir, err := p.FindOne("server.proxy_protocol")
+	if err == nil {
+		params := proxyProtocolDir.GetParameters()
+		if len(params) > 0 && params[0].Value == "on" {
+			server.ProxyProtocol = true
+		}
+	}
+
+	// 解析 proxy_timeout 指令
+	proxyTimeoutDir, err := p.FindOne("server.proxy_timeout")
+	if err == nil {
+		params := proxyTimeoutDir.GetParameters()
+		if len(params) > 0 {
+			server.ProxyTimeout = parseNginxDuration(params[0].Value)
+		}
+	}
+
+	// 解析 proxy_connect_timeout 指令
+	proxyConnectTimeoutDir, err := p.FindOne("server.proxy_connect_timeout")
+	if err == nil {
+		params := proxyConnectTimeoutDir.GetParameters()
+		if len(params) > 0 {
+			server.ProxyConnectTimeout = parseNginxDuration(params[0].Value)
+		}
+	}
+
+	// 解析 ssl_certificate 指令
+	sslCertDir, err := p.FindOne("server.ssl_certificate")
+	if err == nil {
+		params := sslCertDir.GetParameters()
+		if len(params) > 0 {
+			server.SSLCertificate = params[0].Value
+		}
+	}
+
+	// 解析 ssl_certificate_key 指令
+	sslKeyDir, err := p.FindOne("server.ssl_certificate_key")
+	if err == nil {
+		params := sslKeyDir.GetParameters()
+		if len(params) > 0 {
+			server.SSLCertificateKey = params[0].Value
 		}
 	}
 
@@ -481,30 +483,30 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 	for _, dir := range upstreamBlock.GetDirectives() {
 		switch dir.GetName() {
 		case "server":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				addr := params[0].Value
+			dirParams := dir.GetParameters()
+			if len(dirParams) > 0 {
+				addr := dirParams[0].Value
 				var options []string
-				for i := 1; i < len(params); i++ {
-					options = append(options, params[i].Value)
+				for i := 1; i < len(dirParams); i++ {
+					options = append(options, dirParams[i].Value)
 				}
 				upstream.Servers[addr] = strings.Join(options, " ")
 			}
 		case "least_conn", "ip_hash", "random":
 			upstream.Algo = dir.GetName()
 		case "hash":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				upstream.Algo = "hash " + params[0].Value
+			dirParams := dir.GetParameters()
+			if len(dirParams) > 0 {
+				upstream.Algo = "hash " + dirParams[0].Value
 				// 检查是否有 consistent 参数
-				if len(params) > 1 && params[1].Value == "consistent" {
+				if len(dirParams) > 1 && dirParams[1].Value == "consistent" {
 					upstream.Algo += " consistent"
 				}
 			}
 		case "least_time":
-			params := dir.GetParameters()
-			if len(params) > 0 {
-				upstream.Algo = "least_time " + params[0].Value
+			dirParams := dir.GetParameters()
+			if len(dirParams) > 0 {
+				upstream.Algo = "least_time " + dirParams[0].Value
 			}
 		}
 	}
@@ -514,151 +516,107 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 
 // saveStreamServerConfig 使用 parser 生成并保存 Stream Server 配置
 func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) error {
-	// 构建 server 块
-	serverBlock := &config.Block{}
+	// 创建空配置的 parser
+	p, err := webserverNginx.NewParserFromString("server {}")
+	if err != nil {
+		return err
+	}
+	p.SetConfigPath(filePath)
 
 	// listen 指令
-	listenParams := []config.Parameter{{Value: server.Listen}}
+	listenParams := []string{server.Listen}
 	if server.UDP {
-		listenParams = append(listenParams, config.Parameter{Value: "udp"})
+		listenParams = append(listenParams, "udp")
 	}
 	if server.SSL {
-		listenParams = append(listenParams, config.Parameter{Value: "ssl"})
+		listenParams = append(listenParams, "ssl")
 	}
-	serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-		Name:       "listen",
-		Parameters: listenParams,
-	})
+	if err = p.SetOne("server.listen", listenParams); err != nil {
+		return err
+	}
 
 	// proxy_pass 指令
-	serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-		Name:       "proxy_pass",
-		Parameters: []config.Parameter{{Value: server.ProxyPass}},
-	})
+	if err = p.SetOne("server.proxy_pass", []string{server.ProxyPass}); err != nil {
+		return err
+	}
 
 	// proxy_protocol 指令
 	if server.ProxyProtocol {
-		serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-			Name:       "proxy_protocol",
-			Parameters: []config.Parameter{{Value: "on"}},
-		})
+		if err = p.SetOne("server.proxy_protocol", []string{"on"}); err != nil {
+			return err
+		}
 	}
 
 	// proxy_timeout 指令
 	if server.ProxyTimeout > 0 {
-		serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-			Name:       "proxy_timeout",
-			Parameters: []config.Parameter{{Value: formatNginxDuration(server.ProxyTimeout)}},
-		})
+		if err = p.SetOne("server.proxy_timeout", []string{formatNginxDuration(server.ProxyTimeout)}); err != nil {
+			return err
+		}
 	}
 
 	// proxy_connect_timeout 指令
 	if server.ProxyConnectTimeout > 0 {
-		serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-			Name:       "proxy_connect_timeout",
-			Parameters: []config.Parameter{{Value: formatNginxDuration(server.ProxyConnectTimeout)}},
-		})
+		if err = p.SetOne("server.proxy_connect_timeout", []string{formatNginxDuration(server.ProxyConnectTimeout)}); err != nil {
+			return err
+		}
 	}
 
 	// SSL 配置
 	if server.SSL {
 		if server.SSLCertificate != "" {
-			serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-				Name:       "ssl_certificate",
-				Parameters: []config.Parameter{{Value: server.SSLCertificate}},
-			})
+			if err = p.SetOne("server.ssl_certificate", []string{server.SSLCertificate}); err != nil {
+				return err
+			}
 		}
 		if server.SSLCertificateKey != "" {
-			serverBlock.Directives = append(serverBlock.Directives, &config.Directive{
-				Name:       "ssl_certificate_key",
-				Parameters: []config.Parameter{{Value: server.SSLCertificateKey}},
-			})
+			if err = p.SetOne("server.ssl_certificate_key", []string{server.SSLCertificateKey}); err != nil {
+				return err
+			}
 		}
 	}
 
-	// 创建 server 指令
-	serverDirective := &config.Directive{
-		Name:  "server",
-		Block: serverBlock,
-	}
-
-	// 创建配置
-	cfg := &config.Config{
-		Block: &config.Block{
-			Directives: []config.IDirective{serverDirective},
-		},
-	}
-
-	// 使用 dumper 生成配置内容
-	content := fmt.Sprintf("# Stream Server: %s\n", server.Name)
-	content += dumper.DumpConfig(cfg, dumper.IndentedStyle)
-	content += "\n"
-
-	return os.WriteFile(filePath, []byte(content), 0600)
+	return os.WriteFile(filePath, []byte(p.Dump()), 0600)
 }
 
 // saveStreamUpstreamConfig 使用 parser 生成并保存 Stream Upstream 配置
 func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream) error {
-	// 构建 upstream 块
-	upstreamBlock := &config.Block{}
+	// 创建空配置的 parser
+	p, err := webserverNginx.NewParserFromString(fmt.Sprintf("upstream %s {}", upstream.Name))
+	if err != nil {
+		return err
+	}
+	p.SetConfigPath(filePath)
 
 	// 负载均衡算法
 	if upstream.Algo != "" {
 		algoParts := strings.Fields(upstream.Algo)
 		if len(algoParts) > 0 {
-			algoParams := make([]config.Parameter, 0, len(algoParts)-1)
-			for i := 1; i < len(algoParts); i++ {
-				algoParams = append(algoParams, config.Parameter{Value: algoParts[i]})
+			algoParams := algoParts[1:]
+			if err = p.SetOne("upstream."+algoParts[0], algoParams); err != nil {
+				return err
 			}
-			upstreamBlock.Directives = append(upstreamBlock.Directives, &config.Directive{
-				Name:       algoParts[0],
-				Parameters: algoParams,
-			})
 		}
 	}
 
 	// 服务器列表
-	// 为了保持顺序一致，对 servers 按地址排序
 	var addrs []string
 	for addr := range upstream.Servers {
 		addrs = append(addrs, addr)
 	}
-	slices.Sort(addrs)
+	sort.Strings(addrs)
 
 	for _, addr := range addrs {
 		options := upstream.Servers[addr]
-		params := []config.Parameter{{Value: addr}}
+		params := []string{addr}
 		if options != "" {
-			for _, opt := range strings.Fields(options) {
-				params = append(params, config.Parameter{Value: opt})
-			}
+			params = append(params, strings.Fields(options)...)
 		}
-		upstreamBlock.Directives = append(upstreamBlock.Directives, &config.Directive{
-			Name:       "server",
-			Parameters: params,
-		})
+		if err = p.SetOne("upstream.server", params); err != nil {
+			return err
+		}
 	}
 
-	// 创建 upstream 指令
-	upstreamDirective := &config.Directive{
-		Name:       "upstream",
-		Parameters: []config.Parameter{{Value: upstream.Name}},
-		Block:      upstreamBlock,
-	}
-
-	// 创建配置
-	cfg := &config.Config{
-		Block: &config.Block{
-			Directives: []config.IDirective{upstreamDirective},
-		},
-	}
-
-	// 使用 dumper 生成配置内容
-	content := fmt.Sprintf("# Stream Upstream: %s\n", upstream.Name)
-	content += dumper.DumpConfig(cfg, dumper.IndentedStyle)
-	content += "\n"
-
-	return os.WriteFile(filePath, []byte(content), 0600)
+	return os.WriteFile(filePath, []byte(p.Dump()), 0600)
 }
 
 // parseNginxDuration 解析 Nginx 时间格式（如 10s, 1m, 1h）
