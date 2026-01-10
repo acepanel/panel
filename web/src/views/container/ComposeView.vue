@@ -10,7 +10,7 @@ const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const router = useRouter()
 
-const forcePush = ref(false)
+const forcePull = ref(false)
 
 const createModel = ref({
   name: '',
@@ -18,6 +18,8 @@ const createModel = ref({
   envs: []
 })
 const createModal = ref(false)
+
+const selectedRowKeys = ref<any>([])
 
 const updateModel = ref({
   name: '',
@@ -27,6 +29,7 @@ const updateModel = ref({
 const updateModal = ref(false)
 
 const columns: any = [
+  { type: 'selection', fixed: 'left' },
   {
     title: $gettext('Name'),
     key: 'name',
@@ -104,10 +107,10 @@ const columns: any = [
               const messageReactive = window.$message.loading($gettext('Starting...'), {
                 duration: 0
               })
-              useRequest(container.composeUp(row.name, forcePush.value))
+              useRequest(container.composeUp(row.name, forcePull.value))
                 .onSuccess(() => {
                   refresh()
-                  forcePush.value = false
+                  forcePull.value = false
                   window.$message.success($gettext('Start successful'))
                 })
                 .onComplete(() => {
@@ -137,8 +140,8 @@ const columns: any = [
                     h(
                       NCheckbox,
                       {
-                        checked: forcePush.value,
-                        onUpdateChecked: (v) => (forcePush.value = v)
+                        checked: forcePull.value,
+                        onUpdateChecked: (v) => (forcePull.value = v)
                       },
                       { default: () => $gettext('Force pull images') }
                     )
@@ -171,7 +174,7 @@ const columns: any = [
               useRequest(container.composeDown(row.name))
                 .onSuccess(() => {
                   refresh()
-                  forcePush.value = false
+                  forcePull.value = false
                   window.$message.success($gettext('Stop successful'))
                 })
                 .onComplete(() => {
@@ -282,6 +285,15 @@ const handleUpdate = () => {
     })
 }
 
+const handleBatchDelete = async () => {
+  const promises = selectedRowKeys.value.map((name: any) => container.composeRemove(name))
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Delete successful'))
+}
+
 onMounted(() => {
   refresh()
 })
@@ -290,9 +302,17 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{
-        $gettext('Create Compose')
-      }}</n-button>
+      <n-button type="primary" @click="createModal = true">
+        {{ $gettext('Create Compose') }}
+      </n-button>
+      <n-popconfirm @positive-click="handleBatchDelete">
+        <template #trigger>
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </template>
+        {{ $gettext('Are you sure you want to delete the selected composes?') }}
+      </n-popconfirm>
     </n-flex>
     <n-data-table
       striped
@@ -302,6 +322,7 @@ onMounted(() => {
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.name"
+      v-model:checked-row-keys="selectedRowKeys"
       v-model:page="page"
       v-model:pageSize="pageSize"
       :pagination="{
