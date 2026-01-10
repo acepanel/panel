@@ -430,8 +430,9 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 	}
 
 	upstream := &StreamUpstream{
-		Name:    name,
-		Servers: make(map[string]string),
+		Name:     name,
+		Servers:  make(map[string]string),
+		Resolver: []string{},
 	}
 
 	upstreamBlock := upstreamDir.GetBlock()
@@ -467,6 +468,16 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 			dirParams := dir.GetParameters()
 			if len(dirParams) > 0 {
 				upstream.Algo = "least_time " + dirParams[0].Value
+			}
+		case "resolver":
+			dirParams := dir.GetParameters()
+			for _, param := range dirParams {
+				upstream.Resolver = append(upstream.Resolver, param.Value)
+			}
+		case "resolver_timeout":
+			dirParams := dir.GetParameters()
+			if len(dirParams) > 0 {
+				upstream.ResolverTimeout = parseNginxDuration(dirParams[0].Value)
 			}
 		}
 	}
@@ -534,21 +545,19 @@ func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) erro
 
 // saveStreamUpstreamConfig 生成并保存 Stream Upstream 配置
 func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream) error {
-	// 创建空配置的 parser
-	p, err := webserverNginx.NewParserFromString(fmt.Sprintf("upstream %s {}", upstream.Name))
-	if err != nil {
-		return err
-	}
-	p.SetConfigPath(filePath)
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("upstream %s {\n", upstream.Name))
 
 	// 负载均衡算法
 	if upstream.Algo != "" {
-		algoParts := strings.Fields(upstream.Algo)
-		if len(algoParts) > 0 {
-			algoParams := algoParts[1:]
-			if err = p.SetOne("upstream."+algoParts[0], algoParams); err != nil {
-				return err
-			}
+		sb.WriteString(fmt.Sprintf("    %s;\n", upstream.Algo))
+	}
+
+	// resolver 配置
+	if len(upstream.Resolver) > 0 {
+		sb.WriteString(fmt.Sprintf("    resolver %s;\n", strings.Join(upstream.Resolver, " ")))
+		if upstream.ResolverTimeout > 0 {
+			sb.WriteString(fmt.Sprintf("    resolver_timeout %s;\n", formatNginxDuration(upstream.ResolverTimeout)))
 		}
 	}
 
@@ -561,16 +570,16 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 
 	for _, addr := range addrs {
 		options := upstream.Servers[addr]
-		params := []string{addr}
 		if options != "" {
-			params = append(params, strings.Fields(options)...)
-		}
-		if err = p.SetOne("upstream.server", params); err != nil {
-			return err
+			sb.WriteString(fmt.Sprintf("    server %s %s;\n", addr, options))
+		} else {
+			sb.WriteString(fmt.Sprintf("    server %s;\n", addr))
 		}
 	}
 
-	return os.WriteFile(filePath, []byte(p.Dump()), 0600)
+	sb.WriteString("}\n")
+
+	return os.WriteFile(filePath, []byte(sb.String()), 0600)
 }
 
 // parseNginxDuration 解析 Nginx 时间格式（如 10s, 1m, 1h）

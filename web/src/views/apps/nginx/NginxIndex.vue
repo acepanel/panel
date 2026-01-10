@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NInputNumber, NPopconfirm } from 'naive-ui'
+import {
+  NButton,
+  NDataTable,
+  NDynamicTags,
+  NInputGroup,
+  NInputNumber,
+  NPopconfirm,
+  NSelect
+} from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import nginx from '@/api/apps/nginx'
@@ -13,6 +21,48 @@ const props = defineProps<{
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const streamTab = ref('server')
+
+// 时间单位常量（纳秒）
+const SECOND = 1000000000
+const MINUTE = 60 * SECOND
+const HOUR = 60 * MINUTE
+
+// 从纳秒解析为 {value, unit} 格式
+const parseDuration = (ns: number): { value: number; unit: string } => {
+  if (!ns || ns <= 0) return { value: 5, unit: 's' }
+
+  if (ns >= HOUR && ns % HOUR === 0) {
+    return { value: ns / HOUR, unit: 'h' }
+  }
+  if (ns >= MINUTE && ns % MINUTE === 0) {
+    return { value: ns / MINUTE, unit: 'm' }
+  }
+  return { value: Math.floor(ns / SECOND), unit: 's' }
+}
+
+// 构建纳秒时间
+const buildDuration = (value: number, unit: string): number => {
+  switch (unit) {
+    case 'h':
+      return value * HOUR
+    case 'm':
+      return value * MINUTE
+    default:
+      return value * SECOND
+  }
+}
+
+// 更新超时时间值
+const updateResolverTimeoutValue = (value: number) => {
+  const parsed = parseDuration(streamUpstreamModel.value.resolver_timeout)
+  streamUpstreamModel.value.resolver_timeout = buildDuration(value, parsed.unit)
+}
+
+// 更新超时时间单位
+const updateResolverTimeoutUnit = (unit: string) => {
+  const parsed = parseDuration(streamUpstreamModel.value.resolver_timeout)
+  streamUpstreamModel.value.resolver_timeout = buildDuration(parsed.value, unit)
+}
 
 const { data: config } = useRequest(props.api.config, {
   initialData: ''
@@ -66,7 +116,9 @@ const streamUpstreamEditName = ref('')
 const streamUpstreamModel = ref({
   name: '',
   algo: '',
-  servers: {} as Record<string, string>
+  servers: {} as Record<string, string>,
+  resolver: [] as string[],
+  resolver_timeout: 5 * SECOND
 })
 
 // Upstream 服务器编辑
@@ -347,7 +399,9 @@ const handleCreateStreamUpstream = () => {
   streamUpstreamModel.value = {
     name: '',
     algo: '',
-    servers: {}
+    servers: {},
+    resolver: [],
+    resolver_timeout: 5 * SECOND
   }
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
@@ -360,7 +414,9 @@ const handleEditStreamUpstream = (row: any) => {
   streamUpstreamModel.value = {
     name: row.name,
     algo: row.algo || '',
-    servers: { ...row.servers }
+    servers: { ...row.servers },
+    resolver: row.resolver,
+    resolver_timeout: row.resolver_timeout || 5 * SECOND
   }
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
@@ -387,9 +443,17 @@ const handleSaveStreamUpstream = () => {
     return
   }
 
+  const data = {
+    name: streamUpstreamModel.value.name,
+    algo: streamUpstreamModel.value.algo,
+    servers: streamUpstreamModel.value.servers,
+    resolver: streamUpstreamModel.value.resolver,
+    resolver_timeout: streamUpstreamModel.value.resolver_timeout
+  }
+
   const request = streamUpstreamEditName.value
-    ? props.api.stream.updateUpstream(streamUpstreamEditName.value, streamUpstreamModel.value)
-    : props.api.stream.createUpstream(streamUpstreamModel.value)
+    ? props.api.stream.updateUpstream(streamUpstreamEditName.value, data)
+    : props.api.stream.createUpstream(data)
 
   useRequest(request).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
@@ -653,6 +717,37 @@ const handleDeleteStreamUpstream = (name: string) => {
             </tbody>
           </n-table>
         </n-flex>
+      </n-form-item>
+      <n-form-item path="resolver" :label="$gettext('DNS Resolver')">
+        <n-dynamic-tags
+          v-model:value="streamUpstreamModel.resolver"
+          :placeholder="$gettext('e.g., 8.8.8.8')"
+        />
+      </n-form-item>
+      <n-form-item
+        v-if="streamUpstreamModel.resolver.length"
+        path="resolver_timeout"
+        :label="$gettext('Resolver Timeout')"
+      >
+        <n-input-group>
+          <n-input-number
+            :value="parseDuration(streamUpstreamModel.resolver_timeout).value"
+            :min="1"
+            :max="3600"
+            style="flex: 1"
+            @update:value="(v: number | null) => updateResolverTimeoutValue(v ?? 5)"
+          />
+          <n-select
+            :value="parseDuration(streamUpstreamModel.resolver_timeout).unit"
+            :options="[
+              { label: $gettext('Seconds'), value: 's' },
+              { label: $gettext('Minutes'), value: 'm' },
+              { label: $gettext('Hours'), value: 'h' }
+            ]"
+            style="width: 100px"
+            @update:value="(v: string) => updateResolverTimeoutUnit(v)"
+          />
+        </n-input-group>
       </n-form-item>
     </n-form>
     <n-button type="info" block @click="handleSaveStreamUpstream">

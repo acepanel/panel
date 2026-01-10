@@ -20,7 +20,9 @@ type StreamServer struct {
 }
 
 type StreamUpstream struct {
-	Name    string            `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"` // 上游名称
-	Servers map[string]string `form:"servers" json:"servers" validate:"required"`                  // 上游服务器及配置，如: map["127.0.0.1:3306"] = "weight=5"
-	Algo    string            `form:"algo" json:"algo"`                                            // 负载均衡算法，如: "least_conn", "hash $remote_addr"
+	Name            string            `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"` // 上游名称
+	Servers         map[string]string `form:"servers" json:"servers" validate:"required"`                  // 上游服务器及配置，如: map["127.0.0.1:3306"] = "weight=5"
+	Algo            string            `form:"algo" json:"algo"`                                            // 负载均衡算法，如: "least_conn", "hash $remote_addr"
+	Resolver        []string          `form:"resolver" json:"resolver"`                                    // DNS 解析器，如: ["8.8.8.8", "ipv6=off"]
+	ResolverTimeout time.Duration     `form:"resolver_timeout" json:"resolver_timeout"`                    // DNS 解析超时时间
 }
