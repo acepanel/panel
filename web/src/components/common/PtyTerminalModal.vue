@@ -133,12 +133,13 @@ const closeTerminal = () => {
 const onTerminalWheel = (event: WheelEvent) => {
   if (event.ctrlKey && term.value && fitAddon) {
     event.preventDefault()
+    const currentFontSize = term.value.options.fontSize ?? 14
     if (event.deltaY > 0) {
-      if (term.value.options.fontSize! > 12) {
-        term.value.options.fontSize = term.value.options.fontSize! - 1
+      if (currentFontSize > 12) {
+        term.value.options.fontSize = currentFontSize - 1
       }
     } else {
-      term.value.options.fontSize = term.value.options.fontSize! + 1
+      term.value.options.fontSize = currentFontSize + 1
     }
     fitAddon.fit()
   }
