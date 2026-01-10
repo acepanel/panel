@@ -29,10 +29,7 @@ type Turn struct {
 
 // NewTurn 创建容器终端转发器
 func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, command []string) (*Turn, error) {
-	apiClient, err := client.NewClientWithOpts(
-		client.WithHost("unix:///var/run/docker.sock"),
-		client.WithAPIVersionNegotiation(),
-	)
+	apiClient, err := client.New(client.WithHost("unix:///var/run/docker.sock"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}

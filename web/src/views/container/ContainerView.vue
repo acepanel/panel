@@ -422,7 +422,6 @@ const bulkUnpause = async () => {
 }
 
 const closeContainerCreateModal = () => {
-  containerCreateModal.value = false
   refresh()
 }
 
@@ -644,7 +643,7 @@ onUnmounted(() => {
       style="height: 100%; min-height: 60vh; background: #111"
     ></div>
   </n-modal>
-  <ContainerCreate :show="containerCreateModal" @close="closeContainerCreateModal" />
+  <ContainerCreate v-model:show="containerCreateModal" @update:show="closeContainerCreateModal" />
 </template>
 
 <style scoped lang="scss">

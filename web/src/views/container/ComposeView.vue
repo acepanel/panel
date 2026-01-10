@@ -329,11 +329,7 @@ onMounted(() => {
         <n-input v-model:value="createModel.name" type="text" />
       </n-form-item>
       <n-form-item path="compose" :label="$gettext('Compose')">
-        <n-input
-          v-model:value="createModel.compose"
-          type="textarea"
-          :autosize="{ minRows: 10, maxRows: 20 }"
-        />
+        <common-editor v-model:value="createModel.compose" lang="yaml" height="40vh" />
       </n-form-item>
       <n-form-item path="envs" :label="$gettext('Environment Variables')">
         <n-dynamic-input
@@ -359,11 +355,7 @@ onMounted(() => {
   >
     <n-form :model="updateModel">
       <n-form-item path="compose" :label="$gettext('Compose')">
-        <n-input
-          v-model:value="updateModel.compose"
-          type="textarea"
-          :autosize="{ minRows: 10, maxRows: 20 }"
-        />
+        <common-editor v-model:value="updateModel.compose" lang="yaml" height="40vh" />
       </n-form-item>
       <n-form-item path="envs" :label="$gettext('Environment Variables')">
         <n-dynamic-input
