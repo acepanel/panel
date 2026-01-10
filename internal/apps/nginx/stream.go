@@ -10,21 +10,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/tufanbarisyildirim/gonginx/config"
-	"github.com/tufanbarisyildirim/gonginx/dumper"
-	"github.com/tufanbarisyildirim/gonginx/parser"
-
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/service"
 	"github.com/acepanel/panel/pkg/systemctl"
 	webserverNginx "github.com/acepanel/panel/pkg/webserver/nginx"
+	"github.com/go-chi/chi/v5"
+	"github.com/tufanbarisyildirim/gonginx/config"
+	"github.com/tufanbarisyildirim/gonginx/dumper"
 )
-
-// streamDir 返回 stream 配置目录
-func (s *App) streamDir() string {
-	return filepath.Join(app.Root, "server/nginx/conf/stream")
-}
 
 // ListStreamServers 获取 Stream Server 列表
 func (s *App) ListStreamServers(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +31,7 @@ func (s *App) ListStreamServers(w http.ResponseWriter, r *http.Request) {
 
 // CreateStreamServer 创建 Stream Server
 func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[CreateStreamServer](r)
+	req, err := service.Bind[StreamServer](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -58,7 +51,7 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 使用 parser 生成配置并保存
-	if err = s.saveStreamServerConfig(configPath, &req.StreamServer); err != nil {
+	if err = s.saveStreamServerConfig(configPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
 		return
 	}
@@ -74,24 +67,6 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// GetStreamServer 获取单个 Stream Server
-func (s *App) GetStreamServer(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", name))
-	server, err := s.parseStreamServerFile(configPath, name)
-	if err != nil {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
-		return
-	}
-
-	service.Success(w, server)
-}
-
 // UpdateStreamServer 更新 Stream Server
 func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
@@ -100,7 +75,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := service.Bind[UpdateStreamServer](r)
+	req, err := service.Bind[StreamServer](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -124,7 +99,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 使用 parser 生成配置并保存
-	if err = s.saveStreamServerConfig(newConfigPath, &req.StreamServer); err != nil {
+	if err = s.saveStreamServerConfig(newConfigPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
 		return
 	}
@@ -183,7 +158,7 @@ func (s *App) ListStreamUpstreams(w http.ResponseWriter, r *http.Request) {
 
 // CreateStreamUpstream 创建 Stream Upstream
 func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[CreateStreamUpstream](r)
+	req, err := service.Bind[StreamUpstream](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -203,7 +178,7 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 使用 parser 生成配置并保存
-	if err = s.saveStreamUpstreamConfig(configPath, &req.StreamUpstream); err != nil {
+	if err = s.saveStreamUpstreamConfig(configPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
 		return
 	}
@@ -219,24 +194,6 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// GetStreamUpstream 获取单个 Stream Upstream
-func (s *App) GetStreamUpstream(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", name))
-	upstream, err := s.parseStreamUpstreamFile(configPath, name)
-	if err != nil {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream upstream not found: %s", name))
-		return
-	}
-
-	service.Success(w, upstream)
-}
-
 // UpdateStreamUpstream 更新 Stream Upstream
 func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
@@ -245,7 +202,7 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := service.Bind[UpdateStreamUpstream](r)
+	req, err := service.Bind[StreamUpstream](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -269,7 +226,7 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 使用 parser 生成配置并保存
-	if err = s.saveStreamUpstreamConfig(newConfigPath, &req.StreamUpstream); err != nil {
+	if err = s.saveStreamUpstreamConfig(newConfigPath, req); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
 		return
 	}
@@ -320,13 +277,10 @@ func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
 func (s *App) parseStreamServers() ([]StreamServer, error) {
 	entries, err := os.ReadDir(s.streamDir())
 	if err != nil {
-		if os.IsNotExist(err) {
-			return []StreamServer{}, nil
-		}
 		return nil, err
 	}
 
-	var servers []StreamServer
+	servers := make([]StreamServer, 0)
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -445,13 +399,10 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 func (s *App) parseStreamUpstreams() ([]StreamUpstream, error) {
 	entries, err := os.ReadDir(s.streamDir())
 	if err != nil {
-		if os.IsNotExist(err) {
-			return []StreamUpstream{}, nil
-		}
 		return nil, err
 	}
 
-	var upstreams []StreamUpstream
+	upstreams := make([]StreamUpstream, 0)
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -760,21 +711,7 @@ func formatNginxDuration(d time.Duration) string {
 	return fmt.Sprintf("%ds", seconds)
 }
 
-// NewStreamParserFromFile 从指定文件路径创建 Stream 配置解析器
-func NewStreamParserFromFile(filePath string) (*webserverNginx.Parser, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
-	}
-
-	p := parser.NewStringParser(string(content), parser.WithSkipIncludeParsingErr(), parser.WithSkipValidDirectivesErr())
-	cfg, err := p.Parse()
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse config file: %w", err)
-	}
-
-	// 由于 webserverNginx.Parser 的字段是私有的，我们直接返回解析后的 config
-	// 这里我们创建一个新的包装
-	_ = cfg
-	return webserverNginx.NewParserFromFile(filePath)
+// streamDir 返回 stream 配置目录
+func (s *App) streamDir() string {
+	return filepath.Join(app.Root, "server/nginx/conf/stream")
 }

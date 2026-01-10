@@ -14,18 +14,15 @@ export default {
 
   // Stream Server 接口
   stream: {
-    // Server 相关
     listServers: (): any => http.Get('/apps/openresty/stream/servers'),
     createServer: (data: any): any => http.Post('/apps/openresty/stream/servers', data),
-    getServer: (name: string): any => http.Get(`/apps/openresty/stream/servers/${name}`),
-    updateServer: (name: string, data: any): any => http.Put(`/apps/openresty/stream/servers/${name}`, data),
+    updateServer: (name: string, data: any): any =>
+      http.Put(`/apps/openresty/stream/servers/${name}`, data),
     deleteServer: (name: string): any => http.Delete(`/apps/openresty/stream/servers/${name}`),
-
-    // Upstream 相关
     listUpstreams: (): any => http.Get('/apps/openresty/stream/upstreams'),
     createUpstream: (data: any): any => http.Post('/apps/openresty/stream/upstreams', data),
-    getUpstream: (name: string): any => http.Get(`/apps/openresty/stream/upstreams/${name}`),
-    updateUpstream: (name: string, data: any): any => http.Put(`/apps/openresty/stream/upstreams/${name}`, data),
+    updateUpstream: (name: string, data: any): any =>
+      http.Put(`/apps/openresty/stream/upstreams/${name}`, data),
     deleteUpstream: (name: string): any => http.Delete(`/apps/openresty/stream/upstreams/${name}`)
   }
 }
