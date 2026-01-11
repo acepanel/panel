@@ -114,16 +114,31 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	// 读取 WebSocket 输入并转发到 PTY
 	go func() {
 		for {
-			_, data, err := ws.Read(ctx)
+			msgType, data, err := ws.Read(ctx)
 			if err != nil {
 				// 通常是客户端关闭连接，取消运行
 				cancel()
 				return
 			}
-			// 将用户输入写入 PTY
-			if len(data) > 0 {
-				_, _ = ptyResult.Write(data)
+			if len(data) == 0 {
+				continue
 			}
+
+			// 检查是否是 resize 消息（JSON 格式，以 { 开头）
+			if msgType == websocket.MessageText && data[0] == '{' {
+				var resizeMsg struct {
+					Type string `json:"type"`
+					Rows uint16 `json:"rows"`
+					Cols uint16 `json:"cols"`
+				}
+				if err := json.Unmarshal(data, &resizeMsg); err == nil && resizeMsg.Type == "resize" {
+					_ = ptyResult.Resize(resizeMsg.Rows, resizeMsg.Cols)
+					continue
+				}
+			}
+
+			// 普通用户输入，写入 PTY
+			_, _ = ptyResult.Write(data)
 		}
 	}()
 

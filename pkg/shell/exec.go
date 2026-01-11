@@ -252,6 +252,14 @@ func (p *PTYResult) Kill() error {
 	return nil
 }
 
+// Resize 调整 PTY 窗口大小
+func (p *PTYResult) Resize(rows, cols uint16) error {
+	return pty.Setsize(p.ptmx, &pty.Winsize{
+		Rows: rows,
+		Cols: cols,
+	})
+}
+
 // ExecWithPTY 使用 PTY 执行命令，返回 PTYResult 用于流式读取输出
 // 调用方需要负责调用 Close() 和 Wait()
 func ExecWithPTY(ctx context.Context, shell string, args ...any) (*PTYResult, error) {

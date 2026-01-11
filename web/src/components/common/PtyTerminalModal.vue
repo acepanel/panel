@@ -73,6 +73,16 @@ const initTerminal = async () => {
     term.value.open(terminalRef.value)
     fitAddon.fit()
 
+    // 发送初始窗口大小
+    sendResize()
+
+    // 监听终端大小变化
+    term.value.onResize(({ rows, cols }) => {
+      if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
+        ptyWs.send(JSON.stringify({ type: 'resize', rows, cols }))
+      }
+    })
+
     // 转发用户输入到 WebSocket
     term.value.onData((data) => {
       if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
@@ -112,6 +122,22 @@ const initTerminal = async () => {
     console.error('Failed to start PTY:', error)
     isRunning.value = false
     emit('error', $gettext('Failed to connect'))
+  }
+}
+
+// 发送窗口大小到后端
+const sendResize = () => {
+  if (term.value && ptyWs && ptyWs.readyState === WebSocket.OPEN) {
+    const { rows, cols } = term.value
+    ptyWs.send(JSON.stringify({ type: 'resize', rows, cols }))
+  }
+}
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (fitAddon && term.value) {
+    fitAddon.fit()
+    // fit() 会触发 term.onResize，所以不需要手动发送 resize
   }
 }
 
@@ -200,12 +226,18 @@ watch(
     if (newVal) {
       await nextTick()
       initTerminal()
+      // 添加窗口 resize 监听
+      window.addEventListener('resize', handleResize)
+    } else {
+      // 移除窗口 resize 监听
+      window.removeEventListener('resize', handleResize)
     }
   }
 )
 
 onUnmounted(() => {
   closeTerminal()
+  window.removeEventListener('resize', handleResize)
 })
 
 defineExpose({
