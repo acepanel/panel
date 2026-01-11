@@ -305,6 +305,19 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = ptyResult.Close() }()
 
+	// 监听 WebSocket 断开连接，取消 context 并杀死进程
+	go func() {
+		for {
+			_, _, err := ws.Read(ctx)
+			if err != nil {
+				// WebSocket 断开连接，取消 context 杀死进程
+				cancel()
+				_ = ptyResult.Kill()
+				return
+			}
+		}
+	}()
+
 	// 读取 PTY 输出并发送到 WebSocket
 	go func() {
 		buf := make([]byte, 4096)
@@ -313,6 +326,8 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 			if n > 0 {
 				if writeErr := ws.Write(ctx, websocket.MessageBinary, buf[:n]); writeErr != nil {
 					s.log.Warn("[Websocket] write pty output error", slog.Any("err", writeErr))
+					cancel()
+					_ = ptyResult.Kill()
 					return
 				}
 			}
@@ -327,7 +342,10 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 
 	// 等待命令完成
 	if err = ptyResult.Wait(); err != nil {
-		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Command failed: %v", err)+"\r\n"))
+		// 如果是因为被杀死，不输出错误
+		if ctx.Err() == nil {
+			_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Command failed: %v", err)+"\r\n"))
+		}
 	}
 
 	_ = ws.Close(websocket.StatusNormalClosure, "")

@@ -239,6 +239,14 @@ func (p *PTYResult) Close() error {
 	return p.ptmx.Close()
 }
 
+// Kill 杀死进程
+func (p *PTYResult) Kill() error {
+	if p.cmd.Process != nil {
+		return p.cmd.Process.Kill()
+	}
+	return nil
+}
+
 // ExecWithPTY 使用 PTY 执行命令，返回 PTYResult 用于流式读取输出
 // 调用方需要负责调用 Close() 和 Wait()
 func ExecWithPTY(ctx context.Context, shell string, args ...any) (*PTYResult, error) {
