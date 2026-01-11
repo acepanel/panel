@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-10 18:06\n"
+"PO-Revision-Date: 2026-01-11 15:49\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -450,6 +450,10 @@ msgstr "保存设置失败：%v"
 #: internal/service/cli.go:158
 msgid "Failed to save user info: %v"
 msgstr "保存用户信息失败：%v"
+
+#: internal/service/ws.go:107
+msgid "Failed to start command: %v"
+msgstr "启动命令失败：%v"
 
 #: internal/service/cli.go:125
 #: internal/service/cli.go:128
@@ -1391,6 +1395,10 @@ msgstr "检查服务器连接失败"
 msgid "client ip changed, please login again"
 msgstr "客户端 IP 已更改，请重新登录"
 
+#: internal/service/ws.go:100
+msgid "command is empty"
+msgstr "命令为空"
+
 #: internal/data/backup.go:561
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 备份文件"
@@ -1458,6 +1466,10 @@ msgstr "清理临时文件失败：%v"
 msgid "failed to create .ssh directory: %v"
 msgstr "创建 .ssh 目录失败：%v"
 
+#: internal/service/ws.go:225
+msgid "failed to create docker client: %v"
+msgstr "创建 docker 客户端失败：%v"
+
 #: internal/service/toolbox_disk.go:353
 msgid "failed to create logical volume: %v"
 msgstr "创建逻辑卷失败：%v"
@@ -1513,6 +1525,10 @@ msgstr "禁用 %s 服务失败：%v"
 #: internal/service/systemctl.go:62
 msgid "failed to enable %s service: %v"
 msgstr "启用 %s 服务失败：%v"
+
+#: internal/service/ws.go:239
+msgid "failed to encode auth: %v"
+msgstr "编码认证信息失败：%v"
 
 #: internal/service/toolbox_disk.go:424
 msgid "failed to extend logical volume: %v"
@@ -1606,6 +1622,10 @@ msgstr "获取磁盘列表失败：%v"
 #: internal/service/toolbox_system.go:124
 msgid "failed to get disk space: %v"
 msgstr "获取磁盘空间失败： %v"
+
+#: internal/service/file.go:324
+msgid "failed to get file system info"
+msgstr "获取文件系统信息失败"
 
 #: internal/service/toolbox_disk.go:126
 msgid "failed to get filesystem type: %v"
@@ -1756,11 +1776,16 @@ msgstr "解析 fail2ban 的 ignoreip 失败"
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
-#: internal/service/ws.go:110
+#: internal/service/ws.go:248
+msgid "failed to pull image: %v"
+msgstr "拉取镜像失败：%v"
+
+#: internal/service/ws.go:72
 msgid "failed to read command output: %v"
 msgstr "读取命令输出失败： %v"
 
-#: internal/service/ws.go:93
+#: internal/service/ws.go:55
+#: internal/service/ws.go:95
 msgid "failed to read command: %v"
 msgstr "读取命令失败： %v"
 
@@ -1775,6 +1800,10 @@ msgstr "读取 fstab 失败：%v"
 #: internal/service/toolbox_ssh.go:242
 msgid "failed to read generated key: %v"
 msgstr "读取生成的密钥失败：%v"
+
+#: internal/service/ws.go:213
+msgid "failed to read params: %v"
+msgstr "读取参数失败：%v"
 
 #: internal/service/toolbox_ssh.go:41
 msgid "failed to read sshd_config: %v"
@@ -1844,7 +1873,7 @@ msgstr "重启 %s 失败： %v"
 msgid "failed to restart MySQL: %v"
 msgstr "重启 MySQL 失败： %v"
 
-#: internal/service/ws.go:99
+#: internal/service/ws.go:61
 msgid "failed to run command: %v"
 msgstr "运行命令失败： %v"
 
@@ -1867,6 +1896,10 @@ msgstr "设置 hosts 失败： %v"
 #: internal/service/systemctl.go:122
 msgid "failed to start %s service: %v"
 msgstr "启动 %s 服务失败： %v"
+
+#: internal/service/ws.go:186
+msgid "failed to start container terminal: %v"
+msgstr "启动容器终端失败：%v"
 
 #: internal/service/systemctl.go:137
 msgid "failed to stop %s service: %v"
@@ -1972,6 +2005,10 @@ msgstr "无效的密钥，请刷新页面"
 #: internal/service/toolbox_disk.go:347
 msgid "invalid logical volume size"
 msgstr "无效的逻辑卷大小"
+
+#: internal/service/ws.go:218
+msgid "invalid params: %v"
+msgstr "无效的参数：%v"
 
 #: internal/data/user_token.go:176
 msgid "invalid request ip: %s"

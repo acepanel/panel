@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-10 17:53\n"
+"PO-Revision-Date: 2026-01-11 15:38\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
@@ -450,6 +450,10 @@ msgstr "無法保存設置：%v"
 #: internal/service/cli.go:158
 msgid "Failed to save user info: %v"
 msgstr "無法保存用戶信息：%v"
+
+#: internal/service/ws.go:107
+msgid "Failed to start command: %v"
+msgstr ""
 
 #: internal/service/cli.go:125
 #: internal/service/cli.go:128
@@ -1391,6 +1395,10 @@ msgstr "檢查伺服器連接失敗"
 msgid "client ip changed, please login again"
 msgstr ""
 
+#: internal/service/ws.go:100
+msgid "command is empty"
+msgstr ""
+
 #: internal/data/backup.go:561
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
@@ -1458,6 +1466,10 @@ msgstr "清理臨時文件失敗：%v"
 msgid "failed to create .ssh directory: %v"
 msgstr ""
 
+#: internal/service/ws.go:225
+msgid "failed to create docker client: %v"
+msgstr ""
+
 #: internal/service/toolbox_disk.go:353
 msgid "failed to create logical volume: %v"
 msgstr ""
@@ -1513,6 +1525,10 @@ msgstr "禁用 %s 服務失敗：%v"
 #: internal/service/systemctl.go:62
 msgid "failed to enable %s service: %v"
 msgstr "啟用 %s 服務失敗：%v"
+
+#: internal/service/ws.go:239
+msgid "failed to encode auth: %v"
+msgstr ""
 
 #: internal/service/toolbox_disk.go:424
 msgid "failed to extend logical volume: %v"
@@ -1606,6 +1622,10 @@ msgstr ""
 #: internal/service/toolbox_system.go:124
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
+
+#: internal/service/file.go:324
+msgid "failed to get file system info"
+msgstr ""
 
 #: internal/service/toolbox_disk.go:126
 msgid "failed to get filesystem type: %v"
@@ -1756,11 +1776,16 @@ msgstr "無法解析 fail2ban 的 ignoreip"
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
-#: internal/service/ws.go:110
+#: internal/service/ws.go:248
+msgid "failed to pull image: %v"
+msgstr ""
+
+#: internal/service/ws.go:72
 msgid "failed to read command output: %v"
 msgstr "讀取命令輸出失敗：%v"
 
-#: internal/service/ws.go:93
+#: internal/service/ws.go:55
+#: internal/service/ws.go:95
 msgid "failed to read command: %v"
 msgstr "讀取命令失敗：%v"
 
@@ -1774,6 +1799,10 @@ msgstr ""
 
 #: internal/service/toolbox_ssh.go:242
 msgid "failed to read generated key: %v"
+msgstr ""
+
+#: internal/service/ws.go:213
+msgid "failed to read params: %v"
 msgstr ""
 
 #: internal/service/toolbox_ssh.go:41
@@ -1844,7 +1873,7 @@ msgstr "重新啟動 %s 失敗：%v"
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
-#: internal/service/ws.go:99
+#: internal/service/ws.go:61
 msgid "failed to run command: %v"
 msgstr "運行命令失敗：%v"
 
@@ -1867,6 +1896,10 @@ msgstr "設置 hosts 失敗： %v"
 #: internal/service/systemctl.go:122
 msgid "failed to start %s service: %v"
 msgstr "啟動 %s 服務失敗：%v"
+
+#: internal/service/ws.go:186
+msgid "failed to start container terminal: %v"
+msgstr ""
 
 #: internal/service/systemctl.go:137
 msgid "failed to stop %s service: %v"
@@ -1971,6 +2004,10 @@ msgstr "無效的密鑰，請重新整理頁面"
 
 #: internal/service/toolbox_disk.go:347
 msgid "invalid logical volume size"
+msgstr ""
+
+#: internal/service/ws.go:218
+msgid "invalid params: %v"
 msgstr ""
 
 #: internal/data/user_token.go:176
