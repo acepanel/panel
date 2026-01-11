@@ -403,7 +403,7 @@ onMounted(() => {
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
-  <PtyTerminalModal
+  <pty-terminal-modal
     v-model:show="upModal"
     :title="$gettext('Starting Compose') + ' - ' + upComposeName"
     :command="upCommand"
