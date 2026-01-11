@@ -65,8 +65,12 @@ func (t *Turn) Wait() {
 	_ = t.cmd.Wait()
 }
 
-// Close 关闭 PTY
+// Close 关闭 PTY 并终止子进程
 func (t *Turn) Close() {
+	// 先向子进程发送 SIGTERM 信号以终止它
+	if t.cmd != nil && t.cmd.Process != nil {
+		_ = t.cmd.Process.Signal(syscall.SIGTERM)
+	}
 	_ = t.ptmx.Close()
 }
 
