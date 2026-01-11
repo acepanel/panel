@@ -280,7 +280,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	// 读取第一条消息获取要执行的命令
@@ -305,15 +305,24 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = ptyResult.Close() }()
 
-	// 监听 WebSocket 断开连接，取消 context 并杀死进程
+	// 监听 context 取消（连接断开），杀死进程
+	go func() {
+		<-ctx.Done()
+		_ = ptyResult.Kill()
+	}()
+
+	// 读取 WebSocket 输入并转发到 PTY（同时检测连接断开）
 	go func() {
 		for {
-			_, _, err := ws.Read(ctx)
+			_, data, err := ws.Read(ctx)
 			if err != nil {
 				// WebSocket 断开连接，取消 context 杀死进程
 				cancel()
-				_ = ptyResult.Kill()
 				return
+			}
+			// 将用户输入写入 PTY
+			if len(data) > 0 {
+				_, _ = ptyResult.Write(data)
 			}
 		}
 	}()
@@ -327,7 +336,6 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 				if writeErr := ws.Write(ctx, websocket.MessageBinary, buf[:n]); writeErr != nil {
 					s.log.Warn("[Websocket] write pty output error", slog.Any("err", writeErr))
 					cancel()
-					_ = ptyResult.Kill()
 					return
 				}
 			}

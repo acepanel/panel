@@ -229,6 +229,11 @@ func (p *PTYResult) Read(buf []byte) (int, error) {
 	return p.ptmx.Read(buf)
 }
 
+// Write 写入 PTY 输入
+func (p *PTYResult) Write(data []byte) (int, error) {
+	return p.ptmx.Write(data)
+}
+
 // Wait 等待命令完成
 func (p *PTYResult) Wait() error {
 	return p.cmd.Wait()
