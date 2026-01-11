@@ -37,7 +37,6 @@ const upCommand = ref('')
 // 处理 Compose 启动
 const handleComposeUp = (row: any, force: boolean) => {
   upComposeName.value = row.name
-  // 在前端组装 compose up 命令，使用后端返回的路径
   let cmd = `docker compose -f ${row.path}/docker-compose.yml up -d`
   if (force) {
     cmd += ' --pull always'
@@ -411,4 +410,3 @@ onMounted(() => {
     @complete="handleUpComplete"
   />
 </template>
-
