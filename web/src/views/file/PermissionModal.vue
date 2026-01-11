@@ -20,17 +20,21 @@ const checkbox = ref({
   other: ['read', 'execute']
 })
 
+// 规范化 mode 字符串，确保为3位数字
+const normalizeMode = (modeStr: string): string => {
+  // 去掉前导0，但保留至少一位数字
+  const trimmed = modeStr.replace(/^0+(?=\d)/, '')
+  // 确保 mode 至少有3位，不足则左补0
+  return trimmed.padStart(3, '0') || '755'
+}
+
 // 当打开弹窗时，从文件信息中获取当前权限/所有者/组
 watch(
   () => show.value,
   (newVal) => {
     if (newVal && fileInfoList.value.length > 0) {
       const firstFile = fileInfoList.value[0]
-      // 设置权限（去掉前导0，但保留至少一位数字）
-      let modeStr = firstFile.mode.replace(/^0+(?=\d)/, '')
-      // 确保 mode 至少有3位，不足则左补0
-      modeStr = modeStr.padStart(3, '0')
-      mode.value = modeStr || '755'
+      mode.value = normalizeMode(firstFile.mode)
       owner.value = firstFile.owner || 'www'
       group.value = firstFile.group || 'www'
       updateCheckboxes()
@@ -68,8 +72,7 @@ const calculateMode = () => {
 }
 
 const updateCheckboxes = () => {
-  // 确保 mode 至少有3位，不足则左补0
-  const paddedMode = mode.value.padStart(3, '0')
+  const paddedMode = normalizeMode(mode.value)
   const permissions = paddedMode.split('').map(Number)
 
   checkbox.value.owner = permissions[0] & 4 ? ['read'] : []

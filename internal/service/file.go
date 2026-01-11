@@ -319,7 +319,11 @@ func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stat := info.Sys().(*syscall.Stat_t)
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get file system info"))
+		return
+	}
 
 	// 检查是否有 immutable 属性
 	immutable := false
