@@ -64,7 +64,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(client *stdssh.Client) { _ = client.Close() }(client)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	turn, err := ssh.NewTurn(ctx, ws, client)
@@ -90,7 +90,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
 	// 第一条消息是命令
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	_, cmd, err := ws.Read(ctx)
@@ -134,7 +134,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	// 默认使用 bash 作为 shell，如果不存在则回退到 sh
@@ -155,29 +155,6 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	turn.Wait()
 }
 
-func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-	opts := &websocket.AcceptOptions{
-		CompressionMode: websocket.CompressionContextTakeover,
-	}
-
-	// debug 模式下不校验 origin，方便 vite 代理调试
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	return websocket.Accept(w, r, opts)
-}
-
-// readLoop 阻塞直到客户端关闭连接
-func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
-	for {
-		if _, _, err := c.Read(ctx); err != nil {
-			_ = c.CloseNow()
-			break
-		}
-	}
-}
-
 // ContainerImagePull 镜像拉取 WebSocket 处理
 func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
@@ -187,7 +164,7 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	_, message, err := ws.Read(ctx)
@@ -305,18 +282,12 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = ptyResult.Close() }()
 
-	// 监听 context 取消（连接断开），杀死进程
-	go func() {
-		<-ctx.Done()
-		_ = ptyResult.Kill()
-	}()
-
-	// 读取 WebSocket 输入并转发到 PTY（同时检测连接断开）
+	// 读取 WebSocket 输入并转发到 PTY
 	go func() {
 		for {
 			_, data, err := ws.Read(ctx)
 			if err != nil {
-				// WebSocket 断开连接，取消 context 杀死进程
+				// 通常是客户端关闭连接，取消运行
 				cancel()
 				return
 			}
@@ -357,4 +328,27 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
+func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	opts := &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionContextTakeover,
+	}
+
+	// debug 模式下不校验 origin，方便 vite 代理调试
+	if s.conf.App.Debug {
+		opts.InsecureSkipVerify = true
+	}
+
+	return websocket.Accept(w, r, opts)
+}
+
+// readLoop 阻塞直到客户端关闭连接
+func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
+	for {
+		if _, _, err := c.Read(ctx); err != nil {
+			_ = c.CloseNow()
+			break
+		}
+	}
 }
