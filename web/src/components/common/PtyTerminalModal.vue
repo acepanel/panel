@@ -194,7 +194,7 @@ const handleBeforeClose = (): Promise<boolean> => {
       window.$dialog.warning({
         title: $gettext('Confirm'),
         content: $gettext(
-          'Command is still running. Closing the window will terminate the command. Are you sure?'
+          'Command may still running. Closing the window will terminate the command. Are you sure?'
         ),
         positiveText: $gettext('Confirm'),
         negativeText: $gettext('Cancel'),

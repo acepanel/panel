@@ -116,27 +116,29 @@ onUnmounted(() => {
 
 <template>
   <n-flex>
-    <n-button @click="handleBack">
-      <i-mdi-arrow-left :size="16" />
-    </n-button>
-    <n-button @click="handleForward">
-      <i-mdi-arrow-right :size="16" />
-    </n-button>
-    <n-button @click="handleUp">
-      <i-mdi-arrow-up :size="16" />
-    </n-button>
-    <n-button @click="handleRefresh">
-      <i-mdi-refresh :size="16" />
-    </n-button>
-    <n-tooltip>
-      <template #trigger>
-        <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">
-          <i-mdi-eye v-if="fileStore.showHidden" :size="16" />
-          <i-mdi-eye-off v-else :size="16" />
-        </n-button>
-      </template>
-      {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
-    </n-tooltip>
+    <n-button-group>
+      <n-button @click="handleBack">
+        <i-mdi-arrow-left :size="16" />
+      </n-button>
+      <n-button @click="handleForward">
+        <i-mdi-arrow-right :size="16" />
+      </n-button>
+      <n-button @click="handleUp">
+        <i-mdi-arrow-up :size="16" />
+      </n-button>
+      <n-button @click="handleRefresh">
+        <i-mdi-refresh :size="16" />
+      </n-button>
+      <n-tooltip>
+        <template #trigger>
+          <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">
+            <i-mdi-eye v-if="fileStore.showHidden" :size="16" />
+            <i-mdi-eye-off v-else :size="16" />
+          </n-button>
+        </template>
+        {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
+      </n-tooltip>
+    </n-button-group>
     <n-input-group flex-1>
       <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
         <n-breadcrumb separator=">">

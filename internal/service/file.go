@@ -471,28 +471,81 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	switch req.Sort {
-	case "asc":
-		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
-			return strings.Compare(strings.ToLower(a.Name()), strings.ToLower(b.Name()))
-		})
-	case "desc":
-		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
-			return strings.Compare(strings.ToLower(b.Name()), strings.ToLower(a.Name()))
-		})
-	default:
-		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
-			if a.IsDir() && !b.IsDir() {
-				return -1
-			}
-			if !a.IsDir() && b.IsDir() {
-				return 1
-			}
-			return strings.Compare(strings.ToLower(a.Name()), strings.ToLower(b.Name()))
-		})
+	// 前缀 - 表示降序
+	sortKey := req.Sort
+	sortDesc := false
+	if strings.HasPrefix(sortKey, "-") {
+		sortDesc = true
+		sortKey = strings.TrimPrefix(sortKey, "-")
 	}
 
-	paged, total := Paginate(r, s.formatDir(req.Path, list))
+	// 获取文件信息用于排序
+	type entryWithInfo struct {
+		entry stdos.DirEntry
+		info  stdos.FileInfo
+	}
+	entriesWithInfo := make([]entryWithInfo, 0, len(list))
+	for _, entry := range list {
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		entriesWithInfo = append(entriesWithInfo, entryWithInfo{entry: entry, info: info})
+	}
+
+	// 排序
+	slices.SortFunc(entriesWithInfo, func(a, b entryWithInfo) int {
+		// 文件夹始终排在前面（除非按特定字段排序）
+		if sortKey == "" {
+			if a.info.IsDir() && !b.info.IsDir() {
+				return -1
+			}
+			if !a.info.IsDir() && b.info.IsDir() {
+				return 1
+			}
+		}
+
+		var cmp int
+		switch sortKey {
+		case "size":
+			// 按大小排序
+			if a.info.Size() < b.info.Size() {
+				cmp = -1
+			} else if a.info.Size() > b.info.Size() {
+				cmp = 1
+			} else {
+				cmp = 0
+			}
+		case "modify":
+			// 按修改时间排序
+			if a.info.ModTime().Before(b.info.ModTime()) {
+				cmp = -1
+			} else if a.info.ModTime().After(b.info.ModTime()) {
+				cmp = 1
+			} else {
+				cmp = 0
+			}
+		case "name":
+			// 按名称排序
+			cmp = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
+		default:
+			// 默认按名称排序
+			cmp = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
+		}
+
+		if sortDesc {
+			cmp = -cmp
+		}
+		return cmp
+	})
+
+	// 转换回 DirEntry 列表
+	sortedList := make([]stdos.DirEntry, len(entriesWithInfo))
+	for i, e := range entriesWithInfo {
+		sortedList[i] = e.entry
+	}
+
+	paged, total := Paginate(r, s.formatDir(req.Path, sortedList))
 
 	Success(w, chix.M{
 		"total": total,
