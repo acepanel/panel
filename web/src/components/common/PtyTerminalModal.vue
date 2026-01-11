@@ -55,10 +55,10 @@ const initTerminal = async () => {
       lineHeight: 1.2,
       fontSize: 14,
       fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: false,
+      cursorBlink: true,
       cursorStyle: 'underline',
       tabStopWidth: 4,
-      disableStdin: true,
+      disableStdin: false,
       convertEol: true,
       theme: { background: '#111', foreground: '#fff' }
     })
@@ -72,6 +72,13 @@ const initTerminal = async () => {
     })
     term.value.open(terminalRef.value)
     fitAddon.fit()
+
+    // 转发用户输入到 WebSocket
+    term.value.onData((data) => {
+      if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
+        ptyWs.send(data)
+      }
+    })
 
     // 处理 WebSocket 消息
     ptyWs.binaryType = 'arraybuffer'
