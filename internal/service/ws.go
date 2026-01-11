@@ -89,89 +89,32 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	// 读取第一条消息获取要执行的命令
+	// 要执行的命令
 	_, message, err := ws.Read(ctx)
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command: %v", err))
 		return
 	}
-
 	command := string(message)
 	if command == "" {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("command is empty"))
 		return
 	}
 
-	// 使用 PTY 执行命令
-	ptyResult, err := shell.ExecWithPTY(ctx, command)
+	// PTY 执行命令
+	turn, err := shell.NewPTYTurn(ctx, ws, command)
 	if err != nil {
 		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Failed to start command: %v", err)+"\r\n"))
 		_ = ws.Close(websocket.StatusNormalClosure, "")
 		return
 	}
-	defer func() { _ = ptyResult.Close() }()
 
-	// 读取 WebSocket 输入并转发到 PTY
 	go func() {
-		for {
-			msgType, data, err := ws.Read(ctx)
-			if err != nil {
-				// 通常是客户端关闭连接，取消运行
-				cancel()
-				return
-			}
-			if len(data) == 0 {
-				continue
-			}
-
-			// 检查是否是 resize 消息（JSON 格式，以 { 开头）
-			if msgType == websocket.MessageText && data[0] == '{' {
-				var resizeMsg struct {
-					Type string `json:"type"`
-					Rows uint16 `json:"rows"`
-					Cols uint16 `json:"cols"`
-				}
-				if err := json.Unmarshal(data, &resizeMsg); err == nil && resizeMsg.Type == "resize" {
-					_ = ptyResult.Resize(resizeMsg.Rows, resizeMsg.Cols)
-					continue
-				}
-			}
-
-			// 普通用户输入，写入 PTY
-			_, _ = ptyResult.Write(data)
-		}
+		defer turn.Close()
+		_ = turn.Handle(ctx)
 	}()
 
-	// 读取 PTY 输出并发送到 WebSocket
-	go func() {
-		buf := make([]byte, 4096)
-		for {
-			n, err := ptyResult.Read(buf)
-			if n > 0 {
-				if writeErr := ws.Write(ctx, websocket.MessageBinary, buf[:n]); writeErr != nil {
-					s.log.Warn("[Websocket] write pty output error", slog.Any("err", writeErr))
-					cancel()
-					return
-				}
-			}
-			if err != nil {
-				if shell.IsPTYError(err) != nil {
-					s.log.Debug("[Websocket] pty read error", slog.Any("err", err))
-				}
-				return
-			}
-		}
-	}()
-
-	// 等待命令完成
-	if err = ptyResult.Wait(); err != nil {
-		// 如果是因为被杀死，不输出错误
-		if ctx.Err() == nil {
-			_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Command failed: %v", err)+"\r\n"))
-		}
-	}
-
-	_ = ws.Close(websocket.StatusNormalClosure, "")
+	turn.Wait()
 }
 
 func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {

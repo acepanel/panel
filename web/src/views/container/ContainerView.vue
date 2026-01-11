@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
-import { AttachAddon } from '@xterm/addon-attach'
 import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { FitAddon } from '@xterm/addon-fit'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
@@ -32,8 +31,8 @@ const terminalContainerName = ref('')
 const terminalRef = ref<HTMLElement | null>(null)
 const term = ref<Terminal | null>(null)
 let containerWs: WebSocket | null = null
-const fitAddon = new FitAddon()
-const webglAddon = new WebglAddon()
+let fitAddon: FitAddon | null = null
+let webglAddon: WebglAddon | null = null
 
 const containerCreateModal = ref(false)
 const selectedRowKeys = ref<any>([])
@@ -405,6 +404,7 @@ const handleOpenTerminal = async (row: any) => {
 
   try {
     containerWs = await ws.container(row.id)
+    containerWs.binaryType = 'arraybuffer'
 
     term.value = new Terminal({
       allowProposedApi: true,
@@ -417,7 +417,9 @@ const handleOpenTerminal = async (row: any) => {
       theme: { background: '#111', foreground: '#fff' }
     })
 
-    term.value.loadAddon(new AttachAddon(containerWs))
+    fitAddon = new FitAddon()
+    webglAddon = new WebglAddon()
+
     term.value.loadAddon(fitAddon)
     term.value.loadAddon(new ClipboardAddon())
     term.value.loadAddon(new WebLinksAddon())
@@ -425,11 +427,41 @@ const handleOpenTerminal = async (row: any) => {
     term.value.unicode.activeVersion = '11'
     term.value.loadAddon(webglAddon)
     webglAddon.onContextLoss(() => {
-      webglAddon.dispose()
+      webglAddon?.dispose()
     })
     term.value.open(terminalRef.value)
 
-    onTerminalResize()
+    containerWs.onmessage = (ev) => {
+      const data: ArrayBuffer | string = ev.data
+      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
+    }
+    term.value.onData((data) => {
+      if (containerWs?.readyState === WebSocket.OPEN) {
+        containerWs?.send(data)
+      }
+    })
+    term.value.onBinary((data) => {
+      if (containerWs?.readyState === WebSocket.OPEN) {
+        const buffer = new Uint8Array(data.length)
+        for (let i = 0; i < data.length; ++i) {
+          buffer[i] = data.charCodeAt(i) & 255
+        }
+        containerWs?.send(buffer)
+      }
+    })
+    term.value.onResize(({ rows, cols }) => {
+      if (containerWs && containerWs.readyState === WebSocket.OPEN) {
+        containerWs.send(
+          JSON.stringify({
+            resize: true,
+            columns: cols,
+            rows: rows
+          })
+        )
+      }
+    })
+
+    fitAddon.fit()
     term.value.focus()
     window.addEventListener('resize', onTerminalResize, false)
 
@@ -457,14 +489,16 @@ const handleOpenTerminal = async (row: any) => {
 // 关闭容器终端
 const closeTerminal = () => {
   try {
-    if (term.value) {
-      term.value.dispose()
-      term.value = null
-    }
     if (containerWs) {
       containerWs.close()
       containerWs = null
     }
+    if (term.value) {
+      term.value.dispose()
+      term.value = null
+    }
+    fitAddon = null
+    webglAddon = null
     if (terminalRef.value) {
       terminalRef.value.innerHTML = ''
     }
@@ -476,22 +510,14 @@ const closeTerminal = () => {
 
 // 终端大小调整
 const onTerminalResize = () => {
-  fitAddon.fit()
-  if (containerWs != null && containerWs.readyState === 1 && term.value) {
-    const { cols, rows } = term.value
-    containerWs.send(
-      JSON.stringify({
-        resize: true,
-        columns: cols,
-        rows: rows
-      })
-    )
+  if (fitAddon && term.value) {
+    fitAddon.fit()
   }
 }
 
 // 终端滚轮缩放
 const onTerminalWheel = (event: WheelEvent) => {
-  if (event.ctrlKey && term.value) {
+  if (event.ctrlKey && term.value && fitAddon) {
     event.preventDefault()
     if (event.deltaY > 0) {
       if (term.value.options.fontSize! > 12) {

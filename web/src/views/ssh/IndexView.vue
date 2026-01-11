@@ -9,7 +9,6 @@ import CreateModal from '@/views/ssh/CreateModal.vue'
 import UpdateModal from '@/views/ssh/UpdateModal.vue'
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
-import { AttachAddon } from '@xterm/addon-attach'
 import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { FitAddon } from '@xterm/addon-fit'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
@@ -22,10 +21,10 @@ import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const terminal = ref<HTMLElement | null>(null)
-const term = ref()
+const term = ref<Terminal | null>(null)
 let sshWs: WebSocket | null = null
-const fitAddon = new FitAddon()
-const webglAddon = new WebglAddon()
+let fitAddon: FitAddon | null = null
+let webglAddon: WebglAddon | null = null
 
 const current = ref(0)
 const collapsed = ref(true)
@@ -112,7 +111,7 @@ const handleDelete = (id: number) => {
       if (list.value.length > 0) {
         openSession(Number(list.value[0].key))
       } else {
-        term.value.dispose()
+        term.value?.dispose()
       }
       if (list.value.length === 0) {
         create.value = true
@@ -127,8 +126,10 @@ const handleChange = (key: number) => {
 
 const openSession = async (id: number) => {
   closeSession()
-  await ws.ssh(id).then((ws) => {
-    sshWs = ws
+  await ws.ssh(id).then((socket) => {
+    sshWs = socket
+    sshWs.binaryType = 'arraybuffer'
+
     term.value = new Terminal({
       allowProposedApi: true,
       lineHeight: 1.2,
@@ -140,7 +141,9 @@ const openSession = async (id: number) => {
       theme: { background: '#111', foreground: '#fff' }
     })
 
-    term.value.loadAddon(new AttachAddon(ws))
+    fitAddon = new FitAddon()
+    webglAddon = new WebglAddon()
+
     term.value.loadAddon(fitAddon)
     term.value.loadAddon(new ClipboardAddon())
     term.value.loadAddon(new WebLinksAddon())
@@ -148,61 +151,94 @@ const openSession = async (id: number) => {
     term.value.unicode.activeVersion = '11'
     term.value.loadAddon(webglAddon)
     webglAddon.onContextLoss(() => {
-      webglAddon.dispose()
+      webglAddon?.dispose()
     })
     term.value.open(terminal.value!)
 
-    onResize()
+    sshWs.onmessage = (ev) => {
+      const data: ArrayBuffer | string = ev.data
+      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
+    }
+    term.value?.onData((data) => {
+      if (sshWs?.readyState === WebSocket.OPEN) {
+        sshWs?.send(data)
+      }
+    })
+    term.value?.onBinary((data) => {
+      if (sshWs?.readyState === WebSocket.OPEN) {
+        const buffer = new Uint8Array(data.length)
+        for (let i = 0; i < data.length; ++i) {
+          buffer[i] = data.charCodeAt(i) & 255
+        }
+        sshWs?.send(buffer)
+      }
+    })
+    term.value.onResize(({ rows, cols }) => {
+      if (sshWs?.readyState === WebSocket.OPEN) {
+        sshWs?.send(
+          JSON.stringify({
+            resize: true,
+            columns: cols,
+            rows: rows
+          })
+        )
+      }
+    })
+
+    fitAddon.fit()
     term.value.focus()
     window.addEventListener('resize', onResize, false)
     current.value = id
 
-    ws.onclose = () => {
-      term.value.write('\r\n' + $gettext('Connection closed. Please refresh.'))
+    sshWs.onclose = () => {
+      term.value?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
       window.removeEventListener('resize', onResize)
     }
 
-    ws.onerror = (event) => {
-      term.value.write('\r\n' + $gettext('Connection error. Please refresh.'))
+    sshWs.onerror = (event) => {
+      term.value?.write('\r\n' + $gettext('Connection error. Please refresh.'))
       console.error(event)
-      ws.close()
+      sshWs?.close()
     }
   })
 }
 
 const closeSession = () => {
   try {
-    term.value.dispose()
-    sshWs?.close()
-    terminal.value!.innerHTML = ''
+    if (sshWs) {
+      sshWs.close()
+      sshWs = null
+    }
+    if (term.value) {
+      term.value.dispose()
+      term.value = null
+    }
+    fitAddon = null
+    webglAddon = null
+    if (terminal.value) {
+      terminal.value.innerHTML = ''
+    }
   } catch {
     /* empty */
   }
 }
 
 const onResize = () => {
-  fitAddon.fit()
-  if (sshWs != null && sshWs.readyState === 1) {
-    const { cols, rows } = term.value
-    sshWs.send(
-      JSON.stringify({
-        resize: true,
-        columns: cols,
-        rows: rows
-      })
-    )
+  if (fitAddon && term.value) {
+    fitAddon.fit()
   }
 }
 
 const onTermWheel = (event: WheelEvent) => {
-  if (event.ctrlKey) {
+  if (event.ctrlKey && term.value && fitAddon) {
     event.preventDefault()
+    const fontSize = term.value.options.fontSize ?? 14
     if (event.deltaY > 0) {
-      if (term.value.options.fontSize > 12) {
-        term.value.options.fontSize = term.value.options.fontSize - 1
+      if (fontSize > 12) {
+        term.value.options.fontSize = fontSize - 1
       }
     } else {
-      term.value.options.fontSize = term.value.options.fontSize + 1
+      term.value.options.fontSize = fontSize + 1
     }
     fitAddon.fit()
   }

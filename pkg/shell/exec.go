@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"slices"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/creack/pty"
@@ -216,84 +215,6 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	}
 
 	return strings.TrimSpace(out.String()), nil
-}
-
-// PTYResult PTY 执行结果
-type PTYResult struct {
-	ptmx *os.File
-	cmd  *exec.Cmd
-}
-
-// Read 读取 PTY 输出
-func (p *PTYResult) Read(buf []byte) (int, error) {
-	return p.ptmx.Read(buf)
-}
-
-// Write 写入 PTY 输入
-func (p *PTYResult) Write(data []byte) (int, error) {
-	return p.ptmx.Write(data)
-}
-
-// Wait 等待命令完成
-func (p *PTYResult) Wait() error {
-	return p.cmd.Wait()
-}
-
-// Close 关闭 PTY
-func (p *PTYResult) Close() error {
-	return p.ptmx.Close()
-}
-
-// Kill 杀死进程
-func (p *PTYResult) Kill() error {
-	if p.cmd.Process != nil {
-		return p.cmd.Process.Kill()
-	}
-	return nil
-}
-
-// Resize 调整 PTY 窗口大小
-func (p *PTYResult) Resize(rows, cols uint16) error {
-	return pty.Setsize(p.ptmx, &pty.Winsize{
-		Rows: rows,
-		Cols: cols,
-	})
-}
-
-// ExecWithPTY 使用 PTY 执行命令，返回 PTYResult 用于流式读取输出
-// 调用方需要负责调用 Close() 和 Wait()
-func ExecWithPTY(ctx context.Context, shell string, args ...any) (*PTYResult, error) {
-	if !preCheckArg(args) {
-		return nil, errors.New("command contains illegal characters")
-	}
-	if len(args) > 0 {
-		shell = fmt.Sprintf(shell, args...)
-	}
-
-	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
-
-	ptmx, err := pty.Start(cmd)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start pty: %w", err)
-	}
-
-	return &PTYResult{
-		ptmx: ptmx,
-		cmd:  cmd,
-	}, nil
-}
-
-// IsPTYError Linux kernel return EIO when attempting to read from a master pseudo
-// terminal which no longer has an open slave. So ignore error here.
-// See https://github.com/creack/pty/issues/21
-func IsPTYError(err error) error {
-	var pathErr *os.PathError
-	if !errors.As(err, &pathErr) || !errors.Is(pathErr.Err, syscall.EIO) {
-		return err
-	}
-
-	return nil
 }
 
 func preCheckArg(args []any) bool {
