@@ -26,8 +26,11 @@ watch(
   (newVal) => {
     if (newVal && fileInfoList.value.length > 0) {
       const firstFile = fileInfoList.value[0]
-      // 设置权限（去掉前导0）
-      mode.value = firstFile.mode.replace(/^0+/, '') || '755'
+      // 设置权限（去掉前导0，但保留至少一位数字）
+      let modeStr = firstFile.mode.replace(/^0+(?=\d)/, '')
+      // 确保 mode 至少有3位，不足则左补0
+      modeStr = modeStr.padStart(3, '0')
+      mode.value = modeStr || '755'
       owner.value = firstFile.owner || 'www'
       group.value = firstFile.group || 'www'
       updateCheckboxes()
@@ -65,7 +68,10 @@ const calculateMode = () => {
 }
 
 const updateCheckboxes = () => {
-  const permissions = mode.value.split('').map(Number)
+  // 确保 mode 至少有3位，不足则左补0
+  const paddedMode = mode.value.padStart(3, '0')
+  const permissions = paddedMode.split('').map(Number)
+
   checkbox.value.owner = permissions[0] & 4 ? ['read'] : []
   if (permissions[0] & 2) checkbox.value.owner.push('write')
   if (permissions[0] & 1) checkbox.value.owner.push('execute')

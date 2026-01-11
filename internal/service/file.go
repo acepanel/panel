@@ -319,13 +319,31 @@ func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	stat := info.Sys().(*syscall.Stat_t)
+
+	// 检查是否有 immutable 属性
+	immutable := false
+	if f, err := stdos.OpenFile(req.Path, stdos.O_RDONLY, 0); err == nil {
+		immutable, _ = chattr.IsAttr(f, chattr.FS_IMMUTABLE_FL)
+		_ = f.Close()
+	}
+
 	Success(w, chix.M{
-		"name":     info.Name(),
-		"size":     tools.FormatBytes(float64(info.Size())),
-		"mode_str": info.Mode().String(),
-		"mode":     fmt.Sprintf("%04o", info.Mode().Perm()),
-		"dir":      info.IsDir(),
-		"modify":   info.ModTime().Format(time.DateTime),
+		"name":      info.Name(),
+		"full":      req.Path,
+		"size":      tools.FormatBytes(float64(info.Size())),
+		"mode_str":  info.Mode().String(),
+		"mode":      fmt.Sprintf("%04o", info.Mode().Perm()),
+		"owner":     os.GetUser(stat.Uid),
+		"group":     os.GetGroup(stat.Gid),
+		"uid":       stat.Uid,
+		"gid":       stat.Gid,
+		"hidden":    io.IsHidden(info.Name()),
+		"symlink":   io.IsSymlink(info.Mode()),
+		"link":      io.GetSymlink(req.Path),
+		"dir":       info.IsDir(),
+		"modify":    info.ModTime().Format(time.DateTime),
+		"immutable": immutable,
 	})
 }
 

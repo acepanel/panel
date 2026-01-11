@@ -150,6 +150,27 @@ const openPermissionModal = (row: any) => {
   permission.value = true
 }
 
+// 打开文件的处理函数（预览/编辑/解压）
+const openFile = (row: any) => {
+  if (row.dir) {
+    path.value = row.full
+    return
+  }
+
+  if (isImage(row.name)) {
+    currentFile.value = row.full
+    previewModal.value = true
+  } else if (isCompress(row.name)) {
+    // 压缩包弹出解压窗口
+    unCompressModel.value.file = row.full
+    unCompressModel.value.path = path.value
+    unCompressModal.value = true
+  } else {
+    currentFile.value = row.full
+    editorModal.value = true
+  }
+}
+
 const columns: DataTableColumns<RowData> = [
   {
     type: 'selection',
@@ -182,18 +203,7 @@ const columns: DataTableColumns<RowData> = [
           // 文件双击打开（编辑/预览/解压）
           onDblclick: () => {
             if (!row.dir) {
-              if (isImage(row.name)) {
-                currentFile.value = row.full
-                previewModal.value = true
-              } else if (isCompress(row.name)) {
-                // 压缩包双击弹出解压窗口
-                unCompressModel.value.file = row.full
-                unCompressModel.value.path = path.value
-                unCompressModal.value = true
-              } else {
-                currentFile.value = row.full
-                editorModal.value = true
-              }
+              openFile(row)
             }
           }
         },
@@ -707,15 +717,11 @@ const handleSelect = (key: string) => {
       handlePaste()
       break
     case 'open':
-      path.value = selectedRow.value.full
-      break
     case 'edit':
-      currentFile.value = selectedRow.value.full
-      editorModal.value = true
-      break
     case 'preview':
-      currentFile.value = selectedRow.value.full
-      previewModal.value = true
+    case 'uncompress':
+      // 复用 openFile 函数处理打开/编辑/预览/解压
+      openFile(selectedRow.value)
       break
     case 'copy':
       markedType.value = 'copy'
@@ -754,11 +760,6 @@ const handleSelect = (key: string) => {
       break
     case 'download':
       window.open('/api/file/download?path=' + encodeURIComponent(selectedRow.value.full))
-      break
-    case 'uncompress':
-      unCompressModel.value.file = selectedRow.value.full
-      unCompressModel.value.path = path.value
-      unCompressModal.value = true
       break
     case 'rename':
       confirmImmutableOperation(selectedRow.value, 'rename', () => {

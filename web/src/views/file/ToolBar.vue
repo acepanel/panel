@@ -217,12 +217,12 @@ const openTerminal = () => {
 
 // 切换视图类型（预留功能）
 const toggleViewType = () => {
-  viewType.value = viewType.value === 'list' ? 'grid' : 'list'
-  // 未来实现图标视图时使用
-  if (viewType.value === 'grid') {
+  // 目前只支持列表视图，图标视图将在未来实现
+  if (viewType.value === 'list') {
     window.$message.info($gettext('Grid view is coming soon'))
-    viewType.value = 'list'
+    return
   }
+  viewType.value = 'list'
 }
 </script>
 
