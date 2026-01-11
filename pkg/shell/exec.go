@@ -208,7 +208,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	}
 	defer func(f *os.File) { _ = f.Close() }(f)
 
-	if _, err = io.Copy(&out, f); ptyError(err) != nil {
+	if _, err = io.Copy(&out, f); IsPTYError(err) != nil {
 		return "", fmt.Errorf("run %s failed, out: %s, err: %w", shell, strings.TrimSpace(out.String()), err)
 	}
 	if stderr.Len() > 0 {
@@ -218,18 +218,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	return strings.TrimSpace(out.String()), nil
 }
 
-func preCheckArg(args []any) bool {
-	illegals := []any{`&`, `|`, `;`, `$`, `'`, `"`, "`", `(`, `)`, "\n", "\r", `>`, `<`}
-	for arg := range slices.Values(args) {
-		if slices.Contains(illegals, arg) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// PTYResult 封装 PTY 执行结果
+// PTYResult PTY 执行结果
 type PTYResult struct {
 	ptmx *os.File
 	cmd  *exec.Cmd
@@ -252,9 +241,16 @@ func (p *PTYResult) Close() error {
 
 // ExecWithPTY 使用 PTY 执行命令，返回 PTYResult 用于流式读取输出
 // 调用方需要负责调用 Close() 和 Wait()
-func ExecWithPTY(ctx context.Context, name string, args ...string) (*PTYResult, error) {
+func ExecWithPTY(ctx context.Context, shell string, args ...any) (*PTYResult, error) {
+	if !preCheckArg(args) {
+		return nil, errors.New("command contains illegal characters")
+	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
+
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.CommandContext(ctx, name, args...)
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
@@ -267,32 +263,25 @@ func ExecWithPTY(ctx context.Context, name string, args ...string) (*PTYResult, 
 	}, nil
 }
 
-// IsPTYError 检查 PTY 错误是否可忽略
-// Linux kernel return EIO when attempting to read from a master pseudo
+// IsPTYError Linux kernel return EIO when attempting to read from a master pseudo
 // terminal which no longer has an open slave. So ignore error here.
 // See https://github.com/creack/pty/issues/21
-func IsPTYError(err error) bool {
-	if err == nil {
-		return false
-	}
-	var pathErr *os.PathError
-	if errors.As(err, &pathErr) && errors.Is(pathErr.Err, syscall.EIO) {
-		return false // 可忽略的错误
-	}
-	if errors.Is(err, io.EOF) {
-		return false // 可忽略的错误
-	}
-	return true // 真正的错误
-}
-
-// Linux kernel return EIO when attempting to read from a master pseudo
-// terminal which no longer has an open slave. So ignore error here.
-// See https://github.com/creack/pty/issues/21
-func ptyError(err error) error {
+func IsPTYError(err error) error {
 	var pathErr *os.PathError
 	if !errors.As(err, &pathErr) || !errors.Is(pathErr.Err, syscall.EIO) {
 		return err
 	}
 
 	return nil
+}
+
+func preCheckArg(args []any) bool {
+	illegals := []any{`&`, `|`, `;`, `$`, `'`, `"`, "`", `(`, `)`, "\n", "\r", `>`, `<`}
+	for arg := range slices.Values(args) {
+		if slices.Contains(illegals, arg) {
+			return false
+		}
+	}
+
+	return true
 }

@@ -297,7 +297,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 使用 PTY 执行命令
-	ptyResult, err := shell.ExecWithPTY(ctx, "bash", "-c", command)
+	ptyResult, err := shell.ExecWithPTY(ctx, command)
 	if err != nil {
 		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Failed to start command: %v", err)+"\r\n"))
 		_ = ws.Close(websocket.StatusNormalClosure, "")
@@ -305,7 +305,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = ptyResult.Close() }()
 
-	// 读取 PTY 输出并发送到 WebSocket（直接发送原始数据给 xterm.js）
+	// 读取 PTY 输出并发送到 WebSocket
 	go func() {
 		buf := make([]byte, 4096)
 		for {
@@ -317,7 +317,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if err != nil {
-				if shell.IsPTYError(err) {
+				if shell.IsPTYError(err) != nil {
 					s.log.Debug("[Websocket] pty read error", slog.Any("err", err))
 				}
 				return
