@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
 
 	"github.com/coder/websocket"
 	"github.com/creack/pty"
@@ -67,10 +68,23 @@ func (t *Turn) Wait() {
 
 // Close 关闭 PTY 并终止子进程
 func (t *Turn) Close() {
-	// 先向子进程发送 SIGTERM 信号以终止它
-	if t.cmd != nil && t.cmd.Process != nil {
-		_ = t.cmd.Process.Signal(syscall.SIGTERM)
+	_ = t.cmd.Process.Signal(syscall.SIGTERM)
+
+	// 等待最多 10 秒
+	done := make(chan struct{})
+	go func() {
+		_ = t.cmd.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// 进程已退出
+	case <-time.After(10 * time.Second):
+		// 超时，KILL
+		_ = t.cmd.Process.Kill()
 	}
+
 	_ = t.ptmx.Close()
 }
 

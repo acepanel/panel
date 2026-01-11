@@ -250,7 +250,8 @@ defineExpose({
     v-model:show="show"
     preset="card"
     :title="title || $gettext('Terminal')"
-    style="width: 90vw; height: 80vh"
+    style="width: 90vw; height: 80vh; max-height: 80vh"
+    :content-style="{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1, minHeight: 0 }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -263,7 +264,7 @@ defineExpose({
     <div
       ref="terminalRef"
       @wheel="onTerminalWheel"
-      style="height: 100%; min-height: 60vh; background: #111"
+      style="flex: 1; min-height: 0; background: #111"
     ></div>
   </n-modal>
 </template>

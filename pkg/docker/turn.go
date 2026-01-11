@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"syscall"
+	"time"
 
 	"github.com/coder/websocket"
 	"github.com/moby/moby/client"
@@ -19,12 +21,11 @@ type MessageResize struct {
 
 // Turn 容器终端转发器
 type Turn struct {
-	ctx       context.Context
-	ws        *websocket.Conn
-	client    *client.Client
-	execID    string
-	hijack    client.ExecAttachResult
-	closeOnce bool
+	ctx    context.Context
+	ws     *websocket.Conn
+	client *client.Client
+	execID string
+	hijack client.ExecAttachResult
 }
 
 // NewTurn 创建容器终端转发器
@@ -77,11 +78,26 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 
 // Close 关闭连接
 func (t *Turn) Close() {
-	if t.closeOnce {
-		return
+	// 检查进程是否仍在运行
+	inspectResp, err := t.client.ExecInspect(t.ctx, t.execID, client.ExecInspectOptions{})
+	if err == nil && inspectResp.Running {
+		_ = syscall.Kill(inspectResp.PID, syscall.SIGTERM)
+		// 等待最多 10 秒
+		for i := 0; i < 10; i++ {
+			time.Sleep(1 * time.Second)
+			inspectResp, err = t.client.ExecInspect(t.ctx, t.execID, client.ExecInspectOptions{})
+			if err != nil || !inspectResp.Running {
+				break
+			}
+		}
+		// 如果仍在运行，KILL
+		if err == nil && inspectResp.Running {
+			_ = syscall.Kill(inspectResp.PID, syscall.SIGKILL)
+		}
 	}
-	t.closeOnce = true
+
 	t.hijack.Close()
+	_ = t.hijack.CloseWrite()
 	_ = t.client.Close()
 }
 
