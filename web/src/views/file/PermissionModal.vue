@@ -89,6 +89,9 @@ const updateCheckboxes = () => {
 }
 
 const title = computed(() => {
+  if (selected.value.length === 0) {
+    return $gettext('Modify permissions')
+  }
   return selected.value.length > 1
     ? $gettext('Batch modify permissions')
     : $gettext('Modify permissions - %{ path }', { path: selected.value[0] })

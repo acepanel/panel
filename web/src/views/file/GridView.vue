@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { NEllipsis, NFlex, NInput, NPopconfirm, NSpin, useThemeVars } from 'naive-ui'
+import { NEllipsis, NFlex, NInput, NSpin, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type { DropdownOption } from 'naive-ui'
 
 import file from '@/api/panel/file'
-import TheIcon from '@/components/custom/TheIcon.vue'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import TheIcon from '@/components/custom/TheIcon.vue'
+import { useFileStore } from '@/store'
 import {
   checkName,
   checkPath,
@@ -20,7 +21,6 @@ import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
 import type { FileInfo, Marked } from '@/views/file/types'
-import { useFileStore } from '@/store'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
@@ -77,6 +77,44 @@ const selectionBox = computed(() => {
   return { left, top, width, height }
 })
 
+// 将 hex 颜色转换为 RGB
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '24, 160, 88'
+}
+
+// 框选框样式
+const selectionBoxStyle = computed(() => {
+  if (!selectionBox.value) return {}
+  const rgb = hexToRgb(themeVars.value.primaryColor)
+  return {
+    left: selectionBox.value.left + 'px',
+    top: selectionBox.value.top + 'px',
+    width: selectionBox.value.width + 'px',
+    height: selectionBox.value.height + 'px',
+    borderColor: `rgba(${rgb}, 0.5)`,
+    backgroundColor: `rgba(${rgb}, 0.05)`
+  }
+})
+
+// 主题 CSS 变量
+const themeStyles = computed(() => {
+  const primaryRgb = hexToRgb(themeVars.value.primaryColor)
+  const warningRgb = hexToRgb(themeVars.value.warningColor)
+  return {
+    '--primary-color': themeVars.value.primaryColor,
+    '--primary-color-hover': `rgba(${primaryRgb}, 0.12)`,
+    '--primary-color-hover-deep': `rgba(${primaryRgb}, 0.16)`,
+    '--primary-color-border': `rgba(${primaryRgb}, 0.3)`,
+    '--primary-color-border-deep': `rgba(${primaryRgb}, 0.4)`,
+    '--warning-color': themeVars.value.warningColor,
+    '--hover-bg': themeVars.value.hoverColor,
+    '--hover-border': themeVars.value.borderColor
+  }
+})
+
 // 检查是否有 immutable 属性
 const confirmImmutableOperation = (row: any, operation: string, callback: () => void) => {
   if (row.immutable) {
@@ -95,7 +133,29 @@ const confirmImmutableOperation = (row: any, operation: string, callback: () => 
   }
 }
 
+// 判断是否多选
+const isMultiSelect = computed(() => selected.value.length > 1)
+
 const options = computed<DropdownOption[]>(() => {
+  // 多选情况下显示简化菜单
+  if (isMultiSelect.value) {
+    const options: DropdownOption[] = [
+      { label: $gettext('Copy'), key: 'copy' },
+      { label: $gettext('Move'), key: 'move' },
+      { label: $gettext('Compress'), key: 'compress' },
+      { label: $gettext('Permission'), key: 'permission' },
+      { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' }
+    ]
+    if (marked.value.length) {
+      options.unshift({
+        label: $gettext('Paste'),
+        key: 'paste'
+      })
+    }
+    return options
+  }
+
+  // 单选情况下显示完整菜单
   if (selectedRow.value == null) return []
   const options = [
     {
@@ -181,9 +241,9 @@ const getFileIcon = (item: any) => {
 // 获取图标颜色
 const getIconColor = (item: any) => {
   if (item.dir) {
-    return '#f0a020'
+    return themeVars.value.warningColor
   }
-  return themeVars.value.primaryColor
+  return themeVars.value.textColor3
 }
 
 // 检查项目是否被选中
@@ -217,26 +277,57 @@ const toggleSelect = (item: any, event: MouseEvent) => {
   }
 }
 
+// 点击计数处理
+let clickCount = 0
+let clickTimer: ReturnType<typeof setTimeout> | null = null
+let lastClickItem: any = null
+
 // 处理项目点击
 const handleItemClick = (item: any, event: MouseEvent) => {
-  if (item.dir) {
-    // 目录单击进入
-    path.value = item.full
+  // 如果点击的是不同项目，重置计数
+  if (lastClickItem !== item) {
+    clickCount = 0
+    if (clickTimer) {
+      clearTimeout(clickTimer)
+      clickTimer = null
+    }
+  }
+  lastClickItem = item
+  clickCount++
+
+  if (clickCount >= 2) {
+    // 双击：打开
+    clickCount = 0
+    openFile(item)
   } else {
-    // 文件单击选择
+    // 单击：选择
     toggleSelect(item, event)
+    // 重置计数的定时器
+    if (clickTimer) clearTimeout(clickTimer)
+    clickTimer = setTimeout(() => {
+      clickCount = 0
+    }, 300)
   }
 }
 
-// 处理项目双击
-const handleItemDblClick = (item: any) => {
-  openFile(item)
+// 处理文件夹名点击（单击名称打开文件夹）
+const handleNameClick = (item: any, event: MouseEvent) => {
+  event.stopPropagation()
+  if (item.dir) {
+    path.value = item.full
+  }
 }
 
 // 处理右键菜单
 const handleContextMenu = (item: any, event: MouseEvent) => {
   event.preventDefault()
   showDropdown.value = false
+
+  // 如果右键点击的项目不在已选中列表中，则只选中该项目
+  if (!selected.value.includes(item.full)) {
+    selected.value = [item.full]
+  }
+
   nextTick().then(() => {
     showDropdown.value = true
     selectedRow.value = item
@@ -411,6 +502,11 @@ const handlePaste = () => {
 }
 
 const handleSelect = (key: string) => {
+  // 获取选中的文件列表（用于多选操作）
+  const getSelectedItems = () => {
+    return data.value.filter((item: any) => selected.value.includes(item.full))
+  }
+
   switch (key) {
     case 'paste':
       handlePaste()
@@ -422,38 +518,65 @@ const handleSelect = (key: string) => {
       openFile(selectedRow.value)
       break
     case 'copy':
-      markedType.value = 'copy'
-      marked.value = [
-        {
-          name: selectedRow.value.name,
-          source: selectedRow.value.full,
+      if (isMultiSelect.value) {
+        // 多选复制
+        marked.value = getSelectedItems().map((item: any) => ({
+          name: item.name,
+          source: item.full,
           force: false
-        }
-      ]
+        }))
+      } else {
+        marked.value = [
+          {
+            name: selectedRow.value.name,
+            source: selectedRow.value.full,
+            force: false
+          }
+        ]
+      }
+      markedType.value = 'copy'
       window.$message.success(
         $gettext('Marked successfully, please navigate to the destination path to paste')
       )
       break
     case 'move':
-      markedType.value = 'move'
-      marked.value = [
-        {
-          name: selectedRow.value.name,
-          source: selectedRow.value.full,
+      if (isMultiSelect.value) {
+        // 多选移动
+        marked.value = getSelectedItems().map((item: any) => ({
+          name: item.name,
+          source: item.full,
           force: false
-        }
-      ]
+        }))
+      } else {
+        marked.value = [
+          {
+            name: selectedRow.value.name,
+            source: selectedRow.value.full,
+            force: false
+          }
+        ]
+      }
+      markedType.value = 'move'
       window.$message.success(
         $gettext('Marked successfully, please navigate to the destination path to paste')
       )
       break
     case 'permission':
-      selected.value = [selectedRow.value.full]
-      permissionFileInfoList.value = [selectedRow.value as FileInfo]
+      if (isMultiSelect.value) {
+        // 多选权限
+        permissionFileInfoList.value = getSelectedItems() as FileInfo[]
+      } else {
+        selected.value = [selectedRow.value.full]
+        permissionFileInfoList.value = [selectedRow.value as FileInfo]
+      }
       permission.value = true
       break
     case 'compress':
-      selected.value = [selectedRow.value.full]
+      if (isMultiSelect.value) {
+        // 多选压缩 - selected 已经是选中的路径列表
+      } else {
+        selected.value = [selectedRow.value.full]
+      }
       compress.value = true
       break
     case 'download':
@@ -475,12 +598,35 @@ const handleSelect = (key: string) => {
       propertyModal.value = true
       break
     case 'delete':
-      confirmImmutableOperation(selectedRow.value, 'delete', () => {
-        useRequest(file.delete(selectedRow.value.full)).onSuccess(() => {
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Deleted successfully'))
+      if (isMultiSelect.value) {
+        // 多选删除
+        const selectedItems = getSelectedItems()
+        const hasImmutable = selectedItems.some((item: any) => item.immutable)
+        if (hasImmutable) {
+          window.$message.warning($gettext('Some files are immutable and cannot be deleted'))
+          return
+        }
+        window.$dialog.warning({
+          title: $gettext('Warning'),
+          content: $gettext('Are you sure you want to delete %{count} items?', { count: selectedItems.length }),
+          positiveText: $gettext('Yes'),
+          negativeText: $gettext('No'),
+          onPositiveClick: () => {
+            const deletePromises = selectedItems.map((item: any) => file.delete(item.full))
+            Promise.all(deletePromises).then(() => {
+              window.$bus.emit('file:refresh')
+              window.$message.success($gettext('Deleted successfully'))
+            })
+          }
         })
-      })
+      } else {
+        confirmImmutableOperation(selectedRow.value, 'delete', () => {
+          useRequest(file.delete(selectedRow.value.full)).onSuccess(() => {
+            window.$bus.emit('file:refresh')
+            window.$message.success($gettext('Deleted successfully'))
+          })
+        })
+      }
       break
   }
   onCloseDropdown()
@@ -489,6 +635,112 @@ const handleSelect = (key: string) => {
 const onCloseDropdown = () => {
   selectedRow.value = null
   showDropdown.value = false
+}
+
+// 键盘快捷键处理
+const handleKeyDown = (event: KeyboardEvent) => {
+  // 如果焦点在输入框中，不处理快捷键
+  const target = event.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return
+  }
+
+  // 检测 Ctrl (Windows) 或 Command (macOS)
+  const isCtrlOrCmd = event.ctrlKey || event.metaKey
+
+  if (isCtrlOrCmd) {
+    switch (event.key.toLowerCase()) {
+      case 'a':
+        // Ctrl/Cmd + A: 全选
+        event.preventDefault()
+        selected.value = data.value.map((item: any) => item.full)
+        break
+      case 'c':
+        // Ctrl/Cmd + C: 复制
+        if (selected.value.length > 0) {
+          event.preventDefault()
+          const selectedItems = data.value.filter((item: any) => selected.value.includes(item.full))
+          marked.value = selectedItems.map((item: any) => ({
+            name: item.name,
+            source: item.full,
+            force: false
+          }))
+          markedType.value = 'copy'
+          window.$message.success(
+            $gettext('Marked successfully, please navigate to the destination path to paste')
+          )
+        }
+        break
+      case 'x':
+        // Ctrl/Cmd + X: 剪切（移动）
+        if (selected.value.length > 0) {
+          event.preventDefault()
+          const selectedItems = data.value.filter((item: any) => selected.value.includes(item.full))
+          marked.value = selectedItems.map((item: any) => ({
+            name: item.name,
+            source: item.full,
+            force: false
+          }))
+          markedType.value = 'move'
+          window.$message.success(
+            $gettext('Marked successfully, please navigate to the destination path to paste')
+          )
+        }
+        break
+      case 'v':
+        // Ctrl/Cmd + V: 粘贴
+        if (marked.value.length > 0) {
+          event.preventDefault()
+          handlePaste()
+        }
+        break
+    }
+  } else {
+    switch (event.key) {
+      case 'Delete':
+        // Delete: 删除选中项
+        if (selected.value.length > 0) {
+          event.preventDefault()
+          const selectedItems = data.value.filter((item: any) => selected.value.includes(item.full))
+          const hasImmutable = selectedItems.some((item: any) => item.immutable)
+          if (hasImmutable) {
+            window.$message.warning($gettext('Some files are immutable and cannot be deleted'))
+            return
+          }
+          window.$dialog.warning({
+            title: $gettext('Warning'),
+            content: selected.value.length > 1
+              ? $gettext('Are you sure you want to delete %{count} items?', { count: selected.value.length })
+              : $gettext('Are you sure you want to delete this item?'),
+            positiveText: $gettext('Yes'),
+            negativeText: $gettext('No'),
+            onPositiveClick: () => {
+              const deletePromises = selectedItems.map((item: any) => file.delete(item.full))
+              Promise.all(deletePromises).then(() => {
+                window.$bus.emit('file:refresh')
+                window.$message.success($gettext('Deleted successfully'))
+              })
+            }
+          })
+        }
+        break
+      case 'Escape':
+        // Escape: 取消选择
+        event.preventDefault()
+        selected.value = []
+        break
+      case 'Enter':
+        // Enter: 打开选中项（单选时）
+        if (selected.value.length === 1) {
+          event.preventDefault()
+          const item = data.value.find((item: any) => item.full === selected.value[0])
+          if (item) {
+            openFile(item)
+          }
+        }
+        break
+    }
+  }
 }
 
 const handleRename = () => {
@@ -572,14 +824,7 @@ const {
   refresh
 } = usePagination(
   (page, pageSize) =>
-    file.list(
-      encodeURIComponent(path.value),
-      keyword.value,
-      sub.value,
-      sort.value,
-      page,
-      pageSize
-    ),
+    file.list(encodeURIComponent(path.value), keyword.value, sub.value, sort.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
@@ -621,34 +866,25 @@ onMounted(() => {
   // 添加全局鼠标事件监听
   document.addEventListener('mousemove', onSelectionMove)
   document.addEventListener('mouseup', onSelectionEnd)
+
+  // 添加键盘快捷键监听
+  document.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   window.$bus.off('file:refresh')
   document.removeEventListener('mousemove', onSelectionMove)
   document.removeEventListener('mouseup', onSelectionEnd)
+  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
 <template>
-  <div class="grid-view-wrapper">
+  <div class="grid-view-wrapper" :style="themeStyles">
     <n-spin :show="loading">
-      <div
-        ref="gridContainerRef"
-        class="grid-container"
-        @mousedown="onSelectionStart"
-      >
+      <div ref="gridContainerRef" class="grid-container" @mousedown="onSelectionStart">
         <!-- 框选框 -->
-        <div
-          v-if="selectionBox"
-          class="selection-box"
-          :style="{
-            left: selectionBox.left + 'px',
-            top: selectionBox.top + 'px',
-            width: selectionBox.width + 'px',
-            height: selectionBox.height + 'px'
-          }"
-        />
+        <div v-if="selectionBox" class="selection-box" :style="selectionBoxStyle" />
 
         <!-- 文件/文件夹网格 -->
         <div
@@ -658,22 +894,22 @@ onUnmounted(() => {
           :class="{ selected: isSelected(item) }"
           :data-path="item.full"
           @click="handleItemClick(item, $event)"
-          @dblclick="handleItemDblClick(item)"
           @contextmenu="handleContextMenu(item, $event)"
         >
           <div class="icon-wrapper">
-            <the-icon :icon="getFileIcon(item)" :size="48" :style="{ color: getIconColor(item) }" />
+            <the-icon :icon="getFileIcon(item)" :size="48" :color="getIconColor(item)" />
             <!-- 锁定图标 -->
-            <the-icon
-              v-if="item.immutable"
-              icon="mdi:lock"
-              :size="16"
-              class="lock-icon"
-            />
+            <the-icon v-if="item.immutable" icon="mdi:lock" :size="16" class="lock-icon" />
           </div>
-          <n-ellipsis :line-clamp="2" class="item-name" :tooltip="{ width: 300 }">
-            {{ item.name }}
-          </n-ellipsis>
+          <span
+            class="item-name-wrapper"
+            :class="{ 'folder-name': item.dir }"
+            @click="handleNameClick(item, $event)"
+          >
+            <n-ellipsis :line-clamp="2" class="item-name" :tooltip="{ width: 300 }">
+              {{ item.name }}
+            </n-ellipsis>
+          </span>
         </div>
 
         <!-- 空状态 -->
@@ -689,7 +925,6 @@ onUnmounted(() => {
       <n-pagination
         v-model:page="page"
         v-model:page-size="pageSize"
-        :page-count="pageCount"
         :item-count="total"
         show-quick-jumper
         show-size-picker
@@ -773,20 +1008,20 @@ onUnmounted(() => {
   position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  align-content: start;
   gap: 16px;
   padding: 16px;
-  min-height: 400px;
-  max-height: 60vh;
+  height: 60vh;
   overflow: auto;
-  background: var(--n-color);
+  background: var(--n-card-color);
   border-radius: 8px;
+  border: 1px solid var(--n-border-color);
   user-select: none;
 }
 
 .selection-box {
   position: absolute;
-  border: 2px dashed var(--n-primary-color);
-  background: rgba(var(--n-primary-color-rgb), 0.1);
+  border: 1px solid;
   pointer-events: none;
   z-index: 100;
 }
@@ -796,17 +1031,24 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 12px 8px;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
+  border: 1px solid transparent;
 
   &:hover {
-    background: var(--n-color-hover);
+    background: var(--hover-bg);
+    border-color: var(--hover-border);
   }
 
   &.selected {
-    background: var(--n-color-pressed);
-    box-shadow: 0 0 0 2px var(--n-primary-color);
+    background: var(--primary-color-hover);
+    border-color: var(--primary-color-border);
+  }
+
+  &.selected:hover {
+    background: var(--primary-color-hover-deep);
+    border-color: var(--primary-color-border-deep);
   }
 }
 
@@ -824,15 +1066,34 @@ onUnmounted(() => {
   position: absolute;
   bottom: 0;
   right: 0;
-  color: #f0a020;
+  color: var(--warning-color);
+}
+
+.item-name-wrapper {
+  text-align: center;
+  max-width: 100%;
+
+  &.folder-name {
+    cursor: pointer;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
 }
 
 .item-name {
-  text-align: center;
   font-size: 12px;
   line-height: 1.4;
   word-break: break-all;
-  max-width: 100%;
+}
+
+:deep(.folder-name) {
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary-color);
+  }
 }
 
 .empty-state {
