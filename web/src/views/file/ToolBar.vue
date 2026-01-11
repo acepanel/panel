@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { checkName, lastDirectory } from '@/utils/file'
 import UploadModal from '@/views/file/UploadModal.vue'
-import type { Marked } from '@/views/file/types'
+import type { FileInfo, Marked } from '@/views/file/types'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -13,6 +14,14 @@ const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] 
 const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
+// 权限编辑时的文件信息列表
+const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', { type: Array, default: () => [] })
+
+// 视图类型：list（列表视图）或 grid（图标视图）
+const viewType = ref<'list' | 'grid'>('list')
+
+// 终端弹窗
+const terminalModal = ref(false)
 
 const upload = ref(false)
 const create = ref(false)
@@ -200,6 +209,21 @@ watch(
     }
   }
 )
+
+// 打开终端
+const openTerminal = () => {
+  terminalModal.value = true
+}
+
+// 切换视图类型（预留功能）
+const toggleViewType = () => {
+  viewType.value = viewType.value === 'list' ? 'grid' : 'list'
+  // 未来实现图标视图时使用
+  if (viewType.value === 'grid') {
+    window.$message.info($gettext('Grid view is coming soon'))
+    viewType.value = 'list'
+  }
+}
 </script>
 
 <template>
@@ -215,6 +239,17 @@ watch(
     </n-popselect>
     <n-button @click="upload = true">{{ $gettext('Upload') }}</n-button>
     <n-button @click="download = true">{{ $gettext('Remote Download') }}</n-button>
+    <n-button @click="openTerminal">{{ $gettext('Terminal') }}</n-button>
+    <n-divider vertical />
+    <n-tooltip>
+      <template #trigger>
+        <n-button @click="toggleViewType">
+          <i-mdi-view-list v-if="viewType === 'list'" :size="16" />
+          <i-mdi-view-grid v-else :size="16" />
+        </n-button>
+      </template>
+      {{ viewType === 'list' ? $gettext('Switch to grid view') : $gettext('Switch to list view') }}
+    </n-tooltip>
     <div ml-auto>
       <n-flex>
         <n-button v-if="marked.length" secondary type="error" @click="handleCancel">
@@ -280,6 +315,12 @@ watch(
     </n-space>
   </n-modal>
   <upload-modal v-model:show="upload" v-model:path="path" />
+  <!-- 终端弹窗 -->
+  <pty-terminal-modal
+    v-model:show="terminalModal"
+    :title="$gettext('Terminal - %{ path }', { path })"
+    :command="`cd '${path}' && exec bash`"
+  />
 </template>
 
 <style scoped lang="scss"></style>

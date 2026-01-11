@@ -2,9 +2,11 @@
 import type { InputInst } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import { useFileStore } from '@/store'
 import { checkPath } from '@/utils/file'
 
 const { $gettext } = useGettext()
+const fileStore = useFileStore()
 const path = defineModel<string>('path', { type: String, required: true }) // 当前路径
 const keyword = defineModel<string>('keyword', { type: String, default: '' }) // 搜索关键词
 const sub = defineModel<boolean>('sub', { type: Boolean, default: false }) // 搜索是否包括子目录
@@ -36,6 +38,11 @@ const handleBlur = () => {
 
 const handleRefresh = () => {
   window.$bus.emit('file:refresh')
+}
+
+// 切换显示隐藏文件
+const toggleHidden = () => {
+  fileStore.toggleShowHidden()
 }
 
 const handleUp = () => {
@@ -121,6 +128,15 @@ onUnmounted(() => {
     <n-button @click="handleRefresh">
       <i-mdi-refresh :size="16" />
     </n-button>
+    <n-tooltip>
+      <template #trigger>
+        <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">
+          <i-mdi-eye v-if="fileStore.showHidden" :size="16" />
+          <i-mdi-eye-off v-else :size="16" />
+        </n-button>
+      </template>
+      {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
+    </n-tooltip>
     <n-input-group flex-1>
       <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
         <n-breadcrumb separator=">">

@@ -3,10 +3,13 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import type { FileInfo } from '@/views/file/types'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, required: true })
+// 文件信息列表，用于获取当前所有者和组
+const fileInfoList = defineModel<FileInfo[]>('fileInfoList', { type: Array, default: () => [] })
 const mode = ref('755')
 const owner = ref('www')
 const group = ref('www')
@@ -17,6 +20,21 @@ const checkbox = ref({
   other: ['read', 'execute']
 })
 
+// 当打开弹窗时，从文件信息中获取当前权限/所有者/组
+watch(
+  () => show.value,
+  (newVal) => {
+    if (newVal && fileInfoList.value.length > 0) {
+      const firstFile = fileInfoList.value[0]
+      // 设置权限（去掉前导0）
+      mode.value = firstFile.mode.replace(/^0+/, '') || '755'
+      owner.value = firstFile.owner || 'www'
+      group.value = firstFile.group || 'www'
+      updateCheckboxes()
+    }
+  }
+)
+
 const handlePermission = async () => {
   const promises = selected.value.map((path) =>
     file.permission(path, `0${mode.value}`, owner.value, group.value)
@@ -25,6 +43,7 @@ const handlePermission = async () => {
 
   show.value = false
   selected.value = []
+  fileInfoList.value = []
   window.$bus.emit('file:refresh')
   window.$message.success($gettext('Modified successfully'))
 }

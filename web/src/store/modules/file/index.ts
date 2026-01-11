@@ -2,6 +2,7 @@ export interface File {
   path: string
   keyword: string
   sub: boolean
+  showHidden: boolean
 }
 
 export const useFileStore = defineStore('file', {
@@ -9,7 +10,8 @@ export const useFileStore = defineStore('file', {
     return {
       path: '/opt',
       keyword: '',
-      sub: false
+      sub: false,
+      showHidden: false
     }
   },
   actions: {
@@ -17,6 +19,10 @@ export const useFileStore = defineStore('file', {
       this.path = info.path
       this.keyword = info.keyword
       this.sub = info.sub
+      this.showHidden = info.showHidden
+    },
+    toggleShowHidden() {
+      this.showHidden = !this.showHidden
     }
   },
   persist: true

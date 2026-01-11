@@ -18,6 +18,7 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import {
   checkName,
   checkPath,
@@ -29,10 +30,13 @@ import {
 } from '@/utils/file'
 import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
-import type { Marked } from '@/views/file/types'
+import PropertyModal from '@/views/file/PropertyModal.vue'
+import type { FileInfo, Marked } from '@/views/file/types'
+import { useFileStore } from '@/store'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
+const fileStore = useFileStore()
 const sort = ref<string>('')
 const path = defineModel<string>('path', { type: String, required: true }) // 当前路径
 const keyword = defineModel<string>('keyword', { type: String, default: '' }) // 搜索关键词
@@ -42,9 +46,17 @@ const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] 
 const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
+// 权限编辑时的文件信息列表
+const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', { type: Array, default: () => [] })
 const editorModal = ref(false)
 const previewModal = ref(false)
 const currentFile = ref('')
+// 属性弹窗
+const propertyModal = ref(false)
+const propertyFileInfo = ref<FileInfo | null>(null)
+// 终端弹窗
+const terminalModal = ref(false)
+const terminalPath = ref('')
 
 const showDropdown = ref(false)
 const selectedRow = ref<any>()
@@ -92,8 +104,10 @@ const options = computed<DropdownOption[]>(() => {
         ? $gettext('Open')
         : isImage(selectedRow.value.name)
           ? $gettext('Preview')
-          : $gettext('Edit'),
-      key: selectedRow.value.dir ? 'open' : isImage(selectedRow.value.name) ? 'preview' : 'edit'
+          : isCompress(selectedRow.value.name)
+            ? $gettext('Uncompress')
+            : $gettext('Edit'),
+      key: selectedRow.value.dir ? 'open' : isImage(selectedRow.value.name) ? 'preview' : isCompress(selectedRow.value.name) ? 'uncompress' : 'edit'
     },
     { label: $gettext('Copy'), key: 'copy' },
     { label: $gettext('Move'), key: 'move' },
@@ -109,6 +123,14 @@ const options = computed<DropdownOption[]>(() => {
       disabled: !isCompress(selectedRow.value.full)
     },
     { label: $gettext('Rename'), key: 'rename' },
+    // 终端选项，仅目录显示
+    {
+      label: $gettext('Terminal'),
+      key: 'terminal',
+      show: selectedRow.value.dir
+    },
+    // 属性选项
+    { label: $gettext('Properties'), key: 'properties' },
     { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' }
   ]
   if (marked.value.length) {
@@ -120,6 +142,13 @@ const options = computed<DropdownOption[]>(() => {
 
   return options
 })
+
+// 打开权限编辑弹窗的处理函数
+const openPermissionModal = (row: any) => {
+  selected.value = [row.full]
+  permissionFileInfoList.value = [row as FileInfo]
+  permission.value = true
+}
 
 const columns: DataTableColumns<RowData> = [
   {
@@ -144,12 +173,27 @@ const columns: DataTableColumns<RowData> = [
         NFlex,
         {
           class: 'cursor-pointer hover:opacity-60',
+          // 目录单击进入
           onClick: () => {
             if (row.dir) {
               path.value = row.full
-            } else {
-              currentFile.value = row.full
-              editorModal.value = true
+            }
+          },
+          // 文件双击打开（编辑/预览/解压）
+          onDblclick: () => {
+            if (!row.dir) {
+              if (isImage(row.name)) {
+                currentFile.value = row.full
+                previewModal.value = true
+              } else if (isCompress(row.name)) {
+                // 压缩包双击弹出解压窗口
+                unCompressModel.value.file = row.full
+                unCompressModel.value.path = path.value
+                unCompressModal.value = true
+              } else {
+                currentFile.value = row.full
+                editorModal.value = true
+              }
             }
           }
         },
@@ -183,7 +227,16 @@ const columns: DataTableColumns<RowData> = [
     render(row: any): any {
       return h(
         NTag,
-        { type: 'success', size: 'small', bordered: false },
+        {
+          type: 'success',
+          size: 'small',
+          bordered: false,
+          class: 'cursor-pointer hover:opacity-60',
+          onClick: (e: MouseEvent) => {
+            e.stopPropagation()
+            openPermissionModal(row)
+          }
+        },
         { default: () => row.mode }
       )
     }
@@ -193,11 +246,21 @@ const columns: DataTableColumns<RowData> = [
     key: 'owner/group',
     minWidth: 120,
     render(row: any): any {
-      return h('div', null, [
-        h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.owner }),
-        ' / ',
-        h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.group })
-      ])
+      return h(
+        'div',
+        {
+          class: 'cursor-pointer hover:opacity-60',
+          onClick: (e: MouseEvent) => {
+            e.stopPropagation()
+            openPermissionModal(row)
+          }
+        },
+        [
+          h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.owner }),
+          ' / ',
+          h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.group })
+        ]
+      )
     }
   },
   {
@@ -459,7 +522,7 @@ const rowProps = (row: any) => {
   }
 }
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data: rawData, page, total, pageSize, pageCount, refresh } = usePagination(
   (page, pageSize) =>
     file.list(encodeURIComponent(path.value), keyword.value, sub.value, sort.value, page, pageSize),
   {
@@ -469,6 +532,14 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     data: (res: any) => res.items
   }
 )
+
+// 根据隐藏文件设置过滤数据
+const data = computed(() => {
+  if (fileStore.showHidden) {
+    return rawData.value
+  }
+  return rawData.value.filter((item: any) => !item.hidden)
+})
 
 // 计算目录大小
 const calculateDirSize = (dirPath: string) => {
@@ -674,6 +745,7 @@ const handleSelect = (key: string) => {
       break
     case 'permission':
       selected.value = [selectedRow.value.full]
+      permissionFileInfoList.value = [selectedRow.value as FileInfo]
       permission.value = true
       break
     case 'compress':
@@ -694,6 +766,16 @@ const handleSelect = (key: string) => {
         renameModel.value.target = getFilename(selectedRow.value.name)
         renameModal.value = true
       })
+      break
+    case 'terminal':
+      // 打开目录的终端
+      terminalPath.value = selectedRow.value.full
+      terminalModal.value = true
+      break
+    case 'properties':
+      // 显示属性弹窗
+      propertyFileInfo.value = selectedRow.value as FileInfo
+      propertyModal.value = true
       break
     case 'delete':
       confirmImmutableOperation(selectedRow.value, 'delete', () => {
@@ -851,4 +933,12 @@ onUnmounted(() => {
       <n-button type="primary" @click="handleUnCompress">{{ $gettext('Uncompress') }}</n-button>
     </n-flex>
   </n-modal>
+  <!-- 属性弹窗 -->
+  <property-modal v-model:show="propertyModal" v-model:file-info="propertyFileInfo" />
+  <!-- 终端弹窗 -->
+  <pty-terminal-modal
+    v-model:show="terminalModal"
+    :title="$gettext('Terminal - %{ path }', { path: terminalPath })"
+    :command="`cd '${terminalPath}' && exec bash`"
+  />
 </template>
