@@ -3,6 +3,7 @@ export interface File {
   keyword: string
   sub: boolean
   showHidden: boolean
+  viewType: 'list' | 'grid'
 }
 
 export const useFileStore = defineStore('file', {
@@ -11,7 +12,8 @@ export const useFileStore = defineStore('file', {
       path: '/opt',
       keyword: '',
       sub: false,
-      showHidden: false
+      showHidden: false,
+      viewType: 'list'
     }
   },
   actions: {
@@ -20,9 +22,13 @@ export const useFileStore = defineStore('file', {
       this.keyword = info.keyword
       this.sub = info.sub
       this.showHidden = info.showHidden
+      this.viewType = info.viewType
     },
     toggleShowHidden() {
       this.showHidden = !this.showHidden
+    },
+    toggleViewType() {
+      this.viewType = this.viewType === 'list' ? 'grid' : 'list'
     }
   },
   persist: true

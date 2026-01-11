@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useFileStore } from '@/store'
 import { checkName, lastDirectory } from '@/utils/file'
 import UploadModal from '@/views/file/UploadModal.vue'
 import type { FileInfo, Marked } from '@/views/file/types'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
+const fileStore = useFileStore()
 
 const path = defineModel<string>('path', { type: String, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
@@ -16,9 +18,6 @@ const compress = defineModel<boolean>('compress', { type: Boolean, required: tru
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 // 权限编辑时的文件信息列表
 const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', { type: Array, default: () => [] })
-
-// 视图类型：list（列表视图）或 grid（图标视图）
-const viewType = ref<'list' | 'grid'>('list')
 
 // 终端弹窗
 const terminalModal = ref(false)
@@ -215,14 +214,9 @@ const openTerminal = () => {
   terminalModal.value = true
 }
 
-// 切换视图类型（预留功能）
+// 切换视图类型
 const toggleViewType = () => {
-  // 目前只支持列表视图，图标视图将在未来实现
-  if (viewType.value === 'list') {
-    window.$message.info($gettext('Grid view is coming soon'))
-    return
-  }
-  viewType.value = 'list'
+  fileStore.toggleViewType()
 }
 </script>
 
@@ -244,11 +238,11 @@ const toggleViewType = () => {
     <n-tooltip>
       <template #trigger>
         <n-button @click="toggleViewType">
-          <i-mdi-view-list v-if="viewType === 'list'" :size="16" />
+          <i-mdi-view-list v-if="fileStore.viewType === 'list'" :size="16" />
           <i-mdi-view-grid v-else :size="16" />
         </n-button>
       </template>
-      {{ viewType === 'list' ? $gettext('Switch to grid view') : $gettext('Switch to list view') }}
+      {{ fileStore.viewType === 'list' ? $gettext('Switch to grid view') : $gettext('Switch to list view') }}
     </n-tooltip>
     <div ml-auto>
       <n-flex>

@@ -5,6 +5,7 @@ defineOptions({
 
 import { useFileStore } from '@/store'
 import CompressModal from '@/views/file/CompressModal.vue'
+import GridView from '@/views/file/GridView.vue'
 import ListTable from '@/views/file/ListTable.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
@@ -40,7 +41,21 @@ const permission = ref(false)
         v-model:permission="permission"
         v-model:permission-file-info-list="permissionFileInfoList"
       />
+      <!-- 根据视图类型切换显示 -->
       <list-table
+        v-if="fileStore.viewType === 'list'"
+        v-model:path="fileStore.path"
+        v-model:keyword="fileStore.keyword"
+        v-model:sub="fileStore.sub"
+        v-model:selected="selected"
+        v-model:marked="marked"
+        v-model:markedType="markedType"
+        v-model:compress="compress"
+        v-model:permission="permission"
+        v-model:permission-file-info-list="permissionFileInfoList"
+      />
+      <grid-view
+        v-else
         v-model:path="fileStore.path"
         v-model:keyword="fileStore.keyword"
         v-model:sub="fileStore.sub"
