@@ -162,6 +162,21 @@ func (s *AppService) UpdateShow(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *AppService) UpdateOrder(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.AppUpdateOrder](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.appRepo.UpdateOrder(req.Slugs); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *AppService) IsInstalled(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.AppSlugs](r)
 	if err != nil {

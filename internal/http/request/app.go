@@ -17,3 +17,7 @@ type AppUpdateShow struct {
 	Slug string `json:"slug" form:"slug" validate:"required|exists:apps,slug"`
 	Show bool   `json:"show" form:"show"`
 }
+
+type AppUpdateOrder struct {
+	Slugs []string `json:"slugs" form:"slugs" validate:"required"`
+}

@@ -291,6 +291,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/uninstall", route.app.Uninstall)
 			r.Post("/update", route.app.Update)
 			r.Post("/update_show", route.app.UpdateShow)
+			r.Post("/update_order", route.app.UpdateOrder)
 			r.Get("/is_installed", route.app.IsInstalled)
 			r.Get("/update_cache", route.app.UpdateCache)
 		})

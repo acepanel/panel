@@ -15,6 +15,8 @@ export default {
   update: (slug: string): any => http.Post('/app/update', { slug }),
   // 设置首页显示
   updateShow: (slug: string, show: boolean): any => http.Post('/app/update_show', { slug, show }),
+  // 更新首页显示排序
+  updateOrder: (slugs: string[]): any => http.Post('/app/update_order', { slugs }),
   // 应用是否已安装
   isInstalled: (slugs: string): any => http.Get('/app/is_installed', { params: { slugs } }),
   // 更新缓存

@@ -15,7 +15,9 @@ import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { NButton, NPopconfirm, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+import draggable from 'vuedraggable'
 
+import app from '@/api/panel/app'
 import home from '@/api/panel/home'
 import TheIconLocal from '@/components/custom/TheIconLocal.vue'
 import { router } from '@/router'
@@ -63,14 +65,14 @@ const { data: systemInfo } = useRequest(home.systemInfo, {
   }
 })
 const { data: apps, loading: appLoading } = useRequest(home.apps, {
-  initialData: {
-    description: '',
-    icon: '',
-    name: '',
-    slug: '',
-    version: ''
-  }
+  initialData: []
 })
+
+const handleAppOrderChange = async () => {
+  const slugs = apps.value.map((item: { slug: string }) => item.slug)
+  await app.updateOrder(slugs)
+  window.$message.success($gettext('Order updated'))
+}
 const { data: countInfo } = useRequest(home.countInfo, {
   initialData: {
     website: 0,
@@ -715,41 +717,45 @@ if (import.meta.hot) {
             <n-flex vertical>
               <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-340>
                 <n-scrollbar max-h-270>
-                  <n-grid
+                  <draggable
                     v-if="!appLoading"
-                    x-gap="12"
-                    y-gap="12"
-                    cols="4 s:1 m:2 l:3 xl:4 2xl:4"
-                    item-responsive
-                    responsive="screen"
-                    p-10
+                    v-model="apps"
+                    item-key="slug"
+                    handle=".drag-handle"
+                    class="app-grid"
+                    @end="handleAppOrderChange"
                   >
-                    <n-gi v-for="item in apps" :key="item.name">
-                      <n-card
-                        :segmented="true"
-                        size="small"
-                        cursor-pointer
-                        hover:card-shadow
-                        @click="handleManageApp(item.slug)"
-                      >
-                        <n-flex>
-                          <n-thing>
-                            <template #avatar>
-                              <div class="mt-8">
-                                <the-icon-local type="app" :size="30" :icon="item.slug" />
-                              </div>
-                            </template>
-                            <template #header>
-                              {{ item.name }}
-                            </template>
-                            <template #description>
-                              {{ item.version }}
-                            </template>
-                          </n-thing>
-                        </n-flex>
-                      </n-card>
-                    </n-gi>
-                  </n-grid>
+                    <template #item="{ element: item }">
+                      <div relative>
+                        <n-card
+                          :segmented="true"
+                          size="small"
+                          cursor-pointer
+                          class="app-card"
+                          @click="handleManageApp(item.slug)"
+                        >
+                          <div class="drag-handle" cursor-grab>
+                            <the-icon icon="mdi:drag" :size="20" />
+                          </div>
+                          <n-flex>
+                            <n-thing>
+                              <template #avatar>
+                                <div class="mt-8">
+                                  <the-icon-local type="app" :size="30" :icon="item.slug" />
+                                </div>
+                              </template>
+                              <template #header>
+                                {{ item.name }}
+                              </template>
+                              <template #description>
+                                {{ item.version }}
+                              </template>
+                            </n-thing>
+                          </n-flex>
+                        </n-card>
+                      </div>
+                    </template>
+                  </draggable>
                 </n-scrollbar>
                 <n-text v-if="!appLoading && !apps.length">
                   {{ $gettext('You have not set any apps to display here!') }}
@@ -890,3 +896,52 @@ if (import.meta.hot) {
     </div>
   </app-page>
 </template>
+
+<style scoped>
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 10px;
+}
+
+@media (max-width: 1200px) {
+  .app-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .app-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.app-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.app-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.drag-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  color: #999;
+}
+
+.app-card:hover .drag-handle {
+  opacity: 1;
+}
+</style>

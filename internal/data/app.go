@@ -359,6 +359,15 @@ func (r *appRepo) UpdateShow(slug string, show bool) error {
 	return r.db.Save(item).Error
 }
 
+func (r *appRepo) UpdateOrder(slugs []string) error {
+	for i, slug := range slugs {
+		if err := r.db.Model(&biz.App{}).Where("slug = ?", slug).Update("show_order", i).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (r *appRepo) preCheck(app *api.App) error {
 	var apps []string
 	var installed []string
