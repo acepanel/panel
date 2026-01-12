@@ -72,12 +72,18 @@ func (r certDNSRepo) Update(req *request.CertDNSUpdate) error {
 }
 
 func (r certDNSRepo) Delete(id uint) error {
-	if err := r.db.Model(&biz.CertDNS{}).Where("id = ?", id).Delete(&biz.CertDNS{}).Error; err != nil {
+	// 先获取实体信息用于日志记录
+	certDNS, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = r.db.Model(&biz.CertDNS{}).Where("id = ?", id).Delete(&biz.CertDNS{}).Error; err != nil {
 		return err
 	}
 
 	// 记录日志
-	r.log.Info("cert dns deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+	r.log.Info("cert dns deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
 
 	return nil
 }
