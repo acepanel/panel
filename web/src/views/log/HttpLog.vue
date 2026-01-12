@@ -103,7 +103,7 @@ const columns = [
     render: (row: LogEntry) => {
       const ip = row.extra?.['client.ip'] || '-'
       // 移除端口号
-      return ip.split(':')[0]
+      return typeof ip === 'string' && ip.includes(':') ? ip.split(':')[0] : ip
     }
   }
 ]
