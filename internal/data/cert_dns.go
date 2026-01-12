@@ -72,7 +72,6 @@ func (r certDNSRepo) Update(req *request.CertDNSUpdate) error {
 }
 
 func (r certDNSRepo) Delete(id uint) error {
-	// 先获取实体信息用于日志记录
 	certDNS, err := r.Get(id)
 	if err != nil {
 		return err
