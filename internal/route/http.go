@@ -298,6 +298,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/is_installed", route.environment.IsInstalled)
 			r.Route("/php", func(r chi.Router) {
 				r.Post("/{version}/set_cli", route.environmentPHP.SetCli)
+				r.Get("/{version}/phpinfo", route.environmentPHP.PHPInfo)
 				r.Get("/{version}/config", route.environmentPHP.GetConfig)
 				r.Post("/{version}/config", route.environmentPHP.UpdateConfig)
 				r.Get("/{version}/fpm_config", route.environmentPHP.GetFPMConfig)

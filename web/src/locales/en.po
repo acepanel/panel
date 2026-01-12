@@ -3744,6 +3744,10 @@ msgstr "Task submitted, please check progress in background tasks"
 msgid "Set as CLI Default Version"
 msgstr "Set as CLI Default Version"
 
+#: src/views/environment/PHPView.vue:201
+msgid "View PHPInfo"
+msgstr "View PHPInfo"
+
 #: src/views/environment/PHPView.vue:203
 msgid ""
 "This modifies the PHP %{ version } main configuration file. If you do not "
@@ -6968,6 +6972,10 @@ msgstr ""
 #: src/views/website/SettingView.vue:110
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr ""
+
+#: src/views/environment/PHPView.vue:294
+msgid "PHPInfo"
+msgstr "PHPInfo"
 
 #~ msgid "Edit - %{ file }"
 #~ msgstr "Edit - %{ file }"

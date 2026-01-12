@@ -3,6 +3,8 @@ import { http } from '@/utils'
 export default {
   // 设为 CLI 版本
   setCli: (slug: number): any => http.Post(`/environment/php/${slug}/set_cli`),
+  // 获取 phpinfo
+  phpinfo: (slug: number): any => http.Get(`/environment/php/${slug}/phpinfo`),
   // 获取配置
   config: (slug: number): any => http.Get(`/environment/php/${slug}/config`),
   // 保存配置

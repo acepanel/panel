@@ -3866,6 +3866,10 @@ msgstr "任務已提交，請在後台任務中查看進度"
 msgid "Set as CLI Default Version"
 msgstr "設置為 CLI 默認版本"
 
+#: src/views/environment/PHPView.vue:201
+msgid "View PHPInfo"
+msgstr "查看 PHPInfo"
+
 #: src/views/environment/PHPView.vue:203
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "這將修改 PHP %{ version } 的主配置文件。如果您不了解每個參數的含義，請不要隨意修改！"
@@ -6942,4 +6946,8 @@ msgstr ""
 #: src/views/website/SettingView.vue:110
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr ""
+
+#: src/views/environment/PHPView.vue:294
+msgid "PHPInfo"
+msgstr "PHPInfo"
 

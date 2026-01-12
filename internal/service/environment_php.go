@@ -56,6 +56,27 @@ func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.EnvironmentPHPVersion](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+		return
+	}
+
+	// 使用 php -r 命令执行 phpinfo() 并获取 HTML 输出
+	output, err := shell.Execf("%s/server/php/%d/bin/php -r \"phpinfo();\"", app.Root, req.Version)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, output)
+}
+
 func (s *EnvironmentPHPService) GetConfig(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.EnvironmentPHPVersion](r)
 	if err != nil {
