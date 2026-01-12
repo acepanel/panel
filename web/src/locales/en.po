@@ -3744,6 +3744,10 @@ msgstr "Task submitted, please check progress in background tasks"
 msgid "Set as CLI Default Version"
 msgstr "Set as CLI Default Version"
 
+#: src/views/environment/PHPView.vue:149
+msgid "Failed to get PHPInfo"
+msgstr "Failed to get PHPInfo"
+
 #: src/views/environment/PHPView.vue:201
 msgid "View PHPInfo"
 msgstr "View PHPInfo"

@@ -232,8 +232,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:177
 #: src/views/apps/supervisor/IndexView.vue:219
 #: src/views/apps/supervisor/IndexView.vue:284
-#: src/views/environment/PHPView.vue:154
-#: src/views/environment/PHPView.vue:160
+#: src/views/environment/PHPView.vue:158
+#: src/views/environment/PHPView.vue:164
 #: src/views/project/EditModal.vue:157
 #: src/views/setting/IndexView.vue:55
 #: src/views/toolbox/SystemView.vue:51
@@ -634,7 +634,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:191
 #: src/views/apps/supervisor/IndexView.vue:298
 #: src/views/container/ContainerView.vue:102
-#: src/views/environment/PHPView.vue:192
+#: src/views/environment/PHPView.vue:196
 msgid "Running Status"
 msgstr ""
 
@@ -800,8 +800,8 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:63
 #: src/views/apps/rsync/IndexView.vue:235
 #: src/views/apps/supervisor/IndexView.vue:342
-#: src/views/environment/PHPView.vue:232
-#: src/views/environment/PHPView.vue:250
+#: src/views/environment/PHPView.vue:236
+#: src/views/environment/PHPView.vue:254
 #: src/views/project/EditModal.vue:575
 #: src/views/setting/IndexView.vue:106
 #: src/views/task/CronView.vue:259
@@ -1590,7 +1590,7 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:78
 #: src/views/apps/rsync/IndexView.vue:240
 #: src/views/apps/supervisor/IndexView.vue:347
-#: src/views/environment/PHPView.vue:265
+#: src/views/environment/PHPView.vue:269
 msgid "Runtime Logs"
 msgstr ""
 
@@ -1820,7 +1820,7 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:535
 #: src/views/apps/postgresql/IndexView.vue:100
 #: src/views/apps/redis/IndexView.vue:68
-#: src/views/environment/PHPView.vue:255
+#: src/views/environment/PHPView.vue:259
 #: src/views/home/IndexView.vue:488
 msgid "Load Status"
 msgstr ""
@@ -1843,8 +1843,8 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:329
 #: src/views/apps/postgresql/IndexView.vue:56
 #: src/views/apps/supervisor/IndexView.vue:225
-#: src/views/environment/PHPView.vue:166
-#: src/views/environment/PHPView.vue:172
+#: src/views/environment/PHPView.vue:170
+#: src/views/environment/PHPView.vue:176
 #: src/views/website/EditView.vue:160
 msgid "Cleared successfully"
 msgstr ""
@@ -1910,7 +1910,7 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:552
 #: src/views/apps/postgresql/IndexView.vue:114
 #: src/views/apps/supervisor/IndexView.vue:354
-#: src/views/environment/PHPView.vue:272
+#: src/views/environment/PHPView.vue:276
 msgid "Clear Log"
 msgstr ""
 
@@ -1919,7 +1919,7 @@ msgid "Slow Query Log"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:134
-#: src/views/environment/PHPView.vue:282
+#: src/views/environment/PHPView.vue:286
 msgid "Clear Slow Log"
 msgstr ""
 
@@ -2042,7 +2042,7 @@ msgid "Add Upstream"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:548
-#: src/views/environment/PHPView.vue:268
+#: src/views/environment/PHPView.vue:272
 msgid "Error Logs"
 msgstr ""
 
@@ -2202,7 +2202,7 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:51
 #: src/views/apps/rsync/IndexView.vue:223
 #: src/views/apps/supervisor/IndexView.vue:330
-#: src/views/environment/PHPView.vue:219
+#: src/views/environment/PHPView.vue:223
 msgid "Main Configuration"
 msgstr ""
 
@@ -2219,7 +2219,7 @@ msgid "This modifies the PostgreSQL user configuration file. If you do not under
 msgstr ""
 
 #: src/views/apps/postgresql/IndexView.vue:120
-#: src/views/environment/PHPView.vue:278
+#: src/views/environment/PHPView.vue:282
 msgid "Slow Logs"
 msgstr ""
 
@@ -2365,7 +2365,7 @@ msgid "Are you sure you want to delete module %{ name }?"
 msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:194
-#: src/views/environment/PHPView.vue:206
+#: src/views/environment/PHPView.vue:210
 msgid "Module Management"
 msgstr ""
 
@@ -3847,32 +3847,36 @@ msgstr ""
 msgid "Set successfully"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:178
-#: src/views/environment/PHPView.vue:184
+#: src/views/environment/PHPView.vue:149
+msgid "Failed to get PHPInfo"
+msgstr ""
+
+#: src/views/environment/PHPView.vue:182
+#: src/views/environment/PHPView.vue:188
 msgid "Task submitted, please check progress in background tasks"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:198
+#: src/views/environment/PHPView.vue:202
 msgid "Set as CLI Default Version"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:201
+#: src/views/environment/PHPView.vue:205
 msgid "View PHPInfo"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:223
+#: src/views/environment/PHPView.vue:227
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:237
+#: src/views/environment/PHPView.vue:241
 msgid "FPM Configuration"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:241
+#: src/views/environment/PHPView.vue:245
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:294
+#: src/views/environment/PHPView.vue:298
 msgid "PHPInfo"
 msgstr ""
 

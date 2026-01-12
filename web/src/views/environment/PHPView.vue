@@ -144,6 +144,10 @@ const handlePHPInfo = async () => {
     .onSuccess((res) => {
       phpinfoContent.value = res.data
     })
+    .onError(() => {
+      showPHPInfoModal.value = false
+      window.$message.error($gettext('Failed to get PHPInfo'))
+    })
     .onComplete(() => {
       phpinfoLoading.value = false
     })
