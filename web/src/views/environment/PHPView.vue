@@ -144,10 +144,6 @@ const handlePHPInfo = async () => {
     .onSuccess((res) => {
       phpinfoContent.value = res.data
     })
-    .onError(() => {
-      showPHPInfoModal.value = false
-      window.$message.error($gettext('Failed to get PHPInfo'))
-    })
     .onComplete(() => {
       phpinfoLoading.value = false
     })
@@ -300,11 +296,9 @@ const handleUninstallModule = async (module: string) => {
       :mask-closable="true"
     >
       <n-spin :show="phpinfoLoading">
-        <div class="phpinfo-content">
-          <n-scrollbar style="max-height: 70vh">
-            <pre>{{ phpinfoContent }}</pre>
-          </n-scrollbar>
-        </div>
+        <n-scrollbar style="max-height: 70vh">
+          <div class="phpinfo-content" v-html="phpinfoContent"></div>
+        </n-scrollbar>
       </n-spin>
     </n-modal>
   </common-page>
@@ -312,12 +306,34 @@ const handleUninstallModule = async (module: string) => {
 
 <style scoped lang="scss">
 .phpinfo-content {
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 1.5;
+  :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  :deep(td),
+  :deep(th) {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  :deep(th) {
+    background-color: #f0f0f0;
+  }
+  :deep(h1) {
+    font-size: 24px;
+    margin: 10px 0;
+  }
+  :deep(h2) {
+    font-size: 18px;
+    margin: 10px 0;
+    background-color: #9999cc;
+    color: white;
+    padding: 5px;
+  }
+  :deep(hr) {
+    display: none;
   }
 }
 </style>

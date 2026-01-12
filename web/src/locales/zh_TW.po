@@ -3866,10 +3866,6 @@ msgstr "任務已提交，請在後台任務中查看進度"
 msgid "Set as CLI Default Version"
 msgstr "設置為 CLI 默認版本"
 
-#: src/views/environment/PHPView.vue:149
-msgid "Failed to get PHPInfo"
-msgstr "獲取 PHPInfo 失敗"
-
 #: src/views/environment/PHPView.vue:201
 msgid "View PHPInfo"
 msgstr "查看 PHPInfo"

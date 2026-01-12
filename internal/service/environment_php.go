@@ -67,8 +67,8 @@ func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// 使用 php -r 命令执行 phpinfo() 并获取 HTML 输出
-	output, err := shell.Execf("%s/server/php/%d/bin/php -r \"phpinfo();\"", app.Root, req.Version)
+	// 使用 php-cgi 执行 phpinfo() 获取 HTML 格式输出
+	output, err := shell.Execf("echo '<?php phpinfo();' | %s/server/php/%d/bin/php-cgi -q", app.Root, req.Version)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
