@@ -411,6 +411,8 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 		return 0, err
 	}
 
+	re := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -422,8 +424,7 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 		}
 		cleaned += info.Size()
 		// 名称带日期的日志文件，删除旧文件
-		_, err = regexp.MatchString(`\d{4}-\d{2}-\d{2}`, entry.Name())
-		if err == nil {
+		if re.MatchString(entry.Name()) {
 			_ = os.Remove(filePath)
 		} else {
 			_, _ = shell.Execf("cat /dev/null > '%s'", filePath)
@@ -534,14 +535,7 @@ func (s *ToolboxLogService) cleanDockerLogs() (int64, error) {
 	var cleaned int64
 
 	// 清理未使用的镜像 (Docker)
-	if err := s.containerImageRepo.Prune(); err != nil {
-		// 忽略 Docker 未安装或未运行的错误
-		if !strings.Contains(err.Error(), "Cannot connect") &&
-			!strings.Contains(err.Error(), "No such file") &&
-			!strings.Contains(err.Error(), "connection refused") {
-			// 不返回错误，继续执行
-		}
-	}
+	_ = s.containerImageRepo.Prune()
 
 	// 清理 Docker 容器日志
 	dockerLogPath := "/var/lib/docker/containers"
