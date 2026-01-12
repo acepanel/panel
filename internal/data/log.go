@@ -47,7 +47,7 @@ func (r *logRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
 		}
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	// 读取所有行
 	var lines []string
