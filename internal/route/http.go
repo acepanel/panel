@@ -52,6 +52,7 @@ type Http struct {
 	toolboxBenchmark *service.ToolboxBenchmarkService
 	toolboxSSH       *service.ToolboxSSHService
 	toolboxDisk      *service.ToolboxDiskService
+	toolboxLog       *service.ToolboxLogService
 	webhook          *service.WebHookService
 	apps             *apploader.Loader
 }
@@ -93,6 +94,7 @@ func NewHttp(
 	toolboxBenchmark *service.ToolboxBenchmarkService,
 	toolboxSSH *service.ToolboxSSHService,
 	toolboxDisk *service.ToolboxDiskService,
+	toolboxLog *service.ToolboxLogService,
 	webhook *service.WebHookService,
 	apps *apploader.Loader,
 ) *Http {
@@ -133,6 +135,7 @@ func NewHttp(
 		toolboxBenchmark: toolboxBenchmark,
 		toolboxSSH:       toolboxSSH,
 		toolboxDisk:      toolboxDisk,
+		toolboxLog:       toolboxLog,
 		webhook:          webhook,
 		apps:             apps,
 	}
@@ -502,6 +505,11 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/lvm/lv", route.toolboxDisk.CreateLV)
 			r.Delete("/lvm/lv", route.toolboxDisk.RemoveLV)
 			r.Post("/lvm/lv/extend", route.toolboxDisk.ExtendLV)
+		})
+
+		r.Route("/toolbox_log", func(r chi.Router) {
+			r.Get("/scan", route.toolboxLog.Scan)
+			r.Post("/clean", route.toolboxLog.Clean)
 		})
 
 		r.Route("/webhook", func(r chi.Router) {

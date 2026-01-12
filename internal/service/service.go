@@ -41,5 +41,6 @@ var ProviderSet = wire.NewSet(
 	NewToolboxBenchmarkService,
 	NewToolboxSSHService,
 	NewToolboxDiskService,
+	NewToolboxLogService,
 	NewWsService,
 )
