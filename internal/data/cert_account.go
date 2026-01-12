@@ -118,6 +118,9 @@ func (r certAccountRepo) Create(req *request.CertAccountCreate) (*biz.CertAccoun
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("cert account created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(account.ID)), slog.String("ca", req.CA), slog.String("email", req.Email))
+
 	return account, nil
 }
 
@@ -173,11 +176,25 @@ func (r certAccountRepo) Update(req *request.CertAccountUpdate) error {
 	}
 	account.PrivateKey = string(privateKey)
 
-	return r.db.Save(account).Error
+	if err = r.db.Save(account).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("cert account updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("ca", req.CA))
+
+	return nil
 }
 
 func (r certAccountRepo) Delete(id uint) error {
-	return r.db.Model(&biz.CertAccount{}).Where("id = ?", id).Delete(&biz.CertAccount{}).Error
+	if err := r.db.Model(&biz.CertAccount{}).Where("id = ?", id).Delete(&biz.CertAccount{}).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("cert account deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+
+	return nil
 }
 
 // getGoogleEAB 获取 Google EAB

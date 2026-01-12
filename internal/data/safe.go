@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -15,9 +16,10 @@ import (
 
 type safeRepo struct {
 	ssh string
+	log *slog.Logger
 }
 
-func NewSafeRepo() biz.SafeRepo {
+func NewSafeRepo(log *slog.Logger) biz.SafeRepo {
 	var ssh string
 	if os.IsRHEL() {
 		ssh = "sshd"
@@ -26,6 +28,7 @@ func NewSafeRepo() biz.SafeRepo {
 	}
 	return &safeRepo{
 		ssh: ssh,
+		log: log,
 	}
 }
 
@@ -53,10 +56,19 @@ func (r *safeRepo) UpdateSSH(port uint, status bool) error {
 	_, _ = shell.Execf("sed -i 's/Port %s/Port %d/g' /etc/ssh/sshd_config", oldPort, port)
 
 	if !status {
-		return systemctl.Stop(r.ssh)
+		if err = systemctl.Stop(r.ssh); err != nil {
+			return err
+		}
+	} else {
+		if err = systemctl.Restart(r.ssh); err != nil {
+			return err
+		}
 	}
 
-	return systemctl.Restart(r.ssh)
+	// 记录日志
+	r.log.Info("ssh settings updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", 0), slog.Uint64("port", uint64(port)), slog.Bool("status", status))
+
+	return nil
 }
 
 func (r *safeRepo) GetPingStatus() (bool, error) {
@@ -94,6 +106,9 @@ func (r *safeRepo) UpdatePingStatus(status bool) error {
 	if err != nil {
 		return err
 	}
+
+	// 记录日志
+	r.log.Info("ping status updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", 0), slog.Bool("status", status))
 
 	return nil
 }

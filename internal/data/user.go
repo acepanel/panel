@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"image"
+	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/hash"
@@ -17,13 +18,15 @@ import (
 type userRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
+	log    *slog.Logger
 	hasher hash.Hasher
 }
 
-func NewUserRepo(t *gotext.Locale, db *gorm.DB) biz.UserRepo {
+func NewUserRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.UserRepo {
 	return &userRepo{
 		t:      t,
 		db:     db,
+		log:    log,
 		hasher: hash.NewArgon2id(),
 	}
 }
@@ -59,6 +62,9 @@ func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("user created", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
+
 	return user, nil
 }
 
@@ -69,7 +75,14 @@ func (r *userRepo) UpdateUsername(id uint, username string) error {
 	}
 
 	user.Username = username
-	return r.db.Save(user).Error
+	if err = r.db.Save(user).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("user username updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", username))
+
+	return nil
 }
 
 func (r *userRepo) UpdatePassword(id uint, password string) error {
@@ -84,7 +97,14 @@ func (r *userRepo) UpdatePassword(id uint, password string) error {
 	}
 
 	user.Password = value
-	return r.db.Save(user).Error
+	if err = r.db.Save(user).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("user password updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+
+	return nil
 }
 
 func (r *userRepo) UpdateEmail(id uint, email string) error {
@@ -94,7 +114,14 @@ func (r *userRepo) UpdateEmail(id uint, email string) error {
 	}
 
 	user.Email = email
-	return r.db.Save(user).Error
+	if err = r.db.Save(user).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("user email updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("email", email))
+
+	return nil
 }
 
 func (r *userRepo) Delete(id uint) error {
@@ -111,12 +138,20 @@ func (r *userRepo) Delete(id uint) error {
 		return err
 	}
 
-	return r.db.Transaction(func(tx *gorm.DB) error {
+	username := user.Username
+	if err := r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&user).Association("Tokens").Delete(); err != nil {
 			return err
 		}
 		return tx.Delete(&user).Error
-	})
+	}); err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("user deleted", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", username))
+
+	return nil
 }
 
 func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {

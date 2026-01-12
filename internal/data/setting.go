@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"path/filepath"
 	"sync"
 
@@ -25,14 +26,16 @@ type settingRepo struct {
 	t     *gotext.Locale
 	cache sync.Map
 	db    *gorm.DB
+	log   *slog.Logger
 	conf  *config.Config
 	task  biz.TaskRepo
 }
 
-func NewSettingRepo(t *gotext.Locale, db *gorm.DB, conf *config.Config, task biz.TaskRepo) biz.SettingRepo {
+func NewSettingRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, conf *config.Config, task biz.TaskRepo) biz.SettingRepo {
 	return &settingRepo{
 		t:    t,
 		db:   db,
+		log:  log,
 		conf: conf,
 		task: task,
 	}
@@ -370,6 +373,9 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	if err = config.Save(conf); err != nil {
 		return false, err
 	}
+
+	// 记录日志
+	r.log.Info("panel settings updated", slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", 0))
 
 	return restartFlag, nil
 }

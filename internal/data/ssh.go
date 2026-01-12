@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 	cryptossh "golang.org/x/crypto/ssh"
@@ -14,14 +15,16 @@ import (
 )
 
 type sshRepo struct {
-	t  *gotext.Locale
-	db *gorm.DB
+	t   *gotext.Locale
+	db  *gorm.DB
+	log *slog.Logger
 }
 
-func NewSSHRepo(t *gotext.Locale, db *gorm.DB) biz.SSHRepo {
+func NewSSHRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.SSHRepo {
 	return &sshRepo{
-		t:  t,
-		db: db,
+		t:   t,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -64,7 +67,14 @@ func (r *sshRepo) Create(req *request.SSHCreate) error {
 		Remark: req.Remark,
 	}
 
-	return r.db.Create(ssh).Error
+	if err = r.db.Create(ssh).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("ssh created", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("host", req.Host))
+
+	return nil
 }
 
 func (r *sshRepo) Update(req *request.SSHUpdate) error {
@@ -91,9 +101,28 @@ func (r *sshRepo) Update(req *request.SSHUpdate) error {
 		Remark: req.Remark,
 	}
 
-	return r.db.Model(ssh).Where("id = ?", req.ID).Select("*").Updates(ssh).Error
+	if err = r.db.Model(ssh).Where("id = ?", req.ID).Select("*").Updates(ssh).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("ssh updated", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+
+	return nil
 }
 
 func (r *sshRepo) Delete(id uint) error {
-	return r.db.Delete(&biz.SSH{}, id).Error
+	ssh, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = r.db.Delete(&biz.SSH{}, id).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("ssh deleted", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", ssh.Name))
+
+	return nil
 }
