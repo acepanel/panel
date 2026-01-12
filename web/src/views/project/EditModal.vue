@@ -82,7 +82,7 @@ const pathSelectorTarget = ref<'root_dir' | 'working_dir'>('root_dir')
 
 const handleSelectPath = (target: 'root_dir' | 'working_dir') => {
   pathSelectorTarget.value = target
-  pathSelectorPath.value = model.value[target] || '/opt/ace'
+  pathSelectorPath.value = model.value[target] || '/opt/ace/projects'
   showPathSelector.value = true
 }
 

@@ -311,29 +311,5 @@ const handleUninstallModule = async (module: string) => {
     border-collapse: collapse;
     margin-bottom: 10px;
   }
-  :deep(td),
-  :deep(th) {
-    border: 1px solid #ccc;
-    padding: 4px 8px;
-    text-align: left;
-    vertical-align: top;
-  }
-  :deep(th) {
-    background-color: #f0f0f0;
-  }
-  :deep(h1) {
-    font-size: 24px;
-    margin: 10px 0;
-  }
-  :deep(h2) {
-    font-size: 18px;
-    margin: 10px 0;
-    background-color: #9999cc;
-    color: white;
-    padding: 5px;
-  }
-  :deep(hr) {
-    display: none;
-  }
 }
 </style>

@@ -25,7 +25,7 @@ const phpFrameworks = [
 const createModel = ref({
   name: '',
   type: '',
-  root_dir: '/opt/ace',
+  root_dir: '/opt/ace/projects',
   working_dir: '',
   exec_start: '',
   user: 'www'
@@ -38,7 +38,7 @@ const phpOptions = ref({
 })
 
 const showPathSelector = ref(false)
-const pathSelectorPath = ref('/opt/ace')
+const pathSelectorPath = ref('/opt/ace/projects')
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
@@ -76,7 +76,7 @@ watch(
 
 // 处理目录选择
 const handleSelectPath = () => {
-  pathSelectorPath.value = createModel.value.root_dir || '/opt/ace'
+  pathSelectorPath.value = createModel.value.root_dir || '/opt/ace/projects'
   showPathSelector.value = true
 }
 
@@ -98,7 +98,7 @@ const handleCreate = async () => {
     createModel.value = {
       name: '',
       type: '',
-      root_dir: '/opt/ace',
+      root_dir: '/opt/ace/projects',
       working_dir: '',
       exec_start: '',
       user: 'www'
