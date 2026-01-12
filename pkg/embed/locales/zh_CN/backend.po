@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-11 15:49\n"
+"PO-Revision-Date: 2026-01-12 08:54\n"
 
 #: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
