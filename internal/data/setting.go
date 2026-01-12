@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -271,7 +272,7 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	}, nil
 }
 
-func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
+func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
 	if err := r.Set(biz.SettingKeyName, req.Name); err != nil {
 		return false, err
 	}
@@ -375,7 +376,7 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	}
 
 	// 记录日志
-	r.log.Info("panel settings updated", slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", 0))
+	r.log.Info("panel settings updated", slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", getOperatorID(ctx)))
 
 	return restartFlag, nil
 }

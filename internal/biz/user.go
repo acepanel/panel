@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"image"
 	"time"
 
@@ -23,11 +24,11 @@ type User struct {
 type UserRepo interface {
 	List(page, limit uint) ([]*User, int64, error)
 	Get(id uint) (*User, error)
-	Create(username, password, email string) (*User, error)
-	UpdateUsername(id uint, username string) error
-	UpdatePassword(id uint, password string) error
-	UpdateEmail(id uint, email string) error
-	Delete(id uint) error
+	Create(ctx context.Context, username, password, email string) (*User, error)
+	UpdateUsername(ctx context.Context, id uint, username string) error
+	UpdatePassword(ctx context.Context, id uint, password string) error
+	UpdateEmail(ctx context.Context, id uint, email string) error
+	Delete(ctx context.Context, id uint) error
 	CheckPassword(username, password string) (*User, error)
 	IsTwoFA(username string) (bool, error)
 	GenerateTwoFA(id uint) (image.Image, string, string, error)

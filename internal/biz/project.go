@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -19,7 +20,7 @@ type Project struct {
 type ProjectRepo interface {
 	List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error)
 	Get(id uint) (*types.ProjectDetail, error)
-	Create(req *request.ProjectCreate) (*types.ProjectDetail, error)
-	Update(req *request.ProjectUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error)
+	Update(ctx context.Context, req *request.ProjectUpdate) error
+	Delete(ctx context.Context, id uint) error
 }

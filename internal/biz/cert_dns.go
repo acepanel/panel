@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -21,7 +22,7 @@ type CertDNS struct {
 type CertDNSRepo interface {
 	List(page, limit uint) ([]*CertDNS, int64, error)
 	Get(id uint) (*CertDNS, error)
-	Create(req *request.CertDNSCreate) (*CertDNS, error)
-	Update(req *request.CertDNSUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.CertDNSCreate) (*CertDNS, error)
+	Update(ctx context.Context, req *request.CertDNSUpdate) error
+	Delete(ctx context.Context, id uint) error
 }

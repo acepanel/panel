@@ -45,7 +45,7 @@ func (s *CertAccountService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account, err := s.certAccountRepo.Create(req)
+	account, err := s.certAccountRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -61,7 +61,7 @@ func (s *CertAccountService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certAccountRepo.Update(req); err != nil {
+	if err = s.certAccountRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -92,7 +92,7 @@ func (s *CertAccountService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certAccountRepo.Delete(req.ID); err != nil {
+	if err = s.certAccountRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

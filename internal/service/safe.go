@@ -38,7 +38,7 @@ func (s *SafeService) UpdateSSH(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.safeRepo.UpdateSSH(req.Port, req.Status); err != nil {
+	if err = s.safeRepo.UpdateSSH(r.Context(), req.Port, req.Status); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -63,7 +63,7 @@ func (s *SafeService) UpdatePingStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.safeRepo.UpdatePingStatus(req.Status); err != nil {
+	if err = s.safeRepo.UpdatePingStatus(r.Context(), req.Status); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -45,7 +45,7 @@ func (s *CronService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.cronRepo.Create(req); err != nil {
+	if err = s.cronRepo.Create(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -60,7 +60,7 @@ func (s *CronService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.cronRepo.Update(req); err != nil {
+	if err = s.cronRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -91,7 +91,7 @@ func (s *CronService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.cronRepo.Delete(req.ID); err != nil {
+	if err = s.cronRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

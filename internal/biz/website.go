@@ -40,9 +40,9 @@ type WebsiteRepo interface {
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ string, page, limit uint) ([]*Website, int64, error)
-	Create(req *request.WebsiteCreate) (*Website, error)
-	Update(req *request.WebsiteUpdate) error
-	Delete(req *request.WebsiteDelete) error
+	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
+	Update(ctx context.Context, req *request.WebsiteUpdate) error
+	Delete(ctx context.Context, req *request.WebsiteDelete) error
 	ClearLog(id uint) error
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error

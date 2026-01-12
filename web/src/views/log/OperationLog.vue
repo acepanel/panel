@@ -17,6 +17,7 @@ interface LogEntry {
   msg: string
   type?: string
   operator_id?: number
+  operator_name?: string
   extra?: Record<string, any>
 }
 
@@ -62,13 +63,13 @@ const columns = [
   },
   {
     title: $gettext('Operator'),
-    key: 'operator_id',
-    width: 100,
+    key: 'operator_name',
+    width: 120,
     render: (row: LogEntry) => {
       if (row.operator_id === 0 || row.operator_id === undefined) {
         return $gettext('System')
       }
-      return `${$gettext('User')} #${row.operator_id}`
+      return row.operator_name || `#${row.operator_id}`
     }
   },
   {

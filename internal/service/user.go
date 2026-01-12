@@ -265,7 +265,7 @@ func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.userRepo.Create(req.Username, req.Password, req.Email)
+	user, err := s.userRepo.Create(r.Context(), req.Username, req.Password, req.Email)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -281,7 +281,7 @@ func (s *UserService) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userRepo.UpdateUsername(req.ID, req.Username); err != nil {
+	if err = s.userRepo.UpdateUsername(r.Context(), req.ID, req.Username); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -296,7 +296,7 @@ func (s *UserService) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userRepo.UpdatePassword(req.ID, req.Password); err != nil {
+	if err = s.userRepo.UpdatePassword(r.Context(), req.ID, req.Password); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -311,7 +311,7 @@ func (s *UserService) UpdateEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userRepo.UpdateEmail(req.ID, req.Email); err != nil {
+	if err = s.userRepo.UpdateEmail(r.Context(), req.ID, req.Email); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -367,7 +367,7 @@ func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userRepo.Delete(req.ID); err != nil {
+	if err = s.userRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -61,7 +61,7 @@ func (s *WebHookService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	webhook, err := s.webhookRepo.Create(req)
+	webhook, err := s.webhookRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -77,7 +77,7 @@ func (s *WebHookService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.webhookRepo.Update(req); err != nil {
+	if err = s.webhookRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -92,7 +92,7 @@ func (s *WebHookService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.webhookRepo.Delete(req.ID); err != nil {
+	if err = s.webhookRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -143,7 +143,7 @@ func (s *CertService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cert, err := s.certRepo.Upload(req)
+	cert, err := s.certRepo.Upload(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -159,7 +159,7 @@ func (s *CertService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cert, err := s.certRepo.Create(req)
+	cert, err := s.certRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -175,7 +175,7 @@ func (s *CertService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certRepo.Update(req); err != nil {
+	if err = s.certRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -206,7 +206,7 @@ func (s *CertService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.certRepo.Delete(req.ID)
+	err = s.certRepo.Delete(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

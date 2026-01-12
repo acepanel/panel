@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -77,7 +78,7 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 // typ 备份类型
 // target 目标名称
 // path 可选备份保存路径
-func (r *backupRepo) Create(typ biz.BackupType, target string, path ...string) error {
+func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, path ...string) error {
 	defPath, err := r.GetPath(typ)
 	if err != nil {
 		return err
@@ -105,13 +106,13 @@ func (r *backupRepo) Create(typ biz.BackupType, target string, path ...string) e
 	}
 
 	// 记录日志
-	r.log.Info("backup created", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("target", target))
+	r.log.Info("backup created", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("target", target))
 
 	return nil
 }
 
 // Delete 删除备份
-func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
+func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
 	path, err := r.GetPath(typ)
 	if err != nil {
 		return err
@@ -123,7 +124,7 @@ func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
 	}
 
 	// 记录日志
-	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("name", name))
+	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
 
 	return nil
 }
@@ -132,7 +133,7 @@ func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
 // typ 备份类型
 // backup 备份压缩包，可以是绝对路径或者相对路径
 // target 目标名称
-func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
+func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, target string) error {
 	if !io.Exists(backup) {
 		path, err := r.GetPath(typ)
 		if err != nil {
@@ -158,7 +159,7 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 	}
 
 	// 记录日志
-	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("target", target))
+	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("target", target))
 
 	return nil
 }
@@ -774,7 +775,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Backup panel data..."))
 	}
 	// 备份面板
-	if err := r.Create(biz.BackupTypePanel, ""); err != nil {
+	if err := r.Create(context.Background(), biz.BackupTypePanel, ""); err != nil {
 		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
 	}
 	if err := io.Compress(filepath.Join(app.Root, "panel/storage"), nil, "/tmp/panel-storage.zip"); err != nil {

@@ -89,7 +89,7 @@ func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
 	return cert, err
 }
 
-func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
+func (r *certRepo) Upload(ctx context.Context, req *request.CertUpload) (*biz.Cert, error) {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err != nil {
 		return nil, errors.New(r.t.Get("failed to parse certificate: %v", err))
@@ -109,12 +109,12 @@ func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 	}
 
 	// 记录日志
-	r.log.Info("cert uploaded", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)))
+	r.log.Info("cert uploaded", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)))
 
 	return cert, nil
 }
 
-func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
+func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Cert, error) {
 	cert := &biz.Cert{
 		AccountID:   req.AccountID,
 		WebsiteID:   req.WebsiteID,
@@ -128,12 +128,12 @@ func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 	}
 
 	// 记录日志
-	r.log.Info("cert created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.String("cert_type", req.Type))
+	r.log.Info("cert created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.String("cert_type", req.Type))
 
 	return cert, nil
 }
 
-func (r *certRepo) Update(req *request.CertUpdate) error {
+func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err == nil && req.Type == "upload" {
 		req.Domains = info.DNSNames
@@ -158,18 +158,18 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("cert updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)))
+	r.log.Info("cert updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)))
 
 	return nil
 }
 
-func (r *certRepo) Delete(id uint) error {
+func (r *certRepo) Delete(ctx context.Context, id uint) error {
 	if err := r.db.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error; err != nil {
 		return err
 	}
 
 	// 记录日志
-	r.log.Info("cert deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+	r.log.Info("cert deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)))
 
 	return nil
 }

@@ -542,7 +542,7 @@ func (s *CliService) WebsiteCreate(ctx context.Context, cmd *cli.Command) error 
 		DB:      false,
 	}
 
-	website, err := s.websiteRepo.Create(req)
+	website, err := s.websiteRepo.Create(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -560,7 +560,7 @@ func (s *CliService) WebsiteRemove(ctx context.Context, cmd *cli.Command) error 
 		ID: website.ID,
 	}
 
-	if err = s.websiteRepo.Delete(req); err != nil {
+	if err = s.websiteRepo.Delete(ctx, req); err != nil {
 		return err
 	}
 
@@ -579,7 +579,7 @@ func (s *CliService) WebsiteDelete(ctx context.Context, cmd *cli.Command) error 
 		DB:   true,
 	}
 
-	if err = s.websiteRepo.Delete(req); err != nil {
+	if err = s.websiteRepo.Delete(ctx, req); err != nil {
 		return err
 	}
 
@@ -631,7 +631,7 @@ func (s *CliService) BackupWebsite(ctx context.Context, cmd *cli.Command) error 
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Backup type: website"))
 	fmt.Println(s.t.Get("|-Backup target: %s", cmd.String("name")))
-	if err := s.backupRepo.Create(biz.BackupTypeWebsite, cmd.String("name"), cmd.String("path")); err != nil {
+	if err := s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.String("path")); err != nil {
 		return errors.New(s.t.Get("Backup failed: %v", err))
 	}
 	fmt.Println(s.hr)
@@ -647,7 +647,7 @@ func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error
 	fmt.Println(s.t.Get("|-Backup type: database"))
 	fmt.Println(s.t.Get("|-Database: %s", cmd.String("type")))
 	fmt.Println(s.t.Get("|-Backup target: %s", cmd.String("name")))
-	if err := s.backupRepo.Create(biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.String("path")); err != nil {
+	if err := s.backupRepo.Create(ctx, biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.String("path")); err != nil {
 		return errors.New(s.t.Get("Backup failed: %v", err))
 	}
 	fmt.Println(s.hr)
@@ -661,7 +661,7 @@ func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Backup type: panel"))
-	if err := s.backupRepo.Create(biz.BackupTypePanel, "", cmd.String("path")); err != nil {
+	if err := s.backupRepo.Create(ctx, biz.BackupTypePanel, "", cmd.String("path")); err != nil {
 		return errors.New(s.t.Get("Backup failed: %v", err))
 	}
 	fmt.Println(s.hr)
@@ -948,7 +948,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
-	_, err = s.userRepo.Create("admin", value, str.Random(8)+"@yourdomain.com")
+	_, err = s.userRepo.Create(ctx, "admin", value, str.Random(8)+"@yourdomain.com")
 	if err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}

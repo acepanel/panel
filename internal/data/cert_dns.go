@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"log/slog"
 
 	"gorm.io/gorm"
@@ -34,7 +35,7 @@ func (r certDNSRepo) Get(id uint) (*biz.CertDNS, error) {
 	return certDNS, err
 }
 
-func (r certDNSRepo) Create(req *request.CertDNSCreate) (*biz.CertDNS, error) {
+func (r certDNSRepo) Create(ctx context.Context, req *request.CertDNSCreate) (*biz.CertDNS, error) {
 	certDNS := &biz.CertDNS{
 		Name: req.Name,
 		Type: req.Type,
@@ -46,12 +47,12 @@ func (r certDNSRepo) Create(req *request.CertDNSCreate) (*biz.CertDNS, error) {
 	}
 
 	// 记录日志
-	r.log.Info("cert dns created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", req.Name))
+	r.log.Info("cert dns created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", req.Name))
 
 	return certDNS, nil
 }
 
-func (r certDNSRepo) Update(req *request.CertDNSUpdate) error {
+func (r certDNSRepo) Update(ctx context.Context, req *request.CertDNSUpdate) error {
 	cert, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -66,12 +67,12 @@ func (r certDNSRepo) Update(req *request.CertDNSUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("cert dns updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	r.log.Info("cert dns updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
 
 	return nil
 }
 
-func (r certDNSRepo) Delete(id uint) error {
+func (r certDNSRepo) Delete(ctx context.Context, id uint) error {
 	certDNS, err := r.Get(id)
 	if err != nil {
 		return err
@@ -82,7 +83,7 @@ func (r certDNSRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("cert dns deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
+	r.log.Info("cert dns deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
 
 	return nil
 }

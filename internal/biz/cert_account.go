@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -24,7 +25,7 @@ type CertAccountRepo interface {
 	List(page, limit uint) ([]*CertAccount, int64, error)
 	GetDefault(userID uint) (*CertAccount, error)
 	Get(id uint) (*CertAccount, error)
-	Create(req *request.CertAccountCreate) (*CertAccount, error)
-	Update(req *request.CertAccountUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.CertAccountCreate) (*CertAccount, error)
+	Update(ctx context.Context, req *request.CertAccountUpdate) error
+	Delete(ctx context.Context, id uint) error
 }

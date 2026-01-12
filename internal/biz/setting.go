@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -44,6 +45,6 @@ type SettingRepo interface {
 	SetSlice(key SettingKey, value []string) error
 	Delete(key SettingKey) error
 	GetPanel() (*request.SettingPanel, error)
-	UpdatePanel(req *request.SettingPanel) (bool, error)
+	UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error)
 	UpdateCert(req *request.SettingCert) error
 }

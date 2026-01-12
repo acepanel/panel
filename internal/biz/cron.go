@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -22,8 +23,8 @@ type CronRepo interface {
 	Count() (int64, error)
 	List(page, limit uint) ([]*Cron, int64, error)
 	Get(id uint) (*Cron, error)
-	Create(req *request.CronCreate) error
-	Update(req *request.CronUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.CronCreate) error
+	Update(ctx context.Context, req *request.CronUpdate) error
+	Delete(ctx context.Context, id uint) error
 	Status(id uint, status bool) error
 }

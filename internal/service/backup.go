@@ -50,7 +50,7 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Create(biz.BackupType(req.Type), req.Target, req.Path); err != nil {
+	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -111,7 +111,7 @@ func (s *BackupService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Delete(biz.BackupType(req.Type), req.File); err != nil {
+	if err = s.backupRepo.Delete(r.Context(), biz.BackupType(req.Type), req.File); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -126,7 +126,7 @@ func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Restore(biz.BackupType(req.Type), req.File, req.Target); err != nil {
+	if err = s.backupRepo.Restore(r.Context(), biz.BackupType(req.Type), req.File, req.Target); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

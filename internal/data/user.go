@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"image"
 	"log/slog"
@@ -47,7 +48,7 @@ func (r *userRepo) Get(id uint) (*biz.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
+func (r *userRepo) Create(ctx context.Context, username, password, email string) (*biz.User, error) {
 	value, err := r.hasher.Make(password)
 	if err != nil {
 		return nil, err
@@ -63,12 +64,12 @@ func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
 	}
 
 	// 记录日志
-	r.log.Info("user created", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
+	r.log.Info("user created", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
 
 	return user, nil
 }
 
-func (r *userRepo) UpdateUsername(id uint, username string) error {
+func (r *userRepo) UpdateUsername(ctx context.Context, id uint, username string) error {
 	user, err := r.Get(id)
 	if err != nil {
 		return err
@@ -80,12 +81,12 @@ func (r *userRepo) UpdateUsername(id uint, username string) error {
 	}
 
 	// 记录日志
-	r.log.Info("user username updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", username))
+	r.log.Info("user username updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
 
 	return nil
 }
 
-func (r *userRepo) UpdatePassword(id uint, password string) error {
+func (r *userRepo) UpdatePassword(ctx context.Context, id uint, password string) error {
 	value, err := r.hasher.Make(password)
 	if err != nil {
 		return err
@@ -102,12 +103,12 @@ func (r *userRepo) UpdatePassword(id uint, password string) error {
 	}
 
 	// 记录日志
-	r.log.Info("user password updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+	r.log.Info("user password updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)))
 
 	return nil
 }
 
-func (r *userRepo) UpdateEmail(id uint, email string) error {
+func (r *userRepo) UpdateEmail(ctx context.Context, id uint, email string) error {
 	user, err := r.Get(id)
 	if err != nil {
 		return err
@@ -119,12 +120,12 @@ func (r *userRepo) UpdateEmail(id uint, email string) error {
 	}
 
 	// 记录日志
-	r.log.Info("user email updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("email", email))
+	r.log.Info("user email updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("email", email))
 
 	return nil
 }
 
-func (r *userRepo) Delete(id uint) error {
+func (r *userRepo) Delete(ctx context.Context, id uint) error {
 	var count int64
 	if err := r.db.Model(&biz.User{}).Count(&count).Error; err != nil {
 		return err
@@ -149,7 +150,7 @@ func (r *userRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("user deleted", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", username))
+	r.log.Info("user deleted", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
 
 	return nil
 }

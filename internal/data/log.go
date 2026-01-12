@@ -8,14 +8,20 @@ import (
 	"strings"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 )
 
-type logRepo struct{}
+type logRepo struct {
+	db *gorm.DB
+}
 
-func NewLogRepo() biz.LogRepo {
-	return &logRepo{}
+func NewLogRepo(db *gorm.DB) biz.LogRepo {
+	return &logRepo{
+		db: db,
+	}
 }
 
 // List 获取日志列表
@@ -78,7 +84,51 @@ func (r *logRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
 		entries = append(entries, entry)
 	}
 
+	// 如果是app日志，查询用户名
+	if logType == biz.LogTypeApp {
+		r.fillOperatorNames(entries)
+	}
+
 	return entries, nil
+}
+
+// fillOperatorNames 填充操作员用户名
+func (r *logRepo) fillOperatorNames(entries []biz.LogEntry) {
+	// 收集所有用户ID
+	userIDs := make(map[uint]bool)
+	for _, entry := range entries {
+		if entry.OperatorID > 0 {
+			userIDs[entry.OperatorID] = true
+		}
+	}
+
+	if len(userIDs) == 0 {
+		return
+	}
+
+	// 批量查询用户名
+	ids := make([]uint, 0, len(userIDs))
+	for id := range userIDs {
+		ids = append(ids, id)
+	}
+
+	var users []biz.User
+	r.db.Select("id", "username").Where("id IN ?", ids).Find(&users)
+
+	// 构建ID到用户名的映射
+	userMap := make(map[uint]string)
+	for _, user := range users {
+		userMap[user.ID] = user.Username
+	}
+
+	// 填充用户名
+	for i := range entries {
+		if entries[i].OperatorID > 0 {
+			if username, ok := userMap[entries[i].OperatorID]; ok {
+				entries[i].OperatorName = username
+			}
+		}
+	}
 }
 
 // parseLine 解析日志行

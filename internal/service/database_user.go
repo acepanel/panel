@@ -45,7 +45,7 @@ func (s *DatabaseUserService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.databaseUserRepo.Create(req); err != nil {
+	if err = s.databaseUserRepo.Create(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -106,7 +106,7 @@ func (s *DatabaseUserService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.databaseUserRepo.Delete(req.ID); err != nil {
+	if err = s.databaseUserRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

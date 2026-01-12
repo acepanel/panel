@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -46,7 +47,7 @@ func (r *safeRepo) GetSSH() (uint, bool, error) {
 	return cast.ToUint(out), running, nil
 }
 
-func (r *safeRepo) UpdateSSH(port uint, status bool) error {
+func (r *safeRepo) UpdateSSH(ctx context.Context, port uint, status bool) error {
 	oldPort, err := shell.Execf("cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}'")
 	if err != nil {
 		return err
@@ -66,7 +67,7 @@ func (r *safeRepo) UpdateSSH(port uint, status bool) error {
 	}
 
 	// 记录日志
-	r.log.Info("ssh settings updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", 0), slog.Uint64("port", uint64(port)), slog.Bool("status", status))
+	r.log.Info("ssh settings updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("port", uint64(port)), slog.Bool("status", status))
 
 	return nil
 }
@@ -84,7 +85,7 @@ func (r *safeRepo) GetPingStatus() (bool, error) {
 	return false, nil
 }
 
-func (r *safeRepo) UpdatePingStatus(status bool) error {
+func (r *safeRepo) UpdatePingStatus(ctx context.Context, status bool) error {
 	fw, err := firewall.NewFirewall().Status()
 	if err != nil {
 		return err
@@ -108,7 +109,7 @@ func (r *safeRepo) UpdatePingStatus(status bool) error {
 	}
 
 	// 记录日志
-	r.log.Info("ping status updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", 0), slog.Bool("status", status))
+	r.log.Info("ping status updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Bool("status", status))
 
 	return nil
 }

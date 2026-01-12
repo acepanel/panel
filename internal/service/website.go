@@ -113,7 +113,7 @@ func (s *WebsiteService) Create(w http.ResponseWriter, r *http.Request) {
 		req.Path = filepath.Join(req.Path, req.Name, "public")
 	}
 
-	if _, err = s.websiteRepo.Create(req); err != nil {
+	if _, err = s.websiteRepo.Create(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -144,7 +144,7 @@ func (s *WebsiteService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.Update(req); err != nil {
+	if err = s.websiteRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -159,7 +159,7 @@ func (s *WebsiteService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.Delete(req); err != nil {
+	if err = s.websiteRepo.Delete(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

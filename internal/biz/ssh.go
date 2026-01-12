@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/libtnb/utils/crypt"
@@ -61,7 +62,7 @@ func (r *SSH) AfterFind(tx *gorm.DB) error {
 type SSHRepo interface {
 	List(page, limit uint) ([]*SSH, int64, error)
 	Get(id uint) (*SSH, error)
-	Create(req *request.SSHCreate) error
-	Update(req *request.SSHUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.SSHCreate) error
+	Update(ctx context.Context, req *request.SSHUpdate) error
+	Delete(ctx context.Context, id uint) error
 }

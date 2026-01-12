@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/libtnb/utils/crypt"
@@ -65,9 +66,9 @@ type DatabaseUserRepo interface {
 	Count() (int64, error)
 	List(page, limit uint) ([]*DatabaseUser, int64, error)
 	Get(id uint) (*DatabaseUser, error)
-	Create(req *request.DatabaseUserCreate) error
+	Create(ctx context.Context, req *request.DatabaseUserCreate) error
 	Update(req *request.DatabaseUserUpdate) error
 	UpdateRemark(req *request.DatabaseUserUpdateRemark) error
-	Delete(id uint) error
+	Delete(ctx context.Context, id uint) error
 	DeleteByNames(serverID uint, names []string) error
 }

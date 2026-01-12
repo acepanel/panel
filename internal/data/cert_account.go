@@ -56,7 +56,7 @@ func (r certAccountRepo) GetDefault(userID uint) (*biz.CertAccount, error) {
 		KeyType: string(acme.KeyEC256),
 	}
 
-	return r.Create(req)
+	return r.Create(context.Background(), req)
 }
 
 func (r certAccountRepo) Get(id uint) (*biz.CertAccount, error) {
@@ -65,7 +65,7 @@ func (r certAccountRepo) Get(id uint) (*biz.CertAccount, error) {
 	return account, err
 }
 
-func (r certAccountRepo) Create(req *request.CertAccountCreate) (*biz.CertAccount, error) {
+func (r certAccountRepo) Create(ctx context.Context, req *request.CertAccountCreate) (*biz.CertAccount, error) {
 	account := new(biz.CertAccount)
 	account.CA = req.CA
 	account.Email = req.Email
@@ -119,12 +119,12 @@ func (r certAccountRepo) Create(req *request.CertAccountCreate) (*biz.CertAccoun
 	}
 
 	// 记录日志
-	r.log.Info("cert account created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(account.ID)), slog.String("ca", req.CA), slog.String("email", req.Email))
+	r.log.Info("cert account created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("ca", req.CA), slog.String("email", req.Email))
 
 	return account, nil
 }
 
-func (r certAccountRepo) Update(req *request.CertAccountUpdate) error {
+func (r certAccountRepo) Update(ctx context.Context, req *request.CertAccountUpdate) error {
 	account, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -181,18 +181,18 @@ func (r certAccountRepo) Update(req *request.CertAccountUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("cert account updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("ca", req.CA))
+	r.log.Info("cert account updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("ca", req.CA))
 
 	return nil
 }
 
-func (r certAccountRepo) Delete(id uint) error {
+func (r certAccountRepo) Delete(ctx context.Context, id uint) error {
 	if err := r.db.Model(&biz.CertAccount{}).Where("id = ?", id).Delete(&biz.CertAccount{}).Error; err != nil {
 		return err
 	}
 
 	// 记录日志
-	r.log.Info("cert account deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)))
+	r.log.Info("cert account deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)))
 
 	return nil
 }

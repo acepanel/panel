@@ -45,7 +45,7 @@ func (s *SSHService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.sshRepo.Create(req); err != nil {
+	if err = s.sshRepo.Create(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -60,7 +60,7 @@ func (s *SSHService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.sshRepo.Update(req); err != nil {
+	if err = s.sshRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -91,7 +91,7 @@ func (s *SSHService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.sshRepo.Delete(req.ID); err != nil {
+	if err = s.sshRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

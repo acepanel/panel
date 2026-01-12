@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -56,7 +57,7 @@ func (r *webhookRepo) GetByKey(key string) (*biz.WebHook, error) {
 	return webhook, nil
 }
 
-func (r *webhookRepo) Create(req *request.WebHookCreate) (*biz.WebHook, error) {
+func (r *webhookRepo) Create(ctx context.Context, req *request.WebHookCreate) (*biz.WebHook, error) {
 	if err := os.MkdirAll(r.webhookDir(), 0755); err != nil {
 		return nil, errors.New(r.t.Get("failed to create webhook directory: %v", err))
 	}
@@ -82,12 +83,12 @@ func (r *webhookRepo) Create(req *request.WebHookCreate) (*biz.WebHook, error) {
 	}
 
 	// 记录日志
-	r.log.Info("webhook created", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", 0), slog.String("name", req.Name))
+	r.log.Info("webhook created", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name))
 
 	return webhook, nil
 }
 
-func (r *webhookRepo) Update(req *request.WebHookUpdate) error {
+func (r *webhookRepo) Update(ctx context.Context, req *request.WebHookUpdate) error {
 	webhook, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -109,12 +110,12 @@ func (r *webhookRepo) Update(req *request.WebHookUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("webhook updated", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	r.log.Info("webhook updated", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
 
 	return nil
 }
 
-func (r *webhookRepo) Delete(id uint) error {
+func (r *webhookRepo) Delete(ctx context.Context, id uint) error {
 	webhook, err := r.Get(id)
 	if err != nil {
 		return err
@@ -128,7 +129,7 @@ func (r *webhookRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("webhook deleted", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
+	r.log.Info("webhook deleted", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
 
 	return nil
 }

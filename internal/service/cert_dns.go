@@ -45,7 +45,7 @@ func (s *CertDNSService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	certDNS, err := s.certDNSRepo.Create(req)
+	certDNS, err := s.certDNSRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -61,7 +61,7 @@ func (s *CertDNSService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certDNSRepo.Update(req); err != nil {
+	if err = s.certDNSRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -92,7 +92,7 @@ func (s *CertDNSService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certDNSRepo.Delete(req.ID); err != nil {
+	if err = s.certDNSRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

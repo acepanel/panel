@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -58,7 +59,7 @@ func (r *cronRepo) Get(id uint) (*biz.Cron, error) {
 	return cron, nil
 }
 
-func (r *cronRepo) Create(req *request.CronCreate) error {
+func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
 	var script string
 	if req.Type == "backup" {
 		if req.BackupType == "website" {
@@ -115,12 +116,12 @@ acepanel cutoff clear -t website -f '%s' -s '%d' -p '%s'
 	}
 
 	// 记录日志
-	r.log.Info("cron created", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("cron_type", req.Type))
+	r.log.Info("cron created", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("cron_type", req.Type))
 
 	return nil
 }
 
-func (r *cronRepo) Update(req *request.CronUpdate) error {
+func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
 	cron, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -149,12 +150,12 @@ func (r *cronRepo) Update(req *request.CronUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("cron updated", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
+	r.log.Info("cron updated", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
 
 	return nil
 }
 
-func (r *cronRepo) Delete(id uint) error {
+func (r *cronRepo) Delete(ctx context.Context, id uint) error {
 	cron, err := r.Get(id)
 	if err != nil {
 		return err
@@ -172,7 +173,7 @@ func (r *cronRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("cron deleted", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
+	r.log.Info("cron deleted", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
 
 	return nil
 }

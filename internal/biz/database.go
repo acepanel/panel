@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"context"
+
 	"github.com/acepanel/panel/internal/http/request"
 )
 
@@ -25,7 +27,7 @@ type Database struct {
 
 type DatabaseRepo interface {
 	List(page, limit uint) ([]*Database, int64, error)
-	Create(req *request.DatabaseCreate) error
-	Delete(serverID uint, name string) error
+	Create(ctx context.Context, req *request.DatabaseCreate) error
+	Delete(ctx context.Context, serverID uint, name string) error
 	Comment(req *request.DatabaseComment) error
 }

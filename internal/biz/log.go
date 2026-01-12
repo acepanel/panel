@@ -35,12 +35,13 @@ const (
 
 // LogEntry 日志条目
 type LogEntry struct {
-	Time       time.Time         `json:"time"`
-	Level      string            `json:"level"`
-	Msg        string            `json:"msg"`
-	Type       string            `json:"type,omitempty"`
-	OperatorID uint              `json:"operator_id,omitempty"`
-	Extra      map[string]any    `json:"extra,omitempty"`
+	Time         time.Time      `json:"time"`
+	Level        string         `json:"level"`
+	Msg          string         `json:"msg"`
+	Type         string         `json:"type,omitempty"`
+	OperatorID   uint           `json:"operator_id,omitempty"`
+	OperatorName string         `json:"operator_name,omitempty"`
+	Extra        map[string]any `json:"extra,omitempty"`
 }
 
 // LogRepo 日志仓库接口

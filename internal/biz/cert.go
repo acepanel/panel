@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	mholtacme "github.com/mholt/acmez/v3/acme"
@@ -35,10 +36,10 @@ type CertRepo interface {
 	List(page, limit uint) ([]*types.CertList, int64, error)
 	Get(id uint) (*Cert, error)
 	GetByWebsite(WebsiteID uint) (*Cert, error)
-	Upload(req *request.CertUpload) (*Cert, error)
-	Create(req *request.CertCreate) (*Cert, error)
-	Update(req *request.CertUpdate) error
-	Delete(id uint) error
+	Upload(ctx context.Context, req *request.CertUpload) (*Cert, error)
+	Create(ctx context.Context, req *request.CertCreate) (*Cert, error)
+	Update(ctx context.Context, req *request.CertUpdate) error
+	Delete(ctx context.Context, id uint) error
 	ObtainAuto(id uint) (*acme.Certificate, error)
 	ObtainManual(id uint) (*acme.Certificate, error)
 	ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error)

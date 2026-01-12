@@ -114,7 +114,7 @@ func initWeb() (*app.Web, error) {
 	containerVolumeRepo := data.NewContainerVolumeRepo()
 	containerVolumeService := service.NewContainerVolumeService(containerVolumeRepo)
 	fileService := service.NewFileService(locale, taskRepo)
-	logRepo := data.NewLogRepo()
+	logRepo := data.NewLogRepo(db)
 	logService := service.NewLogService(logRepo)
 	monitorRepo := data.NewMonitorRepo(db, settingRepo)
 	monitorService := service.NewMonitorService(settingRepo, monitorRepo)

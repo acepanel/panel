@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -44,7 +45,7 @@ func (r *sshRepo) Get(id uint) (*biz.SSH, error) {
 	return ssh, nil
 }
 
-func (r *sshRepo) Create(req *request.SSHCreate) error {
+func (r *sshRepo) Create(ctx context.Context, req *request.SSHCreate) error {
 	conf := pkgssh.ClientConfig{
 		AuthMethod: pkgssh.AuthMethod(req.AuthMethod),
 		Host:       fmt.Sprintf("%s:%d", req.Host, req.Port),
@@ -72,12 +73,12 @@ func (r *sshRepo) Create(req *request.SSHCreate) error {
 	}
 
 	// 记录日志
-	r.log.Info("ssh created", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("host", req.Host))
+	r.log.Info("ssh created", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("host", req.Host))
 
 	return nil
 }
 
-func (r *sshRepo) Update(req *request.SSHUpdate) error {
+func (r *sshRepo) Update(ctx context.Context, req *request.SSHUpdate) error {
 	conf := pkgssh.ClientConfig{
 		AuthMethod: pkgssh.AuthMethod(req.AuthMethod),
 		Host:       fmt.Sprintf("%s:%d", req.Host, req.Port),
@@ -106,12 +107,12 @@ func (r *sshRepo) Update(req *request.SSHUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("ssh updated", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	r.log.Info("ssh updated", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
 
 	return nil
 }
 
-func (r *sshRepo) Delete(id uint) error {
+func (r *sshRepo) Delete(ctx context.Context, id uint) error {
 	ssh, err := r.Get(id)
 	if err != nil {
 		return err
@@ -122,7 +123,7 @@ func (r *sshRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("ssh deleted", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", ssh.Name))
+	r.log.Info("ssh deleted", slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", ssh.Name))
 
 	return nil
 }

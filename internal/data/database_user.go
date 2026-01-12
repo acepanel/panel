@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -61,7 +62,7 @@ func (r *databaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
 	return user, nil
 }
 
-func (r *databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
+func (r *databaseUserRepo) Create(ctx context.Context, req *request.DatabaseUserCreate) error {
 	server, err := r.server.Get(req.ServerID)
 	if err != nil {
 		return err
@@ -105,7 +106,7 @@ func (r *databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 	}
 
 	// 记录日志
-	r.log.Info("database user created", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", 0), slog.String("username", req.Username), slog.Uint64("server_id", uint64(req.ServerID)))
+	r.log.Info("database user created", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("username", req.Username), slog.Uint64("server_id", uint64(req.ServerID)))
 
 	return nil
 }
@@ -161,7 +162,7 @@ func (r *databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) e
 	return r.db.Save(user).Error
 }
 
-func (r *databaseUserRepo) Delete(id uint) error {
+func (r *databaseUserRepo) Delete(ctx context.Context, id uint) error {
 	user, err := r.Get(id)
 	if err != nil {
 		return err
@@ -185,7 +186,7 @@ func (r *databaseUserRepo) Delete(id uint) error {
 	}
 
 	// 记录日志
-	r.log.Info("database user deleted", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", user.Username))
+	r.log.Info("database user deleted", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username))
 
 	return nil
 }

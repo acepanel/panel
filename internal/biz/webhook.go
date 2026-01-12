@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
@@ -24,8 +25,8 @@ type WebHookRepo interface {
 	List(page, limit uint) ([]*WebHook, int64, error)
 	Get(id uint) (*WebHook, error)
 	GetByKey(key string) (*WebHook, error)
-	Create(req *request.WebHookCreate) (*WebHook, error)
-	Update(req *request.WebHookUpdate) error
-	Delete(id uint) error
+	Create(ctx context.Context, req *request.WebHookCreate) (*WebHook, error)
+	Update(ctx context.Context, req *request.WebHookUpdate) error
+	Delete(ctx context.Context, id uint) error
 	Call(key string) (string, error)
 }

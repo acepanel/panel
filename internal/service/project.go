@@ -63,7 +63,7 @@ func (s *ProjectService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	project, err := s.projectRepo.Create(req)
+	project, err := s.projectRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -79,7 +79,7 @@ func (s *ProjectService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.projectRepo.Update(req); err != nil {
+	if err = s.projectRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -94,7 +94,7 @@ func (s *ProjectService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.projectRepo.Delete(req.ID); err != nil {
+	if err = s.projectRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

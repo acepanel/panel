@@ -49,7 +49,7 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	restart := false
-	if restart, err = s.settingRepo.UpdatePanel(req); err != nil {
+	if restart, err = s.settingRepo.UpdatePanel(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

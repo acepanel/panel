@@ -235,7 +235,7 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 	return websites, total, nil
 }
 
-func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
+func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
 	w := &biz.Website{
 		Name:   req.Name,
 		Type:   biz.WebsiteType(req.Type),
@@ -429,7 +429,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	}
 
 	// 记录日志
-	r.log.Info("website created", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
+	r.log.Info("website created", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
 
 	// 重载 Web 服务器
 	if err = r.reloadWebServer(); err != nil {
@@ -443,7 +443,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		if err != nil {
 			return nil, errors.New(r.t.Get("can't find %s database server, please add it first", name))
 		}
-		if err = r.database.Create(&request.DatabaseCreate{
+		if err = r.database.Create(ctx, &request.DatabaseCreate{
 			ServerID:   server.ID,
 			Name:       req.DBName,
 			CreateUser: true,
@@ -459,7 +459,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	return w, nil
 }
 
-func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
+func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) error {
 	website := new(biz.Website)
 	if err := r.db.Where("id", req.ID).First(website).Error; err != nil {
 		return err
@@ -592,12 +592,12 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	}
 
 	// 记录日志
-	r.log.Info("website updated", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+	r.log.Info("website updated", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
 	return r.reloadWebServer()
 }
 
-func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
+func (r *websiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) error {
 	website := new(biz.Website)
 	if err := r.db.Preload("Cert").Where("id", req.ID).First(website).Error; err != nil {
 		return err
@@ -614,11 +614,11 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 	if req.DB {
 		if mysql, err := r.databaseServer.GetByName("local_mysql"); err == nil {
 			_ = r.databaseUser.DeleteByNames(mysql.ID, []string{website.Name})
-			_ = r.database.Delete(mysql.ID, website.Name)
+			_ = r.database.Delete(ctx, mysql.ID, website.Name)
 		}
 		if postgres, err := r.databaseServer.GetByName("local_postgresql"); err == nil {
 			_ = r.databaseUser.DeleteByNames(postgres.ID, []string{website.Name})
-			_ = r.database.Delete(postgres.ID, website.Name)
+			_ = r.database.Delete(ctx, postgres.ID, website.Name)
 		}
 	}
 
@@ -627,7 +627,7 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 	}
 
 	// 记录日志
-	r.log.Info("website deleted", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+	r.log.Info("website deleted", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
 	return r.reloadWebServer()
 }
@@ -803,7 +803,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 	newCert, err := r.cert.GetByWebsite(website.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			newCert, err = r.cert.Create(&request.CertCreate{
+			newCert, err = r.cert.Create(ctx, &request.CertCreate{
 				Type:        string(acme.KeyEC256),
 				Domains:     website.Domains,
 				AutoRenewal: true,

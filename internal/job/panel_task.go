@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
@@ -64,7 +65,7 @@ func (r *PanelTask) Run() {
 	}
 
 	// 备份面板
-	if err := r.backupRepo.Create(biz.BackupTypePanel, ""); err != nil {
+	if err := r.backupRepo.Create(context.Background(), biz.BackupTypePanel, ""); err != nil {
 		r.log.Warn("failed to backup panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
