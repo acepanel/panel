@@ -19,19 +19,13 @@ const activeTab = ref('operation')
   <common-page show-header show-footer>
     <n-tabs v-model:value="activeTab" type="line" animated>
       <n-tab-pane name="operation" :tab="$gettext('Operation Log')">
-        <div class="pt-4">
-          <OperationLog />
-        </div>
+        <OperationLog />
       </n-tab-pane>
       <n-tab-pane name="database" :tab="$gettext('Database Log')">
-        <div class="pt-4">
-          <DatabaseLog />
-        </div>
+        <DatabaseLog />
       </n-tab-pane>
       <n-tab-pane name="http" :tab="$gettext('HTTP Log')">
-        <div class="pt-4">
-          <HttpLog />
-        </div>
+        <HttpLog />
       </n-tab-pane>
     </n-tabs>
   </common-page>
