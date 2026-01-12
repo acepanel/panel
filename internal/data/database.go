@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
@@ -16,14 +17,16 @@ import (
 type databaseRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
+	log    *slog.Logger
 	server biz.DatabaseServerRepo
 	user   biz.DatabaseUserRepo
 }
 
-func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
+func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
 	return &databaseRepo{
 		t:      t,
 		db:     db,
+		log:    log,
 		server: server,
 		user:   user,
 	}
@@ -121,6 +124,9 @@ func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
 		}
 	}
 
+	// 记录日志
+	r.log.Info("database created", slog.String("type", biz.OperationTypeDatabase), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
+
 	return nil
 }
 
@@ -136,7 +142,14 @@ func (r *databaseRepo) Delete(serverID uint, name string) error {
 	}
 	defer operator.Close()
 
-	return operator.DatabaseDrop(name)
+	if err = operator.DatabaseDrop(name); err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("database deleted", slog.String("type", biz.OperationTypeDatabase), slog.Uint64("operator_id", 0), slog.String("name", name), slog.Uint64("server_id", uint64(serverID)))
+
+	return nil
 }
 
 func (r *databaseRepo) Comment(req *request.DatabaseComment) error {

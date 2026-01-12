@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -35,6 +36,7 @@ import (
 type websiteRepo struct {
 	t              *gotext.Locale
 	db             *gorm.DB
+	log            *slog.Logger
 	cache          biz.CacheRepo
 	database       biz.DatabaseRepo
 	databaseServer biz.DatabaseServerRepo
@@ -44,10 +46,11 @@ type websiteRepo struct {
 	setting        biz.SettingRepo
 }
 
-func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, setting biz.SettingRepo) biz.WebsiteRepo {
+func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, setting biz.SettingRepo) biz.WebsiteRepo {
 	return &websiteRepo{
 		t:              t,
 		db:             db,
+		log:            log,
 		cache:          cache,
 		database:       database,
 		databaseServer: databaseServer,
@@ -425,6 +428,9 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("website created", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
+
 	// 重载 Web 服务器
 	if err = r.reloadWebServer(); err != nil {
 		return nil, err
@@ -585,6 +591,9 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 		return err
 	}
 
+	// 记录日志
+	r.log.Info("website updated", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+
 	return r.reloadWebServer()
 }
 
@@ -616,6 +625,9 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 	if err := r.db.Delete(website).Error; err != nil {
 		return err
 	}
+
+	// 记录日志
+	r.log.Info("website deleted", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
 	return r.reloadWebServer()
 }

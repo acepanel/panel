@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/leonelquinteros/gotext"
@@ -19,14 +20,16 @@ import (
 )
 
 type cronRepo struct {
-	t  *gotext.Locale
-	db *gorm.DB
+	t   *gotext.Locale
+	db  *gorm.DB
+	log *slog.Logger
 }
 
-func NewCronRepo(t *gotext.Locale, db *gorm.DB) biz.CronRepo {
+func NewCronRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.CronRepo {
 	return &cronRepo{
-		t:  t,
-		db: db,
+		t:   t,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -111,6 +114,9 @@ acepanel cutoff clear -t website -f '%s' -s '%d' -p '%s'
 		return err
 	}
 
+	// 记录日志
+	r.log.Info("cron created", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.String("name", req.Name), slog.String("cron_type", req.Type))
+
 	return nil
 }
 
@@ -142,6 +148,9 @@ func (r *cronRepo) Update(req *request.CronUpdate) error {
 		}
 	}
 
+	// 记录日志
+	r.log.Info("cron updated", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
+
 	return nil
 }
 
@@ -158,7 +167,14 @@ func (r *cronRepo) Delete(id uint) error {
 		return err
 	}
 
-	return r.db.Delete(cron).Error
+	if err = r.db.Delete(cron).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("cron deleted", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
+
+	return nil
 }
 
 func (r *cronRepo) Status(id uint, status bool) error {

@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
@@ -15,13 +16,15 @@ import (
 type databaseUserRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
+	log    *slog.Logger
 	server biz.DatabaseServerRepo
 }
 
-func NewDatabaseUserRepo(t *gotext.Locale, db *gorm.DB, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
+func NewDatabaseUserRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
 	return &databaseUserRepo{
 		t:      t,
 		db:     db,
+		log:    log,
 		server: server,
 	}
 }
@@ -97,7 +100,14 @@ func (r *databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 		return err
 	}
 
-	return r.db.Save(user).Error
+	if err = r.db.Save(user).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("database user created", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", 0), slog.String("username", req.Username), slog.Uint64("server_id", uint64(req.ServerID)))
+
+	return nil
 }
 
 func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
@@ -170,7 +180,14 @@ func (r *databaseUserRepo) Delete(id uint) error {
 
 	_ = operator.UserDrop(user.Username, user.Host)
 
-	return r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
+	if err = r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("database user deleted", slog.String("type", biz.OperationTypeDatabaseUser), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(id)), slog.String("username", user.Username))
+
+	return nil
 }
 
 func (r *databaseUserRepo) DeleteByNames(serverID uint, names []string) error {

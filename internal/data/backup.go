@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -27,15 +28,17 @@ type backupRepo struct {
 	t       *gotext.Locale
 	conf    *config.Config
 	db      *gorm.DB
+	log     *slog.Logger
 	setting biz.SettingRepo
 	website biz.WebsiteRepo
 }
 
-func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
+func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
 	return &backupRepo{
 		t:       t,
 		conf:    conf,
 		db:      db,
+		log:     log,
 		setting: setting,
 		website: website,
 	}
@@ -83,19 +86,28 @@ func (r *backupRepo) Create(typ biz.BackupType, target string, path ...string) e
 		defPath = path[0]
 	}
 
+	var createErr error
 	switch typ {
 	case biz.BackupTypeWebsite:
-		return r.createWebsite(defPath, target)
+		createErr = r.createWebsite(defPath, target)
 	case biz.BackupTypeMySQL:
-		return r.createMySQL(defPath, target)
+		createErr = r.createMySQL(defPath, target)
 	case biz.BackupTypePostgres:
-		return r.createPostgres(defPath, target)
+		createErr = r.createPostgres(defPath, target)
 	case biz.BackupTypePanel:
-		return r.createPanel(defPath)
-
+		createErr = r.createPanel(defPath)
+	default:
+		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	return errors.New(r.t.Get("unknown backup type"))
+	if createErr != nil {
+		return createErr
+	}
+
+	// 记录日志
+	r.log.Info("backup created", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("target", target))
+
+	return nil
 }
 
 // Delete 删除备份
@@ -106,7 +118,14 @@ func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
 	}
 
 	file := filepath.Join(path, name)
-	return io.Remove(file)
+	if err = io.Remove(file); err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("name", name))
+
+	return nil
 }
 
 // Restore 恢复备份
@@ -122,16 +141,26 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 		backup = filepath.Join(path, backup)
 	}
 
+	var restoreErr error
 	switch typ {
 	case biz.BackupTypeWebsite:
-		return r.restoreWebsite(backup, target)
+		restoreErr = r.restoreWebsite(backup, target)
 	case biz.BackupTypeMySQL:
-		return r.restoreMySQL(backup, target)
+		restoreErr = r.restoreMySQL(backup, target)
 	case biz.BackupTypePostgres:
-		return r.restorePostgres(backup, target)
+		restoreErr = r.restorePostgres(backup, target)
+	default:
+		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	return errors.New(r.t.Get("unknown backup type"))
+	if restoreErr != nil {
+		return restoreErr
+	}
+
+	// 记录日志
+	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", 0), slog.String("backup_type", string(typ)), slog.String("target", target))
+
+	return nil
 }
 
 // CutoffLog 切割日志
