@@ -44,6 +44,7 @@ type Http struct {
 	containerImage   *service.ContainerImageService
 	containerVolume  *service.ContainerVolumeService
 	file             *service.FileService
+	log              *service.LogService
 	monitor          *service.MonitorService
 	setting          *service.SettingService
 	systemctl        *service.SystemctlService
@@ -84,6 +85,7 @@ func NewHttp(
 	containerImage *service.ContainerImageService,
 	containerVolume *service.ContainerVolumeService,
 	file *service.FileService,
+	log *service.LogService,
 	monitor *service.MonitorService,
 	setting *service.SettingService,
 	systemctl *service.SystemctlService,
@@ -123,6 +125,7 @@ func NewHttp(
 		containerImage:   containerImage,
 		containerVolume:  containerVolume,
 		file:             file,
+		log:              log,
 		monitor:          monitor,
 		setting:          setting,
 		systemctl:        systemctl,
@@ -422,6 +425,10 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/compress", route.file.Compress)
 			r.Post("/un_compress", route.file.UnCompress)
 			r.Get("/list", route.file.List)
+		})
+
+		r.Route("/log", func(r chi.Router) {
+			r.Get("/list", route.log.List)
 		})
 
 		r.Route("/monitor", func(r chi.Router) {

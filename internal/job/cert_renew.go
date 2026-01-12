@@ -44,7 +44,7 @@ func (r *CertRenew) Run() {
 
 	var certs []biz.Cert
 	if err := r.db.Preload("Website").Preload("Account").Preload("DNS").Find(&certs).Error; err != nil {
-		r.log.Warn("[CertRenew] failed to get certs", slog.Any("err", err))
+		r.log.Warn("failed to get certs", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return
 	}
 
@@ -58,7 +58,7 @@ func (r *CertRenew) Run() {
 		if cert.RenewalInfo.NeedsRefresh() {
 			renewInfo, err := r.certRepo.RefreshRenewalInfo(cert.ID)
 			if err != nil {
-				r.log.Warn("[CertRenew] failed to refresh renewal info", slog.Any("err", err))
+				r.log.Warn("failed to refresh renewal info", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				continue
 			}
 			cert.RenewalInfo = renewInfo
@@ -67,7 +67,7 @@ func (r *CertRenew) Run() {
 		// 到达建议时间，续签证书
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
 			if _, err := r.certRepo.Renew(cert.ID); err != nil {
-				r.log.Warn("[CertRenew] failed to renew cert", slog.Any("err", err))
+				r.log.Warn("failed to renew cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (r *CertRenew) Run() {
 	if r.conf.HTTP.ACME {
 		decode, err := pkgcert.ParseCert(filepath.Join(app.Root, "panel/storage/cert.pem"))
 		if err != nil {
-			r.log.Warn("[CertRenew] failed to parse panel cert", slog.Any("err", err))
+			r.log.Warn("failed to parse panel cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 		// 结束时间大于 2 天不续签
@@ -86,28 +86,28 @@ func (r *CertRenew) Run() {
 
 		ip, err := r.settingRepo.Get(biz.SettingKeyPublicIPs)
 		if err != nil {
-			r.log.Warn("[CertRenew] failed to get panel IP", slog.Any("err", err))
+			r.log.Warn("failed to get panel IP", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 		var ips []string
 		if err = json.Unmarshal([]byte(ip), &ips); err != nil || len(ips) == 0 {
-			r.log.Warn("[CertRenew] panel public IPs not set", slog.Any("err", err))
+			r.log.Warn("panel public IPs not set", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 
 		var user biz.User
 		if err = r.db.First(&user).Error; err != nil {
-			r.log.Warn("[CertRenew] failed to get a panel user", slog.Any("err", err))
+			r.log.Warn("failed to get a panel user", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 		account, err := r.certAccountRepo.GetDefault(user.ID)
 		if err != nil {
-			r.log.Warn("[CertRenew] failed to get panel ACME account", slog.Any("err", err))
+			r.log.Warn("failed to get panel ACME account", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 		crt, key, err := r.certRepo.ObtainPanel(account, ips)
 		if err != nil {
-			r.log.Warn("[CertRenew] failed to obtain ACME cert", slog.Any("err", err))
+			r.log.Warn("failed to obtain ACME cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 
@@ -115,11 +115,11 @@ func (r *CertRenew) Run() {
 			Cert: string(crt),
 			Key:  string(key),
 		}); err != nil {
-			r.log.Warn("[CertRenew] failed to update panel cert", slog.Any("err", err))
+			r.log.Warn("failed to update panel cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 
-		r.log.Info("[CertRenew] panel cert renewed successfully")
+		r.log.Info("panel cert renewed successfully", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
 		tools.RestartPanel()
 	}
 

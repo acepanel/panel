@@ -217,7 +217,7 @@ func (r *appRepo) Install(channel, slug string) error {
 
 	// 下载回调
 	if err = r.api.AppCallback(slug); err != nil {
-		r.log.Warn("[App] download callback failed", slog.String("app", slug), slog.Any("err", err))
+		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
 	}
 
 	if app.IsCli {
@@ -332,7 +332,7 @@ func (r *appRepo) Update(slug string) error {
 
 	// 下载回调
 	if err = r.api.AppCallback(slug); err != nil {
-		r.log.Warn("[App] download callback failed", slog.String("app", slug), slog.Any("err", err))
+		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
 	}
 
 	if app.IsCli {

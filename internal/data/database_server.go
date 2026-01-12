@@ -160,7 +160,7 @@ func (r *databaseServerRepo) Sync(id uint) error {
 					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("[DatabaseServer] sync mysql database user failed", slog.Any("err", err))
+					r.log.Warn("sync mysql database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				}
 			}
 		}
@@ -179,7 +179,7 @@ func (r *databaseServerRepo) Sync(id uint) error {
 					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("[DatabaseServer] sync postgresql database user failed", slog.Any("err", err))
+					r.log.Warn("sync postgresql database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				}
 			}
 		}

@@ -20,6 +20,7 @@ var ProviderSet = wire.NewSet(
 	NewDatabaseServerRepo,
 	NewDatabaseUserRepo,
 	NewEnvironmentRepo,
+	NewLogRepo,
 	NewMonitorRepo,
 	NewProjectRepo,
 	NewSafeRepo,
