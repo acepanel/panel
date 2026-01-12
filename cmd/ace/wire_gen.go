@@ -122,7 +122,7 @@ func initWeb() (*app.Web, error) {
 	toolboxBenchmarkService := service.NewToolboxBenchmarkService(locale)
 	toolboxSSHService := service.NewToolboxSSHService(locale)
 	toolboxDiskService := service.NewToolboxDiskService(locale)
-	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo)
+	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo, settingRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db)
 	webHookService := service.NewWebHookService(webHookRepo)
 	codeserverApp := codeserver.NewApp()

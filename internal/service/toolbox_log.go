@@ -25,13 +25,15 @@ type ToolboxLogService struct {
 	t                  *gotext.Locale
 	db                 *gorm.DB
 	containerImageRepo biz.ContainerImageRepo
+	settingRepo        biz.SettingRepo
 }
 
-func NewToolboxLogService(t *gotext.Locale, db *gorm.DB, containerImageRepo biz.ContainerImageRepo) *ToolboxLogService {
+func NewToolboxLogService(t *gotext.Locale, db *gorm.DB, containerImageRepo biz.ContainerImageRepo, settingRepo biz.SettingRepo) *ToolboxLogService {
 	return &ToolboxLogService{
 		t:                  t,
 		db:                 db,
 		containerImageRepo: containerImageRepo,
+		settingRepo:        settingRepo,
 	}
 }
 
@@ -233,11 +235,11 @@ func (s *ToolboxLogService) scanMySQLLogs() []LogItem {
 	return items
 }
 
-// scanDockerLogs 扫描 Docker 相关内容
+// scanDockerLogs 扫描 Docker/Podman 相关内容
 func (s *ToolboxLogService) scanDockerLogs() []LogItem {
 	var items []LogItem
 
-	// 未使用的容器镜像
+	// 未使用的容器镜像 (Docker)
 	images, err := s.containerImageRepo.List()
 	if err == nil {
 		// 计算未使用的镜像
@@ -260,34 +262,75 @@ func (s *ToolboxLogService) scanDockerLogs() []LogItem {
 	// Docker 容器日志路径
 	dockerLogPath := "/var/lib/docker/containers"
 	if io.Exists(dockerLogPath) {
-		entries, err := os.ReadDir(dockerLogPath)
-		if err == nil {
-			var totalSize int64
-			var logCount int
-			for _, entry := range entries {
-				if !entry.IsDir() {
-					continue
-				}
-				containerPath := filepath.Join(dockerLogPath, entry.Name())
-				logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
-				for _, logFile := range logFiles {
-					if info, err := os.Stat(logFile); err == nil {
-						totalSize += info.Size()
-						logCount++
-					}
-				}
-			}
+		totalSize, logCount := s.scanContainerLogDir(dockerLogPath)
+		if logCount > 0 {
+			items = append(items, LogItem{
+				Name: s.t.Get("Docker container logs: %d files", logCount),
+				Path: "docker:logs",
+				Size: tools.FormatBytes(float64(totalSize)),
+			})
+		}
+	}
+
+	// Podman 容器日志路径
+	podmanLogPaths := []string{
+		"/var/lib/containers/storage/overlay-containers",
+		"/run/containers/storage/overlay-containers",
+	}
+	for _, podmanLogPath := range podmanLogPaths {
+		if io.Exists(podmanLogPath) {
+			totalSize, logCount := s.scanContainerLogDir(podmanLogPath)
 			if logCount > 0 {
 				items = append(items, LogItem{
-					Name: s.t.Get("Container logs: %d files", logCount),
-					Path: "docker:logs",
+					Name: s.t.Get("Podman container logs: %d files", logCount),
+					Path: "podman:logs",
 					Size: tools.FormatBytes(float64(totalSize)),
 				})
+				break
 			}
 		}
 	}
 
 	return items
+}
+
+// scanContainerLogDir 扫描容器日志目录
+func (s *ToolboxLogService) scanContainerLogDir(logPath string) (int64, int) {
+	var totalSize int64
+	var logCount int
+
+	entries, err := os.ReadDir(logPath)
+	if err != nil {
+		return 0, 0
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		containerPath := filepath.Join(logPath, entry.Name())
+		// 扫描 *.log 文件
+		logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
+		for _, logFile := range logFiles {
+			if info, err := os.Stat(logFile); err == nil {
+				totalSize += info.Size()
+				logCount++
+			}
+		}
+		// 扫描 userdata 子目录下的日志 (Podman)
+		userdataPath := filepath.Join(containerPath, "userdata")
+		if io.Exists(userdataPath) {
+			userdataLogs, _ := filepath.Glob(filepath.Join(userdataPath, "*.log"))
+			for _, logFile := range userdataLogs {
+				if info, err := os.Stat(logFile); err == nil {
+					totalSize += info.Size()
+					logCount++
+				}
+			}
+		}
+	}
+
+	return totalSize, logCount
 }
 
 // scanSystemLogs 扫描系统日志
@@ -469,50 +512,97 @@ func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
 	}
 
 	// 尝试通过 MySQL 清理二进制日志
-	_, _ = shell.Execf("mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
+	// 从面板设置获取 root 密码
+	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	if err == nil && rootPassword != "" {
+		// 设置环境变量
+		if err = os.Setenv("MYSQL_PWD", rootPassword); err == nil {
+			_, _ = shell.Execf("mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
+			_ = os.Unsetenv("MYSQL_PWD")
+		}
+	}
 
 	return cleaned, nil
 }
 
-// cleanDockerLogs 清理 Docker 相关内容
+// cleanDockerLogs 清理 Docker/Podman 相关内容
 func (s *ToolboxLogService) cleanDockerLogs() (int64, error) {
 	var cleaned int64
 
-	// 清理未使用的镜像
+	// 清理未使用的镜像 (Docker)
 	if err := s.containerImageRepo.Prune(); err != nil {
 		// 忽略 Docker 未安装或未运行的错误
 		if !strings.Contains(err.Error(), "Cannot connect") &&
-			!strings.Contains(err.Error(), "No such file") {
-			return 0, err
+			!strings.Contains(err.Error(), "No such file") &&
+			!strings.Contains(err.Error(), "connection refused") {
+			// 不返回错误，继续执行
 		}
 	}
 
-	// 清理容器日志
+	// 清理 Docker 容器日志
 	dockerLogPath := "/var/lib/docker/containers"
-	if io.Exists(dockerLogPath) {
-		entries, err := os.ReadDir(dockerLogPath)
-		if err == nil {
-			for _, entry := range entries {
-				if !entry.IsDir() {
-					continue
-				}
-				containerPath := filepath.Join(dockerLogPath, entry.Name())
-				logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
-				for _, logFile := range logFiles {
-					if info, err := os.Stat(logFile); err == nil {
-						cleaned += info.Size()
-						// 清空日志文件
-						_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
-					}
-				}
-			}
-		}
+	cleaned += s.cleanContainerLogDir(dockerLogPath)
+
+	// 清理 Podman 容器日志
+	podmanLogPaths := []string{
+		"/var/lib/containers/storage/overlay-containers",
+		"/run/containers/storage/overlay-containers",
+	}
+	for _, podmanLogPath := range podmanLogPaths {
+		cleaned += s.cleanContainerLogDir(podmanLogPath)
 	}
 
 	// 清理 Docker 系统
 	_, _ = shell.Execf("docker system prune -f 2>/dev/null")
 
+	// 清理 Podman 系统
+	_, _ = shell.Execf("podman system prune -f 2>/dev/null")
+
 	return cleaned, nil
+}
+
+// cleanContainerLogDir 清理容器日志目录
+func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
+	var cleaned int64
+
+	if !io.Exists(logPath) {
+		return 0
+	}
+
+	entries, err := os.ReadDir(logPath)
+	if err != nil {
+		return 0
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		containerPath := filepath.Join(logPath, entry.Name())
+
+		// 清理 *.log 文件
+		logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
+		for _, logFile := range logFiles {
+			if info, err := os.Stat(logFile); err == nil {
+				cleaned += info.Size()
+				_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
+			}
+		}
+
+		// 清理 userdata 子目录下的日志 (Podman)
+		userdataPath := filepath.Join(containerPath, "userdata")
+		if io.Exists(userdataPath) {
+			userdataLogs, _ := filepath.Glob(filepath.Join(userdataPath, "*.log"))
+			for _, logFile := range userdataLogs {
+				if info, err := os.Stat(logFile); err == nil {
+					cleaned += info.Size()
+					_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
+				}
+			}
+		}
+	}
+
+	return cleaned
 }
 
 // cleanSystemLogs 清理系统日志
