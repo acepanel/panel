@@ -136,20 +136,21 @@ const anyLoading = computed(() => {
 
 <template>
   <n-flex vertical>
-    <n-alert type="info">
-      {{ $gettext('Scan and clean various logs to free up disk space. Logs include panel logs, website logs, MySQL logs, Docker logs, and system logs.') }}
-    </n-alert>
-
     <n-flex justify="end">
       <n-button type="primary" :loading="anyLoading" @click="handleScanAll">
         <template #icon>
-          <icon-mdi-magnify />
+          <i-mdi-magnify />
         </template>
         {{ $gettext('Scan All') }}
       </n-button>
-      <n-button type="warning" :loading="anyLoading" :disabled="totalItems === 0" @click="handleCleanAll">
+      <n-button
+        type="warning"
+        :loading="anyLoading"
+        :disabled="totalItems === 0"
+        @click="handleCleanAll"
+      >
         <template #icon>
-          <icon-mdi-delete-sweep />
+          <i-mdi-delete-sweep />
         </template>
         {{ $gettext('Clean All') }}
       </n-button>
@@ -166,7 +167,7 @@ const anyLoading = computed(() => {
                 @click="handleScan(logType.key)"
               >
                 <template #icon>
-                  <icon-mdi-magnify />
+                  <i-mdi-magnify />
                 </template>
                 {{ $gettext('Scan') }}
               </n-button>
@@ -178,7 +179,7 @@ const anyLoading = computed(() => {
                 @click="handleClean(logType.key)"
               >
                 <template #icon>
-                  <icon-mdi-delete />
+                  <i-mdi-delete />
                 </template>
                 {{ $gettext('Clean') }}
               </n-button>

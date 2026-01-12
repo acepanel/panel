@@ -294,7 +294,6 @@ func (s *ToolboxLogService) scanDockerLogs() []LogItem {
 func (s *ToolboxLogService) scanSystemLogs() []LogItem {
 	var items []LogItem
 
-	// /var/log 目录下的主要日志文件
 	logFiles := []string{
 		"/var/log/syslog",
 		"/var/log/messages",
@@ -379,7 +378,6 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 			continue
 		}
 		cleaned += info.Size()
-		// 清空日志文件而不删除
 		if _, err = shell.Execf("cat /dev/null > '%s'", filePath); err != nil {
 			continue
 		}
@@ -450,8 +448,7 @@ func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
 		}
 	}
 
-	// 清理二进制日志 - 使用 MySQL 命令清理更安全
-	// 这里只是统计大小，实际清理需要通过 MySQL 命令
+	// 清理二进制日志
 	entries, err := os.ReadDir(mysqlPath)
 	if err != nil {
 		return cleaned, nil
@@ -525,7 +522,6 @@ func (s *ToolboxLogService) cleanSystemLogs() (int64, error) {
 	// 清理 journal 日志 (保留最近 1 天)
 	_, _ = shell.Execf("journalctl --vacuum-time=1d 2>/dev/null")
 
-	// 清理主要日志文件
 	logFiles := []string{
 		"/var/log/syslog",
 		"/var/log/messages",
