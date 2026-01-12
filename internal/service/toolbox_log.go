@@ -421,8 +421,12 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 			continue
 		}
 		cleaned += info.Size()
-		if _, err = shell.Execf("cat /dev/null > '%s'", filePath); err != nil {
-			continue
+		// 名称带日期的日志文件，删除旧文件
+		_, err = regexp.MatchString(`\d{4}-\d{2}-\d{2}`, entry.Name())
+		if err == nil {
+			_ = os.Remove(filePath)
+		} else {
+			_, _ = shell.Execf("cat /dev/null > '%s'", filePath)
 		}
 	}
 
