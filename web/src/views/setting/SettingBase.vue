@@ -57,11 +57,16 @@ const channels = [
   }
 ]
 
+// 不允许隐藏的菜单项（首页和设置页）
+const forbiddenHiddenMenus = ['home', 'home-index', 'setting', 'setting-index']
+
 // 获取菜单选项
 const getOption = (route: RouteType): TreeSelectOption => {
+  const isDisabled = forbiddenHiddenMenus.includes(route.name as string)
   let menuItem: TreeSelectOption = {
     label: route.meta?.title ? translateTitle(route.meta.title) : route.name,
-    key: route.name
+    key: route.name,
+    disabled: isDisabled
   }
 
   const visibleChildren = route.children
@@ -73,9 +78,11 @@ const getOption = (route: RouteType): TreeSelectOption => {
   if (visibleChildren.length === 1) {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
+    const isSingleDisabled = forbiddenHiddenMenus.includes(singleRoute.name as string)
     menuItem.label = singleRoute.meta?.title
       ? translateTitle(singleRoute.meta.title)
       : singleRoute.name
+    menuItem.disabled = isSingleDisabled
     const visibleItems = singleRoute.children
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
       : []
