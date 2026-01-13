@@ -3,7 +3,6 @@ package ntp
 import (
 	"bufio"
 	"fmt"
-	"log/slog"
 	"regexp"
 	"strings"
 
@@ -174,10 +173,8 @@ func setTimesyncdServers(servers []string) error {
 		return err
 	}
 
-	// 重启 systemd-timesyncd 服务（忽略错误，因为服务可能不存在）
-	if _, err := shell.Execf("systemctl restart systemd-timesyncd 2>/dev/null"); err != nil {
-		slog.Debug("failed to restart systemd-timesyncd", slog.Any("error", err))
-	}
+	// 重启 systemd-timesyncd 服务
+	_, _ = shell.Execf("systemctl restart systemd-timesyncd 2>/dev/null")
 
 	return nil
 }
@@ -275,13 +272,9 @@ func setChronyServers(servers []string) error {
 		return err
 	}
 
-	// 重启 chrony 服务（尝试两个可能的服务名）
-	if _, err := shell.Execf("systemctl restart chronyd 2>/dev/null"); err != nil {
-		slog.Debug("failed to restart chronyd", slog.Any("error", err))
-		if _, err := shell.Execf("systemctl restart chrony 2>/dev/null"); err != nil {
-			slog.Debug("failed to restart chrony", slog.Any("error", err))
-		}
-	}
+	// 重启 chrony 服务
+	_, _ = shell.Execf("systemctl restart chronyd 2>/dev/null")
+	_, _ = shell.Execf("systemctl restart chrony 2>/dev/null")
 
 	return nil
 }

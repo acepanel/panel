@@ -221,7 +221,7 @@ const handleSaveNtpServers = () => {
                 :placeholder="$gettext('Optional, leave empty to use default servers')"
                 style="flex: 1"
               />
-              <n-button quaternary @click="handleOpenNtpSettings">
+              <n-button @click="handleOpenNtpSettings">
                 {{ $gettext('Configure Default Servers') }}
               </n-button>
             </n-flex>
@@ -240,16 +240,31 @@ const handleSaveNtpServers = () => {
   </n-tabs>
 
   <!-- NTP 服务器配置弹窗 -->
-  <n-modal v-model:show="showNtpModal" preset="card" :title="$gettext('System NTP Server Configuration')">
+  <n-modal
+    v-model:show="showNtpModal"
+    preset="card"
+    :title="$gettext('System NTP Server Configuration')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+  >
     <n-flex vertical>
       <n-alert v-if="ntpServiceType === 'unknown'" type="warning">
-        {{ $gettext('Unable to detect NTP service. Please ensure chrony or systemd-timesyncd is installed.') }}
+        {{
+          $gettext(
+            'Unable to detect NTP service. Please ensure chrony or systemd-timesyncd is installed.'
+          )
+        }}
       </n-alert>
       <n-alert v-else type="info" :show-icon="false">
         {{
-          $gettext('Current NTP service: %{ service }. Changes will be applied to system configuration.', {
-            service: ntpServiceType === 'chrony' ? 'Chrony' : 'systemd-timesyncd'
-          })
+          $gettext(
+            'Current NTP service: %{ service }. Changes will be applied to system configuration.',
+            {
+              service: ntpServiceType === 'chrony' ? 'Chrony' : 'systemd-timesyncd'
+            }
+          )
         }}
       </n-alert>
       <n-list>
