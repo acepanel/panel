@@ -397,10 +397,9 @@ const addCustomConfig = () => {
   if (!setting.value.custom_configs) {
     setting.value.custom_configs = []
   }
-  // 使用时间戳确保唯一的默认名称
-  const timestamp = Date.now().toString(36)
+  const index = setting.value.custom_configs.length + 1
   setting.value.custom_configs.push({
-    name: `custom_${timestamp}`,
+    name: `custom_${index}`,
     scope: 'site',
     content: ''
   })
@@ -695,7 +694,9 @@ const removeCustomConfig = (index: number) => {
                     <n-form-item-gi :span="12" :label="$gettext('Proxy Host')">
                       <n-input
                         v-model:value="proxy.host"
-                        :placeholder="$gettext('Default: $proxy_host, or extracted from Proxy Pass')"
+                        :placeholder="
+                          $gettext('Default: $proxy_host, or extracted from Proxy Pass')
+                        "
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="12" :label="$gettext('Proxy SNI')">
@@ -950,7 +951,9 @@ const removeCustomConfig = (index: number) => {
                     <n-form-item-gi :span="12" :label="$gettext('Name')">
                       <n-input
                         v-model:value="config.name"
-                        :placeholder="$gettext('Config name (letters, numbers, underscore, hyphen)')"
+                        :placeholder="
+                          $gettext('Config name (letters, numbers, underscore, hyphen)')
+                        "
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="12" :label="$gettext('Scope')">
