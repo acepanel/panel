@@ -85,7 +85,7 @@ func initWeb() (*app.Web, error) {
 	taskService := service.NewTaskService(taskRepo)
 	websiteService := service.NewWebsiteService(websiteRepo, settingRepo)
 	projectRepo := data.NewProjectRepo(locale, db, logger)
-	projectService := service.NewProjectService(projectRepo)
+	projectService := service.NewProjectService(projectRepo, settingRepo)
 	databaseService := service.NewDatabaseService(databaseRepo)
 	databaseServerService := service.NewDatabaseServerService(databaseServerRepo)
 	databaseUserService := service.NewDatabaseUserService(databaseUserRepo)

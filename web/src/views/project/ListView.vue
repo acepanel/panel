@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
 import RealtimeLog from '@/components/common/RealtimeLog.vue'
+import { useFileStore } from '@/store'
 
 const type = defineModel<string>('type', { type: String, required: true })
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true })
@@ -13,7 +14,9 @@ const editId = defineModel<number>('editId', { type: Number, required: true })
 const logModal = ref(false)
 const logService = ref('')
 
+const fileStore = useFileStore()
 const { $gettext } = useGettext()
+const router = useRouter()
 const selectedRowKeys = ref<any>([])
 
 const typeMap: Record<string, string> = {
@@ -66,7 +69,20 @@ const columns: any = [
     key: 'root_dir',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    render(row: any) {
+      return h(
+        NTag,
+        {
+          class: 'cursor-pointer hover:opacity-60',
+          type: 'info',
+          onClick: () => {
+            fileStore.path = row.root_dir
+            router.push({ name: 'file-index' })
+          }
+        },
+        { default: () => row.root_dir }
+      )
+    }
   },
   {
     title: $gettext('Actions'),

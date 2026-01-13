@@ -2,6 +2,7 @@ package service
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/libtnb/chix"
 
@@ -12,11 +13,13 @@ import (
 
 type ProjectService struct {
 	projectRepo biz.ProjectRepo
+	settingRepo biz.SettingRepo
 }
 
-func NewProjectService(project biz.ProjectRepo) *ProjectService {
+func NewProjectService(project biz.ProjectRepo, setting biz.SettingRepo) *ProjectService {
 	return &ProjectService{
 		projectRepo: project,
+		settingRepo: setting,
 	}
 }
 
@@ -61,6 +64,11 @@ func (s *ProjectService) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
+	}
+
+	if len(req.RootDir) == 0 {
+		req.RootDir, _ = s.settingRepo.Get(biz.SettingKeyProjectPath)
+		req.RootDir = filepath.Join(req.RootDir, req.Name)
 	}
 
 	project, err := s.projectRepo.Create(r.Context(), req)

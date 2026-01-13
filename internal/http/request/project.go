@@ -6,7 +6,7 @@ type ProjectCreate struct {
 	Name         string            `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 	Type         types.ProjectType `form:"type" json:"type" validate:"required|in:general,php,java,go,python,nodejs"`
 	Description  string            `form:"description" json:"description"`
-	RootDir      string            `form:"root_dir" json:"root_dir" validate:"required"`
+	RootDir      string            `form:"root_dir" json:"root_dir"`
 	WorkingDir   string            `form:"working_dir" json:"working_dir"`
 	ExecStart    string            `form:"exec_start" json:"exec_start"`
 	User         string            `form:"user" json:"user"`

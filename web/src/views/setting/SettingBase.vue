@@ -16,14 +16,17 @@ const model = defineModel<any>('model', { type: Object, required: true })
 // 目录选择器
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace')
-const pathSelectorTarget = ref<'website' | 'backup'>('website')
+const pathSelectorTarget = ref<'website' | 'backup' | 'project'>('website')
 
-const handleSelectPath = (target: 'website' | 'backup') => {
+const handleSelectPath = (target: 'website' | 'backup' | 'project') => {
   pathSelectorTarget.value = target
-  pathSelectorPath.value =
-    target === 'website'
-      ? model.value.website_path || '/opt/ace/sites'
-      : model.value.backup_path || '/opt/ace/backup'
+  if (target === 'website') {
+    pathSelectorPath.value = model.value.website_path || '/opt/ace/sites'
+  } else if (target === 'backup') {
+    pathSelectorPath.value = model.value.backup_path || '/opt/ace/backup'
+  } else {
+    pathSelectorPath.value = model.value.project_path || '/opt/ace/projects'
+  }
   showPathSelector.value = true
 }
 
@@ -31,8 +34,10 @@ watch(showPathSelector, (val) => {
   if (!val && pathSelectorPath.value) {
     if (pathSelectorTarget.value === 'website') {
       model.value.website_path = pathSelectorPath.value
-    } else {
+    } else if (pathSelectorTarget.value === 'backup') {
       model.value.backup_path = pathSelectorPath.value
+    } else {
+      model.value.project_path = pathSelectorPath.value
     }
   }
 })
@@ -132,6 +137,19 @@ const menus = computed<TreeSelectOption[]>(() => {
         <n-input-group>
           <n-input v-model:value="model.backup_path" :placeholder="$gettext('/opt/ace/backup')" />
           <n-button @click="handleSelectPath('backup')">
+            <template #icon>
+              <i-mdi-folder-open />
+            </template>
+          </n-button>
+        </n-input-group>
+      </n-form-item>
+      <n-form-item :label="$gettext('Default Project Directory')">
+        <n-input-group>
+          <n-input
+            v-model:value="model.project_path"
+            :placeholder="$gettext('/opt/ace/projects')"
+          />
+          <n-button @click="handleSelectPath('project')">
             <template #icon>
               <i-mdi-folder-open />
             </template>

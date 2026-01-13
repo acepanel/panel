@@ -25,7 +25,7 @@ const phpFrameworks = [
 const createModel = ref({
   name: '',
   type: '',
-  root_dir: '/opt/ace/projects',
+  root_dir: '',
   working_dir: '',
   exec_start: '',
   user: 'www'
@@ -98,7 +98,7 @@ const handleCreate = async () => {
     createModel.value = {
       name: '',
       type: '',
-      root_dir: '/opt/ace/projects',
+      root_dir: '',
       working_dir: '',
       exec_start: '',
       user: 'www'
@@ -141,13 +141,17 @@ const modalTitle = computed(() => {
         />
       </n-form-item>
 
-      <n-form-item path="root_dir" :label="$gettext('Project Directory')" required>
+      <n-form-item path="root_dir" :label="$gettext('Project Directory')">
         <n-input-group>
           <n-input
             v-model:value="createModel.root_dir"
             type="text"
             @keydown.enter.prevent
-            :placeholder="$gettext('Project root directory')"
+            :placeholder="
+              $gettext(
+                'Project root directory (if left empty, defaults to project directory/project name)'
+              )
+            "
           />
           <n-button @click="handleSelectPath">
             <template #icon>

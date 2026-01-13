@@ -225,6 +225,10 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	projectPath, err := r.Get(biz.SettingKeyProjectPath)
+	if err != nil {
+		return nil, err
+	}
 	hiddenMenu, err := r.GetSlice(biz.SettingHiddenMenu)
 	if err != nil {
 		return nil, err
@@ -261,6 +265,7 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		BindUA:        r.conf.HTTP.BindUA,
 		WebsitePath:   websitePath,
 		BackupPath:    backupPath,
+		ProjectPath:   projectPath,
 		HiddenMenu:    hiddenMenu,
 		CustomLogo:    customLogo,
 		Port:          r.conf.HTTP.Port,
@@ -289,6 +294,9 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyBackupPath, req.BackupPath); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyProjectPath, req.ProjectPath); err != nil {
 		return false, err
 	}
 	if err := r.SetSlice(biz.SettingHiddenMenu, req.HiddenMenu); err != nil {

@@ -37,6 +37,7 @@ const { data: model } = useRequest(setting.list, {
     bind_ua: [],
     website_path: '',
     backup_path: '',
+    project_path: '',
     hidden_menu: [],
     custom_logo: '',
     https: false,
