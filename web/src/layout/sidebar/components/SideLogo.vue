@@ -7,7 +7,7 @@ const router = useRouter()
 const logo = computed(() => themeStore.logo || logoImg)
 
 const toHome = () => {
-  router.push({ name: 'home' })
+  router.push({ name: 'home-index' })
 }
 </script>
 
