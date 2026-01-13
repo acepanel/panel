@@ -47,7 +47,8 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     rewrite: '',
     open_basedir: false,
     upstreams: [],
-    proxies: []
+    proxies: [],
+    custom_configs: []
   }
 })
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
@@ -382,6 +383,41 @@ const updateTimeoutValue = (proxy: any, value: number) => {
 const updateTimeoutUnit = (proxy: any, unit: string) => {
   const parsed = parseDuration(proxy.resolver_timeout)
   proxy.resolver_timeout = buildDuration(parsed.value, unit)
+}
+
+// ========== 自定义配置相关 ==========
+// 作用域选项
+const scopeOptions = [
+  { label: $gettext('This Website'), value: 'site' },
+  { label: $gettext('Global'), value: 'shared' }
+]
+
+// 添加自定义配置
+const addCustomConfig = () => {
+  if (!setting.value.custom_configs) {
+    setting.value.custom_configs = []
+  }
+  const index = setting.value.custom_configs.length + 1
+  setting.value.custom_configs.push({
+    name: `custom_${index}`,
+    scope: 'site',
+    content: ''
+  })
+}
+
+// 删除自定义配置
+const removeCustomConfig = (index: number) => {
+  if (setting.value.custom_configs) {
+    setting.value.custom_configs.splice(index, 1)
+  }
+}
+
+// 当前编辑的自定义配置索引
+const currentCustomConfigIndex = ref<number | null>(null)
+
+// 设置当前编辑的配置
+const setCurrentCustomConfig = (index: number | null) => {
+  currentCustomConfigIndex.value = index
 }
 </script>
 
@@ -893,6 +929,62 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
             </n-form-item>
           </n-form>
           <common-editor v-if="setting" v-model:value="setting.rewrite" height="60vh" />
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="custom_configs" :tab="$gettext('Custom Configs')">
+        <n-flex vertical>
+          <!-- 自定义配置列表 -->
+          <draggable
+            v-model="setting.custom_configs"
+            item-key="name"
+            handle=".drag-handle"
+            :animation="200"
+            ghost-class="ghost-card"
+          >
+            <template #item="{ element: config, index }">
+              <n-card closable @close="removeCustomConfig(index)" style="margin-bottom: 16px">
+                <template #header>
+                  <n-flex align="center" :size="8">
+                    <!-- 拖拽手柄 -->
+                    <div class="drag-handle" cursor-grab>
+                      <the-icon icon="mdi:drag" :size="20" />
+                    </div>
+                    <span>{{ $gettext('Config') }} #{{ index + 1 }}</span>
+                  </n-flex>
+                </template>
+                <n-form label-placement="left" label-width="100px">
+                  <n-grid :cols="24" :x-gap="16">
+                    <n-form-item-gi :span="12" :label="$gettext('Name')">
+                      <n-input
+                        v-model:value="config.name"
+                        :placeholder="$gettext('Config name (letters, numbers, underscore, hyphen)')"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Scope')">
+                      <n-select v-model:value="config.scope" :options="scopeOptions" />
+                    </n-form-item-gi>
+                  </n-grid>
+                  <n-form-item :label="$gettext('Content')">
+                    <common-editor
+                      v-model:value="config.content"
+                      height="30vh"
+                      :lang="isNginx ? 'nginx' : 'apacheconf'"
+                    />
+                  </n-form-item>
+                </n-form>
+              </n-card>
+            </template>
+          </draggable>
+
+          <!-- 空状态 -->
+          <n-empty v-if="!setting.custom_configs || setting.custom_configs.length === 0">
+            {{ $gettext('No custom configs') }}
+          </n-empty>
+
+          <!-- 添加按钮 -->
+          <n-button type="primary" dashed @click="addCustomConfig" mb-20>
+            {{ $gettext('Add Custom Config') }}
+          </n-button>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Access Log')">

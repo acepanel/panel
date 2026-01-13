@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -205,6 +206,10 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.Upstreams = proxyVhost.Upstreams()
 		setting.Proxies = proxyVhost.Proxies()
 	}
+
+	// 自定义配置
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	setting.CustomConfigs = r.getCustomConfigs(configDir)
 
 	return setting, err
 }
@@ -647,6 +652,12 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 	}
 
+	// 自定义配置
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	if err = r.saveCustomConfigs(configDir, req.CustomConfigs); err != nil {
+		return err
+	}
+
 	// 保存配置
 	if err = vhost.Save(); err != nil {
 		return err
@@ -944,6 +955,148 @@ func (r *websiteRepo) reloadWebServer() error {
 		}
 	default:
 		return errors.New(r.t.Get("unsupported web server: %s", webServer))
+	}
+
+	return nil
+}
+
+// customConfigStartNum 自定义配置起始序号
+const customConfigStartNum = 800
+
+// customConfigEndNum 自定义配置结束序号
+const customConfigEndNum = 999
+
+// getCustomConfigs 获取网站自定义配置列表
+func (r *websiteRepo) getCustomConfigs(configDir string) []types.WebsiteCustomConfig {
+	var configs []types.WebsiteCustomConfig
+
+	// 从 site 和 shared 目录读取自定义配置
+	for _, scope := range []string{"site", "shared"} {
+		scopeDir := filepath.Join(configDir, scope)
+		entries, err := os.ReadDir(scopeDir)
+		if err != nil {
+			continue
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+
+			// 匹配文件名格式: 800-999-name.conf
+			name := entry.Name()
+			if !strings.HasSuffix(name, ".conf") {
+				continue
+			}
+
+			// 解析序号
+			parts := strings.SplitN(name, "-", 2)
+			if len(parts) < 2 {
+				continue
+			}
+			num, err := strconv.Atoi(parts[0])
+			if err != nil || num < customConfigStartNum || num > customConfigEndNum {
+				continue
+			}
+
+			// 提取配置名称（去掉序号前缀和.conf后缀）
+			configName := strings.TrimSuffix(parts[1], ".conf")
+			if configName == "" {
+				continue
+			}
+
+			// 读取配置内容
+			content, err := io.Read(filepath.Join(scopeDir, name))
+			if err != nil {
+				continue
+			}
+
+			configs = append(configs, types.WebsiteCustomConfig{
+				Name:    configName,
+				Scope:   scope,
+				Content: content,
+			})
+		}
+	}
+
+	return configs
+}
+
+// saveCustomConfigs 保存网站自定义配置
+func (r *websiteRepo) saveCustomConfigs(configDir string, configs []request.WebsiteCustomConfig) error {
+	// 先清除旧的自定义配置文件
+	if err := r.clearCustomConfigs(configDir); err != nil {
+		return err
+	}
+
+	// 分别跟踪 site 和 shared 目录的序号
+	siteNum := customConfigStartNum
+	sharedNum := customConfigStartNum
+
+	for _, cfg := range configs {
+		var num int
+		switch cfg.Scope {
+		case "site":
+			num = siteNum
+			siteNum++
+		case "shared":
+			num = sharedNum
+			sharedNum++
+		default:
+			continue
+		}
+
+		if num > customConfigEndNum {
+			continue // 超出序号范围
+		}
+
+		fileName := fmt.Sprintf("%03d-%s.conf", num, cfg.Name)
+		filePath := filepath.Join(configDir, cfg.Scope, fileName)
+
+		if err := io.Write(filePath, cfg.Content, 0600); err != nil {
+			return fmt.Errorf("failed to write custom config: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// clearCustomConfigs 清除网站自定义配置文件
+func (r *websiteRepo) clearCustomConfigs(configDir string) error {
+	for _, scope := range []string{"site", "shared"} {
+		scopeDir := filepath.Join(configDir, scope)
+		entries, err := os.ReadDir(scopeDir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+
+			name := entry.Name()
+			if !strings.HasSuffix(name, ".conf") {
+				continue
+			}
+
+			parts := strings.SplitN(name, "-", 2)
+			if len(parts) < 2 {
+				continue
+			}
+			num, err := strconv.Atoi(parts[0])
+			if err != nil || num < customConfigStartNum || num > customConfigEndNum {
+				continue
+			}
+
+			filePath := filepath.Join(scopeDir, name)
+			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
+				return fmt.Errorf("failed to remove custom config: %w", err)
+			}
+		}
 	}
 
 	return nil

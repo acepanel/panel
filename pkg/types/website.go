@@ -46,4 +46,14 @@ type WebsiteSetting struct {
 	// 反向代理
 	Upstreams []types.Upstream `json:"upstreams"`
 	Proxies   []types.Proxy    `json:"proxies"`
+
+	// 自定义配置
+	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
+}
+
+// WebsiteCustomConfig 网站自定义配置
+type WebsiteCustomConfig struct {
+	Name    string `json:"name"`    // 配置名称
+	Scope   string `json:"scope"`   // 作用域: site(此网站), shared(全局)
+	Content string `json:"content"` // 配置内容
 }
