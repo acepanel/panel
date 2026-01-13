@@ -15,8 +15,13 @@ export default {
   updateTimezone: (timezone: string): any => http.Post('/toolbox_system/timezone', { timezone }),
   // 设置时间
   updateTime: (time: string): any => http.Post('/toolbox_system/time', { time }),
-  // 同步时间
-  syncTime: (): any => http.Post('/toolbox_system/sync_time'),
+  // 同步时间（可选指定 NTP 服务器）
+  syncTime: (server?: string): any => http.Post('/toolbox_system/sync_time', { server }),
+  // 获取 NTP 服务器配置
+  ntpServers: (): any => http.Get('/toolbox_system/ntp_servers'),
+  // 设置 NTP 服务器配置
+  updateNtpServers: (servers: string[]): any =>
+    http.Post('/toolbox_system/ntp_servers', { servers }),
   // 主机名
   hostname: (): any => http.Get('/toolbox_system/hostname'),
   // Hosts

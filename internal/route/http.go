@@ -468,6 +468,8 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/timezone", route.toolboxSystem.UpdateTimezone)
 			r.Post("/time", route.toolboxSystem.UpdateTime)
 			r.Post("/sync_time", route.toolboxSystem.SyncTime)
+			r.Get("/ntp_servers", route.toolboxSystem.GetNTPServers)
+			r.Post("/ntp_servers", route.toolboxSystem.UpdateNTPServers)
 			r.Get("/hostname", route.toolboxSystem.GetHostname)
 			r.Post("/hostname", route.toolboxSystem.UpdateHostname)
 			r.Get("/hosts", route.toolboxSystem.GetHosts)

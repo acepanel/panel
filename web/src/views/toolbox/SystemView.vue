@@ -21,6 +21,11 @@ const hosts = ref('')
 const timezone = ref('')
 const timezones = ref<any[]>([])
 const time = ref(DateTime.now().toMillis())
+const syncServer = ref('')
+const ntpServers = ref<string[]>([])
+const builtinNtpServers = ref<string[]>([])
+const showNtpModal = ref(false)
+const editingNtpServers = ref<string[]>([])
 
 const dnsManager = ref('')
 
@@ -44,6 +49,10 @@ useRequest(system.hosts()).onSuccess(({ data }) => {
 useRequest(system.timezone()).onSuccess(({ data }) => {
   timezone.value = data.timezone
   timezones.value = data.timezones
+})
+useRequest(system.ntpServers()).onSuccess(({ data }) => {
+  ntpServers.value = data.servers || []
+  builtinNtpServers.value = data.builtins || []
 })
 
 const handleUpdateDNS = () => {
@@ -77,8 +86,39 @@ const handleUpdateTime = async () => {
 }
 
 const handleSyncTime = () => {
-  useRequest(system.syncTime()).onSuccess(() => {
+  useRequest(system.syncTime(syncServer.value || undefined)).onSuccess(() => {
     window.$message.success($gettext('Synchronized successfully'))
+  })
+}
+
+const handleOpenNtpSettings = () => {
+  editingNtpServers.value = [...ntpServers.value]
+  showNtpModal.value = true
+}
+
+const handleAddNtpServer = () => {
+  editingNtpServers.value.push('')
+}
+
+const handleRemoveNtpServer = (index: number) => {
+  editingNtpServers.value.splice(index, 1)
+}
+
+const handleResetNtpServers = () => {
+  editingNtpServers.value = [...builtinNtpServers.value]
+}
+
+const handleSaveNtpServers = () => {
+  // 过滤空字符串
+  const servers = editingNtpServers.value.filter((s) => s.trim() !== '')
+  if (servers.length === 0) {
+    window.$message.error($gettext('At least one NTP server is required'))
+    return
+  }
+  useRequest(system.updateNtpServers(servers)).onSuccess(() => {
+    ntpServers.value = servers
+    showNtpModal.value = false
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 </script>
@@ -172,6 +212,18 @@ const handleSyncTime = () => {
           <n-form-item :label="$gettext('Modify Time')">
             <n-date-picker v-model:value="time" type="datetime" clearable />
           </n-form-item>
+          <n-form-item :label="$gettext('NTP Server')">
+            <n-flex :size="8" align="center" style="width: 100%">
+              <n-input
+                v-model:value="syncServer"
+                :placeholder="$gettext('Optional, leave empty to use default servers')"
+                style="flex: 1"
+              />
+              <n-button quaternary @click="handleOpenNtpSettings">
+                {{ $gettext('Configure Default Servers') }}
+              </n-button>
+            </n-flex>
+          </n-form-item>
         </n-form>
         <n-flex>
           <n-button type="primary" @click="handleUpdateTime">
@@ -184,4 +236,54 @@ const handleSyncTime = () => {
       </n-flex>
     </n-tab-pane>
   </n-tabs>
+
+  <!-- NTP 服务器配置弹窗 -->
+  <n-modal v-model:show="showNtpModal" preset="card" :title="$gettext('NTP Server Configuration')">
+    <n-flex vertical>
+      <n-alert type="info" :show-icon="false">
+        {{
+          $gettext(
+            'Configure the default NTP servers for time synchronization. The system will automatically select the fastest available server.'
+          )
+        }}
+      </n-alert>
+      <n-list>
+        <n-list-item v-for="(_, index) in editingNtpServers" :key="index">
+          <n-flex :size="8" align="center">
+            <n-input
+              v-model:value="editingNtpServers[index]"
+              :placeholder="$gettext('Enter NTP server address')"
+              style="flex: 1"
+            />
+            <n-button
+              quaternary
+              type="error"
+              :disabled="editingNtpServers.length <= 1"
+              @click="handleRemoveNtpServer(index)"
+            >
+              <template #icon>
+                <i-mdi-delete />
+              </template>
+            </n-button>
+          </n-flex>
+        </n-list-item>
+      </n-list>
+      <n-flex justify="space-between">
+        <n-flex :size="8">
+          <n-button @click="handleAddNtpServer">
+            <template #icon>
+              <i-mdi-plus />
+            </template>
+            {{ $gettext('Add') }}
+          </n-button>
+          <n-button @click="handleResetNtpServers">
+            {{ $gettext('Reset to Default') }}
+          </n-button>
+        </n-flex>
+        <n-button type="primary" @click="handleSaveNtpServers">
+          {{ $gettext('Save') }}
+        </n-button>
+      </n-flex>
+    </n-flex>
+  </n-modal>
 </template>

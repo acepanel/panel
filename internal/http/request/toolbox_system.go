@@ -30,3 +30,11 @@ type ToolboxSystemHosts struct {
 type ToolboxSystemPassword struct {
 	Password string `form:"password" json:"password" validate:"required|password"`
 }
+
+type ToolboxSystemSyncTime struct {
+	Server string `form:"server" json:"server"` // 可选的 NTP 服务器地址
+}
+
+type ToolboxSystemNTPServers struct {
+	Servers []string `form:"servers" json:"servers" validate:"required"`
+}

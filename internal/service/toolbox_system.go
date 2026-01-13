@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
@@ -231,7 +232,18 @@ func (s *ToolboxSystemService) UpdateTime(w http.ResponseWriter, r *http.Request
 
 // SyncTime 同步时间
 func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) {
-	now, err := ntp.Now()
+	req, err := Bind[request.ToolboxSystemSyncTime](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	var now time.Time
+	if req.Server != "" {
+		now, err = ntp.Now(req.Server)
+	} else {
+		now, err = ntp.Now()
+	}
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -242,6 +254,26 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	Success(w, nil)
+}
+
+// GetNTPServers 获取 NTP 服务器配置
+func (s *ToolboxSystemService) GetNTPServers(w http.ResponseWriter, r *http.Request) {
+	Success(w, chix.M{
+		"servers":  ntp.GetDefaultServers(),
+		"builtins": ntp.GetBuiltinServers(),
+	})
+}
+
+// UpdateNTPServers 更新 NTP 服务器配置
+func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxSystemNTPServers](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	ntp.SetDefaultServers(req.Servers)
 	Success(w, nil)
 }
 
