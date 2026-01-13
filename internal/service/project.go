@@ -67,7 +67,7 @@ func (s *ProjectService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(req.RootDir) == 0 {
-		req.RootDir, _ = s.settingRepo.Get(biz.SettingKeyProjectPath)
+		req.RootDir, _ = s.settingRepo.Get(biz.SettingKeyProjectPath, "/opt/ace/projects")
 		req.RootDir = filepath.Join(req.RootDir, req.Name)
 	}
 
