@@ -15,35 +15,13 @@ var ErrNotReachable = errors.New("failed to reach NTP server")
 
 var ErrNoAvailableServer = errors.New("no available NTP server found")
 
-// builtinAddresses 内置的 NTP 服务器地址列表
+// builtinAddresses 内置的 NTP 服务器地址列表（用于面板同步时间）
 var builtinAddresses = []string{
 	"ntp.aliyun.com",   // 阿里云
 	"ntp1.aliyun.com",  // 阿里云2
 	"ntp.tencent.com",  // 腾讯云
 	"time.windows.com", // Windows
 	"time.apple.com",   // Apple
-}
-
-// defaultAddresses 用于时间同步的 NTP 服务器地址列表（可被用户自定义）
-var defaultAddresses = builtinAddresses
-
-// mu 保护 defaultAddresses 的读写
-var mu sync.RWMutex
-
-// GetDefaultServers 获取当前配置的 NTP 服务器列表
-func GetDefaultServers() []string {
-	mu.RLock()
-	defer mu.RUnlock()
-	result := make([]string, len(defaultAddresses))
-	copy(result, defaultAddresses)
-	return result
-}
-
-// SetDefaultServers 设置 NTP 服务器列表
-func SetDefaultServers(servers []string) {
-	mu.Lock()
-	defer mu.Unlock()
-	defaultAddresses = servers
 }
 
 // GetBuiltinServers 获取内置的 NTP 服务器列表
@@ -62,8 +40,7 @@ func Now(address ...string) (time.Time, error) {
 		}
 	}
 
-	servers := GetDefaultServers()
-	best, err := bestServer(servers...)
+	best, err := bestServer(builtinAddresses...)
 	if err != nil {
 		return time.Now(), err
 	}
@@ -100,7 +77,7 @@ func pingServer(addr string) (time.Duration, error) {
 // bestServer 返回延迟最低的NTP服务器
 func bestServer(addresses ...string) (string, error) {
 	if len(addresses) == 0 {
-		addresses = GetDefaultServers()
+		addresses = builtinAddresses
 	}
 
 	type ntpResult struct {

@@ -24,6 +24,7 @@ const time = ref(DateTime.now().toMillis())
 const syncServer = ref('')
 const ntpServers = ref<string[]>([])
 const builtinNtpServers = ref<string[]>([])
+const ntpServiceType = ref('')
 const showNtpModal = ref(false)
 const editingNtpServers = ref<string[]>([])
 
@@ -53,6 +54,7 @@ useRequest(system.timezone()).onSuccess(({ data }) => {
 useRequest(system.ntpServers()).onSuccess(({ data }) => {
   ntpServers.value = data.servers || []
   builtinNtpServers.value = data.builtins || []
+  ntpServiceType.value = data.service_type || ''
 })
 
 const handleUpdateDNS = () => {
@@ -238,13 +240,16 @@ const handleSaveNtpServers = () => {
   </n-tabs>
 
   <!-- NTP 服务器配置弹窗 -->
-  <n-modal v-model:show="showNtpModal" preset="card" :title="$gettext('NTP Server Configuration')">
+  <n-modal v-model:show="showNtpModal" preset="card" :title="$gettext('System NTP Server Configuration')">
     <n-flex vertical>
-      <n-alert type="info" :show-icon="false">
+      <n-alert v-if="ntpServiceType === 'unknown'" type="warning">
+        {{ $gettext('Unable to detect NTP service. Please ensure chrony or systemd-timesyncd is installed.') }}
+      </n-alert>
+      <n-alert v-else type="info" :show-icon="false">
         {{
-          $gettext(
-            'Configure the default NTP servers for time synchronization. The system will automatically select the fastest available server.'
-          )
+          $gettext('Current NTP service: %{ service }. Changes will be applied to system configuration.', {
+            service: ntpServiceType === 'chrony' ? 'Chrony' : 'systemd-timesyncd'
+          })
         }}
       </n-alert>
       <n-list>

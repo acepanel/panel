@@ -257,15 +257,22 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 	Success(w, nil)
 }
 
-// GetNTPServers 获取 NTP 服务器配置
+// GetNTPServers 获取系统 NTP 服务器配置
 func (s *ToolboxSystemService) GetNTPServers(w http.ResponseWriter, r *http.Request) {
+	config, err := ntp.GetSystemNTPConfig()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get NTP configuration: %v", err))
+		return
+	}
+
 	Success(w, chix.M{
-		"servers":  ntp.GetDefaultServers(),
-		"builtins": ntp.GetBuiltinServers(),
+		"service_type": config.ServiceType,
+		"servers":      config.Servers,
+		"builtins":     ntp.GetBuiltinServers(),
 	})
 }
 
-// UpdateNTPServers 更新 NTP 服务器配置
+// UpdateNTPServers 更新系统 NTP 服务器配置
 func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxSystemNTPServers](r)
 	if err != nil {
@@ -273,7 +280,12 @@ func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	ntp.SetDefaultServers(req.Servers)
+	// 更新系统 NTP 配置
+	if err = ntp.SetSystemNTPServers(req.Servers); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to set NTP servers: %v", err))
+		return
+	}
+
 	Success(w, nil)
 }
 
