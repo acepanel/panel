@@ -411,14 +411,6 @@ const removeCustomConfig = (index: number) => {
     setting.value.custom_configs.splice(index, 1)
   }
 }
-
-// 当前编辑的自定义配置索引
-const currentCustomConfigIndex = ref<number | null>(null)
-
-// 设置当前编辑的配置
-const setCurrentCustomConfig = (index: number | null) => {
-  currentCustomConfigIndex.value = index
-}
 </script>
 
 <template>
