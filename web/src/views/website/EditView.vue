@@ -397,9 +397,10 @@ const addCustomConfig = () => {
   if (!setting.value.custom_configs) {
     setting.value.custom_configs = []
   }
-  const index = setting.value.custom_configs.length + 1
+  // 使用时间戳确保唯一的默认名称
+  const timestamp = Date.now().toString(36)
   setting.value.custom_configs.push({
-    name: `custom_${index}`,
+    name: `custom_${timestamp}`,
     scope: 'site',
     content: ''
   })

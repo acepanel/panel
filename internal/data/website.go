@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -1022,6 +1023,9 @@ func (r *websiteRepo) getCustomConfigs(configDir string) []types.WebsiteCustomCo
 	return configs
 }
 
+// customConfigNamePattern 配置名称验证正则
+var customConfigNamePattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+
 // saveCustomConfigs 保存网站自定义配置
 func (r *websiteRepo) saveCustomConfigs(configDir string, configs []request.WebsiteCustomConfig) error {
 	// 先清除旧的自定义配置文件
@@ -1034,6 +1038,11 @@ func (r *websiteRepo) saveCustomConfigs(configDir string, configs []request.Webs
 	sharedNum := customConfigStartNum
 
 	for _, cfg := range configs {
+		// 安全验证：确保配置名称只包含安全字符
+		if !customConfigNamePattern.MatchString(cfg.Name) {
+			return fmt.Errorf("invalid config name: %s", cfg.Name)
+		}
+
 		var num int
 		switch cfg.Scope {
 		case "site":
@@ -1043,11 +1052,11 @@ func (r *websiteRepo) saveCustomConfigs(configDir string, configs []request.Webs
 			num = sharedNum
 			sharedNum++
 		default:
-			continue
+			return fmt.Errorf("invalid config scope: %s", cfg.Scope)
 		}
 
 		if num > customConfigEndNum {
-			continue // 超出序号范围
+			return errors.New(r.t.Get("maximum number of custom configurations reached (limit: %d)", customConfigEndNum-customConfigStartNum+1))
 		}
 
 		fileName := fmt.Sprintf("%03d-%s.conf", num, cfg.Name)
