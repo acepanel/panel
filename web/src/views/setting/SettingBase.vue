@@ -57,7 +57,7 @@ const channels = [
   }
 ]
 
-// 不允许隐藏的菜单项（首页和设置页）
+// 不允许隐藏的菜单项（首页 home/home-index 和设置页 setting/setting-index）
 const forbiddenHiddenMenus = ['home', 'home-index', 'setting', 'setting-index']
 
 // 获取菜单选项
