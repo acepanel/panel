@@ -82,7 +82,8 @@ const getOption = (route: RouteType): TreeSelectOption => {
     menuItem.label = singleRoute.meta?.title
       ? translateTitle(singleRoute.meta.title)
       : singleRoute.name
-    menuItem.disabled = isSingleDisabled
+    // 父路由或子路由任一被禁止则禁用该菜单项
+    menuItem.disabled = isDisabled || isSingleDisabled
     const visibleItems = singleRoute.children
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
       : []
