@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-13 19:19\n"
+"PO-Revision-Date: 2026-01-14 15:32\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -334,7 +334,7 @@ msgstr "下載失敗：%v"
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
-#: internal/service/file.go:296
+#: internal/service/file.go:299
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
@@ -1422,7 +1422,7 @@ msgstr "備份檔案 %s 不存在"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:278
+#: internal/service/file.go:281
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -1443,6 +1443,10 @@ msgstr ""
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
+#: internal/service/file.go:653
+msgid "chunk hash mismatch"
+msgstr ""
+
 #: internal/http/middleware/must_login.go:81
 msgid "client ip changed, please login again"
 msgstr ""
@@ -1455,9 +1459,14 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
-#: internal/service/file.go:167
+#: internal/service/file.go:170
+#: internal/service/file.go:576
 msgid "create directory error: %v"
 msgstr "創建目錄錯誤：%v"
+
+#: internal/service/file.go:691
+msgid "create target file error: %v"
+msgstr ""
 
 #: internal/data/backup.go:294
 #: internal/data/backup.go:338
@@ -1684,7 +1693,7 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
 
-#: internal/service/file.go:324
+#: internal/service/file.go:327
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2041,7 +2050,7 @@ msgstr "寫入 Memcached 失敗： %v"
 msgid "failed to write webhook script: %v"
 msgstr ""
 
-#: internal/service/file.go:85
+#: internal/service/file.go:88
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
@@ -2052,6 +2061,10 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 #: internal/apps/fail2ban/app.go:184
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
+
+#: internal/service/file.go:630
+msgid "get upload file error: %v"
+msgstr ""
 
 #: internal/data/user.go:216
 #: internal/data/user.go:235
@@ -2155,9 +2168,13 @@ msgstr ""
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
-#: internal/service/file.go:175
+#: internal/service/file.go:178
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
+
+#: internal/service/file.go:636
+msgid "open upload file error: %v"
+msgstr ""
 
 #: internal/http/middleware/status.go:23
 msgid "panel is closed"
@@ -2177,6 +2194,10 @@ msgstr "面板運行錯誤，請檢查或聯繫技術支持"
 
 #: internal/service/toolbox_disk.go:119
 msgid "partition has no UUID"
+msgstr ""
+
+#: internal/service/file.go:623
+msgid "path, file_name and file_hash are required"
 msgstr ""
 
 #: internal/service/environment_php.go:436
@@ -2201,9 +2222,9 @@ msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
 #: internal/data/user.go:134
-#: internal/service/file.go:136
-#: internal/service/file.go:223
-#: internal/service/file.go:252
+#: internal/service/file.go:139
+#: internal/service/file.go:226
+#: internal/service/file.go:255
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -2231,6 +2252,18 @@ msgstr "protobuf 是一個用於序列化和反序列化數據的庫"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
+#: internal/service/file.go:708
+msgid "read chunk %d error: %v"
+msgstr ""
+
+#: internal/service/file.go:644
+msgid "read chunk data error: %v"
+msgstr ""
+
+#: internal/service/file.go:585
+msgid "read directory error: %v"
+msgstr ""
+
 #: internal/apps/fail2ban/app.go:109
 msgid "rule already exists"
 msgstr "規則已存在"
@@ -2242,6 +2275,10 @@ msgstr "找不到規則"
 #: internal/data/website.go:560
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
+
+#: internal/service/file.go:663
+msgid "save chunk error: %v"
+msgstr ""
 
 #: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
@@ -2284,11 +2321,13 @@ msgstr "從伺服器 %s 同步"
 msgid "target backup %s already exists"
 msgstr "目標備份 %s 已存在"
 
-#: internal/service/file.go:81
+#: internal/service/file.go:84
 msgid "target is a directory"
 msgstr "目標是一個目錄"
 
-#: internal/service/file.go:161
+#: internal/service/file.go:164
+#: internal/service/file.go:569
+#: internal/service/file.go:684
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -2379,7 +2418,7 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
-#: internal/service/file.go:157
+#: internal/service/file.go:160
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
@@ -2414,7 +2453,11 @@ msgstr "網站目錄不存在"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/service/file.go:180
+#: internal/service/file.go:714
+msgid "write chunk %d error: %v"
+msgstr ""
+
+#: internal/service/file.go:183
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
