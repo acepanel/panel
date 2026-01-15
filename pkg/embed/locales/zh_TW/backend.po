@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-14 15:32\n"
+"PO-Revision-Date: 2026-01-15 18:30\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -537,6 +537,12 @@ msgstr "獲取面板設置（僅在指導下使用）"
 msgid "Gettext is a library for handling multilingual support"
 msgstr "Gettext 是一個處理多語言支持的庫"
 
+#: internal/service/environment_go.go:35
+#: internal/service/environment_go.go:59
+#: internal/service/environment_go.go:79
+msgid "Go-%s is not installed"
+msgstr ""
+
 #: internal/service/cli.go:410
 msgid "HTTPS certificate generated"
 msgstr "HTTPS 憑證已生成"
@@ -616,7 +622,7 @@ msgstr "安裝應用 %s"
 msgid "Install application"
 msgstr "安裝應用程式"
 
-#: internal/data/environment.go:169
+#: internal/data/environment.go:197
 msgid "Install environment %s"
 msgstr ""
 
@@ -628,6 +634,10 @@ msgstr "備份目錄空間不足"
 #: internal/service/environment_php.go:521
 msgid "Intl is a library for handling internationalization and localization"
 msgstr "Intl 是一個處理國際化和本地化的庫"
+
+#: internal/service/environment_java.go:34
+msgid "Java-%s is not installed"
+msgstr ""
 
 #: internal/service/toolbox_log.go:391
 msgid "Journal logs"
@@ -736,11 +746,17 @@ msgstr "新用戶名不能為空"
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
+#: internal/service/environment_nodejs.go:35
+#: internal/service/environment_nodejs.go:58
+#: internal/service/environment_nodejs.go:78
+msgid "Node.js-%s is not installed"
+msgstr ""
+
 #: internal/service/cli.go:593
 msgid "Not supported"
 msgstr "不支援"
 
-#: internal/service/home.go:230
+#: internal/service/home.go:265
 msgid "Not used"
 msgstr "不使用"
 
@@ -931,6 +947,12 @@ msgstr ""
 
 #: internal/service/cli.go:196
 msgid "Public IPv6: %s://[%s]:%d%s"
+msgstr ""
+
+#: internal/service/environment_python.go:35
+#: internal/service/environment_python.go:58
+#: internal/service/environment_python.go:78
+msgid "Python-%s is not installed"
 msgstr ""
 
 #: internal/bootstrap/cli.go:35
@@ -1226,7 +1248,7 @@ msgstr "卸載應用 %s"
 msgid "Uninstall application"
 msgstr "卸載應用"
 
-#: internal/data/environment.go:171
+#: internal/data/environment.go:199
 msgid "Uninstall environment %s"
 msgstr ""
 
@@ -1250,7 +1272,7 @@ msgstr "更新應用 %s"
 msgid "Update application"
 msgstr "更新應用"
 
-#: internal/data/environment.go:173
+#: internal/data/environment.go:201
 msgid "Update environment %s"
 msgstr ""
 
@@ -1404,11 +1426,11 @@ msgstr "找不到應用"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
-#: internal/service/home.go:366
+#: internal/service/home.go:400
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 
-#: internal/service/home.go:332
+#: internal/service/home.go:366
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
@@ -1495,12 +1517,12 @@ msgstr "重複提交，請等待前一個任務結束"
 msgid "endpoint should not contain bucket"
 msgstr "端點不應包含 bucket"
 
-#: internal/data/environment.go:135
+#: internal/data/environment.go:163
 msgid "environment %s-%s already installed"
 msgstr ""
 
-#: internal/data/environment.go:142
-#: internal/data/environment.go:149
+#: internal/data/environment.go:170
+#: internal/data/environment.go:177
 msgid "environment %s-%s not installed"
 msgstr ""
 
@@ -1759,13 +1781,13 @@ msgstr "無法獲取 s3fs 列表：%v"
 msgid "failed to get system info: %v"
 msgstr "無法獲取系統信息：%v"
 
-#: internal/service/home.go:345
+#: internal/service/home.go:379
 msgid "failed to get the latest version download link"
 msgstr "無法獲取最新版本下載鏈接"
 
-#: internal/service/home.go:261
-#: internal/service/home.go:297
-#: internal/service/home.go:339
+#: internal/service/home.go:295
+#: internal/service/home.go:331
+#: internal/service/home.go:373
 msgid "failed to get the latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
@@ -1777,7 +1799,7 @@ msgstr "無法獲取模組 %s 的密鑰"
 msgid "failed to get the total number of websites: %v"
 msgstr "無法獲取網站總數：%v"
 
-#: internal/service/home.go:318
+#: internal/service/home.go:352
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
@@ -1839,10 +1861,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "無法解析 fail2ban 的 ignoreip"
 
-#: internal/service/home.go:267
-#: internal/service/home.go:272
-#: internal/service/home.go:303
-#: internal/service/home.go:308
+#: internal/service/home.go:301
+#: internal/service/home.go:306
+#: internal/service/home.go:337
+#: internal/service/home.go:342
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
@@ -2335,7 +2357,7 @@ msgstr "目標路徑 %s 已存在"
 msgid "template %s not found"
 msgstr ""
 
-#: internal/service/home.go:312
+#: internal/service/home.go:346
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
@@ -2360,12 +2382,12 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 msgid "token expired"
 msgstr "令牌已過期"
 
-#: internal/service/home.go:253
-#: internal/service/home.go:289
+#: internal/service/home.go:287
+#: internal/service/home.go:323
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/home.go:327
+#: internal/service/home.go:361
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
