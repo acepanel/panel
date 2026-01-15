@@ -263,7 +263,7 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get total banned list"))
 		return
 	}
-	bannedIp, err := shell.Execf(`fail2ban-client status %s | grep "Banned IP list" | awk -F ":" '{print $2}'`, req.Name)
+	bannedIp, err := shell.Execf(`fail2ban-client status %s | grep "Banned IP list" | sed 's/.*Banned IP list:[[:space:]]*//'`, req.Name)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get banned ip list"))
 		return
