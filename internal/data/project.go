@@ -216,6 +216,11 @@ func (r *projectRepo) parseProjectDetail(project *biz.Project) (*types.ProjectDe
 		detail.Uptime = info.Uptime
 	}
 
+	// 获取是否自启动
+	if enabled, err := systemctl.IsEnabled(project.Name); err == nil {
+		detail.Enabled = enabled
+	}
+
 	return detail, nil
 }
 

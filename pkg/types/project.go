@@ -39,6 +39,7 @@ type ProjectDetail struct {
 
 	// 运行状态
 	Status      string  `json:"status"`       // 运行状态
+	Enabled     bool    `json:"enabled"`      // 是否自启动
 	PID         int     `json:"pid"`          // 进程ID
 	Memory      int64   `json:"memory"`       // 内存使用（字节）
 	CPU         float64 `json:"cpu"`          // CPU使用率

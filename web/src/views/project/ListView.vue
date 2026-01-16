@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NButton, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
@@ -75,6 +75,18 @@ const columns: any = [
           }
         }
       )
+    }
+  },
+  {
+    title: $gettext('Autostart'),
+    key: 'enabled',
+    width: 100,
+    render(row: any) {
+      return h(NSwitch, {
+        size: 'small',
+        value: row.enabled,
+        onUpdateValue: (value: boolean) => handleToggleAutostart(row, value)
+      })
     }
   },
   {
@@ -179,6 +191,20 @@ const handleToggleStatus = (row: any) => {
     useRequest(systemctl.start(row.name)).onSuccess(() => {
       row.status = 'active'
       window.$message.success($gettext('Started successfully'))
+    })
+  }
+}
+
+const handleToggleAutostart = (row: any, enabled: boolean) => {
+  if (enabled) {
+    useRequest(systemctl.enable(row.name)).onSuccess(() => {
+      row.enabled = true
+      window.$message.success($gettext('Autostart enabled'))
+    })
+  } else {
+    useRequest(systemctl.disable(row.name)).onSuccess(() => {
+      row.enabled = false
+      window.$message.success($gettext('Autostart disabled'))
     })
   }
 }
