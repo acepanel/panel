@@ -22,7 +22,7 @@ require (
 	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.6
 	github.com/hashicorp/go-version v1.8.0
-	github.com/klauspost/compress v1.18.2
+	github.com/klauspost/compress v1.18.3
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.6-beta.3
