@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-15 18:40\n"
+"PO-Revision-Date: 2026-01-16 16:06\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1228,10 +1228,6 @@ msgstr "每秒事务"
 msgid "USAGE"
 msgstr "使用"
 
-#: internal/service/template.go:29
-msgid "Unable to get template list in offline mode"
-msgstr "无法在离线模式下获取模板列表"
-
 #: internal/service/app.go:206
 msgid "Unable to update app list cache in offline mode"
 msgstr "无法在离线模式下更新应用列表缓存"
@@ -1476,6 +1472,10 @@ msgstr "客户端 IP 已更改，请重新登录"
 #: internal/service/ws.go:100
 msgid "command is empty"
 msgstr "命令为空"
+
+#: internal/data/template.go:73
+msgid "compose %s already exists"
+msgstr "编排 %s 已存在"
 
 #: internal/data/backup.go:591
 msgid "could not find .sql backup file"
