@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-16 16:06\n"
+"PO-Revision-Date: 2026-01-16 17:25\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -59,7 +59,7 @@ msgstr "活动连接"
 msgid "Add database server"
 msgstr "添加数据库服务器"
 
-#: internal/route/cli.go:455
+#: internal/route/cli.go:454
 msgid "Add panel application mark (use only under guidance)"
 msgstr "添加面板应用标记（仅在指导下使用）"
 
@@ -67,7 +67,7 @@ msgstr "添加面板应用标记（仅在指导下使用）"
 msgid "Aliyun"
 msgstr "阿里云"
 
-#: internal/service/cli.go:909
+#: internal/service/cli.go:921
 msgid "Already initialized"
 msgstr "已经初始化过了"
 
@@ -75,27 +75,27 @@ msgstr "已经初始化过了"
 msgid "App %s %s"
 msgstr "应用 %s %s"
 
-#: internal/service/cli.go:758
+#: internal/service/cli.go:770
 msgid "App %s installed successfully"
 msgstr "应用 %s 安装成功"
 
-#: internal/service/cli.go:772
+#: internal/service/cli.go:784
 msgid "App %s uninstalled successfully"
 msgstr "应用 %s 卸载成功"
 
-#: internal/service/cli.go:786
+#: internal/service/cli.go:798
 msgid "App %s updated successfully"
 msgstr "应用 %s 更新成功"
 
-#: internal/service/cli.go:755
+#: internal/service/cli.go:767
 msgid "App install failed: %v"
 msgstr "应用安装失败：%v"
 
-#: internal/service/cli.go:769
+#: internal/service/cli.go:781
 msgid "App uninstall failed: %v"
 msgstr "应用卸载失败：%v"
 
-#: internal/service/cli.go:783
+#: internal/service/cli.go:795
 msgid "App update failed: %v"
 msgstr "应用更新失败：%v"
 
@@ -103,7 +103,7 @@ msgstr "应用更新失败：%v"
 msgid "Application Pool"
 msgstr "应用程序池"
 
-#: internal/route/cli.go:436
+#: internal/route/cli.go:435
 msgid "Application management"
 msgstr "应用管理"
 
@@ -224,11 +224,11 @@ msgstr "清理失败：%v"
 msgid "Clear backups"
 msgstr "清理备份"
 
-#: internal/route/cli.go:499
+#: internal/route/cli.go:498
 msgid "Clear panel task queue (use only under guidance)"
 msgstr "清理面板任务队列（仅在指导下使用）"
 
-#: internal/route/cli.go:404
+#: internal/route/cli.go:403
 msgid "Clear rotated logs"
 msgstr "清除切割日志"
 
@@ -252,7 +252,7 @@ msgstr "已连接客户端数"
 msgid "Create new website"
 msgstr "创建新网站"
 
-#: internal/service/cli.go:725
+#: internal/service/cli.go:728
 msgid "Currently only website log rotation is supported"
 msgstr "目前仅支持网站日志切割"
 
@@ -383,15 +383,15 @@ msgstr "修改密码失败：%v"
 msgid "Failed to change username: %v"
 msgstr "修改用户名失败：%v"
 
-#: internal/service/cli.go:846
+#: internal/service/cli.go:858
 msgid "Failed to clear tasks: %v"
 msgstr "清除任务失败：%v"
 
-#: internal/service/cli.go:821
+#: internal/service/cli.go:833
 msgid "Failed to delete app: %v"
 msgstr "删除应用失败：%v"
 
-#: internal/service/cli.go:900
+#: internal/service/cli.go:912
 msgid "Failed to delete setting: %v"
 msgstr "删除设置失败：%v"
 
@@ -412,7 +412,7 @@ msgstr "获取 ACME 帐户失败：%v"
 msgid "Failed to get a panel user: %v"
 msgstr "获取面板用户失败：%v"
 
-#: internal/service/cli.go:801
+#: internal/service/cli.go:813
 msgid "Failed to get app: %v"
 msgstr "获取应用失败：%v"
 
@@ -428,8 +428,8 @@ msgstr "获取最新版本失败：%v"
 msgid "Failed to get port"
 msgstr "获取端口失败"
 
-#: internal/service/cli.go:864
-#: internal/service/cli.go:881
+#: internal/service/cli.go:876
+#: internal/service/cli.go:893
 msgid "Failed to get setting: %v"
 msgstr "获取设置失败：%v"
 
@@ -455,11 +455,11 @@ msgstr "无法获取 ACME 证书，使用自签名证书"
 msgid "Failed to read input: %v"
 msgstr "读取输入失败： %v"
 
-#: internal/service/cli.go:808
+#: internal/service/cli.go:820
 msgid "Failed to save app: %v"
 msgstr "保存应用失败：%v"
 
-#: internal/service/cli.go:887
+#: internal/service/cli.go:899
 msgid "Failed to save setting: %v"
 msgstr "保存设置失败：%v"
 
@@ -529,7 +529,7 @@ msgstr "Gcore"
 msgid "Generate HTTPS certificate"
 msgstr "生成 HTTPS 证书"
 
-#: internal/route/cli.go:474
+#: internal/route/cli.go:473
 msgid "Get panel setting (use only under guidance)"
 msgstr "获取面板设置（仅在指导下使用）"
 
@@ -595,14 +595,14 @@ msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:946
-#: internal/service/cli.go:951
-#: internal/service/cli.go:956
-#: internal/service/cli.go:995
+#: internal/service/cli.go:1007
+#: internal/service/cli.go:958
+#: internal/service/cli.go:963
+#: internal/service/cli.go:968
 msgid "Initialization failed: %v"
 msgstr "初始化失败：%v"
 
-#: internal/route/cli.go:505
+#: internal/route/cli.go:504
 msgid "Initialize panel (use only under guidance)"
 msgstr "初始化面板（仅在指导下使用）"
 
@@ -618,7 +618,7 @@ msgstr "安装 PHP-%d %s 模块"
 msgid "Install app %s"
 msgstr "安装应用 %s"
 
-#: internal/route/cli.go:440
+#: internal/route/cli.go:439
 msgid "Install application"
 msgstr "安装应用"
 
@@ -764,7 +764,7 @@ msgstr "不使用"
 msgid "Number of backups to keep"
 msgstr "要保留的备份数量"
 
-#: internal/route/cli.go:422
+#: internal/route/cli.go:421
 msgid "Number of logs to keep"
 msgstr "要保留的日志数量"
 
@@ -846,14 +846,14 @@ msgstr "面板服务已启动"
 msgid "Panel service stopped"
 msgstr "面板服务已停止"
 
-#: internal/service/cli.go:751
-#: internal/service/cli.go:765
-#: internal/service/cli.go:779
-#: internal/service/cli.go:795
-#: internal/service/cli.go:817
-#: internal/service/cli.go:856
-#: internal/service/cli.go:875
-#: internal/service/cli.go:896
+#: internal/service/cli.go:763
+#: internal/service/cli.go:777
+#: internal/service/cli.go:791
+#: internal/service/cli.go:807
+#: internal/service/cli.go:829
+#: internal/service/cli.go:868
+#: internal/service/cli.go:887
+#: internal/service/cli.go:908
 msgid "Parameters cannot be empty"
 msgstr "参数不能为空"
 
@@ -896,10 +896,6 @@ msgstr "请输入两步验证代码： "
 #: internal/service/cli.go:377
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr "请先在设置中设置面板 IP 以生成 ACME 证书"
-
-#: internal/service/cli.go:729
-msgid "Please specify the log rotation path"
-msgstr "请指定日志切割路径"
 
 #: internal/service/toolbox_log.go:285
 msgid "Podman container logs: %d files"
@@ -983,7 +979,7 @@ msgstr "正在读取请求"
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一个处理文本的库"
 
-#: internal/route/cli.go:461
+#: internal/route/cli.go:460
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板应用标记（仅在指导下使用）"
 
@@ -991,7 +987,7 @@ msgstr "移除面板应用标记（仅在指导下使用）"
 msgid "Remove panel file failed: %v"
 msgstr "删除面板文件失败：%v"
 
-#: internal/route/cli.go:486
+#: internal/route/cli.go:485
 msgid "Remove panel setting (use only under guidance)"
 msgstr "移除面板设置（仅在指导下使用）"
 
@@ -1011,15 +1007,11 @@ msgstr "重启面板服务"
 msgid "Rollbacks per Second"
 msgstr "每秒回滚"
 
-#: internal/route/cli.go:428
+#: internal/route/cli.go:427
 msgid "Rotation directory (default path if not filled)"
 msgstr "切割目录（不填则使用默认路径）"
 
-#: internal/route/cli.go:416
-msgid "Rotation file"
-msgstr "切割文件"
-
-#: internal/route/cli.go:410
+#: internal/route/cli.go:409
 msgid "Rotation type"
 msgstr "切割类型"
 
@@ -1034,7 +1026,7 @@ msgstr "SSH2 是一个用于连接 SSH 服务器的库"
 #: internal/route/cli.go:307
 #: internal/route/cli.go:331
 #: internal/route/cli.go:343
-#: internal/route/cli.go:398
+#: internal/route/cli.go:397
 msgid "Save directory (default path if not filled)"
 msgstr "保存目录（不填则使用默认路径）"
 
@@ -1067,11 +1059,11 @@ msgstr "服务器类型"
 msgid "Server username"
 msgstr "服务器用户名"
 
-#: internal/route/cli.go:469
+#: internal/route/cli.go:468
 msgid "Setting management"
 msgstr "设置管理"
 
-#: internal/service/cli.go:862
+#: internal/service/cli.go:874
 msgid "Setting not exists"
 msgstr "设置不存在"
 
@@ -1120,7 +1112,7 @@ msgstr "Swow 是构建高性能异步并发服务器的 PHP 模块"
 msgid "Sync panel data"
 msgstr "同步面板数据"
 
-#: internal/route/cli.go:494
+#: internal/route/cli.go:493
 msgid "Sync system time"
 msgstr "同步系统时间"
 
@@ -1144,7 +1136,7 @@ msgstr "TCP 端口"
 msgid "Table Locks Waited"
 msgstr "锁表次数"
 
-#: internal/service/cli.go:849
+#: internal/service/cli.go:861
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
@@ -1164,7 +1156,7 @@ msgstr "腾讯云"
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "压缩文件包含的文件数量不为1，实际为 %d"
 
-#: internal/service/cli.go:837
+#: internal/service/cli.go:849
 msgid "Time synchronized successfully"
 msgstr "时间同步成功"
 
@@ -1240,7 +1232,7 @@ msgstr "卸载 PHP-%d %s 模块"
 msgid "Uninstall app %s"
 msgstr "卸载应用 %s"
 
-#: internal/route/cli.go:445
+#: internal/route/cli.go:444
 msgid "Uninstall application"
 msgstr "卸载应用"
 
@@ -1264,7 +1256,7 @@ msgstr "解压面板数据失败：%v"
 msgid "Update app %s"
 msgstr "更新应用 %s"
 
-#: internal/route/cli.go:450
+#: internal/route/cli.go:449
 msgid "Update application"
 msgstr "更新应用"
 
@@ -1347,6 +1339,7 @@ msgstr "网站管理"
 #: internal/route/cli.go:217
 #: internal/route/cli.go:301
 #: internal/route/cli.go:391
+#: internal/route/cli.go:415
 msgid "Website name"
 msgstr "网站名称"
 
@@ -1363,7 +1356,7 @@ msgstr "西部数码"
 msgid "Workers"
 msgstr "工作进程"
 
-#: internal/route/cli.go:480
+#: internal/route/cli.go:479
 msgid "Write panel setting (use only under guidance)"
 msgstr "写入面板设置（仅在指导下使用）"
 
@@ -2590,12 +2583,12 @@ msgid "|-Cleaning old version..."
 msgstr "|-清理旧版本……"
 
 #: internal/service/cli.go:688
-#: internal/service/cli.go:736
+#: internal/service/cli.go:745
 msgid "|-Cleaning target: %s"
 msgstr "|-清理目标：%s"
 
 #: internal/service/cli.go:687
-#: internal/service/cli.go:735
+#: internal/service/cli.go:744
 msgid "|-Cleaning type: %s"
 msgstr "|-清理类型：%s"
 
@@ -2624,7 +2617,7 @@ msgid "|-Fix completed"
 msgstr "|-修复完成"
 
 #: internal/service/cli.go:689
-#: internal/service/cli.go:737
+#: internal/service/cli.go:746
 msgid "|-Keep count: %d"
 msgstr "|-保留数量：%d"
 
@@ -2725,7 +2718,7 @@ msgstr "★ 开始备份 [%s]"
 msgid "★ Start cleaning [%s]"
 msgstr "★ 开始清理 [%s]"
 
-#: internal/service/cli.go:733
+#: internal/service/cli.go:742
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr "★ 开始清理切割日志 [%s]"
 
@@ -2740,11 +2733,11 @@ msgid "☆ Backup successful [%s]"
 msgstr "☆ 备份成功 [%s]"
 
 #: internal/service/cli.go:694
-#: internal/service/cli.go:742
+#: internal/service/cli.go:754
 msgid "☆ Cleaning successful [%s]"
 msgstr "☆ 清理成功 [%s]"
 
-#: internal/service/cli.go:718
+#: internal/service/cli.go:721
 msgid "☆ Rotation successful [%s]"
 msgstr "☆ 切割成功 [%s]"
 
