@@ -4,12 +4,41 @@ import { NButton, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { formatDateTime } from '@/utils'
 import UpdateServerModal from '@/views/database/UpdateServerModal.vue'
 
 const { $gettext } = useGettext()
 const updateModal = ref(false)
 const updateID = ref(0)
+
+// 终端弹窗
+const terminalModal = ref(false)
+const terminalTitle = ref('')
+const terminalCommand = ref('')
+
+// 打开数据库终端
+const openTerminal = (row: any) => {
+  if (row.type === 'mysql') {
+    // MySQL 使用 mysql 命令行
+    terminalTitle.value = `MySQL - ${row.name}`
+    terminalCommand.value = `mysql -u'${row.username}' -p'${row.password}' -h'${row.host}' -P'${row.port}'`
+  } else if (row.type === 'postgresql') {
+    // PostgreSQL 判断是否有密码
+    terminalTitle.value = `PostgreSQL - ${row.name}`
+    if (row.password) {
+      // 有密码时使用 PGPASSWORD 环境变量
+      terminalCommand.value = `PGPASSWORD='${row.password}' psql -U '${row.username}' -h '${row.host}' -p '${row.port}'`
+    } else {
+      // 无密码时切换到 postgres 用户
+      terminalCommand.value = `su - postgres -c 'psql'`
+    }
+  } else {
+    window.$message.error($gettext('Unsupported database type'))
+    return
+  }
+  terminalModal.value = true
+}
 
 const columns: any = [
   {
@@ -133,10 +162,21 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 300,
+    width: 350,
     hideInExcel: true,
     render(row: any) {
       return [
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'info',
+            onClick: () => openTerminal(row)
+          },
+          {
+            default: () => $gettext('Terminal')
+          }
+        ),
         h(
           NPopconfirm,
           {
@@ -158,7 +198,8 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'success'
+                  type: 'success',
+                  style: 'margin-left: 15px;'
                 },
                 {
                   default: () => $gettext('Sync')
@@ -278,6 +319,12 @@ onUnmounted(() => {
     }"
   />
   <update-server-modal v-model:id="updateID" v-model:show="updateModal" />
+  <!-- 终端弹窗 -->
+  <pty-terminal-modal
+    v-model:show="terminalModal"
+    :title="terminalTitle"
+    :command="terminalCommand"
+  />
 </template>
 
 <style scoped lang="scss"></style>
