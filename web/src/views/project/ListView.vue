@@ -84,6 +84,7 @@ const columns: any = [
     render(row: any) {
       return h(NSwitch, {
         size: 'small',
+        rubberBand: false,
         value: row.enabled,
         onUpdateValue: (value: boolean) => handleToggleAutostart(row, value)
       })
