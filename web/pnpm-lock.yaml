@@ -119,7 +119,7 @@ importers:
         version: 1.15.0
       '@tsconfig/node24':
         specifier: ^24.0.0
-        version: 24.0.3
+        version: 24.0.4
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -1037,8 +1037,8 @@ packages:
   '@rushstack/eslint-patch@1.15.0':
     resolution: {integrity: sha512-ojSshQPKwVvSMR8yT2L/QtUkV5SXi/IfDiJ4/8d6UbTPjiHVmxZzUAzGD8Tzks1b9+qQkZa0isUOvYObedITaw==}
 
-  '@tsconfig/node24@24.0.3':
-    resolution: {integrity: sha512-vcERKtKQKHgzt/vfS3Gjasd8SUI2a0WZXpgJURdJsMySpS5+ctgbPfuLj2z/W+w4lAfTWxoN4upKfu2WzIRYnw==}
+  '@tsconfig/node24@24.0.4':
+    resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -4444,7 +4444,7 @@ snapshots:
 
   '@rushstack/eslint-patch@1.15.0': {}
 
-  '@tsconfig/node24@24.0.3': {}
+  '@tsconfig/node24@24.0.4': {}
 
   '@types/estree@1.0.8': {}
 
