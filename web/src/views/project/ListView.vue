@@ -113,10 +113,10 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 300,
+    width: 420,
     hideInExcel: true,
     render(row: any) {
-      return [
+      const buttons = [
         h(
           NButton,
           {
@@ -125,7 +125,38 @@ const columns: any = [
             onClick: () => handleToggleStatus(row)
           },
           { default: () => (row.status === 'active' ? $gettext('Stop') : $gettext('Start')) }
-        ),
+        )
+      ]
+
+      // 仅为运行中的项目显示重启和重载按钮
+      if (row.status === 'active') {
+        buttons.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'warning',
+              secondary: true,
+              style: 'margin-left: 10px;',
+              onClick: () => handleRestart(row)
+            },
+            { default: () => $gettext('Restart') }
+          ),
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'info',
+              secondary: true,
+              style: 'margin-left: 10px;',
+              onClick: () => handleReload(row)
+            },
+            { default: () => $gettext('Reload') }
+          )
+        )
+      }
+
+      buttons.push(
         h(
           NButton,
           {
@@ -167,7 +198,9 @@ const columns: any = [
               )
           }
         )
-      ]
+      )
+
+      return buttons
     }
   }
 ]
@@ -194,6 +227,20 @@ const handleToggleStatus = (row: any) => {
       window.$message.success($gettext('Started successfully'))
     })
   }
+}
+
+const handleRestart = (row: any) => {
+  useRequest(systemctl.restart(row.name)).onSuccess(() => {
+    refresh()
+    window.$message.success($gettext('Restarted successfully'))
+  })
+}
+
+const handleReload = (row: any) => {
+  useRequest(systemctl.reload(row.name)).onSuccess(() => {
+    refresh()
+    window.$message.success($gettext('Reloaded successfully'))
+  })
 }
 
 const handleToggleAutostart = (row: any, enabled: boolean) => {
