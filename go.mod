@@ -58,7 +58,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.25.12
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
-	github.com/studio-b12/gowebdav v0.11.0
+	github.com/studio-b12/gowebdav v0.12.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.6.2
 	go.yaml.in/yaml/v4 v4.0.0-rc.3
