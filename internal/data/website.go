@@ -207,6 +207,11 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.Proxies = proxyVhost.Proxies()
 	}
 
+	// 重定向配置（所有网站类型都支持）
+	if redirectVhost, ok := vhost.(webservertypes.VhostRedirect); ok {
+		setting.Redirects = redirectVhost.Redirects()
+	}
+
 	// 自定义配置
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
 	setting.CustomConfigs = r.getCustomConfigs(configDir)
@@ -651,6 +656,13 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			return err
 		}
 		if err = proxyVhost.SetProxies(req.Proxies); err != nil {
+			return err
+		}
+	}
+
+	// 重定向配置（所有网站类型都支持）
+	if redirectVhost, ok := vhost.(webservertypes.VhostRedirect); ok {
+		if err = redirectVhost.SetRedirects(req.Redirects); err != nil {
 			return err
 		}
 	}

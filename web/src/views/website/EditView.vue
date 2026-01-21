@@ -48,6 +48,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     open_basedir: false,
     upstreams: [],
     proxies: [],
+    redirects: [],
     custom_configs: []
   }
 })
@@ -383,6 +384,49 @@ const updateTimeoutValue = (proxy: any, value: number) => {
 const updateTimeoutUnit = (proxy: any, unit: string) => {
   const parsed = parseDuration(proxy.resolver_timeout)
   proxy.resolver_timeout = buildDuration(parsed.value, unit)
+}
+
+// ========== 重定向相关 ==========
+// 重定向类型选项
+const redirectTypeOptions = [
+  { label: $gettext('URL Redirect'), value: 'url' },
+  { label: $gettext('Host Redirect'), value: 'host' },
+  { label: $gettext('404 Redirect'), value: '404' }
+]
+
+// 状态码选项
+const redirectStatusCodeOptions = [
+  { label: '301 - ' + $gettext('Moved Permanently'), value: 301 },
+  { label: '302 - ' + $gettext('Found'), value: 302 },
+  { label: '307 - ' + $gettext('Temporary Redirect'), value: 307 },
+  { label: '308 - ' + $gettext('Permanent Redirect'), value: 308 }
+]
+
+// 添加重定向规则
+const addRedirect = () => {
+  if (!setting.value.redirects) {
+    setting.value.redirects = []
+  }
+  setting.value.redirects.push({
+    type: 'url',
+    from: '/',
+    to: '/new',
+    keep_uri: true,
+    status_code: 308
+  })
+}
+
+// 删除重定向规则
+const removeRedirect = (index: number) => {
+  if (setting.value.redirects) {
+    setting.value.redirects.splice(index, 1)
+  }
+}
+
+// 获取重定向类型的标签
+const getRedirectTypeLabel = (type: string) => {
+  const option = redirectTypeOptions.find((opt) => opt.value === type)
+  return option ? option.label : type
 }
 
 // ========== 自定义配置相关 ==========
@@ -923,6 +967,96 @@ const removeCustomConfig = (index: number) => {
             </n-form-item>
           </n-form>
           <common-editor v-if="setting" v-model:value="setting.rewrite" height="60vh" />
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="redirects" :tab="$gettext('Redirects')">
+        <n-flex vertical>
+          <!-- 重定向卡片列表 -->
+          <draggable
+            v-model="setting.redirects"
+            item-key="from"
+            handle=".drag-handle"
+            :animation="200"
+            ghost-class="ghost-card"
+          >
+            <template #item="{ element: redirect, index }">
+              <n-card closable @close="removeRedirect(index)" style="margin-bottom: 16px">
+                <template #header>
+                  <n-flex align="center" :size="8">
+                    <!-- 拖拽手柄 -->
+                    <div class="drag-handle" cursor-grab>
+                      <the-icon icon="mdi:drag" :size="20" />
+                    </div>
+                    <span>{{ $gettext('Rule') }} #{{ index + 1 }}</span>
+                    <n-tag size="small" :type="redirect.type === '404' ? 'warning' : 'default'">
+                      {{ getRedirectTypeLabel(redirect.type) }}
+                    </n-tag>
+                    <template v-if="redirect.type !== '404'">
+                      <n-tag size="small">{{ redirect.from }}</n-tag>
+                      <the-icon icon="mdi:arrow-right-bold" :size="20" />
+                    </template>
+                    <n-tag size="small" type="success">{{ redirect.to }}</n-tag>
+                  </n-flex>
+                </template>
+                <n-form label-placement="left" label-width="140px">
+                  <n-grid :cols="24" :x-gap="16">
+                    <n-form-item-gi :span="12" :label="$gettext('Redirect Type')">
+                      <n-select v-model:value="redirect.type" :options="redirectTypeOptions" />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Status Code')">
+                      <n-select
+                        v-model:value="redirect.status_code"
+                        :options="redirectStatusCodeOptions"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi
+                      v-if="redirect.type !== '404'"
+                      :span="12"
+                      :label="$gettext('Source')"
+                    >
+                      <n-input
+                        v-model:value="redirect.from"
+                        :placeholder="
+                          redirect.type === 'url'
+                            ? $gettext('Source path, e.g., /old')
+                            : $gettext('Source host, e.g., example.com')
+                        "
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi
+                      :span="redirect.type === '404' ? 24 : 12"
+                      :label="$gettext('Target')"
+                    >
+                      <n-input
+                        v-model:value="redirect.to"
+                        :placeholder="
+                          redirect.type === 'url'
+                            ? $gettext('Target path, e.g., /new')
+                            : $gettext('Target URL, e.g., https://example.com')
+                        "
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Keep URI')">
+                      <n-switch v-model:value="redirect.keep_uri" />
+                      <n-text depth="3" class="ml-8">
+                        {{ $gettext('Keep the original request path and query parameters') }}
+                      </n-text>
+                    </n-form-item-gi>
+                  </n-grid>
+                </n-form>
+              </n-card>
+            </template>
+          </draggable>
+
+          <!-- 空状态 -->
+          <n-empty v-if="!setting.redirects || setting.redirects.length === 0">
+            {{ $gettext('No redirect rules configured') }}
+          </n-empty>
+
+          <!-- 添加按钮 -->
+          <n-button type="primary" dashed @click="addRedirect" mb-20>
+            {{ $gettext('Add Redirect Rule') }}
+          </n-button>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="custom_configs" :tab="$gettext('Custom Configs')">

@@ -29,3 +29,4 @@ coverage
 .eslintrc-auto-import.json
 types/components.d.ts
 types/auto-imports.d.ts
+settings/proxy-config.ts

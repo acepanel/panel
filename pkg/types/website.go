@@ -47,6 +47,9 @@ type WebsiteSetting struct {
 	Upstreams []types.Upstream `json:"upstreams"`
 	Proxies   []types.Proxy    `json:"proxies"`
 
+	// 重定向
+	Redirects []types.Redirect `json:"redirects"`
+
 	// 自定义配置
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
 }
