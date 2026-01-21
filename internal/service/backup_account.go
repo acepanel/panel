@@ -61,10 +61,6 @@ func (s *BackupAccountService) validateStorage(accountType string, info types.Ba
 		if err != nil {
 			return fmt.Errorf("S3 配置错误: %w", err)
 		}
-		// 验证连接：尝试列出根目录
-		if _, err = client.List(""); err != nil {
-			return fmt.Errorf("S3 连接失败: %w", err)
-		}
 	case biz.BackupAccountTypeSFTP:
 		client, err = storage.NewSFTP(storage.SFTPConfig{
 			Host:       info.Host,
@@ -77,13 +73,9 @@ func (s *BackupAccountService) validateStorage(accountType string, info types.Ba
 		if err != nil {
 			return fmt.Errorf("SFTP 配置错误: %w", err)
 		}
-		// 验证连接：尝试列出根目录
-		if _, err = client.List(""); err != nil {
-			return fmt.Errorf("SFTP 连接失败: %w", err)
-		}
 	case biz.BackupAccountTypeWebDav:
-		// WebDav 在 NewWebDav 中会自动验证连接
-		_, err = storage.NewWebDav(storage.WebDavConfig{
+		// WebDAV 在 NewWebDav 中会自动验证连接
+		client, err = storage.NewWebDav(storage.WebDavConfig{
 			URL:      info.URL,
 			Username: info.Username,
 			Password: info.Password,
@@ -92,6 +84,14 @@ func (s *BackupAccountService) validateStorage(accountType string, info types.Ba
 		if err != nil {
 			return fmt.Errorf("WebDAV 连接失败: %w", err)
 		}
+	default:
+		// 对于 local 类型或其他类型，不需要验证连接
+		return nil
+	}
+
+	// 验证连接：尝试列出根目录
+	if _, err = client.List(""); err != nil {
+		return fmt.Errorf("存储连接失败: %w", err)
 	}
 
 	return nil
