@@ -70,6 +70,10 @@ type WebsiteUpdate struct {
 	// 重定向
 	Redirects []types.Redirect `json:"redirects"`
 
+	// 高级设置
+	RateLimit *types.RateLimit  `json:"rate_limit"` // 限流限速配置
+	BasicAuth map[string]string `json:"basic_auth"` // 基本认证配置
+
 	// 自定义配置
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
 }

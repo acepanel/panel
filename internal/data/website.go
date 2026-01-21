@@ -212,6 +212,10 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.Redirects = redirectVhost.Redirects()
 	}
 
+	// 高级设置（限流限速、基本认证）
+	setting.RateLimit = vhost.RateLimit()
+	setting.BasicAuth = vhost.BasicAuth()
+
 	// 自定义配置
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
 	setting.CustomConfigs = r.getCustomConfigs(configDir)
@@ -663,6 +667,26 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 	// 重定向配置（所有网站类型都支持）
 	if redirectVhost, ok := vhost.(webservertypes.VhostRedirect); ok {
 		if err = redirectVhost.SetRedirects(req.Redirects); err != nil {
+			return err
+		}
+	}
+
+	// 高级设置（限流限速、基本认证）
+	if req.RateLimit != nil {
+		if err = vhost.SetRateLimit(req.RateLimit); err != nil {
+			return err
+		}
+	} else {
+		if err = vhost.ClearRateLimit(); err != nil {
+			return err
+		}
+	}
+	if req.BasicAuth != nil && len(req.BasicAuth) > 0 {
+		if err = vhost.SetBasicAuth(req.BasicAuth); err != nil {
+			return err
+		}
+	} else {
+		if err = vhost.ClearBasicAuth(); err != nil {
 			return err
 		}
 	}

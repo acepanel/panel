@@ -49,6 +49,8 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     upstreams: [],
     proxies: [],
     redirects: [],
+    rate_limit: null,
+    basic_auth: {},
     custom_configs: []
   }
 })
@@ -427,6 +429,39 @@ const removeRedirect = (index: number) => {
 const getRedirectTypeLabel = (type: string) => {
   const option = redirectTypeOptions.find((opt) => opt.value === type)
   return option ? option.label : type
+}
+
+// ========== 高级设置相关（限流限速、基本认证）==========
+// 限流限速是否启用
+const rateLimitEnabled = computed({
+  get: () => setting.value.rate_limit !== null,
+  set: (value: boolean) => {
+    if (value) {
+      setting.value.rate_limit = {
+        rate: '',
+        concurrent: 0,
+        zone: {}
+      }
+    } else {
+      setting.value.rate_limit = null
+    }
+  }
+})
+
+// 添加基本认证用户
+const addBasicAuthUser = () => {
+  if (!setting.value.basic_auth) {
+    setting.value.basic_auth = {}
+  }
+  const index = Object.keys(setting.value.basic_auth).length + 1
+  setting.value.basic_auth[`user${index}`] = ''
+}
+
+// 删除基本认证用户
+const removeBasicAuthUser = (username: string) => {
+  if (setting.value.basic_auth) {
+    delete setting.value.basic_auth[username]
+  }
 }
 
 // ========== 自定义配置相关 ==========
@@ -1057,6 +1092,91 @@ const removeCustomConfig = (index: number) => {
           <n-button type="primary" dashed @click="addRedirect" mb-20>
             {{ $gettext('Add Redirect Rule') }}
           </n-button>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
+        <n-flex vertical>
+          <!-- 限流限速设置 -->
+          <n-card :title="$gettext('Rate Limiting')" style="margin-bottom: 16px">
+            <n-form label-placement="left" label-width="140px">
+              <n-form-item :label="$gettext('Enable Rate Limiting')">
+                <n-switch v-model:value="rateLimitEnabled" />
+              </n-form-item>
+              <template v-if="rateLimitEnabled && setting.rate_limit">
+                <n-grid :cols="24" :x-gap="16">
+                  <n-form-item-gi :span="12" :label="$gettext('Rate Limit')">
+                    <n-input
+                      v-model:value="setting.rate_limit.rate"
+                      :placeholder="$gettext('e.g., 10r/s (10 requests per second)')"
+                    />
+                  </n-form-item-gi>
+                  <n-form-item-gi :span="12" :label="$gettext('Concurrent Connections')">
+                    <n-input-number
+                      v-model:value="setting.rate_limit.concurrent"
+                      :min="0"
+                      :max="10000"
+                      :placeholder="$gettext('Max concurrent connections, 0 for unlimited')"
+                      style="width: 100%"
+                    />
+                  </n-form-item-gi>
+                </n-grid>
+              </template>
+            </n-form>
+          </n-card>
+
+          <!-- 基本认证设置 -->
+          <n-card :title="$gettext('Basic Authentication')" style="margin-bottom: 16px">
+            <n-form label-placement="left" label-width="140px">
+              <n-form-item :label="$gettext('User Credentials')">
+                <n-flex vertical :size="8" style="width: 100%">
+                  <n-flex
+                    v-for="(password, username) in setting.basic_auth"
+                    :key="String(username)"
+                    :size="8"
+                    align="center"
+                  >
+                    <n-input
+                      :default-value="String(username)"
+                      :placeholder="$gettext('Username')"
+                      style="flex: 1"
+                      @change="
+                        (newUsername: string) => {
+                          const oldUsername = String(username)
+                          if (newUsername && newUsername !== oldUsername) {
+                            setting.basic_auth[newUsername] = setting.basic_auth[oldUsername]
+                            delete setting.basic_auth[oldUsername]
+                          }
+                        }
+                      "
+                    />
+                    <n-input
+                      :value="String(password)"
+                      type="password"
+                      show-password-on="click"
+                      :placeholder="$gettext('Password')"
+                      style="flex: 1"
+                      @update:value="(v: string) => (setting.basic_auth[String(username)] = v)"
+                    />
+                    <n-button
+                      type="error"
+                      secondary
+                      size="small"
+                      style="flex-shrink: 0"
+                      @click="removeBasicAuthUser(String(username))"
+                    >
+                      {{ $gettext('Remove') }}
+                    </n-button>
+                  </n-flex>
+                  <n-button dashed size="small" @click="addBasicAuthUser">
+                    {{ $gettext('Add User') }}
+                  </n-button>
+                </n-flex>
+              </n-form-item>
+            </n-form>
+            <n-alert v-if="Object.keys(setting.basic_auth || {}).length > 0" type="info">
+              {{ $gettext('Visitors will need to enter a username and password to access this website.') }}
+            </n-alert>
+          </n-card>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="custom_configs" :tab="$gettext('Custom Configs')">
