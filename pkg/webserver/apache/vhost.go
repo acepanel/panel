@@ -544,9 +544,9 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 	rateLimit := &types.RateLimit{}
 
 	// 获取速率限制值 (SetEnv rate-limit 512)
-	rateValue := v.vhost.GetDirectiveValue("SetEnv")
-	if rateValue != "" {
-		_, _ = fmt.Sscanf(rateValue, "%d", &rateLimit.Rate)
+	args := v.vhost.GetDirectiveValues("SetEnv")
+	if len(args) >= 2 && args[0] == "rate-limit" {
+		_, _ = fmt.Sscanf(args[1], "%d", &rateLimit.Rate)
 	}
 
 	return rateLimit
