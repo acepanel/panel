@@ -576,70 +576,84 @@ func (v *baseVhost) ClearSSL() error {
 }
 
 func (v *baseVhost) RateLimit() *types.RateLimit {
-	rate := ""
+	var perServer, perIP, rate int
+
+	// 解析 limit_rate 配置
 	directive, err := v.parser.FindOne("server.limit_rate")
 	if err == nil {
-		if len(v.parser.parameters2Slices(directive.GetParameters())) != 0 {
-			rate = directive.GetParameters()[0].GetValue()
+		params := v.parser.parameters2Slices(directive.GetParameters())
+		if len(params) > 0 {
+			// 解析 limit_rate 值，如 "512k" -> 512
+			rateStr := params[0]
+			rateStr = strings.TrimSuffix(rateStr, "k")
+			rateStr = strings.TrimSuffix(rateStr, "K")
+			_, _ = fmt.Sscanf(rateStr, "%d", &rate)
 		}
-	}
-	directives, _ := v.parser.Find("server.limit_conn")
-	var limitConn [][]string
-	for _, dir := range directives {
-		limitConn = append(limitConn, v.parser.parameters2Slices(dir.GetParameters()))
-	}
-
-	if rate == "" && len(limitConn) == 0 {
-		return nil
-	}
-
-	rateLimit := &types.RateLimit{
-		Rate: rate,
-		Zone: make(map[string]string),
 	}
 
 	// 解析 limit_conn 配置
-	for _, limit := range limitConn {
-		if len(limit) >= 2 {
-			// limit_conn zone connections
-			// 例如: limit_conn perip 10
-			rateLimit.Zone[limit[0]] = limit[1]
+	directives, _ := v.parser.Find("server.limit_conn")
+	for _, dir := range directives {
+		params := v.parser.parameters2Slices(dir.GetParameters())
+		if len(params) >= 2 {
+			var val int
+			_, _ = fmt.Sscanf(params[1], "%d", &val)
+			switch params[0] {
+			case "perserver":
+				perServer = val
+			case "perip":
+				perIP = val
+			}
 		}
 	}
 
-	return rateLimit
+	if perServer == 0 && perIP == 0 && rate == 0 {
+		return nil
+	}
+
+	return &types.RateLimit{
+		PerServer: perServer,
+		PerIP:     perIP,
+		Rate:      rate,
+	}
 }
 
 func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	var limitConns [][]string
-	for zone, connections := range limit.Zone {
-		limitConns = append(limitConns, []string{zone, connections})
-	}
-
-	// 设置限速
+	// 设置限速 limit_rate
 	_ = v.parser.Clear("server.limit_rate")
-	if err := v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "limit_rate",
-			Parameters: []config.Parameter{{Value: limit.Rate}},
-		},
-	}); err != nil {
-		return err
-	}
-
-	// 设置并发连接数限制
-	_ = v.parser.Clear("server.limit_conn")
-	var directives []*config.Directive
-	for _, lim := range limitConns {
-		if len(lim) >= 2 {
-			directives = append(directives, &config.Directive{
-				Name:       "limit_conn",
-				Parameters: v.parser.slices2Parameters(lim),
-			})
+	if limit.Rate > 0 {
+		if err := v.parser.Set("server", []*config.Directive{
+			{
+				Name:       "limit_rate",
+				Parameters: []config.Parameter{{Value: fmt.Sprintf("%dk", limit.Rate)}},
+			},
+		}); err != nil {
+			return err
 		}
 	}
 
-	return v.parser.Set("server", directives)
+	// 设置并发连接数限制 limit_conn
+	_ = v.parser.Clear("server.limit_conn")
+	var directives []*config.Directive
+	if limit.PerServer > 0 {
+		directives = append(directives, &config.Directive{
+			Name:       "limit_conn",
+			Parameters: []config.Parameter{{Value: "perserver"}, {Value: fmt.Sprintf("%d", limit.PerServer)}},
+		})
+	}
+	if limit.PerIP > 0 {
+		directives = append(directives, &config.Directive{
+			Name:       "limit_conn",
+			Parameters: []config.Parameter{{Value: "perip"}, {Value: fmt.Sprintf("%d", limit.PerIP)}},
+		})
+	}
+	if len(directives) > 0 {
+		if err := v.parser.Set("server", directives); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (v *baseVhost) ClearRateLimit() error {

@@ -541,24 +541,25 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 		return nil
 	}
 
-	rateLimit := &types.RateLimit{
-		Zone: make(map[string]string),
-	}
+	rateLimit := &types.RateLimit{}
 
-	// 获取速率限制值
+	// 获取速率限制值 (SetEnv rate-limit 512)
 	rateValue := v.vhost.GetDirectiveValue("SetEnv")
 	if rateValue != "" {
-		rateLimit.Rate = rateValue
+		_, _ = fmt.Sscanf(rateValue, "%d", &rateLimit.Rate)
 	}
 
 	return rateLimit
 }
 
 func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	// 设置 mod_ratelimit
-	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
-	if limit.Rate != "" {
-		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
+	// Apache mod_ratelimit 只支持流量限制，不支持并发连接限制
+	if limit.Rate > 0 {
+		v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
+		v.vhost.SetDirective("SetEnv", "rate-limit", fmt.Sprintf("%d", limit.Rate))
+	} else {
+		v.vhost.RemoveDirective("SetOutputFilter")
+		v.vhost.RemoveDirectives("SetEnv")
 	}
 
 	return nil

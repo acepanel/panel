@@ -438,9 +438,9 @@ const rateLimitEnabled = computed({
   set: (value: boolean) => {
     if (value) {
       setting.value.rate_limit = {
-        rate: '',
-        concurrent: 0,
-        zone: {}
+        per_server: 0,
+        per_ip: 0,
+        rate: 0
       }
     } else {
       setting.value.rate_limit = null
@@ -1103,23 +1103,39 @@ const removeCustomConfig = (index: number) => {
                 <n-switch v-model:value="rateLimitEnabled" />
               </n-form-item>
               <template v-if="rateLimitEnabled && setting.rate_limit">
-                <n-grid :cols="24" :x-gap="16">
-                  <n-form-item-gi :span="12" :label="$gettext('Rate Limit')">
-                    <n-input
-                      v-model:value="setting.rate_limit.rate"
-                      :placeholder="$gettext('e.g., 512k (512 kilobytes per second)')"
-                    />
-                  </n-form-item-gi>
-                  <n-form-item-gi :span="12" :label="$gettext('Concurrent Connections')">
-                    <n-input-number
-                      v-model:value="setting.rate_limit.concurrent"
-                      :min="0"
-                      :max="10000"
-                      :placeholder="$gettext('Max concurrent connections, 0 for unlimited')"
-                      style="width: 100%"
-                    />
-                  </n-form-item-gi>
-                </n-grid>
+                <n-form-item :label="$gettext('Concurrent Limit')">
+                  <n-input-number
+                    v-model:value="setting.rate_limit.per_server"
+                    :min="0"
+                    :max="100000"
+                    w-full
+                  />
+                  <template #feedback>
+                    {{ $gettext('Limit the maximum concurrent connections for this site') }}
+                  </template>
+                </n-form-item>
+                <n-form-item :label="$gettext('Per IP Limit')">
+                  <n-input-number
+                    v-model:value="setting.rate_limit.per_ip"
+                    :min="0"
+                    :max="10000"
+                    w-full
+                  />
+                  <template #feedback>
+                    {{ $gettext('Limit the maximum concurrent connections per IP') }}
+                  </template>
+                </n-form-item>
+                <n-form-item :label="$gettext('Rate Limit')">
+                  <n-input-number
+                    v-model:value="setting.rate_limit.rate"
+                    :min="0"
+                    :max="1000000"
+                    w-full
+                  />
+                  <template #feedback>
+                    {{ $gettext('Limit the rate of each request (unit: KB)') }}
+                  </template>
+                </n-form-item>
               </template>
             </n-form>
           </n-card>

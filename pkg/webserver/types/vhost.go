@@ -162,9 +162,9 @@ type SSLConfig struct {
 
 // RateLimit 限流限速配置
 type RateLimit struct {
-	Rate       string            `json:"rate"`       // 速率限制，如: "512k", "10r/s"
-	Concurrent int               `json:"concurrent"` // 并发连接数限制
-	Zone       map[string]string `json:"zone"`       // 条件配置，如: map["perip"] = "10"
+	PerServer int `json:"per_server"` // 站点最大并发数 (limit_conn perserver X)
+	PerIP     int `json:"per_ip"`     // 单 IP 最大并发数 (limit_conn perip X)
+	Rate      int `json:"rate"`       // 流量限制，单位 KB (limit_rate Xk)
 }
 
 // IncludeFile 包含文件配置

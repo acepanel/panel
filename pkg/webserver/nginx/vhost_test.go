@@ -249,16 +249,17 @@ func (s *VhostTestSuite) TestRateLimit() {
 	s.Nil(s.vhost.RateLimit())
 
 	limit := &types.RateLimit{
-		Rate: "512k",
-		Zone: map[string]string{
-			"perip": "10",
-		},
+		PerServer: 300,
+		PerIP:     25,
+		Rate:      512,
 	}
 	s.NoError(s.vhost.SetRateLimit(limit))
 
 	got := s.vhost.RateLimit()
 	s.NotNil(got)
-	s.Equal("512k", got.Rate)
+	s.Equal(300, got.PerServer)
+	s.Equal(25, got.PerIP)
+	s.Equal(512, got.Rate)
 
 	s.NoError(s.vhost.ClearRateLimit())
 	s.Nil(s.vhost.RateLimit())

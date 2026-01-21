@@ -237,12 +237,13 @@ func (s *VhostTestSuite) TestRateLimit() {
 	s.Nil(s.vhost.RateLimit())
 
 	limit := &types.RateLimit{
-		Rate: "512",
+		Rate: 512,
 	}
 	s.NoError(s.vhost.SetRateLimit(limit))
 
 	got := s.vhost.RateLimit()
 	s.NotNil(got)
+	s.Equal(512, got.Rate)
 
 	s.NoError(s.vhost.ClearRateLimit())
 	s.Nil(s.vhost.RateLimit())
