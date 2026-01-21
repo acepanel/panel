@@ -1,6 +1,7 @@
 package data
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -16,6 +17,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
@@ -214,7 +216,8 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 
 	// 高级设置（限流限速、基本认证）
 	setting.RateLimit = vhost.RateLimit()
-	setting.BasicAuth = vhost.BasicAuth()
+	// 读取基本认证用户列表（从 htpasswd 文件）
+	setting.BasicAuth = r.readBasicAuthUsers(website.Name)
 
 	// 自定义配置
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
@@ -681,11 +684,19 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			return err
 		}
 	}
+	// 基本认证：需要创建 htpasswd 文件
 	if req.BasicAuth != nil && len(req.BasicAuth) > 0 {
-		if err = vhost.SetBasicAuth(req.BasicAuth); err != nil {
+		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "config", "htpasswd")
+		if err = r.writeBasicAuthUsers(htpasswdPath, req.BasicAuth); err != nil {
+			return err
+		}
+		if err = vhost.SetBasicAuth(map[string]string{"user_file": htpasswdPath}); err != nil {
 			return err
 		}
 	} else {
+		// 清除基本认证配置和 htpasswd 文件
+		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "config", "htpasswd")
+		_ = io.Remove(htpasswdPath)
 		if err = vhost.ClearBasicAuth(); err != nil {
 			return err
 		}
@@ -1132,4 +1143,94 @@ func (r *websiteRepo) reloadWebServer() error {
 	}
 
 	return nil
+}
+
+// readBasicAuthUsers 读取 htpasswd 文件中的用户列表
+// 返回用户名到空密码的映射（出于安全考虑，不返回加密后的密码）
+func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
+	htpasswdPath := filepath.Join(app.Root, "sites", siteName, "config", "htpasswd")
+	if !io.Exists(htpasswdPath) {
+		return nil
+	}
+
+	file, err := os.Open(htpasswdPath)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	users := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// htpasswd 格式: username:encrypted_password
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			// 返回空密码，前端显示为占位符
+			users[parts[0]] = ""
+		}
+	}
+
+	if len(users) == 0 {
+		return nil
+	}
+	return users
+}
+
+// writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
+// 使用 bcrypt 加密密码，兼容 nginx 和 apache
+func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string) error {
+	// 读取现有用户密码（用于保留未修改的密码）
+	existingUsers := make(map[string]string)
+	if io.Exists(htpasswdPath) {
+		file, err := os.Open(htpasswdPath)
+		if err == nil {
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				line := strings.TrimSpace(scanner.Text())
+				if line == "" || strings.HasPrefix(line, "#") {
+					continue
+				}
+				parts := strings.SplitN(line, ":", 2)
+				if len(parts) == 2 {
+					existingUsers[parts[0]] = parts[1]
+				}
+			}
+			file.Close()
+		}
+	}
+
+	var lines []string
+	for username, password := range users {
+		if username == "" {
+			continue
+		}
+		var hashedPassword string
+		if password == "" {
+			// 密码为空，保留现有密码
+			if existing, ok := existingUsers[username]; ok {
+				hashedPassword = existing
+			} else {
+				// 新用户但没有密码，跳过
+				continue
+			}
+		} else {
+			// 新密码，使用 bcrypt 加密
+			hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+			if err != nil {
+				return fmt.Errorf("failed to hash password for user %s: %w", username, err)
+			}
+			hashedPassword = string(hash)
+		}
+		lines = append(lines, fmt.Sprintf("%s:%s", username, hashedPassword))
+	}
+
+	content := strings.Join(lines, "\n")
+	if content != "" {
+		content += "\n"
+	}
+	return io.Write(htpasswdPath, content, 0600)
 }
