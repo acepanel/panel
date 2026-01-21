@@ -91,7 +91,7 @@ func initWeb() (*app.Web, error) {
 	databaseUserService := service.NewDatabaseUserService(databaseUserRepo)
 	backupService := service.NewBackupService(locale, backupRepo)
 	backupAccountRepo := data.NewBackupAccountRepo(locale, db, logger)
-	backupAccountService := service.NewBackupAccountService(backupAccountRepo)
+	backupAccountService := service.NewBackupAccountService(locale, backupAccountRepo)
 	certService := service.NewCertService(locale, certRepo)
 	certDNSRepo := data.NewCertDNSRepo(db, logger)
 	certDNSService := service.NewCertDNSService(certDNSRepo)
