@@ -214,8 +214,9 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.Redirects = redirectVhost.Redirects()
 	}
 
-	// 高级设置（限流限速、基本认证）
+	// 高级设置（限流限速、真实 IP、基本认证）
 	setting.RateLimit = vhost.RateLimit()
+	setting.RealIP = vhost.RealIP()
 	// 读取基本认证用户列表（从 htpasswd 文件）
 	setting.BasicAuth = r.readBasicAuthUsers(website.Name)
 
@@ -674,13 +675,23 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 	}
 
-	// 高级设置（限流限速、基本认证）
+	// 高级设置（限流限速、真实 IP、基本认证）
 	if req.RateLimit != nil {
 		if err = vhost.SetRateLimit(req.RateLimit); err != nil {
 			return err
 		}
 	} else {
 		if err = vhost.ClearRateLimit(); err != nil {
+			return err
+		}
+	}
+	// 真实 IP 配置
+	if req.RealIP != nil {
+		if err = vhost.SetRealIP(req.RealIP); err != nil {
+			return err
+		}
+	} else {
+		if err = vhost.ClearRealIP(); err != nil {
 			return err
 		}
 	}

@@ -720,6 +720,100 @@ func (v *baseVhost) ClearBasicAuth() error {
 	return nil
 }
 
+func (v *baseVhost) RealIP() *types.RealIP {
+	// 解析 set_real_ip_from 配置
+	var from []string
+	directives, _ := v.parser.Find("server.set_real_ip_from")
+	for _, dir := range directives {
+		params := v.parser.parameters2Slices(dir.GetParameters())
+		if len(params) > 0 {
+			from = append(from, params[0])
+		}
+	}
+
+	// 解析 real_ip_header 配置
+	header := ""
+	directive, err := v.parser.FindOne("server.real_ip_header")
+	if err == nil {
+		params := v.parser.parameters2Slices(directive.GetParameters())
+		if len(params) > 0 {
+			header = params[0]
+		}
+	}
+
+	// 解析 real_ip_recursive 配置
+	recursive := false
+	recursiveDir, err := v.parser.FindOne("server.real_ip_recursive")
+	if err == nil {
+		params := v.parser.parameters2Slices(recursiveDir.GetParameters())
+		if len(params) > 0 && params[0] == "on" {
+			recursive = true
+		}
+	}
+
+	if len(from) == 0 && header == "" {
+		return nil
+	}
+
+	return &types.RealIP{
+		From:      from,
+		Header:    header,
+		Recursive: recursive,
+	}
+}
+
+func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
+	// 清除现有配置
+	_ = v.parser.Clear("server.set_real_ip_from")
+	_ = v.parser.Clear("server.real_ip_header")
+	_ = v.parser.Clear("server.real_ip_recursive")
+
+	if realIP == nil || (len(realIP.From) == 0 && realIP.Header == "") {
+		return nil
+	}
+
+	var directives []*config.Directive
+
+	// 添加 set_real_ip_from 配置
+	for _, ip := range realIP.From {
+		if ip != "" {
+			directives = append(directives, &config.Directive{
+				Name:       "set_real_ip_from",
+				Parameters: []config.Parameter{{Value: ip}},
+			})
+		}
+	}
+
+	// 添加 real_ip_header 配置
+	if realIP.Header != "" {
+		directives = append(directives, &config.Directive{
+			Name:       "real_ip_header",
+			Parameters: []config.Parameter{{Value: realIP.Header}},
+		})
+	}
+
+	// 添加 real_ip_recursive 配置
+	if realIP.Recursive {
+		directives = append(directives, &config.Directive{
+			Name:       "real_ip_recursive",
+			Parameters: []config.Parameter{{Value: "on"}},
+		})
+	}
+
+	if len(directives) > 0 {
+		return v.parser.Set("server", directives)
+	}
+
+	return nil
+}
+
+func (v *baseVhost) ClearRealIP() error {
+	_ = v.parser.Clear("server.set_real_ip_from")
+	_ = v.parser.Clear("server.real_ip_header")
+	_ = v.parser.Clear("server.real_ip_recursive")
+	return nil
+}
+
 func (v *baseVhost) Redirects() []types.Redirect {
 	siteDir := filepath.Join(v.configDir, "site")
 	redirects, _ := parseRedirectFiles(siteDir)

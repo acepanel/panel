@@ -50,6 +50,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     proxies: [],
     redirects: [],
     rate_limit: null,
+    real_ip: null,
     basic_auth: {},
     custom_configs: []
   }
@@ -431,7 +432,7 @@ const getRedirectTypeLabel = (type: string) => {
   return option ? option.label : type
 }
 
-// ========== 高级设置相关（限流限速、基本认证）==========
+// ========== 高级设置相关（限流限速、真实 IP、基本认证）==========
 // 限流限速是否启用
 const rateLimitEnabled = computed({
   get: () => setting.value.rate_limit !== null,
@@ -447,6 +448,32 @@ const rateLimitEnabled = computed({
     }
   }
 })
+
+// 真实 IP 是否启用
+const realIPEnabled = computed({
+  get: () => setting.value.real_ip !== null,
+  set: (value: boolean) => {
+    if (value) {
+      setting.value.real_ip = {
+        from: [],
+        header: 'X-Real-IP',
+        recursive: false
+      }
+    } else {
+      setting.value.real_ip = null
+    }
+  }
+})
+
+// 真实 IP Header 选项
+const realIPHeaderOptions = [
+  { label: 'X-Real-IP', value: 'X-Real-IP' },
+  { label: 'X-Forwarded-For', value: 'X-Forwarded-For' },
+  { label: 'CF-Connecting-IP', value: 'CF-Connecting-IP' },
+  { label: 'True-Client-IP', value: 'True-Client-IP' },
+  { label: 'Ali-Cdn-Real-Ip', value: 'Ali-Cdn-Real-Ip' },
+  { label: 'EO-Connecting-IP', value: 'EO-Connecting-IP' }
+]
 
 // 添加基本认证用户
 const addBasicAuthUser = () => {
@@ -584,7 +611,7 @@ const removeCustomConfig = (index: number) => {
             ghost-class="ghost-card"
           >
             <template #item="{ element: upstream, index }">
-              <n-card closable @close="removeUpstream(index)" style="margin-bottom: 16px">
+              <n-card closable @close="removeUpstream(index)" mb-16>
                 <template #header>
                   <n-flex align="center" :size="8">
                     <!-- 拖拽手柄 -->
@@ -627,7 +654,7 @@ const removeCustomConfig = (index: number) => {
                         v-model:value="upstream.keepalive"
                         :min="0"
                         :max="1000"
-                        style="width: 100%"
+                        w-full
                       />
                     </n-form-item-gi>
                     <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('DNS Resolver')">
@@ -646,7 +673,7 @@ const removeCustomConfig = (index: number) => {
                           :value="parseDuration(upstream.resolver_timeout).value"
                           :min="1"
                           :max="3600"
-                          style="flex: 1"
+                          flex-1
                           @update:value="
                             (v: number | null) => updateUpstreamTimeoutValue(upstream, v ?? 5)
                           "
@@ -661,7 +688,7 @@ const removeCustomConfig = (index: number) => {
                     </n-form-item-gi>
                   </n-grid>
                   <n-form-item :label="$gettext('Backend Servers')">
-                    <n-flex vertical :size="8" style="width: 100%">
+                    <n-flex vertical :size="8" w-full>
                       <n-flex
                         v-for="(options, address) in upstream.servers"
                         :key="String(address)"
@@ -671,7 +698,7 @@ const removeCustomConfig = (index: number) => {
                         <n-input
                           :default-value="String(address)"
                           :placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
-                          style="flex: 1"
+                          flex-1
                           @change="
                             (newAddr: string) => {
                               const oldAddr = String(address)
@@ -685,14 +712,14 @@ const removeCustomConfig = (index: number) => {
                         <n-input
                           :value="String(options)"
                           :placeholder="$gettext('Options, e.g., weight=5 backup')"
-                          style="flex: 1"
+                          flex-1
                           @update:value="(v: string) => (upstream.servers[String(address)] = v)"
                         />
                         <n-button
                           type="error"
                           secondary
                           size="small"
-                          style="flex-shrink: 0"
+                          flex-shrink-0
                           @click="delete upstream.servers[String(address)]"
                         >
                           {{ $gettext('Remove') }}
@@ -730,7 +757,7 @@ const removeCustomConfig = (index: number) => {
             ghost-class="ghost-card"
           >
             <template #item="{ element: proxy, index }">
-              <n-card closable @close="removeProxy(index)" style="margin-bottom: 16px">
+              <n-card closable @close="removeProxy(index)" mb-16>
                 <template #header>
                   <n-flex align="center" :size="8">
                     <!-- 拖拽手柄 -->
@@ -806,7 +833,7 @@ const removeCustomConfig = (index: number) => {
                           :value="parseDuration(proxy.resolver_timeout).value"
                           :min="1"
                           :max="3600"
-                          style="flex: 1"
+                          flex-1
                           @update:value="(v: number | null) => updateTimeoutValue(proxy, v ?? 5)"
                         />
                         <n-select
@@ -829,7 +856,7 @@ const removeCustomConfig = (index: number) => {
                       <n-input
                         :value="String(fromValue)"
                         :placeholder="$gettext('Original content')"
-                        style="flex: 1"
+                        flex-1
                         @blur="
                           (e: FocusEvent) => {
                             const newFrom = (e.target as HTMLInputElement).value
@@ -841,18 +868,18 @@ const removeCustomConfig = (index: number) => {
                           }
                         "
                       />
-                      <span style="flex-shrink: 0">=></span>
+                      <span flex-shrink-0>=></span>
                       <n-input
                         :value="String(toValue)"
                         :placeholder="$gettext('Replacement content')"
-                        style="flex: 1"
+                        flex-1
                         @update:value="(v: string) => (proxy.replaces[String(fromValue)] = v)"
                       />
                       <n-button
                         type="error"
                         secondary
                         size="small"
-                        style="flex-shrink: 0"
+                        flex-shrink-0
                         @click="delete proxy.replaces[String(fromValue)]"
                       >
                         {{ $gettext('Remove') }}
@@ -1015,7 +1042,7 @@ const removeCustomConfig = (index: number) => {
             ghost-class="ghost-card"
           >
             <template #item="{ element: redirect, index }">
-              <n-card closable @close="removeRedirect(index)" style="margin-bottom: 16px">
+              <n-card closable @close="removeRedirect(index)" mb-16>
                 <template #header>
                   <n-flex align="center" :size="8">
                     <!-- 拖拽手柄 -->
@@ -1097,7 +1124,7 @@ const removeCustomConfig = (index: number) => {
       <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
         <n-flex vertical>
           <!-- 限流限速设置 -->
-          <n-card :title="$gettext('Rate Limiting')" style="margin-bottom: 16px">
+          <n-card :title="$gettext('Rate Limiting')" mb-16>
             <n-form label-placement="left" label-width="140px">
               <n-form-item :label="$gettext('Enable Rate Limiting')">
                 <n-switch v-model:value="rateLimitEnabled" />
@@ -1140,11 +1167,51 @@ const removeCustomConfig = (index: number) => {
             </n-form>
           </n-card>
 
+          <!-- 真实 IP 设置 -->
+          <n-card :title="$gettext('Real IP')" mb-16>
+            <n-alert type="info" mb-16>
+              {{
+                $gettext(
+                  'Configure trusted proxy IPs (e.g., CDN or Frp) to identify real visitor IPs.'
+                )
+              }}
+            </n-alert>
+            <n-alert type="warning" mb-16>
+              {{
+                $gettext(
+                  'If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) or ::/0 (ipv6) [insecure].'
+                )
+              }}
+            </n-alert>
+            <n-form label-placement="left" label-width="140px">
+              <n-form-item :label="$gettext('Enable')">
+                <n-switch v-model:value="realIPEnabled" />
+              </n-form-item>
+              <template v-if="realIPEnabled && setting.real_ip">
+                <n-form-item :label="$gettext('IP Sources')">
+                  <n-dynamic-input
+                    v-model:value="setting.real_ip.from"
+                    :placeholder="$gettext('e.g., 127.0.0.1 or 10.0.0.0/8')"
+                  />
+                </n-form-item>
+                <n-form-item :label="$gettext('IP Header')">
+                  <n-select v-model:value="setting.real_ip.header" :options="realIPHeaderOptions" />
+                </n-form-item>
+                <n-form-item :label="$gettext('Recursive')">
+                  <n-switch v-model:value="setting.real_ip.recursive" />
+                  <template #feedback>
+                    {{ $gettext('Recursively search for real IP in X-Forwarded-For header') }}
+                  </template>
+                </n-form-item>
+              </template>
+            </n-form>
+          </n-card>
+
           <!-- 基本认证设置 -->
-          <n-card :title="$gettext('Basic Authentication')" style="margin-bottom: 16px">
+          <n-card :title="$gettext('Basic Authentication')" mb-16>
             <n-form label-placement="left" label-width="140px">
               <n-form-item :label="$gettext('User Credentials')">
-                <n-flex vertical :size="8" style="width: 100%">
+                <n-flex vertical :size="8" w-full>
                   <n-flex
                     v-for="(password, username) in setting.basic_auth"
                     :key="String(username)"
@@ -1154,7 +1221,7 @@ const removeCustomConfig = (index: number) => {
                     <n-input
                       :default-value="String(username)"
                       :placeholder="$gettext('Username')"
-                      style="flex: 1"
+                      flex-1
                       @change="
                         (newUsername: string) => {
                           const oldUsername = String(username)
@@ -1175,14 +1242,14 @@ const removeCustomConfig = (index: number) => {
                       type="password"
                       show-password-on="click"
                       :placeholder="$gettext('Password')"
-                      style="flex: 1"
+                      flex-1
                       @update:value="(v: string) => (setting.basic_auth[String(username)] = v)"
                     />
                     <n-button
                       type="error"
                       secondary
                       size="small"
-                      style="flex-shrink: 0"
+                      flex-shrink-0
                       @click="removeBasicAuthUser(String(username))"
                     >
                       {{ $gettext('Remove') }}
@@ -1215,7 +1282,7 @@ const removeCustomConfig = (index: number) => {
             ghost-class="ghost-card"
           >
             <template #item="{ element: config, index }">
-              <n-card closable @close="removeCustomConfig(index)" style="margin-bottom: 16px">
+              <n-card closable @close="removeCustomConfig(index)" mb-16>
                 <template #header>
                   <n-flex align="center" :size="8">
                     <!-- 拖拽手柄 -->

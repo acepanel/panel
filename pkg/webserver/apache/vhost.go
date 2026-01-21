@@ -607,6 +607,58 @@ func (v *baseVhost) ClearBasicAuth() error {
 	return nil
 }
 
+func (v *baseVhost) RealIP() *types.RealIP {
+	// Apache 使用 mod_remoteip
+	// RemoteIPHeader X-Forwarded-For
+	// RemoteIPTrustedProxy 127.0.0.1
+	header := v.vhost.GetDirectiveValue("RemoteIPHeader")
+	if header == "" {
+		return nil
+	}
+
+	var from []string
+	for _, dir := range v.vhost.GetDirectives("RemoteIPTrustedProxy") {
+		if len(dir.Args) > 0 {
+			from = append(from, dir.Args[0])
+		}
+	}
+
+	return &types.RealIP{
+		From:   from,
+		Header: header,
+	}
+}
+
+func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
+	// 清除现有配置
+	v.vhost.RemoveDirective("RemoteIPHeader")
+	v.vhost.RemoveDirectives("RemoteIPTrustedProxy")
+
+	if realIP == nil || (len(realIP.From) == 0 && realIP.Header == "") {
+		return nil
+	}
+
+	// 设置 RemoteIPHeader
+	if realIP.Header != "" {
+		v.vhost.SetDirective("RemoteIPHeader", realIP.Header)
+	}
+
+	// 设置 RemoteIPTrustedProxy
+	for _, ip := range realIP.From {
+		if ip != "" {
+			v.vhost.AddDirective("RemoteIPTrustedProxy", ip)
+		}
+	}
+
+	return nil
+}
+
+func (v *baseVhost) ClearRealIP() error {
+	v.vhost.RemoveDirective("RemoteIPHeader")
+	v.vhost.RemoveDirectives("RemoteIPTrustedProxy")
+	return nil
+}
+
 func (v *baseVhost) Redirects() []types.Redirect {
 	siteDir := filepath.Join(v.configDir, "site")
 	redirects, _ := parseRedirectFiles(siteDir)

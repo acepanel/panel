@@ -76,6 +76,13 @@ type Vhost interface {
 	// ClearBasicAuth 清除基本认证
 	ClearBasicAuth() error
 
+	// RealIP 取真实 IP 配置
+	RealIP() *RealIP
+	// SetRealIP 设置真实 IP 配置
+	SetRealIP(realIP *RealIP) error
+	// ClearRealIP 清除真实 IP 配置
+	ClearRealIP() error
+
 	// Config 取指定名称的配置内容
 	// type 可选值: "site", "shared"
 	Config(name string, typ string) string
@@ -165,6 +172,13 @@ type RateLimit struct {
 	PerServer int `json:"per_server"` // 站点最大并发数 (limit_conn perserver X)
 	PerIP     int `json:"per_ip"`     // 单 IP 最大并发数 (limit_conn perip X)
 	Rate      int `json:"rate"`       // 流量限制，单位 KB (limit_rate Xk)
+}
+
+// RealIP 真实 IP 配置
+type RealIP struct {
+	From      []string `json:"from"`      // 可信 IP 来源列表 (set_real_ip_from)
+	Header    string   `json:"header"`    // 真实 IP 头 (real_ip_header)，如: X-Real-IP, X-Forwarded-For
+	Recursive bool     `json:"recursive"` // 递归搜索 (real_ip_recursive)
 }
 
 // IncludeFile 包含文件配置
