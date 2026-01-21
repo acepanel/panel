@@ -696,7 +696,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 	}
 	// 基本认证创建 htpasswd 文件
-	if req.BasicAuth != nil && len(req.BasicAuth) > 0 {
+	if len(req.BasicAuth) > 0 {
 		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "config", "htpasswd")
 		if err = r.writeBasicAuthUsers(htpasswdPath, req.BasicAuth); err != nil {
 			return err
@@ -1167,7 +1167,7 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 	if err != nil {
 		return nil
 	}
-	defer file.Close()
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	users := make(map[string]string)
 	scanner := bufio.NewScanner(file)
@@ -1208,7 +1208,7 @@ func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]
 					existingUsers[parts[0]] = parts[1]
 				}
 			}
-			file.Close()
+			_ = file.Close()
 		}
 	}
 
