@@ -453,8 +453,15 @@ const addBasicAuthUser = () => {
   if (!setting.value.basic_auth) {
     setting.value.basic_auth = {}
   }
-  const index = Object.keys(setting.value.basic_auth).length + 1
-  setting.value.basic_auth[`user${index}`] = ''
+  // 使用时间戳确保用户名唯一
+  let index = Date.now()
+  let username = `user${index}`
+  // 确保用户名不重复
+  while (setting.value.basic_auth[username] !== undefined) {
+    index++
+    username = `user${index}`
+  }
+  setting.value.basic_auth[username] = ''
 }
 
 // 删除基本认证用户
@@ -1143,6 +1150,11 @@ const removeCustomConfig = (index: number) => {
                         (newUsername: string) => {
                           const oldUsername = String(username)
                           if (newUsername && newUsername !== oldUsername) {
+                            // 检查新用户名是否已存在
+                            if (setting.basic_auth[newUsername] !== undefined) {
+                              window.$message.error($gettext('Username already exists'))
+                              return
+                            }
                             setting.basic_auth[newUsername] = setting.basic_auth[oldUsername]
                             delete setting.basic_auth[oldUsername]
                           }
