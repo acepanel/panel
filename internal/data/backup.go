@@ -93,11 +93,11 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 	name := fmt.Sprintf("%s_%s", target, time.Now().Format("20060102150405"))
 	if app.IsCli {
 		fmt.Println(r.hr)
-		fmt.Println(fmt.Sprintf(r.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime))))
+		fmt.Println(r.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
 		fmt.Println(r.hr)
-		fmt.Println(fmt.Sprintf(r.t.Get("|-Backup type: %s", string(typ))))
-		fmt.Println(fmt.Sprintf(r.t.Get("|-Backup account: %s", backupAccount.Name)))
-		fmt.Println(fmt.Sprintf(r.t.Get("|-Backup target: %s", target)))
+		fmt.Println(r.t.Get("|-Backup type: %s", string(typ)))
+		fmt.Println(r.t.Get("|-Backup account: %s", backupAccount.Name))
+		fmt.Println(r.t.Get("|-Backup target: %s", target))
 	}
 
 	switch typ {
@@ -122,7 +122,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 			slog.String("target", target),
 		)
 		if app.IsCli {
-			fmt.Println(fmt.Sprintf(r.t.Get("☆ Backup failed: %v [%s]", err, time.Now().Format(time.DateTime))))
+			fmt.Println(r.t.Get("☆ Backup failed: %v [%s]", err, time.Now().Format(time.DateTime)))
 		}
 	} else {
 		r.log.Info("backup created",
@@ -132,7 +132,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 			slog.String("target", target),
 		)
 		if app.IsCli {
-			fmt.Println(fmt.Sprintf(r.t.Get("☆ Backup completed [%s]\n", time.Now().Format(time.DateTime))))
+			fmt.Println(r.t.Get("☆ Backup completed [%s]\n", time.Now().Format(time.DateTime)))
 		}
 	}
 
