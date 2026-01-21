@@ -453,15 +453,8 @@ const addBasicAuthUser = () => {
   if (!setting.value.basic_auth) {
     setting.value.basic_auth = {}
   }
-  // 使用时间戳确保用户名唯一
-  let index = Date.now()
-  let username = `user${index}`
-  // 确保用户名不重复
-  while (setting.value.basic_auth[username] !== undefined) {
-    index++
-    username = `user${index}`
-  }
-  setting.value.basic_auth[username] = ''
+  const index = Object.keys(setting.value.basic_auth).length + 1
+  setting.value.basic_auth[`user${index}`] = ''
 }
 
 // 删除基本认证用户
@@ -1114,7 +1107,7 @@ const removeCustomConfig = (index: number) => {
                   <n-form-item-gi :span="12" :label="$gettext('Rate Limit')">
                     <n-input
                       v-model:value="setting.rate_limit.rate"
-                      :placeholder="$gettext('e.g., 10r/s (10 requests per second)')"
+                      :placeholder="$gettext('e.g., 512k (512 kilobytes per second)')"
                     />
                   </n-form-item-gi>
                   <n-form-item-gi :span="12" :label="$gettext('Concurrent Connections')">
@@ -1186,7 +1179,11 @@ const removeCustomConfig = (index: number) => {
               </n-form-item>
             </n-form>
             <n-alert v-if="Object.keys(setting.basic_auth || {}).length > 0" type="info">
-              {{ $gettext('Visitors will need to enter a username and password to access this website.') }}
+              {{
+                $gettext(
+                  'Visitors will need to enter a username and password to access this website.'
+                )
+              }}
             </n-alert>
           </n-card>
         </n-flex>

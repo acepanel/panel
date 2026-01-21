@@ -78,11 +78,21 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	redirectMatchPattern := regexp.MustCompile(`RedirectMatch\s+(\d+)\s+(\S+)\s+(\S+)`)
 	if matches := redirectMatchPattern.FindStringSubmatch(contentStr); matches != nil {
 		statusCode, _ := strconv.Atoi(matches[1])
+		to := matches[3]
+		keepURI := strings.Contains(to, "$1")
+		if keepURI {
+			to = strings.TrimSuffix(to, "$1")
+		}
+		// 还原 from 为简单路径格式
+		from := matches[2]
+		from = strings.TrimPrefix(from, "^")
+		from = strings.TrimSuffix(from, "(.*)$")
+		from = strings.TrimSuffix(from, "$")
 		return &types.Redirect{
 			Type:       types.RedirectTypeURL,
-			From:       matches[2],
-			To:         matches[3],
-			KeepURI:    strings.Contains(matches[3], "$1"),
+			From:       from,
+			To:         to,
+			KeepURI:    keepURI,
 			StatusCode: statusCode,
 		}, nil
 	}
@@ -94,11 +104,16 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	if matches := hostRewritePattern.FindStringSubmatch(contentStr); matches != nil {
 		statusCode, _ := strconv.Atoi(matches[3])
 		host := strings.ReplaceAll(matches[1], `\.`, ".")
+		to := matches[2]
+		keepURI := strings.Contains(to, "$1")
+		if keepURI {
+			to = strings.TrimSuffix(to, "$1")
+		}
 		return &types.Redirect{
 			Type:       types.RedirectTypeHost,
 			From:       host,
-			To:         matches[2],
-			KeepURI:    strings.Contains(matches[2], "$1"),
+			To:         to,
+			KeepURI:    keepURI,
 			StatusCode: statusCode,
 		}, nil
 	}

@@ -209,7 +209,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.Proxies = proxyVhost.Proxies()
 	}
 
-	// 重定向配置（所有网站类型都支持）
+	// 重定向配置
 	if redirectVhost, ok := vhost.(webservertypes.VhostRedirect); ok {
 		setting.Redirects = redirectVhost.Redirects()
 	}
@@ -667,7 +667,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 	}
 
-	// 重定向配置（所有网站类型都支持）
+	// 重定向配置
 	if redirectVhost, ok := vhost.(webservertypes.VhostRedirect); ok {
 		if err = redirectVhost.SetRedirects(req.Redirects); err != nil {
 			return err
@@ -684,7 +684,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			return err
 		}
 	}
-	// 基本认证：需要创建 htpasswd 文件
+	// 基本认证创建 htpasswd 文件
 	if req.BasicAuth != nil && len(req.BasicAuth) > 0 {
 		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "config", "htpasswd")
 		if err = r.writeBasicAuthUsers(htpasswdPath, req.BasicAuth); err != nil {
@@ -1146,7 +1146,6 @@ func (r *websiteRepo) reloadWebServer() error {
 }
 
 // readBasicAuthUsers 读取 htpasswd 文件中的用户列表
-// 返回用户名到空密码的映射（出于安全考虑，不返回加密后的密码）
 func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 	htpasswdPath := filepath.Join(app.Root, "sites", siteName, "config", "htpasswd")
 	if !io.Exists(htpasswdPath) {
@@ -1181,9 +1180,8 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 }
 
 // writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
-// 使用 bcrypt 加密密码，兼容 nginx 和 apache
 func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string) error {
-	// 读取现有用户密码（用于保留未修改的密码）
+	// 读取现有用户密码
 	existingUsers := make(map[string]string)
 	if io.Exists(htpasswdPath) {
 		file, err := os.Open(htpasswdPath)

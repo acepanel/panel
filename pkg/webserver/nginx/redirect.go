@@ -66,11 +66,16 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	urlPattern := regexp.MustCompile(`location\s*=\s*(\S+)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
 	if matches := urlPattern.FindStringSubmatch(contentStr); matches != nil {
 		statusCode, _ := strconv.Atoi(matches[2])
+		to := strings.TrimSpace(matches[3])
+		keepURI := strings.Contains(to, "$request_uri")
+		if keepURI {
+			to = strings.TrimSuffix(to, "$request_uri")
+		}
 		return &types.Redirect{
 			Type:       types.RedirectTypeURL,
 			From:       matches[1],
-			To:         strings.TrimSpace(matches[3]),
-			KeepURI:    strings.Contains(matches[3], "$request_uri"),
+			To:         to,
+			KeepURI:    keepURI,
 			StatusCode: statusCode,
 		}, nil
 	}
@@ -79,11 +84,16 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	hostPattern := regexp.MustCompile(`if\s*\(\s*\$host\s*=\s*"?([^")\s]+)"?\s*\)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
 	if matches := hostPattern.FindStringSubmatch(contentStr); matches != nil {
 		statusCode, _ := strconv.Atoi(matches[2])
+		to := strings.TrimSpace(matches[3])
+		keepURI := strings.Contains(to, "$request_uri")
+		if keepURI {
+			to = strings.TrimSuffix(to, "$request_uri")
+		}
 		return &types.Redirect{
 			Type:       types.RedirectTypeHost,
 			From:       matches[1],
-			To:         strings.TrimSpace(matches[3]),
-			KeepURI:    strings.Contains(matches[3], "$request_uri"),
+			To:         to,
+			KeepURI:    keepURI,
 			StatusCode: statusCode,
 		}, nil
 	}
@@ -92,11 +102,16 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	errorPattern := regexp.MustCompile(`error_page\s+404\s*=\s*@redirect_404;[^@]*location\s+@redirect_404\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
 	if matches := errorPattern.FindStringSubmatch(contentStr); matches != nil {
 		statusCode, _ := strconv.Atoi(matches[1])
+		to := strings.TrimSpace(matches[2])
+		keepURI := strings.Contains(to, "$request_uri")
+		if keepURI {
+			to = strings.TrimSuffix(to, "$request_uri")
+		}
 		return &types.Redirect{
 			Type:       types.RedirectType404,
 			From:       "",
-			To:         strings.TrimSpace(matches[2]),
-			KeepURI:    strings.Contains(matches[2], "$request_uri"),
+			To:         to,
+			KeepURI:    keepURI,
 			StatusCode: statusCode,
 		}, nil
 	}
