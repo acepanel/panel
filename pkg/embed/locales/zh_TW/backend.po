@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-21 20:29\n"
+"PO-Revision-Date: 2026-01-22 10:26\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1439,7 +1439,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/data/website.go:516
+#: internal/data/website.go:528
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 數據庫服務器，請先添加"
 
@@ -1722,7 +1722,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
-#: internal/data/website.go:419
+#: internal/data/website.go:431
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
@@ -1830,8 +1830,8 @@ msgstr ""
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:585
-#: internal/data/website.go:845
+#: internal/data/website.go:597
+#: internal/data/website.go:902
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -1842,8 +1842,8 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:588
-#: internal/data/website.go:848
+#: internal/data/website.go:600
+#: internal/data/website.go:905
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -2135,7 +2135,7 @@ msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache �
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:993
+#: internal/data/website.go:1050
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2181,7 +2181,7 @@ msgstr "mysql 不支援資料庫註釋"
 msgid "name is required"
 msgstr ""
 
-#: internal/data/website.go:873
+#: internal/data/website.go:930
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
@@ -2289,7 +2289,7 @@ msgstr "規則已存在"
 msgid "rule not found"
 msgstr "找不到規則"
 
-#: internal/data/website.go:563
+#: internal/data/website.go:575
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
@@ -2438,11 +2438,11 @@ msgstr ""
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1095
+#: internal/data/website.go:1152
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1061
+#: internal/data/website.go:1118
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2476,11 +2476,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:684
+#: internal/data/website.go:741
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
-#: internal/data/website.go:570
+#: internal/data/website.go:582
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 

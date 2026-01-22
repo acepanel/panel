@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-21 20:34\n"
+"PO-Revision-Date: 2026-01-22 10:26\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1439,7 +1439,7 @@ msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/data/website.go:516
+#: internal/data/website.go:528
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -1722,7 +1722,7 @@ msgstr "获取文件系统类型失败：%v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:419
+#: internal/data/website.go:431
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -1830,8 +1830,8 @@ msgstr "无法挂载分区：%v"
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:585
-#: internal/data/website.go:845
+#: internal/data/website.go:597
+#: internal/data/website.go:902
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -1842,8 +1842,8 @@ msgstr "无法解析磁盘列表：%v"
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:588
-#: internal/data/website.go:848
+#: internal/data/website.go:600
+#: internal/data/website.go:905
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -2135,7 +2135,7 @@ msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache �
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:993
+#: internal/data/website.go:1050
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -2181,7 +2181,7 @@ msgstr "mysql 不支持数据库注释"
 msgid "name is required"
 msgstr "名称是必填项"
 
-#: internal/data/website.go:873
+#: internal/data/website.go:930
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -2289,7 +2289,7 @@ msgstr "规则已存在"
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/data/website.go:563
+#: internal/data/website.go:575
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -2438,11 +2438,11 @@ msgstr "不支持的文件系统类型：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1095
+#: internal/data/website.go:1152
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
-#: internal/data/website.go:1061
+#: internal/data/website.go:1118
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -2476,11 +2476,11 @@ msgstr "未找到 Web 钩子"
 msgid "webhook script not found"
 msgstr "未找到 Web 钩子脚本"
 
-#: internal/data/website.go:684
+#: internal/data/website.go:741
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
-#: internal/data/website.go:570
+#: internal/data/website.go:582
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
