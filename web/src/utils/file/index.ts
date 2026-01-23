@@ -286,6 +286,8 @@ const languageByPath = (path: string) => {
     case 'yaml':
     case 'yml': // yaml 扩展名
       return 'yaml'
+    case 'json':
+      return 'json'
     default:
       return 'plaintext'
   }
