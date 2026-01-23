@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-23 15:54\n"
+"PO-Revision-Date: 2026-01-23 17:42\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -35,7 +35,7 @@ msgstr "作者"
 msgid "Accepted Connections"
 msgstr "已接受連接"
 
-#: internal/service/home.go:60
+#: internal/service/home.go:61
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -748,7 +748,7 @@ msgstr ""
 msgid "Not supported"
 msgstr "不支援"
 
-#: internal/service/home.go:265
+#: internal/service/home.go:260
 msgid "Not used"
 msgstr "不使用"
 
@@ -1410,11 +1410,11 @@ msgstr "找不到應用"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
-#: internal/service/home.go:400
+#: internal/service/home.go:395
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 
-#: internal/service/home.go:366
+#: internal/service/home.go:361
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
@@ -1435,7 +1435,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/data/website.go:531
+#: internal/data/website.go:530
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 數據庫服務器，請先添加"
 
@@ -1588,7 +1588,7 @@ msgstr ""
 msgid "failed to delete stream upstream config: %v"
 msgstr ""
 
-#: internal/data/project.go:157
+#: internal/data/project.go:165
 msgid "failed to delete systemd config"
 msgstr ""
 
@@ -1617,7 +1617,7 @@ msgstr ""
 msgid "failed to generate SSH key: %v"
 msgstr ""
 
-#: internal/data/project.go:105
+#: internal/data/project.go:113
 msgid "failed to generate systemd config"
 msgstr ""
 
@@ -1714,11 +1714,11 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:76
+#: internal/service/home.go:77
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
-#: internal/data/website.go:434
+#: internal/data/website.go:433
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
@@ -1768,17 +1768,17 @@ msgstr "無法獲取 redis 狀態：%v"
 msgid "failed to get s3fs list: %v"
 msgstr "無法獲取 s3fs 列表：%v"
 
-#: internal/service/home.go:96
+#: internal/service/home.go:97
 msgid "failed to get system info: %v"
 msgstr "無法獲取系統信息：%v"
 
-#: internal/service/home.go:379
+#: internal/service/home.go:374
 msgid "failed to get the latest version download link"
 msgstr "無法獲取最新版本下載鏈接"
 
-#: internal/service/home.go:295
-#: internal/service/home.go:331
-#: internal/service/home.go:373
+#: internal/service/home.go:290
+#: internal/service/home.go:326
+#: internal/service/home.go:368
 msgid "failed to get the latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
@@ -1786,11 +1786,7 @@ msgstr "無法獲取最新版本：%v"
 msgid "failed to get the secret key for module %s"
 msgstr "無法獲取模組 %s 的密鑰"
 
-#: internal/service/home.go:171
-msgid "failed to get the total number of websites: %v"
-msgstr "無法獲取網站總數：%v"
-
-#: internal/service/home.go:352
+#: internal/service/home.go:347
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
@@ -1826,8 +1822,8 @@ msgstr ""
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:600
-#: internal/data/website.go:908
+#: internal/data/website.go:599
+#: internal/data/website.go:907
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -1838,12 +1834,12 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:603
-#: internal/data/website.go:911
+#: internal/data/website.go:602
+#: internal/data/website.go:910
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
-#: internal/data/project.go:197
+#: internal/data/project.go:205
 msgid "failed to parse systemd config"
 msgstr ""
 
@@ -1852,10 +1848,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "無法解析 fail2ban 的 ignoreip"
 
+#: internal/service/home.go:296
 #: internal/service/home.go:301
-#: internal/service/home.go:306
+#: internal/service/home.go:332
 #: internal/service/home.go:337
-#: internal/service/home.go:342
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
@@ -1938,7 +1934,7 @@ msgstr ""
 msgid "failed to remove volume group: %v"
 msgstr ""
 
-#: internal/data/project.go:131
+#: internal/data/project.go:139
 msgid "failed to rename systemd config"
 msgstr ""
 
@@ -2131,7 +2127,7 @@ msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache �
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1056
+#: internal/data/website.go:1055
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2177,7 +2173,7 @@ msgstr "mysql 不支援資料庫註釋"
 msgid "name is required"
 msgstr ""
 
-#: internal/data/website.go:936
+#: internal/data/website.go:935
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
@@ -2253,7 +2249,7 @@ msgstr ""
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
-#: internal/data/project.go:88
+#: internal/data/project.go:96
 msgid "project name already exists"
 msgstr ""
 
@@ -2285,7 +2281,7 @@ msgstr "規則已存在"
 msgid "rule not found"
 msgstr "找不到規則"
 
-#: internal/data/website.go:578
+#: internal/data/website.go:577
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
@@ -2360,7 +2356,7 @@ msgstr "目標路徑 %s 已存在"
 msgid "template %s not found"
 msgstr ""
 
-#: internal/service/home.go:346
+#: internal/service/home.go:341
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
@@ -2385,12 +2381,12 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 msgid "token expired"
 msgstr "令牌已過期"
 
-#: internal/service/home.go:287
-#: internal/service/home.go:323
+#: internal/service/home.go:282
+#: internal/service/home.go:318
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/home.go:361
+#: internal/service/home.go:356
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
@@ -2434,11 +2430,11 @@ msgstr ""
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1158
+#: internal/data/website.go:1157
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1124
+#: internal/data/website.go:1123
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2472,11 +2468,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:744
+#: internal/data/website.go:743
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
-#: internal/data/website.go:585
+#: internal/data/website.go:584
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 

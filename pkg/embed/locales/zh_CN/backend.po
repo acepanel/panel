@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-23 15:56\n"
+"PO-Revision-Date: 2026-01-23 17:42\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -35,7 +35,7 @@ msgstr "作者"
 msgid "Accepted Connections"
 msgstr "已接受连接"
 
-#: internal/service/home.go:60
+#: internal/service/home.go:61
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -748,7 +748,7 @@ msgstr "Node.js-%s 未安装"
 msgid "Not supported"
 msgstr "不支持"
 
-#: internal/service/home.go:265
+#: internal/service/home.go:260
 msgid "Not used"
 msgstr "不使用"
 
@@ -1410,11 +1410,11 @@ msgstr "应用未找到"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
-#: internal/service/home.go:400
+#: internal/service/home.go:395
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
-#: internal/service/home.go:366
+#: internal/service/home.go:361
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
@@ -1435,7 +1435,7 @@ msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/data/website.go:531
+#: internal/data/website.go:530
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -1588,7 +1588,7 @@ msgstr "删除 Stream 服务器配置失败：%v"
 msgid "failed to delete stream upstream config: %v"
 msgstr "删除 Stream 上游配置失败：%v"
 
-#: internal/data/project.go:157
+#: internal/data/project.go:165
 msgid "failed to delete systemd config"
 msgstr "删除 systemd 配置失败"
 
@@ -1617,7 +1617,7 @@ msgstr "格式化分区失败：%v"
 msgid "failed to generate SSH key: %v"
 msgstr "生成 SSH 密钥失败：%v"
 
-#: internal/data/project.go:105
+#: internal/data/project.go:113
 msgid "failed to generate systemd config"
 msgstr "生成 systemd 配置失败"
 
@@ -1714,11 +1714,11 @@ msgstr "获取文件系统信息失败"
 msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
-#: internal/service/home.go:76
+#: internal/service/home.go:77
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:434
+#: internal/data/website.go:433
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -1768,17 +1768,17 @@ msgstr "获取 redis 状态失败： %v"
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
-#: internal/service/home.go:96
+#: internal/service/home.go:97
 msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
-#: internal/service/home.go:379
+#: internal/service/home.go:374
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
-#: internal/service/home.go:295
-#: internal/service/home.go:331
-#: internal/service/home.go:373
+#: internal/service/home.go:290
+#: internal/service/home.go:326
+#: internal/service/home.go:368
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
@@ -1786,11 +1786,7 @@ msgstr "获取最新版本失败： %v"
 msgid "failed to get the secret key for module %s"
 msgstr "获取模块 %s 的密钥失败"
 
-#: internal/service/home.go:171
-msgid "failed to get the total number of websites: %v"
-msgstr "获取网站总数失败： %v"
-
-#: internal/service/home.go:352
+#: internal/service/home.go:347
 msgid "failed to get the update information: %v"
 msgstr "获取更新信息失败： %v"
 
@@ -1826,8 +1822,8 @@ msgstr "无法挂载分区：%v"
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:600
-#: internal/data/website.go:908
+#: internal/data/website.go:599
+#: internal/data/website.go:907
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -1838,12 +1834,12 @@ msgstr "无法解析磁盘列表：%v"
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:603
-#: internal/data/website.go:911
+#: internal/data/website.go:602
+#: internal/data/website.go:910
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
-#: internal/data/project.go:197
+#: internal/data/project.go:205
 msgid "failed to parse systemd config"
 msgstr "解析 systemd 配置失败"
 
@@ -1852,10 +1848,10 @@ msgstr "解析 systemd 配置失败"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "解析 fail2ban 的 ignoreip 失败"
 
+#: internal/service/home.go:296
 #: internal/service/home.go:301
-#: internal/service/home.go:306
+#: internal/service/home.go:332
 #: internal/service/home.go:337
-#: internal/service/home.go:342
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
@@ -1938,7 +1934,7 @@ msgstr "删除物理卷失败：%v"
 msgid "failed to remove volume group: %v"
 msgstr "删除卷组失败：%v"
 
-#: internal/data/project.go:131
+#: internal/data/project.go:139
 msgid "failed to rename systemd config"
 msgstr "重命名 systemd 配置失败"
 
@@ -2131,7 +2127,7 @@ msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache �
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1056
+#: internal/data/website.go:1055
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -2177,7 +2173,7 @@ msgstr "mysql 不支持数据库注释"
 msgid "name is required"
 msgstr "名称是必填项"
 
-#: internal/data/website.go:936
+#: internal/data/website.go:935
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -2253,7 +2249,7 @@ msgstr "请先设置公网 IP 地址"
 msgid "port is already in use"
 msgstr "端口已被占用"
 
-#: internal/data/project.go:88
+#: internal/data/project.go:96
 msgid "project name already exists"
 msgstr "项目名已存在"
 
@@ -2285,7 +2281,7 @@ msgstr "规则已存在"
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/data/website.go:578
+#: internal/data/website.go:577
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -2360,7 +2356,7 @@ msgstr "目标路径 %s 已存在"
 msgid "template %s not found"
 msgstr "模板 %s 未找到"
 
-#: internal/service/home.go:346
+#: internal/service/home.go:341
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
@@ -2385,12 +2381,12 @@ msgstr "此证书未与 ACME 帐户关联，无法签发"
 msgid "token expired"
 msgstr "令牌已过期"
 
-#: internal/service/home.go:287
-#: internal/service/home.go:323
+#: internal/service/home.go:282
+#: internal/service/home.go:318
 msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
-#: internal/service/home.go:361
+#: internal/service/home.go:356
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
@@ -2434,11 +2430,11 @@ msgstr "不支持的文件系统类型：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1158
+#: internal/data/website.go:1157
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
-#: internal/data/website.go:1124
+#: internal/data/website.go:1123
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -2472,11 +2468,11 @@ msgstr "未找到 Web 钩子"
 msgid "webhook script not found"
 msgstr "未找到 Web 钩子脚本"
 
-#: internal/data/website.go:744
+#: internal/data/website.go:743
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
-#: internal/data/website.go:585
+#: internal/data/website.go:584
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
