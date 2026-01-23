@@ -35,9 +35,6 @@ const languages = [
   'dockerfile'
 ]
 
-// 支持的编码列表
-const encodings = ['utf-8', 'gbk', 'gb2312', 'iso-8859-1', 'utf-16', 'utf-16le', 'utf-16be']
-
 // 缩进选项
 const indentOptions = computed(() => [
   { label: `${$gettext('Spaces')}: 2`, value: '2-spaces' },
@@ -56,13 +53,6 @@ const currentIndent = computed(() => {
 function handleLineEndingChange(value: 'LF' | 'CRLF') {
   if (editorStore.activeTab) {
     editorStore.updateLineEnding(editorStore.activeTab.path, value)
-  }
-}
-
-// 更新编码
-function handleEncodingChange(value: string) {
-  if (editorStore.activeTab) {
-    editorStore.updateEncoding(editorStore.activeTab.path, value)
   }
 }
 
@@ -118,18 +108,6 @@ function handleIndentChange(value: string) {
     <n-popselect :options="indentOptions" @update:value="handleIndentChange">
       <div class="status-item clickable">
         {{ currentIndent }}
-      </div>
-    </n-popselect>
-
-    <!-- 编码 -->
-    <n-popselect
-      :value="editorStore.activeTab.encoding"
-      :options="encodings.map((e) => ({ label: e.toUpperCase(), value: e }))"
-      @update:value="handleEncodingChange"
-      scrollable
-    >
-      <div class="status-item clickable">
-        {{ $gettext('Encoding') }}: {{ editorStore.activeTab.encoding }}
       </div>
     </n-popselect>
 

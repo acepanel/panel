@@ -9,7 +9,6 @@ export interface EditorTab {
   language: string // 语言类型
   modified: boolean // 是否已修改
   loading: boolean // 是否正在加载
-  encoding: string // 文件编码
   lineEnding: 'LF' | 'CRLF' // 行分隔符
   cursorLine: number // 光标行
   cursorColumn: number // 光标列
@@ -85,7 +84,7 @@ export const useEditorStore = defineStore('editor', {
 
   actions: {
     // 打开文件（添加标签页）
-    openFile(path: string, content: string = '', encoding: string = 'utf-8') {
+    openFile(path: string, content: string = '') {
       const existingTab = this.tabs.find((tab) => tab.path === path)
       if (existingTab) {
         // 文件已打开，切换到该标签页
@@ -105,7 +104,6 @@ export const useEditorStore = defineStore('editor', {
         language: languageByPath(path),
         modified: false,
         loading: false,
-        encoding,
         lineEnding,
         cursorLine: 1,
         cursorColumn: 1
@@ -205,14 +203,6 @@ export const useEditorStore = defineStore('editor', {
           // 如果切换回原始行分隔符且内容未变，取消修改标记
           tab.modified = false
         }
-      }
-    },
-
-    // 更新编码
-    updateEncoding(path: string, encoding: string) {
-      const tab = this.tabs.find((t) => t.path === path)
-      if (tab) {
-        tab.encoding = encoding
       }
     },
 

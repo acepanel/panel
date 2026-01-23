@@ -38,7 +38,7 @@ function loadFile(path: string) {
   }
 
   // 打开新文件
-  editorStore.openFile(path, '', 'utf-8')
+  editorStore.openFile(path, '')
   editorStore.setLoading(path, true)
 
   useRequest(file.content(encodeURIComponent(path)))

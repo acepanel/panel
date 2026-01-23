@@ -142,7 +142,7 @@ function handleSelect(keys: string[], option: (TreeOption | null)[]) {
       editorStore.switchTab(path)
     } else {
       // 加载文件内容
-      editorStore.openFile(path, '', 'utf-8')
+      editorStore.openFile(path, '')
       editorStore.setLoading(path, true)
       useRequest(file.content(encodeURIComponent(path)))
         .onSuccess(({ data }) => {
@@ -302,7 +302,7 @@ async function confirmInlineCreate() {
 
       // 如果是文件，自动打开
       if (!isDir) {
-        editorStore.openFile(createdPath, '', 'utf-8')
+        editorStore.openFile(createdPath, '')
       }
     })
     .onError(() => {
@@ -568,7 +568,7 @@ function confirmInlineRename() {
       const tab = editorStore.tabs.find((t) => t.path === oldPath)
       if (tab) {
         editorStore.closeTab(oldPath)
-        editorStore.openFile(newPath, tab.content, tab.encoding)
+        editorStore.openFile(newPath, tab.content)
         if (!tab.modified) {
           editorStore.markSaved(newPath)
         }
