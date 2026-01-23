@@ -42,15 +42,11 @@ const isDisabled = computed(() => countdownValue.value > 0)
 
 // 计算确认按钮文本
 const computedPositiveText = computed(() => {
-  const baseText = props.positiveText || $gettext('Confirm')
+  const text = props.positiveText || $gettext('Confirm')
   if (countdownValue.value > 0) {
-    // 将剩余秒数的展示格式纳入 $gettext，避免单位硬编码为英文
-    return $gettext('%{text} (%{seconds}s)', {
-      text: baseText,
-      seconds: countdownValue.value
-    })
+    return `${text} (${countdownValue.value}s)`
   }
-  return baseText
+  return text
 })
 
 // 计算取消按钮文本
