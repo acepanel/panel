@@ -283,6 +283,21 @@ watch(
   }
 )
 
+// 监听行分隔符变化（用户手动切换行分隔符时更新 Monaco）
+watch(
+  () => editorStore.activeTab?.lineEnding,
+  (newLineEnding) => {
+    if (!editorRef.value || !monacoRef.value || !newLineEnding) return
+    const model = editorRef.value.getModel()
+    if (model) {
+      const eol = newLineEnding === 'CRLF'
+        ? monacoRef.value.editor.EndOfLineSequence.CRLF
+        : monacoRef.value.editor.EndOfLineSequence.LF
+      model.setEOL(eol)
+    }
+  }
+)
+
 // 监听当前标签页内容变化（外部更新）
 watch(
   () => editorStore.activeTab?.content,

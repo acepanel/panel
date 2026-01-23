@@ -196,13 +196,15 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab && tab.lineEnding !== lineEnding) {
         tab.lineEnding = lineEnding
-        // 转换内容中的行分隔符
-        if (lineEnding === 'CRLF') {
-          tab.content = tab.content.replace(/(?<!\r)\n/g, '\r\n')
-        } else {
-          tab.content = tab.content.replace(/\r\n/g, '\n')
+        // 判断是否需要标记为修改（如果原始内容的行分隔符与新设置不同）
+        const originalHasCRLF = tab.originalContent.includes('\r\n')
+        const originalLineEnding = originalHasCRLF ? 'CRLF' : 'LF'
+        if (originalLineEnding !== lineEnding && !tab.modified) {
+          tab.modified = true
+        } else if (originalLineEnding === lineEnding && tab.content === tab.originalContent.replace(/\r\n/g, '\n')) {
+          // 如果切换回原始行分隔符且内容未变，取消修改标记
+          tab.modified = false
         }
-        tab.modified = tab.content !== tab.originalContent
       }
     },
 
