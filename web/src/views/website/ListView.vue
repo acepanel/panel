@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
+import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import { useFileStore } from '@/store'
 import { isNullOrUndef } from '@/utils'
 
@@ -139,7 +140,7 @@ const columns: any = [
           }
         ),
         h(
-          NPopconfirm,
+          DeleteConfirm,
           {
             showIcon: false,
             onPositiveClick: () => handleDelete(row.id)
@@ -283,7 +284,7 @@ onMounted(() => {
       <n-button type="primary" @click="bulkCreateModal = true">
         {{ $gettext('Bulk Create Website') }}
       </n-button>
-      <n-popconfirm @positive-click="bulkDelete">
+      <delete-confirm @positive-click="bulkDelete">
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
@@ -294,7 +295,7 @@ onMounted(() => {
             'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?'
           )
         }}
-      </n-popconfirm>
+      </delete-confirm>
     </n-flex>
     <n-data-table
       striped

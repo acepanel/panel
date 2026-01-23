@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import copy2clipboard from '@vavt/copy2clipboard'
-import { NButton, NFlex, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import { formatDateTime } from '@/utils'
 import UpdateUserModal from '@/views/database/UpdateUserModal.vue'
 
@@ -169,7 +170,7 @@ const columns: any = [
           }
         ),
         h(
-          NPopconfirm,
+          DeleteConfirm,
           {
             onPositiveClick: () => handleDelete(row.id)
           },

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
+import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import RealtimeLog from '@/components/common/RealtimeLog.vue'
 import { useFileStore } from '@/store'
 
@@ -178,7 +179,7 @@ const columns: any = [
           { default: () => $gettext('Edit') }
         ),
         h(
-          NPopconfirm,
+          DeleteConfirm,
           {
             showIcon: false,
             onPositiveClick: () => handleDelete(row.id)
@@ -299,14 +300,14 @@ watch(type, () => {
       <n-button type="primary" @click="createModal = true">
         {{ $gettext('Create Project') }}
       </n-button>
-      <n-popconfirm @positive-click="bulkDelete">
+      <delete-confirm @positive-click="bulkDelete">
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
         {{ $gettext('Are you sure you want to delete the selected projects?') }}
-      </n-popconfirm>
+      </delete-confirm>
     </n-flex>
     <n-data-table
       striped

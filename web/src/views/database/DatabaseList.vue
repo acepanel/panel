@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NInput, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 
 const { $gettext } = useGettext()
 
@@ -81,7 +82,7 @@ const columns: any = [
     render(row: any) {
       return [
         h(
-          NPopconfirm,
+          DeleteConfirm,
           {
             onPositiveClick: () => handleDelete(row.server_id, row.name)
           },
