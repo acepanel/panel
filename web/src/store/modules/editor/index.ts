@@ -47,7 +47,18 @@ const defaultSettings: EditorSettings = {
   insertSpaces: true,
   wordWrap: 'on',
   fontSize: 14,
-  minimap: true
+  minimap: true,
+  lineNumbers: 'on',
+  renderWhitespace: 'selection',
+  cursorBlinking: 'blink',
+  cursorStyle: 'line',
+  smoothScrolling: true,
+  mouseWheelZoom: true,
+  bracketPairColorization: true,
+  guides: true,
+  folding: true,
+  formatOnPaste: false,
+  formatOnType: false
 }
 
 export const useEditorStore = defineStore('editor', {
@@ -197,7 +208,6 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab && tab.lineEnding !== lineEnding) {
         tab.lineEnding = lineEnding
-        // modified 状态由 updateContent 统一管理，这里不再重复处理
       }
     },
 

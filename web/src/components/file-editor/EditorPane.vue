@@ -290,17 +290,11 @@ watch(
     if (!editorRef.value || !monacoRef.value || !newLineEnding) return
     const model = editorRef.value.getModel()
     if (model) {
-      // 计算目标行分隔符
-      const eol = newLineEnding === 'CRLF'
-        ? monacoRef.value.editor.EndOfLineSequence.CRLF
-        : monacoRef.value.editor.EndOfLineSequence.LF
-      // 将目标行分隔符枚举转换为实际字符串，用于与当前 EOL 比较
-      const targetEolString = eol === monacoRef.value.editor.EndOfLineSequence.CRLF ? '\r\n' : '\n'
-      const currentEol = model.getEOL()
-      // 仅在当前 EOL 与目标 EOL 不一致时才调用 setEOL，避免不必要的内容变更事件
-      if (currentEol !== targetEolString) {
-        model.setEOL(eol)
-      }
+      const eol =
+        newLineEnding === 'CRLF'
+          ? monacoRef.value.editor.EndOfLineSequence.CRLF
+          : monacoRef.value.editor.EndOfLineSequence.LF
+      model.setEOL(eol)
     }
   }
 )
