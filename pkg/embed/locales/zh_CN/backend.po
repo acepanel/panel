@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-24 16:31\n"
+"PO-Revision-Date: 2026-01-24 19:13\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -63,7 +63,7 @@ msgstr "添加数据库服务器"
 msgid "Add panel application mark (use only under guidance)"
 msgstr "添加面板应用标记（仅在指导下使用）"
 
-#: internal/service/cert.go:60
+#: internal/service/cert.go:64
 msgid "Aliyun"
 msgstr "阿里云"
 
@@ -159,7 +159,7 @@ msgstr "已发送字节"
 
 #: internal/apps/apache/app.go:151
 msgid "Bytes/sec"
-msgstr "字节每秒"
+msgstr "每秒字节"
 
 #: internal/service/environment_php.go:461
 msgid "Bzip2 is a library for compressing and decompressing files"
@@ -228,11 +228,11 @@ msgstr "清理面板任务队列（仅在指导下使用）"
 msgid "Clear rotated logs"
 msgstr "清除切割日志"
 
-#: internal/service/cert.go:92
+#: internal/service/cert.go:96
 msgid "ClouDNS"
 msgstr "ClouDNS"
 
-#: internal/service/cert.go:76
+#: internal/service/cert.go:80
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
@@ -513,7 +513,7 @@ msgstr "全局选项"
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一个用于处理大整数的库"
 
-#: internal/service/cert.go:80
+#: internal/service/cert.go:84
 msgid "Gcore"
 msgstr "Gcore"
 
@@ -547,7 +547,7 @@ msgstr "HTTPS 已禁用"
 msgid "HTTPS enabled"
 msgstr "HTTPS 已启用"
 
-#: internal/service/cert.go:68
+#: internal/service/cert.go:72
 msgid "Huawei Cloud"
 msgstr "华为云"
 
@@ -722,7 +722,7 @@ msgstr "移动面板文件失败：%v"
 msgid "NAME"
 msgstr "名称"
 
-#: internal/service/cert.go:88
+#: internal/service/cert.go:92
 msgid "NameSilo"
 msgstr "NameSilo"
 
@@ -889,7 +889,7 @@ msgstr "请先在设置中设置面板 IP 以生成 ACME 证书"
 msgid "Podman container logs: %d files"
 msgstr "Podman 容器日志：%d 个文件"
 
-#: internal/service/cert.go:84
+#: internal/service/cert.go:88
 msgid "Porkbun"
 msgstr "Porkbun"
 
@@ -1139,7 +1139,7 @@ msgstr "创建临时表到磁盘"
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr "在 /tmp 中检测到临时文件，这可能是上次更新失败导致的，请运行 acepanel fix 进行修复并重试"
 
-#: internal/service/cert.go:64
+#: internal/service/cert.go:68
 msgid "Tencent Cloud"
 msgstr "腾讯云"
 
@@ -1338,7 +1338,7 @@ msgstr "网站名称"
 msgid "Website：https://acepanel.net"
 msgstr "网站：https://acepanel.net"
 
-#: internal/service/cert.go:72
+#: internal/service/cert.go:76
 msgid "West.cn"
 msgstr "西部数码"
 
@@ -1625,11 +1625,11 @@ msgstr "获取 %s 服务启用状态失败：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "获取 %s 服务运行状态失败：%v"
 
-#: internal/data/cert_account.go:219
+#: internal/data/cert_account.go:223
 msgid "failed to get Google EAB: %s"
 msgstr "获取 Google EAB 失败： %s"
 
-#: internal/data/cert_account.go:215
+#: internal/data/cert_account.go:219
 msgid "failed to get Google EAB: %v"
 msgstr "获取 Google EAB 失败： %v"
 
@@ -1669,11 +1669,11 @@ msgstr "获取 PostgreSQL 启动时间失败： %v"
 msgid "failed to get SWAP: %v"
 msgstr "获取 SWAP 失败： %v"
 
-#: internal/data/cert_account.go:244
+#: internal/data/cert_account.go:248
 msgid "failed to get ZeroSSL EAB"
 msgstr "获取 ZeroSSL EAB 失败"
 
-#: internal/data/cert_account.go:240
+#: internal/data/cert_account.go:244
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "获取 ZeroSSL EAB 失败： %v"
 
@@ -1746,11 +1746,11 @@ msgstr "获取端口失败： %v"
 msgid "failed to get postgres password: %v"
 msgstr "获取 postgres 密码失败： %v"
 
-#: internal/data/cert_account.go:113
+#: internal/data/cert_account.go:115
 msgid "failed to get private key"
 msgstr "获取私钥失败"
 
-#: internal/data/cert_account.go:175
+#: internal/data/cert_account.go:179
 msgid "failed to get private key: %v"
 msgstr "获取私钥失败： %v"
 
@@ -1892,8 +1892,8 @@ msgstr "读取参数失败：%v"
 msgid "failed to read sshd_config: %v"
 msgstr "读取 sshd_config 失败：%v"
 
-#: internal/data/cert_account.go:108
-#: internal/data/cert_account.go:170
+#: internal/data/cert_account.go:110
+#: internal/data/cert_account.go:174
 msgid "failed to register account: %v"
 msgstr "注册账户失败： %v"
 
@@ -2430,8 +2430,8 @@ msgstr "未知存储类型"
 msgid "unknown test type"
 msgstr "未知测试类型"
 
-#: internal/data/cert_account.go:104
-#: internal/data/cert_account.go:166
+#: internal/data/cert_account.go:106
+#: internal/data/cert_account.go:170
 msgid "unsupported CA"
 msgstr "不支持的 CA"
 
