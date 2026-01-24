@@ -42,7 +42,7 @@ require (
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.53.0-rc.2
 	github.com/moby/moby/client v0.2.1
-	github.com/ncruces/go-sqlite3 v0.30.4
+	github.com/ncruces/go-sqlite3 v0.30.5
 	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
