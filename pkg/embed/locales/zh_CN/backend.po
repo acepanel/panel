@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-23 21:57\n"
+"PO-Revision-Date: 2026-01-24 10:59\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -43,7 +43,7 @@ msgstr "AcePanel"
 msgid "AcePanel CLI Tool"
 msgstr "AcePanel 命令行工具"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:119
 msgid "Active Connections"
 msgstr "活动连接"
 
@@ -147,13 +147,13 @@ msgstr "绑定域名已禁用"
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/mysql/app.go:123
-#: internal/apps/mysql/app.go:142
+#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:137
 msgid "Bytes Received"
 msgstr "已接收字节"
 
-#: internal/apps/mysql/app.go:122
-#: internal/apps/mysql/app.go:142
+#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:137
 msgid "Bytes Sent"
 msgstr "已发送字节"
 
@@ -203,11 +203,11 @@ msgstr "更改用户名"
 msgid "Cleaning failed: %v"
 msgstr "清理失败：%v"
 
-#: internal/data/backup.go:772
+#: internal/data/backup.go:780
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理临时目录失败：%v"
 
-#: internal/data/backup.go:805
+#: internal/data/backup.go:813
 msgid "Cleaning temporary file failed: %v"
 msgstr "清理临时文件失败：%v"
 
@@ -321,12 +321,12 @@ msgstr "Docker 容器日志：%d 个文件"
 msgid "Download URL is empty"
 msgstr "下载 URL 为空"
 
-#: internal/data/backup.go:868
-#: internal/data/backup.go:871
+#: internal/data/backup.go:876
+#: internal/data/backup.go:879
 msgid "Download failed: %v"
 msgstr "下载失败：%v"
 
-#: internal/data/backup.go:874
+#: internal/data/backup.go:882
 msgid "Download file check failed"
 msgstr "下载文件检查失败"
 
@@ -485,7 +485,7 @@ msgstr "更新两步验证失败： %v"
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一个用于识别文件类型的库"
 
-#: internal/data/backup.go:723
+#: internal/data/backup.go:731
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "文件正常，无需修复，请运行 acepanel update 更新面板"
 
@@ -497,11 +497,11 @@ msgstr "修复面板"
 msgid "Forum：https://tom.moe"
 msgstr "论坛：https://tom.moe"
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:125
 msgid "Full Joins without Index"
 msgstr "没有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:126
 msgid "Full Range Joins without Index"
 msgstr "没有使用索引的范围 Join"
 
@@ -583,7 +583,7 @@ msgstr "Igbinary 是一个用于序列化和反序列化数据的库"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:121
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
@@ -598,7 +598,7 @@ msgstr "初始化失败：%v"
 msgid "Initialize panel (use only under guidance)"
 msgstr "初始化面板（仅在指导下使用）"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:122
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
@@ -708,17 +708,13 @@ msgstr "内存"
 msgid "Memory Fragmentation Ratio"
 msgstr "内存碎片比率"
 
-#: internal/data/backup.go:792
+#: internal/data/backup.go:800
 msgid "Move acepanel file failed: %v"
 msgstr "移动 acepanel 文件失败：%v"
 
-#: internal/data/backup.go:787
+#: internal/data/backup.go:795
 msgid "Move panel file failed: %v"
 msgstr "移动面板文件失败：%v"
-
-#: internal/apps/mysql/app.go:88
-msgid "MySQL root password is empty"
-msgstr "MySQL root 密码为空"
 
 #: internal/bootstrap/cli.go:14
 #: internal/bootstrap/cli.go:22
@@ -734,7 +730,7 @@ msgstr "NameSilo"
 msgid "New username cannot be empty"
 msgstr "新用户名不能为空"
 
-#: internal/data/backup.go:759
+#: internal/data/backup.go:767
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到备份文件，无法自动修复"
 
@@ -748,7 +744,7 @@ msgstr "Node.js-%s 未安装"
 msgid "Not supported"
 msgstr "不支持"
 
-#: internal/service/home.go:260
+#: internal/service/home.go:261
 msgid "Not used"
 msgstr "不使用"
 
@@ -773,7 +769,7 @@ msgstr "OPcache 将 PHP 脚本预编译的字节码存储到共享内存中来�
 msgid "Old username cannot be empty"
 msgstr "旧用户名不能为空"
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:124
 msgid "Open Tables"
 msgstr "已打开的表"
 
@@ -865,7 +861,7 @@ msgstr "密码：%s"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "网站托管的路径（不填则使用默认路径）"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:120
 msgid "Peak Connections"
 msgstr "峰值连接数"
 
@@ -913,7 +909,7 @@ msgstr "端口范围错误"
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/apps/postgresql/app.go:142
+#: internal/apps/postgresql/app.go:165
 msgid "Process Count"
 msgstr "进程数"
 
@@ -921,7 +917,7 @@ msgstr "进程数"
 msgid "Process Manager"
 msgstr "进程管理方式"
 
-#: internal/apps/postgresql/app.go:141
+#: internal/apps/postgresql/app.go:164
 msgid "Process PID"
 msgstr "进程 PID"
 
@@ -947,19 +943,19 @@ msgstr "Python-%s 未安装"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/apps/mysql/app.go:189
+#: internal/apps/mysql/app.go:184
 msgid "Query Cache Hit Rate"
 msgstr "查询缓存命中率"
 
-#: internal/apps/mysql/app.go:177
+#: internal/apps/mysql/app.go:172
 msgid "Query Cache Hits"
 msgstr "查询缓存命中次数"
 
-#: internal/apps/mysql/app.go:181
+#: internal/apps/mysql/app.go:176
 msgid "Query Cache Inserts"
 msgstr "查询缓存插入次数"
 
-#: internal/apps/mysql/app.go:185
+#: internal/apps/mysql/app.go:180
 msgid "Query Cache Not Cached"
 msgstr "查询缓存未缓存次数"
 
@@ -975,7 +971,7 @@ msgstr "Readline 是一个处理文本的库"
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板应用标记（仅在指导下使用）"
 
-#: internal/data/backup.go:784
+#: internal/data/backup.go:792
 msgid "Remove panel file failed: %v"
 msgstr "删除面板文件失败：%v"
 
@@ -995,7 +991,7 @@ msgstr "每秒请求"
 msgid "Restart panel service"
 msgstr "重启面板服务"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:116
 msgid "Rollbacks per Second"
 msgstr "每秒回滚"
 
@@ -1060,11 +1056,11 @@ msgstr "设置不存在"
 msgid "Slow Requests"
 msgstr "慢请求"
 
-#: internal/apps/mysql/app.go:133
+#: internal/apps/mysql/app.go:128
 msgid "Sort Merge Passes"
 msgstr "排序后的合并次数"
 
-#: internal/apps/postgresql/app.go:140
+#: internal/apps/postgresql/app.go:163
 #: internal/service/environment_php.go:180
 msgid "Start Time"
 msgstr "启动时间"
@@ -1083,11 +1079,11 @@ msgstr "停止面板服务"
 msgid "Storage ID (local storage if not filled)"
 msgstr "存储 ID（留空则为本地存储）"
 
-#: internal/apps/postgresql/app.go:144
+#: internal/apps/postgresql/app.go:167
 msgid "Storage Usage"
 msgstr "存储使用"
 
-#: internal/apps/mysql/app.go:132
+#: internal/apps/mysql/app.go:127
 msgid "Subqueries without Index"
 msgstr "没有索引的子查询"
 
@@ -1127,7 +1123,7 @@ msgstr "Sysvshm 是一个处理 V 共享内存的库"
 msgid "TCP Port"
 msgstr "TCP 端口"
 
-#: internal/apps/mysql/app.go:134
+#: internal/apps/mysql/app.go:129
 msgid "Table Locks Waited"
 msgstr "锁表次数"
 
@@ -1135,11 +1131,11 @@ msgstr "锁表次数"
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:123
 msgid "Temporary Tables Created on Disk"
 msgstr "创建临时表到磁盘"
 
-#: internal/data/backup.go:888
+#: internal/data/backup.go:896
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr "在 /tmp 中检测到临时文件，这可能是上次更新失败导致的，请运行 acepanel fix 进行修复并重试"
 
@@ -1147,7 +1143,7 @@ msgstr "在 /tmp 中检测到临时文件，这可能是上次更新失败导致
 msgid "Tencent Cloud"
 msgstr "腾讯云"
 
-#: internal/data/backup.go:691
+#: internal/data/backup.go:699
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "压缩文件包含的文件数量不为1，实际为 %d"
 
@@ -1167,8 +1163,8 @@ msgstr "已分配内存总量"
 msgid "Total Commands Processed"
 msgstr "执行的命令总数"
 
-#: internal/apps/mysql/app.go:119
-#: internal/apps/postgresql/app.go:143
+#: internal/apps/mysql/app.go:114
+#: internal/apps/postgresql/app.go:166
 msgid "Total Connections"
 msgstr "总连接数"
 
@@ -1184,7 +1180,7 @@ msgstr "内存使用总数"
 msgid "Total Processes"
 msgstr "总进程数"
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:113
 msgid "Total Queries"
 msgstr "查询总数"
 
@@ -1204,7 +1200,7 @@ msgstr "总握手数"
 msgid "Total requests"
 msgstr "总请求数"
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:115
 msgid "Transactions per Second"
 msgstr "每秒事务"
 
@@ -1239,11 +1235,11 @@ msgstr "卸载环境 %s"
 msgid "Unused container images: %d"
 msgstr "未使用的容器镜像： %d"
 
-#: internal/data/backup.go:775
+#: internal/data/backup.go:783
 msgid "Unzip backup file failed: %v"
 msgstr "解压备份文件失败：%v"
 
-#: internal/data/backup.go:802
+#: internal/data/backup.go:810
 msgid "Unzip panel data failed: %v"
 msgstr "解压面板数据失败：%v"
 
@@ -1263,7 +1259,7 @@ msgstr "更新环境 %s"
 msgid "Update panel"
 msgstr "更新面板"
 
-#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:112
 msgid "Uptime"
 msgstr "运行时间"
 
@@ -1297,7 +1293,7 @@ msgstr "用户名：%s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/data/backup.go:881
+#: internal/data/backup.go:889
 msgid "Verify download file failed: %v"
 msgstr "验证下载文件失败：%v"
 
@@ -1410,11 +1406,11 @@ msgstr "应用未找到"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
-#: internal/service/home.go:395
+#: internal/service/home.go:396
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
-#: internal/service/home.go:361
+#: internal/service/home.go:362
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
@@ -1468,7 +1464,7 @@ msgstr "命令为空"
 msgid "compose %s already exists"
 msgstr "编排 %s 已存在"
 
-#: internal/data/backup.go:699
+#: internal/data/backup.go:707
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 备份文件"
 
@@ -1482,9 +1478,9 @@ msgid "create target file error: %v"
 msgstr "创建目标文件错误：%v"
 
 #: internal/data/backup.go:486
-#: internal/data/backup.go:540
-#: internal/data/backup.go:619
-#: internal/data/backup.go:655
+#: internal/data/backup.go:544
+#: internal/data/backup.go:625
+#: internal/data/backup.go:661
 msgid "database does not exist: %s"
 msgstr "数据库不存在：%s"
 
@@ -1532,7 +1528,7 @@ msgstr "到期时间必须小于 10 年"
 msgid "failed to check ssh connection: %v"
 msgstr "检查 ssh 连接失败：%v"
 
-#: internal/data/backup.go:733
+#: internal/data/backup.go:741
 msgid "failed to clean temporary files: %v"
 msgstr "清理临时文件失败：%v"
 
@@ -1641,7 +1637,7 @@ msgstr "获取 Google EAB 失败： %v"
 msgid "failed to get Memcached status: %v"
 msgstr "获取 Memcached 状态失败： %v"
 
-#: internal/apps/mysql/app.go:104
+#: internal/apps/mysql/app.go:99
 msgid "failed to get MySQL status: %v"
 msgstr "获取 MySQL 状态失败： %v"
 
@@ -1649,23 +1645,23 @@ msgstr "获取 MySQL 状态失败： %v"
 msgid "failed to get NTP configuration: %v"
 msgstr "获取 NTP 配置失败：%v"
 
-#: internal/apps/postgresql/app.go:120
+#: internal/apps/postgresql/app.go:138
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "获取 PostgreSQL 后端 pid 失败： %v"
 
-#: internal/apps/postgresql/app.go:130
+#: internal/apps/postgresql/app.go:148
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "获取 PostgreSQL 连接数失败： %v"
 
-#: internal/apps/postgresql/app.go:135
+#: internal/apps/postgresql/app.go:153
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "获取 PostgreSQL 数据库大小失败： %v"
 
-#: internal/apps/postgresql/app.go:125
+#: internal/apps/postgresql/app.go:143
 msgid "failed to get PostgreSQL process: %v"
 msgstr "获取 PostgreSQL 进程数失败： %v"
 
-#: internal/apps/postgresql/app.go:115
+#: internal/apps/postgresql/app.go:133
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "获取 PostgreSQL 启动时间失败： %v"
 
@@ -1746,6 +1742,10 @@ msgstr "获取分区失败：%v"
 msgid "failed to get port: %v"
 msgstr "获取端口失败： %v"
 
+#: internal/apps/postgresql/app.go:192
+msgid "failed to get postgres password: %v"
+msgstr "获取 postgres 密码失败： %v"
+
 #: internal/data/cert_account.go:113
 msgid "failed to get private key"
 msgstr "获取私钥失败"
@@ -1772,13 +1772,13 @@ msgstr "获取 s3fs 列表失败： %v"
 msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
-#: internal/service/home.go:374
+#: internal/service/home.go:375
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
-#: internal/service/home.go:290
-#: internal/service/home.go:326
-#: internal/service/home.go:368
+#: internal/service/home.go:291
+#: internal/service/home.go:327
+#: internal/service/home.go:369
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
@@ -1786,7 +1786,7 @@ msgstr "获取最新版本失败： %v"
 msgid "failed to get the secret key for module %s"
 msgstr "获取模块 %s 的密钥失败"
 
-#: internal/service/home.go:347
+#: internal/service/home.go:348
 msgid "failed to get the update information: %v"
 msgstr "获取更新信息失败： %v"
 
@@ -1810,10 +1810,14 @@ msgstr "列出 Stream 服务器失败：%v"
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失败：%v"
 
-#: internal/apps/mysql/app.go:226
-#: internal/apps/mysql/app.go:83
+#: internal/apps/mysql/app.go:221
+#: internal/apps/mysql/app.go:89
 msgid "failed to load MySQL root password: %v"
 msgstr "加载 MySQL root 密码失败： %v"
+
+#: internal/apps/postgresql/app.go:122
+msgid "failed to load PostgreSQL postgres password: %v"
+msgstr "加载 PostgreSQL postgres 密码失败：%v"
 
 #: internal/service/toolbox_disk.go:105
 msgid "failed to mount partition: %v"
@@ -1848,10 +1852,10 @@ msgstr "解析 systemd 配置失败"
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "解析 fail2ban 的 ignoreip 失败"
 
-#: internal/service/home.go:296
-#: internal/service/home.go:301
-#: internal/service/home.go:332
-#: internal/service/home.go:337
+#: internal/service/home.go:297
+#: internal/service/home.go:302
+#: internal/service/home.go:333
+#: internal/service/home.go:338
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
@@ -1897,8 +1901,8 @@ msgstr "注册账户失败： %v"
 msgid "failed to reload %s service: %v"
 msgstr "重载 %s 服务失败： %v"
 
-#: internal/apps/postgresql/app.go:65
-#: internal/apps/postgresql/app.go:98
+#: internal/apps/postgresql/app.go:105
+#: internal/apps/postgresql/app.go:72
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重载 PostgreSQL 失败： %v"
 
@@ -1960,13 +1964,17 @@ msgstr "重启 MySQL 失败： %v"
 msgid "failed to run command: %v"
 msgstr "运行命令失败： %v"
 
-#: internal/apps/mysql/app.go:99
+#: internal/apps/mysql/app.go:94
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:285
 msgid "failed to set NTP servers: %v"
 msgstr "设置 NTP 服务器失败：%v"
+
+#: internal/apps/postgresql/app.go:127
+msgid "failed to set PGPASSWORD env: %v"
+msgstr "设置 PGPASSWORD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:149
 msgid "failed to set SWAP permission: %v"
@@ -1979,6 +1987,12 @@ msgstr "设置主机名失败： %v"
 #: internal/service/toolbox_system.go:335
 msgid "failed to set hosts: %v"
 msgstr "设置 hosts 失败： %v"
+
+#: internal/apps/postgresql/app.go:212
+#: internal/apps/postgresql/app.go:218
+#: internal/apps/postgresql/app.go:224
+msgid "failed to set postgres password: %v"
+msgstr "设置 postgres 密码失败： %v"
 
 #: internal/service/systemctl.go:122
 msgid "failed to start %s service: %v"
@@ -2000,9 +2014,13 @@ msgstr "卸载分区失败：%v"
 msgid "failed to unmount: %v"
 msgstr "卸载失败： %v"
 
-#: internal/apps/mysql/app.go:108
+#: internal/apps/mysql/app.go:103
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr "取消设置 MYSQL_PWD 环境变量失败：%v"
+
+#: internal/apps/postgresql/app.go:158
+msgid "failed to unset PGPASSWORD env: %v"
+msgstr "取消设置 PGPASSWORD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:58
 msgid "failed to update DNS: %v"
@@ -2356,7 +2374,7 @@ msgstr "目标路径 %s 已存在"
 msgid "template %s not found"
 msgstr "模板 %s 未找到"
 
-#: internal/service/home.go:341
+#: internal/service/home.go:342
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
@@ -2381,12 +2399,12 @@ msgstr "此证书未与 ACME 帐户关联，无法签发"
 msgid "token expired"
 msgstr "令牌已过期"
 
-#: internal/service/home.go:282
-#: internal/service/home.go:318
+#: internal/service/home.go:283
+#: internal/service/home.go:319
 msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
-#: internal/service/home.go:356
+#: internal/service/home.go:357
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
@@ -2513,27 +2531,27 @@ msgstr "yaml 是一个用于处理 YAML 的库"
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一个压缩和解压文件的库"
 
-#: internal/data/backup.go:764
+#: internal/data/backup.go:772
 msgid "|-Backup file used: %s"
 msgstr "|-使用的备份文件：%s"
 
 #: internal/data/backup.go:192
 #: internal/data/backup.go:468
 #: internal/data/backup.go:526
-#: internal/data/backup.go:578
+#: internal/data/backup.go:584
 msgid "|-Backup file: %s"
 msgstr "|-备份文件：%s"
 
-#: internal/data/backup.go:902
+#: internal/data/backup.go:910
 msgid "|-Backup panel data failed, missing file"
 msgstr "|-备份面板数据失败，缺少文件"
 
-#: internal/data/backup.go:896
-#: internal/data/backup.go:899
+#: internal/data/backup.go:904
+#: internal/data/backup.go:907
 msgid "|-Backup panel data failed: %v"
 msgstr "|-备份面板数据失败：%v"
 
-#: internal/data/backup.go:892
+#: internal/data/backup.go:900
 msgid "|-Backup panel data..."
 msgstr "|-备份面板数据……"
 
@@ -2558,15 +2576,15 @@ msgstr "|-备份类型：%s"
 msgid "|-Backup type: panel"
 msgstr "|-备份类型：面板"
 
-#: internal/data/backup.go:922
+#: internal/data/backup.go:930
 msgid "|-Clean up temporary file failed: %v"
 msgstr "|-清理临时文件失败：%v"
 
-#: internal/data/backup.go:884
+#: internal/data/backup.go:892
 msgid "|-Clean up verification file failed: %v"
 msgstr "|-清理验证文件失败：%v"
 
-#: internal/data/backup.go:736
+#: internal/data/backup.go:744
 msgid "|-Cleaned up temporary files, please run acepanel update to update the panel"
 msgstr "|-已清理临时文件，请运行 acepanel update 更新面板"
 
@@ -2575,11 +2593,11 @@ msgstr "|-已清理临时文件，请运行 acepanel update 更新面板"
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理过期文件：%s"
 
-#: internal/data/backup.go:909
+#: internal/data/backup.go:917
 msgid "|-Cleaning old version failed: %v"
 msgstr "|-清理旧版本失败：%v"
 
-#: internal/data/backup.go:906
+#: internal/data/backup.go:914
 msgid "|-Cleaning old version..."
 msgstr "|-清理旧版本……"
 
@@ -2593,23 +2611,23 @@ msgstr "|-清理目标：%s"
 msgid "|-Cleaning type: %s"
 msgstr "|-清理类型：%s"
 
-#: internal/data/backup.go:860
+#: internal/data/backup.go:868
 msgid "|-Download link: %s"
 msgstr "|-下载链接：%s"
 
-#: internal/data/backup.go:945
+#: internal/data/backup.go:953
 msgid "|-Download panel service file failed: %v"
 msgstr "|-下载面板服务文件失败：%v"
 
-#: internal/data/backup.go:865
+#: internal/data/backup.go:873
 msgid "|-Downloading..."
 msgstr "|-下载中……"
 
-#: internal/data/backup.go:861
+#: internal/data/backup.go:869
 msgid "|-File name: %s"
 msgstr "|-文件名：%s"
 
-#: internal/data/backup.go:841
+#: internal/data/backup.go:849
 msgid "|-Fix completed"
 msgstr "|-修复完成"
 
@@ -2618,24 +2636,24 @@ msgstr "|-修复完成"
 msgid "|-Keep count: %d"
 msgstr "|-保留数量：%d"
 
-#: internal/data/backup.go:951
+#: internal/data/backup.go:959
 msgid "|-Move acepanel tool failed: %v"
 msgstr "|-移动 acepanel 工具失败：%v"
 
-#: internal/data/backup.go:780
+#: internal/data/backup.go:788
 msgid "|-Move backup file..."
 msgstr "|-移动备份文件……"
 
-#: internal/data/backup.go:932
+#: internal/data/backup.go:940
 msgid "|-Restore panel data failed, missing file"
 msgstr "|-恢复面板数据失败，缺少文件"
 
-#: internal/data/backup.go:929
+#: internal/data/backup.go:937
 msgid "|-Restore panel data failed: %v"
 msgstr "|-恢复面板数据失败：%v"
 
-#: internal/data/backup.go:798
-#: internal/data/backup.go:926
+#: internal/data/backup.go:806
+#: internal/data/backup.go:934
 msgid "|-Restore panel data..."
 msgstr "|-恢复面板数据……"
 
@@ -2647,58 +2665,58 @@ msgstr "|-切割目标：%s"
 msgid "|-Rotation type: website"
 msgstr "|-切割类型：website"
 
-#: internal/data/backup.go:939
+#: internal/data/backup.go:947
 msgid "|-Run post-update script failed: %v"
 msgstr "|-运行更新后脚本失败：%v"
 
-#: internal/data/backup.go:936
+#: internal/data/backup.go:944
 msgid "|-Run post-update script..."
 msgstr "|-运行更新后脚本……"
 
-#: internal/data/backup.go:818
-#: internal/data/backup.go:955
+#: internal/data/backup.go:826
+#: internal/data/backup.go:963
 msgid "|-Set key file permissions..."
 msgstr "|-设置关键文件权限……"
 
-#: internal/data/backup.go:707
+#: internal/data/backup.go:715
 msgid "|-Start fixing the panel..."
 msgstr "|-开始修复面板……"
 
-#: internal/data/backup.go:859
+#: internal/data/backup.go:867
 msgid "|-Target version: %s"
 msgstr "|-目标版本：%s"
 
 #: internal/data/backup.go:447
 #: internal/data/backup.go:497
-#: internal/data/backup.go:551
+#: internal/data/backup.go:555
 msgid "|-Temporary directory: %s"
 msgstr "|-临时目录：%s"
 
-#: internal/data/backup.go:769
+#: internal/data/backup.go:777
 msgid "|-Unzip backup file..."
 msgstr "|-解压备份文件……"
 
-#: internal/data/backup.go:919
+#: internal/data/backup.go:927
 msgid "|-Unzip new version failed, missing file"
 msgstr "|-解压新版本失败，缺少文件"
 
-#: internal/data/backup.go:916
+#: internal/data/backup.go:924
 msgid "|-Unzip new version failed: %v"
 msgstr "|-解压新版本失败：%v"
 
-#: internal/data/backup.go:913
+#: internal/data/backup.go:921
 msgid "|-Unzip new version..."
 msgstr "|-解压新版本……"
 
-#: internal/data/backup.go:962
+#: internal/data/backup.go:970
 msgid "|-Update completed"
 msgstr "|-更新完成"
 
-#: internal/data/backup.go:878
+#: internal/data/backup.go:886
 msgid "|-Verify download file..."
 msgstr "|-验证下载文件……"
 
-#: internal/data/backup.go:948
+#: internal/data/backup.go:956
 msgid "|-Write new panel version failed: %v"
 msgstr "|-写入新面板版本失败：%v"
 
