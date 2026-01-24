@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-01-24 10:59\n"
+"PO-Revision-Date: 2026-01-24 11:26\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -43,7 +43,7 @@ msgstr "AcePanel"
 msgid "AcePanel CLI Tool"
 msgstr "AcePanel 命令列工具"
 
-#: internal/apps/mysql/app.go:119
+#: internal/apps/mysql/app.go:121
 msgid "Active Connections"
 msgstr "活動連接"
 
@@ -147,13 +147,13 @@ msgstr "繫結網域已禁用"
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/mysql/app.go:118
-#: internal/apps/mysql/app.go:137
+#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:139
 msgid "Bytes Received"
 msgstr "已接收字節"
 
-#: internal/apps/mysql/app.go:117
-#: internal/apps/mysql/app.go:137
+#: internal/apps/mysql/app.go:119
+#: internal/apps/mysql/app.go:139
 msgid "Bytes Sent"
 msgstr "已發送字節"
 
@@ -497,11 +497,11 @@ msgstr "修復面板"
 msgid "Forum：https://tom.moe"
 msgstr "論壇：https://tom.moe"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:127
 msgid "Full Joins without Index"
 msgstr "沒有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:128
 msgid "Full Range Joins without Index"
 msgstr "沒有使用索引的範圍 Join"
 
@@ -583,7 +583,7 @@ msgstr "Igbinary 是一個用於序列化和反序列化數據的庫"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:123
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
@@ -598,7 +598,7 @@ msgstr "初始化失敗：%v"
 msgid "Initialize panel (use only under guidance)"
 msgstr "初始化面板（僅在指導下使用）"
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:124
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
@@ -769,7 +769,7 @@ msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體�
 msgid "Old username cannot be empty"
 msgstr "舊用戶名不能為空"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:126
 msgid "Open Tables"
 msgstr "已開啟的表"
 
@@ -861,7 +861,7 @@ msgstr "密碼：%s"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "網站託管的路徑（不填則使用默認路徑）"
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:122
 msgid "Peak Connections"
 msgstr "峰值連接數"
 
@@ -909,7 +909,7 @@ msgstr "端口範圍錯誤"
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/apps/postgresql/app.go:165
+#: internal/apps/postgresql/app.go:167
 msgid "Process Count"
 msgstr "進程數"
 
@@ -917,7 +917,7 @@ msgstr "進程數"
 msgid "Process Manager"
 msgstr "進程管理方式"
 
-#: internal/apps/postgresql/app.go:164
+#: internal/apps/postgresql/app.go:166
 msgid "Process PID"
 msgstr "進程 PID"
 
@@ -943,19 +943,19 @@ msgstr "Python-%s 未安裝"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/apps/mysql/app.go:184
+#: internal/apps/mysql/app.go:186
 msgid "Query Cache Hit Rate"
 msgstr "查詢快取命中率"
 
-#: internal/apps/mysql/app.go:172
+#: internal/apps/mysql/app.go:174
 msgid "Query Cache Hits"
 msgstr "查詢快取命中次數"
 
-#: internal/apps/mysql/app.go:176
+#: internal/apps/mysql/app.go:178
 msgid "Query Cache Inserts"
 msgstr "查詢快取插入次數"
 
-#: internal/apps/mysql/app.go:180
+#: internal/apps/mysql/app.go:182
 msgid "Query Cache Not Cached"
 msgstr "查詢快取未快取次數"
 
@@ -991,7 +991,7 @@ msgstr "每秒請求"
 msgid "Restart panel service"
 msgstr "重新啟動面板服務"
 
-#: internal/apps/mysql/app.go:116
+#: internal/apps/mysql/app.go:118
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
 
@@ -1056,11 +1056,11 @@ msgstr "設置不存在"
 msgid "Slow Requests"
 msgstr "慢請求"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:130
 msgid "Sort Merge Passes"
 msgstr "排序後的合併次數"
 
-#: internal/apps/postgresql/app.go:163
+#: internal/apps/postgresql/app.go:165
 #: internal/service/environment_php.go:180
 msgid "Start Time"
 msgstr "啟動時間"
@@ -1079,11 +1079,11 @@ msgstr "停止面板服務"
 msgid "Storage ID (local storage if not filled)"
 msgstr "存儲 ID（留空則為本地存儲）"
 
-#: internal/apps/postgresql/app.go:167
+#: internal/apps/postgresql/app.go:169
 msgid "Storage Usage"
 msgstr "存儲使用"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:129
 msgid "Subqueries without Index"
 msgstr "沒有索引的子查詢"
 
@@ -1123,7 +1123,7 @@ msgstr "Sysvshm 是一個處理系統 V 共享記憶體的庫"
 msgid "TCP Port"
 msgstr "TCP 連接埠"
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:131
 msgid "Table Locks Waited"
 msgstr "等待表鎖定"
 
@@ -1131,7 +1131,7 @@ msgstr "等待表鎖定"
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:125
 msgid "Temporary Tables Created on Disk"
 msgstr "在磁碟上創建的臨時表"
 
@@ -1163,8 +1163,8 @@ msgstr "已分配記憶體總量"
 msgid "Total Commands Processed"
 msgstr "已處理的命令總數"
 
-#: internal/apps/mysql/app.go:114
-#: internal/apps/postgresql/app.go:166
+#: internal/apps/mysql/app.go:116
+#: internal/apps/postgresql/app.go:168
 msgid "Total Connections"
 msgstr "總連接數"
 
@@ -1180,7 +1180,7 @@ msgstr "記憶體使用總量"
 msgid "Total Processes"
 msgstr "總進程數"
 
-#: internal/apps/mysql/app.go:113
+#: internal/apps/mysql/app.go:115
 msgid "Total Queries"
 msgstr "查詢總數"
 
@@ -1200,7 +1200,7 @@ msgstr "總握手數"
 msgid "Total requests"
 msgstr "總請求數"
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:117
 msgid "Transactions per Second"
 msgstr "每秒事務"
 
@@ -1259,7 +1259,7 @@ msgstr "更新環境 %s"
 msgid "Update panel"
 msgstr "更新面板"
 
-#: internal/apps/mysql/app.go:112
+#: internal/apps/mysql/app.go:114
 msgid "Uptime"
 msgstr "運行時間"
 
@@ -1637,7 +1637,7 @@ msgstr "無法獲取 Google EAB：%v"
 msgid "failed to get Memcached status: %v"
 msgstr "獲取 Memcached 狀態失敗：%v"
 
-#: internal/apps/mysql/app.go:99
+#: internal/apps/mysql/app.go:101
 msgid "failed to get MySQL status: %v"
 msgstr "獲取 MySQL 狀態失敗：%v"
 
@@ -1645,23 +1645,23 @@ msgstr "獲取 MySQL 狀態失敗：%v"
 msgid "failed to get NTP configuration: %v"
 msgstr "獲取 NTP 配置失敗：%v"
 
-#: internal/apps/postgresql/app.go:138
+#: internal/apps/postgresql/app.go:140
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "無法獲取 PostgreSQL 後端 pid：%v"
 
-#: internal/apps/postgresql/app.go:148
+#: internal/apps/postgresql/app.go:150
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "無法獲取 PostgreSQL 連接：%v"
 
-#: internal/apps/postgresql/app.go:153
+#: internal/apps/postgresql/app.go:155
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "無法獲取 PostgreSQL 數據庫大小：%v"
 
-#: internal/apps/postgresql/app.go:143
+#: internal/apps/postgresql/app.go:145
 msgid "failed to get PostgreSQL process: %v"
 msgstr "無法獲取 PostgreSQL 進程：%v"
 
-#: internal/apps/postgresql/app.go:133
+#: internal/apps/postgresql/app.go:135
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 
@@ -1742,7 +1742,7 @@ msgstr "獲取分區失敗：%v"
 msgid "failed to get port: %v"
 msgstr "無法獲取端口：%v"
 
-#: internal/apps/postgresql/app.go:192
+#: internal/apps/postgresql/app.go:194
 msgid "failed to get postgres password: %v"
 msgstr ""
 
@@ -1810,12 +1810,12 @@ msgstr "列出 Stream 伺服器失敗：%v"
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失敗：%v"
 
-#: internal/apps/mysql/app.go:221
-#: internal/apps/mysql/app.go:89
+#: internal/apps/mysql/app.go:223
+#: internal/apps/mysql/app.go:91
 msgid "failed to load MySQL root password: %v"
 msgstr "無法載入 MySQL root 密碼：%v"
 
-#: internal/apps/postgresql/app.go:122
+#: internal/apps/postgresql/app.go:124
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
@@ -1901,8 +1901,8 @@ msgstr "註冊帳戶失敗：%v"
 msgid "failed to reload %s service: %v"
 msgstr "重新載入 %s 服務失敗：%v"
 
-#: internal/apps/postgresql/app.go:105
-#: internal/apps/postgresql/app.go:72
+#: internal/apps/postgresql/app.go:107
+#: internal/apps/postgresql/app.go:74
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重新載入 PostgreSQL 失敗：%v"
 
@@ -1956,7 +1956,7 @@ msgstr "重新啟動 %s 服務失敗：%v"
 msgid "failed to restart %s: %v"
 msgstr "重新啟動 %s 失敗：%v"
 
-#: internal/apps/mysql/app.go:72
+#: internal/apps/mysql/app.go:74
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
@@ -1964,7 +1964,7 @@ msgstr "重新啟動 MySQL 失敗：%v"
 msgid "failed to run command: %v"
 msgstr "運行命令失敗：%v"
 
-#: internal/apps/mysql/app.go:94
+#: internal/apps/mysql/app.go:96
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 
@@ -1972,7 +1972,7 @@ msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 msgid "failed to set NTP servers: %v"
 msgstr "設置 NTP 伺服器失敗：%v"
 
-#: internal/apps/postgresql/app.go:127
+#: internal/apps/postgresql/app.go:129
 msgid "failed to set PGPASSWORD env: %v"
 msgstr ""
 
@@ -1988,9 +1988,9 @@ msgstr "設置主機名失敗： %v"
 msgid "failed to set hosts: %v"
 msgstr "設置 hosts 失敗： %v"
 
-#: internal/apps/postgresql/app.go:212
-#: internal/apps/postgresql/app.go:218
-#: internal/apps/postgresql/app.go:224
+#: internal/apps/postgresql/app.go:214
+#: internal/apps/postgresql/app.go:220
+#: internal/apps/postgresql/app.go:226
 msgid "failed to set postgres password: %v"
 msgstr ""
 
@@ -2014,11 +2014,11 @@ msgstr "卸載分區失敗：%v"
 msgid "failed to unmount: %v"
 msgstr "卸載失敗：%v"
 
-#: internal/apps/mysql/app.go:103
+#: internal/apps/mysql/app.go:105
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr "取消設置 MYSQL_PWD 環境變量失敗：%v"
 
-#: internal/apps/postgresql/app.go:158
+#: internal/apps/postgresql/app.go:160
 msgid "failed to unset PGPASSWORD env: %v"
 msgstr ""
 
@@ -2351,8 +2351,8 @@ msgstr "Stream 上游配置已存在：%s"
 msgid "stream upstream not found: %s"
 msgstr "未找到 Stream 上游：%s"
 
-#: internal/data/database_server.go:160
-#: internal/data/database_server.go:179
+#: internal/data/database_server.go:164
+#: internal/data/database_server.go:183
 msgid "sync from server %s"
 msgstr "從伺服器 %s 同步"
 
