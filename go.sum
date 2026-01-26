@@ -255,8 +255,8 @@ github.com/mitchellh/mapstructure v0.0.0-20160808181253-ca63d7c062ee/go.mod h1:F
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/moby/docker-image-spec v1.3.1 h1:jMKff3w6PgbfSa69GfNg+zN/XLhfXJGnEx3Nl2EsFP0=
 github.com/moby/docker-image-spec v1.3.1/go.mod h1:eKmb5VW8vQEh/BAr2yvVNvuiJuY6UIocYsFu/DxxRpo=
-github.com/moby/moby/api v1.53.0-rc.2 h1:Ajc2MnWJRC2AAqhIGNaqvwaA2mMYKyuso5PjxPP2KM4=
-github.com/moby/moby/api v1.53.0-rc.2/go.mod h1:8mb+ReTlisw4pS6BRzCMts5M49W5M7bKt1cJy/YbAqc=
+github.com/moby/moby/api v1.53.0 h1:PihqG1ncw4W+8mZs69jlwGXdaYBeb5brF6BL7mPIS/w=
+github.com/moby/moby/api v1.53.0/go.mod h1:8mb+ReTlisw4pS6BRzCMts5M49W5M7bKt1cJy/YbAqc=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
