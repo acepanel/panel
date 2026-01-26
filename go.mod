@@ -4,7 +4,7 @@ go 1.25.6
 
 require (
 	github.com/DeRuina/timberjack v1.3.9
-	github.com/bddjr/hlfhr v1.4.1
+	github.com/bddjr/hlfhr v1.4.2
 	github.com/beevik/ntp v1.5.0
 	github.com/coder/websocket v1.8.14
 	github.com/containerd/errdefs v1.0.0
