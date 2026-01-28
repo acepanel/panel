@@ -8,7 +8,7 @@ require (
 	github.com/beevik/ntp v1.5.0
 	github.com/coder/websocket v1.8.14
 	github.com/containerd/errdefs v1.0.0
-	github.com/coreos/go-systemd/v22 v22.6.0
+	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/creack/pty v1.1.24
 	github.com/dchest/captcha v1.1.0
 	github.com/expr-lang/expr v1.17.7
