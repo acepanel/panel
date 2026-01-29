@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-27 13:47\n"
+"PO-Revision-Date: 2026-01-29 13:50\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1770,7 +1770,7 @@ msgstr "获取 redis 信息失败： %v"
 msgid "failed to get redis status: %v"
 msgstr "获取 redis 状态失败： %v"
 
-#: internal/apps/s3fs/app.go:125
+#: internal/apps/s3fs/app.go:127
 #: internal/apps/s3fs/app.go:40
 #: internal/apps/s3fs/app.go:80
 msgid "failed to get s3fs list: %v"
@@ -2018,7 +2018,7 @@ msgstr "停止 %s 服务失败： %v"
 msgid "failed to umount partition: %v"
 msgstr "卸载分区失败：%v"
 
-#: internal/apps/s3fs/app.go:145
+#: internal/apps/s3fs/app.go:147
 msgid "failed to unmount: %v"
 msgstr "卸载失败： %v"
 
@@ -2168,11 +2168,11 @@ msgstr "模块 %s 已存在"
 msgid "module %s does not exist"
 msgstr "模块 %s 不存在"
 
-#: internal/apps/s3fs/app.go:108
+#: internal/apps/s3fs/app.go:110
 msgid "mount failed: %v"
 msgstr "挂载失败： %v"
 
-#: internal/apps/s3fs/app.go:137
+#: internal/apps/s3fs/app.go:139
 msgid "mount not found"
 msgstr "找不到挂载"
 
