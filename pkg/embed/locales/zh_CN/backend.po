@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-29 13:50\n"
+"PO-Revision-Date: 2026-01-30 14:33\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1831,7 +1831,7 @@ msgstr "加载 PostgreSQL postgres 密码失败：%v"
 msgid "failed to mount partition: %v"
 msgstr "无法挂载分区：%v"
 
-#: internal/data/cert.go:101
+#: internal/data/cert.go:100
 #: internal/data/setting.go:288
 #: internal/data/setting.go:361
 #: internal/data/website.go:609
@@ -1843,7 +1843,7 @@ msgstr "解析证书失败： %v"
 msgid "failed to parse disk list: %v"
 msgstr "无法解析磁盘列表：%v"
 
-#: internal/data/cert.go:104
+#: internal/data/cert.go:103
 #: internal/data/setting.go:291
 #: internal/data/setting.go:364
 #: internal/data/website.go:612
@@ -2263,10 +2263,6 @@ msgstr "没有找到 phpMyAdmin 端口"
 msgid "please don't do this"
 msgstr "请不要花样作死"
 
-#: internal/data/cert.go:255
-msgid "please retry the manual obtain operation"
-msgstr "请重新操作手动签发"
-
 #: internal/service/setting.go:78
 msgid "please set public ips first"
 msgstr "请先设置公网 IP 地址"
@@ -2394,20 +2390,20 @@ msgstr "模板 %s 未找到"
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
-#: internal/data/cert.go:457
+#: internal/data/cert.go:394
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr "此证书尚未成功签发，无法部署"
 
-#: internal/data/cert.go:345
+#: internal/data/cert.go:310
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr "此证书尚未成功签发，无法续签"
 
-#: internal/data/cert.go:210
-#: internal/data/cert.go:354
+#: internal/data/cert.go:209
+#: internal/data/cert.go:319
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此证书未与任何网站关联，无法签发。您可以尝试使用手动签发"
 
-#: internal/data/cert.go:518
+#: internal/data/cert.go:452
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此证书未与 ACME 帐户关联，无法签发"
 
@@ -2476,7 +2472,7 @@ msgstr "不支持的 Web 服务器：%s"
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
-#: internal/data/cert.go:158
+#: internal/data/cert.go:157
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上传的证书无法设置为自动续签"
 
@@ -2514,8 +2510,8 @@ msgstr "网站 %s 已绑定证书，请先删除证书"
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
-#: internal/data/cert.go:214
-#: internal/data/cert.go:358
+#: internal/data/cert.go:213
+#: internal/data/cert.go:323
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "通配符域名不能使用 HTTP 验证"
 
