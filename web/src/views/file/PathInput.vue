@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import { useFileStore } from '@/store'
 import { checkPath } from '@/utils/file'
+import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
@@ -27,7 +28,7 @@ const handleInput = () => {
 // 双击地址栏复制路径
 const handlePathDoubleClick = async () => {
   try {
-    await navigator.clipboard.writeText(path.value)
+    await copy2clipboard(path.value)
     window.$message.success($gettext('Path copied to clipboard'))
   } catch (error) {
     window.$message.error($gettext('Failed to copy path'))
@@ -150,7 +151,13 @@ onUnmounted(() => {
       </n-tooltip>
     </n-button-group>
     <n-input-group flex-1>
-      <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput" @dblclick="handlePathDoubleClick">
+      <n-tag
+        size="large"
+        v-if="!isInput"
+        flex-1
+        @click="handleInput"
+        @dblclick="handlePathDoubleClick"
+      >
         <n-breadcrumb separator=">">
           <n-breadcrumb-item @click.stop="setPath(-1)">
             {{ $gettext('Root Directory') }}

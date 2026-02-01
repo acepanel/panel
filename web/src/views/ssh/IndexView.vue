@@ -9,6 +9,7 @@ import CreateModal from '@/views/ssh/CreateModal.vue'
 import UpdateModal from '@/views/ssh/UpdateModal.vue'
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
+import copy2clipboard from '@vavt/copy2clipboard'
 import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { FitAddon } from '@xterm/addon-fit'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
@@ -220,8 +221,7 @@ const initTerminal = async (tabId: string) => {
 
   try {
     // 根据ID选择连接方式
-    const socket = tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
-    tab.ws = socket
+    tab.ws = tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
     tab.ws.binaryType = 'arraybuffer'
 
     tab.terminal = new Terminal({
@@ -252,7 +252,7 @@ const initTerminal = async (tabId: string) => {
     tab.terminal.onSelectionChange(() => {
       const selection = tab.terminal?.getSelection()
       if (selection) {
-        navigator.clipboard.writeText(selection)
+        copy2clipboard(selection)
       }
     })
 
@@ -400,7 +400,7 @@ const onKeyDown = (event: KeyboardEvent) => {
     event.preventDefault()
     const selection = tab.terminal.getSelection()
     if (selection) {
-      navigator.clipboard.writeText(selection)
+      copy2clipboard(selection)
     }
   }
 
