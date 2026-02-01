@@ -43,6 +43,7 @@ async function handleBeforeClose(): Promise<boolean> {
         // 保存所有未保存的文件
         const unsavedTabs = editorStore.unsavedTabs
         let allSaved = true
+        const failedFiles: string[] = []
         
         for (const tab of unsavedTabs) {
           try {
@@ -54,11 +55,13 @@ async function handleBeforeClose(): Promise<boolean> {
                 })
                 .onError(() => {
                   allSaved = false
+                  failedFiles.push(tab.path)
                   rejectInner()
                 })
             })
           } catch {
-            // 保存失败
+            // 保存失败，已记录到 failedFiles 数组中
+            // 继续尝试保存其他文件
           }
         }
         
@@ -66,7 +69,9 @@ async function handleBeforeClose(): Promise<boolean> {
           window.$message.success($gettext('All files saved successfully'))
           resolve(true) // 保存成功，关闭窗口
         } else {
-          window.$message.error($gettext('Failed to save some files'))
+          // 显示失败的文件列表
+          const fileList = failedFiles.map(f => f.split('/').pop()).join(', ')
+          window.$message.error($gettext('Failed to save files: %{ files }', { files: fileList }))
           resolve(false) // 保存失败，不关闭窗口
         }
       },
