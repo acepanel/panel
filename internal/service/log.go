@@ -30,11 +30,28 @@ func (s *LogService) List(w http.ResponseWriter, r *http.Request) {
 		req.Limit = 100
 	}
 
-	entries, err := s.logRepo.List(req.Type, req.Limit)
+	entries, err := s.logRepo.List(req.Type, req.Limit, req.Date)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	Success(w, entries)
+}
+
+// Dates 获取日志日期列表
+func (s *LogService) Dates(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.LogDates](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	dates, err := s.logRepo.ListDates(req.Type)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, dates)
 }

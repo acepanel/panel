@@ -20,8 +20,24 @@ interface LogEntry {
 
 // 数据加载
 const limit = ref(200)
+const selectedDate = ref<string | null>(null)
+
+// 获取可用的日志日期列表
+const { data: dates } = useRequest(() => log.dates('db'), { initialData: [] })
+
+// 日期选项
+const dateOptions = computed(() => {
+  const options = [{ label: $gettext('Today'), value: '' }]
+  if (dates.value) {
+    for (const date of dates.value) {
+      options.push({ label: date, value: date })
+    }
+  }
+  return options
+})
+
 const { loading, data, send: refresh } = useRequest(
-  () => log.list('db', limit.value),
+  () => log.list('db', limit.value, selectedDate.value || ''),
   { initialData: [] }
 )
 
@@ -92,6 +108,13 @@ const handleRefresh = () => {
 <template>
   <div class="flex flex-col h-full">
     <div class="mb-4 flex gap-4 items-center">
+      <span>{{ $gettext('Date') }}:</span>
+      <n-select
+        v-model:value="selectedDate"
+        :options="dateOptions"
+        class="w-150px"
+        @update:value="handleRefresh"
+      />
       <span>{{ $gettext('Show entries') }}:</span>
       <n-select
         v-model:value="limit"

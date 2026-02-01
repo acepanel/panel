@@ -477,6 +477,7 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/log", func(r chi.Router) {
 			r.Get("/list", route.log.List)
+			r.Get("/dates", route.log.Dates)
 		})
 
 		r.Route("/monitor", func(r chi.Router) {

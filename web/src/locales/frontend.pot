@@ -39,37 +39,37 @@ msgstr ""
 
 #: src/components/common/CronPreview.vue:15
 #: src/components/common/CronPreview.vue:22
-#: src/components/common/CronSelector.vue:142
+#: src/components/common/CronSelector.vue:163
 msgid "Sunday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:16
-#: src/components/common/CronSelector.vue:143
+#: src/components/common/CronSelector.vue:164
 msgid "Monday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:17
-#: src/components/common/CronSelector.vue:144
+#: src/components/common/CronSelector.vue:165
 msgid "Tuesday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:18
-#: src/components/common/CronSelector.vue:145
+#: src/components/common/CronSelector.vue:166
 msgid "Wednesday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:19
-#: src/components/common/CronSelector.vue:146
+#: src/components/common/CronSelector.vue:167
 msgid "Thursday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:20
-#: src/components/common/CronSelector.vue:147
+#: src/components/common/CronSelector.vue:168
 msgid "Friday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:21
-#: src/components/common/CronSelector.vue:148
+#: src/components/common/CronSelector.vue:169
 msgid "Saturday"
 msgstr ""
 
@@ -115,39 +115,43 @@ msgstr ""
 msgid "Run every minute"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:129
+#: src/components/common/CronSelector.vue:149
+msgid "Every Minute"
+msgstr ""
+
+#: src/components/common/CronSelector.vue:150
 msgid "Every N Minutes"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:130
+#: src/components/common/CronSelector.vue:151
 msgid "Every N Hours"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:131
+#: src/components/common/CronSelector.vue:152
 msgid "Every N Days"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:132
+#: src/components/common/CronSelector.vue:153
 msgid "Hourly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:133
+#: src/components/common/CronSelector.vue:154
 msgid "Daily"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:134
+#: src/components/common/CronSelector.vue:155
 msgid "Weekly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:135
+#: src/components/common/CronSelector.vue:156
 msgid "Monthly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:136
+#: src/components/common/CronSelector.vue:157
 msgid "Yearly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:137
+#: src/components/common/CronSelector.vue:158
 #: src/views/monitor/IndexView.vue:650
 #: src/views/monitor/IndexView.vue:704
 #: src/views/monitor/IndexView.vue:756
@@ -160,39 +164,39 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:153
+#: src/components/common/CronSelector.vue:174
 msgid "Month %{month}"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:276
+#: src/components/common/CronSelector.vue:301
 #: src/views/apps/nginx/NginxIndex.vue:745
 #: src/views/website/EditView.vue:557
 msgid "Minutes"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:287
+#: src/components/common/CronSelector.vue:312
 #: src/views/apps/nginx/NginxIndex.vue:746
 #: src/views/website/EditView.vue:558
 msgid "Hours"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:298
+#: src/components/common/CronSelector.vue:323
 msgid "Days"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:317
+#: src/components/common/CronSelector.vue:342
 msgid "Day"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:336
+#: src/components/common/CronSelector.vue:361
 msgid "Hour"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:347
+#: src/components/common/CronSelector.vue:372
 msgid "Minute"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:354
+#: src/components/common/CronSelector.vue:379
 msgid "Enter Cron expression"
 msgstr ""
 
@@ -236,6 +240,7 @@ msgstr ""
 #: src/views/container/ImagePullModal.vue:198
 #: src/views/container/ImageView.vue:351
 #: src/views/container/ImageView.vue:366
+#: src/views/file/EditModal.vue:41
 #: src/views/file/ListView.vue:245
 #: src/views/file/ListView.vue:738
 #: src/views/file/ListView.vue:863
@@ -261,20 +266,20 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/components/common/DraggableWindow.vue:259
+#: src/components/common/DraggableWindow.vue:274
 msgid "Minimize"
 msgstr ""
 
-#: src/components/common/DraggableWindow.vue:265
+#: src/components/common/DraggableWindow.vue:280
 #: src/views/backup/ListView.vue:78
 msgid "Restore"
 msgstr ""
 
-#: src/components/common/DraggableWindow.vue:265
+#: src/components/common/DraggableWindow.vue:280
 msgid "Maximize"
 msgstr ""
 
-#: src/components/common/DraggableWindow.vue:270
+#: src/components/common/DraggableWindow.vue:285
 #: src/components/file-editor/EditorPane.vue:125
 #: src/components/file-editor/EditorPane.vue:211
 #: src/layout/tab/components/ContextMenu.vue:28
@@ -421,7 +426,7 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:186
 #: src/views/file/ListView.vue:1232
-#: src/views/file/PathInput.vue:30
+#: src/views/file/PathInput.vue:41
 msgid "Invalid path"
 msgstr ""
 
@@ -481,7 +486,7 @@ msgid "Create"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:326
-#: src/views/file/PathInput.vue:146
+#: src/views/file/PathInput.vue:163
 msgid "Root Directory"
 msgstr ""
 
@@ -742,6 +747,7 @@ msgstr ""
 
 #: src/components/file-editor/EditorPane.vue:123
 #: src/components/file-editor/EditorToolbar.vue:98
+#: src/views/file/EditModal.vue:38
 msgid "Unsaved Changes"
 msgstr ""
 
@@ -805,6 +811,7 @@ msgid "No changes to save"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:80
+#: src/views/file/EditModal.vue:69
 msgid "All files saved successfully"
 msgstr ""
 
@@ -820,9 +827,9 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:200
 #: src/components/file-editor/EditorToolbar.vue:205
 #: src/components/file-editor/FileTree.vue:696
-#: src/views/log/DatabaseLog.vue:108
-#: src/views/log/HttpLog.vue:133
-#: src/views/log/OperationLog.vue:106
+#: src/views/log/DatabaseLog.vue:131
+#: src/views/log/HttpLog.vue:156
+#: src/views/log/OperationLog.vue:129
 #: src/views/toolbox/ProcessView.vue:329
 msgid "Refresh"
 msgstr ""
@@ -866,6 +873,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:238
 #: src/views/environment/PHPView.vue:256
 #: src/views/environment/PythonView.vue:97
+#: src/views/file/EditModal.vue:40
 #: src/views/project/EditModal.vue:575
 #: src/views/setting/IndexView.vue:107
 #: src/views/task/CronView.vue:284
@@ -1125,7 +1133,7 @@ msgid "Format On Type"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:154
-#: src/views/file/EditModal.vue:48
+#: src/views/file/EditModal.vue:105
 msgid "Failed to load file"
 msgstr ""
 
@@ -1193,7 +1201,7 @@ msgstr ""
 #: src/views/project/ListView.vue:306
 #: src/views/setting/SettingUser.vue:139
 #: src/views/setting/TokenModal.vue:91
-#: src/views/ssh/IndexView.vue:123
+#: src/views/ssh/IndexView.vue:124
 #: src/views/task/CronView.vue:166
 #: src/views/task/TaskView.vue:97
 #: src/views/toolbox/WebHookView.vue:179
@@ -2135,7 +2143,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:142
 #: src/views/database/UserList.vue:131
 #: src/views/firewall/RuleView.vue:61
-#: src/views/log/HttpLog.vue:74
+#: src/views/log/HttpLog.vue:90
 #: src/views/project/ListView.vue:57
 #: src/views/task/TaskView.vue:22
 #: src/views/toolbox/ProcessView.vue:137
@@ -2233,7 +2241,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:45
 #: src/views/database/UserList.vue:17
 #: src/views/file/PropertyModal.vue:33
-#: src/views/log/OperationLog.vue:57
+#: src/views/log/OperationLog.vue:73
 #: src/views/project/ListView.vue:49
 msgid "Type"
 msgstr ""
@@ -2262,7 +2270,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:419
 #: src/views/backup/StorageView.vue:473
 #: src/views/backup/StorageView.vue:503
-#: src/views/log/HttpLog.vue:64
+#: src/views/log/HttpLog.vue:80
 msgid "Path"
 msgstr ""
 
@@ -2423,7 +2431,7 @@ msgstr ""
 #: src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1568
 #: src/views/project/ListView.vue:179
-#: src/views/ssh/IndexView.vue:105
+#: src/views/ssh/IndexView.vue:106
 #: src/views/task/CronView.vue:145
 #: src/views/toolbox/WebHookView.vue:158
 #: src/views/website/ListView.vue:200
@@ -3101,8 +3109,8 @@ msgid "Private Key"
 msgstr ""
 
 #: src/views/backup/StorageView.vue:72
-#: src/views/ssh/IndexView.vue:63
-#: src/views/ssh/IndexView.vue:72
+#: src/views/ssh/IndexView.vue:64
+#: src/views/ssh/IndexView.vue:73
 msgid "Local"
 msgstr ""
 
@@ -4604,7 +4612,15 @@ msgstr ""
 msgid "Format"
 msgstr ""
 
-#: src/views/file/EditModal.vue:95
+#: src/views/file/EditModal.vue:39
+msgid "You have unsaved changes. Do you want to save them before closing?"
+msgstr ""
+
+#: src/views/file/EditModal.vue:74
+msgid "Failed to save files: %{ files }"
+msgstr ""
+
+#: src/views/file/EditModal.vue:152
 msgid "File Editor"
 msgstr ""
 
@@ -4703,6 +4719,7 @@ msgid "Are you sure you want to delete %{count} items?"
 msgstr ""
 
 #: src/views/file/ListView.vue:823
+#: src/views/file/PathInput.vue:32
 msgid "Path copied to clipboard"
 msgstr ""
 
@@ -4769,19 +4786,23 @@ msgstr ""
 msgid "Terminal - %{ path }"
 msgstr ""
 
-#: src/views/file/PathInput.vue:139
+#: src/views/file/PathInput.vue:34
+msgid "Failed to copy path"
+msgstr ""
+
+#: src/views/file/PathInput.vue:150
 msgid "Hide hidden files"
 msgstr ""
 
-#: src/views/file/PathInput.vue:139
+#: src/views/file/PathInput.vue:150
 msgid "Show hidden files"
 msgstr ""
 
-#: src/views/file/PathInput.vue:167
+#: src/views/file/PathInput.vue:184
 msgid "Enter search content"
 msgstr ""
 
-#: src/views/file/PathInput.vue:170
+#: src/views/file/PathInput.vue:187
 msgid "Include subdirectories"
 msgstr ""
 
@@ -5411,42 +5432,59 @@ msgstr ""
 msgid "Loading update information, please wait a moment"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:31
-#: src/views/log/HttpLog.vue:39
-#: src/views/log/OperationLog.vue:34
+#: src/views/log/DatabaseLog.vue:30
+#: src/views/log/HttpLog.vue:30
+#: src/views/log/OperationLog.vue:33
+#: src/views/monitor/IndexView.vue:634
+#: src/views/monitor/IndexView.vue:688
+#: src/views/monitor/IndexView.vue:740
+#: src/views/monitor/IndexView.vue:796
+#: src/views/monitor/IndexView.vue:863
+msgid "Today"
+msgstr ""
+
+#: src/views/log/DatabaseLog.vue:47
+#: src/views/log/HttpLog.vue:55
+#: src/views/log/OperationLog.vue:50
 #: src/views/toolbox/SystemView.vue:235
 msgid "Time"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:40
-#: src/views/log/OperationLog.vue:43
+#: src/views/log/DatabaseLog.vue:56
+#: src/views/log/OperationLog.vue:59
 msgid "Level"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:54
+#: src/views/log/DatabaseLog.vue:70
 msgid "Query"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:64
-#: src/views/log/HttpLog.vue:86
+#: src/views/log/DatabaseLog.vue:80
+#: src/views/log/HttpLog.vue:102
 msgid "Duration"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:77
+#: src/views/log/DatabaseLog.vue:93
 msgid "Rows"
 msgstr ""
 
-#: src/views/log/DatabaseLog.vue:95
-#: src/views/log/HttpLog.vue:120
-#: src/views/log/OperationLog.vue:93
+#: src/views/log/DatabaseLog.vue:111
+#: src/views/log/HttpLog.vue:136
+#: src/views/log/OperationLog.vue:109
+msgid "Date"
+msgstr ""
+
+#: src/views/log/DatabaseLog.vue:118
+#: src/views/log/HttpLog.vue:143
+#: src/views/log/OperationLog.vue:116
 msgid "Show entries"
 msgstr ""
 
-#: src/views/log/HttpLog.vue:48
+#: src/views/log/HttpLog.vue:64
 msgid "Method"
 msgstr ""
 
-#: src/views/log/HttpLog.vue:100
+#: src/views/log/HttpLog.vue:116
 msgid "Client IP"
 msgstr ""
 
@@ -5462,16 +5500,16 @@ msgstr ""
 msgid "HTTP Log"
 msgstr ""
 
-#: src/views/log/OperationLog.vue:65
+#: src/views/log/OperationLog.vue:81
 msgid "Operator"
 msgstr ""
 
-#: src/views/log/OperationLog.vue:70
+#: src/views/log/OperationLog.vue:86
 #: src/views/toolbox/IndexView.vue:24
 msgid "System"
 msgstr ""
 
-#: src/views/log/OperationLog.vue:76
+#: src/views/log/OperationLog.vue:92
 msgid "Message"
 msgstr ""
 
@@ -5563,14 +5601,6 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:790
 #: src/views/monitor/IndexView.vue:857
 msgid "Yesterday"
-msgstr ""
-
-#: src/views/monitor/IndexView.vue:634
-#: src/views/monitor/IndexView.vue:688
-#: src/views/monitor/IndexView.vue:740
-#: src/views/monitor/IndexView.vue:796
-#: src/views/monitor/IndexView.vue:863
-msgid "Today"
 msgstr ""
 
 #: src/views/monitor/IndexView.vue:640
@@ -6375,7 +6405,7 @@ msgstr ""
 msgid "Remarks"
 msgstr ""
 
-#: src/views/ssh/IndexView.vue:114
+#: src/views/ssh/IndexView.vue:115
 msgid "Are you sure you want to delete this host?"
 msgstr ""
 

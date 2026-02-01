@@ -47,5 +47,8 @@ type LogEntry struct {
 // LogRepo 日志仓库接口
 type LogRepo interface {
 	// List 获取日志列表
-	List(logType string, limit int) ([]LogEntry, error)
+	// date 格式为 YYYY-MM-DD，空字符串表示当天日志
+	List(logType string, limit int, date string) ([]LogEntry, error)
+	// ListDates 获取可用的日志日期列表
+	ListDates(logType string) ([]string, error)
 }
