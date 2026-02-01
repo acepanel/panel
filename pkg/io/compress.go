@@ -133,7 +133,7 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 	case ".zip":
 		return Zip, nil
 	case ".bz2":
-		// 支持 .tar.bz2 和 .bz2 格式，均使用 tar -xjf 解压
+		// .bz2 后缀的文件使用 tar -xjf 解压，适用于 .tar.bz2 格式
 		return Bz2, nil
 	case ".tar":
 		return Tar, nil
@@ -146,7 +146,7 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 		}
 		return Gz, nil
 	case ".xz":
-		// 支持 .tar.xz 和 .xz 格式，均使用 tar -xJf 解压
+		// .xz 后缀的文件使用 tar -xJf 解压，适用于 .tar.xz 格式
 		return Xz, nil
 	case ".7z":
 		return SevenZip, nil
