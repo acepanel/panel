@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -27,18 +26,25 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 	}
 }
 
-// logArchivePatterns 缓存归档日志文件名匹配正则表达式
-var logArchivePatterns sync.Map
+// 预编译的归档日志文件名匹配正则表达式
+var (
+	logArchivePatternApp  = regexp.MustCompile(`^app-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternDB   = regexp.MustCompile(`^db-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternHTTP = regexp.MustCompile(`^http-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+)
 
-// getLogArchivePattern 获取或创建归档日志文件名匹配正则表达式
-func getLogArchivePattern(basename string) *regexp.Regexp {
-	if pattern, ok := logArchivePatterns.Load(basename); ok {
-		return pattern.(*regexp.Regexp)
+// getLogArchivePattern 获取归档日志文件名匹配正则表达式
+func getLogArchivePattern(logType string) *regexp.Regexp {
+	switch logType {
+	case biz.LogTypeApp:
+		return logArchivePatternApp
+	case biz.LogTypeDB:
+		return logArchivePatternDB
+	case biz.LogTypeHTTP:
+		return logArchivePatternHTTP
+	default:
+		return logArchivePatternApp
 	}
-	// 归档日志文件名格式：app-2026-01-29T00-00-00.000-time.log
-	pattern := regexp.MustCompile(`^` + regexp.QuoteMeta(basename) + `-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-	logArchivePatterns.Store(basename, pattern)
-	return pattern
 }
 
 // getLogBasename 根据日志类型获取基础文件名
@@ -67,7 +73,7 @@ func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, 
 		logPath = filepath.Join(logDir, basename+".log")
 	} else {
 		// 有日期参数，查找对应的归档日志文件
-		pattern := getLogArchivePattern(basename)
+		pattern := getLogArchivePattern(logType)
 
 		entries, err := os.ReadDir(logDir)
 		if err != nil {
@@ -149,7 +155,6 @@ func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, 
 
 // ListDates 获取可用的日志日期列表
 func (r *logRepo) ListDates(logType string) ([]string, error) {
-	basename := getLogBasename(logType)
 	logDir := filepath.Join(app.Root, "panel/storage/logs")
 
 	entries, err := os.ReadDir(logDir)
@@ -160,7 +165,7 @@ func (r *logRepo) ListDates(logType string) ([]string, error) {
 		return nil, err
 	}
 
-	pattern := getLogArchivePattern(basename)
+	pattern := getLogArchivePattern(logType)
 
 	dates := make([]string, 0)
 	for _, entry := range entries {
