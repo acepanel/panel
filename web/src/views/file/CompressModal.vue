@@ -89,12 +89,11 @@ onMounted(() => {
             v-model:value="format"
             :options="[
               { label: '.zip', value: '.zip' },
-              { label: '.bz2', value: '.bz2' },
               { label: '.tar', value: '.tar' },
-              { label: '.gz', value: '.gz' },
               { label: '.tar.gz', value: '.tar.gz' },
               { label: '.tgz', value: '.tgz' },
-              { label: '.xz', value: '.xz' },
+              { label: '.tar.bz2', value: '.tar.bz2' },
+              { label: '.tar.xz', value: '.tar.xz' },
               { label: '.7z', value: '.7z' }
             ]"
             @update:value="ensureExtension"

@@ -13,6 +13,7 @@ type FormatArchive string
 
 const (
 	Zip      FormatArchive = "zip"
+	Gz       FormatArchive = "gz"
 	Bz2      FormatArchive = "bz2"
 	Tar      FormatArchive = "tar"
 	TGz      FormatArchive = "tgz"
@@ -75,6 +76,11 @@ func UnCompress(src string, dst string) error {
 	switch format {
 	case Zip:
 		_, err = shell.Execf("unzip -qo '%s' -d '%s'", src, dst)
+	case Gz:
+		// 单独的 gzip 文件（如 .sql.gz），解压到目标目录
+		// gunzip -k 保留原文件，-c 输出到标准输出，重定向到目标文件
+		baseName := strings.TrimSuffix(filepath.Base(src), ".gz")
+		_, err = shell.Execf("gunzip -c '%s' > '%s'", src, filepath.Join(dst, baseName))
 	case TGz:
 		_, err = shell.Execf("tar -xzf '%s' -C '%s'", src, dst)
 	case Bz2:
@@ -103,6 +109,10 @@ func ListCompress(src string) ([]string, error) {
 	switch format {
 	case Zip:
 		out, err = shell.Execf("unzip -Z1 '%s'", src)
+	case Gz:
+		// 单独的 gzip 文件只包含一个文件，返回去除 .gz 后缀的文件名
+		baseName := strings.TrimSuffix(filepath.Base(src), ".gz")
+		return []string{baseName}, nil
 	case TGz, Bz2, Tar, Xz:
 		out, err = shell.Execf("tar -tf '%s'", src)
 	case SevenZip:
@@ -123,16 +133,20 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 	case ".zip":
 		return Zip, nil
 	case ".bz2":
+		// 支持 .tar.bz2 和 .bz2 格式，均使用 tar -xjf 解压
 		return Bz2, nil
 	case ".tar":
 		return Tar, nil
 	case ".tgz":
 		return TGz, nil
 	case ".gz":
+		// 支持 .tar.gz 和单独的 .gz 格式（如 .sql.gz）
 		if strings.HasSuffix(path, ".tar.gz") {
 			return TGz, nil
 		}
+		return Gz, nil
 	case ".xz":
+		// 支持 .tar.xz 和 .xz 格式，均使用 tar -xJf 解压
 		return Xz, nil
 	case ".7z":
 		return SevenZip, nil
