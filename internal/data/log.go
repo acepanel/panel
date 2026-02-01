@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -24,6 +25,20 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 	return &logRepo{
 		db: db,
 	}
+}
+
+// logArchivePatterns 缓存归档日志文件名匹配正则表达式
+var logArchivePatterns sync.Map
+
+// getLogArchivePattern 获取或创建归档日志文件名匹配正则表达式
+func getLogArchivePattern(basename string) *regexp.Regexp {
+	if pattern, ok := logArchivePatterns.Load(basename); ok {
+		return pattern.(*regexp.Regexp)
+	}
+	// 归档日志文件名格式：app-2026-01-29T00-00-00.000-time.log
+	pattern := regexp.MustCompile(`^` + regexp.QuoteMeta(basename) + `-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatterns.Store(basename, pattern)
+	return pattern
 }
 
 // getLogBasename 根据日志类型获取基础文件名
@@ -52,8 +67,7 @@ func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, 
 		logPath = filepath.Join(logDir, basename+".log")
 	} else {
 		// 有日期参数，查找对应的归档日志文件
-		// 归档日志文件名格式：app-2026-01-29T00-00-00.000-time.log
-		pattern := regexp.MustCompile(`^` + regexp.QuoteMeta(basename) + `-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+		pattern := getLogArchivePattern(basename)
 
 		entries, err := os.ReadDir(logDir)
 		if err != nil {
@@ -146,8 +160,7 @@ func (r *logRepo) ListDates(logType string) ([]string, error) {
 		return nil, err
 	}
 
-	// 匹配归档日志文件名，格式：app-2026-01-29T00-00-00.000-time.log
-	pattern := regexp.MustCompile(`^` + regexp.QuoteMeta(basename) + `-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	pattern := getLogArchivePattern(basename)
 
 	dates := make([]string, 0)
 	for _, entry := range entries {
