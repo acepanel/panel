@@ -13,7 +13,7 @@ const props = withDefaults(
     defaultWidth?: number
     defaultHeight?: number
     beforeClose?: () => Promise<boolean> | boolean // 关闭前的确认回调，返回 true 继续关闭，false 取消关闭
-    closeOnOverlay?: boolean // 点击遮罩层是否关闭窗口，默认 true（最小化）
+    closeOnOverlay?: boolean // 点击遮罩层是否最小化窗口，默认 true
   }>(),
   {
     title: '',
