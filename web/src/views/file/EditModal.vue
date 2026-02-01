@@ -25,6 +25,58 @@ const initialPath = computed(() => {
   return parts.join('/') || '/'
 })
 
+// 关闭前确认
+async function handleBeforeClose(): Promise<boolean> {
+  // 检查是否有未保存的文件
+  if (!editorStore.hasUnsavedFiles) {
+    return true // 没有未保存的文件，直接关闭
+  }
+
+  // 显示确认对话框
+  return new Promise((resolve) => {
+    window.$dialog.warning({
+      title: $gettext('Unsaved Changes'),
+      content: $gettext('You have unsaved changes. Do you want to save them before closing?'),
+      positiveText: $gettext('Save'),
+      negativeText: $gettext('Cancel'),
+      onPositiveClick: async () => {
+        // 保存所有未保存的文件
+        const unsavedTabs = editorStore.unsavedTabs
+        let allSaved = true
+        
+        for (const tab of unsavedTabs) {
+          try {
+            await new Promise<void>((resolveInner, rejectInner) => {
+              useRequest(file.save(tab.path, tab.content))
+                .onSuccess(() => {
+                  editorStore.markSaved(tab.path)
+                  resolveInner()
+                })
+                .onError(() => {
+                  allSaved = false
+                  rejectInner()
+                })
+            })
+          } catch {
+            // 保存失败
+          }
+        }
+        
+        if (allSaved) {
+          window.$message.success($gettext('All files saved successfully'))
+          resolve(true) // 保存成功，关闭窗口
+        } else {
+          window.$message.error($gettext('Failed to save some files'))
+          resolve(false) // 保存失败，不关闭窗口
+        }
+      },
+      onNegativeClick: () => {
+        resolve(false) // 用户取消，不关闭窗口
+      }
+    })
+  })
+}
+
 // 加载文件
 function loadFile(path: string) {
   if (!path) return
@@ -97,6 +149,7 @@ watch(minimized, (isMinimized) => {
     :default-height="defaultHeight"
     :min-width="600"
     :min-height="400"
+    :before-close="handleBeforeClose"
   >
     <FileEditorView ref="editorRef" :initial-path="initialPath" />
   </DraggableWindow>

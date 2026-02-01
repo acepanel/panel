@@ -12,6 +12,7 @@ const props = withDefaults(
     minHeight?: number
     defaultWidth?: number
     defaultHeight?: number
+    beforeClose?: () => Promise<boolean> | boolean // 关闭前的确认回调，返回 true 继续关闭，false 取消关闭
   }>(),
   {
     title: '',
@@ -201,7 +202,12 @@ function restore() {
 }
 
 // 关闭
-function close() {
+async function close() {
+  // 如果提供了 beforeClose 回调，先执行它
+  if (props.beforeClose) {
+    const result = await props.beforeClose()
+    if (!result) return // 如果返回 false，取消关闭
+  }
   show.value = false
 }
 

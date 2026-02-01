@@ -24,6 +24,16 @@ const handleInput = () => {
   })
 }
 
+// 双击地址栏复制路径
+const handlePathDoubleClick = async () => {
+  try {
+    await navigator.clipboard.writeText(path.value)
+    window.$message.success($gettext('Path copied to clipboard'))
+  } catch (error) {
+    window.$message.error($gettext('Failed to copy path'))
+  }
+}
+
 const handleBlur = () => {
   input.value = input.value.replace(/(^\/)|(\/$)/g, '')
   if (!checkPath(input.value)) {
@@ -140,7 +150,7 @@ onUnmounted(() => {
       </n-tooltip>
     </n-button-group>
     <n-input-group flex-1>
-      <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
+      <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput" @dblclick="handlePathDoubleClick">
         <n-breadcrumb separator=">">
           <n-breadcrumb-item @click.stop="setPath(-1)">
             {{ $gettext('Root Directory') }}
