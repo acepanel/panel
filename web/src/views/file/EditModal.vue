@@ -155,6 +155,7 @@ watch(minimized, (isMinimized) => {
     :min-width="600"
     :min-height="400"
     :before-close="handleBeforeClose"
+    :close-on-overlay="false"
   >
     <FileEditorView ref="editorRef" :initial-path="initialPath" />
   </DraggableWindow>
