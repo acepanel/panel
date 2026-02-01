@@ -89,6 +89,7 @@ onMounted(() => {
             v-model:value="format"
             :options="[
               { label: '.zip', value: '.zip' },
+              { label: '.gz', value: '.gz' },
               { label: '.tar', value: '.tar' },
               { label: '.tar.gz', value: '.tar.gz' },
               { label: '.tgz', value: '.tgz' },
