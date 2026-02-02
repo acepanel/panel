@@ -551,7 +551,9 @@ const modalTitle = computed(() => {
             { label: 'root', value: 'root' },
             { label: 'nobody', value: 'nobody' }
           ]"
-          :placeholder="$gettext('Select User')"
+          :placeholder="$gettext('Select or enter user')"
+          filterable
+          tag
           @keydown.enter.prevent
         />
         <template #feedback>

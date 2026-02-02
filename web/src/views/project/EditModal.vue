@@ -237,7 +237,9 @@ const handleSave = async () => {
                   { label: 'root', value: 'root' },
                   { label: 'nobody', value: 'nobody' }
                 ]"
-                :placeholder="$gettext('Select User')"
+                :placeholder="$gettext('Select or enter user')"
+                filterable
+                tag
                 @keydown.enter.prevent
               />
             </n-form-item>
