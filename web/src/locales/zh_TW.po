@@ -4396,6 +4396,10 @@ msgstr "存在同名項目。您要覆蓋嗎？"
 msgid "Overwrite"
 msgstr "覆蓋"
 
+#: src/views/file/UploadModal.vue
+msgid "Overwrite existing files"
+msgstr "覆蓋已存在的檔案"
+
 #: src/views/file/ListView.vue:744 src/views/file/ListView.vue:763
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "成功將 %{ source } 重命名為 %{ target }"

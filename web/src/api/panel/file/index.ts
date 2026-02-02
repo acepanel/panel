@@ -10,8 +10,7 @@ export default {
   // 删除文件
   delete: (path: string): any => http.Post('/file/delete', { path }),
   // 上传文件
-  upload: (formData: FormData): any =>
-    http.Post('/file/upload', formData, { meta: { noAlert: true } }),
+  upload: (formData: FormData): any => http.Post('/file/upload', formData),
   // 检查文件是否存在
   exist: (paths: string[]): any => http.Post('/file/exist', paths),
   // 移动文件
@@ -48,15 +47,16 @@ export default {
     file_name: string
     file_hash: string
     chunk_count: number
+    force?: boolean
   }): any => http.Post('/file/chunk/start', data),
   // 上传分块
-  chunkUpload: (formData: FormData): any =>
-    http.Post('/file/chunk/upload', formData, { meta: { noAlert: true } }),
+  chunkUpload: (formData: FormData): any => http.Post('/file/chunk/upload', formData),
   // 完成分块上传
   chunkFinish: (data: {
     path: string
     file_name: string
     file_hash: string
     chunk_count: number
+    force?: boolean
   }): any => http.Post('/file/chunk/finish', data)
 }

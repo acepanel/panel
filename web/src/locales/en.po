@@ -4618,6 +4618,10 @@ msgstr "There are items with the same name. Do you want to overwrite?"
 msgid "Overwrite"
 msgstr "Overwrite"
 
+#: src/views/file/UploadModal.vue
+msgid "Overwrite existing files"
+msgstr "Overwrite existing files"
+
 #: src/views/file/ListView.vue:744 src/views/file/ListView.vue:763
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "Renamed %{ source } to %{ target } successfully"

@@ -155,12 +155,13 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.FormValue("path")
+	force := r.FormValue("force") == "true"
 	_, handler, err := r.FormFile("file")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
 		return
 	}
-	if io.Exists(path) {
+	if io.Exists(path) && !force {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", path))
 		return
 	}
@@ -565,7 +566,7 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	targetPath := filepath.Join(req.Path, req.FileName)
-	if io.Exists(targetPath) {
+	if io.Exists(targetPath) && !req.Force {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}
@@ -680,7 +681,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 	targetPath := filepath.Join(req.Path, req.FileName)
 
 	// 检查目标文件是否已存在
-	if io.Exists(targetPath) {
+	if io.Exists(targetPath) && !req.Force {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}

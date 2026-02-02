@@ -4705,6 +4705,10 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
+#: src/views/file/UploadModal.vue
+msgid "Overwrite existing files"
+msgstr ""
+
 #: src/views/file/ListView.vue:744
 #: src/views/file/ListView.vue:763
 msgid "Renamed %{ source } to %{ target } successfully"

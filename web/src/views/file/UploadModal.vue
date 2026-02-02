@@ -17,6 +17,9 @@ const props = defineProps<{
 const upload = ref<UploadInst | null>(null)
 const fileList = ref<UploadFileInfo[]>([])
 
+// 覆盖上传选项
+const forceOverwrite = ref(false)
+
 // 文件数量阈值，超过此数量需要二次确认
 const FILE_COUNT_THRESHOLD = 100
 // 大文件阈值，超过此大小使用分块上传 (100MB)
@@ -203,7 +206,8 @@ const chunkedUpload = async (
       path: path.value,
       file_name: file.name,
       file_hash: fileHash,
-      chunk_count: chunkCount
+      chunk_count: chunkCount,
+      force: forceOverwrite.value
     })
     task.activeRequests.push(startMethod)
     const startRes = await startMethod
@@ -287,7 +291,8 @@ const chunkedUpload = async (
       path: path.value,
       file_name: file.name,
       file_hash: fileHash,
-      chunk_count: chunkCount
+      chunk_count: chunkCount,
+      force: forceOverwrite.value
     })
     task.activeRequests.push(finishMethod)
     await finishMethod
@@ -390,6 +395,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
   const formData = new FormData()
   formData.append('path', `${path.value}/${file.name}`)
   formData.append('file', fileObj)
+  formData.append('force', forceOverwrite.value.toString())
 
   const method = api.upload(formData)
   task.activeRequests.push(method)
@@ -463,6 +469,10 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
     :segmented="false"
   >
     <n-flex vertical>
+      <!-- 覆盖上传选项 -->
+      <n-checkbox v-model:checked="forceOverwrite">
+        {{ $gettext('Overwrite existing files') }}
+      </n-checkbox>
       <!-- 上传速度显示 -->
       <n-flex
         v-for="[key, progress] in uploadProgressMap"
