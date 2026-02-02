@@ -16,6 +16,12 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 )
 
+var (
+	logArchivePatternApp  = regexp.MustCompile(`^app-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternDB   = regexp.MustCompile(`^db-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternHTTP = regexp.MustCompile(`^http-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+)
+
 type logRepo struct {
 	db *gorm.DB
 }
@@ -26,51 +32,15 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 	}
 }
 
-// 预编译的归档日志文件名匹配正则表达式
-var (
-	logArchivePatternApp  = regexp.MustCompile(`^app-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-	logArchivePatternDB   = regexp.MustCompile(`^db-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-	logArchivePatternHTTP = regexp.MustCompile(`^http-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-)
-
-// getLogArchivePattern 获取归档日志文件名匹配正则表达式
-func getLogArchivePattern(logType string) *regexp.Regexp {
-	switch logType {
-	case biz.LogTypeApp:
-		return logArchivePatternApp
-	case biz.LogTypeDB:
-		return logArchivePatternDB
-	case biz.LogTypeHTTP:
-		return logArchivePatternHTTP
-	default:
-		return logArchivePatternApp
-	}
-}
-
-// getLogBasename 根据日志类型获取基础文件名
-func getLogBasename(logType string) string {
-	switch logType {
-	case biz.LogTypeApp:
-		return "app"
-	case biz.LogTypeDB:
-		return "db"
-	case biz.LogTypeHTTP:
-		return "http"
-	default:
-		return "app"
-	}
-}
-
 // List 获取日志列表
 // date 格式为 YYYY-MM-DD，空字符串表示当天日志
 func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
-	basename := getLogBasename(logType)
 	logDir := filepath.Join(app.Root, "panel/storage/logs")
 
 	var logPath string
 	if date == "" {
 		// 无日期参数，读取当前日志文件
-		logPath = filepath.Join(logDir, basename+".log")
+		logPath = filepath.Join(logDir, logType+".log")
 	} else {
 		// 有日期参数，查找对应的归档日志文件
 		pattern := getLogArchivePattern(logType)
@@ -268,4 +238,18 @@ func (r *logRepo) parseLine(line string, logType string) (biz.LogEntry, error) {
 	}
 
 	return entry, nil
+}
+
+// getLogArchivePattern 获取归档日志文件名匹配正则表达式
+func getLogArchivePattern(logType string) *regexp.Regexp {
+	switch logType {
+	case biz.LogTypeApp:
+		return logArchivePatternApp
+	case biz.LogTypeDB:
+		return logArchivePatternDB
+	case biz.LogTypeHTTP:
+		return logArchivePatternHTTP
+	default:
+		return logArchivePatternApp
+	}
 }
