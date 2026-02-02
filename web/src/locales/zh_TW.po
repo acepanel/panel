@@ -4846,6 +4846,26 @@ msgstr "面板重啟中……"
 msgid "Panel restarted successfully"
 msgstr "面板重啟成功"
 
+#: src/views/home/IndexView.vue:338
+msgid "Server restarting..."
+msgstr "伺服器重啟中……"
+
+#: src/views/home/IndexView.vue:340
+msgid "Server restarted successfully"
+msgstr "伺服器重啟成功"
+
+#: src/views/home/IndexView.vue:344
+msgid "Restart Panel"
+msgstr "重啟面板"
+
+#: src/views/home/IndexView.vue:348
+msgid "Restart Server"
+msgstr "重啟伺服器"
+
+#: src/views/home/IndexView.vue:362
+msgid "Are you sure you want to restart the server? This will disconnect all connections."
+msgstr "您確定要重啟伺服器嗎？這將斷開所有連線。"
+
 #: src/views/home/IndexView.vue:344
 msgid "Current version is the latest"
 msgstr "當前版本是最新版本"

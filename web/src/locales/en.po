@@ -5082,6 +5082,26 @@ msgstr "Panel restarting..."
 msgid "Panel restarted successfully"
 msgstr "Panel restarted successfully"
 
+#: src/views/home/IndexView.vue:338
+msgid "Server restarting..."
+msgstr "Server restarting..."
+
+#: src/views/home/IndexView.vue:340
+msgid "Server restarted successfully"
+msgstr "Server restarted successfully"
+
+#: src/views/home/IndexView.vue:344
+msgid "Restart Panel"
+msgstr "Restart Panel"
+
+#: src/views/home/IndexView.vue:348
+msgid "Restart Server"
+msgstr "Restart Server"
+
+#: src/views/home/IndexView.vue:362
+msgid "Are you sure you want to restart the server? This will disconnect all connections."
+msgstr "Are you sure you want to restart the server? This will disconnect all connections."
+
 #: src/views/home/IndexView.vue:344
 msgid "Current version is the latest"
 msgstr "Current version is the latest"

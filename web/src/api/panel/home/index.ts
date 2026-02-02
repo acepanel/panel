@@ -21,5 +21,7 @@ export default {
   // 更新面板
   update: (): any => http.Post('/home/update'),
   // 重启面板
-  restart: (): any => http.Post('/home/restart')
+  restart: (): any => http.Post('/home/restart'),
+  // 重启服务器
+  restartServer: (): any => http.Post('/home/restart_server')
 }

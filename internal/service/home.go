@@ -400,3 +400,13 @@ func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
 	tools.RestartPanel()
 	Success(w, nil)
 }
+
+func (s *HomeService) RestartServer(w http.ResponseWriter, r *http.Request) {
+	if s.taskRepo.HasRunningTask() {
+		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, restart is prohibited, please try again later"))
+		return
+	}
+
+	tools.RestartServer()
+	Success(w, nil)
+}

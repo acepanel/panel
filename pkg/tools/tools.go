@@ -88,6 +88,11 @@ func RestartPanel() {
 	_ = shell.ExecfAsync("sleep 1 && systemctl restart acepanel")
 }
 
+// RestartServer 重启服务器
+func RestartServer() {
+	_ = shell.ExecfAsync("sleep 1 && reboot")
+}
+
 // IsChina 是否中国大陆
 func IsChina() bool {
 	client := resty.New()

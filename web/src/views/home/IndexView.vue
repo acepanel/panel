@@ -13,7 +13,7 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { NButton, NPopconfirm, useThemeVars } from 'naive-ui'
+import { NButton, NDropdown, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 import draggable from 'vuedraggable'
 
@@ -336,6 +336,35 @@ const handleRestartPanel = () => {
   })
 }
 
+const showRestartServerConfirm = ref(false)
+
+const handleRestartServer = () => {
+  clearInterval(homeInterval)
+  window.$message.loading($gettext('Server restarting...'))
+  useRequest(home.restartServer()).onSuccess(() => {
+    window.$message.success($gettext('Server restarted successfully'))
+  })
+}
+
+const restartOptions = computed(() => [
+  {
+    label: $gettext('Restart Panel'),
+    key: 'panel'
+  },
+  {
+    label: $gettext('Restart Server'),
+    key: 'server'
+  }
+])
+
+const handleRestartSelect = (key: string) => {
+  if (key === 'panel') {
+    handleRestartPanel()
+  } else if (key === 'server') {
+    showRestartServerConfirm.value = true
+  }
+}
+
 const handleUpdate = () => {
   useRequest(home.checkUpdate()).onSuccess(({ data }) => {
     if (data.update) {
@@ -470,12 +499,9 @@ if (import.meta.hot) {
                 <n-button type="primary" @click="toSponsor">
                   {{ $gettext('Sponsor Support') }}
                 </n-button>
-                <n-popconfirm @positive-click="handleRestartPanel">
-                  <template #trigger>
-                    <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
-                  </template>
-                  {{ $gettext('Are you sure you want to restart the panel?') }}
-                </n-popconfirm>
+                <n-dropdown :options="restartOptions" @select="handleRestartSelect">
+                  <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
+                </n-dropdown>
                 <n-button type="info" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
               </n-flex>
             </template>
@@ -895,6 +921,18 @@ if (import.meta.hot) {
       </n-space>
     </div>
   </app-page>
+
+  <!-- 服务器重启确认弹窗 -->
+  <n-modal
+    v-model:show="showRestartServerConfirm"
+    preset="dialog"
+    type="warning"
+    :title="$gettext('Restart Server')"
+    :content="$gettext('Are you sure you want to restart the server? This will disconnect all connections.')"
+    :positive-text="$gettext('Confirm')"
+    :negative-text="$gettext('Cancel')"
+    @positive-click="handleRestartServer"
+  />
 </template>
 
 <style scoped>
