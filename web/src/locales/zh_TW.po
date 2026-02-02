@@ -4850,10 +4850,6 @@ msgstr "面板重啟成功"
 msgid "Server restarting..."
 msgstr "伺服器重啟中……"
 
-#: src/views/home/IndexView.vue:340
-msgid "Server restarted successfully"
-msgstr "伺服器重啟成功"
-
 #: src/views/home/IndexView.vue:344
 msgid "Restart Panel"
 msgstr "重啟面板"

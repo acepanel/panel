@@ -341,9 +341,7 @@ const showRestartServerConfirm = ref(false)
 const handleRestartServer = () => {
   clearInterval(homeInterval)
   window.$message.loading($gettext('Server restarting...'))
-  useRequest(home.restartServer()).onSuccess(() => {
-    window.$message.success($gettext('Server restarted successfully'))
-  })
+  useRequest(home.restartServer())
 }
 
 const restartOptions = computed(() => [

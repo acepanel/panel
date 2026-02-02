@@ -5086,10 +5086,6 @@ msgstr "Panel restarted successfully"
 msgid "Server restarting..."
 msgstr "Server restarting..."
 
-#: src/views/home/IndexView.vue:340
-msgid "Server restarted successfully"
-msgstr "Server restarted successfully"
-
 #: src/views/home/IndexView.vue:344
 msgid "Restart Panel"
 msgstr "Restart Panel"
