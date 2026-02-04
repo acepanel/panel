@@ -8,7 +8,7 @@ import CreateModal from '@/views/website/CreateModal.vue'
 import ListView from '@/views/website/ListView.vue'
 import SettingView from '@/views/website/SettingView.vue'
 
-const currentTab = ref('proxy')
+const currentTab = ref('all')
 
 const createModal = ref(false)
 const bulkCreateModal = ref(false)
@@ -18,6 +18,7 @@ const bulkCreateModal = ref(false)
   <common-page show-header show-footer>
     <template #tabbar>
       <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="all" :tab="$gettext('All')" />
         <n-tab name="proxy" :tab="$gettext('Reverse Proxy')" />
         <n-tab name="php" :tab="$gettext('PHP')" />
         <n-tab name="static" :tab="$gettext('Pure Static')" />

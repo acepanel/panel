@@ -12,6 +12,23 @@ const type = defineModel<string>('type', { type: String, required: true })
 
 const { $gettext } = useGettext()
 
+// 内部选择的类型（当外部 type 为 'all' 时使用）
+const selectedType = ref('proxy')
+
+// 实际使用的网站类型
+const effectiveType = computed(() => {
+  if (type.value === 'all') {
+    return selectedType.value
+  }
+  return type.value
+})
+
+// 类型选项
+const typeOptions = computed(() => [
+  { label: $gettext('Reverse Proxy'), value: 'proxy' },
+  { label: $gettext('PHP'), value: 'php' },
+  { label: $gettext('Pure Static'), value: 'static' }
+])
 const createModel = ref({
   type: '',
   name: '',
@@ -49,8 +66,41 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   }
 })
 
+// 获取模态框标题
+const modalTitle = computed(() => {
+  switch (effectiveType.value) {
+    case 'proxy':
+      return $gettext('Create Reverse Proxy Website')
+    case 'php':
+      return $gettext('Create PHP Website')
+    case 'static':
+      return $gettext('Create Pure Static Website')
+    default:
+      return $gettext('Create Website')
+  }
+})
+
+// 处理域名粘贴，支持批量添加
+const handleDomainCreate = (index: number, value: string) => {
+  // 检查是否包含多个域名（支持逗号、空格、换行分隔）
+  const separators = /[\s,\n\r]+/
+  if (separators.test(value)) {
+    // 解析多个域名
+    const domains = value.split(separators).filter((d) => d.trim() !== '')
+    if (domains.length > 1) {
+      // 移除当前空输入框
+      createModel.value.domains.splice(index, 1)
+      // 过滤掉已存在的域名，避免重复
+      const existingDomains = new Set(createModel.value.domains)
+      const newDomains = domains.filter((d) => !existingDomains.has(d.trim()))
+      // 将新域名添加到列表
+      createModel.value.domains.push(...newDomains.map((d) => d.trim()))
+    }
+  }
+}
+
 const handleCreate = async () => {
-  createModel.value.type = type.value
+  createModel.value.type = effectiveType.value
   // 去除空的域名和端口
   createModel.value.domains = createModel.value.domains.filter((item) => item !== '')
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '')
@@ -111,7 +161,7 @@ watch(showPathSelector, (val) => {
 <template>
   <n-modal
     v-model:show="show"
-    :title="$gettext('Create Website')"
+    :title="modalTitle"
     preset="card"
     style="width: 60vw"
     size="huge"
@@ -120,6 +170,13 @@ watch(showPathSelector, (val) => {
     @close="show = false"
   >
     <n-form :model="createModel">
+      <n-form-item v-if="type === 'all'" path="type" :label="$gettext('Website Type')">
+        <n-select
+          v-model:value="selectedType"
+          :options="typeOptions"
+          :placeholder="$gettext('Select Website Type')"
+        />
+      </n-form-item>
       <n-form-item path="name" :label="$gettext('Name')">
         <n-input
           v-model:value="createModel.name"
@@ -138,6 +195,18 @@ watch(showPathSelector, (val) => {
               placeholder="example.com"
               :min="1"
               show-sort-button
+              @update:value="
+                (value: string[]) => {
+                  // 检查最后一个元素是否包含多个域名
+                  if (value.length > 0) {
+                    const lastIndex = value.length - 1
+                    const lastValue = value[lastIndex]
+                    if (lastValue && /[\s,\n\r]+/.test(lastValue)) {
+                      handleDomainCreate(lastIndex, lastValue)
+                    }
+                  }
+                }
+              "
             />
           </n-form-item>
         </n-col>
@@ -153,7 +222,7 @@ watch(showPathSelector, (val) => {
           </n-form-item>
         </n-col>
       </n-row>
-      <n-row v-if="type == 'php'" :gutter="[0, 24]">
+      <n-row v-if="effectiveType == 'php'" :gutter="[0, 24]">
         <n-col :span="11">
           <n-form-item path="php" :label="$gettext('PHP Version')">
             <n-select
@@ -186,7 +255,7 @@ watch(showPathSelector, (val) => {
           </n-form-item>
         </n-col>
       </n-row>
-      <n-row v-if="type == 'php'" :gutter="[0, 24]">
+      <n-row v-if="effectiveType == 'php'" :gutter="[0, 24]">
         <n-col :span="7">
           <n-form-item v-if="createModel.db" path="db_name" :label="$gettext('Database Name')">
             <n-input
@@ -224,7 +293,7 @@ watch(showPathSelector, (val) => {
           </n-form-item>
         </n-col>
       </n-row>
-      <n-form-item v-if="type != 'proxy'" path="path" :label="$gettext('Directory')">
+      <n-form-item v-if="effectiveType != 'proxy'" path="path" :label="$gettext('Directory')">
         <n-input-group>
           <n-input
             v-model:value="createModel.path"
@@ -243,7 +312,7 @@ watch(showPathSelector, (val) => {
           </n-button>
         </n-input-group>
       </n-form-item>
-      <n-form-item v-if="type == 'proxy'" path="path" :label="$gettext('Proxy Target')">
+      <n-form-item v-if="effectiveType == 'proxy'" path="path" :label="$gettext('Proxy Target')">
         <n-input
           v-model:value="createModel.proxy"
           type="text"
