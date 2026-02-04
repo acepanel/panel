@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-01-30 14:33\n"
+"PO-Revision-Date: 2026-02-04 13:50\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -342,7 +342,7 @@ msgstr "下载失败：%v"
 msgid "Download file check failed"
 msgstr "下载文件检查失败"
 
-#: internal/service/file.go:299
+#: internal/service/file.go:300
 msgid "Download remote file %v"
 msgstr "下载远程文件 %v"
 
@@ -1415,6 +1415,7 @@ msgid "background task is running, modifying some settings is prohibited, please
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
 #: internal/service/home.go:396
+#: internal/service/home.go:406
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
@@ -1435,7 +1436,7 @@ msgstr "未找到备份存储"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整大小"
 
-#: internal/service/file.go:281
+#: internal/service/file.go:282
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
@@ -1456,7 +1457,7 @@ msgstr "无法初始化系统磁盘"
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/service/file.go:653
+#: internal/service/file.go:654
 msgid "chunk hash mismatch"
 msgstr "分块哈希不匹配"
 
@@ -1476,12 +1477,12 @@ msgstr "编排 %s 已存在"
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 备份文件"
 
-#: internal/service/file.go:170
-#: internal/service/file.go:576
+#: internal/service/file.go:171
+#: internal/service/file.go:577
 msgid "create directory error: %v"
 msgstr "创建目录错误：%v"
 
-#: internal/service/file.go:691
+#: internal/service/file.go:692
 msgid "create target file error: %v"
 msgstr "创建目标文件错误：%v"
 
@@ -1710,7 +1711,7 @@ msgstr "获取磁盘列表失败：%v"
 msgid "failed to get disk space: %v"
 msgstr "获取磁盘空间失败： %v"
 
-#: internal/service/file.go:327
+#: internal/service/file.go:328
 msgid "failed to get file system info"
 msgstr "获取文件系统信息失败"
 
@@ -2097,7 +2098,7 @@ msgstr "gRPC 是一个高性能、开源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "获取服务端口失败，请检查是否安装"
 
-#: internal/service/file.go:630
+#: internal/service/file.go:631
 msgid "get upload file error: %v"
 msgstr "获取上传文件错误：%v"
 
@@ -2203,11 +2204,11 @@ msgstr "名称是必填项"
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
-#: internal/service/file.go:178
+#: internal/service/file.go:179
 msgid "open file error: %v"
 msgstr "打开文件错误： %v"
 
-#: internal/service/file.go:636
+#: internal/service/file.go:637
 msgid "open upload file error: %v"
 msgstr "打开上传文件错误：%v"
 
@@ -2231,7 +2232,7 @@ msgstr "面板运行错误，请检查或联系技术支持"
 msgid "partition has no UUID"
 msgstr "分区没有 UUID"
 
-#: internal/service/file.go:623
+#: internal/service/file.go:624
 msgid "path, file_name and file_hash are required"
 msgstr "path，file_name 和 file_hash 是必需的"
 
@@ -2258,8 +2259,8 @@ msgstr "没有找到 phpMyAdmin 端口"
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
-#: internal/service/file.go:226
-#: internal/service/file.go:255
+#: internal/service/file.go:227
+#: internal/service/file.go:256
 msgid "please don't do this"
 msgstr "请不要花样作死"
 
@@ -2283,15 +2284,15 @@ msgstr "protobuf 是一个用于序列化和反序列化数据的库"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一个用于连接 Apache Kafka 的库"
 
-#: internal/service/file.go:708
+#: internal/service/file.go:709
 msgid "read chunk %d error: %v"
 msgstr "读取分块 %d 错误：%v"
 
-#: internal/service/file.go:644
+#: internal/service/file.go:645
 msgid "read chunk data error: %v"
 msgstr "读取分块数据错误：%v"
 
-#: internal/service/file.go:585
+#: internal/service/file.go:586
 msgid "read directory error: %v"
 msgstr "读取目录错误：%v"
 
@@ -2315,7 +2316,7 @@ msgstr "运行目录不存在"
 msgid "s3 configuration error: %v"
 msgstr "S3 配置错误：%v"
 
-#: internal/service/file.go:663
+#: internal/service/file.go:664
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
@@ -2376,9 +2377,9 @@ msgstr "目标备份 %s 已存在"
 msgid "target is a directory"
 msgstr "目标是一个目录"
 
-#: internal/service/file.go:164
-#: internal/service/file.go:569
-#: internal/service/file.go:684
+#: internal/service/file.go:165
+#: internal/service/file.go:570
+#: internal/service/file.go:685
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
@@ -2465,6 +2466,7 @@ msgid "unsupported system"
 msgstr "不支持的系统"
 
 #: internal/data/website.go:1179
+#: internal/data/website.go:1236
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
@@ -2476,7 +2478,7 @@ msgstr "不支持的网站类型：%s"
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上传的证书无法设置为自动续签"
 
-#: internal/service/file.go:160
+#: internal/service/file.go:161
 msgid "upload file error: %v"
 msgstr "上传文件错误：%v"
 
@@ -2515,11 +2517,11 @@ msgstr "网站目录不存在"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "通配符域名不能使用 HTTP 验证"
 
-#: internal/service/file.go:714
+#: internal/service/file.go:715
 msgid "write chunk %d error: %v"
 msgstr "写入分块 %d 错误：%v"
 
-#: internal/service/file.go:183
+#: internal/service/file.go:184
 msgid "write file error: %v"
 msgstr "写入文件错误：%v"
 
