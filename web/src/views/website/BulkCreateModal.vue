@@ -22,6 +22,17 @@ const effectiveType = computed(() => {
   return type.value
 })
 
+// 批量创建网站请求模型
+interface BulkCreateModel {
+  type: string
+  name: string
+  listens: Array<string>
+  domains: Array<string>
+  path: string
+  proxy: string
+  remark: string
+}
+
 // 类型选项
 const typeOptions = computed(() => [
   { label: $gettext('Reverse Proxy'), value: 'proxy' },
@@ -87,15 +98,7 @@ const handleCreate = async () => {
     const remark = parts[4] ? parts[4].trim() : ''
 
     // 构建请求模型
-    const model: {
-      type: string
-      name: string
-      listens: Array<string>
-      domains: Array<string>
-      path: string
-      proxy: string
-      remark: string
-    } = {
+    const model: BulkCreateModel = {
       type: effectiveType.value,
       name: name,
       listens: listens,

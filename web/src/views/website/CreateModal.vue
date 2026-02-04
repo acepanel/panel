@@ -80,21 +80,22 @@ const modalTitle = computed(() => {
   }
 })
 
+// 域名分隔符正则表达式（支持逗号、空格、换行分隔）
+const DOMAIN_SEPARATORS_REGEX = /[\s,\n\r]+/
+
 // 处理域名粘贴，支持批量添加
 const handleDomainCreate = (index: number, value: string) => {
-  // 检查是否包含多个域名（支持逗号、空格、换行分隔）
-  const separators = /[\s,\n\r]+/
-  if (separators.test(value)) {
-    // 解析多个域名
-    const domains = value.split(separators).filter((d) => d.trim() !== '')
+  if (DOMAIN_SEPARATORS_REGEX.test(value)) {
+    // 解析多个域名并去除空白
+    const domains = value.split(DOMAIN_SEPARATORS_REGEX).map((d) => d.trim()).filter((d) => d !== '')
     if (domains.length > 1) {
       // 移除当前空输入框
       createModel.value.domains.splice(index, 1)
       // 过滤掉已存在的域名，避免重复
-      const existingDomains = new Set(createModel.value.domains)
-      const newDomains = domains.filter((d) => !existingDomains.has(d.trim()))
+      const existingDomains = new Set(createModel.value.domains.map((d) => d.trim()))
+      const newDomains = domains.filter((d) => !existingDomains.has(d))
       // 将新域名添加到列表
-      createModel.value.domains.push(...newDomains.map((d) => d.trim()))
+      createModel.value.domains.push(...newDomains)
     }
   }
 }
@@ -201,7 +202,7 @@ watch(showPathSelector, (val) => {
                   if (value.length > 0) {
                     const lastIndex = value.length - 1
                     const lastValue = value[lastIndex]
-                    if (lastValue && /[\s,\n\r]+/.test(lastValue)) {
+                    if (lastValue && DOMAIN_SEPARATORS_REGEX.test(lastValue)) {
                       handleDomainCreate(lastIndex, lastValue)
                     }
                   }
