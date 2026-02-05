@@ -79,6 +79,19 @@ const handleSave = () => {
   })
 }
 
+const handleObtainCert = () => {
+  useRequest(setting.obtainCert()).onSuccess(() => {
+    window.$message.success($gettext('Certificate refreshed successfully'))
+    window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+    setTimeout(() => {
+      const hostname = window.location.hostname
+      const port = model.value.port
+      const entrance = model.value.entrance || '/'
+      window.location.href = `https://${hostname}:${port}${entrance}`
+    }, 5000)
+  })
+}
+
 const handleCreate = () => {
   createModal.value = true
 }
@@ -105,6 +118,13 @@ const handleCreate = () => {
       <n-flex>
         <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
           {{ $gettext('Save') }}
+        </n-button>
+        <n-button
+          v-if="currentTab === 'safe' && model.https && model.acme"
+          type="info"
+          @click="handleObtainCert"
+        >
+          {{ $gettext('Refresh Certificate') }}
         </n-button>
       </n-flex>
     </n-flex>
