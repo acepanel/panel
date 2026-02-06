@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-04 13:50\n"
+"PO-Revision-Date: 2026-02-06 13:45\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -2466,7 +2466,7 @@ msgid "unsupported system"
 msgstr "不支援的系統"
 
 #: internal/data/website.go:1179
-#: internal/data/website.go:1236
+#: internal/data/website.go:1233
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
