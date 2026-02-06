@@ -49,9 +49,9 @@ func Mv(src, dst string) error {
 	return err
 }
 
-// Cp 复制文件或目录
+// Cp 复制文件或目录（保留所有权和权限）
 func Cp(src, dst string) error {
-	_, err := shell.Execf(`cp -rf '%s' '%s'`, src, dst)
+	_, err := shell.Execf(`cp -arf '%s' '%s'`, src, dst)
 	return err
 }
 
