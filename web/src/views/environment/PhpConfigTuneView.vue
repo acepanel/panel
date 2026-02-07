@@ -12,19 +12,42 @@ const props = defineProps<{
 }>()
 
 const { $gettext } = useGettext()
-const currentTab = ref('disabled_functions')
+const currentTab = ref('general')
 
-// 配置数据
+// 常规设置
+const shortOpenTag = ref('')
+const dateTimezone = ref('')
+const displayErrors = ref('')
+const errorReporting = ref('')
+
+// 禁用函数
 const disableFunctions = ref('')
+
+// 上传限制
 const uploadMaxFilesize = ref('')
 const postMaxSize = ref('')
+const maxFileUploads = ref('')
+const memoryLimit = ref('')
+
+// 超时限制
 const maxExecutionTime = ref('')
 const maxInputTime = ref('')
-const memoryLimit = ref('')
 const maxInputVars = ref('')
-const maxFileUploads = ref('')
+
+// Session
 const sessionSaveHandler = ref('')
 const sessionSavePath = ref('')
+const sessionGcMaxlifetime = ref('')
+const sessionCookieLifetime = ref('')
+
+// Redis/Memcached 可视化字段
+const sessionRedisHost = ref('127.0.0.1')
+const sessionRedisPort = ref('6379')
+const sessionRedisPassword = ref('')
+const sessionMemcachedHost = ref('127.0.0.1')
+const sessionMemcachedPort = ref('11211')
+
+// 性能调整
 const pm = ref('')
 const pmMaxChildren = ref('')
 const pmStartServers = ref('')
@@ -35,43 +58,113 @@ const pmMaxSpareServers = ref('')
 const saveLoading = ref(false)
 const cleanSessionLoading = ref(false)
 
+// 解析 Redis save_path 为可视化字段
+const parseRedisSavePath = (path: string) => {
+  // 格式: tcp://host:port?auth=password
+  try {
+    const url = new URL(path)
+    sessionRedisHost.value = url.hostname || '127.0.0.1'
+    sessionRedisPort.value = url.port || '6379'
+    sessionRedisPassword.value = url.searchParams.get('auth') || ''
+  } catch {
+    sessionRedisHost.value = '127.0.0.1'
+    sessionRedisPort.value = '6379'
+    sessionRedisPassword.value = ''
+  }
+}
+
+// 解析 Memcached save_path 为可视化字段
+const parseMemcachedSavePath = (path: string) => {
+  // 格式: host:port
+  const parts = path.split(':')
+  sessionMemcachedHost.value = parts[0] || '127.0.0.1'
+  sessionMemcachedPort.value = parts[1] || '11211'
+}
+
+// 组合 Redis save_path
+const composeRedisSavePath = () => {
+  const host = sessionRedisHost.value || '127.0.0.1'
+  const port = sessionRedisPort.value || '6379'
+  const password = sessionRedisPassword.value
+  if (password) {
+    return `tcp://${host}:${port}?auth=${password}`
+  }
+  return `tcp://${host}:${port}`
+}
+
+// 组合 Memcached save_path
+const composeMemcachedSavePath = () => {
+  const host = sessionMemcachedHost.value || '127.0.0.1'
+  const port = sessionMemcachedPort.value || '11211'
+  return `${host}:${port}`
+}
+
 // 加载配置
 useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
+  shortOpenTag.value = data.short_open_tag ?? ''
+  dateTimezone.value = data.date_timezone ?? ''
+  displayErrors.value = data.display_errors ?? ''
+  errorReporting.value = data.error_reporting ?? ''
   disableFunctions.value = data.disable_functions ?? ''
   uploadMaxFilesize.value = data.upload_max_filesize ?? ''
   postMaxSize.value = data.post_max_size ?? ''
+  maxFileUploads.value = data.max_file_uploads ?? ''
+  memoryLimit.value = data.memory_limit ?? ''
   maxExecutionTime.value = data.max_execution_time ?? ''
   maxInputTime.value = data.max_input_time ?? ''
-  memoryLimit.value = data.memory_limit ?? ''
   maxInputVars.value = data.max_input_vars ?? ''
-  maxFileUploads.value = data.max_file_uploads ?? ''
   sessionSaveHandler.value = data.session_save_handler ?? 'files'
   sessionSavePath.value = data.session_save_path ?? ''
+  sessionGcMaxlifetime.value = data.session_gc_maxlifetime ?? ''
+  sessionCookieLifetime.value = data.session_cookie_lifetime ?? ''
   pm.value = data.pm ?? 'dynamic'
   pmMaxChildren.value = data.pm_max_children ?? ''
   pmStartServers.value = data.pm_start_servers ?? ''
   pmMinSpareServers.value = data.pm_min_spare_servers ?? ''
   pmMaxSpareServers.value = data.pm_max_spare_servers ?? ''
+
+  // 解析 save_path 到可视化字段
+  if (sessionSaveHandler.value === 'redis' && sessionSavePath.value) {
+    parseRedisSavePath(sessionSavePath.value)
+  } else if (sessionSaveHandler.value === 'memcached' && sessionSavePath.value) {
+    parseMemcachedSavePath(sessionSavePath.value)
+  }
 })
 
 // 获取当前配置数据
-const getConfigData = () => ({
-  disable_functions: disableFunctions.value,
-  upload_max_filesize: uploadMaxFilesize.value,
-  post_max_size: postMaxSize.value,
-  max_execution_time: maxExecutionTime.value,
-  max_input_time: maxInputTime.value,
-  memory_limit: memoryLimit.value,
-  max_input_vars: maxInputVars.value,
-  max_file_uploads: maxFileUploads.value,
-  session_save_handler: sessionSaveHandler.value,
-  session_save_path: sessionSavePath.value,
-  pm: pm.value,
-  pm_max_children: pmMaxChildren.value,
-  pm_start_servers: pmStartServers.value,
-  pm_min_spare_servers: pmMinSpareServers.value,
-  pm_max_spare_servers: pmMaxSpareServers.value
-})
+const getConfigData = () => {
+  // 根据 handler 类型组合 save_path
+  let savePath = sessionSavePath.value
+  if (sessionSaveHandler.value === 'redis') {
+    savePath = composeRedisSavePath()
+  } else if (sessionSaveHandler.value === 'memcached') {
+    savePath = composeMemcachedSavePath()
+  }
+
+  return {
+    short_open_tag: shortOpenTag.value,
+    date_timezone: dateTimezone.value,
+    display_errors: displayErrors.value,
+    error_reporting: errorReporting.value,
+    disable_functions: disableFunctions.value,
+    upload_max_filesize: uploadMaxFilesize.value,
+    post_max_size: postMaxSize.value,
+    max_file_uploads: maxFileUploads.value,
+    memory_limit: memoryLimit.value,
+    max_execution_time: maxExecutionTime.value,
+    max_input_time: maxInputTime.value,
+    max_input_vars: maxInputVars.value,
+    session_save_handler: sessionSaveHandler.value,
+    session_save_path: savePath,
+    session_gc_maxlifetime: sessionGcMaxlifetime.value,
+    session_cookie_lifetime: sessionCookieLifetime.value,
+    pm: pm.value,
+    pm_max_children: pmMaxChildren.value,
+    pm_start_servers: pmStartServers.value,
+    pm_min_spare_servers: pmMinSpareServers.value,
+    pm_max_spare_servers: pmMaxSpareServers.value
+  }
+}
 
 // 保存配置
 const handleSave = () => {
@@ -110,10 +203,53 @@ const pmOptions = [
   { label: 'static', value: 'static' },
   { label: 'ondemand', value: 'ondemand' }
 ]
+
+// short_open_tag / display_errors 选项
+const onOffOptions = [
+  { label: 'On', value: 'On' },
+  { label: 'Off', value: 'Off' }
+]
 </script>
 
 <template>
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+    <n-tab-pane name="general" :tab="$gettext('General')">
+      <n-flex vertical>
+        <n-alert type="info">
+          {{ $gettext('Common PHP general settings.') }}
+        </n-alert>
+        <n-form>
+          <n-form-item label="short_open_tag">
+            <n-select v-model:value="shortOpenTag" :options="onOffOptions" />
+          </n-form-item>
+          <n-form-item label="date.timezone">
+            <n-input
+              v-model:value="dateTimezone"
+              :placeholder="$gettext('e.g. Asia/Shanghai')"
+            />
+          </n-form-item>
+          <n-form-item label="display_errors">
+            <n-select v-model:value="displayErrors" :options="onOffOptions" />
+          </n-form-item>
+          <n-form-item label="error_reporting">
+            <n-input
+              v-model:value="errorReporting"
+              :placeholder="$gettext('e.g. E_ALL')"
+            />
+          </n-form-item>
+        </n-form>
+        <n-flex>
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
+            {{ $gettext('Save') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
+    </n-tab-pane>
     <n-tab-pane name="disabled_functions" :tab="$gettext('Disabled Functions')">
       <n-flex vertical>
         <n-alert type="info">
@@ -308,16 +444,64 @@ const pmOptions = [
               :options="sessionHandlerOptions"
             />
           </n-form-item>
-          <n-form-item label="session.save_path">
+          <!-- files 模式：显示路径 -->
+          <n-form-item
+            v-if="sessionSaveHandler === 'files'"
+            label="session.save_path"
+          >
             <n-input
               v-model:value="sessionSavePath"
-              :placeholder="
-                sessionSaveHandler === 'redis'
-                  ? $gettext('e.g. tcp://127.0.0.1:6379')
-                  : sessionSaveHandler === 'memcached'
-                    ? $gettext('e.g. 127.0.0.1:11211')
-                    : $gettext('e.g. /tmp')
-              "
+              :placeholder="$gettext('e.g. /tmp')"
+            />
+          </n-form-item>
+          <!-- redis 模式：显示主机、端口、密码 -->
+          <template v-if="sessionSaveHandler === 'redis'">
+            <n-form-item :label="$gettext('Redis Host')">
+              <n-input
+                v-model:value="sessionRedisHost"
+                placeholder="127.0.0.1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Redis Port')">
+              <n-input
+                v-model:value="sessionRedisPort"
+                placeholder="6379"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Redis Password')">
+              <n-input
+                v-model:value="sessionRedisPassword"
+                type="password"
+                show-password-on="click"
+                :placeholder="$gettext('Leave empty if no password')"
+              />
+            </n-form-item>
+          </template>
+          <!-- memcached 模式：显示主机、端口 -->
+          <template v-if="sessionSaveHandler === 'memcached'">
+            <n-form-item :label="$gettext('Memcached Host')">
+              <n-input
+                v-model:value="sessionMemcachedHost"
+                placeholder="127.0.0.1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Memcached Port')">
+              <n-input
+                v-model:value="sessionMemcachedPort"
+                placeholder="11211"
+              />
+            </n-form-item>
+          </template>
+          <n-form-item label="session.gc_maxlifetime">
+            <n-input
+              v-model:value="sessionGcMaxlifetime"
+              :placeholder="$gettext('e.g. 1440 (seconds)')"
+            />
+          </n-form-item>
+          <n-form-item label="session.cookie_lifetime">
+            <n-input
+              v-model:value="sessionCookieLifetime"
+              :placeholder="$gettext('e.g. 0 (until browser closes)')"
             />
           </n-form-item>
         </n-form>

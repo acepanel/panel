@@ -663,18 +663,27 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 	}
 
 	tune := request.EnvironmentPHPConfigTune{
-		// php.ini 配置
-		DisableFunctions:  s.getINIValue(ini, "disable_functions"),
+		// php.ini 常规设置
+		ShortOpenTag:   s.getINIValue(ini, "short_open_tag"),
+		DateTimezone:   s.getINIValue(ini, "date.timezone"),
+		DisplayErrors:  s.getINIValue(ini, "display_errors"),
+		ErrorReporting: s.getINIValue(ini, "error_reporting"),
+		// php.ini 禁用函数
+		DisableFunctions: s.getINIValue(ini, "disable_functions"),
+		// php.ini 上传限制
 		UploadMaxFilesize: s.getINIValue(ini, "upload_max_filesize"),
 		PostMaxSize:       s.getINIValue(ini, "post_max_size"),
-		MaxExecutionTime:  s.getINIValue(ini, "max_execution_time"),
-		MaxInputTime:      s.getINIValue(ini, "max_input_time"),
-		MemoryLimit:       s.getINIValue(ini, "memory_limit"),
-		MaxInputVars:      s.getINIValue(ini, "max_input_vars"),
 		MaxFileUploads:    s.getINIValue(ini, "max_file_uploads"),
+		MemoryLimit:       s.getINIValue(ini, "memory_limit"),
+		// php.ini 超时限制
+		MaxExecutionTime: s.getINIValue(ini, "max_execution_time"),
+		MaxInputTime:     s.getINIValue(ini, "max_input_time"),
+		MaxInputVars:     s.getINIValue(ini, "max_input_vars"),
 		// Session 相关
-		SessionSaveHandler: s.getINIValue(ini, "session.save_handler"),
-		SessionSavePath:    s.getINIValue(ini, "session.save_path"),
+		SessionSaveHandler:    s.getINIValue(ini, "session.save_handler"),
+		SessionSavePath:       s.getINIValue(ini, "session.save_path"),
+		SessionGcMaxlifetime:  s.getINIValue(ini, "session.gc_maxlifetime"),
+		SessionCookieLifetime: s.getINIValue(ini, "session.cookie_lifetime"),
 		// php-fpm.conf 配置
 		Pm:                s.getINIValue(fpm, "pm"),
 		PmMaxChildren:     s.getINIValue(fpm, "pm.max_children"),
@@ -713,6 +722,10 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 	}
 
 	// 更新 php.ini 配置
+	ini = s.setINIValue(ini, "short_open_tag", req.ShortOpenTag)
+	ini = s.setINIValue(ini, "date.timezone", req.DateTimezone)
+	ini = s.setINIValue(ini, "display_errors", req.DisplayErrors)
+	ini = s.setINIValue(ini, "error_reporting", req.ErrorReporting)
 	ini = s.setINIValue(ini, "disable_functions", req.DisableFunctions)
 	ini = s.setINIValue(ini, "upload_max_filesize", req.UploadMaxFilesize)
 	ini = s.setINIValue(ini, "post_max_size", req.PostMaxSize)
@@ -723,6 +736,8 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 	ini = s.setINIValue(ini, "max_file_uploads", req.MaxFileUploads)
 	ini = s.setINIValue(ini, "session.save_handler", req.SessionSaveHandler)
 	ini = s.setINIValue(ini, "session.save_path", req.SessionSavePath)
+	ini = s.setINIValue(ini, "session.gc_maxlifetime", req.SessionGcMaxlifetime)
+	ini = s.setINIValue(ini, "session.cookie_lifetime", req.SessionCookieLifetime)
 
 	// 更新 php-fpm.conf 配置
 	fpm = s.setINIValue(fpm, "pm", req.Pm)
