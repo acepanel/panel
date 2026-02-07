@@ -13,8 +13,14 @@ import RedisConfigTuneView from './RedisConfigTuneView.vue'
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 
-const { data: config } = useRequest(redis.config, {
+const { data: config, send: refreshConfig } = useRequest(redis.config, {
   initialData: ''
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
+  }
 })
 const { data: load } = useRequest(redis.load, {
   initialData: []

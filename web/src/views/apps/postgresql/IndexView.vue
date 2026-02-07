@@ -20,11 +20,19 @@ const { data: postgresPassword } = useRequest(postgresql.postgresPassword, {
 const { data: log } = useRequest(postgresql.log, {
   initialData: ''
 })
-const { data: config } = useRequest(postgresql.config, {
+const { data: config, send: refreshConfig } = useRequest(postgresql.config, {
   initialData: ''
 })
-const { data: userConfig } = useRequest(postgresql.userConfig, {
+const { data: userConfig, send: refreshUserConfig } = useRequest(postgresql.userConfig, {
   initialData: ''
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
+  } else if (val === 'user-config') {
+    refreshUserConfig()
+  }
 })
 const { data: load } = useRequest(postgresql.load, {
   initialData: []

@@ -33,9 +33,15 @@ const { data: load } = useRequest(memcached.load, {
   initialData: []
 })
 
-const { data: config } = useRequest(memcached.config, {
+const { data: config, send: refreshConfig } = useRequest(memcached.config, {
   initialData: {
     config: ''
+  }
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
   }
 })
 

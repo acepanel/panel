@@ -18,8 +18,14 @@ const currentTab = ref('status')
 const { data: rootPassword } = useRequest(props.api.rootPassword, {
   initialData: ''
 })
-const { data: config } = useRequest(props.api.config, {
+const { data: config, send: refreshConfig } = useRequest(props.api.config, {
   initialData: ''
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
+  }
 })
 const { data: slowLog } = useRequest(props.api.slowLog, {
   initialData: ''

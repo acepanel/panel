@@ -18,11 +18,19 @@ const showPHPInfoModal = ref(false)
 const phpinfoContent = ref('')
 const phpinfoLoading = ref(false)
 
-const { data: config } = useRequest(php.config(slug), {
+const { data: config, send: refreshConfig } = useRequest(php.config(slug), {
   initialData: ''
 })
-const { data: fpmConfig } = useRequest(php.fpmConfig(slug), {
+const { data: fpmConfig, send: refreshFpmConfig } = useRequest(php.fpmConfig(slug), {
   initialData: ''
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
+  } else if (val === 'fpm-config') {
+    refreshFpmConfig()
+  }
 })
 const { data: log } = useRequest(php.log(slug), {
   initialData: ''

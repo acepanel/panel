@@ -65,7 +65,7 @@ const updateResolverTimeoutUnit = (unit: string) => {
   streamUpstreamModel.value.resolver_timeout = buildDuration(parsed.value, unit)
 }
 
-const { data: config } = useRequest(props.api.config, {
+const { data: config, send: refreshConfig } = useRequest(props.api.config, {
   initialData: ''
 })
 const { data: errorLog } = useRequest(props.api.errorLog, {
@@ -305,7 +305,9 @@ const streamUpstreamColumns: any = [
 
 // 监听标签页切换
 watch(currentTab, (val) => {
-  if (val === 'stream') {
+  if (val === 'config') {
+    refreshConfig()
+  } else if (val === 'stream') {
     loadStreamServers()
     loadStreamUpstreams()
   }
