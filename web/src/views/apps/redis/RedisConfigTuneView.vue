@@ -12,14 +12,15 @@ const currentTab = ref('general')
 
 // 常规设置
 const bind = ref('')
-const port = ref('')
-const databases = ref('')
+const port = ref<number | null>(null)
+const databases = ref<number | null>(null)
 const requirepass = ref('')
-const timeout = ref('')
-const tcpKeepalive = ref('')
+const timeout = ref<number | null>(null)
+const tcpKeepalive = ref<number | null>(null)
 
 // 内存
-const maxmemory = ref('')
+const maxmemoryNum = ref<number | null>(null)
+const maxmemoryUnit = ref('mb')
 const maxmemoryPolicy = ref('')
 
 // 持久化
@@ -27,6 +28,29 @@ const appendonly = ref('')
 const appendfsync = ref('')
 
 const saveLoading = ref(false)
+
+// Redis 容量单位选项
+const sizeUnitOptions = [
+  { label: 'kb', value: 'kb' },
+  { label: 'mb', value: 'mb' },
+  { label: 'gb', value: 'gb' }
+]
+
+// 解析带单位的值，如 "256mb" -> { num: 256, unit: "mb" }
+const parseSizeValue = (val: string): { num: number | null; unit: string } => {
+  if (!val) return { num: null, unit: 'mb' }
+  const match = val.match(/^(\d+)\s*(kb|mb|gb)$/i)
+  if (match) {
+    return { num: Number(match[1]), unit: match[2].toLowerCase() }
+  }
+  return { num: Number(val) || null, unit: 'mb' }
+}
+
+// 组合数值和单位
+const composeSizeValue = (num: number | null, unit: string): string => {
+  if (num == null) return ''
+  return `${num}${unit}`
+}
 
 const maxmemoryPolicyOptions = [
   { label: 'noeviction', value: 'noeviction' },
@@ -52,12 +76,14 @@ const yesNoOptions = [
 
 useRequest(redis.configTune()).onSuccess(({ data }: any) => {
   bind.value = data.bind ?? ''
-  port.value = data.port ?? ''
-  databases.value = data.databases ?? ''
+  port.value = Number(data.port) || null
+  databases.value = Number(data.databases) || null
   requirepass.value = data.requirepass ?? ''
-  timeout.value = data.timeout ?? ''
-  tcpKeepalive.value = data.tcp_keepalive ?? ''
-  maxmemory.value = data.maxmemory ?? ''
+  timeout.value = Number(data.timeout) ?? null
+  tcpKeepalive.value = Number(data.tcp_keepalive) || null
+  const mm = parseSizeValue(data.maxmemory ?? '')
+  maxmemoryNum.value = mm.num
+  maxmemoryUnit.value = mm.unit
   maxmemoryPolicy.value = data.maxmemory_policy ?? ''
   appendonly.value = data.appendonly ?? ''
   appendfsync.value = data.appendfsync ?? ''
@@ -65,12 +91,12 @@ useRequest(redis.configTune()).onSuccess(({ data }: any) => {
 
 const getConfigData = () => ({
   bind: bind.value,
-  port: port.value,
-  databases: databases.value,
+  port: String(port.value ?? ''),
+  databases: String(databases.value ?? ''),
   requirepass: requirepass.value,
-  timeout: timeout.value,
-  tcp_keepalive: tcpKeepalive.value,
-  maxmemory: maxmemory.value,
+  timeout: String(timeout.value ?? ''),
+  tcp_keepalive: String(tcpKeepalive.value ?? ''),
+  maxmemory: composeSizeValue(maxmemoryNum.value, maxmemoryUnit.value),
   maxmemory_policy: maxmemoryPolicy.value,
   appendonly: appendonly.value,
   appendfsync: appendfsync.value
@@ -100,10 +126,10 @@ const handleSave = () => {
             <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
           </n-form-item>
           <n-form-item label="Port (port)">
-            <n-input v-model:value="port" :placeholder="$gettext('e.g. 6379')" />
+            <n-input-number class="w-full" v-model:value="port" :placeholder="$gettext('e.g. 6379')" :min="1" :max="65535" />
           </n-form-item>
           <n-form-item label="Databases (databases)">
-            <n-input v-model:value="databases" :placeholder="$gettext('e.g. 16')" />
+            <n-input-number class="w-full" v-model:value="databases" :placeholder="$gettext('e.g. 16')" :min="1" />
           </n-form-item>
           <n-form-item label="Password (requirepass)">
             <n-input
@@ -114,13 +140,10 @@ const handleSave = () => {
             />
           </n-form-item>
           <n-form-item label="Timeout (timeout)">
-            <n-input
-              v-model:value="timeout"
-              :placeholder="$gettext('e.g. 0 (disabled) or seconds')"
-            />
+            <n-input-number class="w-full" v-model:value="timeout" :placeholder="$gettext('e.g. 0 (disabled) or seconds')" :min="0" />
           </n-form-item>
           <n-form-item label="TCP Keepalive (tcp-keepalive)">
-            <n-input v-model:value="tcpKeepalive" :placeholder="$gettext('e.g. 300')" />
+            <n-input-number class="w-full" v-model:value="tcpKeepalive" :placeholder="$gettext('e.g. 300')" :min="0" />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -137,10 +160,10 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item label="Max Memory (maxmemory)">
-            <n-input
-              v-model:value="maxmemory"
-              :placeholder="$gettext('e.g. 256mb or 0 (no limit)')"
-            />
+            <n-input-group>
+              <n-input-number class="w-full" v-model:value="maxmemoryNum" :placeholder="$gettext('e.g. 256')" :min="0" style="flex: 1" />
+              <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" style="width: 80px" />
+            </n-input-group>
           </n-form-item>
           <n-form-item label="Maxmemory Policy (maxmemory-policy)">
             <n-select v-model:value="maxmemoryPolicy" :options="maxmemoryPolicyOptions" />

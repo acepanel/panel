@@ -855,13 +855,22 @@ func (s *EnvironmentPHPService) setINIValue(content string, key string, value st
 				// 如果已经找到并替换过，跳过重复行
 				continue
 			}
-			result = append(result, key+" = "+value)
 			found = true
+			// 值为空时注释掉该配置项
+			if value == "" {
+				if !strings.HasPrefix(trimmed, ";") && !strings.HasPrefix(trimmed, "#") {
+					result = append(result, ";"+line)
+				} else {
+					result = append(result, line)
+				}
+				continue
+			}
+			result = append(result, key+" = "+value)
 		} else {
 			result = append(result, line)
 		}
 	}
-	if !found {
+	if !found && value != "" {
 		result = append(result, key+" = "+value)
 	}
 	return strings.Join(result, "\n")

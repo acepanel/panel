@@ -204,14 +204,17 @@ func (s *App) setExecStartArg(content string, flag string, value string) string 
 		found := false
 		for i := 0; i < len(args); i++ {
 			if args[i] == flag && i+1 < len(args) {
-				newArgs = append(newArgs, flag, value)
 				i++ // 跳过旧值
 				found = true
+				// 值为空时删除该参数
+				if value != "" {
+					newArgs = append(newArgs, flag, value)
+				}
 			} else {
 				newArgs = append(newArgs, args[i])
 			}
 		}
-		if !found {
+		if !found && value != "" {
 			newArgs = append(newArgs, flag, value)
 		}
 		result = append(result, strings.Join(newArgs, " "))

@@ -9,34 +9,34 @@ import memcached from '@/api/apps/memcached'
 
 const { $gettext } = useGettext()
 
-const port = ref('')
-const udpPort = ref('')
+const port = ref<number | null>(null)
+const udpPort = ref<number | null>(null)
 const listenAddress = ref('')
-const memory = ref('')
-const maxConnections = ref('')
-const threads = ref('')
+const memory = ref<number | null>(null)
+const maxConnections = ref<number | null>(null)
+const threads = ref<number | null>(null)
 
 const saveLoading = ref(false)
 
 useRequest(memcached.configTune()).onSuccess(({ data }: any) => {
-  port.value = data.port ?? ''
-  udpPort.value = data.udp_port ?? ''
+  port.value = Number(data.port) || null
+  udpPort.value = Number(data.udp_port) ?? null
   listenAddress.value = data.listen_address ?? ''
-  memory.value = data.memory ?? ''
-  maxConnections.value = data.max_connections ?? ''
-  threads.value = data.threads ?? ''
+  memory.value = Number(data.memory) || null
+  maxConnections.value = Number(data.max_connections) || null
+  threads.value = Number(data.threads) || null
 })
 
 const handleSave = () => {
   saveLoading.value = true
   useRequest(
     memcached.saveConfigTune({
-      port: port.value,
-      udp_port: udpPort.value,
+      port: String(port.value ?? ''),
+      udp_port: String(udpPort.value ?? ''),
       listen_address: listenAddress.value,
-      memory: memory.value,
-      max_connections: maxConnections.value,
-      threads: threads.value
+      memory: String(memory.value ?? ''),
+      max_connections: String(maxConnections.value ?? ''),
+      threads: String(threads.value ?? '')
     })
   )
     .onSuccess(() => {
@@ -55,22 +55,22 @@ const handleSave = () => {
     </n-alert>
     <n-form>
       <n-form-item :label="$gettext('Port (-p)')">
-        <n-input v-model:value="port" :placeholder="$gettext('e.g. 11211')" />
+        <n-input-number class="w-full" v-model:value="port" :placeholder="$gettext('e.g. 11211')" :min="1" :max="65535" />
       </n-form-item>
       <n-form-item :label="$gettext('UDP Port (-U, 0 to disable)')">
-        <n-input v-model:value="udpPort" :placeholder="$gettext('e.g. 0')" />
+        <n-input-number class="w-full" v-model:value="udpPort" :placeholder="$gettext('e.g. 0')" :min="0" :max="65535" />
       </n-form-item>
       <n-form-item :label="$gettext('Listen Address (-l)')">
         <n-input v-model:value="listenAddress" :placeholder="$gettext('e.g. 127.0.0.1')" />
       </n-form-item>
       <n-form-item :label="$gettext('Memory (-m, MB)')">
-        <n-input v-model:value="memory" :placeholder="$gettext('e.g. 64')" />
+        <n-input-number class="w-full" v-model:value="memory" :placeholder="$gettext('e.g. 64')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('Max Connections (-c)')">
-        <n-input v-model:value="maxConnections" :placeholder="$gettext('e.g. 1024')" />
+        <n-input-number class="w-full" v-model:value="maxConnections" :placeholder="$gettext('e.g. 1024')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('Threads (-t)')">
-        <n-input v-model:value="threads" :placeholder="$gettext('e.g. 4')" />
+        <n-input-number class="w-full" v-model:value="threads" :placeholder="$gettext('e.g. 4')" :min="1" />
       </n-form-item>
     </n-form>
     <n-flex>

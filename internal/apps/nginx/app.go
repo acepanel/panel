@@ -322,15 +322,25 @@ func (s *App) setNginxValue(content string, key string, value string) string {
 			if found {
 				continue
 			}
+			found = true
+			// 值为空时注释掉该配置项
+			if value == "" {
+				if !strings.HasPrefix(trimmed, "#") {
+					indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+					result = append(result, indent+"#"+strings.TrimLeft(line, " \t"))
+				} else {
+					result = append(result, line)
+				}
+				continue
+			}
 			// 保留原行缩进
 			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
 			result = append(result, indent+key+" "+value+";")
-			found = true
 		} else {
 			result = append(result, line)
 		}
 	}
-	if !found {
+	if !found && value != "" {
 		result = append(result, "    "+key+" "+value+";")
 	}
 	return strings.Join(result, "\n")

@@ -9,14 +9,14 @@ import pureftpd from '@/api/apps/pureftpd'
 
 const { $gettext } = useGettext()
 
-const maxClientsNumber = ref('')
-const maxClientsPerIP = ref('')
-const maxIdleTime = ref('')
-const maxLoad = ref('')
+const maxClientsNumber = ref<number | null>(null)
+const maxClientsPerIP = ref<number | null>(null)
+const maxIdleTime = ref<number | null>(null)
+const maxLoad = ref<number | null>(null)
 const passivePortRange = ref('')
 const anonymousOnly = ref('')
 const noAnonymous = ref('')
-const maxDiskUsage = ref('')
+const maxDiskUsage = ref<number | null>(null)
 
 const saveLoading = ref(false)
 
@@ -26,28 +26,28 @@ const yesNoOptions = [
 ]
 
 useRequest(pureftpd.configTune()).onSuccess(({ data }: any) => {
-  maxClientsNumber.value = data.max_clients_number ?? ''
-  maxClientsPerIP.value = data.max_clients_per_ip ?? ''
-  maxIdleTime.value = data.max_idle_time ?? ''
-  maxLoad.value = data.max_load ?? ''
+  maxClientsNumber.value = Number(data.max_clients_number) || null
+  maxClientsPerIP.value = Number(data.max_clients_per_ip) || null
+  maxIdleTime.value = Number(data.max_idle_time) || null
+  maxLoad.value = Number(data.max_load) || null
   passivePortRange.value = data.passive_port_range ?? ''
   anonymousOnly.value = data.anonymous_only ?? ''
   noAnonymous.value = data.no_anonymous ?? ''
-  maxDiskUsage.value = data.max_disk_usage ?? ''
+  maxDiskUsage.value = Number(data.max_disk_usage) || null
 })
 
 const handleSave = () => {
   saveLoading.value = true
   useRequest(
     pureftpd.saveConfigTune({
-      max_clients_number: maxClientsNumber.value,
-      max_clients_per_ip: maxClientsPerIP.value,
-      max_idle_time: maxIdleTime.value,
-      max_load: maxLoad.value,
+      max_clients_number: String(maxClientsNumber.value ?? ''),
+      max_clients_per_ip: String(maxClientsPerIP.value ?? ''),
+      max_idle_time: String(maxIdleTime.value ?? ''),
+      max_load: String(maxLoad.value ?? ''),
       passive_port_range: passivePortRange.value,
       anonymous_only: anonymousOnly.value,
       no_anonymous: noAnonymous.value,
-      max_disk_usage: maxDiskUsage.value
+      max_disk_usage: String(maxDiskUsage.value ?? '')
     })
   )
     .onSuccess(() => {
@@ -66,16 +66,16 @@ const handleSave = () => {
     </n-alert>
     <n-form>
       <n-form-item label="MaxClientsNumber">
-        <n-input v-model:value="maxClientsNumber" :placeholder="$gettext('e.g. 50')" />
+        <n-input-number class="w-full" v-model:value="maxClientsNumber" :placeholder="$gettext('e.g. 50')" :min="1" />
       </n-form-item>
       <n-form-item label="MaxClientsPerIP">
-        <n-input v-model:value="maxClientsPerIP" :placeholder="$gettext('e.g. 8')" />
+        <n-input-number class="w-full" v-model:value="maxClientsPerIP" :placeholder="$gettext('e.g. 8')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('MaxIdleTime (minutes)')">
-        <n-input v-model:value="maxIdleTime" :placeholder="$gettext('e.g. 15')" />
+        <n-input-number class="w-full" v-model:value="maxIdleTime" :placeholder="$gettext('e.g. 15')" :min="0" />
       </n-form-item>
       <n-form-item label="MaxLoad">
-        <n-input v-model:value="maxLoad" :placeholder="$gettext('e.g. 4')" />
+        <n-input-number class="w-full" v-model:value="maxLoad" :placeholder="$gettext('e.g. 4')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('PassivePortRange (start end)')">
         <n-input v-model:value="passivePortRange" :placeholder="$gettext('e.g. 39000 40000')" />
@@ -87,7 +87,7 @@ const handleSave = () => {
         <n-select v-model:value="noAnonymous" :options="yesNoOptions" />
       </n-form-item>
       <n-form-item :label="$gettext('MaxDiskUsage (%)')">
-        <n-input v-model:value="maxDiskUsage" :placeholder="$gettext('e.g. 99')" />
+        <n-input-number class="w-full" v-model:value="maxDiskUsage" :placeholder="$gettext('e.g. 99')" :min="1" :max="100" />
       </n-form-item>
     </n-form>
     <n-flex>

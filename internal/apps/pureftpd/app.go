@@ -142,13 +142,19 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 // GetPort 获取端口
 func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
-	port, err := shell.Execf(`cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
+	config, err := io.Read(fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 		return
 	}
 
-	service.Success(w, cast.ToInt(port))
+	bind := strings.Trim(s.getFTPValue(config, "Bind"), `"'`)
+	port := 21 // 默认端口
+	if parts := strings.SplitN(bind, ",", 2); len(parts) == 2 {
+		port = cast.ToInt(strings.TrimSpace(parts[1]))
+	}
+
+	service.Success(w, port)
 }
 
 // UpdatePort 设置端口
@@ -159,7 +165,14 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`sed -i "s/Bind.*/Bind 0.0.0.0,%d/g" %s/server/pure-ftpd/etc/pure-ftpd.conf`, req.Port, app.Root); err != nil {
+	confPath := fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root)
+	config, err := io.Read(confPath)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	config = s.setFTPValue(config, "Bind", fmt.Sprintf(`"0.0.0.0,%d"`, req.Port))
+	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -283,16 +296,25 @@ func (s *App) setFTPValue(content string, key string, value string) string {
 			if found {
 				continue
 			}
+			found = true
+			// 值为空时注释掉该配置项
+			if value == "" {
+				if !strings.HasPrefix(trimmed, "#") {
+					result = append(result, "#"+line)
+				} else {
+					result = append(result, line)
+				}
+				continue
+			}
 			// 保留原行格式
 			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
-			result = append(result, indent+key+"                  "+value)
-			found = true
+			result = append(result, indent+key+" "+value)
 		} else {
 			result = append(result, line)
 		}
 	}
-	if !found {
-		result = append(result, key+"                  "+value)
+	if !found && value != "" {
+		result = append(result, key+" "+value)
 	}
 	return strings.Join(result, "\n")
 }

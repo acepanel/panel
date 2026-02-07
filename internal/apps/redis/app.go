@@ -209,8 +209,8 @@ func (s *App) setRedisValue(content string, key string, value string) string {
 	value = strings.ReplaceAll(value, "\r", "")
 
 	lines := strings.Split(content, "\n")
-	found := false
 	result := make([]string, 0, len(lines))
+	found := false
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {
@@ -222,17 +222,26 @@ func (s *App) setRedisValue(content string, key string, value string) string {
 			checkLine = strings.TrimSpace(checkLine[1:])
 		}
 		parts := strings.Fields(checkLine)
-		if len(parts) >= 2 && parts[0] == key {
+		if len(parts) >= 1 && parts[0] == key {
 			if found {
 				continue
 			}
-			result = append(result, key+" "+value)
 			found = true
+			// 值为空时注释掉该配置项
+			if value == "" {
+				if !strings.HasPrefix(trimmed, "#") {
+					result = append(result, "# "+trimmed)
+				} else {
+					result = append(result, line)
+				}
+				continue
+			}
+			result = append(result, key+" "+value)
 		} else {
 			result = append(result, line)
 		}
 	}
-	if !found {
+	if !found && value != "" {
 		result = append(result, key+" "+value)
 	}
 	return strings.Join(result, "\n")
