@@ -86,8 +86,7 @@ const handleCreate = async () => {
     const parts = line.split('|')
     if (parts.length < 4) {
       window.$message.error($gettext('The format is incorrect, please check'))
-      remaining--
-      if (remaining <= 0) loading.value = false
+      loading.value = false
       return
     }
     // 去除空格

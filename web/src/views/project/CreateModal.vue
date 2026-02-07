@@ -288,7 +288,6 @@ const handleCreate = async () => {
       remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name })
     }
 
-    loading.value = true
     try {
       await new Promise<void>((resolve, reject) => {
         useRequest(website.create(websiteData))
