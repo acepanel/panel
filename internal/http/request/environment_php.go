@@ -13,3 +13,26 @@ type EnvironmentPHPUpdateConfig struct {
 	Version uint   `json:"version"`
 	Config  string `form:"config" json:"config" validate:"required"`
 }
+
+// EnvironmentPHPConfigTune PHP 配置调整
+type EnvironmentPHPConfigTune struct {
+	Version uint `json:"version"`
+	// php.ini 相关
+	DisableFunctions  string `form:"disable_functions" json:"disable_functions"`
+	UploadMaxFilesize string `form:"upload_max_filesize" json:"upload_max_filesize"`
+	PostMaxSize       string `form:"post_max_size" json:"post_max_size"`
+	MaxExecutionTime  string `form:"max_execution_time" json:"max_execution_time"`
+	MaxInputTime      string `form:"max_input_time" json:"max_input_time"`
+	MemoryLimit       string `form:"memory_limit" json:"memory_limit"`
+	MaxInputVars      string `form:"max_input_vars" json:"max_input_vars"`
+	MaxFileUploads    string `form:"max_file_uploads" json:"max_file_uploads"`
+	// Session 相关
+	SessionSaveHandler string `form:"session_save_handler" json:"session_save_handler"`
+	SessionSavePath    string `form:"session_save_path" json:"session_save_path"`
+	// php-fpm.conf 相关
+	Pm               string `form:"pm" json:"pm"`
+	PmMaxChildren    string `form:"pm_max_children" json:"pm_max_children"`
+	PmStartServers   string `form:"pm_start_servers" json:"pm_start_servers"`
+	PmMinSpareServers string `form:"pm_min_spare_servers" json:"pm_min_spare_servers"`
+	PmMaxSpareServers string `form:"pm_max_spare_servers" json:"pm_max_spare_servers"`
+}

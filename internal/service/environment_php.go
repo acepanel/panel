@@ -635,3 +635,211 @@ func (s *EnvironmentPHPService) checkModule(version uint, slug string) bool {
 
 	return false
 }
+
+// GetConfigTune 获取 PHP 配置调整参数
+func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.EnvironmentPHPVersion](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+		return
+	}
+
+	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	fpmPath := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+
+	ini, err := io.Read(iniPath)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	fpm, err := io.Read(fpmPath)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	tune := request.EnvironmentPHPConfigTune{
+		// php.ini 配置
+		DisableFunctions:  s.getINIValue(ini, "disable_functions"),
+		UploadMaxFilesize: s.getINIValue(ini, "upload_max_filesize"),
+		PostMaxSize:       s.getINIValue(ini, "post_max_size"),
+		MaxExecutionTime:  s.getINIValue(ini, "max_execution_time"),
+		MaxInputTime:      s.getINIValue(ini, "max_input_time"),
+		MemoryLimit:       s.getINIValue(ini, "memory_limit"),
+		MaxInputVars:      s.getINIValue(ini, "max_input_vars"),
+		MaxFileUploads:    s.getINIValue(ini, "max_file_uploads"),
+		// Session 相关
+		SessionSaveHandler: s.getINIValue(ini, "session.save_handler"),
+		SessionSavePath:    s.getINIValue(ini, "session.save_path"),
+		// php-fpm.conf 配置
+		Pm:                s.getINIValue(fpm, "pm"),
+		PmMaxChildren:     s.getINIValue(fpm, "pm.max_children"),
+		PmStartServers:    s.getINIValue(fpm, "pm.start_servers"),
+		PmMinSpareServers: s.getINIValue(fpm, "pm.min_spare_servers"),
+		PmMaxSpareServers: s.getINIValue(fpm, "pm.max_spare_servers"),
+	}
+
+	Success(w, tune)
+}
+
+// UpdateConfigTune 更新 PHP 配置调整参数
+func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.EnvironmentPHPConfigTune](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+		return
+	}
+
+	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	fpmPath := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+
+	ini, err := io.Read(iniPath)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	fpm, err := io.Read(fpmPath)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 更新 php.ini 配置
+	ini = s.setINIValue(ini, "disable_functions", req.DisableFunctions)
+	ini = s.setINIValue(ini, "upload_max_filesize", req.UploadMaxFilesize)
+	ini = s.setINIValue(ini, "post_max_size", req.PostMaxSize)
+	ini = s.setINIValue(ini, "max_execution_time", req.MaxExecutionTime)
+	ini = s.setINIValue(ini, "max_input_time", req.MaxInputTime)
+	ini = s.setINIValue(ini, "memory_limit", req.MemoryLimit)
+	ini = s.setINIValue(ini, "max_input_vars", req.MaxInputVars)
+	ini = s.setINIValue(ini, "max_file_uploads", req.MaxFileUploads)
+	ini = s.setINIValue(ini, "session.save_handler", req.SessionSaveHandler)
+	ini = s.setINIValue(ini, "session.save_path", req.SessionSavePath)
+
+	// 更新 php-fpm.conf 配置
+	fpm = s.setINIValue(fpm, "pm", req.Pm)
+	fpm = s.setINIValue(fpm, "pm.max_children", req.PmMaxChildren)
+	fpm = s.setINIValue(fpm, "pm.start_servers", req.PmStartServers)
+	fpm = s.setINIValue(fpm, "pm.min_spare_servers", req.PmMinSpareServers)
+	fpm = s.setINIValue(fpm, "pm.max_spare_servers", req.PmMaxSpareServers)
+
+	if err = io.Write(iniPath, ini, 0644); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = io.Write(fpmPath, fpm, 0644); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// CleanSession 清理 PHP Session 文件
+func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.EnvironmentPHPVersion](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+		return
+	}
+
+	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	ini, err := io.Read(iniPath)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	handler := s.getINIValue(ini, "session.save_handler")
+	if handler != "files" {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("Session save handler is not files, cannot clean"))
+		return
+	}
+
+	savePath := s.getINIValue(ini, "session.save_path")
+	if savePath == "" {
+		savePath = "/tmp"
+	}
+
+	if _, err = shell.Execf("find '%s' -name 'sess_*' -type f -delete", savePath); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// getINIValue 从 INI 格式内容中获取指定键的值
+func (s *EnvironmentPHPService) getINIValue(content string, key string) string {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// 跳过注释行和空行
+		if trimmed == "" || strings.HasPrefix(trimmed, ";") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		// 跳过 section 行
+		if strings.HasPrefix(trimmed, "[") {
+			continue
+		}
+		parts := strings.SplitN(trimmed, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			return strings.TrimSpace(parts[1])
+		}
+	}
+	return ""
+}
+
+// setINIValue 在 INI 格式内容中设置指定键的值
+func (s *EnvironmentPHPService) setINIValue(content string, key string, value string) string {
+	lines := strings.Split(content, "\n")
+	found := false
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// 跳过空行和 section 行
+		if trimmed == "" || strings.HasPrefix(trimmed, "[") {
+			continue
+		}
+		// 处理注释行（可能是被注释掉的配置）
+		checkLine := trimmed
+		if strings.HasPrefix(checkLine, ";") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		} else if strings.HasPrefix(checkLine, "#") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		}
+		parts := strings.SplitN(checkLine, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			if found {
+				// 如果已经找到并替换过，删除重复行
+				lines[i] = ""
+				continue
+			}
+			lines[i] = key + " = " + value
+			found = true
+		}
+	}
+	if !found {
+		lines = append(lines, key+" = "+value)
+	}
+	return strings.Join(lines, "\n")
+}

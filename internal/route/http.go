@@ -356,6 +356,9 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Get("/{version}/modules", route.environmentPHP.ModuleList)
 				r.Post("/{version}/modules", route.environmentPHP.InstallModule)
 				r.Delete("/{version}/modules", route.environmentPHP.UninstallModule)
+				r.Get("/{version}/config_tune", route.environmentPHP.GetConfigTune)
+				r.Post("/{version}/config_tune", route.environmentPHP.UpdateConfigTune)
+				r.Post("/{version}/clean_session", route.environmentPHP.CleanSession)
 			})
 			r.Route("/python", func(r chi.Router) {
 				r.Post("/{slug}/set_cli", route.environmentPython.SetCli)

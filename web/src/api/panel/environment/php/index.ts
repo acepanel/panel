@@ -32,5 +32,12 @@ export default {
     http.Post(`/environment/php/${slug}/modules`, { slug: module }),
   // 卸载拓展
   uninstallModule: (slug: number, module: string): any =>
-    http.Delete(`/environment/php/${slug}/modules`, { slug: module })
+    http.Delete(`/environment/php/${slug}/modules`, { slug: module }),
+  // 获取配置调整参数
+  configTune: (slug: number): any => http.Get(`/environment/php/${slug}/config_tune`),
+  // 保存配置调整参数
+  saveConfigTune: (slug: number, data: any): any =>
+    http.Post(`/environment/php/${slug}/config_tune`, data),
+  // 清理 Session 文件
+  cleanSession: (slug: number): any => http.Post(`/environment/php/${slug}/clean_session`)
 }
