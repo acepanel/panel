@@ -10,6 +10,7 @@ const type = defineModel<string>('type', { type: String, required: true })
 const { $gettext } = useGettext()
 
 const bulkCreate = ref('')
+const loading = ref(false)
 
 // 内部选择的类型（当外部 type 为 'all' 时使用）
 const selectedType = ref('proxy')
@@ -77,11 +78,16 @@ const handleCreate = async () => {
   const lines = bulkCreate.value.split('\n')
   // 去除空行
   const filteredLines = lines.filter((line) => line.trim() !== '')
+  if (filteredLines.length === 0) return
+  loading.value = true
+  let remaining = filteredLines.length
   // 解析每一行
   for (const line of filteredLines) {
     const parts = line.split('|')
     if (parts.length < 4) {
       window.$message.error($gettext('The format is incorrect, please check'))
+      remaining--
+      if (remaining <= 0) loading.value = false
       return
     }
     // 去除空格
@@ -117,12 +123,17 @@ const handleCreate = async () => {
     }
     // 端口中去掉 443 端口，nginx 不允许在未配置证书下监听 443 端口
     model.listens = model.listens.filter((item) => item !== '443')
-    useRequest(website.create(model)).onSuccess(() => {
-      window.$message.success(
-        $gettext('Website %{ name } created successfully', { name: model.name })
-      )
-      window.$bus.emit('website:refresh')
-    })
+    useRequest(website.create(model))
+      .onSuccess(() => {
+        window.$message.success(
+          $gettext('Website %{ name } created successfully', { name: model.name })
+        )
+        window.$bus.emit('website:refresh')
+      })
+      .onComplete(() => {
+        remaining--
+        if (remaining <= 0) loading.value = false
+      })
   }
 }
 </script>
@@ -186,7 +197,7 @@ const handleCreate = async () => {
       <n-text>
         {{ $gettext('Remark: The remark of the website, can be empty.') }}
       </n-text>
-      <n-button type="info" block @click="handleCreate">
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
         {{ $gettext('Create') }}
       </n-button>
     </n-flex>

@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 const { $gettext } = useGettext()
 
 const currentTab = ref('default-page')
+const saveLoading = ref(false)
 
 const { data: model } = useRequest(website.defaultConfig, {
   initialData: {
@@ -32,9 +33,14 @@ watch(
 )
 
 const handleSave = () => {
-  useRequest(website.saveDefaultConfig(model.value)).onSuccess(() => {
-    window.$message.success($gettext('Modified successfully'))
-  })
+  saveLoading.value = true
+  useRequest(website.saveDefaultConfig(model.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      saveLoading.value = false
+    })
 }
 </script>
 
@@ -44,7 +50,7 @@ const handleSave = () => {
       <n-flex vertical>
         <common-editor v-model:value="model.index" height="60vh" />
         <n-flex>
-          <n-button type="primary" @click="handleSave">
+          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -54,7 +60,7 @@ const handleSave = () => {
       <n-flex>
         <common-editor v-model:value="model.stop" height="60vh" />
         <n-flex>
-          <n-button type="primary" @click="handleSave">
+          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -64,7 +70,7 @@ const handleSave = () => {
       <n-flex>
         <common-editor v-model:value="model.not_found" height="60vh" />
         <n-flex>
-          <n-button type="primary" @click="handleSave">
+          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -112,7 +118,7 @@ const handleSave = () => {
               rows="4"
             />
           </n-form-item>
-          <n-button type="primary" @click="handleSave">
+          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-form>

@@ -48,6 +48,7 @@ const createModel = ref({
 
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace')
+const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
@@ -111,7 +112,9 @@ const handleCreate = async () => {
   }
   // 端口中去掉 443 端口，不允许在未配置证书下监听 443 端口
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '443')
-  useRequest(website.create(createModel.value)).onSuccess(() => {
+  loading.value = true
+  useRequest(website.create(createModel.value))
+    .onSuccess(() => {
     window.$bus.emit('website:refresh')
     window.$message.success(
       $gettext('Website %{ name } created successfully', { name: createModel.value.name })
@@ -133,6 +136,9 @@ const handleCreate = async () => {
       proxy: ''
     }
   })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 const formatDbValue = (value: string) => {
@@ -330,7 +336,7 @@ watch(showPathSelector, (val) => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>
