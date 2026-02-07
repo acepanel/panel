@@ -11,6 +11,8 @@ const id = defineModel<number>('id', { type: Number, required: true })
 
 const createModal = ref(false)
 const updateModal = ref(false)
+const createLoading = ref(false)
+const updateLoading = ref(false)
 
 const currentID = ref(0)
 const createModel = ref({
@@ -117,6 +119,7 @@ const handleDelete = (id: number) => {
 }
 
 const handleCreate = () => {
+  createLoading.value = true
   useRequest(() =>
     user.tokenCreate(id.value, createModel.value.ips, createModel.value.expired_at)
   ).onSuccess(({ data }) => {
@@ -172,9 +175,13 @@ const handleCreate = () => {
     })
     refresh()
   })
+    .onComplete(() => {
+      createLoading.value = false
+    })
 }
 
 const handleUpdate = () => {
+  updateLoading.value = true
   useRequest(() =>
     user.tokenUpdate(currentID.value, updateModel.value.ips, updateModel.value.expired_at)
   ).onSuccess(() => {
@@ -182,6 +189,9 @@ const handleUpdate = () => {
     updateModal.value = false
     refresh()
   })
+    .onComplete(() => {
+      updateLoading.value = false
+    })
 }
 
 watch(
@@ -262,7 +272,7 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="primary" @click="handleCreate">
+      <n-button type="primary" :loading="createLoading" :disabled="createLoading" @click="handleCreate">
         {{ $gettext('Create') }}
       </n-button>
     </n-flex>
@@ -295,7 +305,7 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="primary" @click="handleUpdate">
+      <n-button type="primary" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate">
         {{ $gettext('Update') }}
       </n-button>
     </n-flex>

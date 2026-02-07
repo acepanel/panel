@@ -13,17 +13,23 @@ const model = ref({
   secret: ''
 })
 const code = ref('')
+const loading = ref(false)
 const qrCode = computed(() => {
   return `data:image/png;base64,${model.value.img}`
 })
 
 const handleUpdate = () => {
-  useRequest(() => user.updateTwoFA(id.value, code.value, model.value.secret)).onSuccess(() => {
-    show.value = false
-    code.value = ''
-    window.$message.success($gettext('Updated successfully'))
-    window.$bus.emit('user:refresh')
-  })
+  loading.value = true
+  useRequest(() => user.updateTwoFA(id.value, code.value, model.value.secret))
+    .onSuccess(() => {
+      show.value = false
+      code.value = ''
+      window.$message.success($gettext('Updated successfully'))
+      window.$bus.emit('user:refresh')
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 watch(
@@ -84,7 +90,7 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
     </n-flex>
   </n-modal>
 </template>

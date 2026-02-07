@@ -10,12 +10,19 @@ const model = ref({
   password: ''
 })
 
+const loading = ref(false)
+
 const handleUpdate = () => {
-  useRequest(() => user.updatePassword(id.value, model.value.password)).onSuccess(() => {
-    show.value = false
-    window.$message.success($gettext('Updated successfully'))
-    window.$bus.emit('user:refresh')
-  })
+  loading.value = true
+  useRequest(() => user.updatePassword(id.value, model.value.password))
+    .onSuccess(() => {
+      show.value = false
+      window.$message.success($gettext('Updated successfully'))
+      window.$bus.emit('user:refresh')
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -41,7 +48,7 @@ const handleUpdate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

@@ -11,17 +11,24 @@ const model = ref({
   email: ''
 })
 
+const loading = ref(false)
+
 const handleCreate = () => {
+  loading.value = true
   useRequest(() =>
     user.create(model.value.username, model.value.password, model.value.email)
-  ).onSuccess(() => {
-    show.value = false
-    window.$message.success($gettext('Created successfully'))
-    window.$bus.emit('user:refresh')
-    model.value.username = ''
-    model.value.password = ''
-    model.value.email = ''
-  })
+  )
+    .onSuccess(() => {
+      show.value = false
+      window.$message.success($gettext('Created successfully'))
+      window.$bus.emit('user:refresh')
+      model.value.username = ''
+      model.value.password = ''
+      model.value.email = ''
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -61,7 +68,7 @@ const handleCreate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

@@ -21,6 +21,7 @@ const permissionStore = usePermissionStore()
 const currentTab = ref('base')
 const createModal = ref(false)
 const isObtainCert = ref(false)
+const saveLoading = ref(false)
 
 // 记录已保存的 HTTPS 相关设置，用于判断是否有未保存的修改
 const savedHttpsState = ref({ https: false, acme: false, public_ip: '[]' })
@@ -75,7 +76,9 @@ const handleSave = () => {
   if (model.value.entrance.trim() === '') {
     model.value.entrance = '/'
   }
-  useRequest(setting.update(model.value)).onSuccess(({ data }) => {
+  saveLoading.value = true
+  useRequest(setting.update(model.value))
+    .onSuccess(({ data }) => {
     window.$message.success($gettext('Saved successfully'))
 
     // 更新 HTTPS 快照
@@ -103,6 +106,9 @@ const handleSave = () => {
       }, 5000)
     }
   })
+    .onComplete(() => {
+      saveLoading.value = false
+    })
 }
 
 const handleObtainCert = () => {
@@ -151,7 +157,7 @@ const handleCreate = () => {
       <setting-safe v-if="currentTab === 'safe'" v-model:model="model" />
       <setting-user v-if="currentTab === 'user'" />
       <n-flex>
-        <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
+        <n-button v-if="currentTab != 'user'" type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
           {{ $gettext('Save') }}
         </n-button>
         <n-button
