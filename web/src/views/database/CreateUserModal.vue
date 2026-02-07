@@ -24,6 +24,8 @@ const hostTypeOptions = [
 ]
 const hostType = ref('localhost')
 
+const loading = ref(false)
+
 // 监听 hostType 变化，同步到 createModel.host
 watch(hostType, (val) => {
   if (val !== 'specific') {
@@ -34,11 +36,16 @@ watch(hostType, (val) => {
 })
 
 const handleCreate = () => {
-  useRequest(() => database.userCreate(createModel.value)).onSuccess(() => {
-    show.value = false
-    window.$message.success($gettext('Created successfully'))
-    window.$bus.emit('database-user:refresh')
-  })
+  loading.value = true
+  useRequest(() => database.userCreate(createModel.value))
+    .onSuccess(() => {
+      show.value = false
+      window.$message.success($gettext('Created successfully'))
+      window.$bus.emit('database-user:refresh')
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 watch(
@@ -138,7 +145,7 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
     </n-flex>
   </n-modal>
 </template>

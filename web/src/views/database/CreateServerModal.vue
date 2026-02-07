@@ -31,12 +31,19 @@ watch(
   }
 )
 
+const loading = ref(false)
+
 const handleCreate = () => {
-  useRequest(() => database.serverCreate(createModel.value)).onSuccess(() => {
-    show.value = false
-    window.$message.success($gettext('Added successfully'))
-    window.$bus.emit('database-server:refresh')
-  })
+  loading.value = true
+  useRequest(() => database.serverCreate(createModel.value))
+    .onSuccess(() => {
+      show.value = false
+      window.$message.success($gettext('Added successfully'))
+      window.$bus.emit('database-server:refresh')
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -117,7 +124,7 @@ const handleCreate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

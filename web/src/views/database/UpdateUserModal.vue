@@ -12,12 +12,19 @@ const updateModel = ref({
   remark: ''
 })
 
+const loading = ref(false)
+
 const handleUpdate = () => {
-  useRequest(() => database.userUpdate(id.value, updateModel.value)).onSuccess(() => {
-    show.value = false
-    window.$message.success($gettext('Modified successfully'))
-    window.$bus.emit('database-user:refresh')
-  })
+  loading.value = true
+  useRequest(() => database.userUpdate(id.value, updateModel.value))
+    .onSuccess(() => {
+      show.value = false
+      window.$message.success($gettext('Modified successfully'))
+      window.$bus.emit('database-user:refresh')
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 watch(
@@ -76,7 +83,7 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
     </n-flex>
   </n-modal>
 </template>
