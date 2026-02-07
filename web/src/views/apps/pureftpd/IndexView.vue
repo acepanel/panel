@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import PureftpdConfigTuneView from './PureftpdConfigTuneView.vue'
 import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -197,6 +198,9 @@ onMounted(() => {
             }"
           />
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <pureftpd-config-tune-view />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Run Log')">
         <realtime-log service="pure-ftpd" />

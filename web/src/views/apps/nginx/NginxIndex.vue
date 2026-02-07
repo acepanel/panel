@@ -12,6 +12,7 @@ import { useGettext } from 'vue3-gettext'
 
 import nginx from '@/api/apps/nginx'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import NginxConfigTuneView from './NginxConfigTuneView.vue'
 
 const props = defineProps<{
   api: typeof nginx
@@ -493,6 +494,9 @@ const handleDeleteStreamUpstream = (name: string) => {
             </n-button>
           </n-flex>
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <nginx-config-tune-view :api="props.api" />
       </n-tab-pane>
       <n-tab-pane name="stream" :tab="$gettext('Stream')">
         <n-tabs v-model:value="streamTab" type="line" placement="left" animated>

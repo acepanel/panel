@@ -16,5 +16,9 @@ export default {
   // 获取 root 密码
   rootPassword: (): any => http.Get('/apps/mysql/root_password'),
   // 修改 root 密码
-  setRootPassword: (password: string): any => http.Post('/apps/mysql/root_password', { password })
+  setRootPassword: (password: string): any => http.Post('/apps/mysql/root_password', { password }),
+  // 获取配置调整参数
+  configTune: (): any => http.Get('/apps/mysql/config_tune'),
+  // 保存配置调整参数
+  saveConfigTune: (data: any): any => http.Post('/apps/mysql/config_tune', data)
 }

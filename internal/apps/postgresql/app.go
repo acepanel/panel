@@ -254,10 +254,17 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		WorkMem:            s.getPGValue(config, "work_mem"),
 		MaintenanceWorkMem: s.getPGValue(config, "maintenance_work_mem"),
 		EffectiveCacheSize: s.getPGValue(config, "effective_cache_size"),
+		HugePages:          s.getPGValue(config, "huge_pages"),
 		// WAL 设置
-		WalLevel:   s.getPGValue(config, "wal_level"),
-		MaxWalSize: s.getPGValue(config, "max_wal_size"),
-		MinWalSize: s.getPGValue(config, "min_wal_size"),
+		WalLevel:                   s.getPGValue(config, "wal_level"),
+		WalBuffers:                 s.getPGValue(config, "wal_buffers"),
+		MaxWalSize:                 s.getPGValue(config, "max_wal_size"),
+		MinWalSize:                 s.getPGValue(config, "min_wal_size"),
+		CheckpointCompletionTarget: s.getPGValue(config, "checkpoint_completion_target"),
+		// 查询优化
+		DefaultStatisticsTarget: s.getPGValue(config, "default_statistics_target"),
+		RandomPageCost:          s.getPGValue(config, "random_page_cost"),
+		EffectiveIoConcurrency:  s.getPGValue(config, "effective_io_concurrency"),
 		// 日志设置
 		LogDestination:          s.getPGValue(config, "log_destination"),
 		LogMinDurationStatement: s.getPGValue(config, "log_min_duration_statement"),
@@ -294,10 +301,17 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	config = s.setPGValue(config, "work_mem", req.WorkMem)
 	config = s.setPGValue(config, "maintenance_work_mem", req.MaintenanceWorkMem)
 	config = s.setPGValue(config, "effective_cache_size", req.EffectiveCacheSize)
+	config = s.setPGValue(config, "huge_pages", req.HugePages)
 	// 更新 WAL 设置
 	config = s.setPGValue(config, "wal_level", req.WalLevel)
+	config = s.setPGValue(config, "wal_buffers", req.WalBuffers)
 	config = s.setPGValue(config, "max_wal_size", req.MaxWalSize)
 	config = s.setPGValue(config, "min_wal_size", req.MinWalSize)
+	config = s.setPGValue(config, "checkpoint_completion_target", req.CheckpointCompletionTarget)
+	// 更新查询优化
+	config = s.setPGValue(config, "default_statistics_target", req.DefaultStatisticsTarget)
+	config = s.setPGValue(config, "random_page_cost", req.RandomPageCost)
+	config = s.setPGValue(config, "effective_io_concurrency", req.EffectiveIoConcurrency)
 	// 更新日志设置
 	config = s.setPGValue(config, "log_destination", req.LogDestination)
 	config = s.setPGValue(config, "log_min_duration_statement", req.LogMinDurationStatement)

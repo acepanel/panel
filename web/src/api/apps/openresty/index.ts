@@ -11,6 +11,10 @@ export default {
   errorLog: (): any => http.Get('/apps/openresty/error_log'),
   // 清空错误日志
   clearErrorLog: (): any => http.Post('/apps/openresty/clear_error_log'),
+  // 获取配置调整参数
+  configTune: (): any => http.Get('/apps/openresty/config_tune'),
+  // 保存配置调整参数
+  saveConfigTune: (data: any): any => http.Post('/apps/openresty/config_tune', data),
 
   // Stream Server 接口
   stream: {

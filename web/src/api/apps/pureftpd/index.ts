@@ -15,5 +15,9 @@ export default {
   // 获取端口
   port: (): any => http.Get('/apps/pureftpd/port'),
   // 修改端口
-  updatePort: (port: number): any => http.Post('/apps/pureftpd/port', { port })
+  updatePort: (port: number): any => http.Post('/apps/pureftpd/port', { port }),
+  // 获取配置调整参数
+  configTune: (): any => http.Get('/apps/pureftpd/config_tune'),
+  // 保存配置调整参数
+  saveConfigTune: (data: any): any => http.Post('/apps/pureftpd/config_tune', data)
 }

@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 
 import mysql from '@/api/apps/mysql'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import MysqlConfigTuneView from './MysqlConfigTuneView.vue'
 
 const props = defineProps<{
   api: typeof mysql
@@ -121,6 +122,9 @@ const handleCopyRootPassword = () => {
             </n-button>
           </n-flex>
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <mysql-config-tune-view :api="props.api" />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
