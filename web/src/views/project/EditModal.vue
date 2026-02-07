@@ -573,7 +573,7 @@ const handleSave = async () => {
         <n-button @click="show = false">
           {{ $gettext('Cancel') }}
         </n-button>
-        <n-button type="primary" @click="handleSave" :loading="loading">
+        <n-button type="primary" @click="handleSave" :loading="loading" :disabled="loading">
           {{ $gettext('Save') }}
         </n-button>
       </n-flex>

@@ -235,7 +235,7 @@ onMounted(() => {
                   <the-icon :size="16" icon="mdi:refresh" />
                 </template>
               </n-button>
-              <n-button type="primary" :loading="portLoading" @click="handleUpdatePort">
+              <n-button type="primary" :loading="portLoading" :disabled="portLoading" @click="handleUpdatePort">
                 {{ $gettext('Save') }}
               </n-button>
             </n-flex>
@@ -294,10 +294,10 @@ onMounted(() => {
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
               <n-text strong>{{ $gettext('Root Key') }}</n-text>
-              <n-button type="primary" :loading="keyLoading" @click="handleViewKey">
+              <n-button type="primary" :loading="keyLoading" :disabled="keyLoading" @click="handleViewKey">
                 {{ $gettext('View Key') }}
               </n-button>
-              <n-button :loading="keyLoading" @click="handleDownloadKey">
+              <n-button :loading="keyLoading" :disabled="keyLoading" @click="handleDownloadKey">
                 {{ $gettext('Download') }}
               </n-button>
             </n-flex>
@@ -336,7 +336,7 @@ onMounted(() => {
         :placeholder="$gettext('No private key generated')"
       />
       <n-flex justify="end" :size="12">
-        <n-button :loading="keyLoading" @click="handleGenerateKey">
+        <n-button :loading="keyLoading" :disabled="keyLoading" @click="handleGenerateKey">
           {{ $gettext('Regenerate') }}
         </n-button>
         <n-button type="primary" @click="handleDownloadKey">

@@ -147,7 +147,7 @@ const getResult = (key: string): ScanResult => {
 <template>
   <n-flex vertical>
     <n-flex justify="end">
-      <n-button type="primary" :loading="anyLoading" @click="handleScanAll">
+      <n-button type="primary" :loading="anyLoading" :disabled="anyLoading" @click="handleScanAll">
         <template #icon>
           <i-mdi-magnify />
         </template>

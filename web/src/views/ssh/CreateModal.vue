@@ -105,12 +105,4 @@ const handleSubmit = () => {
     </n-form>
     <n-row :gutter="[0, 24]" pt-20>
       <n-col :span="24">
-        <n-button type="info" block :loading="loading" @click="handleSubmit">
-          {{ $gettext('Submit') }}
-        </n-button>
-      </n-col>
-    </n-row>
-  </n-modal>
-</template>
-
-<style scoped lang="scss"></style>
+        <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">

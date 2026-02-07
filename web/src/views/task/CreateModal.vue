@@ -194,7 +194,7 @@ onMounted(() => {
         <n-input-number v-model:value="createModel.keep" />
       </n-form-item>
     </n-form>
-    <n-button type="info" :loading="loading" @click="handleSubmit" mt-10 block>
+    <n-button type="info" :loading="loading" :disabled="loading" @click="handleSubmit" mt-10 block>
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
