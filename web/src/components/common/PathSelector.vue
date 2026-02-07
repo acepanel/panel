@@ -31,6 +31,7 @@ const input = ref('www')
 const sort = ref<string>('')
 const selected = ref<any[]>([])
 const create = ref(false)
+const createLoading = ref(false)
 const createModel = ref({
   dir: false,
   path: ''
@@ -247,12 +248,17 @@ const handleCreate = () => {
     return
   }
 
+  createLoading.value = true
   const fullPath = currentPath.value + '/' + createModel.value.path
-  useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
-    create.value = false
-    reload()
-    window.$message.success($gettext('Created successfully'))
-  })
+  useRequest(file.create(fullPath, createModel.value.dir))
+    .onSuccess(() => {
+      create.value = false
+      reload()
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      createLoading.value = false
+    })
 }
 
 // 计算目录大小
@@ -389,7 +395,7 @@ watch(selected, (val) => {
           <n-input v-model:value="createModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

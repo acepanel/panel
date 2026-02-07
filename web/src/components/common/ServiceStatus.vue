@@ -147,23 +147,24 @@ onMounted(() => {
         {{ statusStr }}
       </n-alert>
       <n-flex>
-        <n-button type="success" :disabled="fetchingStatus || status" @click="handleStart">
+        <n-button type="success" :loading="fetchingStatus" :disabled="fetchingStatus || status" @click="handleStart">
           {{ $gettext('Start') }}
         </n-button>
         <n-popconfirm @positive-click="handleStop">
           <template #trigger>
-            <n-button type="error" :disabled="fetchingStatus || !status">
+            <n-button type="error" :loading="fetchingStatus" :disabled="fetchingStatus || !status">
               {{ $gettext('Stop') }}
             </n-button>
           </template>
           {{ $gettext('Are you sure you want to stop %{ service }?', { service: props.service }) }}
         </n-popconfirm>
-        <n-button type="warning" :disabled="fetchingStatus || !status" @click="handleRestart">
+        <n-button type="warning" :loading="fetchingStatus" :disabled="fetchingStatus || !status" @click="handleRestart">
           {{ $gettext('Restart') }}
         </n-button>
         <n-button
           v-if="showReload"
           type="primary"
+          :loading="fetchingStatus"
           :disabled="fetchingStatus || !status"
           @click="handleReload"
         >

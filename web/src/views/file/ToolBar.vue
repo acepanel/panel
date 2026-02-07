@@ -21,6 +21,7 @@ const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
 const terminalModal = ref(false)
 
 const download = ref(false)
+const downloadLoading = ref(false)
 const downloadModel = ref({
   path: '',
   url: ''
@@ -37,13 +38,18 @@ const handleDownload = () => {
     return
   }
 
+  downloadLoading.value = true
   useRequest(
     file.remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url)
-  ).onSuccess(() => {
-    download.value = false
-    window.$bus.emit('file:refresh')
-    window.$message.success($gettext('Download task created successfully'))
-  })
+  )
+    .onSuccess(() => {
+      download.value = false
+      window.$bus.emit('file:refresh')
+      window.$message.success($gettext('Download task created successfully'))
+    })
+    .onComplete(() => {
+      downloadLoading.value = false
+    })
 }
 
 const handleCopy = () => {
@@ -297,7 +303,7 @@ const handleSortSelect = (key: string) => {
           <n-input v-model:value="downloadModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleDownload">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="downloadLoading" :disabled="downloadLoading" @click="handleDownload">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
   <!-- 终端弹窗 -->
