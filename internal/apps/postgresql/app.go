@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/acepanel/panel/pkg/db"
@@ -43,6 +44,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/clear_log", s.ClearLog)
 	r.Get("/postgres_password", s.GetPostgresPassword)
 	r.Post("/postgres_password", s.SetPostgresPassword)
+	r.Get("/config_tune", s.GetConfigTune)
+	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
 // GetConfig 获取配置
@@ -230,4 +233,154 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	_ = s.databaseServerRepo.UpdatePassword("local_postgresql", req.Password)
 
 	service.Success(w, nil)
+}
+
+// GetConfigTune 获取 PostgreSQL 配置调整参数
+func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
+	config, err := io.Read(fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root))
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	tune := ConfigTune{
+		// 连接设置
+		ListenAddresses:              s.getPGValue(config, "listen_addresses"),
+		Port:                         s.getPGValue(config, "port"),
+		MaxConnections:               s.getPGValue(config, "max_connections"),
+		SuperuserReservedConnections: s.getPGValue(config, "superuser_reserved_connections"),
+		// 内存设置
+		SharedBuffers:      s.getPGValue(config, "shared_buffers"),
+		WorkMem:            s.getPGValue(config, "work_mem"),
+		MaintenanceWorkMem: s.getPGValue(config, "maintenance_work_mem"),
+		EffectiveCacheSize: s.getPGValue(config, "effective_cache_size"),
+		// WAL 设置
+		WalLevel:   s.getPGValue(config, "wal_level"),
+		MaxWalSize: s.getPGValue(config, "max_wal_size"),
+		MinWalSize: s.getPGValue(config, "min_wal_size"),
+		// 日志设置
+		LogDestination:          s.getPGValue(config, "log_destination"),
+		LogMinDurationStatement: s.getPGValue(config, "log_min_duration_statement"),
+		LogTimezone:             s.getPGValue(config, "log_timezone"),
+		// IO 设置
+		IoMethod: s.getPGValue(config, "io_method"),
+	}
+
+	service.Success(w, tune)
+}
+
+// UpdateConfigTune 更新 PostgreSQL 配置调整参数
+func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ConfigTune](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	confPath := fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root)
+	config, err := io.Read(confPath)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 更新连接设置
+	config = s.setPGValue(config, "listen_addresses", req.ListenAddresses)
+	config = s.setPGValue(config, "port", req.Port)
+	config = s.setPGValue(config, "max_connections", req.MaxConnections)
+	config = s.setPGValue(config, "superuser_reserved_connections", req.SuperuserReservedConnections)
+	// 更新内存设置
+	config = s.setPGValue(config, "shared_buffers", req.SharedBuffers)
+	config = s.setPGValue(config, "work_mem", req.WorkMem)
+	config = s.setPGValue(config, "maintenance_work_mem", req.MaintenanceWorkMem)
+	config = s.setPGValue(config, "effective_cache_size", req.EffectiveCacheSize)
+	// 更新 WAL 设置
+	config = s.setPGValue(config, "wal_level", req.WalLevel)
+	config = s.setPGValue(config, "max_wal_size", req.MaxWalSize)
+	config = s.setPGValue(config, "min_wal_size", req.MinWalSize)
+	// 更新日志设置
+	config = s.setPGValue(config, "log_destination", req.LogDestination)
+	config = s.setPGValue(config, "log_min_duration_statement", req.LogMinDurationStatement)
+	config = s.setPGValue(config, "log_timezone", req.LogTimezone)
+	// 更新 IO 设置
+	config = s.setPGValue(config, "io_method", req.IoMethod)
+
+	if err = io.Write(confPath, config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = systemctl.Reload("postgresql"); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// getPGValue 从 PostgreSQL 配置内容中获取指定键的值
+func (s *App) getPGValue(content string, key string) string {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		parts := strings.SplitN(trimmed, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			v := strings.TrimSpace(parts[1])
+			// 去除行尾注释
+			if idx := strings.Index(v, "#"); idx > 0 {
+				v = strings.TrimSpace(v[:idx])
+			}
+			// 去除引号
+			v = strings.Trim(v, "'\"")
+			return v
+		}
+	}
+	return ""
+}
+
+// setPGValue 在 PostgreSQL 配置内容中设置指定键的值
+func (s *App) setPGValue(content string, key string, value string) string {
+	value = strings.ReplaceAll(value, "\n", "")
+	value = strings.ReplaceAll(value, "\r", "")
+
+	lines := strings.Split(content, "\n")
+	found := false
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			result = append(result, line)
+			continue
+		}
+		checkLine := trimmed
+		if strings.HasPrefix(checkLine, "#") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		}
+		parts := strings.SplitN(checkLine, "=", 2)
+		if len(parts) != 2 {
+			result = append(result, line)
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			if found {
+				continue
+			}
+			result = append(result, key+" = "+value)
+			found = true
+		} else {
+			result = append(result, line)
+		}
+	}
+	if !found {
+		result = append(result, key+" = "+value)
+	}
+	return strings.Join(result, "\n")
 }

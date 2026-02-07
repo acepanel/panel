@@ -31,6 +31,8 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
+	r.Get("/config_tune", s.GetConfigTune)
+	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
@@ -120,4 +122,118 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
+}
+
+// GetConfigTune 获取 Redis 配置调整参数
+func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
+	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	tune := ConfigTune{
+		Bind:            s.getRedisValue(config, "bind"),
+		Port:            s.getRedisValue(config, "port"),
+		Databases:       s.getRedisValue(config, "databases"),
+		Requirepass:     s.getRedisValue(config, "requirepass"),
+		Timeout:         s.getRedisValue(config, "timeout"),
+		TCPKeepalive:    s.getRedisValue(config, "tcp-keepalive"),
+		Maxmemory:       s.getRedisValue(config, "maxmemory"),
+		MaxmemoryPolicy: s.getRedisValue(config, "maxmemory-policy"),
+		Appendonly:      s.getRedisValue(config, "appendonly"),
+		Appendfsync:     s.getRedisValue(config, "appendfsync"),
+	}
+
+	service.Success(w, tune)
+}
+
+// UpdateConfigTune 更新 Redis 配置调整参数
+func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ConfigTune](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	confPath := fmt.Sprintf("%s/server/redis/redis.conf", app.Root)
+	config, err := io.Read(confPath)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	config = s.setRedisValue(config, "bind", req.Bind)
+	config = s.setRedisValue(config, "port", req.Port)
+	config = s.setRedisValue(config, "databases", req.Databases)
+	config = s.setRedisValue(config, "requirepass", req.Requirepass)
+	config = s.setRedisValue(config, "timeout", req.Timeout)
+	config = s.setRedisValue(config, "tcp-keepalive", req.TCPKeepalive)
+	config = s.setRedisValue(config, "maxmemory", req.Maxmemory)
+	config = s.setRedisValue(config, "maxmemory-policy", req.MaxmemoryPolicy)
+	config = s.setRedisValue(config, "appendonly", req.Appendonly)
+	config = s.setRedisValue(config, "appendfsync", req.Appendfsync)
+
+	if err = io.Write(confPath, config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = systemctl.Restart("redis"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// getRedisValue 从 Redis 配置内容中获取指定键的值
+func (s *App) getRedisValue(content string, key string) string {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		parts := strings.Fields(trimmed)
+		if len(parts) >= 2 && parts[0] == key {
+			return strings.Join(parts[1:], " ")
+		}
+	}
+	return ""
+}
+
+// setRedisValue 在 Redis 配置内容中设置指定键的值
+func (s *App) setRedisValue(content string, key string, value string) string {
+	value = strings.ReplaceAll(value, "\n", "")
+	value = strings.ReplaceAll(value, "\r", "")
+
+	lines := strings.Split(content, "\n")
+	found := false
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			result = append(result, line)
+			continue
+		}
+		checkLine := trimmed
+		if strings.HasPrefix(checkLine, "#") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		}
+		parts := strings.Fields(checkLine)
+		if len(parts) >= 2 && parts[0] == key {
+			if found {
+				continue
+			}
+			result = append(result, key+" "+value)
+			found = true
+		} else {
+			result = append(result, line)
+		}
+	}
+	if !found {
+		result = append(result, key+" "+value)
+	}
+	return strings.Join(result, "\n")
 }

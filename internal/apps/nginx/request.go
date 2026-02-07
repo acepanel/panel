@@ -6,6 +6,38 @@ type UpdateConfig struct {
 	Config string `form:"config" json:"config" validate:"required"`
 }
 
+// ConfigTune Nginx 配置调整
+type ConfigTune struct {
+	// 常规设置
+	WorkerProcesses          string `form:"worker_processes" json:"worker_processes"`
+	WorkerConnections        string `form:"worker_connections" json:"worker_connections"`
+	KeepaliveTimeout         string `form:"keepalive_timeout" json:"keepalive_timeout"`
+	ClientMaxBodySize        string `form:"client_max_body_size" json:"client_max_body_size"`
+	ClientBodyBufferSize     string `form:"client_body_buffer_size" json:"client_body_buffer_size"`
+	ClientHeaderBufferSize   string `form:"client_header_buffer_size" json:"client_header_buffer_size"`
+	ServerNamesHashBucketSize string `form:"server_names_hash_bucket_size" json:"server_names_hash_bucket_size"`
+	ServerTokens             string `form:"server_tokens" json:"server_tokens"`
+	// Gzip 压缩
+	Gzip          string `form:"gzip" json:"gzip"`
+	GzipMinLength string `form:"gzip_min_length" json:"gzip_min_length"`
+	GzipCompLevel string `form:"gzip_comp_level" json:"gzip_comp_level"`
+	GzipTypes     string `form:"gzip_types" json:"gzip_types"`
+	GzipVary      string `form:"gzip_vary" json:"gzip_vary"`
+	GzipProxied   string `form:"gzip_proxied" json:"gzip_proxied"`
+	// Brotli 压缩
+	Brotli          string `form:"brotli" json:"brotli"`
+	BrotliMinLength string `form:"brotli_min_length" json:"brotli_min_length"`
+	BrotliCompLevel string `form:"brotli_comp_level" json:"brotli_comp_level"`
+	BrotliTypes     string `form:"brotli_types" json:"brotli_types"`
+	BrotliStatic    string `form:"brotli_static" json:"brotli_static"`
+	// Zstd 压缩
+	Zstd          string `form:"zstd" json:"zstd"`
+	ZstdMinLength string `form:"zstd_min_length" json:"zstd_min_length"`
+	ZstdCompLevel string `form:"zstd_comp_level" json:"zstd_comp_level"`
+	ZstdTypes     string `form:"zstd_types" json:"zstd_types"`
+	ZstdStatic    string `form:"zstd_static" json:"zstd_static"`
+}
+
 type StreamServer struct {
 	Name                string        `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`                   // 配置名称，用于文件命名
 	Listen              string        `form:"listen" json:"listen" validate:"required"`                                      // 监听地址，如: "12345", "0.0.0.0:12345", "[::]:12345"

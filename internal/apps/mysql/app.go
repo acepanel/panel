@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/acepanel/panel/pkg/types"
 	"github.com/go-chi/chi/v5"
@@ -44,6 +45,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/clear_slow_log", s.ClearSlowLog)
 	r.Get("/root_password", s.GetRootPassword)
 	r.Post("/root_password", s.SetRootPassword)
+	r.Get("/config_tune", s.GetConfigTune)
+	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
 // GetConfig 获取配置
@@ -283,4 +286,167 @@ func (s *App) getSock() string {
 	}
 
 	return "/tmp/mysql.sock"
+}
+
+// GetConfigTune 获取 MySQL 配置调整参数
+func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
+	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	tune := ConfigTune{
+		// 常规设置
+		Port:                 s.getINIValue(config, "port"),
+		MaxConnections:       s.getINIValue(config, "max_connections"),
+		MaxConnectErrors:     s.getINIValue(config, "max_connect_errors"),
+		DefaultStorageEngine: s.getINIValue(config, "default_storage_engine"),
+		TableOpenCache:       s.getINIValue(config, "table_open_cache"),
+		MaxAllowedPacket:     s.getINIValue(config, "max_allowed_packet"),
+		OpenFilesLimit:       s.getINIValue(config, "open_files_limit"),
+		// 性能调整
+		KeyBufferSize:        s.getINIValue(config, "key_buffer_size"),
+		SortBufferSize:       s.getINIValue(config, "sort_buffer_size"),
+		ReadBufferSize:       s.getINIValue(config, "read_buffer_size"),
+		ReadRndBufferSize:    s.getINIValue(config, "read_rnd_buffer_size"),
+		JoinBufferSize:       s.getINIValue(config, "join_buffer_size"),
+		ThreadCacheSize:      s.getINIValue(config, "thread_cache_size"),
+		ThreadStack:          s.getINIValue(config, "thread_stack"),
+		TmpTableSize:         s.getINIValue(config, "tmp_table_size"),
+		MaxHeapTableSize:     s.getINIValue(config, "max_heap_table_size"),
+		MyisamSortBufferSize: s.getINIValue(config, "myisam_sort_buffer_size"),
+		// InnoDB
+		InnodbBufferPoolSize:      s.getINIValue(config, "innodb_buffer_pool_size"),
+		InnodbLogBufferSize:       s.getINIValue(config, "innodb_log_buffer_size"),
+		InnodbFlushLogAtTrxCommit: s.getINIValue(config, "innodb_flush_log_at_trx_commit"),
+		InnodbLockWaitTimeout:     s.getINIValue(config, "innodb_lock_wait_timeout"),
+		InnodbMaxDirtyPagesPct:    s.getINIValue(config, "innodb_max_dirty_pages_pct"),
+		InnodbReadIoThreads:       s.getINIValue(config, "innodb_read_io_threads"),
+		InnodbWriteIoThreads:      s.getINIValue(config, "innodb_write_io_threads"),
+		// 日志
+		SlowQueryLog:  s.getINIValue(config, "slow_query_log"),
+		LongQueryTime: s.getINIValue(config, "long_query_time"),
+	}
+
+	service.Success(w, tune)
+}
+
+// UpdateConfigTune 更新 MySQL 配置调整参数
+func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ConfigTune](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	confPath := app.Root + "/server/mysql/conf/my.cnf"
+	config, err := io.Read(confPath)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 更新常规设置
+	config = s.setINIValue(config, "port", req.Port)
+	config = s.setINIValue(config, "max_connections", req.MaxConnections)
+	config = s.setINIValue(config, "max_connect_errors", req.MaxConnectErrors)
+	config = s.setINIValue(config, "default_storage_engine", req.DefaultStorageEngine)
+	config = s.setINIValue(config, "table_open_cache", req.TableOpenCache)
+	config = s.setINIValue(config, "max_allowed_packet", req.MaxAllowedPacket)
+	config = s.setINIValue(config, "open_files_limit", req.OpenFilesLimit)
+	// 更新性能调整
+	config = s.setINIValue(config, "key_buffer_size", req.KeyBufferSize)
+	config = s.setINIValue(config, "sort_buffer_size", req.SortBufferSize)
+	config = s.setINIValue(config, "read_buffer_size", req.ReadBufferSize)
+	config = s.setINIValue(config, "read_rnd_buffer_size", req.ReadRndBufferSize)
+	config = s.setINIValue(config, "join_buffer_size", req.JoinBufferSize)
+	config = s.setINIValue(config, "thread_cache_size", req.ThreadCacheSize)
+	config = s.setINIValue(config, "thread_stack", req.ThreadStack)
+	config = s.setINIValue(config, "tmp_table_size", req.TmpTableSize)
+	config = s.setINIValue(config, "max_heap_table_size", req.MaxHeapTableSize)
+	config = s.setINIValue(config, "myisam_sort_buffer_size", req.MyisamSortBufferSize)
+	// 更新 InnoDB
+	config = s.setINIValue(config, "innodb_buffer_pool_size", req.InnodbBufferPoolSize)
+	config = s.setINIValue(config, "innodb_log_buffer_size", req.InnodbLogBufferSize)
+	config = s.setINIValue(config, "innodb_flush_log_at_trx_commit", req.InnodbFlushLogAtTrxCommit)
+	config = s.setINIValue(config, "innodb_lock_wait_timeout", req.InnodbLockWaitTimeout)
+	config = s.setINIValue(config, "innodb_max_dirty_pages_pct", req.InnodbMaxDirtyPagesPct)
+	config = s.setINIValue(config, "innodb_read_io_threads", req.InnodbReadIoThreads)
+	config = s.setINIValue(config, "innodb_write_io_threads", req.InnodbWriteIoThreads)
+	// 更新日志
+	config = s.setINIValue(config, "slow_query_log", req.SlowQueryLog)
+	config = s.setINIValue(config, "long_query_time", req.LongQueryTime)
+
+	if err = io.Write(confPath, config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// getINIValue 从 INI 格式内容中获取指定键的值
+func (s *App) getINIValue(content string, key string) string {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, ";") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "[") {
+			continue
+		}
+		parts := strings.SplitN(trimmed, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			return strings.TrimSpace(parts[1])
+		}
+	}
+	return ""
+}
+
+// setINIValue 在 INI 格式内容中设置指定键的值
+func (s *App) setINIValue(content string, key string, value string) string {
+	value = strings.ReplaceAll(value, "\n", "")
+	value = strings.ReplaceAll(value, "\r", "")
+
+	lines := strings.Split(content, "\n")
+	found := false
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "[") {
+			result = append(result, line)
+			continue
+		}
+		checkLine := trimmed
+		if strings.HasPrefix(checkLine, ";") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		} else if strings.HasPrefix(checkLine, "#") {
+			checkLine = strings.TrimSpace(checkLine[1:])
+		}
+		parts := strings.SplitN(checkLine, "=", 2)
+		if len(parts) != 2 {
+			result = append(result, line)
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		if k == key {
+			if found {
+				continue
+			}
+			result = append(result, key+" = "+value)
+			found = true
+		} else {
+			result = append(result, line)
+		}
+	}
+	if !found {
+		result = append(result, key+" = "+value)
+	}
+	return strings.Join(result, "\n")
 }
