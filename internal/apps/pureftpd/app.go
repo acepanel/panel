@@ -283,7 +283,9 @@ func (s *App) setFTPValue(content string, key string, value string) string {
 			if found {
 				continue
 			}
-			result = append(result, key+"                  "+value)
+			// 保留原行格式
+			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+			result = append(result, indent+key+"                  "+value)
 			found = true
 		} else {
 			result = append(result, line)

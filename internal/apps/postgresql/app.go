@@ -348,7 +348,7 @@ func (s *App) getPGValue(content string, key string) string {
 		if k == key {
 			v := strings.TrimSpace(parts[1])
 			// 去除行尾注释
-			if idx := strings.Index(v, "#"); idx > 0 {
+			if idx := strings.Index(v, "#"); idx >= 0 {
 				v = strings.TrimSpace(v[:idx])
 			}
 			// 去除引号
