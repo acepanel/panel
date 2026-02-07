@@ -161,7 +161,7 @@ const handleRefresh = () => {
       :data="data"
       :loading="loading"
       :bordered="false"
-      :max-height="600"
+      flex-height
       :scroll-x="800"
       virtual-scroll
     />

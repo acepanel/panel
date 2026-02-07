@@ -16,7 +16,7 @@ const activeTab = ref('operation')
 </script>
 
 <template>
-  <common-page show-header show-footer>
+  <common-page show-header show-footer flex>
     <template #tabbar>
       <n-tabs v-model:value="activeTab" animated>
         <n-tab name="operation" :tab="$gettext('Operation Log')" />

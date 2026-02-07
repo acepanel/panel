@@ -35,9 +35,17 @@ const columns: any = [
             { trigger: 'hover', placement: 'right' },
             {
               trigger: () =>
-                h('span', { class: 'cursor-pointer hover:opacity-60 inline-flex' }, [
-                  h(TheIcon, { icon: 'mdi:link-variant', size: 16 })
-                ]),
+                h(
+                  'span',
+                  {
+                    class: 'cursor-pointer hover:opacity-60 inline-flex',
+                    onDblclick: () => {
+                      const protocol = row.ssl ? 'https' : 'http'
+                      window.open(`${protocol}://${row.domains[0]}`, '_blank')
+                    }
+                  },
+                  [h(TheIcon, { icon: 'mdi:link-variant', size: 16 })]
+                ),
               default: () =>
                 h(
                   NFlex,
