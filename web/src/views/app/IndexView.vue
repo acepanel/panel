@@ -16,12 +16,18 @@ const { $gettext } = useGettext()
 const tabStore = useTabStore()
 
 const currentTab = ref('app')
+const updateCacheLoading = ref(false)
 
 const handleUpdateCache = () => {
-  useRequest(app.updateCache()).onSuccess(() => {
-    window.$message.success($gettext('Cache updated successfully'))
-    tabStore.reloadTab(tabStore.active)
-  })
+  updateCacheLoading.value = true
+  useRequest(app.updateCache())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cache updated successfully'))
+      tabStore.reloadTab(tabStore.active)
+    })
+    .onComplete(() => {
+      updateCacheLoading.value = false
+    })
 }
 </script>
 
@@ -34,7 +40,7 @@ const handleUpdateCache = () => {
           <n-tab name="environment" :tab="$gettext('Operating Environment')" />
           <n-tab name="template" :tab="$gettext('Container Template')" />
         </n-tabs>
-        <n-button v-if="currentTab != 'installed'" type="primary" @click="handleUpdateCache">
+        <n-button v-if="currentTab != 'installed'" type="primary" :loading="updateCacheLoading" :disabled="updateCacheLoading" @click="handleUpdateCache">
           {{ $gettext('Update Cache') }}
         </n-button>
       </div>

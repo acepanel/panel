@@ -114,6 +114,7 @@ const pythonOptions = ref({
 
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace/projects')
+const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
@@ -287,6 +288,7 @@ const handleCreate = async () => {
       remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name })
     }
 
+    loading.value = true
     try {
       await new Promise<void>((resolve, reject) => {
         useRequest(website.create(websiteData))
@@ -295,53 +297,59 @@ const handleCreate = async () => {
       })
     } catch {
       // 网站创建失败，不继续创建项目
+      loading.value = false
       return
     }
   }
 
-  useRequest(project.create(createModel.value)).onSuccess(() => {
-    window.$bus.emit('project:refresh')
-    if (proxyOptions.value.enabled) {
-      window.$bus.emit('website:refresh')
-    }
-    window.$message.success($gettext('Project created successfully'))
-    show.value = false
-    // 重置表单
-    createModel.value = {
-      name: '',
-      type: '',
-      root_dir: '',
-      working_dir: '',
-      exec_start: '',
-      user: 'www'
-    }
-    proxyOptions.value = {
-      enabled: false,
-      domains: [],
-      port: null
-    }
-    goOptions.value = {
-      mode: 'source',
-      version: '',
-      entryFile: 'main.go'
-    }
-    javaOptions.value = {
-      version: '',
-      framework: 'custom'
-    }
-    nodejsOptions.value = {
-      version: '',
-      framework: 'custom'
-    }
-    phpOptions.value = {
-      version: null,
-      framework: 'custom'
-    }
-    pythonOptions.value = {
-      version: '',
-      framework: 'custom'
-    }
-  })
+  loading.value = true
+  useRequest(project.create(createModel.value))
+    .onSuccess(() => {
+      window.$bus.emit('project:refresh')
+      if (proxyOptions.value.enabled) {
+        window.$bus.emit('website:refresh')
+      }
+      window.$message.success($gettext('Project created successfully'))
+      show.value = false
+      // 重置表单
+      createModel.value = {
+        name: '',
+        type: '',
+        root_dir: '',
+        working_dir: '',
+        exec_start: '',
+        user: 'www'
+      }
+      proxyOptions.value = {
+        enabled: false,
+        domains: [],
+        port: null
+      }
+      goOptions.value = {
+        mode: 'source',
+        version: '',
+        entryFile: 'main.go'
+      }
+      javaOptions.value = {
+        version: '',
+        framework: 'custom'
+      }
+      nodejsOptions.value = {
+        version: '',
+        framework: 'custom'
+      }
+      phpOptions.value = {
+        version: null,
+        framework: 'custom'
+      }
+      pythonOptions.value = {
+        version: '',
+        framework: 'custom'
+      }
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 // 根据类型获取标题
@@ -606,7 +614,7 @@ const modalTitle = computed(() => {
       </template>
     </n-form>
 
-    <n-button type="info" block class="mt-24" @click="handleCreate">
+    <n-button type="info" block class="mt-24" :loading="loading" :disabled="loading" @click="handleCreate">
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>

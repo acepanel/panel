@@ -363,14 +363,21 @@ const handleRestartSelect = (key: string) => {
   }
 }
 
+const checkUpdateLoading = ref(false)
+
 const handleUpdate = () => {
-  useRequest(home.checkUpdate()).onSuccess(({ data }) => {
-    if (data.update) {
-      router.push({ name: 'home-update' })
-    } else {
-      window.$message.success($gettext('Current version is the latest'))
-    }
-  })
+  checkUpdateLoading.value = true
+  useRequest(home.checkUpdate())
+    .onSuccess(({ data }) => {
+      if (data.update) {
+        router.push({ name: 'home-update' })
+      } else {
+        window.$message.success($gettext('Current version is the latest'))
+      }
+    })
+    .onComplete(() => {
+      checkUpdateLoading.value = false
+    })
 }
 
 const toSponsor = () => {
@@ -500,7 +507,7 @@ if (import.meta.hot) {
                 <n-dropdown :options="restartOptions" @select="handleRestartSelect">
                   <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
                 </n-dropdown>
-                <n-button type="info" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
+                <n-button type="info" :loading="checkUpdateLoading" :disabled="checkUpdateLoading" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
               </n-flex>
             </template>
           </n-page-header>

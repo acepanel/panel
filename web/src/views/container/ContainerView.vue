@@ -20,6 +20,7 @@ const { $gettext } = useGettext()
 const logModal = ref(false)
 const logs = ref('')
 const renameModal = ref(false)
+const renameLoading = ref(false)
 const renameModel = ref({
   id: '',
   name: ''
@@ -257,13 +258,16 @@ const handleShowLog = async (row: any) => {
 }
 
 const handleRename = () => {
-  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name)).onSuccess(
-    () => {
+  renameLoading.value = true
+  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name))
+    .onSuccess(() => {
       refresh()
       renameModal.value = false
       window.$message.success($gettext('Rename successful'))
-    }
-  )
+    })
+    .onComplete(() => {
+      renameLoading.value = false
+    })
 }
 
 const handleStart = (id: string) => {
@@ -629,7 +633,7 @@ onUnmounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRename">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="renameLoading" :disabled="renameLoading" @click="handleRename">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="terminalModal"

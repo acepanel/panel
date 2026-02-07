@@ -18,6 +18,7 @@ const { data: versions } = useRequest(home.updateInfo, {
   initialData: []
 })
 let messageReactive: MessageReactive | null = null
+const updateLoading = ref(false)
 
 const handleUpdate = () => {
   window.$dialog.warning({
@@ -26,6 +27,7 @@ const handleUpdate = () => {
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
+      updateLoading.value = true
       messageReactive = window.$message.loading($gettext('Panel updating...'), {
         duration: 0
       })
@@ -40,6 +42,7 @@ const handleUpdate = () => {
           window.$message.success($gettext('Panel updated successfully'))
         })
         .onComplete(() => {
+          updateLoading.value = false
           messageReactive?.destroy()
         })
     },
@@ -69,7 +72,7 @@ const handleUpdate = () => {
           noImgZoomIn
         />
       </n-timeline-item>
-      <n-button class="ml-16" type="primary" @click="handleUpdate">
+      <n-button class="ml-16" type="primary" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate">
         {{ $gettext('Update Now') }}
       </n-button>
     </n-timeline>

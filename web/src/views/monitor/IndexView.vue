@@ -34,6 +34,7 @@ use([
 // 监控设置
 const monitorSwitch = ref(false)
 const saveDay = ref(30)
+const updateLoading = ref(false)
 
 useRequest(monitor.setting()).onSuccess(({ data }) => {
   monitorSwitch.value = data.enabled
@@ -569,9 +570,14 @@ const diskIOOption = computed<EChartsOption>(() => {
 
 // 操作函数
 const handleUpdate = async () => {
-  useRequest(monitor.updateSetting(monitorSwitch.value, saveDay.value)).onSuccess(() => {
-    window.$message.success($gettext('Operation successful'))
-  })
+  updateLoading.value = true
+  useRequest(monitor.updateSetting(monitorSwitch.value, saveDay.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Operation successful'))
+    })
+    .onComplete(() => {
+      updateLoading.value = false
+    })
 }
 
 const handleClear = async () => {
@@ -597,7 +603,7 @@ const handleClear = async () => {
             </n-input-number>
           </div>
           <div>
-            <n-button type="primary" @click="handleUpdate">{{ $gettext('Confirm') }}</n-button>
+            <n-button type="primary" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate">{{ $gettext('Confirm') }}</n-button>
           </div>
         </div>
 
