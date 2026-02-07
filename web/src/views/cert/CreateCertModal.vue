@@ -36,19 +36,26 @@ const model = ref<any>({
   auto_renewal: true
 })
 
+const loading = ref(false)
+
 const handleCreateCert = () => {
-  useRequest(cert.certCreate(model.value)).onSuccess(() => {
-    window.$bus.emit('cert:refresh-cert')
-    window.$bus.emit('cert:refresh-async')
-    show.value = false
-    model.value.domains = []
-    model.value.dns_id = null
-    model.value.type = 'P256'
-    model.value.account_id = null
-    model.value.website_id = null
-    model.value.auto_renewal = true
-    window.$message.success($gettext('Created successfully'))
-  })
+  loading.value = true
+  useRequest(cert.certCreate(model.value))
+    .onSuccess(() => {
+      window.$bus.emit('cert:refresh-cert')
+      window.$bus.emit('cert:refresh-async')
+      show.value = false
+      model.value.domains = []
+      model.value.dns_id = null
+      model.value.type = 'P256'
+      model.value.account_id = null
+      model.value.website_id = null
+      model.value.auto_renewal = true
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -112,7 +119,7 @@ const handleCreateCert = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreateCert">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateCert">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

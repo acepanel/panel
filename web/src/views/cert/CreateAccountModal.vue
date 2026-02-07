@@ -21,6 +21,7 @@ const props = defineProps({
 const { caProviders, algorithms } = toRefs(props)
 
 let messageReactive: MessageReactive | null = null
+const loading = ref(false)
 
 const model = ref<any>({
   hmac_encoded: '',
@@ -35,6 +36,7 @@ const showEAB = computed(() => {
 })
 
 const handleCreateAccount = () => {
+  loading.value = true
   messageReactive = window.$message.loading(
     $gettext('Registering account with CA, please wait patiently'),
     {
@@ -52,6 +54,7 @@ const handleCreateAccount = () => {
       window.$message.success($gettext('Created successfully'))
     })
     .onComplete(() => {
+      loading.value = false
       messageReactive?.destroy()
     })
 }
@@ -122,7 +125,7 @@ const handleCreateAccount = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreateAccount">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateAccount">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

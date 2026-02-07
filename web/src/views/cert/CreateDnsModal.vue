@@ -24,16 +24,23 @@ const model = ref<any>({
   name: ''
 })
 
+const loading = ref(false)
+
 const handleCreateDNS = async () => {
-  useRequest(cert.dnsCreate(model.value)).onSuccess(() => {
-    window.$bus.emit('cert:refresh-dns')
-    window.$bus.emit('cert:refresh-async')
-    show.value = false
-    model.value.data.ak = ''
-    model.value.data.sk = ''
-    model.value.name = ''
-    window.$message.success($gettext('Created successfully'))
-  })
+  loading.value = true
+  useRequest(cert.dnsCreate(model.value))
+    .onSuccess(() => {
+      window.$bus.emit('cert:refresh-dns')
+      window.$bus.emit('cert:refresh-async')
+      show.value = false
+      model.value.data.ak = ''
+      model.value.data.sk = ''
+      model.value.name = ''
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -170,7 +177,7 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

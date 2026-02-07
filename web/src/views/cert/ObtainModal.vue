@@ -14,12 +14,15 @@ const model = ref({
   type: 'auto'
 })
 
+const loading = ref(false)
+
 const options = [
   { label: $gettext('Automatic'), value: 'auto' },
   { label: $gettext('Self-signed'), value: 'self-signed' }
 ]
 
 const handleSubmit = () => {
+  loading.value = true
   messageReactive = window.$message.loading($gettext('Please wait...'), {
     duration: 0
   })
@@ -32,6 +35,7 @@ const handleSubmit = () => {
         window.$message.success($gettext('Issuance successful'))
       })
       .onComplete(() => {
+        loading.value = false
         messageReactive?.destroy()
       })
   } else {
@@ -43,6 +47,7 @@ const handleSubmit = () => {
         window.$message.success($gettext('Issuance successful'))
       })
       .onComplete(() => {
+        loading.value = false
         messageReactive?.destroy()
       })
   }
@@ -63,7 +68,7 @@ const handleSubmit = () => {
       <n-form-item path="type" :label="$gettext('Issuance Mode')">
         <n-select v-model:value="model.type" :options="options" />
       </n-form-item>
-      <n-button type="info" block @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
     </n-form>
   </n-modal>
 </template>

@@ -11,15 +11,22 @@ const model = ref<any>({
   key: ''
 })
 
+const loading = ref(false)
+
 const handleSubmit = () => {
-  useRequest(cert.certUpload(model.value)).onSuccess(() => {
-    window.$bus.emit('cert:refresh-cert')
-    window.$bus.emit('cert:refresh-async')
-    show.value = false
-    model.value.cert = ''
-    model.value.key = ''
-    window.$message.success($gettext('Created successfully'))
-  })
+  loading.value = true
+  useRequest(cert.certUpload(model.value))
+    .onSuccess(() => {
+      window.$bus.emit('cert:refresh-cert')
+      window.$bus.emit('cert:refresh-async')
+      show.value = false
+      model.value.cert = ''
+      model.value.key = ''
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -52,7 +59,7 @@ const handleSubmit = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>
