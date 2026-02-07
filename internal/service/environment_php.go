@@ -808,12 +808,18 @@ func (s *EnvironmentPHPService) getINIValue(content string, key string) string {
 
 // setINIValue 在 INI 格式内容中设置指定键的值
 func (s *EnvironmentPHPService) setINIValue(content string, key string, value string) string {
+	// 过滤值中的换行符，防止破坏 INI 文件结构
+	value = strings.ReplaceAll(value, "\n", "")
+	value = strings.ReplaceAll(value, "\r", "")
+
 	lines := strings.Split(content, "\n")
 	found := false
-	for i, line := range lines {
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		// 跳过空行和 section 行
 		if trimmed == "" || strings.HasPrefix(trimmed, "[") {
+			result = append(result, line)
 			continue
 		}
 		// 处理注释行（可能是被注释掉的配置）
@@ -825,21 +831,23 @@ func (s *EnvironmentPHPService) setINIValue(content string, key string, value st
 		}
 		parts := strings.SplitN(checkLine, "=", 2)
 		if len(parts) != 2 {
+			result = append(result, line)
 			continue
 		}
 		k := strings.TrimSpace(parts[0])
 		if k == key {
 			if found {
-				// 如果已经找到并替换过，删除重复行
-				lines[i] = ""
+				// 如果已经找到并替换过，跳过重复行
 				continue
 			}
-			lines[i] = key + " = " + value
+			result = append(result, key+" = "+value)
 			found = true
+		} else {
+			result = append(result, line)
 		}
 	}
 	if !found {
-		lines = append(lines, key+" = "+value)
+		result = append(result, key+" = "+value)
 	}
-	return strings.Join(lines, "\n")
+	return strings.Join(result, "\n")
 }

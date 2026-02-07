@@ -197,11 +197,11 @@ watch(showPathSelector, (val) => {
               :min="1"
               show-sort-button
               @update:value="
-                (value: string[]) => {
+                (value) => {
                   // 检查最后一个元素是否包含多个域名
                   if (value.length > 0) {
                     const lastIndex = value.length - 1
-                    const lastValue = value[lastIndex]
+                    const lastValue = value[lastIndex] as string
                     if (lastValue && DOMAIN_SEPARATORS_REGEX.test(lastValue)) {
                       handleDomainCreate(lastIndex, lastValue)
                     }

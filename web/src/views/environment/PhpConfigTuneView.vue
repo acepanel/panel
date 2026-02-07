@@ -3,6 +3,7 @@ defineOptions({
   name: 'php-config-tune'
 })
 
+import type { Ref } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/panel/environment/php'
@@ -77,65 +78,22 @@ const getConfigData = () => ({
   pm_max_spare_servers: pmMaxSpareServers.value
 })
 
-// 保存禁用函数
-const handleSaveDisabledFunctions = () => {
-  saveDisabledFunctionsLoading.value = true
+// 通用保存配置方法
+const handleSave = (loading: Ref<boolean>) => {
+  loading.value = true
   useRequest(php.saveConfigTune(props.slug, getConfigData()))
     .onSuccess(() => {
       window.$message.success($gettext('Saved successfully'))
     })
     .onComplete(() => {
-      saveDisabledFunctionsLoading.value = false
+      loading.value = false
     })
 }
-
-// 保存上传限制
-const handleSaveUpload = () => {
-  saveUploadLoading.value = true
-  useRequest(php.saveConfigTune(props.slug, getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveUploadLoading.value = false
-    })
-}
-
-// 保存超时限制
-const handleSaveTimeout = () => {
-  saveTimeoutLoading.value = true
-  useRequest(php.saveConfigTune(props.slug, getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveTimeoutLoading.value = false
-    })
-}
-
-// 保存性能调整
-const handleSavePerformance = () => {
-  savePerformanceLoading.value = true
-  useRequest(php.saveConfigTune(props.slug, getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      savePerformanceLoading.value = false
-    })
-}
-
-// 保存 Session 配置
-const handleSaveSession = () => {
-  saveSessionLoading.value = true
-  useRequest(php.saveConfigTune(props.slug, getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveSessionLoading.value = false
-    })
-}
+const handleSaveDisabledFunctions = () => handleSave(saveDisabledFunctionsLoading)
+const handleSaveUpload = () => handleSave(saveUploadLoading)
+const handleSaveTimeout = () => handleSave(saveTimeoutLoading)
+const handleSavePerformance = () => handleSave(savePerformanceLoading)
+const handleSaveSession = () => handleSave(saveSessionLoading)
 
 // 清理 Session 文件
 const handleCleanSession = () => {
