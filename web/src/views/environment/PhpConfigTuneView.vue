@@ -3,7 +3,6 @@ defineOptions({
   name: 'php-config-tune'
 })
 
-import type { Ref } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/panel/environment/php'
@@ -33,11 +32,7 @@ const pmMinSpareServers = ref('')
 const pmMaxSpareServers = ref('')
 
 // loading 状态
-const saveUploadLoading = ref(false)
-const saveTimeoutLoading = ref(false)
-const savePerformanceLoading = ref(false)
-const saveSessionLoading = ref(false)
-const saveDisabledFunctionsLoading = ref(false)
+const saveLoading = ref(false)
 const cleanSessionLoading = ref(false)
 
 // 加载配置
@@ -78,22 +73,17 @@ const getConfigData = () => ({
   pm_max_spare_servers: pmMaxSpareServers.value
 })
 
-// 通用保存配置方法
-const handleSave = (loading: Ref<boolean>) => {
-  loading.value = true
+// 保存配置
+const handleSave = () => {
+  saveLoading.value = true
   useRequest(php.saveConfigTune(props.slug, getConfigData()))
     .onSuccess(() => {
       window.$message.success($gettext('Saved successfully'))
     })
     .onComplete(() => {
-      loading.value = false
+      saveLoading.value = false
     })
 }
-const handleSaveDisabledFunctions = () => handleSave(saveDisabledFunctionsLoading)
-const handleSaveUpload = () => handleSave(saveUploadLoading)
-const handleSaveTimeout = () => handleSave(saveTimeoutLoading)
-const handleSavePerformance = () => handleSave(savePerformanceLoading)
-const handleSaveSession = () => handleSave(saveSessionLoading)
 
 // 清理 Session 文件
 const handleCleanSession = () => {
@@ -146,9 +136,9 @@ const pmOptions = [
         <n-flex>
           <n-button
             type="primary"
-            :loading="saveDisabledFunctionsLoading"
-            :disabled="saveDisabledFunctionsLoading"
-            @click="handleSaveDisabledFunctions"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
           >
             {{ $gettext('Save') }}
           </n-button>
@@ -193,9 +183,9 @@ const pmOptions = [
         <n-flex>
           <n-button
             type="primary"
-            :loading="saveUploadLoading"
-            :disabled="saveUploadLoading"
-            @click="handleSaveUpload"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
           >
             {{ $gettext('Save') }}
           </n-button>
@@ -234,9 +224,9 @@ const pmOptions = [
         <n-flex>
           <n-button
             type="primary"
-            :loading="saveTimeoutLoading"
-            :disabled="saveTimeoutLoading"
-            @click="handleSaveTimeout"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
           >
             {{ $gettext('Save') }}
           </n-button>
@@ -293,9 +283,9 @@ const pmOptions = [
         <n-flex>
           <n-button
             type="primary"
-            :loading="savePerformanceLoading"
-            :disabled="savePerformanceLoading"
-            @click="handleSavePerformance"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
           >
             {{ $gettext('Save') }}
           </n-button>
@@ -334,9 +324,9 @@ const pmOptions = [
         <n-flex>
           <n-button
             type="primary"
-            :loading="saveSessionLoading"
-            :disabled="saveSessionLoading"
-            @click="handleSaveSession"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
           >
             {{ $gettext('Save') }}
           </n-button>
