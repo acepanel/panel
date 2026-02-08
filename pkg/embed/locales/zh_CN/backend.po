@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-06 13:45\n"
+"PO-Revision-Date: 2026-02-08 13:49\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -59,7 +59,7 @@ msgstr "AcePanel 服务状态：%s"
 msgid "AcePanel service stopped"
 msgstr "AcePanel 服务已停止"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:124
 msgid "Active Connections"
 msgstr "活动连接"
 
@@ -67,7 +67,7 @@ msgstr "活动连接"
 msgid "Active Processes"
 msgstr "活动进程"
 
-#: internal/apps/nginx/app.go:129
+#: internal/apps/nginx/app.go:132
 msgid "Active connections"
 msgstr "活动连接"
 
@@ -163,13 +163,13 @@ msgstr "绑定域名已禁用"
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/mysql/app.go:120
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Received"
 msgstr "已接收字节"
 
-#: internal/apps/mysql/app.go:119
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Sent"
 msgstr "已发送字节"
 
@@ -248,11 +248,11 @@ msgstr "ClouDNS"
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
-#: internal/apps/redis/app.go:86
+#: internal/apps/redis/app.go:88
 msgid "Commands Per Second"
 msgstr "每秒执行命令数"
 
-#: internal/apps/redis/app.go:79
+#: internal/apps/redis/app.go:81
 msgid "Connected Clients"
 msgstr "已连接客户端数"
 
@@ -509,11 +509,11 @@ msgstr "修复 AcePanel 升级问题"
 msgid "Forum：https://tom.moe"
 msgstr "论坛：https://tom.moe"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:130
 msgid "Full Joins without Index"
 msgstr "没有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:131
 msgid "Full Range Joins without Index"
 msgstr "没有使用索引的范围 Join"
 
@@ -595,7 +595,7 @@ msgstr "Igbinary 是一个用于序列化和反序列化数据的库"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:126
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
@@ -610,7 +610,7 @@ msgstr "初始化失败：%v"
 msgid "Initialize AcePanel (use only under guidance)"
 msgstr "初始化 AcePanel（仅在指导下使用）"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:127
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
@@ -642,11 +642,11 @@ msgstr "Java-%s 未安装"
 msgid "Journal logs"
 msgstr "Journal 日志"
 
-#: internal/apps/redis/app.go:87
+#: internal/apps/redis/app.go:89
 msgid "Keyspace Hits"
 msgstr "查找数据库键成功次数"
 
-#: internal/apps/redis/app.go:88
+#: internal/apps/redis/app.go:90
 msgid "Keyspace Misses"
 msgstr "查找数据库键失败次数"
 
@@ -654,7 +654,7 @@ msgstr "查找数据库键失败次数"
 msgid "LDAP is a protocol for accessing directory services"
 msgstr "LDAP 是一种用于访问目录服务的协议"
 
-#: internal/apps/redis/app.go:89
+#: internal/apps/redis/app.go:91
 msgid "Latest Fork Time (ms)"
 msgstr "最近一次 fork() 操作耗费的毫秒数"
 
@@ -712,11 +712,11 @@ msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr "Memcached 是一个用于连接 Memcached 服务器的驱动程序"
 
 #: internal/apps/apache/app.go:109
-#: internal/apps/nginx/app.go:122
+#: internal/apps/nginx/app.go:125
 msgid "Memory"
 msgstr "内存"
 
-#: internal/apps/redis/app.go:83
+#: internal/apps/redis/app.go:85
 msgid "Memory Fragmentation Ratio"
 msgstr "内存碎片比率"
 
@@ -785,7 +785,7 @@ msgstr "获取免费证书或生成自签名证书"
 msgid "Old username cannot be empty"
 msgstr "旧用户名不能为空"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:129
 msgid "Open Tables"
 msgstr "已打开的表"
 
@@ -833,7 +833,10 @@ msgstr "网站使用的 PHP 版本（不填则不使用）"
 #: internal/service/environment_php.go:328
 #: internal/service/environment_php.go:363
 #: internal/service/environment_php.go:47
+#: internal/service/environment_php.go:647
 #: internal/service/environment_php.go:66
+#: internal/service/environment_php.go:706
+#: internal/service/environment_php.go:769
 #: internal/service/environment_php.go:87
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安装"
@@ -865,11 +868,11 @@ msgstr "密码：%s"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "网站托管的路径（不填则使用默认路径）"
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:125
 msgid "Peak Connections"
 msgstr "峰值连接数"
 
-#: internal/apps/redis/app.go:82
+#: internal/apps/redis/app.go:84
 msgid "Peak Memory Usage"
 msgstr "占用内存峰值"
 
@@ -913,7 +916,7 @@ msgstr "端口范围错误"
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/apps/postgresql/app.go:167
+#: internal/apps/postgresql/app.go:170
 msgid "Process Count"
 msgstr "进程数"
 
@@ -921,7 +924,7 @@ msgstr "进程数"
 msgid "Process Manager"
 msgstr "进程管理方式"
 
-#: internal/apps/postgresql/app.go:166
+#: internal/apps/postgresql/app.go:169
 msgid "Process PID"
 msgstr "进程 PID"
 
@@ -947,23 +950,23 @@ msgstr "Python-%s 未安装"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/apps/mysql/app.go:186
+#: internal/apps/mysql/app.go:189
 msgid "Query Cache Hit Rate"
 msgstr "查询缓存命中率"
 
-#: internal/apps/mysql/app.go:174
+#: internal/apps/mysql/app.go:177
 msgid "Query Cache Hits"
 msgstr "查询缓存命中次数"
 
-#: internal/apps/mysql/app.go:178
+#: internal/apps/mysql/app.go:181
 msgid "Query Cache Inserts"
 msgstr "查询缓存插入次数"
 
-#: internal/apps/mysql/app.go:182
+#: internal/apps/mysql/app.go:185
 msgid "Query Cache Not Cached"
 msgstr "查询缓存未缓存次数"
 
-#: internal/apps/nginx/app.go:153
+#: internal/apps/nginx/app.go:156
 msgid "Reading"
 msgstr "正在读取请求"
 
@@ -995,7 +998,7 @@ msgstr "每秒请求"
 msgid "Restart AcePanel service"
 msgstr "重启 AcePanel 服务"
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:121
 msgid "Rollbacks per Second"
 msgstr "每秒回滚"
 
@@ -1048,6 +1051,10 @@ msgstr "服务器类型"
 msgid "Server username"
 msgstr "服务器用户名"
 
+#: internal/service/environment_php.go:782
+msgid "Session save handler is not files, cannot clean"
+msgstr "Session 保存处理程序不是 files，无法清理"
+
 #: internal/route/cli.go:467
 msgid "Setting management"
 msgstr "设置管理"
@@ -1060,7 +1067,7 @@ msgstr "设置不存在"
 msgid "Slow Requests"
 msgstr "慢请求"
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:133
 msgid "Sort Merge Passes"
 msgstr "排序后的合并次数"
 
@@ -1068,7 +1075,7 @@ msgstr "排序后的合并次数"
 msgid "Start AcePanel service"
 msgstr "启动 AcePanel 服务"
 
-#: internal/apps/postgresql/app.go:165
+#: internal/apps/postgresql/app.go:168
 #: internal/service/environment_php.go:180
 msgid "Start Time"
 msgstr "启动时间"
@@ -1083,11 +1090,11 @@ msgstr "停止 AcePanel 服务"
 msgid "Storage ID (local storage if not filled)"
 msgstr "存储 ID（留空则为本地存储）"
 
-#: internal/apps/postgresql/app.go:169
+#: internal/apps/postgresql/app.go:172
 msgid "Storage Usage"
 msgstr "存储使用"
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:132
 msgid "Subqueries without Index"
 msgstr "没有索引的子查询"
 
@@ -1123,11 +1130,11 @@ msgstr "Sysvsem 是一个处理系统 V 信号的库"
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一个处理 V 共享内存的库"
 
-#: internal/apps/redis/app.go:77
+#: internal/apps/redis/app.go:79
 msgid "TCP Port"
 msgstr "TCP 端口"
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:134
 msgid "Table Locks Waited"
 msgstr "锁表次数"
 
@@ -1135,7 +1142,7 @@ msgstr "锁表次数"
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:128
 msgid "Temporary Tables Created on Disk"
 msgstr "创建临时表到磁盘"
 
@@ -1163,24 +1170,24 @@ msgstr "开关用户两步认证"
 msgid "Total Accesses"
 msgstr "总访问量"
 
-#: internal/apps/redis/app.go:80
+#: internal/apps/redis/app.go:82
 msgid "Total Allocated Memory"
 msgstr "已分配内存总量"
 
-#: internal/apps/redis/app.go:85
+#: internal/apps/redis/app.go:87
 msgid "Total Commands Processed"
 msgstr "执行的命令总数"
 
-#: internal/apps/mysql/app.go:116
-#: internal/apps/postgresql/app.go:168
+#: internal/apps/mysql/app.go:119
+#: internal/apps/postgresql/app.go:171
 msgid "Total Connections"
 msgstr "总连接数"
 
-#: internal/apps/redis/app.go:84
+#: internal/apps/redis/app.go:86
 msgid "Total Connections Received"
 msgstr "收到的连接总数"
 
-#: internal/apps/redis/app.go:81
+#: internal/apps/redis/app.go:83
 msgid "Total Memory Usage"
 msgstr "内存使用总数"
 
@@ -1188,7 +1195,7 @@ msgstr "内存使用总数"
 msgid "Total Processes"
 msgstr "总进程数"
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:118
 msgid "Total Queries"
 msgstr "查询总数"
 
@@ -1196,19 +1203,19 @@ msgstr "查询总数"
 msgid "Total Traffic"
 msgstr "总流量"
 
-#: internal/apps/nginx/app.go:137
+#: internal/apps/nginx/app.go:140
 msgid "Total connections"
 msgstr "总连接数"
 
-#: internal/apps/nginx/app.go:141
+#: internal/apps/nginx/app.go:144
 msgid "Total handshakes"
 msgstr "总握手数"
 
-#: internal/apps/nginx/app.go:145
+#: internal/apps/nginx/app.go:148
 msgid "Total requests"
 msgstr "总请求数"
 
-#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:120
 msgid "Transactions per Second"
 msgstr "每秒事务"
 
@@ -1267,11 +1274,11 @@ msgstr "更新应用"
 msgid "Update environment %s"
 msgstr "更新环境 %s"
 
-#: internal/apps/mysql/app.go:114
+#: internal/apps/mysql/app.go:117
 msgid "Uptime"
 msgstr "运行时间"
 
-#: internal/apps/redis/app.go:78
+#: internal/apps/redis/app.go:80
 msgid "Uptime in Days"
 msgstr "已运行天数"
 
@@ -1305,7 +1312,7 @@ msgstr "版本"
 msgid "Verify download file failed: %v"
 msgstr "验证下载文件失败：%v"
 
-#: internal/apps/nginx/app.go:161
+#: internal/apps/nginx/app.go:164
 msgid "Waiting"
 msgstr "正在驻留等待"
 
@@ -1351,7 +1358,7 @@ msgid "West.cn"
 msgstr "西部数码"
 
 #: internal/apps/apache/app.go:98
-#: internal/apps/nginx/app.go:111
+#: internal/apps/nginx/app.go:114
 msgid "Workers"
 msgstr "工作进程"
 
@@ -1363,7 +1370,7 @@ msgstr "写入面板设置（仅在指导下使用）"
 msgid "Write website data (use only under guidance)"
 msgstr "写入网站数据（仅在指导下使用）"
 
-#: internal/apps/nginx/app.go:157
+#: internal/apps/nginx/app.go:160
 msgid "Writing"
 msgstr "正在写入响应"
 
@@ -1497,7 +1504,7 @@ msgstr "数据库不存在：%s"
 msgid "device not found: %s"
 msgstr "未找到设备：%s"
 
-#: internal/apps/pureftpd/app.go:84
+#: internal/apps/pureftpd/app.go:87
 msgid "directory %s does not exist"
 msgstr "目录 %s 不存在"
 
@@ -1642,11 +1649,11 @@ msgstr "获取 Google EAB 失败： %s"
 msgid "failed to get Google EAB: %v"
 msgstr "获取 Google EAB 失败： %v"
 
-#: internal/apps/memcached/app.go:37
+#: internal/apps/memcached/app.go:40
 msgid "failed to get Memcached status: %v"
 msgstr "获取 Memcached 状态失败： %v"
 
-#: internal/apps/mysql/app.go:101
+#: internal/apps/mysql/app.go:104
 msgid "failed to get MySQL status: %v"
 msgstr "获取 MySQL 状态失败： %v"
 
@@ -1654,23 +1661,23 @@ msgstr "获取 MySQL 状态失败： %v"
 msgid "failed to get NTP configuration: %v"
 msgstr "获取 NTP 配置失败：%v"
 
-#: internal/apps/postgresql/app.go:140
+#: internal/apps/postgresql/app.go:143
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "获取 PostgreSQL 后端 pid 失败： %v"
 
-#: internal/apps/postgresql/app.go:150
+#: internal/apps/postgresql/app.go:153
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "获取 PostgreSQL 连接数失败： %v"
 
-#: internal/apps/postgresql/app.go:155
+#: internal/apps/postgresql/app.go:158
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "获取 PostgreSQL 数据库大小失败： %v"
 
-#: internal/apps/postgresql/app.go:145
+#: internal/apps/postgresql/app.go:148
 msgid "failed to get PostgreSQL process: %v"
 msgstr "获取 PostgreSQL 进程数失败： %v"
 
-#: internal/apps/postgresql/app.go:135
+#: internal/apps/postgresql/app.go:138
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "获取 PostgreSQL 启动时间失败： %v"
 
@@ -1734,8 +1741,8 @@ msgstr "获取首页模板文件失败：%v"
 msgid "failed to get log path for process %s: %v"
 msgstr "获取进程 %s 的日志路径失败： %v"
 
-#: internal/apps/nginx/app.go:107
-#: internal/apps/nginx/app.go:117
+#: internal/apps/nginx/app.go:110
+#: internal/apps/nginx/app.go:120
 msgid "failed to get nginx workers: %v"
 msgstr "获取 nginx 工作进程失败： %v"
 
@@ -1747,11 +1754,11 @@ msgstr "获取分区 UUID 失败：%v"
 msgid "failed to get partitions: %v"
 msgstr "获取分区失败：%v"
 
-#: internal/apps/pureftpd/app.go:144
+#: internal/apps/pureftpd/app.go:147
 msgid "failed to get port: %v"
 msgstr "获取端口失败： %v"
 
-#: internal/apps/postgresql/app.go:194
+#: internal/apps/postgresql/app.go:197
 msgid "failed to get postgres password: %v"
 msgstr "获取 postgres 密码失败： %v"
 
@@ -1763,11 +1770,11 @@ msgstr "获取私钥失败"
 msgid "failed to get private key: %v"
 msgstr "获取私钥失败： %v"
 
-#: internal/apps/redis/app.go:62
+#: internal/apps/redis/app.go:64
 msgid "failed to get redis info: %v"
 msgstr "获取 redis 信息失败： %v"
 
-#: internal/apps/redis/app.go:39
+#: internal/apps/redis/app.go:41
 msgid "failed to get redis status: %v"
 msgstr "获取 redis 状态失败： %v"
 
@@ -1819,12 +1826,12 @@ msgstr "列出 Stream 服务器失败：%v"
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失败：%v"
 
-#: internal/apps/mysql/app.go:223
-#: internal/apps/mysql/app.go:91
+#: internal/apps/mysql/app.go:226
+#: internal/apps/mysql/app.go:94
 msgid "failed to load MySQL root password: %v"
 msgstr "加载 MySQL root 密码失败： %v"
 
-#: internal/apps/postgresql/app.go:124
+#: internal/apps/postgresql/app.go:127
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "加载 PostgreSQL postgres 密码失败：%v"
 
@@ -1836,7 +1843,7 @@ msgstr "无法挂载分区：%v"
 #: internal/data/setting.go:288
 #: internal/data/setting.go:361
 #: internal/data/website.go:609
-#: internal/data/website.go:929
+#: internal/data/website.go:945
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -1848,7 +1855,7 @@ msgstr "无法解析磁盘列表：%v"
 #: internal/data/setting.go:291
 #: internal/data/setting.go:364
 #: internal/data/website.go:612
-#: internal/data/website.go:932
+#: internal/data/website.go:948
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -1881,7 +1888,7 @@ msgstr "读取命令输出失败： %v"
 msgid "failed to read command: %v"
 msgstr "读取命令失败： %v"
 
-#: internal/apps/memcached/app.go:77
+#: internal/apps/memcached/app.go:80
 msgid "failed to read from Memcached: %v"
 msgstr "从 Memcached 读取失败： %v"
 
@@ -1910,8 +1917,9 @@ msgstr "注册账户失败： %v"
 msgid "failed to reload %s service: %v"
 msgstr "重载 %s 服务失败： %v"
 
-#: internal/apps/postgresql/app.go:107
-#: internal/apps/postgresql/app.go:74
+#: internal/apps/postgresql/app.go:110
+#: internal/apps/postgresql/app.go:328
+#: internal/apps/postgresql/app.go:77
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重载 PostgreSQL 失败： %v"
 
@@ -1919,7 +1927,8 @@ msgstr "重载 PostgreSQL 失败： %v"
 msgid "failed to reload apache: %v"
 msgstr "重载 apache 失败：%v"
 
-#: internal/apps/nginx/app.go:74
+#: internal/apps/nginx/app.go:265
+#: internal/apps/nginx/app.go:77
 #: internal/apps/nginx/stream.go:124
 #: internal/apps/nginx/stream.go:162
 #: internal/apps/nginx/stream.go:208
@@ -1965,7 +1974,7 @@ msgstr "重启 %s 服务失败： %v"
 msgid "failed to restart %s: %v"
 msgstr "重启 %s 失败： %v"
 
-#: internal/apps/mysql/app.go:74
+#: internal/apps/mysql/app.go:77
 msgid "failed to restart MySQL: %v"
 msgstr "重启 MySQL 失败： %v"
 
@@ -1973,7 +1982,7 @@ msgstr "重启 MySQL 失败： %v"
 msgid "failed to run command: %v"
 msgstr "运行命令失败： %v"
 
-#: internal/apps/mysql/app.go:96
+#: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 
@@ -1981,7 +1990,7 @@ msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 msgid "failed to set NTP servers: %v"
 msgstr "设置 NTP 服务器失败：%v"
 
-#: internal/apps/postgresql/app.go:129
+#: internal/apps/postgresql/app.go:132
 msgid "failed to set PGPASSWORD env: %v"
 msgstr "设置 PGPASSWORD 环境变量失败：%v"
 
@@ -1997,9 +2006,9 @@ msgstr "设置主机名失败： %v"
 msgid "failed to set hosts: %v"
 msgstr "设置 hosts 失败： %v"
 
-#: internal/apps/postgresql/app.go:214
-#: internal/apps/postgresql/app.go:220
-#: internal/apps/postgresql/app.go:226
+#: internal/apps/postgresql/app.go:217
+#: internal/apps/postgresql/app.go:223
+#: internal/apps/postgresql/app.go:229
 msgid "failed to set postgres password: %v"
 msgstr "设置 postgres 密码失败： %v"
 
@@ -2023,11 +2032,11 @@ msgstr "卸载分区失败：%v"
 msgid "failed to unmount: %v"
 msgstr "卸载失败： %v"
 
-#: internal/apps/mysql/app.go:105
+#: internal/apps/mysql/app.go:108
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr "取消设置 MYSQL_PWD 环境变量失败：%v"
 
-#: internal/apps/postgresql/app.go:160
+#: internal/apps/postgresql/app.go:163
 msgid "failed to unset PGPASSWORD env: %v"
 msgstr "取消设置 PGPASSWORD 环境变量失败：%v"
 
@@ -2077,7 +2086,7 @@ msgstr "写入 Stream 服务器配置失败：%v"
 msgid "failed to write stream upstream config: %v"
 msgstr "写入 Stream 上游配置失败：%v"
 
-#: internal/apps/memcached/app.go:56
+#: internal/apps/memcached/app.go:59
 msgid "failed to write to Memcached: %v"
 msgstr "写入 Memcache 失败： %v"
 
@@ -2154,7 +2163,7 @@ msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache �
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1077
+#: internal/data/website.go:1093
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -2200,7 +2209,7 @@ msgstr "mysql 不支持数据库注释"
 msgid "name is required"
 msgstr "名称是必填项"
 
-#: internal/data/website.go:957
+#: internal/data/website.go:973
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -2465,12 +2474,12 @@ msgstr "不支持的文件系统类型：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1179
-#: internal/data/website.go:1233
+#: internal/data/website.go:1195
+#: internal/data/website.go:1249
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
-#: internal/data/website.go:1145
+#: internal/data/website.go:1161
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -2504,7 +2513,7 @@ msgstr "未找到 Web 钩子"
 msgid "webhook script not found"
 msgstr "未找到 Web 钩子脚本"
 
-#: internal/data/website.go:765
+#: internal/data/website.go:781
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
