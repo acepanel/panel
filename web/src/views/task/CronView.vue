@@ -12,6 +12,7 @@ const { $gettext } = useGettext()
 const logPath = ref('')
 const logModal = ref(false)
 const editModal = ref(false)
+const saveTaskEditLoading = ref(false)
 const runModal = ref(false)
 const runCommand = ref('')
 const runTaskName = ref('')
@@ -219,13 +220,18 @@ const handleDelete = async (id: number) => {
 }
 
 const saveTaskEdit = async () => {
+  saveTaskEditLoading.value = true
   useRequest(
     cron.update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
-  ).onSuccess(() => {
-    editModal.value = false
-    window.$message.success($gettext('Modified successfully'))
-    window.$bus.emit('task:refresh-cron')
-  })
+  )
+    .onSuccess(() => {
+      editModal.value = false
+      window.$message.success($gettext('Modified successfully'))
+      window.$bus.emit('task:refresh-cron')
+    })
+    .onComplete(() => {
+      saveTaskEditLoading.value = false
+    })
 }
 
 onMounted(() => {
@@ -280,7 +286,7 @@ onUnmounted(() => {
       </n-form-item>
     </n-form>
     <common-editor v-model:value="editTask.script" lang="shell" height="40vh" />
-    <n-button type="info" @click="saveTaskEdit" mt-10 block>
+    <n-button type="info" :loading="saveTaskEditLoading" :disabled="saveTaskEditLoading" @click="saveTaskEdit" mt-10 block>
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>

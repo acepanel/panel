@@ -14,6 +14,8 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const white = ref('')
+const saveWhiteListLoading = ref(false)
+const addJailLoading = ref(false)
 
 const addJailModal = ref(false)
 const addJailModel = ref({
@@ -156,9 +158,14 @@ const getWhiteList = async () => {
 }
 
 const handleSaveWhiteList = () => {
-  useRequest(fail2ban.setWhitelist(white.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveWhiteListLoading.value = true
+  useRequest(fail2ban.setWhitelist(white.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveWhiteListLoading.value = false
+    })
 }
 
 const getWebsiteList = async (page: number, limit: number) => {
@@ -183,11 +190,16 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleAddJail = () => {
-  useRequest(fail2ban.add(addJailModel.value)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Added successfully'))
-    addJailModal.value = false
-  })
+  addJailLoading.value = true
+  useRequest(fail2ban.add(addJailModel.value))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Added successfully'))
+      addJailModal.value = false
+    })
+    .onComplete(() => {
+      addJailLoading.value = false
+    })
 }
 
 const handleDeleteJail = (name: string) => {
@@ -237,7 +249,7 @@ onMounted(() => {
             />
           </n-card>
           <n-flex>
-            <n-button type="primary" @click="handleSaveWhiteList">
+            <n-button type="primary" :loading="saveWhiteListLoading" :disabled="saveWhiteListLoading" @click="handleSaveWhiteList">
               {{ $gettext('Save Whitelist') }}
             </n-button>
           </n-flex>
@@ -365,7 +377,7 @@ onMounted(() => {
             <n-input-number v-model:value="addJailModel.bantime" @keydown.enter.prevent :min="1" />
           </n-form-item>
         </n-form>
-        <n-button type="info" block @click="handleAddJail">{{ $gettext('Submit') }}</n-button>
+        <n-button type="info" block :loading="addJailLoading" :disabled="addJailLoading" @click="handleAddJail">{{ $gettext('Submit') }}</n-button>
       </n-space>
     </n-card>
   </n-modal>

@@ -12,6 +12,8 @@ import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveConfigLoading = ref(false)
+const modelAddLoading = ref(false)
 const config = ref('')
 
 const addModuleModal = ref(false)
@@ -128,27 +130,37 @@ const getConfig = async () => {
 }
 
 const handleSaveConfig = async () => {
-  useRequest(rsync.saveConfig(config.value)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(rsync.saveConfig(config.value))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 const handleModelAdd = async () => {
-  useRequest(rsync.addModule(addModuleModel.value)).onSuccess(() => {
-    refresh()
-    getConfig()
-    addModuleModal.value = false
-    addModuleModel.value = {
-      name: '',
-      path: '/www',
-      comment: '',
-      auth_user: '',
-      secret: generateRandomString(16),
-      hosts_allow: '0.0.0.0/0'
-    }
-    window.$message.success($gettext('Added successfully'))
-  })
+  modelAddLoading.value = true
+  useRequest(rsync.addModule(addModuleModel.value))
+    .onSuccess(() => {
+      refresh()
+      getConfig()
+      addModuleModal.value = false
+      addModuleModel.value = {
+        name: '',
+        path: '/www',
+        comment: '',
+        auth_user: '',
+        secret: generateRandomString(16),
+        hosts_allow: '0.0.0.0/0'
+      }
+      window.$message.success($gettext('Added successfully'))
+    })
+    .onComplete(() => {
+      modelAddLoading.value = false
+    })
 }
 
 const handleModelDelete = async (name: string) => {
@@ -231,7 +243,7 @@ onMounted(() => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -302,7 +314,7 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleModelAdd">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="modelAddLoading" :disabled="modelAddLoading" @click="handleModelAdd">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="editModuleModal"

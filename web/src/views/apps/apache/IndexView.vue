@@ -10,6 +10,8 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveConfigLoading = ref(false)
+const clearErrorLogLoading = ref(false)
 
 const { data: config } = useRequest(apache.config, {
   initialData: ''
@@ -38,15 +40,25 @@ const columns: any = [
 ]
 
 const handleSaveConfig = () => {
-  useRequest(apache.saveConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(apache.saveConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 const handleClearErrorLog = () => {
-  useRequest(apache.clearErrorLog()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearErrorLogLoading.value = true
+  useRequest(apache.clearErrorLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearErrorLogLoading.value = false
+    })
 }
 </script>
 
@@ -68,7 +80,7 @@ const handleClearErrorLog = () => {
           </n-alert>
           <common-editor v-model:value="config" lang="apache" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -90,7 +102,7 @@ const handleClearErrorLog = () => {
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearErrorLog">
+            <n-button type="primary" :loading="clearErrorLogLoading" :disabled="clearErrorLogLoading" @click="handleClearErrorLog">
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>

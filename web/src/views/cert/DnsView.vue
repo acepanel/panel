@@ -24,6 +24,7 @@ const updateDNSModel = ref<any>({
   name: ''
 })
 const updateDNSModal = ref(false)
+const updateDNSLoading = ref(false)
 const updateDNS = ref<any>()
 
 const columns: any = [
@@ -130,14 +131,19 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleUpdateDNS = () => {
-  useRequest(cert.dnsUpdate(updateDNS.value, updateDNSModel.value)).onSuccess(() => {
-    refresh()
-    updateDNSModal.value = false
-    updateDNSModel.value.data.ak = ''
-    updateDNSModel.value.data.sk = ''
-    updateDNSModel.value.name = ''
-    window.$message.success($gettext('Update successful'))
-  })
+  updateDNSLoading.value = true
+  useRequest(cert.dnsUpdate(updateDNS.value, updateDNSModel.value))
+    .onSuccess(() => {
+      refresh()
+      updateDNSModal.value = false
+      updateDNSModel.value.data.ak = ''
+      updateDNSModel.value.data.sk = ''
+      updateDNSModel.value.name = ''
+      window.$message.success($gettext('Update successful'))
+    })
+    .onComplete(() => {
+      updateDNSLoading.value = false
+    })
 }
 
 onMounted(() => {
@@ -307,7 +313,7 @@ onUnmounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleUpdateDNS">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="updateDNSLoading" :disabled="updateDNSLoading" @click="handleUpdateDNS">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

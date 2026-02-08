@@ -11,6 +11,8 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveRegistryConfigLoading = ref(false)
+const saveStorageConfigLoading = ref(false)
 
 const { data: registryConfig } = useRequest(podman.registryConfig, {
   initialData: ''
@@ -21,15 +23,25 @@ const { data: storageConfig } = useRequest(podman.storageConfig, {
 })
 
 const handleSaveRegistryConfig = () => {
-  useRequest(podman.saveRegistryConfig(registryConfig.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveRegistryConfigLoading.value = true
+  useRequest(podman.saveRegistryConfig(registryConfig.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveRegistryConfigLoading.value = false
+    })
 }
 
 const handleSaveStorageConfig = () => {
-  useRequest(podman.saveStorageConfig(storageConfig.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveStorageConfigLoading.value = true
+  useRequest(podman.saveStorageConfig(storageConfig.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveStorageConfigLoading.value = false
+    })
 }
 </script>
 
@@ -59,7 +71,7 @@ const handleSaveStorageConfig = () => {
           </n-alert>
           <common-editor v-model:value="registryConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveRegistryConfig">
+            <n-button type="primary" :loading="saveRegistryConfigLoading" :disabled="saveRegistryConfigLoading" @click="handleSaveRegistryConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -76,7 +88,7 @@ const handleSaveStorageConfig = () => {
           </n-alert>
           <common-editor v-model:value="storageConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveStorageConfig">
+            <n-button type="primary" :loading="saveStorageConfigLoading" :disabled="saveStorageConfigLoading" @click="handleSaveStorageConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>

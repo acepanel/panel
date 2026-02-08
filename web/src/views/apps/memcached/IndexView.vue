@@ -12,6 +12,7 @@ import MemcachedConfigTuneView from './MemcachedConfigTuneView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveConfigLoading = ref(false)
 
 const loadColumns: any = [
   {
@@ -46,9 +47,14 @@ watch(currentTab, (val) => {
 })
 
 const handleSaveConfig = () => {
-  useRequest(memcached.updateConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(memcached.updateConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 </script>
 
@@ -62,7 +68,7 @@ const handleSaveConfig = () => {
         <n-flex vertical>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>

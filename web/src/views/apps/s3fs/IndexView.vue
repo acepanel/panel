@@ -10,6 +10,7 @@ import s3fs from '@/api/apps/s3fs'
 
 const { $gettext } = useGettext()
 const addMountModal = ref(false)
+const addMountLoading = ref(false)
 
 const addMountModel = ref({
   ak: '',
@@ -76,11 +77,16 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleAddMount = () => {
-  useRequest(s3fs.add(addMountModel.value)).onSuccess(() => {
-    refresh()
-    addMountModal.value = false
-    window.$message.success($gettext('Added successfully'))
-  })
+  addMountLoading.value = true
+  useRequest(s3fs.add(addMountModel.value))
+    .onSuccess(() => {
+      refresh()
+      addMountModal.value = false
+      window.$message.success($gettext('Added successfully'))
+    })
+    .onComplete(() => {
+      addMountLoading.value = false
+    })
 }
 
 const handleDeleteMount = (id: number) => {
@@ -178,7 +184,7 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleAddMount">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="addMountLoading" :disabled="addMountLoading" @click="handleAddMount">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
 </template>

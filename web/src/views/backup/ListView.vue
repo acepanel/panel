@@ -16,6 +16,8 @@ const type = defineModel<string>('type', { type: String, required: true })
 let messageReactive: MessageReactive | null = null
 
 const uploadModal = ref(false)
+const createLoading = ref(false)
+const restoreLoading = ref(false)
 
 const createModal = ref(false)
 const createModel = ref({
@@ -118,16 +120,22 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleCreate = () => {
+  createLoading.value = true
   useRequest(
     backup.create(type.value, createModel.value.target, createModel.value.storage)
-  ).onSuccess(() => {
-    createModal.value = false
-    window.$bus.emit('backup:refresh')
-    window.$message.success($gettext('Created successfully'))
-  })
+  )
+    .onSuccess(() => {
+      createModal.value = false
+      window.$bus.emit('backup:refresh')
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      createLoading.value = false
+    })
 }
 
 const handleRestore = () => {
+  restoreLoading.value = true
   messageReactive = window.$message.loading($gettext('Restoring...'), {
     duration: 0
   })
@@ -139,6 +147,7 @@ const handleRestore = () => {
     })
     .onComplete(() => {
       messageReactive?.destroy()
+      restoreLoading.value = false
     })
 }
 
@@ -271,7 +280,7 @@ onUnmounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="restoreModal"
@@ -295,7 +304,7 @@ onUnmounted(() => {
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRestore">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="restoreLoading" :disabled="restoreLoading" @click="handleRestore">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>

@@ -11,6 +11,9 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveConfigLoading = ref(false)
+const clearLogLoading = ref(false)
+const createProcessLoading = ref(false)
 const processLog = ref('')
 
 const { data: serviceName } = useRequest(supervisor.service, {
@@ -214,24 +217,39 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleSaveConfig = () => {
-  useRequest(supervisor.saveConfig(config.value)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(supervisor.saveConfig(config.value))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 const handleClearLog = () => {
-  useRequest(supervisor.clearLog()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearLogLoading.value = true
+  useRequest(supervisor.clearLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearLogLoading.value = false
+    })
 }
 
 const handleCreateProcess = () => {
-  useRequest(supervisor.createProcess(createProcessModel.value)).onSuccess(() => {
-    refresh()
-    createProcessModal.value = false
-    window.$message.success($gettext('Added successfully'))
-  })
+  createProcessLoading.value = true
+  useRequest(supervisor.createProcess(createProcessModel.value))
+    .onSuccess(() => {
+      refresh()
+      createProcessModal.value = false
+      window.$message.success($gettext('Added successfully'))
+    })
+    .onComplete(() => {
+      createProcessLoading.value = false
+    })
 }
 
 const handleProcessStart = (name: string) => {
@@ -338,7 +356,7 @@ onUnmounted(() => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -350,7 +368,7 @@ onUnmounted(() => {
       <n-tab-pane name="log" :tab="$gettext('Daemon Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearLog">
+            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -406,7 +424,7 @@ onUnmounted(() => {
         <n-input-number v-model:value="createProcessModel.num" :min="1" />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreateProcess">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="createProcessLoading" :disabled="createProcessLoading" @click="handleCreateProcess">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <realtime-log-modal v-model:show="processLogModal" :path="processLog" />
   <n-modal

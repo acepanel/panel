@@ -12,6 +12,7 @@ import RedisConfigTuneView from './RedisConfigTuneView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveConfigLoading = ref(false)
 
 const { data: config, send: refreshConfig } = useRequest(redis.config, {
   initialData: ''
@@ -43,9 +44,14 @@ const loadColumns: any = [
 ]
 
 const handleSaveConfig = () => {
-  useRequest(redis.saveConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(redis.saveConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 </script>
 
@@ -66,7 +72,7 @@ const handleSaveConfig = () => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>

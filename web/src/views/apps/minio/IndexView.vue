@@ -11,15 +11,21 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveEnvLoading = ref(false)
 
 const { data: env } = useRequest(minio.env, {
   initialData: ''
 })
 
 const handleSaveEnv = () => {
-  useRequest(minio.saveEnv(env.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveEnvLoading.value = true
+  useRequest(minio.saveEnv(env.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveEnvLoading.value = false
+    })
 }
 </script>
 
@@ -40,7 +46,7 @@ const handleSaveEnv = () => {
           </n-alert>
           <common-editor v-model:value="env" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveEnv">
+            <n-button type="primary" :loading="saveEnvLoading" :disabled="saveEnvLoading" @click="handleSaveEnv">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>

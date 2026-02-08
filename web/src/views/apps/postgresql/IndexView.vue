@@ -13,6 +13,10 @@ import PostgresqlConfigTuneView from './PostgresqlConfigTuneView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const setPostgresPasswordLoading = ref(false)
+const saveConfigLoading = ref(false)
+const saveUserConfigLoading = ref(false)
+const clearLogLoading = ref(false)
 
 const { data: postgresPassword } = useRequest(postgresql.postgresPassword, {
   initialData: ''
@@ -54,25 +58,48 @@ const loadColumns: any = [
   }
 ]
 
-const handleSaveConfig = async () => {
-  await postgresql.saveConfig(config.value)
-  window.$message.success($gettext('Saved successfully'))
+const handleSaveConfig = () => {
+  saveConfigLoading.value = true
+  useRequest(postgresql.saveConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
-const handleSaveUserConfig = async () => {
-  await postgresql.saveUserConfig(userConfig.value)
-  window.$message.success($gettext('Saved successfully'))
+const handleSaveUserConfig = () => {
+  saveUserConfigLoading.value = true
+  useRequest(postgresql.saveUserConfig(userConfig.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveUserConfigLoading.value = false
+    })
 }
 
-const handleClearLog = async () => {
-  await postgresql.clearLog()
-  window.$message.success($gettext('Cleared successfully'))
+const handleClearLog = () => {
+  clearLogLoading.value = true
+  useRequest(postgresql.clearLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearLogLoading.value = false
+    })
 }
 
 const handleSetPostgresPassword = () => {
-  useRequest(postgresql.setPostgresPassword(postgresPassword.value)).onSuccess(() => {
-    window.$message.success($gettext('Modified successfully'))
-  })
+  setPostgresPasswordLoading.value = true
+  useRequest(postgresql.setPostgresPassword(postgresPassword.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      setPostgresPasswordLoading.value = false
+    })
 }
 
 const handleCopyPostgresPassword = () => {
@@ -108,7 +135,7 @@ const handleCopyPostgresPassword = () => {
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" @click="handleSetPostgresPassword">
+                <n-button type="primary" :loading="setPostgresPasswordLoading" :disabled="setPostgresPasswordLoading" @click="handleSetPostgresPassword">
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -127,7 +154,7 @@ const handleCopyPostgresPassword = () => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -147,7 +174,7 @@ const handleCopyPostgresPassword = () => {
           </n-alert>
           <common-editor v-model:value="userConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveUserConfig">
+            <n-button type="primary" :loading="saveUserConfigLoading" :disabled="saveUserConfigLoading" @click="handleSaveUserConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -166,7 +193,7 @@ const handleCopyPostgresPassword = () => {
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearLog">
+            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>

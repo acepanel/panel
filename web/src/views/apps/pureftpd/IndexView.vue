@@ -13,6 +13,9 @@ import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const savePortLoading = ref(false)
+const addUserLoading = ref(false)
+const changePasswordLoading = ref(false)
 const port = ref(0)
 const addUserModal = ref(false)
 const changePasswordModal = ref(false)
@@ -112,32 +115,47 @@ const getPort = async () => {
 }
 
 const handleSavePort = async () => {
-  useRequest(pureftpd.updatePort(port.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  savePortLoading.value = true
+  useRequest(pureftpd.updatePort(port.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      savePortLoading.value = false
+    })
 }
 
 const handleAddUser = async () => {
+  addUserLoading.value = true
   useRequest(
     pureftpd.add(addUserModel.value.username, addUserModel.value.password, addUserModel.value.path)
-  ).onSuccess(() => {
-    refresh()
-    addUserModal.value = false
-    addUserModel.value.username = ''
-    addUserModel.value.password = generateRandomString(16)
-    addUserModel.value.path = ''
-    window.$message.success($gettext('Added successfully'))
-  })
+  )
+    .onSuccess(() => {
+      refresh()
+      addUserModal.value = false
+      addUserModel.value.username = ''
+      addUserModel.value.password = generateRandomString(16)
+      addUserModel.value.path = ''
+      window.$message.success($gettext('Added successfully'))
+    })
+    .onComplete(() => {
+      addUserLoading.value = false
+    })
 }
 
 const handleChangePassword = async () => {
+  changePasswordLoading.value = true
   useRequest(
     pureftpd.changePassword(changePasswordModel.value.username, changePasswordModel.value.password)
-  ).onSuccess(() => {
-    refresh()
-    changePasswordModal.value = false
-    window.$message.success($gettext('Modified successfully'))
-  })
+  )
+    .onSuccess(() => {
+      refresh()
+      changePasswordModal.value = false
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      changePasswordLoading.value = false
+    })
 }
 
 const handleDeleteUser = async (username: string) => {
@@ -162,7 +180,7 @@ onMounted(() => {
           <n-card :title="$gettext('Port Settings')">
             <n-flex>
               <n-input-number v-model:value="port" :min="1" :max="65535" />
-              <n-button type="primary" @click="handleSavePort">
+              <n-button type="primary" :loading="savePortLoading" :disabled="savePortLoading" @click="handleSavePort">
                 {{ $gettext('Save') }}
               </n-button>
             </n-flex>
@@ -243,7 +261,7 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleAddUser">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="addUserLoading" :disabled="addUserLoading" @click="handleAddUser">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
   <n-modal v-model:show="changePasswordModal">
@@ -265,7 +283,7 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleChangePassword">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="changePasswordLoading" :disabled="changePasswordLoading" @click="handleChangePassword">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
 </template>

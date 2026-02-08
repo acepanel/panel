@@ -10,6 +10,7 @@ const { $gettext } = useGettext()
 
 // 创建弹窗
 const createModal = ref(false)
+const createLoading = ref(false)
 const createModel = ref({
   name: '',
   script: '#!/bin/bash\n\n',
@@ -19,6 +20,7 @@ const createModel = ref({
 
 // 编辑弹窗
 const editModal = ref(false)
+const updateLoading = ref(false)
 const editModel = ref({
   id: 0,
   name: '',
@@ -247,17 +249,22 @@ const handleCreate = () => {
     window.$message.warning($gettext('Please enter a script'))
     return
   }
-  useRequest(webhook.create(createModel.value)).onSuccess(() => {
-    createModal.value = false
-    createModel.value = {
-      name: '',
-      script: '#!/bin/bash\n\n',
-      raw: false,
-      user: 'root'
-    }
-    window.$message.success($gettext('Created successfully'))
-    refresh()
-  })
+  createLoading.value = true
+  useRequest(webhook.create(createModel.value))
+    .onSuccess(() => {
+      createModal.value = false
+      createModel.value = {
+        name: '',
+        script: '#!/bin/bash\n\n',
+        raw: false,
+        user: 'root'
+      }
+      window.$message.success($gettext('Created successfully'))
+      refresh()
+    })
+    .onComplete(() => {
+      createLoading.value = false
+    })
 }
 
 const handleUpdate = () => {
@@ -269,6 +276,7 @@ const handleUpdate = () => {
     window.$message.warning($gettext('Please enter a script'))
     return
   }
+  updateLoading.value = true
   useRequest(
     webhook.update(editModel.value.id, {
       name: editModel.value.name,
@@ -277,11 +285,15 @@ const handleUpdate = () => {
       user: editModel.value.user,
       status: editModel.value.status
     })
-  ).onSuccess(() => {
-    editModal.value = false
-    window.$message.success($gettext('Modified successfully'))
-    refresh()
-  })
+  )
+    .onSuccess(() => {
+      editModal.value = false
+      window.$message.success($gettext('Modified successfully'))
+      refresh()
+    })
+    .onComplete(() => {
+      updateLoading.value = false
+    })
 }
 
 onMounted(() => {
@@ -348,7 +360,7 @@ onMounted(() => {
         <common-editor v-model:value="createModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
-    <n-button type="info" @click="handleCreate" block>
+    <n-button type="info" :loading="createLoading" :disabled="createLoading" @click="handleCreate" block>
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>
@@ -386,7 +398,7 @@ onMounted(() => {
         <common-editor v-model:value="editModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
-    <n-button type="info" @click="handleUpdate" block>
+    <n-button type="info" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate" block>
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>

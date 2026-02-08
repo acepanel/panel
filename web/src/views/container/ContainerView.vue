@@ -36,6 +36,7 @@ let fitAddon: FitAddon | null = null
 let webglAddon: WebglAddon | null = null
 
 const containerCreateModal = ref(false)
+const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
 
 const columns: any = [
@@ -320,10 +321,15 @@ const handleDelete = (id: string) => {
 }
 
 const handlePrune = () => {
-  useRequest(container.containerPrune()).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Cleanup successful'))
-  })
+  pruneLoading.value = true
+  useRequest(container.containerPrune())
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Cleanup successful'))
+    })
+    .onComplete(() => {
+      pruneLoading.value = false
+    })
 }
 
 const bulkStart = async () => {
@@ -554,7 +560,7 @@ onUnmounted(() => {
       <n-button type="primary" @click="containerCreateModal = true">
         {{ $gettext('Create Container') }}
       </n-button>
-      <n-button type="primary" @click="handlePrune" ghost>
+      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>
         {{ $gettext('Cleanup Containers') }}
       </n-button>
       <n-button-group>

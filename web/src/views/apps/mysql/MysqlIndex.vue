@@ -14,6 +14,10 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const setRootPasswordLoading = ref(false)
+const saveConfigLoading = ref(false)
+const clearLogLoading = ref(false)
+const clearSlowLogLoading = ref(false)
 
 const { data: rootPassword } = useRequest(props.api.rootPassword, {
   initialData: ''
@@ -51,27 +55,47 @@ const loadColumns: any = [
 ]
 
 const handleSaveConfig = () => {
-  useRequest(props.api.saveConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(props.api.saveConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 const handleClearLog = () => {
-  useRequest(props.api.clearLog()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearLogLoading.value = true
+  useRequest(props.api.clearLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearLogLoading.value = false
+    })
 }
 
 const handleClearSlowLog = () => {
-  useRequest(props.api.clearSlowLog()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearSlowLogLoading.value = true
+  useRequest(props.api.clearSlowLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearSlowLogLoading.value = false
+    })
 }
 
 const handleSetRootPassword = () => {
-  useRequest(props.api.setRootPassword(rootPassword.value)).onSuccess(() => {
-    window.$message.success($gettext('Modified successfully'))
-  })
+  setRootPasswordLoading.value = true
+  useRequest(props.api.setRootPassword(rootPassword.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      setRootPasswordLoading.value = false
+    })
 }
 
 const handleCopyRootPassword = () => {
@@ -103,7 +127,7 @@ const handleCopyRootPassword = () => {
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" @click="handleSetRootPassword">
+                <n-button type="primary" :loading="setRootPasswordLoading" :disabled="setRootPasswordLoading" @click="handleSetRootPassword">
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -123,7 +147,7 @@ const handleCopyRootPassword = () => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -143,13 +167,13 @@ const handleCopyRootPassword = () => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <n-button type="primary" @click="handleClearLog">
+        <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
           {{ $gettext('Clear Log') }}
         </n-button>
         <realtime-log service="mysqld" />
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
-        <n-button type="primary" @click="handleClearSlowLog">
+        <n-button type="primary" :loading="clearSlowLogLoading" :disabled="clearSlowLogLoading" @click="handleClearSlowLog">
           {{ $gettext('Clear Slow Log') }}
         </n-button>
         <realtime-log :path="slowLog" />

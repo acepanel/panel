@@ -22,6 +22,10 @@ const props = defineProps<{
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const streamTab = ref('server')
+const saveConfigLoading = ref(false)
+const clearErrorLogLoading = ref(false)
+const saveStreamServerLoading = ref(false)
+const saveStreamUpstreamLoading = ref(false)
 
 // 时间单位常量（纳秒）
 const SECOND = 1000000000
@@ -322,15 +326,25 @@ watch(streamTab, (val) => {
 })
 
 const handleSaveConfig = () => {
-  useRequest(props.api.saveConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(props.api.saveConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 const handleClearErrorLog = () => {
-  useRequest(props.api.clearErrorLog()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearErrorLogLoading.value = true
+  useRequest(props.api.clearErrorLog())
+    .onSuccess(() => {
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearErrorLogLoading.value = false
+    })
 }
 
 // Stream Server 操作
@@ -381,11 +395,16 @@ const handleSaveStreamServer = () => {
     ? props.api.stream.updateServer(streamServerEditName.value, data)
     : props.api.stream.createServer(data)
 
-  useRequest(request).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    streamServerModal.value = false
-    loadStreamServers()
-  })
+  saveStreamServerLoading.value = true
+  useRequest(request)
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      streamServerModal.value = false
+      loadStreamServers()
+    })
+    .onComplete(() => {
+      saveStreamServerLoading.value = false
+    })
 }
 
 const handleDeleteStreamServer = (name: string) => {
@@ -458,11 +477,16 @@ const handleSaveStreamUpstream = () => {
     ? props.api.stream.updateUpstream(streamUpstreamEditName.value, data)
     : props.api.stream.createUpstream(data)
 
-  useRequest(request).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    streamUpstreamModal.value = false
-    loadStreamUpstreams()
-  })
+  saveStreamUpstreamLoading.value = true
+  useRequest(request)
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      streamUpstreamModal.value = false
+      loadStreamUpstreams()
+    })
+    .onComplete(() => {
+      saveStreamUpstreamLoading.value = false
+    })
 }
 
 const handleDeleteStreamUpstream = (name: string) => {
@@ -491,7 +515,7 @@ const handleDeleteStreamUpstream = (name: string) => {
           </n-alert>
           <common-editor v-model:value="config" lang="nginx" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -554,7 +578,7 @@ const handleDeleteStreamUpstream = (name: string) => {
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearErrorLog">
+            <n-button type="primary" :loading="clearErrorLogLoading" :disabled="clearErrorLogLoading" @click="handleClearErrorLog">
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -639,7 +663,7 @@ const handleDeleteStreamUpstream = (name: string) => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleSaveStreamServer">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="saveStreamServerLoading" :disabled="saveStreamServerLoading" @click="handleSaveStreamServer">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <!-- Stream Upstream 模态框 -->
   <n-modal
@@ -757,7 +781,7 @@ const handleDeleteStreamUpstream = (name: string) => {
         </n-input-group>
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleSaveStreamUpstream">
+    <n-button type="info" block :loading="saveStreamUpstreamLoading" :disabled="saveStreamUpstreamLoading" @click="handleSaveStreamUpstream">
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>

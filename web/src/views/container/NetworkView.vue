@@ -36,6 +36,7 @@ const options = [
 ]
 
 const createModal = ref(false)
+const pruneLoading = ref(false)
 
 const selectedRowKeys = ref<any>([])
 
@@ -161,10 +162,15 @@ const handleDelete = (row: any) => {
 }
 
 const handlePrune = () => {
-  useRequest(container.networkPrune()).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Cleanup successful'))
-  })
+  pruneLoading.value = true
+  useRequest(container.networkPrune())
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Cleanup successful'))
+    })
+    .onComplete(() => {
+      pruneLoading.value = false
+    })
 }
 
 const handleBulkDelete = async () => {
@@ -200,7 +206,7 @@ onMounted(() => {
       <n-button type="primary" @click="createModal = true">{{
         $gettext('Create Network')
       }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{
+      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>{{
         $gettext('Cleanup Networks')
       }}</n-button>
       <n-popconfirm @positive-click="handleBulkDelete">

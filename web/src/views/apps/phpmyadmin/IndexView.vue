@@ -10,6 +10,8 @@ import phpmyadmin from '@/api/apps/phpmyadmin'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
+const saveLoading = ref(false)
+const saveConfigLoading = ref(false)
 const hostname = ref(window.location.hostname)
 const port = ref(0)
 const path = ref('')
@@ -32,16 +34,26 @@ const getInfo = async () => {
 }
 
 const handleSave = () => {
-  useRequest(phpmyadmin.port(newPort.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    getInfo()
-  })
+  saveLoading.value = true
+  useRequest(phpmyadmin.port(newPort.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      getInfo()
+    })
+    .onComplete(() => {
+      saveLoading.value = false
+    })
 }
 
 const handleSaveConfig = () => {
-  useRequest(phpmyadmin.updateConfig(config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveConfigLoading.value = true
+  useRequest(phpmyadmin.updateConfig(config.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveConfigLoading.value = false
+    })
 }
 
 onMounted(() => {
@@ -62,7 +74,7 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Port')">
             <n-flex>
               <n-input-number v-model:value="newPort" :min="1" :max="65535" />
-              <n-button type="primary" @click="handleSave">
+              <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
                 {{ $gettext('Save') }}
               </n-button>
             </n-flex>
@@ -81,7 +93,7 @@ onMounted(() => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>

@@ -15,6 +15,7 @@ const pullModel = ref({
   password: ''
 })
 const pullModal = ref(false)
+const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
 
 // 镜像拉取进度状态
@@ -141,10 +142,15 @@ const handleDelete = async (row: any) => {
 }
 
 const handlePrune = () => {
-  useRequest(container.imagePrune()).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Cleanup successful'))
-  })
+  pruneLoading.value = true
+  useRequest(container.imagePrune())
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Cleanup successful'))
+    })
+    .onComplete(() => {
+      pruneLoading.value = false
+    })
 }
 
 const handleBulkDelete = async () => {
@@ -266,7 +272,7 @@ onUnmounted(() => {
   <n-flex vertical :size="20">
     <n-flex>
       <n-button type="primary" @click="pullModal = true">{{ $gettext('Pull Image') }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>
+      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>
         {{ $gettext('Cleanup Images') }}
       </n-button>
       <n-popconfirm @positive-click="handleBulkDelete">

@@ -11,6 +11,7 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('frps')
+const saveUserLoading = ref(false)
 const config = ref({
   frpc: '',
   frps: ''
@@ -40,9 +41,14 @@ const handleSaveConfig = (service: string) => {
 
 const handleSaveUser = (service: string) => {
   const info = userInfo.value[service as keyof typeof userInfo.value]
-  useRequest(frp.saveUser(service, info.user, info.group)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveUserLoading.value = true
+  useRequest(frp.saveUser(service, info.user, info.group))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveUserLoading.value = false
+    })
 }
 
 onMounted(() => {
@@ -59,7 +65,7 @@ onMounted(() => {
           <service-status service="frps" />
           <n-card :title="$gettext('Run User')">
             <template #header-extra>
-              <n-button type="primary" @click="handleSaveUser('frps')">
+              <n-button type="primary" :loading="saveUserLoading" :disabled="saveUserLoading" @click="handleSaveUser('frps')">
                 {{ $gettext('Save') }}
               </n-button>
             </template>
@@ -87,7 +93,7 @@ onMounted(() => {
           <service-status service="frpc" />
           <n-card :title="$gettext('Run User')">
             <template #header-extra>
-              <n-button type="primary" @click="handleSaveUser('frpc')">
+              <n-button type="primary" :loading="saveUserLoading" :disabled="saveUserLoading" @click="handleSaveUser('frpc')">
                 {{ $gettext('Save') }}
               </n-button>
             </template>
