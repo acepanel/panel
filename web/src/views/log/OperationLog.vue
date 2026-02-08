@@ -3,7 +3,7 @@ defineOptions({
   name: 'operation-log'
 })
 
-import { NTag } from 'naive-ui'
+import { NButton, NPopover, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import log from '@/api/panel/log'
@@ -93,6 +93,60 @@ const columns = [
     key: 'msg',
     ellipsis: {
       tooltip: true
+    }
+  },
+  {
+    title: $gettext('Details'),
+    key: 'extra',
+    width: 100,
+    render: (row: LogEntry) => {
+      const extra = row.extra
+      if (!extra || Object.keys(extra).length === 0) return '-'
+
+      const formatValue = (value: any): string => {
+        if (typeof value === 'object' && value !== null) {
+          return JSON.stringify(value, null, 2)
+        }
+        return String(value)
+      }
+
+      return h(
+        NPopover,
+        { trigger: 'click', placement: 'left', style: { maxWidth: '500px' } },
+        {
+          trigger: () =>
+            h(NButton, { text: true, type: 'primary', size: 'small' }, () =>
+              $gettext('%{count} fields', { count: Object.keys(extra).length.toString() })
+            ),
+          default: () =>
+            h(
+              'div',
+              { style: 'max-height: 400px; overflow-y: auto;' },
+              Object.entries(extra).map(([key, value]) =>
+                h('div', { style: 'margin-bottom: 8px;' }, [
+                  h(
+                    'div',
+                    {
+                      style:
+                        'font-weight: bold; color: var(--n-text-color); font-size: 13px; margin-bottom: 2px;'
+                    },
+                    key
+                  ),
+                  h(
+                    typeof value === 'object' && value !== null ? 'pre' : 'div',
+                    {
+                      style:
+                        typeof value === 'object' && value !== null
+                          ? 'background: var(--n-color); padding: 6px 8px; border-radius: 4px; font-size: 12px; white-space: pre-wrap; word-break: break-all; margin: 0;'
+                          : 'color: var(--n-text-color); font-size: 13px; word-break: break-all;'
+                    },
+                    formatValue(value)
+                  )
+                ])
+              )
+            )
+        }
+      )
     }
   }
 ]
