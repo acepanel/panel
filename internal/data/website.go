@@ -620,12 +620,14 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			for _, ip := range certInfo.IPAddresses {
 				domains = append(domains, ip.String())
 			}
-			_ = r.db.Create(&biz.Cert{
+			if createErr := r.db.Create(&biz.Cert{
 				Type:    "upload",
 				Domains: domains,
 				Cert:    req.SSLCert,
 				Key:     req.SSLKey,
-			}).Error
+			}).Error; createErr != nil {
+				slog.Error("failed to auto upload cert", slog.Any("err", createErr))
+			}
 		}
 		quic := false
 		for _, listen := range req.Listens {
