@@ -611,6 +611,22 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		if _, err = cert.ParseKey([]byte(req.SSLKey)); err != nil {
 			return errors.New(r.t.Get("failed to parse private key: %v", err))
 		}
+		// 检查证书是否已存在于面板的证书管理中，如果不存在则作为本地证书上传
+		var certCount int64
+		r.db.Model(&biz.Cert{}).Where("cert = ?", req.SSLCert).Count(&certCount)
+		if certCount == 0 {
+			certInfo, _ := cert.ParseCert([]byte(req.SSLCert))
+			domains := certInfo.DNSNames
+			for _, ip := range certInfo.IPAddresses {
+				domains = append(domains, ip.String())
+			}
+			_ = r.db.Create(&biz.Cert{
+				Type:    "upload",
+				Domains: domains,
+				Cert:    req.SSLCert,
+				Key:     req.SSLKey,
+			}).Error
+		}
 		quic := false
 		for _, listen := range req.Listens {
 			if slices.Contains(listen.Args, "quic") {
