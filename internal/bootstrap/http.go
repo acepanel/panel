@@ -31,7 +31,22 @@ func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *rout
 	return r, nil
 }
 
-func NewHttp(conf *config.Config, mux *chi.Mux) (*hlfhr.Server, error) {
+// NewTLSReloader 创建证书热重载器，TLS 未启用时返回 nil
+func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
+	if !conf.HTTP.TLS {
+		return nil, nil
+	}
+
+	certFile := filepath.Join(app.Root, "panel/storage/cert.pem")
+	keyFile := filepath.Join(app.Root, "panel/storage/cert.key")
+	reloader, err := tlscert.NewReloader(certFile, keyFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load certificate: %w", err)
+	}
+	return reloader, nil
+}
+
+func NewHttp(conf *config.Config, mux *chi.Mux, reloader *tlscert.Reloader) (*hlfhr.Server, error) {
 	handler := http.Handler(mux)
 
 	// 启用 TLS 时，添加 Alt-Svc 响应头通告 HTTP/3 支持
@@ -50,13 +65,7 @@ func NewHttp(conf *config.Config, mux *chi.Mux) (*hlfhr.Server, error) {
 	})
 	srv.Listen80RedirectTo443 = true
 
-	if conf.HTTP.TLS {
-		certFile := filepath.Join(app.Root, "panel/storage/cert.pem")
-		keyFile := filepath.Join(app.Root, "panel/storage/cert.key")
-		reloader, err := tlscert.NewReloader(certFile, keyFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load certificate: %w", err)
-		}
+	if conf.HTTP.TLS && reloader != nil {
 		srv.TLSConfig = &tls.Config{
 			MinVersion:     tls.VersionTLS12,
 			GetCertificate: reloader.GetCertificate,

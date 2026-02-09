@@ -20,6 +20,7 @@ import (
 
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/queue"
+	"github.com/acepanel/panel/pkg/tlscert"
 )
 
 type Ace struct {
@@ -27,17 +28,19 @@ type Ace struct {
 	router   *chi.Mux
 	server   *hlfhr.Server
 	h3server *http3.Server
+	reloader *tlscert.Reloader
 	migrator *gormigrate.Gormigrate
 	cron     *cron.Cron
 	queue    *queue.Queue
 }
 
-func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, h3server *http3.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, h3server *http3.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,
 		server:   server,
 		h3server: h3server,
+		reloader: reloader,
 		migrator: migrator,
 		cron:     cron,
 		queue:    queue,
@@ -121,6 +124,13 @@ func (r *Ace) Run() error {
 	// stop queue
 	queueCancel()
 	fmt.Println("[QUEUE] queue stopped")
+
+	// 关闭证书热重载器
+	if r.reloader != nil {
+		if err := r.reloader.Close(); err != nil {
+			fmt.Println("[TLS] reloader close error:", err)
+		}
+	}
 
 	// shutdown http/3 server
 	if r.h3server != nil {

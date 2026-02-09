@@ -165,7 +165,11 @@ func initAce() (*app.Ace, error) {
 	if err != nil {
 		return nil, err
 	}
-	server, err := bootstrap.NewHttp(config, mux)
+	reloader, err := bootstrap.NewTLSReloader(config)
+	if err != nil {
+		return nil, err
+	}
+	server, err := bootstrap.NewHttp(config, mux, reloader)
 	if err != nil {
 		return nil, err
 	}
@@ -177,6 +181,6 @@ func initAce() (*app.Ace, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(config, db)
-	ace := app.NewAce(config, mux, server, http3Server, gormigrate, cron, queue, validation)
+	ace := app.NewAce(config, mux, server, http3Server, reloader, gormigrate, cron, queue, validation)
 	return ace, nil
 }
