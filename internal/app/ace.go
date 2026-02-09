@@ -89,7 +89,7 @@ func (r *Ace) Run() error {
 	h3Err := make(chan error, 1)
 	if r.h3server != nil {
 		go func() {
-			fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port, "with http/3")
+			fmt.Println("[QUIC] listening and serving on port", r.conf.HTTP.Port)
 			if err := r.h3server.ListenAndServe(); !errors.Is(err, quic.ErrServerClosed) {
 				h3Err <- err
 			}
@@ -110,7 +110,7 @@ func (r *Ace) Run() error {
 			return err
 		}
 	case sig := <-quit:
-		fmt.Println("\n[APP] received signal:", sig)
+		fmt.Println("[APP] received signal:", sig)
 	}
 
 	// graceful shutdown
@@ -135,9 +135,9 @@ func (r *Ace) Run() error {
 	// shutdown http/3 server
 	if r.h3server != nil {
 		if err := r.h3server.Close(); err != nil {
-			fmt.Println("[HTTP] http/3 server shutdown error:", err)
+			fmt.Println("[QUIC] server shutdown error:", err)
 		}
-		fmt.Println("[HTTP] http/3 server stopped")
+		fmt.Println("[QUIC] server stopped")
 	}
 
 	// shutdown http server
@@ -145,10 +145,10 @@ func (r *Ace) Run() error {
 	defer shutdownCancel()
 
 	if err := r.server.Shutdown(shutdownCtx); err != nil {
-		fmt.Println("[HTTP] http server shutdown error:", err)
+		fmt.Println("[HTTP] server shutdown error:", err)
 		return err
 	}
-	fmt.Println("[HTTP] http server stopped")
+	fmt.Println("[HTTP] server stopped")
 
 	fmt.Println("[APP] shutdown complete")
 	return nil

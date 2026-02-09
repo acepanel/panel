@@ -104,8 +104,6 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.RestartPanel()
-
 	Success(w, nil)
 }
 
@@ -121,8 +119,6 @@ func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	tools.RestartPanel()
 
 	Success(w, nil)
 }

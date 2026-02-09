@@ -14,7 +14,6 @@ import (
 	"github.com/acepanel/panel/internal/http/request"
 	pkgcert "github.com/acepanel/panel/pkg/cert"
 	"github.com/acepanel/panel/pkg/config"
-	"github.com/acepanel/panel/pkg/tools"
 )
 
 // CertRenew 证书续签
@@ -123,7 +122,6 @@ func (r *CertRenew) Run() {
 		}
 
 		r.log.Info("panel certificate renewed successfully", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
-		tools.RestartPanel()
 	}
 
 }
