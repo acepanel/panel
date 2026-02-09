@@ -647,14 +647,14 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 			Name:     db.Name,
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"MYSQL_PWD=$(cat /usr/local/etc/ace/mysql_root_password 2>/dev/null) mysql -u root '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"MYSQL_PWD=\\$(acepanel setting get mysql_root_password) mysql -u root '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	case "postgresql":
 		dbCreateReq := &request.DatabaseCreate{
 			ServerID: db.ServerID,
 			Name:     db.Name,
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"PGPASSWORD=$(cat /usr/local/etc/ace/postgresql_password 2>/dev/null) psql -h 127.0.0.1 -U postgres '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"PGPASSWORD=\\$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	}
 
 	s.addLog(fmt.Sprintf("$ %s", remoteImportCmd))

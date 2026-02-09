@@ -773,6 +773,9 @@ const formatDuration = (seconds: number) => {
             <td>{{ result.duration ? formatDuration(result.duration) : '-' }}</td>
             <td>
               <n-text v-if="result.error" type="error">{{ result.error }}</n-text>
+              <n-text v-else-if="result.status === 'success' && result.ended_at" type="success">
+                {{ $gettext('Migration succeeded') }} - {{ new Date(result.ended_at).toLocaleString() }}
+              </n-text>
               <n-text v-else-if="result.ended_at">
                 {{ new Date(result.ended_at).toLocaleString() }}
               </n-text>
