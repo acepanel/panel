@@ -9,8 +9,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// Reloader 证书热重载器，通过 fsnotify 监听证书文件变更事件
-// 变更时自动验证并加载新证书，GetCertificate 回调零开销返回当前证书
+// Reloader 证书热重载器
 type Reloader struct {
 	certFile string
 	keyFile  string
@@ -22,7 +21,6 @@ type Reloader struct {
 	done    chan struct{}
 }
 
-// NewReloader 创建证书热重载器，启动后台 goroutine 监听文件变更
 func NewReloader(certFile, keyFile string) (*Reloader, error) {
 	r := &Reloader{
 		certFile: certFile,
@@ -39,7 +37,6 @@ func NewReloader(certFile, keyFile string) (*Reloader, error) {
 	}
 	r.watcher = watcher
 
-	// 监听证书文件所在目录（监听目录而非文件本身，兼容原子写入/rename 场景）
 	certDir := filepath.Dir(certFile)
 	if err = watcher.Add(certDir); err != nil {
 		_ = watcher.Close()
@@ -51,14 +48,12 @@ func NewReloader(certFile, keyFile string) (*Reloader, error) {
 	return r, nil
 }
 
-// GetCertificate 作为 tls.Config.GetCertificate 回调，零开销返回当前证书
 func (r *Reloader) GetCertificate(_ *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.cert, nil
 }
 
-// Close 停止文件监听
 func (r *Reloader) Close() error {
 	close(r.done)
 	return r.watcher.Close()
@@ -82,9 +77,7 @@ func (r *Reloader) watch() {
 			if !event.Has(fsnotify.Write) && !event.Has(fsnotify.Create) {
 				continue
 			}
-			if err := r.loadCert(); err != nil {
-				fmt.Println("[TLS] certificate reload failed, keeping current certificate:", err)
-			} else {
+			if err := r.loadCert(); err == nil {
 				fmt.Println("[TLS] certificate reloaded successfully")
 			}
 		case err, ok := <-r.watcher.Errors:

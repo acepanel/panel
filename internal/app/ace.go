@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/gookit/validate"
+	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
 	"github.com/robfig/cron/v3"
 
@@ -83,13 +84,12 @@ func (r *Ace) Run() error {
 		close(serverErr)
 	}()
 
-	// 启用 TLS 时，启动 HTTP/3 服务器
+	// run http/3 server in goroutine if enabled
 	h3Err := make(chan error, 1)
 	if r.h3server != nil {
 		go func() {
 			fmt.Println("[HTTP3] listening and serving on port", r.conf.HTTP.Port, "with quic")
-			// HTTP/3 共享 TCP 的 TLSConfig（含证书热重载），使用 ListenAndServe
-			if err := r.h3server.ListenAndServe(); err != nil && err.Error() != "server closed" {
+			if err := r.h3server.ListenAndServe(); !errors.Is(err, quic.ErrServerClosed) {
 				h3Err <- err
 			}
 			close(h3Err)

@@ -66,8 +66,8 @@ func NewHttp(conf *config.Config, mux *chi.Mux) (*hlfhr.Server, error) {
 	return srv, nil
 }
 
-// NewHTTP3 创建 HTTP/3 (QUIC) 服务器，与 TCP 服务器共享 TLS 配置（含证书热重载）
 func NewHTTP3(conf *config.Config, mux *chi.Mux, srv *hlfhr.Server) *http3.Server {
+	// 必须启用 TLS 才能使用 HTTP/3
 	if !conf.HTTP.TLS {
 		return nil
 	}
