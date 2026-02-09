@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/gookit/validate"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/robfig/cron/v3"
 
 	"github.com/acepanel/panel/pkg/config"
@@ -25,16 +26,18 @@ type Ace struct {
 	conf     *config.Config
 	router   *chi.Mux
 	server   *hlfhr.Server
+	h3server *http3.Server
 	migrator *gormigrate.Gormigrate
 	cron     *cron.Cron
 	queue    *queue.Queue
 }
 
-func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, h3server *http3.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,
 		server:   server,
+		h3server: h3server,
 		migrator: migrator,
 		cron:     cron,
 		queue:    queue,
@@ -82,9 +85,29 @@ func (r *Ace) Run() error {
 		close(serverErr)
 	}()
 
+	// 启用 QUIC 时，启动 HTTP/3 服务器
+	h3Err := make(chan error, 1)
+	if r.h3server != nil {
+		go func() {
+			cert := filepath.Join(Root, "panel/storage/cert.pem")
+			key := filepath.Join(Root, "panel/storage/cert.key")
+			fmt.Println("[HTTP3] listening and serving on port", r.conf.HTTP.Port, "with quic")
+			if err := r.h3server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
+				h3Err <- err
+			}
+			close(h3Err)
+		}()
+	} else {
+		close(h3Err)
+	}
+
 	// wait for shutdown signal or server error
 	select {
 	case err := <-serverErr:
+		if err != nil {
+			return err
+		}
+	case err := <-h3Err:
 		if err != nil {
 			return err
 		}
@@ -103,6 +126,14 @@ func (r *Ace) Run() error {
 	// stop queue
 	queueCancel()
 	fmt.Println("[QUEUE] queue stopped")
+
+	// shutdown http/3 server
+	if r.h3server != nil {
+		if err := r.h3server.Close(); err != nil {
+			fmt.Println("[HTTP3] server shutdown error:", err)
+		}
+		fmt.Println("[HTTP3] server stopped")
+	}
 
 	// shutdown http server
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
