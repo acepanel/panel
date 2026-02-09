@@ -116,7 +116,7 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 	cmd.Stderr = pw
 
 	if err = cmd.Start(); err != nil {
-		fmt.Fprintf(w, "event: error\ndata: %s\n\n", err.Error())
+		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", err.Error())
 		flusher.Flush()
 		return
 	}
@@ -125,20 +125,20 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 	waitCh := make(chan error, 1)
 	go func() {
 		waitCh <- cmd.Wait()
-		pw.Close()
+		_ = pw.Close()
 	}()
 
 	scanner := bufio.NewScanner(pr)
 	for scanner.Scan() {
-		fmt.Fprintf(w, "data: %s\n\n", scanner.Text())
+		_, _ = fmt.Fprintf(w, "data: %s\n\n", scanner.Text())
 		flusher.Flush()
 	}
 
 	// 发送完成/错误事件
 	if waitErr := <-waitCh; waitErr != nil {
-		fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())
+		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())
 	} else {
-		fmt.Fprintf(w, "event: done\ndata: ok\n\n")
+		_, _ = fmt.Fprintf(w, "event: done\ndata: ok\n\n")
 	}
 	flusher.Flush()
 }
