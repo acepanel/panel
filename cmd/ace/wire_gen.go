@@ -169,7 +169,7 @@ func initAce() (*app.Ace, error) {
 	if err != nil {
 		return nil, err
 	}
-	h3server := bootstrap.NewHTTP3(config, mux)
+	h3server := bootstrap.NewHTTP3(config, mux, server)
 	gormigrate := bootstrap.NewMigrate(db)
 	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo)
 	cron, err := bootstrap.NewCron(config, logger, jobs)

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -67,13 +66,12 @@ func (r *Ace) Run() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	// run http server in goroutine
-	cert := filepath.Join(Root, "panel/storage/cert.pem")
-	key := filepath.Join(Root, "panel/storage/cert.key")
 	serverErr := make(chan error, 1)
 	go func() {
 		if r.conf.HTTP.TLS {
 			fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port, "with tls")
-			if err := r.server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
+			// 证书通过 TLSConfig.GetCertificate 回调动态加载，支持热重载
+			if err := r.server.ListenAndServeTLS("", ""); !errors.Is(err, http.ErrServerClosed) {
 				serverErr <- err
 			}
 		} else {
@@ -90,7 +88,8 @@ func (r *Ace) Run() error {
 	if r.h3server != nil {
 		go func() {
 			fmt.Println("[HTTP3] listening and serving on port", r.conf.HTTP.Port, "with quic")
-			if err := r.h3server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
+			// HTTP/3 共享 TCP 的 TLSConfig（含证书热重载），使用 ListenAndServe
+			if err := r.h3server.ListenAndServe(); err != nil && err.Error() != "server closed" {
 				h3Err <- err
 			}
 			close(h3Err)
