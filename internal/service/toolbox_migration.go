@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -21,6 +22,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 
+	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/config"
@@ -519,12 +521,20 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 	// 在远程面板创建网站
 	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("creating website on remote server")))
+	// 构建监听地址列表
+	var listens []string
+	for _, l := range websiteDetail.Listens {
+		listens = append(listens, l.Address)
+	}
+	if len(listens) == 0 {
+		listens = []string{"80"}
+	}
 	createBody := map[string]any{
 		"name":    websiteDetail.Name,
-		"domains": websiteDetail.Listens,
+		"listens": listens,
+		"domains": websiteDetail.Domains,
 		"path":    websiteDetail.Path,
-		"type":    "static",
-		"php":     0,
+		"type":    string(websiteDetail.Type),
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", createBody)
 	if err != nil {
@@ -532,7 +542,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	}
 
 	// 用 rsync 发送网站文件
-	siteDir := fmt.Sprintf("/opt/ace/sites/%s/", site.Name)
+	siteDir := filepath.Join(app.Root, "sites", site.Name) + "/"
 	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing directory:"), siteDir))
 
 	remoteHost := extractHost(conn.URL)
@@ -588,10 +598,11 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	switch db.Type {
 	case "mysql":
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-		dumpCmd = fmt.Sprintf("mysqldump -uroot -p'%s' --socket=/tmp/mysql.sock --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
+		dumpCmd = fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
 		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	case "postgresql":
-		dumpCmd = fmt.Sprintf("sudo -u postgres pg_dump '%s' > %s", db.Name, backupPath)
+		postgresPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", postgresPassword, db.Name, backupPath)
 		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	default:
 		s.failResult("database", db.Name, s.t.Get("unsupported database type: %s", db.Type))
@@ -626,22 +637,18 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	case "mysql":
 		// 先在远程创建数据库，再导入
 		createBody := map[string]any{
-			"type":      "mysql",
+			"server_id": db.ServerID,
 			"name":      db.Name,
-			"server_id": 0,
-			"encoding":  "utf8mb4",
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"mysql -uroot --socket=/tmp/mysql.sock '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"MYSQL_PWD=$(cat /usr/local/etc/ace/mysql_root_password 2>/dev/null) mysql -u root '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	case "postgresql":
 		createBody := map[string]any{
-			"type":      "postgresql",
+			"server_id": db.ServerID,
 			"name":      db.Name,
-			"server_id": 0,
-			"encoding":  "utf8",
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"sudo -u postgres psql '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"PGPASSWORD=$(cat /usr/local/etc/ace/postgresql_password 2>/dev/null) psql -h 127.0.0.1 -U postgres '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	}
 
 	s.addLog(fmt.Sprintf("$ %s", remoteImportCmd))
@@ -684,9 +691,11 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	// 在远程面板创建项目
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("creating project on remote server")))
 	createBody := map[string]any{
-		"name": projectDetail.Name,
-		"type": projectDetail.Type,
-		"path": projectDetail.RootDir,
+		"name":      projectDetail.Name,
+		"type":      projectDetail.Type,
+		"root_dir":  projectDetail.RootDir,
+		"exec_start": projectDetail.ExecStart,
+		"user":      projectDetail.User,
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", createBody)
 	if err != nil {
@@ -712,8 +721,7 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	}
 
 	// 同步 systemd 服务文件
-	serviceName := fmt.Sprintf("ace-project-%s", proj.Name)
-	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", serviceName)
+	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", proj.Name)
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("syncing systemd service file")))
 	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, serviceFile, remoteHost, serviceFile)
 	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
@@ -915,11 +923,14 @@ func extractHost(rawURL string) string {
 
 // maskPassword 掩盖命令中的密码
 func maskPassword(cmd string) string {
-	// 简单掩盖 -p'...' 模式的密码
-	if idx := strings.Index(cmd, "-p'"); idx != -1 {
-		end := strings.Index(cmd[idx+3:], "'")
-		if end != -1 {
-			return cmd[:idx+3] + "***" + cmd[idx+3+end:]
+	// 掩盖 MYSQL_PWD='...' 模式
+	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='"} {
+		if idx := strings.Index(cmd, prefix); idx != -1 {
+			start := idx + len(prefix)
+			end := strings.Index(cmd[start:], "'")
+			if end != -1 {
+				return cmd[:idx] + prefix + "***" + cmd[start+end:]
+			}
 		}
 	}
 	return cmd
