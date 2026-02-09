@@ -11,6 +11,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -36,6 +37,7 @@ type migrationState struct {
 	Logs       []string                            `json:"logs"`
 	StartedAt  *time.Time                          `json:"started_at"`
 	EndedAt    *time.Time                          `json:"ended_at"`
+	sshKeyPath string                              // 临时 SSH 密钥路径
 }
 
 // ToolboxMigrationService 迁移服务
@@ -79,6 +81,87 @@ func NewToolboxMigrationService(
 			Step: types.MigrationStepIdle,
 		},
 	}
+}
+
+// AddSSHKey 添加 SSH 公钥到 authorized_keys（供远程面板调用）
+func (s *ToolboxMigrationService) AddSSHKey(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxMigrationSSHKey](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	pubKey := strings.TrimSpace(req.PublicKey)
+	if pubKey == "" {
+		Error(w, http.StatusBadRequest, "public key is required")
+		return
+	}
+
+	authorizedKeysPath := "/root/.ssh/authorized_keys"
+
+	// 确保目录存在
+	_, _ = shell.Exec("mkdir -p /root/.ssh && chmod 700 /root/.ssh")
+
+	// 读取现有内容
+	existing, _ := os.ReadFile(authorizedKeysPath)
+	content := string(existing)
+
+	// 检查是否已存在
+	if strings.Contains(content, pubKey) {
+		Success(w, nil)
+		return
+	}
+
+	// 追加公钥
+	if content != "" && !strings.HasSuffix(content, "\n") {
+		content += "\n"
+	}
+	content += pubKey + "\n"
+
+	if err = os.WriteFile(authorizedKeysPath, []byte(content), 0600); err != nil {
+		Error(w, http.StatusInternalServerError, "failed to write authorized_keys: %v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// RemoveSSHKey 从 authorized_keys 移除 SSH 公钥（供远程面板调用）
+func (s *ToolboxMigrationService) RemoveSSHKey(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxMigrationSSHKey](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	pubKey := strings.TrimSpace(req.PublicKey)
+	if pubKey == "" {
+		Error(w, http.StatusBadRequest, "public key is required")
+		return
+	}
+
+	authorizedKeysPath := "/root/.ssh/authorized_keys"
+	existing, err := os.ReadFile(authorizedKeysPath)
+	if err != nil {
+		Success(w, nil)
+		return
+	}
+
+	// 按行过滤掉匹配的公钥
+	lines := strings.Split(string(existing), "\n")
+	var filtered []string
+	for _, line := range lines {
+		if strings.TrimSpace(line) != pubKey {
+			filtered = append(filtered, line)
+		}
+	}
+
+	if err = os.WriteFile(authorizedKeysPath, []byte(strings.Join(filtered, "\n")), 0600); err != nil {
+		Error(w, http.StatusInternalServerError, "failed to write authorized_keys: %v", err)
+		return
+	}
+
+	Success(w, nil)
 }
 
 // GetStatus 获取当前迁移状态
@@ -298,6 +381,19 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationConnection, items *request.ToolboxMigrationItems) {
 	s.addLog("===== " + s.t.Get("Migration started") + " =====")
 
+	// 设置临时 SSH 密钥用于 rsync 免密认证
+	if err := s.setupSSHKey(conn); err != nil {
+		s.addLog(fmt.Sprintf("❌ %s: %v", s.t.Get("SSH key setup failed"), err))
+		now := time.Now()
+		s.state.mu.Lock()
+		s.state.Step = types.MigrationStepDone
+		s.state.EndedAt = &now
+		s.state.mu.Unlock()
+		s.addLog("===== " + s.t.Get("Migration completed") + " =====")
+		return
+	}
+	defer s.cleanupSSHKey(conn)
+
 	// 迁移网站
 	for _, site := range items.Websites {
 		s.migrateWebsite(conn, &site, items.StopOnMig)
@@ -320,6 +416,84 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 	s.state.mu.Unlock()
 
 	s.addLog("===== " + s.t.Get("Migration completed") + " =====")
+}
+
+// setupSSHKey 生成临时 SSH 密钥并部署到远程服务器
+func (s *ToolboxMigrationService) setupSSHKey(conn *request.ToolboxMigrationConnection) error {
+	keyPath := "/tmp/ace_migration_key"
+
+	// 清理可能残留的旧密钥
+	_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
+
+	// 生成临时密钥对
+	s.addLog(s.t.Get("Generating temporary SSH key pair for migration"))
+	_, err := shell.Exec(fmt.Sprintf("ssh-keygen -t ed25519 -f %s -N '' -q", keyPath))
+	if err != nil {
+		return fmt.Errorf("failed to generate SSH key: %w", err)
+	}
+
+	// 读取公钥
+	pubKey, err := os.ReadFile(keyPath + ".pub")
+	if err != nil {
+		return fmt.Errorf("failed to read public key: %w", err)
+	}
+
+	// 通过远程面板迁移 API 将公钥添加到 authorized_keys
+	s.addLog(s.t.Get("Deploying SSH public key to remote server"))
+	addKeyBody := map[string]any{"public_key": strings.TrimSpace(string(pubKey))}
+	_, err = s.remoteAPIRequest(conn, "POST", "/api/toolbox_migration/ssh_key", addKeyBody)
+	if err != nil {
+		// 清理本地密钥
+		_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
+		return fmt.Errorf("failed to deploy SSH key to remote: %w", err)
+	}
+
+	s.state.mu.Lock()
+	s.state.sshKeyPath = keyPath
+	s.state.mu.Unlock()
+
+	s.addLog(s.t.Get("SSH key authentication configured successfully"))
+	return nil
+}
+
+// cleanupSSHKey 清理临时 SSH 密钥
+func (s *ToolboxMigrationService) cleanupSSHKey(conn *request.ToolboxMigrationConnection) {
+	s.state.mu.RLock()
+	keyPath := s.state.sshKeyPath
+	s.state.mu.RUnlock()
+
+	if keyPath == "" {
+		return
+	}
+
+	s.addLog(s.t.Get("Cleaning up temporary SSH keys"))
+
+	// 读取公钥用于远程清理
+	pubKey, err := os.ReadFile(keyPath + ".pub")
+	if err == nil {
+		// 通过远程面板迁移 API 从 authorized_keys 中移除公钥
+		removeKeyBody := map[string]any{"public_key": strings.TrimSpace(string(pubKey))}
+		_, _ = s.remoteAPIRequest(conn, "DELETE", "/api/toolbox_migration/ssh_key", removeKeyBody)
+	}
+
+	// 清理本地密钥文件
+	_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
+
+	s.state.mu.Lock()
+	s.state.sshKeyPath = ""
+	s.state.mu.Unlock()
+}
+
+// sshOption 返回 rsync/ssh 使用临时密钥的参数
+func (s *ToolboxMigrationService) sshOption() string {
+	s.state.mu.RLock()
+	keyPath := s.state.sshKeyPath
+	s.state.mu.RUnlock()
+
+	if keyPath != "" {
+		return fmt.Sprintf("ssh -o StrictHostKeyChecking=no -i %s", keyPath)
+	}
+	return "ssh -o StrictHostKeyChecking=no"
 }
 
 // migrateWebsite 迁移单个网站
@@ -361,7 +535,8 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing directory:"), siteDir))
 
 	remoteHost := extractHost(conn.URL)
-	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s root@%s:%s", siteDir, remoteHost, siteDir)
+	sshOpt := s.sshOption()
+	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, siteDir, remoteHost, siteDir)
 	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 
 	output, err := shell.Exec(rsyncCmd)
@@ -376,7 +551,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	// 如果有自定义路径，也需要同步
 	if site.Path != "" && site.Path != siteDir+"public" && site.Path != siteDir {
 		s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing custom directory:"), site.Path))
-		rsyncCmd = fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s/ root@%s:%s/", site.Path, remoteHost, site.Path)
+		rsyncCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, site.Path, remoteHost, site.Path)
 		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 		output, err = shell.Exec(rsyncCmd)
 		if output != "" {
@@ -406,16 +581,17 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	remoteHost := extractHost(conn.URL)
 	backupPath := fmt.Sprintf("/tmp/ace_migration_%s_%s.sql", db.Type, db.Name)
+	sshOpt := s.sshOption()
 
 	var dumpCmd, restoreCmd string
 	switch db.Type {
 	case "mysql":
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 		dumpCmd = fmt.Sprintf("mysqldump -uroot -p'%s' --socket=/tmp/mysql.sock --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s root@%s:%s", backupPath, remoteHost, backupPath)
+		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	case "postgresql":
 		dumpCmd = fmt.Sprintf("sudo -u postgres pg_dump '%s' > %s", db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s root@%s:%s", backupPath, remoteHost, backupPath)
+		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	default:
 		s.failResult("database", db.Name, s.t.Get("unsupported database type: %s", db.Type))
 		return
@@ -455,7 +631,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 			"encoding":  "utf8mb4",
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
-		remoteImportCmd = fmt.Sprintf("ssh -o StrictHostKeyChecking=no root@%s \"mysql -uroot --socket=/tmp/mysql.sock '%s' < %s\"", remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"mysql -uroot --socket=/tmp/mysql.sock '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	case "postgresql":
 		createBody := map[string]any{
 			"type":      "postgresql",
@@ -464,7 +640,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 			"encoding":  "utf8",
 		}
 		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
-		remoteImportCmd = fmt.Sprintf("ssh -o StrictHostKeyChecking=no root@%s \"sudo -u postgres psql '%s' < %s\"", remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("%s root@%s \"sudo -u postgres psql '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	}
 
 	s.addLog(fmt.Sprintf("$ %s", remoteImportCmd))
@@ -517,11 +693,12 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	}
 
 	remoteHost := extractHost(conn.URL)
+	sshOpt := s.sshOption()
 
 	// 同步项目目录
 	if proj.Path != "" {
 		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("syncing directory:"), proj.Path))
-		rsyncCmd := fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s/ root@%s:%s/", proj.Path, remoteHost, proj.Path)
+		rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, proj.Path, remoteHost, proj.Path)
 		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 		output, err := shell.Exec(rsyncCmd)
 		if output != "" {
@@ -537,7 +714,7 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	serviceName := fmt.Sprintf("ace-project-%s", proj.Name)
 	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", serviceName)
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("syncing systemd service file")))
-	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' %s root@%s:%s", serviceFile, remoteHost, serviceFile)
+	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, serviceFile, remoteHost, serviceFile)
 	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 	output, err := shell.Exec(rsyncCmd)
 	if output != "" {

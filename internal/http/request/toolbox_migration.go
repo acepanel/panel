@@ -36,3 +36,8 @@ type ToolboxMigrationProject struct {
 	Name string `json:"name"`
 	Path string `json:"path"` // 项目目录
 }
+
+// ToolboxMigrationSSHKey SSH 公钥管理
+type ToolboxMigrationSSHKey struct {
+	PublicKey string `json:"public_key" validate:"required"`
+}
