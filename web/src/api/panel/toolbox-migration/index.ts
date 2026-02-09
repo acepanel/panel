@@ -12,5 +12,7 @@ export default {
   // 重置迁移
   reset: (): any => http.Post('/toolbox_migration/reset'),
   // 获取迁移结果
-  results: (): any => http.Get('/toolbox_migration/results')
+  results: (): any => http.Get('/toolbox_migration/results'),
+  // 下载迁移日志
+  logUrl: '/api/toolbox_migration/log'
 }

@@ -147,17 +147,7 @@ const checkEnvironment = () => {
     passed = false
   }
 
-  // rsync 必须已安装
-  if (!remoteEnv.value.rsync) {
-    warnings.push($gettext('rsync is not installed on the remote server. Please install it first.'))
-    passed = false
-  }
-  if (!localEnv.value.rsync) {
-    warnings.push($gettext('rsync is not installed on the local server. Please install it first.'))
-    passed = false
-  }
-
-  // 检查其他环境差异（警告级别）
+  // 检查其他环境差异
   const envTypes = ['go', 'java', 'nodejs', 'php', 'python']
   for (const envType of envTypes) {
     const localItems = localEnv.value[envType] || []
@@ -483,16 +473,6 @@ const formatDuration = (seconds: number) => {
               </n-tag>
             </td>
           </tr>
-          <tr>
-            <td>Rsync</td>
-            <td>{{ localEnv?.rsync ? $gettext('Installed') : $gettext('Not installed') }}</td>
-            <td>{{ remoteEnv?.rsync ? $gettext('Installed') : $gettext('Not installed') }}</td>
-            <td>
-              <n-tag :type="localEnv?.rsync && remoteEnv?.rsync ? 'success' : 'error'" size="small">
-                {{ localEnv?.rsync && remoteEnv?.rsync ? $gettext('OK') : $gettext('Required') }}
-              </n-tag>
-            </td>
-          </tr>
           <tr v-for="envType in ['go', 'java', 'nodejs', 'php', 'python']" :key="envType">
             <td>{{ envType.toUpperCase() }}</td>
             <td>
@@ -700,6 +680,17 @@ const formatDuration = (seconds: number) => {
 
       <!-- 实时日志 -->
       <n-card :title="$gettext('Migration Logs')" size="small" embedded>
+        <template #header-extra>
+          <n-button
+            size="small"
+            :disabled="migrationLogs.length === 0"
+            tag="a"
+            :href="migration.logUrl"
+            target="_blank"
+          >
+            {{ $gettext('Download Log') }}
+          </n-button>
+        </template>
         <div
           ref="logContainer"
           style="
@@ -795,12 +786,15 @@ const formatDuration = (seconds: number) => {
       >
         {{
           $gettext(
-            'Some environments differ between local and remote servers. You may need to adjust settings on the remote server.'
+            'Some environments differ between local and remote servers. You may need to adjust settings on the remote server otherwise related items may not work properly after migration.'
           )
         }}
       </n-alert>
 
       <n-flex justify="center" style="margin-top: 16px">
+        <n-button tag="a" :href="migration.logUrl" target="_blank">
+          {{ $gettext('Download Log') }}
+        </n-button>
         <n-button type="primary" @click="handleReset">
           {{ $gettext('Start New Migration') }}
         </n-button>

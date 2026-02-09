@@ -575,8 +575,8 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/start", route.toolboxMigration.Start)
 			r.Post("/reset", route.toolboxMigration.Reset)
 			r.Get("/results", route.toolboxMigration.GetResults)
-			r.Post("/ssh_key", route.toolboxMigration.AddSSHKey)
-			r.Delete("/ssh_key", route.toolboxMigration.RemoveSSHKey)
+			r.Get("/log", route.toolboxMigration.DownloadLog)
+			r.Post("/exec", route.toolboxMigration.Exec)
 		})
 
 		r.Route("/webhook", func(r chi.Router) {

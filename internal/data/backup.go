@@ -501,7 +501,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	// 导出数据库
 	name = name + ".sql"
 	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysqldump -u root '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
+	if _, err = shell.Execf(`mysqldump -u root --single-transaction --quick '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
 	_ = os.Unsetenv("MYSQL_PWD")

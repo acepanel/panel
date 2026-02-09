@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/hmac"
@@ -11,9 +12,13 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -30,6 +35,8 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
+const migrationChunkSize = 10 << 20 // 10MB
+
 // migrationState 全局迁移状态（内部实现）
 type migrationState struct {
 	mu         sync.RWMutex
@@ -40,7 +47,6 @@ type migrationState struct {
 	Logs       []string                            `json:"logs"`
 	StartedAt  *time.Time                          `json:"started_at"`
 	EndedAt    *time.Time                          `json:"ended_at"`
-	sshKeyPath string                              // 临时 SSH 密钥路径
 }
 
 // ToolboxMigrationService 迁移服务
@@ -86,85 +92,55 @@ func NewToolboxMigrationService(
 	}
 }
 
-// AddSSHKey 添加 SSH 公钥到 authorized_keys（供远程面板调用）
-func (s *ToolboxMigrationService) AddSSHKey(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxMigrationSSHKey](r)
+// Exec SSE 实时执行命令（供远程面板调用）
+func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxMigrationExec](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	pubKey := strings.TrimSpace(req.PublicKey)
-	if pubKey == "" {
-		Error(w, http.StatusBadRequest, "public key is required")
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		Error(w, http.StatusInternalServerError, "streaming not supported")
 		return
 	}
 
-	authorizedKeysPath := "/root/.ssh/authorized_keys"
+	cmd := exec.Command("bash", "-c", req.Command)
+	pr, pw := io.Pipe()
+	cmd.Stdout = pw
+	cmd.Stderr = pw
 
-	// 确保目录存在
-	_, _ = shell.Exec("mkdir -p /root/.ssh && chmod 700 /root/.ssh")
-
-	// 读取现有内容
-	existing, _ := os.ReadFile(authorizedKeysPath)
-	content := string(existing)
-
-	// 检查是否已存在
-	if strings.Contains(content, pubKey) {
-		Success(w, nil)
+	if err = cmd.Start(); err != nil {
+		fmt.Fprintf(w, "event: error\ndata: %s\n\n", err.Error())
+		flusher.Flush()
 		return
 	}
 
-	// 追加公钥
-	if content != "" && !strings.HasSuffix(content, "\n") {
-		content += "\n"
-	}
-	content += pubKey + "\n"
+	// 等待命令结束后关闭 pipe writer
+	waitCh := make(chan error, 1)
+	go func() {
+		waitCh <- cmd.Wait()
+		pw.Close()
+	}()
 
-	if err = os.WriteFile(authorizedKeysPath, []byte(content), 0600); err != nil {
-		Error(w, http.StatusInternalServerError, "failed to write authorized_keys: %v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
-// RemoveSSHKey 从 authorized_keys 移除 SSH 公钥（供远程面板调用）
-func (s *ToolboxMigrationService) RemoveSSHKey(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxMigrationSSHKey](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
+	scanner := bufio.NewScanner(pr)
+	for scanner.Scan() {
+		fmt.Fprintf(w, "data: %s\n\n", scanner.Text())
+		flusher.Flush()
 	}
 
-	pubKey := strings.TrimSpace(req.PublicKey)
-	if pubKey == "" {
-		Error(w, http.StatusBadRequest, "public key is required")
-		return
+	// 发送完成/错误事件
+	if waitErr := <-waitCh; waitErr != nil {
+		fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())
+	} else {
+		fmt.Fprintf(w, "event: done\ndata: ok\n\n")
 	}
-
-	authorizedKeysPath := "/root/.ssh/authorized_keys"
-	existing, err := os.ReadFile(authorizedKeysPath)
-	if err != nil {
-		Success(w, nil)
-		return
-	}
-
-	// 按行过滤掉匹配的公钥
-	lines := strings.Split(string(existing), "\n")
-	var filtered []string
-	for _, line := range lines {
-		if strings.TrimSpace(line) != pubKey {
-			filtered = append(filtered, line)
-		}
-	}
-
-	if err = os.WriteFile(authorizedKeysPath, []byte(strings.Join(filtered, "\n")), 0600); err != nil {
-		Error(w, http.StatusInternalServerError, "failed to write authorized_keys: %v", err)
-		return
-	}
-
-	Success(w, nil)
+	flusher.Flush()
 }
 
 // GetStatus 获取当前迁移状态
@@ -321,6 +297,23 @@ func (s *ToolboxMigrationService) GetResults(w http.ResponseWriter, r *http.Requ
 	})
 }
 
+// DownloadLog 下载迁移日志
+func (s *ToolboxMigrationService) DownloadLog(w http.ResponseWriter, r *http.Request) {
+	s.state.mu.RLock()
+	logs := make([]string, len(s.state.Logs))
+	copy(logs, s.state.Logs)
+	s.state.mu.RUnlock()
+
+	if len(logs) == 0 {
+		Error(w, http.StatusNotFound, s.t.Get("no migration logs available"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=migration.log")
+	_, _ = w.Write([]byte(strings.Join(logs, "\n")))
+}
+
 // Progress 通过 WebSocket 推送迁移进度
 func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Request) {
 	opts := &websocket.AcceptOptions{
@@ -384,19 +377,6 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationConnection, items *request.ToolboxMigrationItems) {
 	s.addLog("===== " + s.t.Get("Migration started") + " =====")
 
-	// 设置临时 SSH 密钥用于 rsync 免密认证
-	if err := s.setupSSHKey(conn); err != nil {
-		s.addLog(fmt.Sprintf("❌ %s: %v", s.t.Get("SSH key setup failed"), err))
-		now := time.Now()
-		s.state.mu.Lock()
-		s.state.Step = types.MigrationStepDone
-		s.state.EndedAt = &now
-		s.state.mu.Unlock()
-		s.addLog("===== " + s.t.Get("Migration completed") + " =====")
-		return
-	}
-	defer s.cleanupSSHKey(conn)
-
 	// 迁移网站
 	for _, site := range items.Websites {
 		s.migrateWebsite(conn, &site, items.StopOnMig)
@@ -421,84 +401,6 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 	s.addLog("===== " + s.t.Get("Migration completed") + " =====")
 }
 
-// setupSSHKey 生成临时 SSH 密钥并部署到远程服务器
-func (s *ToolboxMigrationService) setupSSHKey(conn *request.ToolboxMigrationConnection) error {
-	keyPath := "/tmp/ace_migration_key"
-
-	// 清理可能残留的旧密钥
-	_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
-
-	// 生成临时密钥对
-	s.addLog(s.t.Get("Generating temporary SSH key pair for migration"))
-	_, err := shell.Exec(fmt.Sprintf("ssh-keygen -t ed25519 -f %s -N '' -q", keyPath))
-	if err != nil {
-		return fmt.Errorf("failed to generate SSH key: %w", err)
-	}
-
-	// 读取公钥
-	pubKey, err := os.ReadFile(keyPath + ".pub")
-	if err != nil {
-		return fmt.Errorf("failed to read public key: %w", err)
-	}
-
-	// 通过远程面板迁移 API 将公钥添加到 authorized_keys
-	s.addLog(s.t.Get("Deploying SSH public key to remote server"))
-	addKeyBody := &request.ToolboxMigrationSSHKey{PublicKey: strings.TrimSpace(string(pubKey))}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/toolbox_migration/ssh_key", addKeyBody)
-	if err != nil {
-		// 清理本地密钥
-		_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
-		return fmt.Errorf("failed to deploy SSH key to remote: %w", err)
-	}
-
-	s.state.mu.Lock()
-	s.state.sshKeyPath = keyPath
-	s.state.mu.Unlock()
-
-	s.addLog(s.t.Get("SSH key authentication configured successfully"))
-	return nil
-}
-
-// cleanupSSHKey 清理临时 SSH 密钥
-func (s *ToolboxMigrationService) cleanupSSHKey(conn *request.ToolboxMigrationConnection) {
-	s.state.mu.RLock()
-	keyPath := s.state.sshKeyPath
-	s.state.mu.RUnlock()
-
-	if keyPath == "" {
-		return
-	}
-
-	s.addLog(s.t.Get("Cleaning up temporary SSH keys"))
-
-	// 读取公钥用于远程清理
-	pubKey, err := os.ReadFile(keyPath + ".pub")
-	if err == nil {
-		// 通过远程面板迁移 API 从 authorized_keys 中移除公钥
-		removeKeyBody := &request.ToolboxMigrationSSHKey{PublicKey: strings.TrimSpace(string(pubKey))}
-		_, _ = s.remoteAPIRequest(conn, "DELETE", "/api/toolbox_migration/ssh_key", removeKeyBody)
-	}
-
-	// 清理本地密钥文件
-	_, _ = shell.Exec(fmt.Sprintf("rm -f %s %s.pub", keyPath, keyPath))
-
-	s.state.mu.Lock()
-	s.state.sshKeyPath = ""
-	s.state.mu.Unlock()
-}
-
-// sshOption 返回 rsync/ssh 使用临时密钥的参数
-func (s *ToolboxMigrationService) sshOption() string {
-	s.state.mu.RLock()
-	keyPath := s.state.sshKeyPath
-	s.state.mu.RUnlock()
-
-	if keyPath != "" {
-		return fmt.Sprintf("ssh -o StrictHostKeyChecking=no -i %s", keyPath)
-	}
-	return "ssh -o StrictHostKeyChecking=no"
-}
-
 // migrateWebsite 迁移单个网站
 func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationConnection, site *request.ToolboxMigrationWebsite, stopOnMig bool) {
 	result := types.MigrationItemResult{
@@ -521,7 +423,6 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 	// 在远程面板创建网站
 	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("creating website on remote server")))
-	// 构建监听地址列表
 	var listens []string
 	for _, l := range websiteDetail.Listens {
 		listens = append(listens, l.Address)
@@ -537,44 +438,27 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 		Path:    websiteDetail.Path,
 		PHP:     websiteDetail.PHP,
 	}
-	// 反向代理网站需要传后端地址
 	if websiteDetail.Type == "proxy" && len(websiteDetail.Proxies) > 0 {
 		websiteCreateReq.Proxy = websiteDetail.Proxies[0].Pass
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", websiteCreateReq)
 	if err != nil {
-		s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to create remote website, trying rsync directly"), err))
+		s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to create remote website, trying to upload directly"), err))
 	}
 
-	// 用 rsync 发送网站文件
-	siteDir := filepath.Join(app.Root, "sites", site.Name) + "/"
-	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing directory:"), siteDir))
-
-	remoteHost := extractHost(conn.URL)
-	sshOpt := s.sshOption()
-	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, siteDir, remoteHost, siteDir)
-	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
-
-	output, err := shell.Exec(rsyncCmd)
-	if output != "" {
-		s.addLog(output)
-	}
-	if err != nil {
-		s.failResult("website", site.Name, s.t.Get("rsync failed: %v", err))
+	// 上传网站目录到远程
+	siteDir := filepath.Join(app.Root, "sites", site.Name)
+	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading directory:"), siteDir))
+	if err = s.uploadDirToRemote(conn, siteDir, siteDir); err != nil {
+		s.failResult("website", site.Name, s.t.Get("upload failed: %v", err))
 		return
 	}
 
-	// 如果有自定义路径，也需要同步
-	if site.Path != "" && site.Path != siteDir+"public" && site.Path != siteDir {
-		s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing custom directory:"), site.Path))
-		rsyncCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, site.Path, remoteHost, site.Path)
-		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
-		output, err = shell.Exec(rsyncCmd)
-		if output != "" {
-			s.addLog(output)
-		}
-		if err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: custom path sync failed"), err))
+	// 如果有自定义路径，也需要上传
+	if site.Path != "" && site.Path != filepath.Join(siteDir, "public") && site.Path != siteDir {
+		s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading website directory:"), site.Path))
+		if err = s.uploadDirToRemote(conn, site.Path, site.Path); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: website directory upload failed"), err))
 		}
 	}
 
@@ -596,20 +480,16 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
 
-	remoteHost := extractHost(conn.URL)
 	backupPath := fmt.Sprintf("/tmp/ace_migration_%s_%s.sql", db.Type, db.Name)
-	sshOpt := s.sshOption()
 
-	var dumpCmd, restoreCmd string
+	var dumpCmd string
 	switch db.Type {
 	case "mysql":
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 		dumpCmd = fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	case "postgresql":
 		postgresPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
 		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", postgresPassword, db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	default:
 		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
 		return
@@ -617,58 +497,43 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	// 导出数据库
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("exporting database")))
-	s.addLog(fmt.Sprintf("$ %s", maskPassword(dumpCmd)))
+	s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
 	_, err := shell.Exec(dumpCmd)
 	if err != nil {
 		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
 		return
 	}
+	defer func() { _ = os.Remove(backupPath) }()
 
-	// 发送备份文件到远程
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("sending backup to remote server")))
-	s.addLog(fmt.Sprintf("$ %s", restoreCmd))
-	output, err := shell.Exec(restoreCmd)
-	if output != "" {
-		s.addLog(output)
+	// 在远程创建数据库
+	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("creating database on remote server")))
+	dbCreateReq := &request.DatabaseCreate{
+		ServerID: db.ServerID,
+		Name:     db.Name,
 	}
-	if err != nil {
+	_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
+
+	// 分片上传备份文件到远程
+	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("sending backup to remote server")))
+	if err = s.remoteUploadFile(conn, backupPath, backupPath); err != nil {
 		s.failResult("database", displayName, s.t.Get("backup transfer failed: %v", err))
 		return
 	}
 
-	// 在远程导入数据库
+	// 在远程执行导入命令
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("importing database on remote server")))
 	var remoteImportCmd string
 	switch db.Type {
 	case "mysql":
-		// 先在远程创建数据库，再导入
-		dbCreateReq := &request.DatabaseCreate{
-			ServerID: db.ServerID,
-			Name:     db.Name,
-		}
-		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"MYSQL_PWD=\\$(acepanel setting get mysql_root_password) mysql -u root '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("MYSQL_PWD=$(acepanel setting get mysql_root_password) mysql -u root '%s' < %s && rm -f %s", db.Name, backupPath, backupPath)
 	case "postgresql":
-		dbCreateReq := &request.DatabaseCreate{
-			ServerID: db.ServerID,
-			Name:     db.Name,
-		}
-		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
-		remoteImportCmd = fmt.Sprintf("%s root@%s \"PGPASSWORD=\\$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
+		remoteImportCmd = fmt.Sprintf("PGPASSWORD=$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < %s && rm -f %s", db.Name, backupPath, backupPath)
 	}
 
-	s.addLog(fmt.Sprintf("$ %s", remoteImportCmd))
-	output, err = shell.Exec(remoteImportCmd)
-	if output != "" {
-		s.addLog(output)
-	}
-	if err != nil {
+	if err = s.remoteExec(conn, remoteImportCmd); err != nil {
 		s.failResult("database", displayName, s.t.Get("remote import failed: %v", err))
 		return
 	}
-
-	// 清理临时文件
-	_, _ = shell.Exec(fmt.Sprintf("rm -f %s", backupPath))
 
 	s.succeedResult("database", displayName)
 	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database migration completed")))
@@ -705,42 +570,269 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", projectCreateReq)
 	if err != nil {
-		s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to create remote project, trying rsync directly"), err))
+		s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to create remote project, trying to upload directly"), err))
 	}
 
-	remoteHost := extractHost(conn.URL)
-	sshOpt := s.sshOption()
-
-	// 同步项目目录
+	// 上传项目目录
 	if proj.Path != "" {
-		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("syncing directory:"), proj.Path))
-		rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, proj.Path, remoteHost, proj.Path)
-		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
-		output, err := shell.Exec(rsyncCmd)
-		if output != "" {
-			s.addLog(output)
-		}
-		if err != nil {
-			s.failResult("project", proj.Name, s.t.Get("rsync failed: %v", err))
+		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("uploading directory:"), proj.Path))
+		if err = s.uploadDirToRemote(conn, proj.Path, proj.Path); err != nil {
+			s.failResult("project", proj.Name, s.t.Get("upload failed: %v", err))
 			return
 		}
 	}
 
-	// 同步 systemd 服务文件
+	// 上传 systemd 服务文件
 	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", proj.Name)
-	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("syncing systemd service file")))
-	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, serviceFile, remoteHost, serviceFile)
-	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
-	output, err := shell.Exec(rsyncCmd)
-	if output != "" {
-		s.addLog(output)
-	}
-	if err != nil {
-		s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: service file sync failed"), err))
+	if _, statErr := os.Stat(serviceFile); statErr == nil {
+		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("uploading systemd service file")))
+		if err = s.remoteUploadFile(conn, serviceFile, serviceFile); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: service file upload failed"), err))
+		} else {
+			// 远程重新加载 systemd
+			_ = s.remoteExec(conn, "systemctl daemon-reload")
+		}
 	}
 
 	s.succeedResult("project", proj.Name)
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("project migration completed")))
+}
+
+// remoteExec 调用远程面板 SSE exec 接口执行命令
+func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConnection, command string) error {
+	bodyBytes, _ := json.Marshal(map[string]string{"command": command})
+
+	url := strings.TrimRight(conn.URL, "/") + "/api/toolbox_migration/exec"
+	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	if err = signRequest(req, conn.TokenID, conn.Token); err != nil {
+		return fmt.Errorf("sign request failed: %w", err)
+	}
+
+	client := &http.Client{
+		// SSE 流可能很长，不设超时
+		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("remote exec returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	// 读取 SSE 流
+	scanner := bufio.NewScanner(resp.Body)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "data: ") {
+			data := strings.TrimPrefix(line, "data: ")
+			s.addLog("  " + data)
+		} else if strings.HasPrefix(line, "event: error") {
+			// 下一行是 data
+			if scanner.Scan() {
+				errData := strings.TrimPrefix(scanner.Text(), "data: ")
+				return fmt.Errorf("remote exec error: %s", errData)
+			}
+		} else if strings.HasPrefix(line, "event: done") {
+			// 读取 data 行然后返回
+			scanner.Scan()
+			return nil
+		}
+	}
+
+	return scanner.Err()
+}
+
+// remoteUploadFile 分片上传文件到远程面板
+func (s *ToolboxMigrationService) remoteUploadFile(conn *request.ToolboxMigrationConnection, localPath, remotePath string) error {
+	f, err := os.Open(localPath)
+	if err != nil {
+		return fmt.Errorf("open file failed: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	// 流式计算文件 SHA256
+	hasher := sha256.New()
+	if _, err = io.Copy(hasher, f); err != nil {
+		return fmt.Errorf("hash file failed: %w", err)
+	}
+	fileHash := hex.EncodeToString(hasher.Sum(nil))
+	if _, err = f.Seek(0, 0); err != nil {
+		return err
+	}
+
+	info, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	chunkCount := int((info.Size() + migrationChunkSize - 1) / migrationChunkSize)
+	if chunkCount == 0 {
+		chunkCount = 1
+	}
+	dir := filepath.Dir(remotePath)
+	fileName := filepath.Base(remotePath)
+
+	// 调用远程 chunk/start
+	startReq := map[string]any{
+		"path":        dir,
+		"file_name":   fileName,
+		"file_hash":   fileHash,
+		"chunk_count": chunkCount,
+		"force":       true,
+	}
+	startResp, err := s.remoteAPIRequest(conn, "POST", "/api/file/chunk/start", startReq)
+	if err != nil {
+		return fmt.Errorf("chunk start failed: %w", err)
+	}
+
+	// 解析已上传分片列表（支持断点续传）
+	uploadedChunks := s.parseUploadedChunks(startResp)
+
+	// 逐分片上传
+	buf := make([]byte, migrationChunkSize)
+	uploadStart := time.Now()
+	var uploaded int64
+	for i := 0; i < chunkCount; i++ {
+		n, readErr := f.Read(buf)
+		if readErr != nil && readErr != io.EOF {
+			return fmt.Errorf("read chunk %d failed: %w", i, readErr)
+		}
+		chunk := buf[:n]
+
+		// 跳过已上传分片
+		if slices.Contains(uploadedChunks, i) {
+			uploaded += int64(n)
+			continue
+		}
+
+		// 计算分片 hash
+		h := sha256.Sum256(chunk)
+		chunkHash := hex.EncodeToString(h[:])
+
+		// multipart 上传
+		_, err = s.remoteMultipartUpload(conn, "/api/file/chunk/upload", map[string]string{
+			"path":        dir,
+			"file_name":   fileName,
+			"file_hash":   fileHash,
+			"chunk_index": strconv.Itoa(i),
+			"chunk_hash":  chunkHash,
+		}, "file", fileName, chunk)
+		if err != nil {
+			return fmt.Errorf("upload chunk %d failed: %w", i, err)
+		}
+
+		uploaded += int64(n)
+		elapsed := time.Since(uploadStart).Seconds()
+		speed := float64(uploaded) / elapsed
+		remaining := float64(info.Size()-uploaded) / speed
+
+		s.addLog(fmt.Sprintf("  %s: %d/%d (%.1f%%) %s/s ETA %s",
+			s.t.Get("uploading"), i+1, chunkCount, float64(i+1)/float64(chunkCount)*100,
+			s.formatBytes(speed), s.formatETA(remaining)))
+	}
+
+	// 调用远程 chunk/finish
+	finishReq := map[string]any{
+		"path":        dir,
+		"file_name":   fileName,
+		"file_hash":   fileHash,
+		"chunk_count": chunkCount,
+		"force":       true,
+	}
+	_, err = s.remoteAPIRequest(conn, "POST", "/api/file/chunk/finish", finishReq)
+	if err != nil {
+		return fmt.Errorf("chunk finish failed: %w", err)
+	}
+
+	return nil
+}
+
+// remoteMultipartUpload 带签名的 multipart 上传
+func (s *ToolboxMigrationService) remoteMultipartUpload(
+	conn *request.ToolboxMigrationConnection, path string, fields map[string]string,
+	fileField, fileName string, fileData []byte,
+) ([]byte, error) {
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	for k, v := range fields {
+		_ = writer.WriteField(k, v)
+	}
+	part, err := writer.CreateFormFile(fileField, fileName)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = part.Write(fileData); err != nil {
+		return nil, err
+	}
+	_ = writer.Close()
+
+	url := strings.TrimRight(conn.URL, "/") + path
+	req, err := http.NewRequest("POST", url, &body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	if err = signRequest(req, conn.TokenID, conn.Token); err != nil {
+		return nil, fmt.Errorf("sign request failed: %w", err)
+	}
+
+	client := &http.Client{
+		Timeout:   5 * time.Minute,
+		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	return respBody, nil
+}
+
+// uploadDirToRemote 上传目录到远程（打包→上传→解压）
+func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrationConnection, localDir, remoteDir string) error {
+	tarPath := fmt.Sprintf("/tmp/ace_mig_%d.tar.xz", time.Now().UnixNano())
+
+	// 本地打包
+	s.addLog("  " + s.t.Get("compressing directory: %s", localDir))
+	_, err := shell.Exec(fmt.Sprintf("tar cJf %s -C %s .", tarPath, localDir))
+	if err != nil {
+		return fmt.Errorf("compress failed: %w", err)
+	}
+	defer func() { _ = os.Remove(tarPath) }()
+
+	// 分片上传到远程 /tmp/
+	s.addLog("  " + s.t.Get("uploading to remote server"))
+	if err = s.remoteUploadFile(conn, tarPath, tarPath); err != nil {
+		return fmt.Errorf("upload failed: %w", err)
+	}
+
+	// 远程解压并清理
+	s.addLog("  " + s.t.Get("extracting on remote server"))
+	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s -C %s && rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
+	if err = s.remoteExec(conn, extractCmd); err != nil {
+		return fmt.Errorf("remote extract failed: %w", err)
+	}
+
+	return nil
 }
 
 // addLog 添加日志
@@ -855,6 +947,62 @@ func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigratio
 	return respBody, nil
 }
 
+// maskPassword 掩盖命令中的密码
+func (s *ToolboxMigrationService) maskPassword(cmd string) string {
+	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='"} {
+		if idx := strings.Index(cmd, prefix); idx != -1 {
+			start := idx + len(prefix)
+			end := strings.Index(cmd[start:], "'")
+			if end != -1 {
+				return cmd[:idx] + prefix + "***" + cmd[start+end:]
+			}
+		}
+	}
+	return cmd
+}
+
+// formatBytes 格式化字节数为人类可读格式
+func (s *ToolboxMigrationService) formatBytes(b float64) string {
+	switch {
+	case b >= 1<<30:
+		return fmt.Sprintf("%.2f GB", b/(1<<30))
+	case b >= 1<<20:
+		return fmt.Sprintf("%.2f MB", b/(1<<20))
+	case b >= 1<<10:
+		return fmt.Sprintf("%.2f KB", b/(1<<10))
+	default:
+		return fmt.Sprintf("%.0f B", b)
+	}
+}
+
+// formatETA 格式化剩余时间
+func (s *ToolboxMigrationService) formatETA(seconds float64) string {
+	if seconds < 0 || seconds > 86400 {
+		return "--:--"
+	}
+	sec := int(seconds)
+	if sec < 60 {
+		return fmt.Sprintf("%ds", sec)
+	}
+	if sec < 3600 {
+		return fmt.Sprintf("%dm%ds", sec/60, sec%60)
+	}
+	return fmt.Sprintf("%dh%dm", sec/3600, (sec%3600)/60)
+}
+
+// parseUploadedChunks 从 chunk/start 响应中解析已上传分片索引
+func (s *ToolboxMigrationService) parseUploadedChunks(respBody []byte) []int {
+	var resp struct {
+		Data struct {
+			UploadedChunks []int `json:"uploaded_chunks"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(respBody, &resp) == nil {
+		return resp.Data.UploadedChunks
+	}
+	return nil
+}
+
 // signRequest 对请求进行 HMAC-SHA256 签名
 func signRequest(req *http.Request, tokenID uint, token string) error {
 	var body []byte
@@ -908,36 +1056,4 @@ func hmacSHA256(data, secret string) string {
 	h := hmac.New(sha256.New, []byte(secret))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
-}
-
-// extractHost 从 URL 中提取主机地址
-func extractHost(rawURL string) string {
-	// 去掉协议前缀
-	host := rawURL
-	if idx := strings.Index(host, "://"); idx != -1 {
-		host = host[idx+3:]
-	}
-	// 去掉路径和端口
-	if idx := strings.Index(host, "/"); idx != -1 {
-		host = host[:idx]
-	}
-	if idx := strings.Index(host, ":"); idx != -1 {
-		host = host[:idx]
-	}
-	return host
-}
-
-// maskPassword 掩盖命令中的密码
-func maskPassword(cmd string) string {
-	// 掩盖 MYSQL_PWD='...' 模式
-	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='"} {
-		if idx := strings.Index(cmd, prefix); idx != -1 {
-			start := idx + len(prefix)
-			end := strings.Index(cmd[start:], "'")
-			if end != -1 {
-				return cmd[:idx] + prefix + "***" + cmd[start+end:]
-			}
-		}
-	}
-	return cmd
 }
