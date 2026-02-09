@@ -128,7 +128,7 @@ func (r *Ace) Run() error {
 	// close certificate reloader
 	if r.reloader != nil {
 		if err := r.reloader.Close(); err != nil {
-			fmt.Println("[HTTP] certificate reloader close error:", err)
+			fmt.Println("[TLS] certificate reloader close error:", err)
 		}
 	}
 
