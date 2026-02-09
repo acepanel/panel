@@ -31,7 +31,6 @@ func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *rout
 	return r, nil
 }
 
-// NewTLSReloader 创建证书热重载器，TLS 未启用时返回 nil
 func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 	if !conf.HTTP.TLS {
 		return nil, nil

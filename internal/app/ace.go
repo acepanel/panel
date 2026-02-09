@@ -125,10 +125,10 @@ func (r *Ace) Run() error {
 	queueCancel()
 	fmt.Println("[QUEUE] queue stopped")
 
-	// 关闭证书热重载器
+	// close certificate reloader
 	if r.reloader != nil {
 		if err := r.reloader.Close(); err != nil {
-			fmt.Println("[TLS] reloader close error:", err)
+			fmt.Println("[HTTP] certificate reloader close error:", err)
 		}
 	}
 
