@@ -537,7 +537,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 	remoteHost := extractHost(conn.URL)
 	sshOpt := s.sshOption()
-	rsyncCmd := fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s root@%s:%s", sshOpt, siteDir, remoteHost, siteDir)
+	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, siteDir, remoteHost, siteDir)
 	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 
 	output, err := shell.Exec(rsyncCmd)
@@ -552,7 +552,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	// 如果有自定义路径，也需要同步
 	if site.Path != "" && site.Path != siteDir+"public" && site.Path != siteDir {
 		s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("syncing custom directory:"), site.Path))
-		rsyncCmd = fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s/ root@%s:%s/", sshOpt, site.Path, remoteHost, site.Path)
+		rsyncCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, site.Path, remoteHost, site.Path)
 		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 		output, err = shell.Exec(rsyncCmd)
 		if output != "" {
@@ -589,10 +589,10 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	case "mysql":
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 		dumpCmd = fmt.Sprintf("mysqldump -uroot -p'%s' --socket=/tmp/mysql.sock --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
+		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	case "postgresql":
 		dumpCmd = fmt.Sprintf("sudo -u postgres pg_dump '%s' > %s", db.Name, backupPath)
-		restoreCmd = fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
+		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	default:
 		s.failResult("database", db.Name, s.t.Get("unsupported database type: %s", db.Type))
 		return
@@ -699,7 +699,7 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	// 同步项目目录
 	if proj.Path != "" {
 		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("syncing directory:"), proj.Path))
-		rsyncCmd := fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s/ root@%s:%s/", sshOpt, proj.Path, remoteHost, proj.Path)
+		rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s/ root@%s:%s/", sshOpt, proj.Path, remoteHost, proj.Path)
 		s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 		output, err := shell.Exec(rsyncCmd)
 		if output != "" {
@@ -715,7 +715,7 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	serviceName := fmt.Sprintf("ace-project-%s", proj.Name)
 	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", serviceName)
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("syncing systemd service file")))
-	rsyncCmd := fmt.Sprintf("rsync -avz --delete --progress -e '%s' %s root@%s:%s", sshOpt, serviceFile, remoteHost, serviceFile)
+	rsyncCmd := fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, serviceFile, remoteHost, serviceFile)
 	s.addLog(fmt.Sprintf("$ %s", rsyncCmd))
 	output, err := shell.Exec(rsyncCmd)
 	if output != "" {
