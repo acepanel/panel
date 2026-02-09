@@ -3,61 +3,99 @@ package tlscert
 import (
 	"crypto/tls"
 	"fmt"
-	"os"
+	"path/filepath"
 	"sync"
-	"time"
+
+	"github.com/fsnotify/fsnotify"
 )
 
-// Reloader 证书热重载器，通过 GetCertificate 回调在每次 TLS 握手时
-// 检测证书文件是否变更，如果变更且合法则自动加载新证书，无需重启服务器
+// Reloader 证书热重载器，通过 fsnotify 监听证书文件变更事件
+// 变更时自动验证并加载新证书，GetCertificate 回调零开销返回当前证书
 type Reloader struct {
 	certFile string
 	keyFile  string
 
-	mu          sync.RWMutex
-	cert        *tls.Certificate
-	certModTime time.Time
-	keyModTime  time.Time
+	mu   sync.RWMutex
+	cert *tls.Certificate
+
+	watcher *fsnotify.Watcher
+	done    chan struct{}
 }
 
-// NewReloader 创建证书热重载器
+// NewReloader 创建证书热重载器，启动后台 goroutine 监听文件变更
 func NewReloader(certFile, keyFile string) (*Reloader, error) {
 	r := &Reloader{
 		certFile: certFile,
 		keyFile:  keyFile,
+		done:     make(chan struct{}),
 	}
 	if err := r.loadCert(); err != nil {
 		return nil, err
 	}
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create file watcher: %w", err)
+	}
+	r.watcher = watcher
+
+	// 监听证书文件所在目录（监听目录而非文件本身，兼容原子写入/rename 场景）
+	certDir := filepath.Dir(certFile)
+	if err = watcher.Add(certDir); err != nil {
+		_ = watcher.Close()
+		return nil, fmt.Errorf("failed to watch directory %s: %w", certDir, err)
+	}
+
+	go r.watch()
+
 	return r, nil
 }
 
-// GetCertificate 作为 tls.Config.GetCertificate 回调
-// 每次 TLS 握手时检测证书文件修改时间，变更则热重载
+// GetCertificate 作为 tls.Config.GetCertificate 回调，零开销返回当前证书
 func (r *Reloader) GetCertificate(_ *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	certInfo, certErr := os.Stat(r.certFile)
-	keyInfo, keyErr := os.Stat(r.keyFile)
-	if certErr != nil || keyErr != nil {
-		r.mu.RLock()
-		defer r.mu.RUnlock()
-		return r.cert, nil
-	}
-
-	r.mu.RLock()
-	needReload := !certInfo.ModTime().Equal(r.certModTime) || !keyInfo.ModTime().Equal(r.keyModTime)
-	r.mu.RUnlock()
-
-	if needReload {
-		if err := r.loadCert(); err != nil {
-			fmt.Println("[TLS] certificate reload failed, keeping current certificate:", err)
-		} else {
-			fmt.Println("[TLS] certificate reloaded successfully")
-		}
-	}
-
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.cert, nil
+}
+
+// Close 停止文件监听
+func (r *Reloader) Close() error {
+	close(r.done)
+	return r.watcher.Close()
+}
+
+// watch 监听文件系统事件，检测到证书文件变更时自动重载
+func (r *Reloader) watch() {
+	certBase := filepath.Base(r.certFile)
+	keyBase := filepath.Base(r.keyFile)
+	for {
+		select {
+		case event, ok := <-r.watcher.Events:
+			if !ok {
+				return
+			}
+			// 仅关注证书文件的写入或创建事件
+			name := filepath.Base(event.Name)
+			if name != certBase && name != keyBase {
+				continue
+			}
+			if !event.Has(fsnotify.Write) && !event.Has(fsnotify.Create) {
+				continue
+			}
+			if err := r.loadCert(); err != nil {
+				fmt.Println("[TLS] certificate reload failed, keeping current certificate:", err)
+			} else {
+				fmt.Println("[TLS] certificate reloaded successfully")
+			}
+		case err, ok := <-r.watcher.Errors:
+			if !ok {
+				return
+			}
+			fmt.Println("[TLS] file watcher error:", err)
+		case <-r.done:
+			return
+		}
+	}
 }
 
 // loadCert 从文件加载并验证证书
@@ -67,19 +105,8 @@ func (r *Reloader) loadCert() error {
 		return err
 	}
 
-	certInfo, err := os.Stat(r.certFile)
-	if err != nil {
-		return err
-	}
-	keyInfo, err := os.Stat(r.keyFile)
-	if err != nil {
-		return err
-	}
-
 	r.mu.Lock()
 	r.cert = &cert
-	r.certModTime = certInfo.ModTime()
-	r.keyModTime = keyInfo.ModTime()
 	r.mu.Unlock()
 
 	return nil
