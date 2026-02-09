@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"crypto/hmac"
@@ -24,52 +23,19 @@ import (
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/types"
 )
 
-// MigrationStep 迁移步骤
-type MigrationStep string
-
-const (
-	MigrationStepIdle     MigrationStep = "idle"     // 空闲
-	MigrationStepConnect  MigrationStep = "connect"  // 连接信息
-	MigrationStepPreCheck MigrationStep = "precheck" // 预检查
-	MigrationStepSelect   MigrationStep = "select"   // 选择迁移项
-	MigrationStepRunning  MigrationStep = "running"  // 迁移中
-	MigrationStepDone     MigrationStep = "done"     // 迁移完成
-)
-
-// MigrationItemStatus 迁移项状态
-type MigrationItemStatus string
-
-const (
-	MigrationItemPending MigrationItemStatus = "pending"
-	MigrationItemRunning MigrationItemStatus = "running"
-	MigrationItemSuccess MigrationItemStatus = "success"
-	MigrationItemFailed  MigrationItemStatus = "failed"
-	MigrationItemSkipped MigrationItemStatus = "skipped"
-)
-
-// MigrationItemResult 单个迁移项的结果
-type MigrationItemResult struct {
-	Type      string              `json:"type"`       // website / database / project
-	Name      string              `json:"name"`       // 名称
-	Status    MigrationItemStatus `json:"status"`     // 状态
-	Error     string              `json:"error"`      // 失败原因
-	StartedAt *time.Time          `json:"started_at"` // 开始时间
-	EndedAt   *time.Time          `json:"ended_at"`   // 结束时间
-	Duration  float64             `json:"duration"`   // 耗时（秒）
-}
-
-// MigrationState 全局迁移状态
-type MigrationState struct {
+// migrationState 全局迁移状态（内部实现）
+type migrationState struct {
 	mu         sync.RWMutex
-	Step       MigrationStep         `json:"step"`
+	Step       types.MigrationStep                 `json:"step"`
 	Connection *request.ToolboxMigrationConnection `json:"connection,omitempty"`
 	Items      *request.ToolboxMigrationItems      `json:"items,omitempty"`
-	Results    []MigrationItemResult `json:"results"`
-	Logs       []string              `json:"logs"`
-	StartedAt  *time.Time            `json:"started_at"`
-	EndedAt    *time.Time            `json:"ended_at"`
+	Results    []types.MigrationItemResult         `json:"results"`
+	Logs       []string                            `json:"logs"`
+	StartedAt  *time.Time                          `json:"started_at"`
+	EndedAt    *time.Time                          `json:"ended_at"`
 }
 
 // ToolboxMigrationService 迁移服务
@@ -84,7 +50,7 @@ type ToolboxMigrationService struct {
 	appRepo         biz.AppRepo
 	environmentRepo biz.EnvironmentRepo
 
-	state MigrationState
+	state migrationState
 }
 
 // NewToolboxMigrationService 创建迁移服务
@@ -109,8 +75,8 @@ func NewToolboxMigrationService(
 		projectRepo:     project,
 		appRepo:         appRepo,
 		environmentRepo: environment,
-		state: MigrationState{
-			Step: MigrationStepIdle,
+		state: migrationState{
+			Step: types.MigrationStepIdle,
 		},
 	}
 }
@@ -138,7 +104,7 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 
 	// 检查是否有正在进行的迁移
 	s.state.mu.RLock()
-	if s.state.Step == MigrationStepRunning {
+	if s.state.Step == types.MigrationStepRunning {
 		s.state.mu.RUnlock()
 		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
 		return
@@ -155,7 +121,7 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 	// 保存连接信息
 	s.state.mu.Lock()
 	s.state.Connection = req
-	s.state.Step = MigrationStepPreCheck
+	s.state.Step = types.MigrationStepPreCheck
 	s.state.mu.Unlock()
 
 	Success(w, chix.M{
@@ -187,8 +153,8 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	}
 
 	s.state.mu.Lock()
-	if s.state.Step == MigrationStepPreCheck {
-		s.state.Step = MigrationStepSelect
+	if s.state.Step == types.MigrationStepPreCheck {
+		s.state.Step = types.MigrationStepSelect
 	}
 	s.state.mu.Unlock()
 
@@ -208,7 +174,7 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 	}
 
 	s.state.mu.Lock()
-	if s.state.Step == MigrationStepRunning {
+	if s.state.Step == types.MigrationStepRunning {
 		s.state.mu.Unlock()
 		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
 		return
@@ -220,7 +186,7 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 	}
 
 	now := time.Now()
-	s.state.Step = MigrationStepRunning
+	s.state.Step = types.MigrationStepRunning
 	s.state.Items = req
 	s.state.Results = nil
 	s.state.Logs = nil
@@ -238,12 +204,12 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 // Reset 重置迁移状态
 func (s *ToolboxMigrationService) Reset(w http.ResponseWriter, r *http.Request) {
 	s.state.mu.Lock()
-	if s.state.Step == MigrationStepRunning {
+	if s.state.Step == types.MigrationStepRunning {
 		s.state.mu.Unlock()
 		Error(w, http.StatusConflict, s.t.Get("migration is running, cannot reset"))
 		return
 	}
-	s.state.Step = MigrationStepIdle
+	s.state.Step = types.MigrationStepIdle
 	s.state.Connection = nil
 	s.state.Items = nil
 	s.state.Results = nil
@@ -318,7 +284,7 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 
 			// 迁移完成后发送最终状态并关闭
 			s.state.mu.RLock()
-			done := s.state.Step == MigrationStepDone || s.state.Step == MigrationStepIdle
+			done := s.state.Step == types.MigrationStepDone || s.state.Step == types.MigrationStepIdle
 			s.state.mu.RUnlock()
 			if done {
 				_ = ws.Close(websocket.StatusNormalClosure, "")
@@ -349,7 +315,7 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 
 	now := time.Now()
 	s.state.mu.Lock()
-	s.state.Step = MigrationStepDone
+	s.state.Step = types.MigrationStepDone
 	s.state.EndedAt = &now
 	s.state.mu.Unlock()
 
@@ -358,10 +324,10 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 
 // migrateWebsite 迁移单个网站
 func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationConnection, site *request.ToolboxMigrationWebsite, stopOnMig bool) {
-	result := MigrationItemResult{
+	result := types.MigrationItemResult{
 		Type:   "website",
 		Name:   site.Name,
-		Status: MigrationItemRunning,
+		Status: types.MigrationItemRunning,
 	}
 	now := time.Now()
 	result.StartedAt = &now
@@ -427,10 +393,10 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 // migrateDatabase 迁移单个数据库
 func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase, stopOnMig bool) {
-	result := MigrationItemResult{
+	result := types.MigrationItemResult{
 		Type:   "database",
 		Name:   fmt.Sprintf("%s (%s)", db.Name, db.Type),
-		Status: MigrationItemRunning,
+		Status: types.MigrationItemRunning,
 	}
 	now := time.Now()
 	result.StartedAt = &now
@@ -520,10 +486,10 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 // migrateProject 迁移单个项目
 func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationConnection, proj *request.ToolboxMigrationProject, stopOnMig bool) {
-	result := MigrationItemResult{
+	result := types.MigrationItemResult{
 		Type:   "project",
 		Name:   proj.Name,
-		Status: MigrationItemRunning,
+		Status: types.MigrationItemRunning,
 	}
 	now := time.Now()
 	result.StartedAt = &now
@@ -594,7 +560,7 @@ func (s *ToolboxMigrationService) addLog(msg string) {
 }
 
 // addResult 添加迁移结果
-func (s *ToolboxMigrationService) addResult(result MigrationItemResult) {
+func (s *ToolboxMigrationService) addResult(result types.MigrationItemResult) {
 	s.state.mu.Lock()
 	s.state.Results = append(s.state.Results, result)
 	s.state.mu.Unlock()
@@ -605,7 +571,7 @@ func (s *ToolboxMigrationService) failResult(typ, name, errMsg string) {
 	s.state.mu.Lock()
 	for i := range s.state.Results {
 		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = MigrationItemFailed
+			s.state.Results[i].Status = types.MigrationItemFailed
 			s.state.Results[i].Error = errMsg
 			now := time.Now()
 			s.state.Results[i].EndedAt = &now
@@ -624,7 +590,7 @@ func (s *ToolboxMigrationService) succeedResult(typ, name string) {
 	s.state.mu.Lock()
 	for i := range s.state.Results {
 		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = MigrationItemSuccess
+			s.state.Results[i].Status = types.MigrationItemSuccess
 			now := time.Now()
 			s.state.Results[i].EndedAt = &now
 			if s.state.Results[i].StartedAt != nil {
@@ -695,7 +661,7 @@ func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigratio
 }
 
 // signRequest 对请求进行 HMAC-SHA256 签名
-func signRequest(req *http.Request, id uint, token string) error {
+func signRequest(req *http.Request, tokenID uint, token string) error {
 	var body []byte
 	var err error
 
@@ -732,7 +698,7 @@ func signRequest(req *http.Request, id uint, token string) error {
 
 	signature := hmacSHA256(stringToSign, token)
 
-	authHeader := fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", id, signature)
+	authHeader := fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", tokenID, signature)
 	req.Header.Set("Authorization", authHeader)
 
 	return nil
@@ -776,19 +742,4 @@ func maskPassword(cmd string) string {
 		}
 	}
 	return cmd
-}
-
-// ExecWithLog 执行命令并实时发送日志
-func (s *ToolboxMigrationService) execWithLog(ctx context.Context, cmd string) error {
-	out, err := shell.ExecfWithPipe(ctx, cmd)
-	if err != nil {
-		return err
-	}
-
-	scanner := bufio.NewScanner(out)
-	for scanner.Scan() {
-		s.addLog(scanner.Text())
-	}
-
-	return scanner.Err()
 }
