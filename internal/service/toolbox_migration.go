@@ -534,7 +534,16 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 		"listens": listens,
 		"domains": websiteDetail.Domains,
 		"path":    websiteDetail.Path,
-		"type":    string(websiteDetail.Type),
+		"type":    websiteDetail.Type,
+		"remark":  "",
+	}
+	// PHP 网站需要传 PHP 版本号
+	if websiteDetail.Type == "php" {
+		createBody["php"] = websiteDetail.PHP
+	}
+	// 反向代理网站需要传后端地址
+	if websiteDetail.Type == "proxy" && len(websiteDetail.Proxies) > 0 {
+		createBody["proxy"] = websiteDetail.Proxies[0].Pass
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", createBody)
 	if err != nil {
