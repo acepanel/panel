@@ -414,6 +414,14 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Website"), s.t.Get("start migrating"), site.Name))
 
+	// 迁移前停止网站
+	if stopOnMig {
+		s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("stopping website")))
+		if err := s.websiteRepo.UpdateStatus(site.ID, false); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to stop website"), err))
+		}
+	}
+
 	// 获取网站详情
 	websiteDetail, err := s.websiteRepo.Get(site.ID)
 	if err != nil {
@@ -552,6 +560,14 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Project"), s.t.Get("start migrating"), proj.Name))
 
+	// 迁移前停止项目服务
+	if stopOnMig {
+		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("stopping project service")))
+		if _, err := shell.Exec(fmt.Sprintf("systemctl stop %s", proj.Name)); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to stop service"), err))
+		}
+	}
+
 	// 获取项目详情
 	projectDetail, err := s.projectRepo.Get(proj.ID)
 	if err != nil {
@@ -562,11 +578,13 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 	// 在远程面板创建项目
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("creating project on remote server")))
 	projectCreateReq := &request.ProjectCreate{
-		Name:      projectDetail.Name,
-		Type:      projectDetail.Type,
-		RootDir:   projectDetail.RootDir,
-		ExecStart: projectDetail.ExecStart,
-		User:      projectDetail.User,
+		Name:        projectDetail.Name,
+		Type:        projectDetail.Type,
+		Description: projectDetail.Description,
+		RootDir:     projectDetail.RootDir,
+		WorkingDir:  projectDetail.WorkingDir,
+		ExecStart:   projectDetail.ExecStart,
+		User:        projectDetail.User,
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", projectCreateReq)
 	if err != nil {
@@ -596,6 +614,24 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 
 	s.succeedResult("project", proj.Name)
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("project migration completed")))
+}
+
+// fetchRemoteEnvironment 获取远程面板的环境信息
+func (s *ToolboxMigrationService) fetchRemoteEnvironment(conn *request.ToolboxMigrationConnection) (map[string]any, error) {
+	body, err := s.remoteAPIRequest(conn, "GET", "/api/home/installed_environment", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp struct {
+		Msg  string         `json:"msg"`
+		Data map[string]any `json:"data"`
+	}
+	if err = json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("invalid response: %w", err)
+	}
+
+	return resp.Data, nil
 }
 
 // remoteExec 调用远程面板 SSE exec 接口执行命令
@@ -807,7 +843,7 @@ func (s *ToolboxMigrationService) remoteMultipartUpload(
 	return respBody, nil
 }
 
-// uploadDirToRemote 上传目录到远程（打包→上传→解压）
+// uploadDirToRemote 上传目录到远程
 func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrationConnection, localDir, remoteDir string) error {
 	tarPath := fmt.Sprintf("/tmp/ace_mig_%d.tar.xz", time.Now().UnixNano())
 
@@ -833,75 +869,6 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 	}
 
 	return nil
-}
-
-// addLog 添加日志
-func (s *ToolboxMigrationService) addLog(msg string) {
-	s.state.mu.Lock()
-	s.state.Logs = append(s.state.Logs, fmt.Sprintf("[%s] %s", time.Now().Format("15:04:05"), msg))
-	s.state.mu.Unlock()
-	s.log.Info("[Migration] " + msg)
-}
-
-// addResult 添加迁移结果
-func (s *ToolboxMigrationService) addResult(result types.MigrationItemResult) {
-	s.state.mu.Lock()
-	s.state.Results = append(s.state.Results, result)
-	s.state.mu.Unlock()
-}
-
-// failResult 标记迁移项失败
-func (s *ToolboxMigrationService) failResult(typ, name, errMsg string) {
-	s.state.mu.Lock()
-	for i := range s.state.Results {
-		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = types.MigrationItemFailed
-			s.state.Results[i].Error = errMsg
-			now := time.Now()
-			s.state.Results[i].EndedAt = &now
-			if s.state.Results[i].StartedAt != nil {
-				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
-			}
-			break
-		}
-	}
-	s.state.mu.Unlock()
-	s.addLog(fmt.Sprintf("❌ %s [%s]: %s", s.t.Get("failed"), name, errMsg))
-}
-
-// succeedResult 标记迁移项成功
-func (s *ToolboxMigrationService) succeedResult(typ, name string) {
-	s.state.mu.Lock()
-	for i := range s.state.Results {
-		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = types.MigrationItemSuccess
-			now := time.Now()
-			s.state.Results[i].EndedAt = &now
-			if s.state.Results[i].StartedAt != nil {
-				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
-			}
-			break
-		}
-	}
-	s.state.mu.Unlock()
-}
-
-// fetchRemoteEnvironment 获取远程面板的环境信息
-func (s *ToolboxMigrationService) fetchRemoteEnvironment(conn *request.ToolboxMigrationConnection) (map[string]any, error) {
-	body, err := s.remoteAPIRequest(conn, "GET", "/api/home/installed_environment", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp struct {
-		Msg  string         `json:"msg"`
-		Data map[string]any `json:"data"`
-	}
-	if err = json.Unmarshal(body, &resp); err != nil {
-		return nil, fmt.Errorf("invalid response: %w", err)
-	}
-
-	return resp.Data, nil
 }
 
 // remoteAPIRequest 向远程面板发送 API 请求
@@ -1001,6 +968,57 @@ func (s *ToolboxMigrationService) parseUploadedChunks(respBody []byte) []int {
 		return resp.Data.UploadedChunks
 	}
 	return nil
+}
+
+// addLog 添加日志
+func (s *ToolboxMigrationService) addLog(msg string) {
+	s.state.mu.Lock()
+	s.state.Logs = append(s.state.Logs, fmt.Sprintf("[%s] %s", time.Now().Format("15:04:05"), msg))
+	s.state.mu.Unlock()
+	s.log.Info("[Migration] " + msg)
+}
+
+// addResult 添加迁移结果
+func (s *ToolboxMigrationService) addResult(result types.MigrationItemResult) {
+	s.state.mu.Lock()
+	s.state.Results = append(s.state.Results, result)
+	s.state.mu.Unlock()
+}
+
+// failResult 标记迁移项失败
+func (s *ToolboxMigrationService) failResult(typ, name, errMsg string) {
+	s.state.mu.Lock()
+	for i := range s.state.Results {
+		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
+			s.state.Results[i].Status = types.MigrationItemFailed
+			s.state.Results[i].Error = errMsg
+			now := time.Now()
+			s.state.Results[i].EndedAt = &now
+			if s.state.Results[i].StartedAt != nil {
+				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
+			}
+			break
+		}
+	}
+	s.state.mu.Unlock()
+	s.addLog(fmt.Sprintf("❌ %s [%s]: %s", s.t.Get("failed"), name, errMsg))
+}
+
+// succeedResult 标记迁移项成功
+func (s *ToolboxMigrationService) succeedResult(typ, name string) {
+	s.state.mu.Lock()
+	for i := range s.state.Results {
+		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
+			s.state.Results[i].Status = types.MigrationItemSuccess
+			now := time.Now()
+			s.state.Results[i].EndedAt = &now
+			if s.state.Results[i].StartedAt != nil {
+				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
+			}
+			break
+		}
+	}
+	s.state.mu.Unlock()
 }
 
 // signRequest 对请求进行 HMAC-SHA256 签名
