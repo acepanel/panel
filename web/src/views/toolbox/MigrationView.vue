@@ -343,7 +343,7 @@ const handleReset = () => {
     onPositiveClick: () => {
       useRequest(migration.reset()).onSuccess(() => {
         currentStep.value = 1
-        connectionForm.value = { url: '', token_id: 0, token: '' }
+        connectionForm.value = { url: '', token_id: 1, token: '' }
         localEnv.value = null
         remoteEnv.value = null
         envCheckPassed.value = false
@@ -484,7 +484,7 @@ const formatDuration = (seconds: number) => {
             </td>
           </tr>
           <tr>
-            <td>rsync</td>
+            <td>Rsync</td>
             <td>{{ localEnv?.rsync ? $gettext('Installed') : $gettext('Not installed') }}</td>
             <td>{{ remoteEnv?.rsync ? $gettext('Installed') : $gettext('Not installed') }}</td>
             <td>
@@ -774,7 +774,8 @@ const formatDuration = (seconds: number) => {
             <td>
               <n-text v-if="result.error" type="error">{{ result.error }}</n-text>
               <n-text v-else-if="result.status === 'success' && result.ended_at" type="success">
-                {{ $gettext('Migration succeeded') }} - {{ new Date(result.ended_at).toLocaleString() }}
+                {{ $gettext('Migration succeeded') }} -
+                {{ new Date(result.ended_at).toLocaleString() }}
               </n-text>
               <n-text v-else-if="result.ended_at">
                 {{ new Date(result.ended_at).toLocaleString() }}
