@@ -103,6 +103,29 @@ const handlePreCheck = () => {
     })
 }
 
+// 第二步：刷新环境检查
+const handleRefreshPreCheck = () => {
+  if (!connectionForm.value.url || !connectionForm.value.token_id || !connectionForm.value.token) {
+    window.$message.error($gettext('Please fill in all connection fields'))
+    return
+  }
+
+  loading.value = true
+  useRequest(migration.precheck(connectionForm.value))
+    .onSuccess(({ data }: any) => {
+      remoteEnv.value = data.remote
+      useRequest(home.installedEnvironment()).onSuccess(({ data: localData }: any) => {
+        localEnv.value = localData
+        checkEnvironment()
+        loading.value = false
+        window.$message.success($gettext('Environment check refreshed'))
+      })
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
+}
+
 // 环境检查逻辑
 const checkEnvironment = () => {
   const warnings: string[] = []
@@ -523,7 +546,12 @@ const formatDuration = (seconds: number) => {
       </n-table>
 
       <n-flex justify="space-between" style="margin-top: 16px">
-        <n-button @click="currentStep = 1">{{ $gettext('Previous') }}</n-button>
+        <n-flex>
+          <n-button @click="currentStep = 1">{{ $gettext('Previous') }}</n-button>
+          <n-button :loading="loading" :disabled="loading" @click="handleRefreshPreCheck">
+            {{ $gettext('Refresh') }}
+          </n-button>
+        </n-flex>
         <n-button
           type="primary"
           :disabled="!envCheckPassed || loading"
