@@ -3,11 +3,11 @@ defineOptions({
   name: 'toolbox-migration'
 })
 
-import migration from '@/api/panel/toolbox-migration'
 import home from '@/api/panel/home'
+import migration from '@/api/panel/toolbox-migration'
 import ws from '@/api/ws'
-import { useGettext } from 'vue3-gettext'
 import { useRequest } from 'alova/client'
+import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
@@ -18,7 +18,7 @@ const loading = ref(false)
 // 第一步：连接信息
 const connectionForm = ref({
   url: '',
-  token_id: 0,
+  token_id: 1,
   token: ''
 })
 
@@ -136,10 +136,13 @@ const checkEnvironment = () => {
   // webserver 必须一致
   if (localEnv.value.webserver !== remoteEnv.value.webserver) {
     warnings.push(
-      $gettext('Web server mismatch: local is %{local}, remote is %{remote}. Migration cannot proceed.', {
-        local: localEnv.value.webserver || $gettext('none'),
-        remote: remoteEnv.value.webserver || $gettext('none')
-      })
+      $gettext(
+        'Web server mismatch: local is %{local}, remote is %{remote}. Migration cannot proceed.',
+        {
+          local: localEnv.value.webserver || $gettext('none'),
+          remote: remoteEnv.value.webserver || $gettext('none')
+        }
+      )
     )
     passed = false
   }
@@ -161,22 +164,32 @@ const checkEnvironment = () => {
     const remoteItems = remoteEnv.value[envType] || []
     if (localItems.length > 0 && remoteItems.length === 0) {
       warnings.push(
-        $gettext('%{type} is installed locally but not on the remote server. Related projects may need reconfiguration.', {
-          type: envType.toUpperCase()
-        })
+        $gettext(
+          '%{type} is installed locally but not on the remote server. Related projects may need reconfiguration.',
+          {
+            type: envType.toUpperCase()
+          }
+        )
       )
     }
   }
 
   // 检查数据库差异
-  const localDBTypes = (localEnv.value.db || []).map((d: any) => d.value).filter((v: string) => v !== '0')
-  const remoteDBTypes = (remoteEnv.value.db || []).map((d: any) => d.value).filter((v: string) => v !== '0')
+  const localDBTypes = (localEnv.value.db || [])
+    .map((d: any) => d.value)
+    .filter((v: string) => v !== '0')
+  const remoteDBTypes = (remoteEnv.value.db || [])
+    .map((d: any) => d.value)
+    .filter((v: string) => v !== '0')
   for (const dbType of localDBTypes) {
     if (!remoteDBTypes.includes(dbType)) {
       warnings.push(
-        $gettext('%{type} is installed locally but not on the remote server. Database migration for this type will be skipped.', {
-          type: dbType.toUpperCase()
-        })
+        $gettext(
+          '%{type} is installed locally but not on the remote server. Database migration for this type will be skipped.',
+          {
+            type: dbType.toUpperCase()
+          }
+        )
       )
     }
   }
@@ -381,9 +394,15 @@ const formatDuration = (seconds: number) => {
     <!-- 步骤指示器 -->
     <n-card>
       <n-steps :current="currentStep" size="small">
-        <n-step :title="$gettext('Connection')" :description="$gettext('Enter remote server info')" />
+        <n-step
+          :title="$gettext('Connection')"
+          :description="$gettext('Enter remote server info')"
+        />
         <n-step :title="$gettext('Pre-check')" :description="$gettext('Verify environment')" />
-        <n-step :title="$gettext('Select Items')" :description="$gettext('Choose what to migrate')" />
+        <n-step
+          :title="$gettext('Select Items')"
+          :description="$gettext('Choose what to migrate')"
+        />
         <n-step :title="$gettext('Migrating')" :description="$gettext('Transfer in progress')" />
         <n-step :title="$gettext('Complete')" :description="$gettext('View results')" />
       </n-steps>
@@ -452,8 +471,15 @@ const formatDuration = (seconds: number) => {
             <td>{{ localEnv?.webserver || $gettext('None') }}</td>
             <td>{{ remoteEnv?.webserver || $gettext('None') }}</td>
             <td>
-              <n-tag :type="localEnv?.webserver === remoteEnv?.webserver ? 'success' : 'error'" size="small">
-                {{ localEnv?.webserver === remoteEnv?.webserver ? $gettext('Match') : $gettext('Mismatch') }}
+              <n-tag
+                :type="localEnv?.webserver === remoteEnv?.webserver ? 'success' : 'error'"
+                size="small"
+              >
+                {{
+                  localEnv?.webserver === remoteEnv?.webserver
+                    ? $gettext('Match')
+                    : $gettext('Mismatch')
+                }}
               </n-tag>
             </td>
           </tr>
@@ -471,7 +497,12 @@ const formatDuration = (seconds: number) => {
             <td>{{ envType.toUpperCase() }}</td>
             <td>
               <template v-if="(localEnv?.[envType] || []).length > 0">
-                <n-tag v-for="item in localEnv[envType]" :key="item.value" size="small" style="margin: 2px">
+                <n-tag
+                  v-for="item in localEnv[envType]"
+                  :key="item.value"
+                  size="small"
+                  style="margin: 2px"
+                >
                   {{ item.label }}
                 </n-tag>
               </template>
@@ -481,7 +512,12 @@ const formatDuration = (seconds: number) => {
             </td>
             <td>
               <template v-if="(remoteEnv?.[envType] || []).length > 0">
-                <n-tag v-for="item in remoteEnv[envType]" :key="item.value" size="small" style="margin: 2px">
+                <n-tag
+                  v-for="item in remoteEnv[envType]"
+                  :key="item.value"
+                  size="small"
+                  style="margin: 2px"
+                >
                   {{ item.label }}
                 </n-tag>
               </template>
@@ -492,14 +528,16 @@ const formatDuration = (seconds: number) => {
             <td>
               <n-tag
                 :type="
-                  JSON.stringify(localEnv?.[envType] || []) === JSON.stringify(remoteEnv?.[envType] || [])
+                  JSON.stringify(localEnv?.[envType] || []) ===
+                  JSON.stringify(remoteEnv?.[envType] || [])
                     ? 'success'
                     : 'warning'
                 "
                 size="small"
               >
                 {{
-                  JSON.stringify(localEnv?.[envType] || []) === JSON.stringify(remoteEnv?.[envType] || [])
+                  JSON.stringify(localEnv?.[envType] || []) ===
+                  JSON.stringify(remoteEnv?.[envType] || [])
                     ? $gettext('Match')
                     : $gettext('Different')
                 }}
@@ -621,7 +659,12 @@ const formatDuration = (seconds: number) => {
 
       <n-flex justify="space-between">
         <n-button @click="currentStep = 2">{{ $gettext('Previous') }}</n-button>
-        <n-button type="primary" :loading="loading" :disabled="loading" @click="handleStartMigration">
+        <n-button
+          type="primary"
+          :loading="loading"
+          :disabled="loading"
+          @click="handleStartMigration"
+        >
           {{ $gettext('Start Migration') }}
         </n-button>
       </n-flex>
@@ -670,7 +713,11 @@ const formatDuration = (seconds: number) => {
             border-radius: 4px;
           "
         >
-          <div v-for="(log, index) in migrationLogs" :key="index" style="white-space: pre-wrap; word-break: break-all">
+          <div
+            v-for="(log, index) in migrationLogs"
+            :key="index"
+            style="white-space: pre-wrap; word-break: break-all"
+          >
             {{ log }}
           </div>
           <div v-if="migrationRunning" style="color: var(--n-text-color-3)">
@@ -742,7 +789,11 @@ const formatDuration = (seconds: number) => {
         :title="$gettext('Reminder')"
         style="margin-top: 16px"
       >
-        {{ $gettext('Some environments differ between local and remote servers. You may need to adjust settings on the remote server.') }}
+        {{
+          $gettext(
+            'Some environments differ between local and remote servers. You may need to adjust settings on the remote server.'
+          )
+        }}
       </n-alert>
 
       <n-flex justify="center" style="margin-top: 16px">
