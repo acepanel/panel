@@ -58,6 +58,7 @@ type Http struct {
 	toolboxSSH        *service.ToolboxSSHService
 	toolboxDisk       *service.ToolboxDiskService
 	toolboxLog        *service.ToolboxLogService
+	toolboxMigration  *service.ToolboxMigrationService
 	webhook           *service.WebHookService
 	template          *service.TemplateService
 	apps              *apploader.Loader
@@ -106,6 +107,7 @@ func NewHttp(
 	toolboxSSH *service.ToolboxSSHService,
 	toolboxDisk *service.ToolboxDiskService,
 	toolboxLog *service.ToolboxLogService,
+	toolboxMigration *service.ToolboxMigrationService,
 	webhook *service.WebHookService,
 	template *service.TemplateService,
 	apps *apploader.Loader,
@@ -153,6 +155,7 @@ func NewHttp(
 		toolboxSSH:        toolboxSSH,
 		toolboxDisk:       toolboxDisk,
 		toolboxLog:        toolboxLog,
+		toolboxMigration:  toolboxMigration,
 		webhook:           webhook,
 		template:          template,
 		apps:              apps,
@@ -563,6 +566,15 @@ func (route *Http) Register(r *chi.Mux) {
 		r.Route("/toolbox_log", func(r chi.Router) {
 			r.Get("/scan", route.toolboxLog.Scan)
 			r.Post("/clean", route.toolboxLog.Clean)
+		})
+
+		r.Route("/toolbox_migration", func(r chi.Router) {
+			r.Get("/status", route.toolboxMigration.GetStatus)
+			r.Post("/precheck", route.toolboxMigration.PreCheck)
+			r.Get("/items", route.toolboxMigration.GetItems)
+			r.Post("/start", route.toolboxMigration.Start)
+			r.Post("/reset", route.toolboxMigration.Reset)
+			r.Get("/results", route.toolboxMigration.GetResults)
 		})
 
 		r.Route("/webhook", func(r chi.Router) {

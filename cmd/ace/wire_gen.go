@@ -132,6 +132,7 @@ func initAce() (*app.Ace, error) {
 	toolboxSSHService := service.NewToolboxSSHService(locale)
 	toolboxDiskService := service.NewToolboxDiskService(locale)
 	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo, settingRepo)
+	toolboxMigrationService := service.NewToolboxMigrationService(locale, config, logger, settingRepo, websiteRepo, databaseRepo, projectRepo, appRepo, environmentRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db, logger)
 	webHookService := service.NewWebHookService(webHookRepo)
 	templateRepo := data.NewTemplateRepo(locale, cacheRepo)
@@ -158,9 +159,9 @@ func initAce() (*app.Ace, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
-	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, webHookService, templateService, loader)
+	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo)
-	ws := route.NewWs(wsService)
+	ws := route.NewWs(wsService, toolboxMigrationService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {
 		return nil, err

@@ -7,12 +7,14 @@ import (
 )
 
 type Ws struct {
-	ws *service.WsService
+	ws                *service.WsService
+	toolboxMigration  *service.ToolboxMigrationService
 }
 
-func NewWs(ws *service.WsService) *Ws {
+func NewWs(ws *service.WsService, toolboxMigration *service.ToolboxMigrationService) *Ws {
 	return &Ws{
-		ws: ws,
+		ws:               ws,
+		toolboxMigration: toolboxMigration,
 	}
 }
 
@@ -23,5 +25,6 @@ func (route *Ws) Register(r *chi.Mux) {
 		r.Get("/ssh", route.ws.Session)
 		r.Get("/container/{id}", route.ws.ContainerTerminal)
 		r.Get("/container/image/pull", route.ws.ContainerImagePull)
+		r.Get("/migration/progress", route.toolboxMigration.Progress)
 	})
 }
