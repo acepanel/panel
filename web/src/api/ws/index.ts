@@ -52,5 +52,13 @@ export default {
       }
       ws.onerror = (e) => reject(e)
     })
+  },
+  // 迁移进度
+  migrationProgress: (): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/migration/progress`)
+      ws.onopen = () => resolve(ws)
+      ws.onerror = (e) => reject(e)
+    })
   }
 }

@@ -6,6 +6,7 @@ defineOptions({
 import BenchmarkView from '@/views/toolbox/BenchmarkView.vue'
 import DiskView from '@/views/toolbox/DiskView.vue'
 import LogView from '@/views/toolbox/LogView.vue'
+import MigrationView from '@/views/toolbox/MigrationView.vue'
 import ProcessView from '@/views/toolbox/ProcessView.vue'
 import SshView from '@/views/toolbox/SshView.vue'
 import SystemView from '@/views/toolbox/SystemView.vue'
@@ -27,6 +28,7 @@ const current = ref('process')
         <n-tab name="log" :tab="$gettext('Log Clean')" />
         <n-tab name="webhook" :tab="$gettext('WebHook')" />
         <n-tab name="benchmark" :tab="$gettext('Benchmark')" />
+        <n-tab name="migration" :tab="$gettext('Migration')" />
       </n-tabs>
     </template>
     <n-flex vertical>
@@ -37,6 +39,7 @@ const current = ref('process')
       <log-view v-if="current === 'log'" />
       <web-hook-view v-if="current === 'webhook'" />
       <benchmark-view v-if="current === 'benchmark'" />
+      <migration-view v-if="current === 'migration'" />
     </n-flex>
   </common-page>
 </template>
