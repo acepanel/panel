@@ -218,7 +218,7 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 // GetItems 获取本地可迁移项
 func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Request) {
 	// 网站列表
-	websites, _, err := s.websiteRepo.List("", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get website list: %v", err))
 		return
@@ -584,16 +584,17 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 // migrateDatabase 迁移单个数据库
 func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase, stopOnMig bool) {
+	displayName := fmt.Sprintf("%s (%s)", db.Name, db.Type)
 	result := types.MigrationItemResult{
 		Type:   "database",
-		Name:   fmt.Sprintf("%s (%s)", db.Name, db.Type),
+		Name:   displayName,
 		Status: types.MigrationItemRunning,
 	}
 	now := time.Now()
 	result.StartedAt = &now
 	s.addResult(result)
 
-	s.addLog(fmt.Sprintf("[%s] %s: %s (%s)", s.t.Get("Database"), s.t.Get("start migrating"), db.Name, db.Type))
+	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
 
 	remoteHost := extractHost(conn.URL)
 	backupPath := fmt.Sprintf("/tmp/ace_migration_%s_%s.sql", db.Type, db.Name)
@@ -610,7 +611,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", postgresPassword, db.Name, backupPath)
 		restoreCmd = fmt.Sprintf("rsync -avz --progress -e '%s' %s root@%s:%s", sshOpt, backupPath, remoteHost, backupPath)
 	default:
-		s.failResult("database", db.Name, s.t.Get("unsupported database type: %s", db.Type))
+		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
 		return
 	}
 
@@ -619,7 +620,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	s.addLog(fmt.Sprintf("$ %s", maskPassword(dumpCmd)))
 	_, err := shell.Exec(dumpCmd)
 	if err != nil {
-		s.failResult("database", db.Name, s.t.Get("database export failed: %v", err))
+		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
 		return
 	}
 
@@ -631,7 +632,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		s.addLog(output)
 	}
 	if err != nil {
-		s.failResult("database", db.Name, s.t.Get("backup transfer failed: %v", err))
+		s.failResult("database", displayName, s.t.Get("backup transfer failed: %v", err))
 		return
 	}
 
@@ -662,15 +663,15 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		s.addLog(output)
 	}
 	if err != nil {
-		s.failResult("database", db.Name, s.t.Get("remote import failed: %v", err))
+		s.failResult("database", displayName, s.t.Get("remote import failed: %v", err))
 		return
 	}
 
 	// 清理临时文件
 	_, _ = shell.Exec(fmt.Sprintf("rm -f %s", backupPath))
 
-	s.succeedResult("database", db.Name)
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("database migration completed")))
+	s.succeedResult("database", displayName)
+	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database migration completed")))
 }
 
 // migrateProject 迁移单个项目
