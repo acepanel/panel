@@ -443,7 +443,7 @@ func (s *ToolboxMigrationService) setupSSHKey(conn *request.ToolboxMigrationConn
 
 	// 通过远程面板迁移 API 将公钥添加到 authorized_keys
 	s.addLog(s.t.Get("Deploying SSH public key to remote server"))
-	addKeyBody := map[string]any{"public_key": strings.TrimSpace(string(pubKey))}
+	addKeyBody := &request.ToolboxMigrationSSHKey{PublicKey: strings.TrimSpace(string(pubKey))}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/toolbox_migration/ssh_key", addKeyBody)
 	if err != nil {
 		// 清理本地密钥
@@ -475,7 +475,7 @@ func (s *ToolboxMigrationService) cleanupSSHKey(conn *request.ToolboxMigrationCo
 	pubKey, err := os.ReadFile(keyPath + ".pub")
 	if err == nil {
 		// 通过远程面板迁移 API 从 authorized_keys 中移除公钥
-		removeKeyBody := map[string]any{"public_key": strings.TrimSpace(string(pubKey))}
+		removeKeyBody := &request.ToolboxMigrationSSHKey{PublicKey: strings.TrimSpace(string(pubKey))}
 		_, _ = s.remoteAPIRequest(conn, "DELETE", "/api/toolbox_migration/ssh_key", removeKeyBody)
 	}
 
@@ -529,23 +529,19 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	if len(listens) == 0 {
 		listens = []string{"80"}
 	}
-	createBody := map[string]any{
-		"name":    websiteDetail.Name,
-		"listens": listens,
-		"domains": websiteDetail.Domains,
-		"path":    websiteDetail.Path,
-		"type":    websiteDetail.Type,
-		"remark":  "",
-	}
-	// PHP 网站需要传 PHP 版本号
-	if websiteDetail.Type == "php" {
-		createBody["php"] = websiteDetail.PHP
+	websiteCreateReq := &request.WebsiteCreate{
+		Type:    websiteDetail.Type,
+		Name:    websiteDetail.Name,
+		Listens: listens,
+		Domains: websiteDetail.Domains,
+		Path:    websiteDetail.Path,
+		PHP:     websiteDetail.PHP,
 	}
 	// 反向代理网站需要传后端地址
 	if websiteDetail.Type == "proxy" && len(websiteDetail.Proxies) > 0 {
-		createBody["proxy"] = websiteDetail.Proxies[0].Pass
+		websiteCreateReq.Proxy = websiteDetail.Proxies[0].Pass
 	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", createBody)
+	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", websiteCreateReq)
 	if err != nil {
 		s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to create remote website, trying rsync directly"), err))
 	}
@@ -645,18 +641,18 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	switch db.Type {
 	case "mysql":
 		// 先在远程创建数据库，再导入
-		createBody := map[string]any{
-			"server_id": db.ServerID,
-			"name":      db.Name,
+		dbCreateReq := &request.DatabaseCreate{
+			ServerID: db.ServerID,
+			Name:     db.Name,
 		}
-		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
+		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
 		remoteImportCmd = fmt.Sprintf("%s root@%s \"MYSQL_PWD=$(cat /usr/local/etc/ace/mysql_root_password 2>/dev/null) mysql -u root '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	case "postgresql":
-		createBody := map[string]any{
-			"server_id": db.ServerID,
-			"name":      db.Name,
+		dbCreateReq := &request.DatabaseCreate{
+			ServerID: db.ServerID,
+			Name:     db.Name,
 		}
-		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", createBody)
+		_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
 		remoteImportCmd = fmt.Sprintf("%s root@%s \"PGPASSWORD=$(cat /usr/local/etc/ace/postgresql_password 2>/dev/null) psql -h 127.0.0.1 -U postgres '%s' < %s\"", sshOpt, remoteHost, db.Name, backupPath)
 	}
 
@@ -699,14 +695,14 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 
 	// 在远程面板创建项目
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("creating project on remote server")))
-	createBody := map[string]any{
-		"name":      projectDetail.Name,
-		"type":      projectDetail.Type,
-		"root_dir":  projectDetail.RootDir,
-		"exec_start": projectDetail.ExecStart,
-		"user":      projectDetail.User,
+	projectCreateReq := &request.ProjectCreate{
+		Name:      projectDetail.Name,
+		Type:      projectDetail.Type,
+		RootDir:   projectDetail.RootDir,
+		ExecStart: projectDetail.ExecStart,
+		User:      projectDetail.User,
 	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", createBody)
+	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", projectCreateReq)
 	if err != nil {
 		s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to create remote project, trying rsync directly"), err))
 	}
