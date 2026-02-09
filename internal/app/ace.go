@@ -67,11 +67,11 @@ func (r *Ace) Run() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	// run http server in goroutine
+	cert := filepath.Join(Root, "panel/storage/cert.pem")
+	key := filepath.Join(Root, "panel/storage/cert.key")
 	serverErr := make(chan error, 1)
 	go func() {
 		if r.conf.HTTP.TLS {
-			cert := filepath.Join(Root, "panel/storage/cert.pem")
-			key := filepath.Join(Root, "panel/storage/cert.key")
 			fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port, "with tls")
 			if err := r.server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
 				serverErr <- err
@@ -85,12 +85,10 @@ func (r *Ace) Run() error {
 		close(serverErr)
 	}()
 
-	// 启用 QUIC 时，启动 HTTP/3 服务器
+	// 启用 TLS 时，启动 HTTP/3 服务器
 	h3Err := make(chan error, 1)
 	if r.h3server != nil {
 		go func() {
-			cert := filepath.Join(Root, "panel/storage/cert.pem")
-			key := filepath.Join(Root, "panel/storage/cert.key")
 			fmt.Println("[HTTP3] listening and serving on port", r.conf.HTTP.Port, "with quic")
 			if err := r.h3server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
 				h3Err <- err
