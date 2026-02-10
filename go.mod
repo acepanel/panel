@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-version v1.8.0
 	github.com/klauspost/compress v1.18.4
 	github.com/leonelquinteros/gotext v1.7.2
-	github.com/lib/pq v1.11.1
+	github.com/lib/pq v1.11.2
 	github.com/libdns/alidns v1.0.6-beta.3.0.20260121104221-597b1e580e21
 	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
