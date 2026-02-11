@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-10 19:08\n"
+"PO-Revision-Date: 2026-02-11 17:56\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -21,7 +21,7 @@ msgstr "%d 個鏡像"
 
 #: internal/service/environment_dotnet.go:34
 msgid ".NET-%s is not installed"
-msgstr ""
+msgstr ".NET-%s 未安裝"
 
 #: internal/service/cli.go:312
 msgid "2FA disabled for user %s"
@@ -49,7 +49,7 @@ msgstr "AcePanel 命令列工具"
 
 #: internal/service/cli.go:99
 msgid "AcePanel service restarted"
-msgstr "AcePanel 服務已重啟"
+msgstr "AcePanel 服務已重新啟動"
 
 #: internal/service/cli.go:115
 msgid "AcePanel service started"
@@ -87,7 +87,7 @@ msgstr "添加面板應用標記（僅在指導下使用）"
 msgid "Aliyun"
 msgstr "阿里雲"
 
-#: internal/service/cli.go:924
+#: internal/service/cli.go:925
 msgid "Already initialized"
 msgstr "已經初始化過了"
 
@@ -95,27 +95,27 @@ msgstr "已經初始化過了"
 msgid "App %s %s"
 msgstr "應用 %s %s"
 
-#: internal/service/cli.go:773
+#: internal/service/cli.go:774
 msgid "App %s installed successfully"
 msgstr "應用程式 %s 安裝成功"
 
-#: internal/service/cli.go:787
+#: internal/service/cli.go:788
 msgid "App %s uninstalled successfully"
 msgstr "應用程式 %s 解除安裝成功"
 
-#: internal/service/cli.go:801
+#: internal/service/cli.go:802
 msgid "App %s updated successfully"
 msgstr "應用程式 %s 更新成功"
 
-#: internal/service/cli.go:770
+#: internal/service/cli.go:771
 msgid "App install failed: %v"
 msgstr "應用程式安裝失敗：%v"
 
-#: internal/service/cli.go:784
+#: internal/service/cli.go:785
 msgid "App uninstall failed: %v"
 msgstr "應用程式解除安裝失敗：%v"
 
-#: internal/service/cli.go:798
+#: internal/service/cli.go:799
 msgid "App update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
@@ -131,7 +131,7 @@ msgstr "應用管理"
 msgid "Backup database"
 msgstr "備份數據庫"
 
-#: internal/service/cli.go:668
+#: internal/service/cli.go:669
 msgid "Backup failed: %v"
 msgstr "備份失敗：%v"
 
@@ -214,8 +214,8 @@ msgstr "更改用戶用戶名"
 msgid "Change the AcePanel listening port"
 msgstr "更改 AcePanel 監聽端口"
 
-#: internal/service/cli.go:687
-#: internal/service/cli.go:692
+#: internal/service/cli.go:688
+#: internal/service/cli.go:693
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
@@ -264,7 +264,7 @@ msgstr "已連接客戶端數"
 msgid "Create new website"
 msgstr "創建新網站"
 
-#: internal/service/cli.go:731
+#: internal/service/cli.go:732
 msgid "Currently only website log rotation is supported"
 msgstr "目前僅支援網站日誌輪替"
 
@@ -283,11 +283,11 @@ msgstr "數據同步成功"
 
 #: internal/service/toolbox_migration.go:509
 msgid "Database"
-msgstr ""
+msgstr "資料庫"
 
 #: internal/service/toolbox_migration.go:624
 msgid "Database User"
-msgstr ""
+msgstr "資料庫使用者"
 
 #: internal/route/cli.go:238
 msgid "Database management"
@@ -297,11 +297,11 @@ msgstr "數據庫管理"
 msgid "Database name"
 msgstr "數據庫名稱"
 
-#: internal/service/cli.go:634
+#: internal/service/cli.go:635
 msgid "Database server %s added successfully"
 msgstr "數據庫伺服器 %s 添加成功"
 
-#: internal/service/cli.go:648
+#: internal/service/cli.go:649
 msgid "Database server %s deleted successfully"
 msgstr "數據庫伺服器 %s 刪除成功"
 
@@ -403,15 +403,15 @@ msgstr "修改密碼失敗：%v"
 msgid "Failed to change username: %v"
 msgstr "修改用戶名失敗：%v"
 
-#: internal/service/cli.go:861
+#: internal/service/cli.go:862
 msgid "Failed to clear tasks: %v"
 msgstr "清除任務失敗：%v"
 
-#: internal/service/cli.go:836
+#: internal/service/cli.go:837
 msgid "Failed to delete app: %v"
 msgstr "刪除應用失敗：%v"
 
-#: internal/service/cli.go:915
+#: internal/service/cli.go:916
 msgid "Failed to delete setting: %v"
 msgstr "刪除設置失敗：%v"
 
@@ -432,7 +432,7 @@ msgstr "獲取 ACME 帳戶失敗：%v"
 msgid "Failed to get a panel user: %v"
 msgstr "獲取面板用戶失敗：%v"
 
-#: internal/service/cli.go:816
+#: internal/service/cli.go:817
 msgid "Failed to get app: %v"
 msgstr "獲取應用失敗：%v"
 
@@ -448,8 +448,8 @@ msgstr "無法獲取最新版本：%v"
 msgid "Failed to get port"
 msgstr "無法獲取端口"
 
-#: internal/service/cli.go:879
-#: internal/service/cli.go:896
+#: internal/service/cli.go:880
+#: internal/service/cli.go:897
 msgid "Failed to get setting: %v"
 msgstr "無法獲取設置：%v"
 
@@ -475,11 +475,11 @@ msgstr "無法通過 ACME 獲取面板證書，使用自簽名證書"
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
-#: internal/service/cli.go:823
+#: internal/service/cli.go:824
 msgid "Failed to save app: %v"
 msgstr "無法保存應用：%v"
 
-#: internal/service/cli.go:902
+#: internal/service/cli.go:903
 msgid "Failed to save setting: %v"
 msgstr "無法保存設置：%v"
 
@@ -611,10 +611,10 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1010
-#: internal/service/cli.go:961
-#: internal/service/cli.go:966
-#: internal/service/cli.go:971
+#: internal/service/cli.go:1012
+#: internal/service/cli.go:962
+#: internal/service/cli.go:967
+#: internal/service/cli.go:972
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
@@ -734,11 +734,11 @@ msgstr "記憶體碎片比率"
 
 #: internal/service/toolbox_migration.go:421
 msgid "Migration completed"
-msgstr ""
+msgstr "遷移完成"
 
 #: internal/service/toolbox_migration.go:393
 msgid "Migration started"
-msgstr ""
+msgstr "遷移已開始"
 
 #: internal/data/backup.go:801
 msgid "Move acepanel file failed: %v"
@@ -772,7 +772,7 @@ msgstr "未找到備份檔案，無法自動修復"
 msgid "Node.js-%s is not installed"
 msgstr "Node.js-%s 未安裝"
 
-#: internal/service/cli.go:615
+#: internal/service/cli.go:616
 msgid "Not supported"
 msgstr "不支援"
 
@@ -861,14 +861,14 @@ msgstr "網站使用的 PHP 版本（不填則不使用）"
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安裝"
 
-#: internal/service/cli.go:766
-#: internal/service/cli.go:780
-#: internal/service/cli.go:794
-#: internal/service/cli.go:810
-#: internal/service/cli.go:832
-#: internal/service/cli.go:871
-#: internal/service/cli.go:890
-#: internal/service/cli.go:911
+#: internal/service/cli.go:767
+#: internal/service/cli.go:781
+#: internal/service/cli.go:795
+#: internal/service/cli.go:811
+#: internal/service/cli.go:833
+#: internal/service/cli.go:872
+#: internal/service/cli.go:891
+#: internal/service/cli.go:912
 msgid "Parameters cannot be empty"
 msgstr "參數不能為空"
 
@@ -924,7 +924,7 @@ msgstr "Porkbun"
 msgid "Port already in use"
 msgstr "端口已被佔用"
 
-#: internal/service/cli.go:555
+#: internal/service/cli.go:556
 msgid "Port changed to %d"
 msgstr "端口已更改為 %d"
 
@@ -950,7 +950,7 @@ msgstr "進程 PID"
 
 #: internal/service/toolbox_migration.go:705
 msgid "Project"
-msgstr ""
+msgstr "項目"
 
 #: internal/service/environment_php.go:497
 msgid "Pspell is a spell-checking library"
@@ -1038,6 +1038,10 @@ msgstr "旋轉類型"
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一種用於網絡管理的協議"
 
+#: internal/service/log.go:154
+msgid "SSH log file not found"
+msgstr "未找到 SSH 日誌檔案"
+
 #: internal/service/environment_php.go:467
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
@@ -1083,7 +1087,7 @@ msgstr "Session 保存處理程序不是 files，無法清理"
 msgid "Setting management"
 msgstr "設置管理"
 
-#: internal/service/cli.go:877
+#: internal/service/cli.go:878
 msgid "Setting not exists"
 msgstr "設置不存在"
 
@@ -1162,7 +1166,7 @@ msgstr "TCP 連接埠"
 msgid "Table Locks Waited"
 msgstr "等待表鎖定"
 
-#: internal/service/cli.go:864
+#: internal/service/cli.go:865
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
@@ -1182,7 +1186,7 @@ msgstr "騰訊雲"
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "壓縮檔案包含的檔案數量不為1，實際為 %d"
 
-#: internal/service/cli.go:852
+#: internal/service/cli.go:853
 msgid "Time synchronized successfully"
 msgstr "時間同步成功"
 
@@ -1349,15 +1353,15 @@ msgstr "警告：關閉面板 HTTPS 後，面板的安全性將大大降低，�
 msgid "Website"
 msgstr "網站"
 
-#: internal/service/cli.go:574
+#: internal/service/cli.go:575
 msgid "Website %s created successfully"
 msgstr "網站 %s 創建成功"
 
-#: internal/service/cli.go:610
+#: internal/service/cli.go:611
 msgid "Website %s deleted successfully"
 msgstr "網站 %s 刪除成功"
 
-#: internal/service/cli.go:591
+#: internal/service/cli.go:592
 msgid "Website %s removed successfully"
 msgstr "網站 %s 移除成功"
 
@@ -1440,7 +1444,7 @@ msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 msgid "app not found"
 msgstr "找不到應用"
 
-#: internal/data/setting.go:283
+#: internal/data/setting.go:282
 #: internal/data/setting.go:342
 #: internal/data/setting.go:358
 msgid "background task is running, modifying some settings is prohibited, please try again later"
@@ -1466,7 +1470,7 @@ msgstr "未找到備份存儲"
 
 #: internal/service/toolbox_migration.go:589
 msgid "backup transfer failed: %v"
-msgstr ""
+msgstr "備份傳輸失敗：%v"
 
 #: internal/service/toolbox_disk.go:466
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
@@ -1488,8 +1492,8 @@ msgstr "無法刪除根掛載點"
 msgid "cannot initialize system disk"
 msgstr "無法初始化系統磁碟"
 
-#: internal/data/database_server.go:106
-#: internal/data/database_server.go:86
+#: internal/data/database_server.go:110
+#: internal/data/database_server.go:90
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
@@ -1511,7 +1515,7 @@ msgstr "編排 %s 已存在"
 
 #: internal/service/toolbox_migration.go:953
 msgid "compressing directory: %s"
-msgstr ""
+msgstr "正在壓縮目錄：%s"
 
 #: internal/data/backup.go:708
 msgid "could not find .sql backup file"
@@ -1528,19 +1532,19 @@ msgstr "創建目標文件錯誤：%v"
 
 #: internal/service/toolbox_migration.go:542
 msgid "creating database on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上建立資料庫"
 
 #: internal/service/toolbox_migration.go:676
 msgid "creating database user on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上建立資料庫使用者"
 
 #: internal/service/toolbox_migration.go:723
 msgid "creating project on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上建立項目"
 
 #: internal/service/toolbox_migration.go:453
 msgid "creating website on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上建立網站"
 
 #: internal/data/backup.go:487
 #: internal/data/backup.go:545
@@ -1551,15 +1555,15 @@ msgstr "資料庫不存在：%s"
 
 #: internal/service/toolbox_migration.go:536
 msgid "database export failed: %v"
-msgstr ""
+msgstr "資料庫匯出失敗：%v"
 
 #: internal/service/toolbox_migration.go:609
 msgid "database migration completed"
-msgstr ""
+msgstr "資料庫遷移完成"
 
 #: internal/service/toolbox_migration.go:691
 msgid "database user migration completed"
-msgstr ""
+msgstr "資料庫使用者遷移完成"
 
 #: internal/service/toolbox_disk.go:217
 msgid "device not found: %s"
@@ -1602,15 +1606,15 @@ msgstr "到期時間必須小於 10 年"
 
 #: internal/service/toolbox_migration.go:532
 msgid "exporting database"
-msgstr ""
+msgstr "正在匯出資料庫"
 
 #: internal/service/toolbox_migration.go:967
 msgid "extracting on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上解壓"
 
 #: internal/service/toolbox_migration.go:1089
 msgid "failed"
-msgstr ""
+msgstr "失敗"
 
 #: internal/data/ssh.go:59
 #: internal/data/ssh.go:92
@@ -1623,7 +1627,7 @@ msgstr "清理臨時文件失敗：%v"
 
 #: internal/service/toolbox_migration.go:186
 msgid "failed to connect remote server: %v"
-msgstr ""
+msgstr "連線遠端伺服器失敗：%v"
 
 #: internal/service/toolbox_ssh.go:211
 msgid "failed to create .ssh directory: %v"
@@ -1631,7 +1635,7 @@ msgstr "創建 .ssh 目錄失敗：%v"
 
 #: internal/service/toolbox_migration.go:686
 msgid "failed to create database user on remote: %v"
-msgstr ""
+msgstr "在遠端建立資料庫使用者失敗：%v"
 
 #: internal/service/ws.go:225
 msgid "failed to create docker client: %v"
@@ -1663,7 +1667,7 @@ msgstr "創建物理卷失敗：%v"
 
 #: internal/data/project.go:113
 msgid "failed to create project directory"
-msgstr ""
+msgstr "建立項目目錄失敗"
 
 #: internal/service/toolbox_disk.go:330
 msgid "failed to create volume group: %v"
@@ -1797,24 +1801,24 @@ msgstr "無法獲取當前被禁止的列表"
 
 #: internal/service/toolbox_migration.go:213
 msgid "failed to get database list: %v"
-msgstr ""
+msgstr "獲取資料庫列表失敗：%v"
 
 #: internal/service/toolbox_migration.go:514
 #: internal/service/toolbox_migration.go:636
 msgid "failed to get database server: %v"
-msgstr ""
+msgstr "獲取資料庫伺服器失敗：%v"
 
 #: internal/service/toolbox_migration.go:550
 msgid "failed to get database servers: %v"
-msgstr ""
+msgstr "獲取資料庫伺服器列表失敗：%v"
 
 #: internal/service/toolbox_migration.go:629
 msgid "failed to get database user detail: %v"
-msgstr ""
+msgstr "獲取資料庫使用者詳情失敗：%v"
 
 #: internal/service/toolbox_migration.go:227
 msgid "failed to get database user list: %v"
-msgstr ""
+msgstr "獲取資料庫使用者列表失敗：%v"
 
 #: internal/service/toolbox_disk.go:32
 msgid "failed to get disk list: %v"
@@ -1878,11 +1882,11 @@ msgstr "無法獲取私鑰：%v"
 
 #: internal/service/toolbox_migration.go:718
 msgid "failed to get project detail: %v"
-msgstr ""
+msgstr "獲取項目詳情失敗：%v"
 
 #: internal/service/toolbox_migration.go:220
 msgid "failed to get project list: %v"
-msgstr ""
+msgstr "獲取項目列表失敗：%v"
 
 #: internal/apps/redis/app.go:64
 msgid "failed to get redis info: %v"
@@ -1894,7 +1898,7 @@ msgstr "無法獲取 redis 狀態：%v"
 
 #: internal/service/toolbox_migration.go:646
 msgid "failed to get remote database servers: %v"
-msgstr ""
+msgstr "獲取遠端資料庫伺服器失敗：%v"
 
 #: internal/apps/s3fs/app.go:127
 #: internal/apps/s3fs/app.go:40
@@ -1938,11 +1942,11 @@ msgstr "無法取得應用程式 %s 的解除安裝腳本"
 
 #: internal/service/toolbox_migration.go:448
 msgid "failed to get website detail: %v"
-msgstr ""
+msgstr "獲取網站詳情失敗：%v"
 
 #: internal/service/toolbox_migration.go:206
 msgid "failed to get website list: %v"
-msgstr ""
+msgstr "獲取網站列表失敗：%v"
 
 #: internal/apps/nginx/stream.go:24
 msgid "failed to list stream servers: %v"
@@ -1966,7 +1970,7 @@ msgid "failed to mount partition: %v"
 msgstr "無法掛載分區：%v"
 
 #: internal/data/cert.go:100
-#: internal/data/setting.go:288
+#: internal/data/setting.go:287
 #: internal/data/setting.go:361
 #: internal/data/website.go:609
 #: internal/data/website.go:945
@@ -1978,7 +1982,7 @@ msgid "failed to parse disk list: %v"
 msgstr "無法解析磁碟列表：%v"
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:291
+#: internal/data/setting.go:290
 #: internal/data/setting.go:364
 #: internal/data/website.go:612
 #: internal/data/website.go:948
@@ -2239,7 +2243,7 @@ msgstr "獲取上傳文件錯誤：%v"
 
 #: internal/service/toolbox_migration.go:594
 msgid "importing database on remote server"
-msgstr ""
+msgstr "正在遠端伺服器上匯入資料庫"
 
 #: internal/data/user.go:216
 #: internal/data/user.go:235
@@ -2273,11 +2277,11 @@ msgstr "無效的請求 IP：%s"
 
 #: internal/service/toolbox_migration.go:564
 msgid "invalid response when getting database servers: %v"
-msgstr ""
+msgstr "獲取資料庫伺服器時回應無效：%v"
 
 #: internal/service/toolbox_migration.go:659
 msgid "invalid response: %v"
-msgstr ""
+msgstr "無效的回應：%v"
 
 #: internal/data/user_token.go:107
 #: internal/data/user_token.go:113
@@ -2291,7 +2295,7 @@ msgstr "無效的大小"
 
 #: internal/service/home.go:440
 msgid "invalid type"
-msgstr ""
+msgstr "無效的類型"
 
 #: internal/http/middleware/must_login.go:105
 msgid "invalid user id, please login again"
@@ -2300,6 +2304,10 @@ msgstr "無效的用戶ID，請重新登錄"
 #: internal/service/environment_php.go:582
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache 之後安裝）"
+
+#: internal/service/log.go:106
+msgid "journalctl is not available"
+msgstr "journalctl 不可用"
 
 #: internal/data/backup.go:266
 msgid "log file %s not exists"
@@ -2312,11 +2320,11 @@ msgstr "已達到自定義配置的最大數量（限制：%d）"
 #: internal/service/toolbox_migration.go:178
 #: internal/service/toolbox_migration.go:256
 msgid "migration is already running"
-msgstr ""
+msgstr "遷移正在執行中"
 
 #: internal/service/toolbox_migration.go:286
 msgid "migration is running, cannot reset"
-msgstr ""
+msgstr "遷移正在執行中，無法重置"
 
 #: internal/apps/rsync/app.go:117
 msgid "module %s already exists"
@@ -2349,7 +2357,7 @@ msgstr "掛載路徑不為空"
 msgid "mount point %s already exists in fstab"
 msgstr "掛載點 %s 已存在於 fstab 中"
 
-#: internal/data/database.go:170
+#: internal/data/database.go:174
 msgid "mysql not support database comment"
 msgstr "mysql 不支援資料庫註釋"
 
@@ -2360,14 +2368,18 @@ msgstr "mysql 不支援資料庫註釋"
 msgid "name is required"
 msgstr "名稱是必填項"
 
+#: internal/service/log.go:137
+msgid "no SSH log entries found"
+msgstr "未找到 SSH 日誌條目"
+
 #: internal/service/toolbox_migration.go:576
 #: internal/service/toolbox_migration.go:671
 msgid "no matching database server found on remote"
-msgstr ""
+msgstr "在遠端未找到匹配的資料庫伺服器"
 
 #: internal/service/toolbox_migration.go:323
 msgid "no migration logs available"
-msgstr ""
+msgstr "暫無遷移日誌"
 
 #: internal/data/website.go:973
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
@@ -2428,7 +2440,7 @@ msgstr "未找到 phpMyAdmin 端口"
 
 #: internal/service/toolbox_migration.go:261
 msgid "please complete pre-check first"
-msgstr ""
+msgstr "請先完成預檢"
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
@@ -2441,13 +2453,13 @@ msgstr "請不要這樣做"
 msgid "please set public ips first"
 msgstr "請先設置公網 IP 地址"
 
-#: internal/data/setting.go:308
+#: internal/data/setting.go:307
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
 #: internal/service/toolbox_migration.go:760
 msgid "project migration completed"
-msgstr ""
+msgstr "項目遷移完成"
 
 #: internal/data/project.go:96
 msgid "project name already exists"
@@ -2475,7 +2487,7 @@ msgstr "讀取目錄錯誤：%v"
 
 #: internal/service/toolbox_migration.go:604
 msgid "remote import failed: %v"
-msgstr ""
+msgstr "遠端匯入失敗：%v"
 
 #: internal/apps/fail2ban/app.go:109
 msgid "rule already exists"
@@ -2503,7 +2515,7 @@ msgstr "保存分塊錯誤：%v"
 
 #: internal/service/toolbox_migration.go:587
 msgid "sending backup to remote server"
-msgstr ""
+msgstr "正在傳送備份到遠端伺服器"
 
 #: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
@@ -2526,7 +2538,7 @@ msgstr "sqlsrv 是一個用於連接 SQL Server 的驅動程序"
 #: internal/service/toolbox_migration.go:624
 #: internal/service/toolbox_migration.go:705
 msgid "start migrating"
-msgstr ""
+msgstr "開始遷移"
 
 #: internal/service/cli.go:87
 msgid "stopped"
@@ -2534,11 +2546,11 @@ msgstr "已停止"
 
 #: internal/service/toolbox_migration.go:709
 msgid "stopping project service"
-msgstr ""
+msgstr "正在停止項目服務"
 
 #: internal/service/toolbox_migration.go:439
 msgid "stopping website"
-msgstr ""
+msgstr "正在停止網站"
 
 #: internal/service/backup_storage.go:166
 msgid "storage connection error: %v"
@@ -2564,8 +2576,8 @@ msgstr "Stream 上游配置已存在：%s"
 msgid "stream upstream not found: %s"
 msgstr "未找到 Stream 上游：%s"
 
-#: internal/data/database_server.go:164
-#: internal/data/database_server.go:183
+#: internal/data/database_server.go:168
+#: internal/data/database_server.go:187
 msgid "sync from server %s"
 msgstr "從伺服器 %s 同步"
 
@@ -2654,7 +2666,7 @@ msgstr "不支援的 CA"
 
 #: internal/service/toolbox_migration.go:527
 msgid "unsupported database type: %s"
-msgstr ""
+msgstr "不支援的資料庫類型：%s"
 
 #: internal/service/backup.go:82
 msgid "unsupported file type"
@@ -2685,7 +2697,7 @@ msgstr "上傳的證書無法設置為自動續簽"
 #: internal/service/toolbox_migration.go:481
 #: internal/service/toolbox_migration.go:742
 msgid "upload failed: %v"
-msgstr ""
+msgstr "上傳失敗：%v"
 
 #: internal/service/file.go:161
 msgid "upload file error: %v"
@@ -2693,24 +2705,24 @@ msgstr "上傳檔案錯誤：%v"
 
 #: internal/service/toolbox_migration.go:905
 msgid "uploading"
-msgstr ""
+msgstr "正在上傳"
 
 #: internal/service/toolbox_migration.go:479
 #: internal/service/toolbox_migration.go:740
 msgid "uploading directory:"
-msgstr ""
+msgstr "正在上傳目錄："
 
 #: internal/service/toolbox_migration.go:750
 msgid "uploading systemd service file"
-msgstr ""
+msgstr "正在上傳 systemd 服務檔案"
 
 #: internal/service/toolbox_migration.go:961
 msgid "uploading to remote server"
-msgstr ""
+msgstr "正在上傳到遠端伺服器"
 
 #: internal/service/toolbox_migration.go:487
 msgid "uploading website directory:"
-msgstr ""
+msgstr "正在上傳網站目錄："
 
 #: internal/data/user.go:162
 #: internal/data/user.go:169
@@ -2720,27 +2732,27 @@ msgstr "使用者名稱或密碼錯誤"
 
 #: internal/service/toolbox_migration.go:735
 msgid "warning: failed to create remote project, trying to upload directly"
-msgstr ""
+msgstr "警告：建立遠端項目失敗，嘗試直接上傳"
 
 #: internal/service/toolbox_migration.go:474
 msgid "warning: failed to create remote website, trying to upload directly"
-msgstr ""
+msgstr "警告：建立遠端網站失敗，嘗試直接上傳"
 
 #: internal/service/toolbox_migration.go:711
 msgid "warning: failed to stop service"
-msgstr ""
+msgstr "警告：停止服務失敗"
 
 #: internal/service/toolbox_migration.go:441
 msgid "warning: failed to stop website"
-msgstr ""
+msgstr "警告：停止網站失敗"
 
 #: internal/service/toolbox_migration.go:752
 msgid "warning: service file upload failed"
-msgstr ""
+msgstr "警告：服務檔案上傳失敗"
 
 #: internal/service/toolbox_migration.go:489
 msgid "warning: website directory upload failed"
-msgstr ""
+msgstr "警告：網站目錄上傳失敗"
 
 #: internal/service/backup_storage.go:159
 msgid "webdav configuration error: %v"
@@ -2768,7 +2780,7 @@ msgstr "網站目錄不存在"
 
 #: internal/service/toolbox_migration.go:494
 msgid "website migration completed"
-msgstr ""
+msgstr "網站遷移完成"
 
 #: internal/data/cert.go:213
 #: internal/data/cert.go:323
@@ -2848,7 +2860,7 @@ msgstr "|-備份時間：%s"
 msgid "|-Backup type: %s"
 msgstr "|-備份類型：%s"
 
-#: internal/service/cli.go:666
+#: internal/service/cli.go:667
 msgid "|-Backup type: panel"
 msgstr "|-備份類型：面板"
 
@@ -2877,13 +2889,13 @@ msgstr "|-清理舊版本失敗：%v"
 msgid "|-Cleaning old version..."
 msgstr "|-清理舊版本……"
 
-#: internal/service/cli.go:682
-#: internal/service/cli.go:748
+#: internal/service/cli.go:683
+#: internal/service/cli.go:749
 msgid "|-Cleaning target: %s"
 msgstr "|-清理目標：%s"
 
-#: internal/service/cli.go:681
-#: internal/service/cli.go:747
+#: internal/service/cli.go:682
+#: internal/service/cli.go:748
 msgid "|-Cleaning type: %s"
 msgstr "|-清理類型：%s"
 
@@ -2907,8 +2919,8 @@ msgstr "|-文件名：%s"
 msgid "|-Fix completed"
 msgstr "|-修復完成"
 
-#: internal/service/cli.go:683
-#: internal/service/cli.go:749
+#: internal/service/cli.go:684
+#: internal/service/cli.go:750
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
@@ -2933,11 +2945,11 @@ msgstr "|-還原面板數據失敗：%v"
 msgid "|-Restore panel data..."
 msgstr "|-還原面板資料……"
 
-#: internal/service/cli.go:716
+#: internal/service/cli.go:717
 msgid "|-Rotation target: %s"
 msgstr "|-輪換目標：%s"
 
-#: internal/service/cli.go:715
+#: internal/service/cli.go:716
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
@@ -2997,19 +3009,19 @@ msgid "|-Write new panel version failed: %v"
 msgstr "|-寫入新面板版本失敗：%v"
 
 #: internal/data/backup.go:111
-#: internal/service/cli.go:664
+#: internal/service/cli.go:665
 msgid "★ Start backup [%s]"
 msgstr "★ 開始備份 [%s]"
 
-#: internal/service/cli.go:679
+#: internal/service/cli.go:680
 msgid "★ Start cleaning [%s]"
 msgstr "★ 開始清理 [%s]"
 
-#: internal/service/cli.go:745
+#: internal/service/cli.go:746
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr "★ 開始清理已旋轉的日誌 [%s]"
 
-#: internal/service/cli.go:713
+#: internal/service/cli.go:714
 msgid "★ Start log rotation [%s]"
 msgstr "★ 開始日誌旋轉 [%s]"
 
@@ -3021,16 +3033,16 @@ msgstr "☆ 備份完成 [%s]"
 msgid "☆ Backup failed: %v [%s]"
 msgstr "☆ 備份失敗：%v [%s]"
 
-#: internal/service/cli.go:671
+#: internal/service/cli.go:672
 msgid "☆ Backup successful [%s]"
 msgstr "☆ 備份成功 [%s]"
 
-#: internal/service/cli.go:697
-#: internal/service/cli.go:757
+#: internal/service/cli.go:698
+#: internal/service/cli.go:758
 msgid "☆ Cleaning successful [%s]"
 msgstr "☆ 清理成功 [%s]"
 
-#: internal/service/cli.go:724
+#: internal/service/cli.go:725
 msgid "☆ Rotation successful [%s]"
 msgstr "☆ 旋轉成功 [%s]"
 
