@@ -231,8 +231,8 @@ github.com/libdns/tencentcloud v1.4.3 h1:xJHYLL1TdPeOtUr6Bu6dHTd1TU6/VFm7BFc2EAz
 github.com/libdns/tencentcloud v1.4.3/go.mod h1:Be9gY3tDa12DuAPU79RV9NZIcjY6qg5s7zKPsP26yAM=
 github.com/libdns/westcn v1.0.2 h1:PA2M3tME5/0T3klPMzSHvGk1EWnGNNkJiKxaJjFalnM=
 github.com/libdns/westcn v1.0.2/go.mod h1:iKpk8jjOU+793Yp8nHoihPTCR6N1KWtm4/r8BB9mVnk=
-github.com/libtnb/acmez/v3 v3.0.0-20260103184942-a835890fc93e h1:HPHmtFcR5VpTJTpDqG4+l16uJfSlpB/X0r3qq22znrk=
-github.com/libtnb/acmez/v3 v3.0.0-20260103184942-a835890fc93e/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
+github.com/libtnb/acmez/v3 v3.0.0-20260211214515-0d13ab154236 h1:Lna+MN0rG1u3kQjE3SiIEcI1cYZED76EjP0X2TekBMg=
+github.com/libtnb/acmez/v3 v3.0.0-20260211214515-0d13ab154236/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
 github.com/libtnb/chix v1.3.2 h1:LkA/+OaHeMyTiQoWEcCQKAMSKDZ0LxBXSENQO5d+OKk=
 github.com/libtnb/chix v1.3.2/go.mod h1:ItssStBa/ov7v4qujyYzORqIf7Z6DO7Q4carOM7pyAQ=
 github.com/libtnb/gormstore v1.1.1 h1:FG/3P4PuWM6/vB4weVJ31meiSaoeXns1NQlP66quKeg=
