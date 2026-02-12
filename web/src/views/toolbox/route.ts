@@ -31,6 +31,16 @@ export default {
         role: ['admin'],
         requireAuth: true
       }
+    },
+    {
+      name: 'toolbox-migration',
+      path: 'migration',
+      component: () => import('./MigrationView.vue'),
+      meta: {
+        title: '迁移',
+        role: ['admin'],
+        requireAuth: true
+      }
     }
   ]
 } as RouteType

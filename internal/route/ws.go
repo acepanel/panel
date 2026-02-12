@@ -7,12 +7,14 @@ import (
 )
 
 type Ws struct {
-	ws *service.WsService
+	ws               *service.WsService
+	toolboxMigration *service.ToolboxMigrationService
 }
 
-func NewWs(ws *service.WsService) *Ws {
+func NewWs(ws *service.WsService, toolboxMigration *service.ToolboxMigrationService) *Ws {
 	return &Ws{
-		ws: ws,
+		ws:               ws,
+		toolboxMigration: toolboxMigration,
 	}
 }
 
@@ -20,5 +22,6 @@ func (route *Ws) Register(r *chi.Mux) {
 	r.Route("/api/ws", func(r chi.Router) {
 		r.Get("/ssh", route.ws.Session)
 		r.Get("/exec", route.ws.Exec)
+		r.Get("/migration/progress", route.toolboxMigration.Progress)
 	})
 }

@@ -34,5 +34,6 @@ var ProviderSet = wire.NewSet(
 	NewWebsiteService,
 	NewToolboxSystemService,
 	NewToolboxBenchmarkService,
+	NewToolboxMigrationService,
 	NewWsService,
 )

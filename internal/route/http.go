@@ -44,6 +44,7 @@ type Http struct {
 	systemctl        *service.SystemctlService
 	toolboxSystem    *service.ToolboxSystemService
 	toolboxBenchmark *service.ToolboxBenchmarkService
+	toolboxMigration *service.ToolboxMigrationService
 	apps             *apploader.Loader
 }
 
@@ -77,6 +78,7 @@ func NewHttp(
 	systemctl *service.SystemctlService,
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
+	toolboxMigration *service.ToolboxMigrationService,
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
@@ -109,6 +111,7 @@ func NewHttp(
 		systemctl:        systemctl,
 		toolboxSystem:    toolboxSystem,
 		toolboxBenchmark: toolboxBenchmark,
+		toolboxMigration: toolboxMigration,
 		apps:             apps,
 	}
 }
@@ -406,6 +409,17 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/toolbox_benchmark", func(r chi.Router) {
 			r.Post("/test", route.toolboxBenchmark.Test)
+		})
+
+		r.Route("/toolbox_migration", func(r chi.Router) {
+			r.Get("/status", route.toolboxMigration.GetStatus)
+			r.Post("/precheck", route.toolboxMigration.PreCheck)
+			r.Get("/items", route.toolboxMigration.GetItems)
+			r.Post("/start", route.toolboxMigration.Start)
+			r.Post("/reset", route.toolboxMigration.Reset)
+			r.Get("/results", route.toolboxMigration.GetResults)
+			r.Get("/log", route.toolboxMigration.DownloadLog)
+			r.Post("/exec", route.toolboxMigration.Exec)
 		})
 
 		r.Route("/apps", func(r chi.Router) {

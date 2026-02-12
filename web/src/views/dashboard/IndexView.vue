@@ -408,13 +408,21 @@ if (import.meta.hot) {
     clearInterval(homeInterval)
   })
 }
+
+const endOfSupportDate = new Date('2026-12-31T23:59:59').getTime()
+const isEOL = new Date().getTime() > endOfSupportDate - 30 * 24 * 60 * 60 * 1000 // 提前30天提醒
 </script>
 
 <template>
   <app-page :show-footer="true" min-w-375>
     <div flex-1>
       <n-space vertical>
-        <n-alert type="info">「耗子面板」将在 v3 新版本使用全新的「AcePanel」品牌，特此通知！</n-alert>
+        <n-alert type="info" v-if="!isEOL">
+          当前版本将于 2026 年底停止维护，请尽快升级至 AcePanel 3.0！
+        </n-alert>
+        <n-alert type="error" v-else>
+          当前版本已停止维护，请升级至 AcePanel 3.0 以获得更好的性能和安全性！
+        </n-alert>
         <n-card :segmented="true" size="small">
           <n-page-header :subtitle="systemInfo?.panel_version">
             <n-grid :cols="4" pb-10>

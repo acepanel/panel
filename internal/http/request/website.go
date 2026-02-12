@@ -19,6 +19,7 @@ type WebsiteCreate struct {
 	DBUser     string   `form:"db_user" json:"db_user" validate:"requiredIf:DB,true"`
 	DBPassword string   `form:"db_password" json:"db_password" validate:"requiredIf:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
+	Type       string   // 迁移用的
 }
 
 type WebsiteDelete struct {

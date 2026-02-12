@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
+	github.com/coder/websocket v1.8.14
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
 	github.com/go-chi/chi/v5 v5.2.2
@@ -56,6 +57,7 @@ require (
 	golang.org/x/net v0.43.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/gorm v1.30.1
+	resty.dev/v3 v3.0.0-beta.6
 )
 
 require (
