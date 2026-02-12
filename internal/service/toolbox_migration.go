@@ -26,6 +26,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
@@ -441,7 +442,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 		listens = []string{"80"}
 	}
 	websiteCreateReq := &request.WebsiteCreate{
-		Type:    websiteDetail.Type,
+		Type:    lo.If(websiteDetail.PHP != 0, websiteDetail.Type).Else("static"),
 		Name:    websiteDetail.Name,
 		Listens: listens,
 		Domains: websiteDetail.Domains,
