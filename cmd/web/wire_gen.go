@@ -118,6 +118,7 @@ func initWeb() (*app.Web, error) {
 	systemctlService := service.NewSystemctlService(locale)
 	toolboxSystemService := service.NewToolboxSystemService(locale)
 	toolboxBenchmarkService := service.NewToolboxBenchmarkService(locale)
+	toolboxMigrationService := service.NewToolboxMigrationService(locale, koanf, logger, settingRepo, websiteRepo, databaseRepo, databaseServerRepo, databaseUserRepo, appRepo)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
@@ -142,9 +143,9 @@ func initWeb() (*app.Web, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
-	http := route.NewHttp(userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
+	http := route.NewHttp(userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, toolboxMigrationService, loader)
 	wsService := service.NewWsService(locale, koanf, sshRepo)
-	ws := route.NewWs(wsService)
+	ws := route.NewWs(wsService, toolboxMigrationService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {
 		return nil, err
