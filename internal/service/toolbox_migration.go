@@ -434,7 +434,9 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("creating website on remote server")))
 	var listens []string
 	for _, l := range websiteDetail.Listens {
-		listens = append(listens, l.Address)
+		if l.Address != "443" || !l.HTTPS { // 不迁移 443
+			listens = append(listens, l.Address)
+		}
 	}
 	if len(listens) == 0 {
 		listens = []string{"80"}
