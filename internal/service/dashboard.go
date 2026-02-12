@@ -12,6 +12,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/collect"
+	"github.com/samber/lo"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/spf13/cast"
@@ -191,6 +192,7 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) {
+	nginxInstalled, _ := s.appRepo.IsInstalled("slug = ?", "nginx")
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 	php, _ := s.appRepo.GetInstalledAll("slug like ?", "php%")
@@ -218,8 +220,9 @@ func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Requ
 	}
 
 	Success(w, chix.M{
-		"php": phpData,
-		"db":  dbData,
+		"webserver": lo.If(nginxInstalled, "nginx").Else(""),
+		"php":       phpData,
+		"db":        dbData,
 	})
 }
 
