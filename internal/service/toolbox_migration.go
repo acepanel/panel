@@ -29,7 +29,6 @@ import (
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
-	"github.com/tnborg/panel/internal/app"
 	"github.com/tnborg/panel/internal/biz"
 	"github.com/tnborg/panel/internal/http/request"
 	"github.com/tnborg/panel/pkg/shell"
@@ -454,7 +453,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	}
 
 	// 上传网站目录到远程
-	siteDir := filepath.Join(app.Root, "sites", site.Name, "public")
+	siteDir := filepath.Join("/opt/ace", "sites", site.Name, "public")
 	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading directory:"), siteDir))
 	if err = s.uploadDirToRemote(conn, websiteDetail.Path, siteDir); err != nil {
 		s.failResult("website", site.Name, s.t.Get("upload failed: %v", err))

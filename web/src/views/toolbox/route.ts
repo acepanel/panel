@@ -37,7 +37,7 @@ export default {
       path: 'migration',
       component: () => import('./MigrationView.vue'),
       meta: {
-        title: '迁移',
+        title: '迁移 3.0',
         role: ['admin'],
         requireAuth: true
       }
