@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-11 17:56\n"
+"PO-Revision-Date: 2026-02-13 11:36\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -281,11 +281,11 @@ msgstr "数据备份"
 msgid "Data synchronized successfully"
 msgstr "数据同步成功"
 
-#: internal/service/toolbox_migration.go:509
+#: internal/service/toolbox_migration.go:511
 msgid "Database"
 msgstr "数据库"
 
-#: internal/service/toolbox_migration.go:624
+#: internal/service/toolbox_migration.go:626
 msgid "Database User"
 msgstr "数据库用户"
 
@@ -948,7 +948,7 @@ msgstr "进程管理方式"
 msgid "Process PID"
 msgstr "进程 PID"
 
-#: internal/service/toolbox_migration.go:705
+#: internal/service/toolbox_migration.go:707
 msgid "Project"
 msgstr "项目"
 
@@ -1468,7 +1468,7 @@ msgstr "备份文件不存在"
 msgid "backup storage not found"
 msgstr "未找到备份存储"
 
-#: internal/service/toolbox_migration.go:589
+#: internal/service/toolbox_migration.go:591
 msgid "backup transfer failed: %v"
 msgstr "备份传输失败：%v"
 
@@ -1513,7 +1513,7 @@ msgstr "命令为空"
 msgid "compose %s already exists"
 msgstr "编排 %s 已存在"
 
-#: internal/service/toolbox_migration.go:953
+#: internal/service/toolbox_migration.go:955
 msgid "compressing directory: %s"
 msgstr "正在压缩目录：%s"
 
@@ -1530,15 +1530,15 @@ msgstr "创建目录错误：%v"
 msgid "create target file error: %v"
 msgstr "创建目标文件错误：%v"
 
-#: internal/service/toolbox_migration.go:542
+#: internal/service/toolbox_migration.go:544
 msgid "creating database on remote server"
 msgstr "正在远程服务器上创建数据库"
 
-#: internal/service/toolbox_migration.go:676
+#: internal/service/toolbox_migration.go:678
 msgid "creating database user on remote server"
 msgstr "正在远程服务器上创建数据库用户"
 
-#: internal/service/toolbox_migration.go:723
+#: internal/service/toolbox_migration.go:725
 msgid "creating project on remote server"
 msgstr "正在远程服务器上创建项目"
 
@@ -1553,15 +1553,15 @@ msgstr "正在远程服务器上创建网站"
 msgid "database does not exist: %s"
 msgstr "数据库不存在：%s"
 
-#: internal/service/toolbox_migration.go:536
+#: internal/service/toolbox_migration.go:538
 msgid "database export failed: %v"
 msgstr "数据库导出失败：%v"
 
-#: internal/service/toolbox_migration.go:609
+#: internal/service/toolbox_migration.go:611
 msgid "database migration completed"
 msgstr "数据库迁移完成"
 
-#: internal/service/toolbox_migration.go:691
+#: internal/service/toolbox_migration.go:693
 msgid "database user migration completed"
 msgstr "数据库用户迁移完成"
 
@@ -1604,15 +1604,15 @@ msgstr "到期时间必须大于当前时间"
 msgid "expiration time must be less than 10 years"
 msgstr "到期时间必须小于 10 年"
 
-#: internal/service/toolbox_migration.go:532
+#: internal/service/toolbox_migration.go:534
 msgid "exporting database"
 msgstr "正在导出数据库"
 
-#: internal/service/toolbox_migration.go:967
+#: internal/service/toolbox_migration.go:969
 msgid "extracting on remote server"
 msgstr "正在远程服务器上解压"
 
-#: internal/service/toolbox_migration.go:1089
+#: internal/service/toolbox_migration.go:1091
 msgid "failed"
 msgstr "失败"
 
@@ -1633,7 +1633,7 @@ msgstr "连接远程服务器失败：%v"
 msgid "failed to create .ssh directory: %v"
 msgstr "创建 .ssh 目录失败：%v"
 
-#: internal/service/toolbox_migration.go:686
+#: internal/service/toolbox_migration.go:688
 msgid "failed to create database user on remote: %v"
 msgstr "在远程创建数据库用户失败：%v"
 
@@ -1803,16 +1803,16 @@ msgstr "获取当前被禁止的列表失败"
 msgid "failed to get database list: %v"
 msgstr "获取数据库列表失败：%v"
 
-#: internal/service/toolbox_migration.go:514
-#: internal/service/toolbox_migration.go:636
+#: internal/service/toolbox_migration.go:516
+#: internal/service/toolbox_migration.go:638
 msgid "failed to get database server: %v"
 msgstr "获取数据库服务器失败：%v"
 
-#: internal/service/toolbox_migration.go:550
+#: internal/service/toolbox_migration.go:552
 msgid "failed to get database servers: %v"
 msgstr "获取数据库服务器列表失败：%v"
 
-#: internal/service/toolbox_migration.go:629
+#: internal/service/toolbox_migration.go:631
 msgid "failed to get database user detail: %v"
 msgstr "获取数据库用户详情失败：%v"
 
@@ -1880,7 +1880,7 @@ msgstr "获取私钥失败"
 msgid "failed to get private key: %v"
 msgstr "获取私钥失败： %v"
 
-#: internal/service/toolbox_migration.go:718
+#: internal/service/toolbox_migration.go:720
 msgid "failed to get project detail: %v"
 msgstr "获取项目详情失败：%v"
 
@@ -1896,7 +1896,7 @@ msgstr "获取 redis 信息失败： %v"
 msgid "failed to get redis status: %v"
 msgstr "获取 redis 状态失败： %v"
 
-#: internal/service/toolbox_migration.go:646
+#: internal/service/toolbox_migration.go:648
 msgid "failed to get remote database servers: %v"
 msgstr "获取远程数据库服务器失败：%v"
 
@@ -2241,7 +2241,7 @@ msgstr "获取服务端口失败，请检查是否安装"
 msgid "get upload file error: %v"
 msgstr "获取上传文件错误：%v"
 
-#: internal/service/toolbox_migration.go:594
+#: internal/service/toolbox_migration.go:596
 msgid "importing database on remote server"
 msgstr "正在远程服务器上导入数据库"
 
@@ -2275,11 +2275,11 @@ msgstr "无效的参数：%v"
 msgid "invalid request ip: %s"
 msgstr "无效的请求 IP：%s"
 
-#: internal/service/toolbox_migration.go:564
+#: internal/service/toolbox_migration.go:566
 msgid "invalid response when getting database servers: %v"
 msgstr "获取数据库服务器时响应无效：%v"
 
-#: internal/service/toolbox_migration.go:659
+#: internal/service/toolbox_migration.go:661
 msgid "invalid response: %v"
 msgstr "无效的响应：%v"
 
@@ -2372,8 +2372,8 @@ msgstr "名称是必填项"
 msgid "no SSH log entries found"
 msgstr "未找到 SSH 日志条目"
 
-#: internal/service/toolbox_migration.go:576
-#: internal/service/toolbox_migration.go:671
+#: internal/service/toolbox_migration.go:578
+#: internal/service/toolbox_migration.go:673
 msgid "no matching database server found on remote"
 msgstr "在远程未找到匹配的数据库服务器"
 
@@ -2457,7 +2457,7 @@ msgstr "请先设置公网 IP 地址"
 msgid "port is already in use"
 msgstr "端口已被占用"
 
-#: internal/service/toolbox_migration.go:760
+#: internal/service/toolbox_migration.go:762
 msgid "project migration completed"
 msgstr "项目迁移完成"
 
@@ -2485,7 +2485,7 @@ msgstr "读取分块数据错误：%v"
 msgid "read directory error: %v"
 msgstr "读取目录错误：%v"
 
-#: internal/service/toolbox_migration.go:604
+#: internal/service/toolbox_migration.go:606
 msgid "remote import failed: %v"
 msgstr "远程导入失败：%v"
 
@@ -2513,7 +2513,7 @@ msgstr "S3 配置错误：%v"
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
-#: internal/service/toolbox_migration.go:587
+#: internal/service/toolbox_migration.go:589
 msgid "sending backup to remote server"
 msgstr "正在发送备份到远程服务器"
 
@@ -2534,9 +2534,9 @@ msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一个用于连接 SQL Server 的驱动程序"
 
 #: internal/service/toolbox_migration.go:435
-#: internal/service/toolbox_migration.go:509
-#: internal/service/toolbox_migration.go:624
-#: internal/service/toolbox_migration.go:705
+#: internal/service/toolbox_migration.go:511
+#: internal/service/toolbox_migration.go:626
+#: internal/service/toolbox_migration.go:707
 msgid "start migrating"
 msgstr "开始迁移"
 
@@ -2544,7 +2544,7 @@ msgstr "开始迁移"
 msgid "stopped"
 msgstr "已停止"
 
-#: internal/service/toolbox_migration.go:709
+#: internal/service/toolbox_migration.go:711
 msgid "stopping project service"
 msgstr "正在停止项目服务"
 
@@ -2664,7 +2664,7 @@ msgstr "未知测试类型"
 msgid "unsupported CA"
 msgstr "不支持的 CA"
 
-#: internal/service/toolbox_migration.go:527
+#: internal/service/toolbox_migration.go:529
 msgid "unsupported database type: %s"
 msgstr "不支持的数据库类型：%s"
 
@@ -2694,8 +2694,8 @@ msgstr "不支持的网站类型：%s"
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上传的证书无法设置为自动续签"
 
-#: internal/service/toolbox_migration.go:481
-#: internal/service/toolbox_migration.go:742
+#: internal/service/toolbox_migration.go:483
+#: internal/service/toolbox_migration.go:744
 msgid "upload failed: %v"
 msgstr "上传失败：%v"
 
@@ -2703,24 +2703,24 @@ msgstr "上传失败：%v"
 msgid "upload file error: %v"
 msgstr "上传文件错误：%v"
 
-#: internal/service/toolbox_migration.go:905
+#: internal/service/toolbox_migration.go:907
 msgid "uploading"
 msgstr "正在上传"
 
-#: internal/service/toolbox_migration.go:479
-#: internal/service/toolbox_migration.go:740
+#: internal/service/toolbox_migration.go:481
+#: internal/service/toolbox_migration.go:742
 msgid "uploading directory:"
 msgstr "正在上传目录："
 
-#: internal/service/toolbox_migration.go:750
+#: internal/service/toolbox_migration.go:752
 msgid "uploading systemd service file"
 msgstr "正在上传 systemd 服务文件"
 
-#: internal/service/toolbox_migration.go:961
+#: internal/service/toolbox_migration.go:963
 msgid "uploading to remote server"
 msgstr "正在上传到远程服务器"
 
-#: internal/service/toolbox_migration.go:487
+#: internal/service/toolbox_migration.go:489
 msgid "uploading website directory:"
 msgstr "正在上传网站目录："
 
@@ -2730,15 +2730,15 @@ msgstr "正在上传网站目录："
 msgid "username or password error"
 msgstr "用户名或密码错误"
 
-#: internal/service/toolbox_migration.go:735
+#: internal/service/toolbox_migration.go:737
 msgid "warning: failed to create remote project, trying to upload directly"
 msgstr "警告：创建远程项目失败，尝试直接上传"
 
-#: internal/service/toolbox_migration.go:474
+#: internal/service/toolbox_migration.go:476
 msgid "warning: failed to create remote website, trying to upload directly"
 msgstr "警告：创建远程网站失败，尝试直接上传"
 
-#: internal/service/toolbox_migration.go:711
+#: internal/service/toolbox_migration.go:713
 msgid "warning: failed to stop service"
 msgstr "警告：停止服务失败"
 
@@ -2746,11 +2746,11 @@ msgstr "警告：停止服务失败"
 msgid "warning: failed to stop website"
 msgstr "警告：停止网站失败"
 
-#: internal/service/toolbox_migration.go:752
+#: internal/service/toolbox_migration.go:754
 msgid "warning: service file upload failed"
 msgstr "警告：服务文件上传失败"
 
-#: internal/service/toolbox_migration.go:489
+#: internal/service/toolbox_migration.go:491
 msgid "warning: website directory upload failed"
 msgstr "警告：网站目录上传失败"
 
@@ -2778,7 +2778,7 @@ msgstr "网站 %s 已绑定证书，请先删除证书"
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
-#: internal/service/toolbox_migration.go:494
+#: internal/service/toolbox_migration.go:496
 msgid "website migration completed"
 msgstr "网站迁移完成"
 
