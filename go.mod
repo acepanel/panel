@@ -12,7 +12,7 @@ require (
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/creack/pty v1.1.24
 	github.com/dchest/captcha v1.1.0
-	github.com/expr-lang/expr v1.17.7
+	github.com/expr-lang/expr v1.17.8
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/httplog/v3 v3.3.0
