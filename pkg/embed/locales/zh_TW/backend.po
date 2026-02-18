@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-17 20:06\n"
+"PO-Revision-Date: 2026-02-18 12:01\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -623,10 +623,10 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1031
 #: internal/service/cli.go:1036
 #: internal/service/cli.go:1041
-#: internal/service/cli.go:1081
+#: internal/service/cli.go:1046
+#: internal/service/cli.go:1086
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
@@ -1495,7 +1495,7 @@ msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/data/website.go:540
+#: internal/data/website.go:543
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 數據庫服務器，請先添加"
 
@@ -1863,7 +1863,7 @@ msgstr "獲取檔案系統類型失敗：%v"
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
-#: internal/data/website.go:443
+#: internal/data/website.go:446
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
@@ -1999,8 +1999,8 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:295
 #: internal/data/setting.go:369
-#: internal/data/website.go:609
-#: internal/data/website.go:945
+#: internal/data/website.go:612
+#: internal/data/website.go:987
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -2011,8 +2011,8 @@ msgstr "無法解析磁碟列表：%v"
 #: internal/data/cert.go:103
 #: internal/data/setting.go:298
 #: internal/data/setting.go:372
-#: internal/data/website.go:612
-#: internal/data/website.go:948
+#: internal/data/website.go:615
+#: internal/data/website.go:990
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -2348,7 +2348,7 @@ msgstr "journalctl 不可用"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1093
+#: internal/data/website.go:1135
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -2420,7 +2420,7 @@ msgstr "在遠端未找到匹配的資料庫伺服器"
 msgid "no migration logs available"
 msgstr "暫無遷移日誌"
 
-#: internal/data/website.go:973
+#: internal/data/website.go:1015
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
@@ -2540,7 +2540,7 @@ msgstr "找不到規則"
 msgid "running"
 msgstr "運行中"
 
-#: internal/data/website.go:587
+#: internal/data/website.go:590
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
@@ -2732,12 +2732,12 @@ msgstr "不支援的檔案系統類型：%s"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1195
-#: internal/data/website.go:1249
+#: internal/data/website.go:1237
+#: internal/data/website.go:1291
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
-#: internal/data/website.go:1161
+#: internal/data/website.go:1203
 msgid "unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
@@ -2821,11 +2821,11 @@ msgstr "未找到 Web 掛鉤"
 msgid "webhook script not found"
 msgstr "未找到 Web 掛鉤腳本"
 
-#: internal/data/website.go:781
+#: internal/data/website.go:823
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
-#: internal/data/website.go:594
+#: internal/data/website.go:597
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
