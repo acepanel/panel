@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-18 12:01\n"
+"PO-Revision-Date: 2026-02-18 12:37\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -262,15 +262,15 @@ msgstr "已連接客戶端數"
 
 #: internal/route/cli.go:402
 msgid "Container"
-msgstr ""
+msgstr "容器"
 
 #: internal/service/cli.go:752
 msgid "Container %s has no log file"
-msgstr ""
+msgstr "容器 %s 沒有日誌檔案"
 
 #: internal/route/cli.go:408
 msgid "Container name"
-msgstr ""
+msgstr "容器名稱"
 
 #: internal/route/cli.go:171
 msgid "Create new website"
@@ -446,7 +446,7 @@ msgstr "獲取應用失敗：%v"
 
 #: internal/service/cli.go:748
 msgid "Failed to get container log path: %v"
-msgstr ""
+msgstr "無法獲取容器日誌路徑：%v"
 
 #: internal/service/cli.go:189
 msgid "Failed to get entrance"
@@ -1175,7 +1175,7 @@ msgstr "等待表鎖定"
 
 #: internal/route/cli.go:432
 msgid "Target name"
-msgstr ""
+msgstr "目標名稱"
 
 #: internal/service/cli.go:931
 msgid "Tasks cleared successfully"
@@ -1287,7 +1287,7 @@ msgstr "卸載環境 %s"
 
 #: internal/service/cli.go:813
 msgid "Unsupported rotation type: %s"
-msgstr ""
+msgstr "不支援的輪轉類型：%s"
 
 #: internal/service/toolbox_log.go:255
 msgid "Unused container images: %d"
@@ -1646,7 +1646,7 @@ msgstr "連線遠端伺服器失敗：%v"
 
 #: internal/data/database_redis.go:127
 msgid "failed to connect to Redis: %v"
-msgstr ""
+msgstr "連接 Redis 失敗：%v"
 
 #: internal/service/toolbox_ssh.go:211
 msgid "failed to create .ssh directory: %v"
@@ -1791,7 +1791,7 @@ msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 
 #: internal/service/toolbox_disk.go:643
 msgid "failed to get SMART info for device %s"
-msgstr ""
+msgstr "獲取裝置 %s 的 SMART 資訊失敗"
 
 #: internal/service/toolbox_system.go:79
 msgid "failed to get SWAP: %v"
@@ -1994,7 +1994,7 @@ msgstr "無法掛載分區：%v"
 
 #: internal/service/toolbox_disk.go:650
 msgid "failed to parse SMART info: %v"
-msgstr ""
+msgstr "解析 SMART 資訊失敗：%v"
 
 #: internal/data/cert.go:100
 #: internal/data/setting.go:295
@@ -2018,7 +2018,7 @@ msgstr "解析私鑰失敗：%v"
 
 #: internal/service/toolbox_disk.go:602
 msgid "failed to parse smartctl output: %v"
-msgstr ""
+msgstr "解析 smartctl 輸出失敗：%v"
 
 #: internal/data/project.go:210
 msgid "failed to parse systemd config"
@@ -2145,7 +2145,7 @@ msgstr "運行命令失敗：%v"
 
 #: internal/data/database_redis.go:133
 msgid "failed to select database: %v"
-msgstr ""
+msgstr "選擇資料庫失敗：%v"
 
 #: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
@@ -2405,7 +2405,7 @@ msgstr "名稱是必填項"
 
 #: internal/service/toolbox_disk.go:684
 msgid "no RAID configuration detected"
-msgstr ""
+msgstr "未偵測到 RAID 配置"
 
 #: internal/service/log.go:137
 msgid "no SSH log entries found"
@@ -2558,11 +2558,11 @@ msgstr "正在傳送備份到遠端伺服器"
 
 #: internal/data/database_redis.go:122
 msgid "server is not Redis type"
-msgstr ""
+msgstr "伺服器不是 Redis 類型"
 
 #: internal/data/database_redis.go:119
 msgid "server not found"
-msgstr ""
+msgstr "未找到伺服器"
 
 #: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
@@ -2578,7 +2578,7 @@ msgstr "簽名已過期"
 
 #: internal/service/toolbox_disk.go:576
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
-msgstr ""
+msgstr "未安裝 smartmontools，請先安裝它（例如：apt install smartmontools 或 dnf install smartmontools）"
 
 #: internal/service/environment_php.go:440
 msgid "sqlsrv is a driver for connecting to SQL Server"
@@ -3003,7 +3003,7 @@ msgstr "|-輪換目標：%s"
 
 #: internal/service/cli.go:760
 msgid "|-Rotation type: container"
-msgstr ""
+msgstr "|-輪轉類型：container"
 
 #: internal/service/cli.go:714
 msgid "|-Rotation type: website"
