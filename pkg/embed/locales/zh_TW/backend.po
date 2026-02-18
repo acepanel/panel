@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-18 12:37\n"
+"PO-Revision-Date: 2026-02-18 19:28\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -623,10 +623,10 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1036
-#: internal/service/cli.go:1041
-#: internal/service/cli.go:1046
-#: internal/service/cli.go:1086
+#: internal/service/cli.go:1037
+#: internal/service/cli.go:1042
+#: internal/service/cli.go:1047
+#: internal/service/cli.go:1087
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
