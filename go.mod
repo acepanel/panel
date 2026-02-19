@@ -58,7 +58,7 @@ require (
 	github.com/studio-b12/gowebdav v0.12.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.6.2
-	github.com/valyala/fastjson v1.6.8
+	github.com/valyala/fastjson v1.6.9
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
 	golang.org/x/crypto v0.48.0
 	golang.org/x/net v0.50.0
