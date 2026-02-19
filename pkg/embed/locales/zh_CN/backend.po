@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-19 16:05\n"
+"PO-Revision-Date: 2026-02-19 18:25\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1458,9 +1458,9 @@ msgstr "应用 %s 需要面板版本 %s，当前版本 %s"
 msgid "app not found"
 msgstr "应用未找到"
 
-#: internal/data/setting.go:298
-#: internal/data/setting.go:358
-#: internal/data/setting.go:374
+#: internal/data/setting.go:319
+#: internal/data/setting.go:379
+#: internal/data/setting.go:395
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
@@ -1997,8 +1997,8 @@ msgid "failed to parse SMART info: %v"
 msgstr "解析 SMART 信息失败：%v"
 
 #: internal/data/cert.go:100
-#: internal/data/setting.go:303
-#: internal/data/setting.go:377
+#: internal/data/setting.go:324
+#: internal/data/setting.go:398
 #: internal/data/website.go:620
 #: internal/data/website.go:969
 msgid "failed to parse certificate: %v"
@@ -2009,8 +2009,8 @@ msgid "failed to parse disk list: %v"
 msgstr "无法解析磁盘列表：%v"
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:306
-#: internal/data/setting.go:380
+#: internal/data/setting.go:327
+#: internal/data/setting.go:401
 #: internal/data/website.go:623
 #: internal/data/website.go:972
 msgid "failed to parse private key: %v"
@@ -2492,7 +2492,7 @@ msgstr "请不要花样作死"
 msgid "please set public ips first"
 msgstr "请先设置公网 IP 地址"
 
-#: internal/data/setting.go:323
+#: internal/data/setting.go:344
 msgid "port is already in use"
 msgstr "端口已被占用"
 
