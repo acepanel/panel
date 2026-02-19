@@ -67,7 +67,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.3.3 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
