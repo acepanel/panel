@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-19 19:14\n"
+"PO-Revision-Date: 2026-02-19 21:15\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
