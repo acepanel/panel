@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-19 07:33\n"
+"PO-Revision-Date: 2026-02-19 07:50\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1495,7 +1495,7 @@ msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/data/website.go:543
+#: internal/data/website.go:551
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -1999,8 +1999,8 @@ msgstr "解析 SMART 信息失败：%v"
 #: internal/data/cert.go:100
 #: internal/data/setting.go:295
 #: internal/data/setting.go:369
-#: internal/data/website.go:612
-#: internal/data/website.go:987
+#: internal/data/website.go:620
+#: internal/data/website.go:969
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -2011,8 +2011,8 @@ msgstr "无法解析磁盘列表：%v"
 #: internal/data/cert.go:103
 #: internal/data/setting.go:298
 #: internal/data/setting.go:372
-#: internal/data/website.go:615
-#: internal/data/website.go:990
+#: internal/data/website.go:623
+#: internal/data/website.go:972
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -2348,7 +2348,7 @@ msgstr "journalctl 不可用"
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1135
+#: internal/data/website.go:1117
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -2420,7 +2420,7 @@ msgstr "在远程未找到匹配的数据库服务器"
 msgid "no migration logs available"
 msgstr "暂无迁移日志"
 
-#: internal/data/website.go:1015
+#: internal/data/website.go:997
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr "不支持一键获取通配符证书，请在证书菜单通过 DNS 方法获取"
 
@@ -2540,7 +2540,7 @@ msgstr "找不到规则"
 msgid "running"
 msgstr "运行中"
 
-#: internal/data/website.go:590
+#: internal/data/website.go:598
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -2732,12 +2732,12 @@ msgstr "不支持的文件系统类型：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1237
-#: internal/data/website.go:1291
+#: internal/data/website.go:1219
+#: internal/data/website.go:1273
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
-#: internal/data/website.go:1203
+#: internal/data/website.go:1185
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -2821,11 +2821,11 @@ msgstr "未找到 Web 钩子"
 msgid "webhook script not found"
 msgstr "未找到 Web 钩子脚本"
 
-#: internal/data/website.go:823
+#: internal/data/website.go:805
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "网站 %s 已绑定证书，请先删除证书"
 
-#: internal/data/website.go:597
+#: internal/data/website.go:605
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
