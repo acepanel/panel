@@ -57,7 +57,7 @@ require (
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
 	github.com/studio-b12/gowebdav v0.12.0
-	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
+	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.6.2
 	github.com/valyala/fastjson v1.6.9
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
