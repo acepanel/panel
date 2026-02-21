@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-02-19 21:15\n"
+"PO-Revision-Date: 2026-02-21 16:30\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -219,11 +219,11 @@ msgstr "更改 AcePanel 監聽端口"
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
-#: internal/data/backup.go:813
+#: internal/data/backup.go:851
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理臨時目錄失敗：%v"
 
-#: internal/data/backup.go:846
+#: internal/data/backup.go:884
 msgid "Cleaning temporary file failed: %v"
 msgstr "清理臨時檔案失敗：%v"
 
@@ -353,12 +353,12 @@ msgstr "Docker 容器日誌：%d 個文件"
 msgid "Download URL is empty"
 msgstr "下載 URL 為空"
 
-#: internal/data/backup.go:909
-#: internal/data/backup.go:912
+#: internal/data/backup.go:947
+#: internal/data/backup.go:950
 msgid "Download failed: %v"
 msgstr "下載失敗：%v"
 
-#: internal/data/backup.go:915
+#: internal/data/backup.go:953
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
@@ -487,6 +487,10 @@ msgstr "無法通過 ACME 獲取面板證書，使用自簽名證書"
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
+#: internal/data/backup.go:789
+msgid "Failed to remove %s.db: %v"
+msgstr "無法刪除 %s.db：%v"
+
 #: internal/service/cli.go:890
 msgid "Failed to save app: %v"
 msgstr "無法保存應用：%v"
@@ -521,7 +525,7 @@ msgstr "更新兩步驗證失敗： %v"
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別文件類型的庫"
 
-#: internal/data/backup.go:764
+#: internal/data/backup.go:779
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "文件正常，無需修復，請運行 acepanel update 更新面板"
 
@@ -752,11 +756,11 @@ msgstr "遷移完成"
 msgid "Migration started"
 msgstr "遷移已開始"
 
-#: internal/data/backup.go:833
+#: internal/data/backup.go:871
 msgid "Move acepanel file failed: %v"
 msgstr "移動 acepanel 文件失敗：%v"
 
-#: internal/data/backup.go:828
+#: internal/data/backup.go:866
 msgid "Move panel file failed: %v"
 msgstr "移動面板檔案失敗：%v"
 
@@ -774,7 +778,7 @@ msgstr "NameSilo"
 msgid "New username cannot be empty"
 msgstr "新用戶名不能為空"
 
-#: internal/data/backup.go:800
+#: internal/data/backup.go:838
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
@@ -1014,7 +1018,7 @@ msgstr "Readline 是一個處理文本的庫"
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板應用標記（僅在指導下使用）"
 
-#: internal/data/backup.go:825
+#: internal/data/backup.go:863
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
@@ -1185,7 +1189,7 @@ msgstr "任務已成功清除"
 msgid "Temporary Tables Created on Disk"
 msgstr "在磁碟上創建的臨時表"
 
-#: internal/data/backup.go:929
+#: internal/data/backup.go:967
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr "在 /tmp 中檢測到臨時文件，這可能是上次更新失敗導致的，請運行 acepanel fix 進行修復並重試"
 
@@ -1293,11 +1297,11 @@ msgstr "不支援的輪轉類型：%s"
 msgid "Unused container images: %d"
 msgstr "未使用的容器鏡像：%d"
 
-#: internal/data/backup.go:816
+#: internal/data/backup.go:854
 msgid "Unzip backup file failed: %v"
 msgstr "解壓備份檔案失敗：%v"
 
-#: internal/data/backup.go:843
+#: internal/data/backup.go:881
 msgid "Unzip panel data failed: %v"
 msgstr "解壓面板數據失敗：%v"
 
@@ -1351,7 +1355,7 @@ msgstr "使用者名稱：%s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/data/backup.go:922
+#: internal/data/backup.go:960
 msgid "Verify download file failed: %v"
 msgstr "驗證下載文件失敗：%v"
 
@@ -1636,7 +1640,7 @@ msgstr "失敗"
 msgid "failed to check ssh connection: %v"
 msgstr "檢查 ssh 連接失敗：%v"
 
-#: internal/data/backup.go:774
+#: internal/data/backup.go:812
 msgid "failed to clean temporary files: %v"
 msgstr "清理臨時文件失敗：%v"
 
@@ -2870,7 +2874,7 @@ msgstr "yaml 是一個用於處理 YAML 的庫"
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個壓縮和解壓文件的庫"
 
-#: internal/data/backup.go:805
+#: internal/data/backup.go:843
 msgid "|-Backup file used: %s"
 msgstr "|-使用的備份檔案：%s"
 
@@ -2881,16 +2885,16 @@ msgstr "|-使用的備份檔案：%s"
 msgid "|-Backup file: %s"
 msgstr "|-備份文件：%s"
 
-#: internal/data/backup.go:943
+#: internal/data/backup.go:981
 msgid "|-Backup panel data failed, missing file"
 msgstr "|-備份面板數據失敗，缺少檔案"
 
-#: internal/data/backup.go:937
-#: internal/data/backup.go:940
+#: internal/data/backup.go:975
+#: internal/data/backup.go:978
 msgid "|-Backup panel data failed: %v"
 msgstr "|-備份面板數據失敗：%v"
 
-#: internal/data/backup.go:933
+#: internal/data/backup.go:971
 msgid "|-Backup panel data..."
 msgstr "|-備份面板數據……"
 
@@ -2915,15 +2919,15 @@ msgstr "|-備份類型：%s"
 msgid "|-Backup type: panel"
 msgstr "|-備份類型：面板"
 
-#: internal/data/backup.go:963
+#: internal/data/backup.go:1001
 msgid "|-Clean up temporary file failed: %v"
 msgstr "|-清理臨時文件失敗：%v"
 
-#: internal/data/backup.go:925
+#: internal/data/backup.go:963
 msgid "|-Clean up verification file failed: %v"
 msgstr "|-清理驗證文件失敗：%v"
 
-#: internal/data/backup.go:777
+#: internal/data/backup.go:815
 msgid "|-Cleaned up temporary files, please run acepanel update to update the panel"
 msgstr "|-已清理臨時文件，請運行 acepanel update 更新面板"
 
@@ -2932,11 +2936,11 @@ msgstr "|-已清理臨時文件，請運行 acepanel update 更新面板"
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理過期文件：%s"
 
-#: internal/data/backup.go:950
+#: internal/data/backup.go:988
 msgid "|-Cleaning old version failed: %v"
 msgstr "|-清理舊版本失敗：%v"
 
-#: internal/data/backup.go:947
+#: internal/data/backup.go:985
 msgid "|-Cleaning old version..."
 msgstr "|-清理舊版本……"
 
@@ -2950,49 +2954,54 @@ msgstr "|-清理目標：%s"
 msgid "|-Cleaning type: %s"
 msgstr "|-清理類型：%s"
 
-#: internal/data/backup.go:901
+#: internal/data/backup.go:939
 msgid "|-Download link: %s"
 msgstr "|-下載鏈接：%s"
 
-#: internal/data/backup.go:986
+#: internal/data/backup.go:1024
 msgid "|-Download panel service file failed: %v"
 msgstr "|-下載面板服務文件失敗：%v"
 
-#: internal/data/backup.go:906
+#: internal/data/backup.go:944
 msgid "|-Downloading..."
 msgstr "|-下載中……"
 
-#: internal/data/backup.go:902
+#: internal/data/backup.go:940
 msgid "|-File name: %s"
 msgstr "|-文件名：%s"
 
-#: internal/data/backup.go:882
+#: internal/data/backup.go:799
+#: internal/data/backup.go:920
 msgid "|-Fix completed"
 msgstr "|-修復完成"
+
+#: internal/data/backup.go:792
+msgid "|-Found %s.db is abnormal, removed it"
+msgstr "|-發現 %s.db 異常，已刪除"
 
 #: internal/service/cli.go:685
 #: internal/service/cli.go:792
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
-#: internal/data/backup.go:992
+#: internal/data/backup.go:1030
 msgid "|-Move acepanel tool failed: %v"
 msgstr "|-移動 acepanel 工具失敗：%v"
 
-#: internal/data/backup.go:821
+#: internal/data/backup.go:859
 msgid "|-Move backup file..."
 msgstr "|-移動備份檔案……"
 
-#: internal/data/backup.go:973
+#: internal/data/backup.go:1011
 msgid "|-Restore panel data failed, missing file"
 msgstr "|-還原面板資料失敗，缺少檔案"
 
-#: internal/data/backup.go:970
+#: internal/data/backup.go:1008
 msgid "|-Restore panel data failed: %v"
 msgstr "|-還原面板數據失敗：%v"
 
-#: internal/data/backup.go:839
-#: internal/data/backup.go:967
+#: internal/data/backup.go:1005
+#: internal/data/backup.go:877
 msgid "|-Restore panel data..."
 msgstr "|-還原面板資料……"
 
@@ -3009,16 +3018,16 @@ msgstr "|-輪轉類型：container"
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
-#: internal/data/backup.go:980
+#: internal/data/backup.go:1018
 msgid "|-Run post-update script failed: %v"
 msgstr "|-運行更新後腳本失敗：%v"
 
-#: internal/data/backup.go:977
+#: internal/data/backup.go:1015
 msgid "|-Run post-update script..."
 msgstr "|-執行更新後腳本……"
 
-#: internal/data/backup.go:859
-#: internal/data/backup.go:996
+#: internal/data/backup.go:1034
+#: internal/data/backup.go:897
 msgid "|-Set key file permissions..."
 msgstr "|-設定關鍵檔案權限……"
 
@@ -3026,7 +3035,7 @@ msgstr "|-設定關鍵檔案權限……"
 msgid "|-Start fixing the panel..."
 msgstr "|-開始修復面板……"
 
-#: internal/data/backup.go:900
+#: internal/data/backup.go:938
 msgid "|-Target version: %s"
 msgstr "|-目標版本：%s"
 
@@ -3036,31 +3045,31 @@ msgstr "|-目標版本：%s"
 msgid "|-Temporary directory: %s"
 msgstr "|-臨時目錄：%s"
 
-#: internal/data/backup.go:810
+#: internal/data/backup.go:848
 msgid "|-Unzip backup file..."
 msgstr "|-解壓備份檔案……"
 
-#: internal/data/backup.go:960
+#: internal/data/backup.go:998
 msgid "|-Unzip new version failed, missing file"
 msgstr "|-解壓新版本失敗，缺少檔案"
 
-#: internal/data/backup.go:957
+#: internal/data/backup.go:995
 msgid "|-Unzip new version failed: %v"
 msgstr "|-解壓新版本失敗：%v"
 
-#: internal/data/backup.go:954
+#: internal/data/backup.go:992
 msgid "|-Unzip new version..."
 msgstr "|-解壓新版本……"
 
-#: internal/data/backup.go:1003
+#: internal/data/backup.go:1041
 msgid "|-Update completed"
 msgstr "|-更新完成"
 
-#: internal/data/backup.go:919
+#: internal/data/backup.go:957
 msgid "|-Verify download file..."
 msgstr "|-驗證下載檔案……"
 
-#: internal/data/backup.go:989
+#: internal/data/backup.go:1027
 msgid "|-Write new panel version failed: %v"
 msgstr "|-寫入新面板版本失敗：%v"
 
