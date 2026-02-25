@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-23 13:32\n"
+"PO-Revision-Date: 2026-02-25 13:42\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -252,11 +252,11 @@ msgstr "ClouDNS"
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
-#: internal/apps/redis/app.go:88
+#: internal/apps/redis/app.go:91
 msgid "Commands Per Second"
 msgstr "每秒执行命令数"
 
-#: internal/apps/redis/app.go:81
+#: internal/apps/redis/app.go:84
 msgid "Connected Clients"
 msgstr "已连接客户端数"
 
@@ -670,11 +670,11 @@ msgstr "Java-%s 未安装"
 msgid "Journal logs"
 msgstr "Journal 日志"
 
-#: internal/apps/redis/app.go:89
+#: internal/apps/redis/app.go:92
 msgid "Keyspace Hits"
 msgstr "查找数据库键成功次数"
 
-#: internal/apps/redis/app.go:90
+#: internal/apps/redis/app.go:93
 msgid "Keyspace Misses"
 msgstr "查找数据库键失败次数"
 
@@ -682,7 +682,7 @@ msgstr "查找数据库键失败次数"
 msgid "LDAP is a protocol for accessing directory services"
 msgstr "LDAP 是一种用于访问目录服务的协议"
 
-#: internal/apps/redis/app.go:91
+#: internal/apps/redis/app.go:94
 msgid "Latest Fork Time (ms)"
 msgstr "最近一次 fork() 操作耗费的毫秒数"
 
@@ -744,7 +744,7 @@ msgstr "Memcached 是一个用于连接 Memcached 服务器的驱动程序"
 msgid "Memory"
 msgstr "内存"
 
-#: internal/apps/redis/app.go:85
+#: internal/apps/redis/app.go:88
 msgid "Memory Fragmentation Ratio"
 msgstr "内存碎片比率"
 
@@ -908,7 +908,7 @@ msgstr "网站托管的路径（不填则使用默认路径）"
 msgid "Peak Connections"
 msgstr "峰值连接数"
 
-#: internal/apps/redis/app.go:84
+#: internal/apps/redis/app.go:87
 msgid "Peak Memory Usage"
 msgstr "占用内存峰值"
 
@@ -1169,7 +1169,7 @@ msgstr "Sysvsem 是一个处理系统 V 信号的库"
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一个处理 V 共享内存的库"
 
-#: internal/apps/redis/app.go:79
+#: internal/apps/redis/app.go:82
 msgid "TCP Port"
 msgstr "TCP 端口"
 
@@ -1213,11 +1213,11 @@ msgstr "开关用户两步认证"
 msgid "Total Accesses"
 msgstr "总访问量"
 
-#: internal/apps/redis/app.go:82
+#: internal/apps/redis/app.go:85
 msgid "Total Allocated Memory"
 msgstr "已分配内存总量"
 
-#: internal/apps/redis/app.go:87
+#: internal/apps/redis/app.go:90
 msgid "Total Commands Processed"
 msgstr "执行的命令总数"
 
@@ -1226,11 +1226,11 @@ msgstr "执行的命令总数"
 msgid "Total Connections"
 msgstr "总连接数"
 
-#: internal/apps/redis/app.go:86
+#: internal/apps/redis/app.go:89
 msgid "Total Connections Received"
 msgstr "收到的连接总数"
 
-#: internal/apps/redis/app.go:83
+#: internal/apps/redis/app.go:86
 msgid "Total Memory Usage"
 msgstr "内存使用总数"
 
@@ -1325,7 +1325,7 @@ msgstr "更新环境 %s"
 msgid "Uptime"
 msgstr "运行时间"
 
-#: internal/apps/redis/app.go:80
+#: internal/apps/redis/app.go:83
 msgid "Uptime in Days"
 msgstr "已运行天数"
 
@@ -1915,11 +1915,11 @@ msgstr "获取项目详情失败：%v"
 msgid "failed to get project list: %v"
 msgstr "获取项目列表失败：%v"
 
-#: internal/apps/redis/app.go:64
+#: internal/apps/redis/app.go:67
 msgid "failed to get redis info: %v"
 msgstr "获取 redis 信息失败： %v"
 
-#: internal/apps/redis/app.go:41
+#: internal/apps/redis/app.go:44
 msgid "failed to get redis status: %v"
 msgstr "获取 redis 状态失败： %v"
 
