@@ -23,6 +23,7 @@ import (
 type Http struct {
 	conf              *config.Config
 	user              *service.UserService
+	userPasskey       *service.UserPasskeyService
 	userToken         *service.UserTokenService
 	home              *service.HomeService
 	task              *service.TaskService
@@ -77,6 +78,7 @@ type Http struct {
 func NewHttp(
 	conf *config.Config,
 	user *service.UserService,
+	userPasskey *service.UserPasskeyService,
 	userToken *service.UserTokenService,
 	home *service.HomeService,
 	task *service.TaskService,
@@ -130,6 +132,7 @@ func NewHttp(
 	return &Http{
 		conf:              conf,
 		user:              user,
+		userPasskey:       userPasskey,
 		userToken:         userToken,
 		home:              home,
 		task:              task,
@@ -192,6 +195,12 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/is_login", route.user.IsLogin)
 			r.Get("/is_2fa", route.user.IsTwoFA)
 			r.Get("/info", route.user.Info)
+			// 通行密钥
+			r.Get("/passkey/enabled", route.userPasskey.Enabled)
+			r.Post("/passkey/register", route.userPasskey.BeginRegister)
+			r.Put("/passkey/register", route.userPasskey.FinishRegister)
+			r.With(middleware.Throttle(route.conf.HTTP.IPHeader, 5, time.Minute)).Post("/passkey/login", route.userPasskey.BeginLogin)
+			r.Put("/passkey/login", route.userPasskey.FinishLogin)
 		})
 
 		r.Route("/users", func(r chi.Router) {
@@ -210,6 +219,12 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/", route.userToken.Create)
 			r.Put("/{id}", route.userToken.Update)
 			r.Delete("/{id}", route.userToken.Delete)
+		})
+
+		r.Route("/user_passkeys", func(r chi.Router) {
+			r.Get("/", route.userPasskey.List)
+			r.Get("/supported", route.userPasskey.Supported)
+			r.Delete("/{id}", route.userPasskey.Delete)
 		})
 
 		r.Route("/home", func(r chi.Router) {

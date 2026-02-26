@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import user from '@/api/panel/user'
 import { formatDateTime } from '@/utils'
+import PasskeyModal from '@/views/setting/PasskeyModal.vue'
 import PasswordModal from '@/views/setting/PasswordModal.vue'
 import TokenModal from '@/views/setting/TokenModal.vue'
 import TwoFaModal from '@/views/setting/TwoFaModal.vue'
@@ -13,6 +14,7 @@ const currentID = ref(0)
 const passwordModal = ref(false)
 const twoFaModal = ref(false)
 const tokenModal = ref(false)
+const passkeyModal = ref(false)
 
 const columns: any = [
   {
@@ -84,7 +86,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 380,
+    width: 500,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -100,6 +102,21 @@ const columns: any = [
           },
           {
             default: () => $gettext('Access Tokens')
+          }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            style: 'margin-left: 15px;',
+            onClick: () => {
+              currentID.value = row.id
+              passkeyModal.value = true
+            }
+          },
+          {
+            default: () => $gettext('Passkeys')
           }
         ),
         h(
@@ -207,6 +224,7 @@ onMounted(() => {
   <password-modal v-model:id="currentID" v-model:show="passwordModal" />
   <two-fa-modal v-model:id="currentID" v-model:show="twoFaModal" />
   <token-modal v-model:id="currentID" v-model:show="tokenModal" />
+  <passkey-modal v-model:show="passkeyModal" />
 </template>
 
 <style scoped lang="scss"></style>

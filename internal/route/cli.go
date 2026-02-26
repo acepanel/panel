@@ -85,6 +85,11 @@ func (route *Cli) Commands() []*cli.Command {
 					Usage:  route.t.Get("Toggle two-factor authentication for a user"),
 					Action: route.cli.UserTwoFA,
 				},
+				{
+					Name:   "passkey",
+					Usage:  route.t.Get("Clear all passkeys for a user"),
+					Action: route.cli.UserPasskey,
+				},
 			},
 		},
 		{

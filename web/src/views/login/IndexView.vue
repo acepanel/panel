@@ -6,6 +6,7 @@ import { addDynamicRoutes } from '@/router'
 import { useThemeStore, useUserStore } from '@/store'
 import { getLocal, removeLocal, setLocal } from '@/utils'
 import { rsaEncrypt } from '@/utils/encrypt'
+import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
 import { until } from '@vueuse/core'
 import { useGettext } from 'vue3-gettext'
 
@@ -49,7 +50,73 @@ const showTwoFA = ref(false)
 const captchaRequired = ref(false)
 const captchaImage = ref('')
 
+// 通行密钥相关状态
+const passkeyAvailable = ref(false)
+const passkeyAttempting = ref(false)
+const passkeyFailed = ref(false)
+
 const logo = computed(() => themeStore.logo || logoImg)
+
+// 登录成功后的跳转
+const handleLoginSuccess = async () => {
+  window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
+  await addDynamicRoutes()
+  useRequest(user.info()).onSuccess(({ data }) => {
+    userStore.set(data as any)
+  })
+  if (query.redirect) {
+    const path = query.redirect as string
+    Reflect.deleteProperty(query, 'redirect')
+    await router.push({ path, query })
+  } else {
+    await router.push('/')
+  }
+}
+
+// 通行密钥登录
+const attemptPasskeyLogin = async () => {
+  passkeyAttempting.value = true
+  passkeyFailed.value = false
+  try {
+    // 获取登录挑战
+    const options = await user.passkeyBeginLogin()
+
+    // 调用浏览器 WebAuthn API
+    const assertion = await startAuthentication({ optionsJSON: options.publicKey })
+
+    // 完成登录
+    useRequest(user.passkeyFinishLogin(assertion))
+      .onSuccess(async () => {
+        await handleLoginSuccess()
+      })
+      .onError(() => {
+        passkeyFailed.value = true
+        passkeyAttempting.value = false
+      })
+  } catch {
+    // 用户取消或浏览器不支持
+    passkeyFailed.value = true
+    passkeyAttempting.value = false
+  }
+}
+
+// 检查通行密钥可用性
+const checkPasskeyAvailable = async () => {
+  // 浏览器必须支持 WebAuthn 且处于安全上下文
+  if (!window.isSecureContext || !browserSupportsWebAuthn()) {
+    return
+  }
+  try {
+    const enabled = await user.passkeyEnabled()
+    if (enabled) {
+      passkeyAvailable.value = true
+      await nextTick()
+      await attemptPasskeyLogin()
+    }
+  } catch {
+    // 忽略
+  }
+}
 
 // 刷新验证码
 const refreshCaptcha = () => {
@@ -96,24 +163,12 @@ async function handleLogin() {
     )
   )
     .onSuccess(async () => {
-      window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
       if (isRemember.value) {
         setLocal('loginInfo', { username, password })
       } else {
         removeLocal('loginInfo')
       }
-
-      await addDynamicRoutes()
-      useRequest(user.info()).onSuccess(({ data }) => {
-        userStore.set(data as any)
-      })
-      if (query.redirect) {
-        const path = query.redirect as string
-        Reflect.deleteProperty(query, 'redirect')
-        await router.push({ path, query })
-      } else {
-        await router.push('/')
-      }
+      await handleLoginSuccess()
     })
     .onError(() => {
       // 登录失败后刷新验证码状态
@@ -156,6 +211,7 @@ watch(isLogin, async () => {
 
 onMounted(() => {
   refreshCaptcha()
+  checkPasskeyAvailable()
 })
 </script>
 
@@ -169,67 +225,94 @@ onMounted(() => {
       <div px-28 py-32 rounded-lg bg-white min-w-380 card-shadow class="dark:bg-dark">
         <h2 text-32 font-600 mb-28 text-center>{{ themeStore.name }}</h2>
 
-        <n-input
-          v-model:value="loginInfo.username"
-          :maxlength="32"
-          :placeholder="$gettext('Username')"
-          autofocus
-          class="text-15 h-48 items-center"
-          :on-blur="isTwoFA"
-        />
+        <!-- 通行密钥正在尝试中 -->
+        <div v-if="passkeyAttempting" class="py-20 text-center">
+          <n-spin size="large" />
+          <p class="text-14 text-gray-500 mt-12">
+            {{ $gettext('Authenticating with passkey...') }}
+          </p>
+        </div>
 
-        <n-input
-          v-model:value="loginInfo.password"
-          :maxlength="32"
-          :placeholder="$gettext('Password')"
-          class="text-15 mt-20 h-48 items-center"
-          type="password"
-          show-password-on="click"
-          @keydown.enter="handleLogin"
-        />
+        <!-- 密码登录表单 -->
+        <template v-else>
+          <!-- 通行密钥登录失败提示 -->
+          <n-alert v-if="passkeyFailed" type="warning" class="mb-20" :bordered="false">
+            {{ $gettext('Passkey login failed, please use username and password.') }}
+          </n-alert>
 
-        <n-input
-          v-if="showTwoFA"
-          v-model:value="loginInfo.pass_code"
-          :maxlength="6"
-          :placeholder="$gettext('2FA Code')"
-          class="text-15 mt-20 h-48 items-center"
-          type="text"
-          @keydown.enter="handleLogin"
-        />
-
-        <n-flex v-if="captchaRequired" align="center" class="mt-20">
           <n-input
-            v-model:value="loginInfo.captcha_code"
-            :maxlength="4"
-            :placeholder="$gettext('Captcha Code')"
+            v-model:value="loginInfo.username"
+            :maxlength="32"
+            :placeholder="$gettext('Username')"
+            autofocus
             class="text-15 h-48 items-center"
-            style="flex: 1"
+            :on-blur="isTwoFA"
+          />
+
+          <n-input
+            v-model:value="loginInfo.password"
+            :maxlength="32"
+            :placeholder="$gettext('Password')"
+            class="text-15 mt-20 h-48 items-center"
+            type="password"
+            show-password-on="click"
+            @keydown.enter="handleLogin"
+          />
+
+          <n-input
+            v-if="showTwoFA"
+            v-model:value="loginInfo.pass_code"
+            :maxlength="6"
+            :placeholder="$gettext('2FA Code')"
+            :input-props="{ autocomplete: 'one-time-code' }"
+            class="text-15 mt-20 h-48 items-center"
             type="text"
             @keydown.enter="handleLogin"
           />
-          <n-image
-            :src="captchaImage"
-            preview-disabled
-            class="rounded h-48 cursor-pointer"
-            @click="refreshCaptcha"
-          />
-        </n-flex>
 
-        <n-flex class="mt-20">
-          <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
-          <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
-        </n-flex>
+          <n-flex v-if="captchaRequired" align="center" class="mt-20">
+            <n-input
+              v-model:value="loginInfo.captcha_code"
+              :maxlength="4"
+              :placeholder="$gettext('Captcha Code')"
+              class="text-15 h-48 items-center"
+              style="flex: 1"
+              type="text"
+              @keydown.enter="handleLogin"
+            />
+            <n-image
+              :src="captchaImage"
+              preview-disabled
+              class="rounded h-48 cursor-pointer"
+              @click="refreshCaptcha"
+            />
+          </n-flex>
 
-        <n-button
-          :loading="!keyLoaded || logining"
-          :disabled="!keyLoaded || logining"
-          class="text-16 mt-24 h-48 w-full"
-          type="primary"
-          @click="handleLogin"
-        >
-          {{ $gettext('Login') }}
-        </n-button>
+          <n-flex class="mt-20">
+            <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
+            <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
+          </n-flex>
+
+          <n-button
+            :loading="!keyLoaded || logining"
+            :disabled="!keyLoaded || logining"
+            class="text-16 mt-24 h-48 w-full"
+            type="primary"
+            @click="handleLogin"
+          >
+            {{ $gettext('Login') }}
+          </n-button>
+
+          <!-- 手动触发通行密钥登录 -->
+          <n-button
+            v-if="passkeyAvailable"
+            quaternary
+            class="text-14 mt-12 w-full"
+            @click="attemptPasskeyLogin"
+          >
+            {{ $gettext('Login with Passkey') }}
+          </n-button>
+        </template>
       </div>
     </div>
   </AppPage>

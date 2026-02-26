@@ -59,5 +59,15 @@ export default {
   tokenDelete: (id: number): any => http.Delete(`/user_tokens/${id}`),
   // 更新用户Token
   tokenUpdate: (id: number, ips: string[], expired_at: number): any =>
-    http.Put(`/user_tokens/${id}`, { ips, expired_at })
+    http.Put(`/user_tokens/${id}`, { ips, expired_at }),
+  // 通行密钥
+  passkeyEnabled: (): any => http.Get('/user/passkey/enabled'),
+  passkeySupported: (): any => http.Get('/user_passkeys/supported'),
+  passkeyBeginRegister: (name: string): any => http.Post('/user/passkey/register', { name }),
+  passkeyFinishRegister: (credential: any, name: string): any =>
+    http.Put(`/user/passkey/register?name=${encodeURIComponent(name)}`, credential),
+  passkeyBeginLogin: (): any => http.Post('/user/passkey/login'),
+  passkeyFinishLogin: (assertion: any): any => http.Put('/user/passkey/login', assertion),
+  passkeyList: (): any => http.Get('/user_passkeys'),
+  passkeyDelete: (id: number): any => http.Delete(`/user_passkeys/${id}`)
 }

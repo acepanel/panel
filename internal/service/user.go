@@ -175,6 +175,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	sess.Put("refresh_at", time.Now().Unix())
 	sess.Forget("key")
 	sess.Forget("login_fail_count")
+
 	Success(w, nil)
 }
 

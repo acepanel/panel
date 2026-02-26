@@ -45,6 +45,7 @@ type CliService struct {
 	appRepo            biz.AppRepo
 	cacheRepo          biz.CacheRepo
 	userRepo           biz.UserRepo
+	userPasskeyRepo    biz.UserPasskeyRepo
 	settingRepo        biz.SettingRepo
 	backupRepo         biz.BackupRepo
 	websiteRepo        biz.WebsiteRepo
@@ -54,7 +55,7 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *CliService {
+func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, userPasskey biz.UserPasskeyRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
@@ -64,6 +65,7 @@ func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo b
 		appRepo:            appRepo,
 		cacheRepo:          cache,
 		userRepo:           user,
+		userPasskeyRepo:    userPasskey,
 		settingRepo:        setting,
 		backupRepo:         backup,
 		websiteRepo:        website,
@@ -329,6 +331,28 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Failed to update 2FA: %v", err))
 	}
 
+	return nil
+}
+
+func (s *CliService) UserPasskey(ctx context.Context, cmd *cli.Command) error {
+	user := new(biz.User)
+	username := cmd.Args().Get(0)
+	if username == "" {
+		return errors.New(s.t.Get("Username cannot be empty"))
+	}
+
+	if err := s.db.Where("username", username).First(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(s.t.Get("User not exists"))
+		}
+		return errors.New(s.t.Get("Failed to get user: %v", err))
+	}
+
+	if err := s.userPasskeyRepo.DeleteAllByUserID(user.ID); err != nil {
+		return errors.New(s.t.Get("Failed to clear passkeys: %v", err))
+	}
+
+	fmt.Println(s.t.Get("All passkeys cleared for user %s", username))
 	return nil
 }
 

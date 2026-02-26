@@ -28,6 +28,7 @@
     "@alova/adapter-xhr": "^2.2.1",
     "@eslint/eslintrc": "^3.3.1",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@simplewebauthn/browser": "^13.2.2",
     "@vavt/copy2clipboard": "^1.0.3",
     "@vueuse/core": "^14.0.0",
     "@xterm/addon-attach": "^0.12.0",
