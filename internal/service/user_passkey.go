@@ -179,7 +179,11 @@ func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Reque
 	}
 
 	// 序列化 transports
-	transports, _ := json.Marshal(credential.Transport)
+	transports, err := json.Marshal(credential.Transport)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
 	pk := &biz.UserPasskey{
 		UserID:       userID,

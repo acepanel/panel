@@ -62,7 +62,6 @@ func ParseUserID(userHandle []byte) (uint, error) {
 	}
 	return uint(binary.BigEndian.Uint64(userHandle)), nil
 }
-}
 
 // NewWebAuthn 根据 HTTP 请求动态创建 WebAuthn 实例
 func NewWebAuthn(r *http.Request) (*webauthn.WebAuthn, error) {
