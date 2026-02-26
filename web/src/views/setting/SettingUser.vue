@@ -224,7 +224,7 @@ onMounted(() => {
   <password-modal v-model:id="currentID" v-model:show="passwordModal" />
   <two-fa-modal v-model:id="currentID" v-model:show="twoFaModal" />
   <token-modal v-model:id="currentID" v-model:show="tokenModal" />
-  <passkey-modal v-model:show="passkeyModal" />
+  <passkey-modal v-model:id="currentID" v-model:show="passkeyModal" />
 </template>
 
 <style scoped lang="scss"></style>

@@ -68,6 +68,7 @@ export default {
     http.Put(`/user/passkey/register?name=${encodeURIComponent(name)}`, credential),
   passkeyBeginLogin: (): any => http.Post('/user/passkey/login'),
   passkeyFinishLogin: (assertion: any): any => http.Put('/user/passkey/login', assertion),
-  passkeyList: (): any => http.Get('/user_passkeys'),
-  passkeyDelete: (id: number): any => http.Delete(`/user_passkeys/${id}`)
+  passkeyList: (user_id: number): any => http.Get('/user_passkeys', { params: { user_id } }),
+  passkeyDelete: (id: number, user_id: number): any =>
+    http.Delete(`/user_passkeys/${id}`, { params: { user_id } })
 }

@@ -292,9 +292,19 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	Success(w, nil)
 }
 
-// List 列出当前用户的通行密钥
+// List 列出指定用户的通行密钥
 func (s *UserPasskeyService) List(w http.ResponseWriter, r *http.Request) {
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	req, err := Bind[request.UserPasskeyList](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	// 未指定 user_id 时默认查当前用户
+	userID := req.UserID
+	if userID == 0 {
+		userID = cast.ToUint(r.Context().Value("user_id"))
+	}
 	if userID == 0 {
 		ErrorSystem(w)
 		return
@@ -313,13 +323,17 @@ func (s *UserPasskeyService) List(w http.ResponseWriter, r *http.Request) {
 
 // Delete 删除指定通行密钥
 func (s *UserPasskeyService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+	req, err := Bind[request.UserPasskeyDelete](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	// 未指定 user_id 时默认为当前用户
+	userID := req.UserID
+	if userID == 0 {
+		userID = cast.ToUint(r.Context().Value("user_id"))
+	}
 	if userID == 0 {
 		ErrorSystem(w)
 		return

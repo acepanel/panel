@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
-	"strings"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
@@ -66,9 +66,9 @@ func ParseUserID(userHandle []byte) (uint, error) {
 // NewWebAuthn 根据 HTTP 请求动态创建 WebAuthn 实例
 func NewWebAuthn(r *http.Request) (*webauthn.WebAuthn, error) {
 	host := r.Host
-	hostname := host
-	if idx := strings.LastIndex(host, ":"); idx != -1 {
-		hostname = host[:idx]
+	hostname, _, err := net.SplitHostPort(host)
+	if err != nil {
+		hostname = host
 	}
 
 	scheme := "https"

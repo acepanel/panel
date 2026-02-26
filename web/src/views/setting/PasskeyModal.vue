@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import user from '@/api/panel/user'
+import { useUserStore } from '@/store'
 import { formatDateTime } from '@/utils'
 import { startRegistration } from '@simplewebauthn/browser'
 import { NAlert, NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
@@ -7,10 +8,15 @@ import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
+const id = defineModel<number>('id', { type: Number, required: true })
+const userStore = useUserStore()
 
 const registerLoading = ref(false)
 const passkeyName = ref('')
 const passkeySupported = ref(false)
+
+// 只有当前登录用户自己才能注册通行密钥
+const isSelf = computed(() => String(id.value) === String(userStore.id))
 
 const columns: any = [
   {
@@ -76,7 +82,7 @@ const data = ref<any[]>([])
 
 const refresh = () => {
   loading.value = true
-  useRequest(user.passkeyList())
+  useRequest(user.passkeyList(id.value))
     .onSuccess(({ data: res }) => {
       data.value = res.items || []
     })
@@ -92,7 +98,7 @@ const checkSupported = () => {
 }
 
 const handleDelete = (passkeyId: number) => {
-  useRequest(() => user.passkeyDelete(passkeyId)).onSuccess(() => {
+  useRequest(() => user.passkeyDelete(passkeyId, id.value)).onSuccess(() => {
     window.$message.success($gettext('Deleted successfully'))
     refresh()
   })
@@ -164,7 +170,7 @@ watch(
           )
         }}
       </n-alert>
-      <template v-else>
+      <template v-else-if="isSelf">
         <n-flex align="center">
           <n-input
             v-model:value="passkeyName"
