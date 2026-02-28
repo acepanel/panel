@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-02-27 16:42\n"
+"PO-Revision-Date: 2026-02-28 15:08\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -901,7 +901,7 @@ msgstr "PHP-%d 未安装"
 msgid "Parameters cannot be empty"
 msgstr "参数不能为空"
 
-#: internal/service/user_passkey.go:178
+#: internal/service/user_passkey.go:179
 msgid "Passkey"
 msgstr "通行密钥"
 
@@ -2341,8 +2341,8 @@ msgstr "获取数据库服务器时响应无效：%v"
 msgid "invalid response: %v"
 msgstr "无效的响应：%v"
 
-#: internal/service/user_passkey.go:145
-#: internal/service/user_passkey.go:243
+#: internal/service/user_passkey.go:146
+#: internal/service/user_passkey.go:245
 msgid "invalid session, please try again"
 msgstr "无效的会话，请重试"
 
@@ -2480,11 +2480,11 @@ msgstr "面板运行错误，请检查或联系技术支持"
 msgid "partition has no UUID"
 msgstr "分区没有 UUID"
 
-#: internal/service/user_passkey.go:273
+#: internal/service/user_passkey.go:275
 msgid "passkey login failed: %v"
 msgstr "密钥登录失败：%v"
 
-#: internal/service/user_passkey.go:171
+#: internal/service/user_passkey.go:172
 msgid "passkey registration failed: %v"
 msgstr "通行密钥注册失败：%v"
 
