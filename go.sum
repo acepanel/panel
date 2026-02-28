@@ -29,8 +29,8 @@ github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUS
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/bddjr/hlfhr v1.4.4 h1:Ld5i7pYiGylh9BuuKGNYW94csqley3fFYigXwym8Sh0=
-github.com/bddjr/hlfhr v1.4.4/go.mod h1:YmFjslYd0ulNO0CtykhkhRUXJpfdq9sPVHQ4G67D610=
+github.com/bddjr/hlfhr v1.5.0 h1:UJYQBlfNoBDFmG2mRBMexvG3OD73VudDwwwFGKo8h9A=
+github.com/bddjr/hlfhr v1.5.0/go.mod h1:YmFjslYd0ulNO0CtykhkhRUXJpfdq9sPVHQ4G67D610=
 github.com/beevik/ntp v1.5.0 h1:y+uj/JjNwlY2JahivxYvtmv4ehfi3h74fAuABB9ZSM4=
 github.com/beevik/ntp v1.5.0/go.mod h1:mJEhBrwT76w9D+IfOEGvuzyuudiW9E52U2BaTrMOYow=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
