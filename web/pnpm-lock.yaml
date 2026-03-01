@@ -197,7 +197,7 @@ importers:
         version: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-compression2:
         specifier: ^2.4.0
-        version: 2.4.0(rollup@4.59.0)
+        version: 2.5.0(rollup@4.59.0)
       vite-plugin-html:
         specifier: ^3.2.2
         version: 3.2.2(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
@@ -3096,8 +3096,8 @@ packages:
     peerDependencies:
       vite: ^2.6.0 || ^3.0.0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0 || ^7.0.0-0
 
-  vite-plugin-compression2@2.4.0:
-    resolution: {integrity: sha512-8J4CBF1+dM1I06azba/eXJuJHinLF0Am7lUvRH8AZpu0otJoBaDEnxrIEr5iPZJSwH0AEglJGYCveh7pN52jCg==}
+  vite-plugin-compression2@2.5.0:
+    resolution: {integrity: sha512-bHxtBibPxxSn5eZSe0IAzvYucP/hg8Bz8ppjbH7lndU5kIHT+92qTkB4z9xWYfnyV0YHuir1SjOuyO0fzU4Vgg==}
 
   vite-plugin-html@3.2.2:
     resolution: {integrity: sha512-vb9C9kcdzcIo/Oc3CLZVS03dL5pDlOFuhGlZYDCJ840BhWl/0nGeZWf3Qy7NlOayscY4Cm/QRgULCQkEZige5Q==}
@@ -6373,7 +6373,7 @@ snapshots:
     dependencies:
       vite: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  vite-plugin-compression2@2.4.0(rollup@4.59.0):
+  vite-plugin-compression2@2.5.0(rollup@4.59.0):
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.59.0)
       tar-mini: 0.2.0
