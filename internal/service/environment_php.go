@@ -49,7 +49,7 @@ func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binPath := fmt.Sprintf("%s/server/php/%d/bin", app.Root, req.Version)
-	if err = linkCLIBinaries(binPath, []string{"php"}); err != nil {
+	if err = io.LinkCLIBinaries(binPath, []string{"php"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

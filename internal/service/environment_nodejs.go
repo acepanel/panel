@@ -10,6 +10,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -37,7 +38,7 @@ func (s *EnvironmentNodejsService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/nodejs/%s/bin", app.Root, req.Slug)
-	if err = linkCLIBinaries(binPath, []string{"node", "npm", "npx", "corepack"}); err != nil {
+	if err = io.LinkCLIBinaries(binPath, []string{"node", "npm", "npx", "corepack"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
