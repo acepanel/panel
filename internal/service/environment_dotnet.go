@@ -9,7 +9,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
-	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 type EnvironmentDotnetService struct {
@@ -36,7 +35,7 @@ func (s *EnvironmentDotnetService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/dotnet/%s", app.Root, req.Slug)
-	if _, err = shell.Execf("ln -sf %s/dotnet /usr/local/bin/dotnet", binPath); err != nil {
+	if err = linkCLIBinaries(binPath, []string{"dotnet"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

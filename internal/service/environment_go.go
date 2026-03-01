@@ -37,11 +37,7 @@ func (s *EnvironmentGoService) SetCli(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binPath := fmt.Sprintf("%s/server/go/%s/bin", app.Root, req.Slug)
-	if _, err = shell.Execf("ln -sf %s/go /usr/local/bin/go", binPath); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if _, err = shell.Execf("ln -sf %s/gofmt /usr/local/bin/gofmt", binPath); err != nil {
+	if err = linkCLIBinaries(binPath, []string{"go", "gofmt"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

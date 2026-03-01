@@ -37,12 +37,9 @@ func (s *EnvironmentNodejsService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/nodejs/%s/bin", app.Root, req.Slug)
-	binaries := []string{"node", "npm", "npx", "corepack"}
-	for _, bin := range binaries {
-		if _, err = shell.Execf("ln -sf %s/%s /usr/local/bin/%s", binPath, bin, bin); err != nil {
-			Error(w, http.StatusInternalServerError, "%v", err)
-			return
-		}
+	if err = linkCLIBinaries(binPath, []string{"node", "npm", "npx", "corepack"}); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
 	Success(w, nil)
