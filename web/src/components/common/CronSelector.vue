@@ -282,7 +282,7 @@ const showCustom = computed(() => selectedOption.value === 'custom')
 
 <template>
   <n-flex vertical :size="12">
-    <n-flex align="center" :wrap="false">
+    <n-flex align="center" :wrap="true">
       <!-- 周期类型选择 -->
       <n-select
         v-model:value="selectedOption"

@@ -222,16 +222,18 @@ watch(upload, (val) => {
         </template>
       </template>
 
-      <compress-modal
-        v-model:show="compress"
-        v-model:path="fileStore.activeTab!.path"
-        v-model:selected="selected"
-      />
-      <permission-modal
-        v-model:show="permission"
-        v-model:selected="selected"
-        v-model:file-info-list="permissionFileInfoList"
-      />
+      <template v-if="fileStore.activeTab">
+        <compress-modal
+          v-model:show="compress"
+          v-model:path="fileStore.activeTab.path"
+          v-model:selected="selected"
+        />
+        <permission-modal
+          v-model:show="permission"
+          v-model:selected="selected"
+          v-model:file-info-list="permissionFileInfoList"
+        />
+      </template>
     </n-flex>
 
     <!-- 拖拽上传遮罩 -->
@@ -244,8 +246,9 @@ watch(upload, (val) => {
 
     <!-- 上传弹窗 -->
     <upload-modal
+      v-if="fileStore.activeTab"
       v-model:show="upload"
-      v-model:path="fileStore.activeTab!.path"
+      v-model:path="fileStore.activeTab.path"
       :initial-files="droppedFiles"
     />
   </common-page>

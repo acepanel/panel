@@ -27,7 +27,7 @@ msgstr ""
 msgid "AUTHOR"
 msgstr ""
 
-#: internal/service/environment_php.go:182
+#: internal/service/environment_php.go:183
 msgid "Accepted Connections"
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Active Connections"
 msgstr ""
 
-#: internal/service/environment_php.go:187
+#: internal/service/environment_php.go:188
 msgid "Active Processes"
 msgstr ""
 
@@ -115,7 +115,7 @@ msgstr ""
 msgid "App update failed: %v"
 msgstr ""
 
-#: internal/service/environment_php.go:179
+#: internal/service/environment_php.go:180
 msgid "Application Pool"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgstr ""
 msgid "Bytes/sec"
 msgstr ""
 
-#: internal/service/environment_php.go:460
+#: internal/service/environment_php.go:461
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/service/environment_php.go:500
+#: internal/service/environment_php.go:501
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
@@ -374,7 +374,7 @@ msgstr ""
 msgid "Enable access entrance"
 msgstr ""
 
-#: internal/service/environment_php.go:490
+#: internal/service/environment_php.go:491
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
@@ -391,11 +391,11 @@ msgstr ""
 msgid "Entrance: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:470
+#: internal/service/environment_php.go:471
 msgid "Event is a library for handling events"
 msgstr ""
 
-#: internal/service/environment_php.go:425
+#: internal/service/environment_php.go:426
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "Failed to update 2FA: %v"
 msgstr ""
 
-#: internal/service/environment_php.go:395
+#: internal/service/environment_php.go:396
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgid "GLOBAL OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:505
+#: internal/service/environment_php.go:506
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
@@ -570,13 +570,13 @@ msgstr ""
 msgid "Get panel setting (use only under guidance)"
 msgstr ""
 
-#: internal/service/environment_php.go:525
+#: internal/service/environment_php.go:526
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
-#: internal/service/environment_go.go:35
-#: internal/service/environment_go.go:59
-#: internal/service/environment_go.go:79
+#: internal/service/environment_go.go:36
+#: internal/service/environment_go.go:56
+#: internal/service/environment_go.go:76
 msgid "Go-%s is not installed"
 msgstr ""
 
@@ -600,11 +600,11 @@ msgstr ""
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:450
+#: internal/service/environment_php.go:451
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
-#: internal/service/environment_php.go:186
+#: internal/service/environment_php.go:187
 msgid "Idle Processes"
 msgstr ""
 
@@ -620,11 +620,11 @@ msgstr ""
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr ""
 
-#: internal/service/environment_php.go:405
+#: internal/service/environment_php.go:406
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:420
+#: internal/service/environment_php.go:421
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
@@ -647,7 +647,7 @@ msgstr ""
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
-#: internal/service/environment_php.go:345
+#: internal/service/environment_php.go:346
 msgid "Install PHP-%d %s module"
 msgstr ""
 
@@ -663,7 +663,7 @@ msgstr ""
 msgid "Install environment %s"
 msgstr ""
 
-#: internal/service/environment_php.go:520
+#: internal/service/environment_php.go:521
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
@@ -683,7 +683,7 @@ msgstr ""
 msgid "Keyspace Misses"
 msgstr ""
 
-#: internal/service/environment_php.go:485
+#: internal/service/environment_php.go:486
 msgid "LDAP is a protocol for accessing directory services"
 msgstr ""
 
@@ -703,11 +703,11 @@ msgstr ""
 msgid "List of listening addresses associated with the website"
 msgstr ""
 
-#: internal/service/environment_php.go:183
+#: internal/service/environment_php.go:184
 msgid "Listen Queue"
 msgstr ""
 
-#: internal/service/environment_php.go:185
+#: internal/service/environment_php.go:186
 msgid "Listen Queue Length"
 msgstr ""
 
@@ -728,19 +728,19 @@ msgstr ""
 msgid "Log rotation"
 msgstr ""
 
-#: internal/service/environment_php.go:189
+#: internal/service/environment_php.go:190
 msgid "Max Active Processes"
 msgstr ""
 
-#: internal/service/environment_php.go:190
+#: internal/service/environment_php.go:191
 msgid "Max Children Reached"
 msgstr ""
 
-#: internal/service/environment_php.go:184
+#: internal/service/environment_php.go:185
 msgid "Max Listen Queue"
 msgstr ""
 
-#: internal/service/environment_php.go:415
+#: internal/service/environment_php.go:416
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
@@ -787,9 +787,9 @@ msgstr ""
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
-#: internal/service/environment_nodejs.go:35
-#: internal/service/environment_nodejs.go:58
-#: internal/service/environment_nodejs.go:78
+#: internal/service/environment_nodejs.go:36
+#: internal/service/environment_nodejs.go:56
+#: internal/service/environment_nodejs.go:76
 msgid "Node.js-%s is not installed"
 msgstr ""
 
@@ -814,7 +814,7 @@ msgstr ""
 msgid "OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:400
+#: internal/service/environment_php.go:401
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
@@ -862,23 +862,23 @@ msgstr ""
 msgid "PHP version used by the website (not used if not filled)"
 msgstr ""
 
-#: internal/service/environment_php.go:107
-#: internal/service/environment_php.go:126
-#: internal/service/environment_php.go:146
-#: internal/service/environment_php.go:165
-#: internal/service/environment_php.go:230
-#: internal/service/environment_php.go:244
-#: internal/service/environment_php.go:258
-#: internal/service/environment_php.go:277
-#: internal/service/environment_php.go:296
-#: internal/service/environment_php.go:329
-#: internal/service/environment_php.go:363
+#: internal/service/environment_php.go:108
+#: internal/service/environment_php.go:127
+#: internal/service/environment_php.go:147
+#: internal/service/environment_php.go:166
+#: internal/service/environment_php.go:231
+#: internal/service/environment_php.go:245
+#: internal/service/environment_php.go:259
+#: internal/service/environment_php.go:278
+#: internal/service/environment_php.go:297
+#: internal/service/environment_php.go:330
+#: internal/service/environment_php.go:364
 #: internal/service/environment_php.go:47
-#: internal/service/environment_php.go:646
-#: internal/service/environment_php.go:66
-#: internal/service/environment_php.go:705
-#: internal/service/environment_php.go:768
-#: internal/service/environment_php.go:87
+#: internal/service/environment_php.go:647
+#: internal/service/environment_php.go:67
+#: internal/service/environment_php.go:706
+#: internal/service/environment_php.go:769
+#: internal/service/environment_php.go:88
 msgid "PHP-%d is not installed"
 msgstr ""
 
@@ -921,7 +921,7 @@ msgstr ""
 msgid "Peak Memory Usage"
 msgstr ""
 
-#: internal/service/environment_php.go:410
+#: internal/service/environment_php.go:411
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr ""
 
@@ -965,7 +965,7 @@ msgstr ""
 msgid "Process Count"
 msgstr ""
 
-#: internal/service/environment_php.go:180
+#: internal/service/environment_php.go:181
 msgid "Process Manager"
 msgstr ""
 
@@ -977,7 +977,7 @@ msgstr ""
 msgid "Project"
 msgstr ""
 
-#: internal/service/environment_php.go:495
+#: internal/service/environment_php.go:496
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
@@ -989,9 +989,9 @@ msgstr ""
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr ""
 
-#: internal/service/environment_python.go:35
-#: internal/service/environment_python.go:58
-#: internal/service/environment_python.go:78
+#: internal/service/environment_python.go:36
+#: internal/service/environment_python.go:56
+#: internal/service/environment_python.go:76
 msgid "Python-%s is not installed"
 msgstr ""
 
@@ -1019,7 +1019,7 @@ msgstr ""
 msgid "Reading"
 msgstr ""
 
-#: internal/service/environment_php.go:475
+#: internal/service/environment_php.go:476
 msgid "Readline is a library for processing text"
 msgstr ""
 
@@ -1055,7 +1055,7 @@ msgstr ""
 msgid "Rotation type"
 msgstr ""
 
-#: internal/service/environment_php.go:480
+#: internal/service/environment_php.go:481
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
@@ -1063,7 +1063,7 @@ msgstr ""
 msgid "SSH log file not found"
 msgstr ""
 
-#: internal/service/environment_php.go:465
+#: internal/service/environment_php.go:466
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
@@ -1096,7 +1096,7 @@ msgstr ""
 msgid "Server username"
 msgstr ""
 
-#: internal/service/environment_php.go:781
+#: internal/service/environment_php.go:782
 msgid "Session save handler is not files, cannot clean"
 msgstr ""
 
@@ -1108,7 +1108,7 @@ msgstr ""
 msgid "Setting not exists"
 msgstr ""
 
-#: internal/service/environment_php.go:191
+#: internal/service/environment_php.go:192
 msgid "Slow Requests"
 msgstr ""
 
@@ -1121,7 +1121,7 @@ msgid "Start AcePanel service"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:168
-#: internal/service/environment_php.go:181
+#: internal/service/environment_php.go:182
 msgid "Start Time"
 msgstr ""
 
@@ -1150,11 +1150,11 @@ msgstr ""
 msgid "Successfully obtained panel certificate via ACME"
 msgstr ""
 
-#: internal/service/environment_php.go:585
+#: internal/service/environment_php.go:586
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/service/environment_php.go:594
+#: internal/service/environment_php.go:595
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
@@ -1166,15 +1166,15 @@ msgstr ""
 msgid "Sync server time with NTP"
 msgstr ""
 
-#: internal/service/environment_php.go:565
+#: internal/service/environment_php.go:566
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
 
-#: internal/service/environment_php.go:570
+#: internal/service/environment_php.go:571
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr ""
 
-#: internal/service/environment_php.go:575
+#: internal/service/environment_php.go:576
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
@@ -1243,7 +1243,7 @@ msgstr ""
 msgid "Total Memory Usage"
 msgstr ""
 
-#: internal/service/environment_php.go:188
+#: internal/service/environment_php.go:189
 msgid "Total Processes"
 msgstr ""
 
@@ -1282,7 +1282,7 @@ msgstr ""
 msgid "Unable to update app list cache in offline mode"
 msgstr ""
 
-#: internal/service/environment_php.go:379
+#: internal/service/environment_php.go:380
 msgid "Uninstall PHP-%d %s module"
 msgstr ""
 
@@ -1432,15 +1432,15 @@ msgstr ""
 msgid "Writing"
 msgstr ""
 
-#: internal/service/environment_php.go:510
+#: internal/service/environment_php.go:511
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr ""
 
-#: internal/service/environment_php.go:515
+#: internal/service/environment_php.go:516
 msgid "XSL is a library for processing XML documents"
 msgstr ""
 
-#: internal/service/environment_php.go:455
+#: internal/service/environment_php.go:456
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
@@ -2279,7 +2279,7 @@ msgstr ""
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/service/environment_php.go:530
+#: internal/service/environment_php.go:531
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
@@ -2356,7 +2356,7 @@ msgstr ""
 msgid "invalid user id, please login again"
 msgstr ""
 
-#: internal/service/environment_php.go:580
+#: internal/service/environment_php.go:581
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
@@ -2387,8 +2387,8 @@ msgstr ""
 
 #: internal/apps/rsync/app.go:162
 #: internal/apps/rsync/app.go:204
-#: internal/service/environment_php.go:334
-#: internal/service/environment_php.go:368
+#: internal/service/environment_php.go:335
+#: internal/service/environment_php.go:369
 msgid "module %s does not exist"
 msgstr ""
 
@@ -2484,15 +2484,15 @@ msgstr ""
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
-#: internal/service/environment_php.go:435
+#: internal/service/environment_php.go:436
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/service/environment_php.go:445
+#: internal/service/environment_php.go:446
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/service/environment_php.go:430
+#: internal/service/environment_php.go:431
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
@@ -2532,11 +2532,11 @@ msgstr ""
 msgid "project name already exists"
 msgstr ""
 
-#: internal/service/environment_php.go:535
+#: internal/service/environment_php.go:536
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:540
+#: internal/service/environment_php.go:541
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
@@ -2608,7 +2608,7 @@ msgstr ""
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
-#: internal/service/environment_php.go:440
+#: internal/service/environment_php.go:441
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
@@ -2878,7 +2878,7 @@ msgstr ""
 msgid "ws not allowed"
 msgstr ""
 
-#: internal/service/environment_php.go:550
+#: internal/service/environment_php.go:551
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
@@ -2886,15 +2886,15 @@ msgstr ""
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/environment_php.go:545
+#: internal/service/environment_php.go:546
 msgid "xhprof is a library for performance profiling"
 msgstr ""
 
-#: internal/service/environment_php.go:555
+#: internal/service/environment_php.go:556
 msgid "yaml is a library for handling YAML"
 msgstr ""
 
-#: internal/service/environment_php.go:560
+#: internal/service/environment_php.go:561
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 

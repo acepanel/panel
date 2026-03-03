@@ -23,7 +23,7 @@ require (
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
-	github.com/gookit/validate v1.5.7-0.20260207022141-dc32dc1276cd
+	github.com/gookit/validate v1.5.7-0.20260302030259-166fa4925314
 	github.com/hashicorp/go-version v1.8.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.11.2
@@ -39,8 +39,8 @@ require (
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/cache v1.2.0
 	github.com/libtnb/chix v1.3.2
-	github.com/libtnb/gormstore v1.1.1
-	github.com/libtnb/sessions v1.3.1
+	github.com/libtnb/gormstore v1.2.0
+	github.com/libtnb/sessions v1.4.0
 	github.com/libtnb/sqlite v1.0.0
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
@@ -52,14 +52,14 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/rhnvrm/simples3 v0.11.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/samber/lo v1.52.0
+	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.1.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
 	github.com/studio-b12/gowebdav v0.12.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
-	github.com/urfave/cli/v3 v3.6.2
+	github.com/urfave/cli/v3 v3.7.0
 	github.com/valyala/fastjson v1.6.10
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
 	golang.org/x/crypto v0.48.0
