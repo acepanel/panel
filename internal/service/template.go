@@ -86,8 +86,10 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 回调
-	_ = s.templateRepo.Callback(req.Slug)
+	// 本地模板无需回调
+	if !template.Local {
+		_ = s.templateRepo.Callback(req.Slug)
+	}
 
 	Success(w, dir)
 }

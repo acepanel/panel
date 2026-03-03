@@ -38,4 +38,5 @@ export interface Template {
   version: string
   compose: string
   environments: TemplateEnvironment[]
+  local?: boolean
 }

@@ -33,7 +33,7 @@ func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {
 	}
 }
 
-// List 获取所有模版
+// List 获取所有模版（包括本地模板）
 func (r *templateRepo) List() api.Templates {
 	cached, err := r.cache.Get(biz.CacheKeyTemplates)
 	if err != nil {
@@ -42,6 +42,53 @@ func (r *templateRepo) List() api.Templates {
 	templates := make(api.Templates, 0)
 	if err = json.Unmarshal([]byte(cached), &templates); err != nil {
 		return nil
+	}
+
+	// 加载本地模板并合并（本地模板覆盖同 slug 的远端模板）
+	localTemplates := r.loadLocalTemplates()
+	if len(localTemplates) > 0 {
+		slugMap := make(map[string]int, len(templates))
+		for i, t := range templates {
+			slugMap[t.Slug] = i
+		}
+		for _, lt := range localTemplates {
+			if i, ok := slugMap[lt.Slug]; ok {
+				templates[i] = lt
+			} else {
+				templates = append(templates, lt)
+			}
+		}
+	}
+
+	return templates
+}
+
+// loadLocalTemplates 从本地目录加载模板
+func (r *templateRepo) loadLocalTemplates() api.Templates {
+	dir := filepath.Join(app.Root, "templates")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var templates api.Templates
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+		if err != nil {
+			continue
+		}
+		t := new(api.Template)
+		if err = json.Unmarshal(data, t); err != nil {
+			continue
+		}
+		if t.Slug == "" {
+			continue
+		}
+		t.Local = true
+		templates = append(templates, t)
 	}
 
 	return templates

@@ -24,6 +24,7 @@ type Template struct {
 		Options     map[string]string `json:"options,omitempty"` // 下拉框选项，key -> value
 		Default     any               `json:"default,omitempty"` // 默认值，string or number
 	} `json:"environments"`
+	Local bool `json:"local"` // 是否为本地模板
 }
 
 type Templates []*Template

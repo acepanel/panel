@@ -116,6 +116,9 @@ onMounted(() => {
                 {{ tpl.description }}
               </n-ellipsis>
               <n-flex :size="4" style="margin-top: auto">
+                <n-tag v-if="tpl.local" size="small" type="warning">
+                  {{ $gettext('Local') }}
+                </n-tag>
                 <n-tag v-for="cat in tpl.categories" :key="cat" size="small">
                   {{ getCategoryLabel(cat) }}
                 </n-tag>
