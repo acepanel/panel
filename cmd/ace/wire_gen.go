@@ -147,7 +147,7 @@ func initAce() (*app.Ace, error) {
 	toolboxMigrationService := service.NewToolboxMigrationService(locale, config, logger, settingRepo, websiteRepo, databaseRepo, databaseServerRepo, databaseUserRepo, projectRepo, appRepo, environmentRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db, logger)
 	webHookService := service.NewWebHookService(webHookRepo)
-	templateRepo := data.NewTemplateRepo(locale, cacheRepo)
+	templateRepo := data.NewTemplateRepo(locale, logger, cacheRepo)
 	templateService := service.NewTemplateService(locale, templateRepo, settingRepo)
 	websiteStatRepo, err := data.NewWebsiteStatRepo()
 	if err != nil {

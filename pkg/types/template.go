@@ -1,6 +1,6 @@
 package types
 
-// TemplateData data.yml 的 YAML 结构，与 github.com/acepanel/templates 仓库格式一致
+// TemplateData data.yml 的 YAML 结构
 type TemplateData struct {
 	Name          map[string]string                    `yaml:"name"`
 	Description   map[string]string                    `yaml:"description"`

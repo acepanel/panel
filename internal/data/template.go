@@ -22,14 +22,16 @@ import (
 
 type templateRepo struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	cache    biz.CacheRepo
 	api      *api.API
 	firewall firewall.Firewall
 }
 
-func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {
+func NewTemplateRepo(t *gotext.Locale, log *slog.Logger, cache biz.CacheRepo) biz.TemplateRepo {
 	return &templateRepo{
 		t:        t,
+		log:      log,
 		cache:    cache,
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
@@ -66,13 +68,13 @@ func (r *templateRepo) List() api.Templates {
 	return templates
 }
 
-// loadLocalTemplates 从本地目录加载模板，与 github.com/acepanel/templates 仓库格式一致
+// loadLocalTemplates 从本地目录加载模板
 func (r *templateRepo) loadLocalTemplates() api.Templates {
 	dir := filepath.Join(app.Root, "panel/storage/templates")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			slog.Warn("failed to read templates directory", "path", dir, "error", err)
+			r.log.Warn("failed to read templates directory", "path", dir, "err", err)
 		}
 		return nil
 	}
@@ -91,14 +93,14 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 		dataBytes, err := os.ReadFile(dataPath)
 		if err != nil {
 			if !os.IsNotExist(err) {
-				slog.Warn("failed to read template data.yml", "path", dataPath, "error", err)
+				r.log.Warn("failed to read template data.yml", "path", dataPath, "err", err)
 			}
 			continue
 		}
 
 		var data types.TemplateData
 		if err = yaml.Unmarshal(dataBytes, &data); err != nil {
-			slog.Warn("failed to parse template data.yml", "path", dataPath, "error", err)
+			r.log.Warn("failed to parse template data.yml", "path", dataPath, "err", err)
 			continue
 		}
 
@@ -106,15 +108,15 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 		composePath := filepath.Join(tplDir, "docker-compose.yml")
 		composeBytes, err := os.ReadFile(composePath)
 		if err != nil {
-			slog.Warn("failed to read template docker-compose.yml", "path", composePath, "error", err)
+			r.log.Warn("failed to read template docker-compose.yml", "path", composePath, "err", err)
 			continue
 		}
 
 		// 构建模板
 		t := &api.Template{
 			Slug:          slug,
-			Name:          resolveLocale(data.Name),
-			Description:   resolveLocale(data.Description),
+			Name:          r.resolveLocale(data.Name),
+			Description:   r.resolveLocale(data.Description),
 			Website:       data.Website,
 			Categories:    data.Categories,
 			Architectures: data.Architectures,
@@ -132,15 +134,15 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 				Default     any               `json:"default,omitempty"`
 			}{
 				Name:        name,
-				Description: resolveLocale(env.Description),
+				Description: r.resolveLocale(env.Description),
 				Type:        env.Type,
 				Options:     env.Options,
 				Default:     env.Default,
 			})
 		}
 
-		// 读取 logo，优先 svg 其次 png
-		if icon := readLogo(tplDir); icon != "" {
+		// 读取 logo
+		if icon := r.readLogo(tplDir); icon != "" {
 			t.Icon = icon
 		}
 
@@ -151,19 +153,16 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 }
 
 // resolveLocale 根据当前语言环境解析国际化字段
-func resolveLocale(m map[string]string) string {
+func (r *templateRepo) resolveLocale(m map[string]string) string {
 	if m == nil {
 		return ""
 	}
-	// 优先使用当前语言
 	if v, ok := m[app.Locale]; ok {
 		return v
 	}
-	// 回退到英文
 	if v, ok := m["en"]; ok {
 		return v
 	}
-	// 返回任意值兜底
 	for _, v := range m {
 		return v
 	}
@@ -171,7 +170,7 @@ func resolveLocale(m map[string]string) string {
 }
 
 // readLogo 读取模板目录中的 logo 文件并返回 base64 data URI
-func readLogo(dir string) string {
+func (r *templateRepo) readLogo(dir string) string {
 	candidates := []struct {
 		name string
 		mime string
