@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -68,6 +69,9 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 	dir := filepath.Join(app.Root, "templates")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
+		if !os.IsNotExist(err) {
+			slog.Warn("failed to read templates directory", "path", dir, "error", err)
+		}
 		return nil
 	}
 
@@ -76,15 +80,19 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
-		data, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+		file := filepath.Join(dir, entry.Name())
+		data, err := os.ReadFile(file)
 		if err != nil {
+			slog.Warn("failed to read template file", "file", file, "error", err)
 			continue
 		}
 		t := new(api.Template)
 		if err = json.Unmarshal(data, t); err != nil {
+			slog.Warn("failed to parse template file", "file", file, "error", err)
 			continue
 		}
 		if t.Slug == "" {
+			slog.Warn("template file missing slug", "file", file)
 			continue
 		}
 		t.Local = true
