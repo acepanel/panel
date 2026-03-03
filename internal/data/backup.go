@@ -17,7 +17,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/db"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/storage"
@@ -506,118 +505,12 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 
 // createMySQL 创建 MySQL 备份
 func (r *backupRepo) createMySQL(name string, storage storage.Storage, target string) error {
-	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
-	if err != nil {
-		return err
-	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
-	if err != nil {
-		return err
-	}
-	defer mysql.Close()
-	if exist, _ := mysql.DatabaseExists(target); !exist {
-		return errors.New(r.t.Get("database does not exist: %s", target))
-	}
-
-	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
-	if err != nil {
-		return err
-	}
-	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
-	}
-
-	// 导出数据库
-	name = name + ".sql"
-	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysqldump -u root --single-transaction --quick '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
-		return err
-	}
-	_ = os.Unsetenv("MYSQL_PWD")
-
-	// 压缩备份文件
-	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+".zip")); err != nil {
-		return err
-	}
-
-	// 上传备份文件到存储器
-	name = name + ".zip"
-	file, err := os.Open(filepath.Join(tmpDir, name))
-	if err != nil {
-		return err
-	}
-	defer func(file *os.File) { _ = file.Close() }(file)
-
-	if err = storage.Put(filepath.Join(string(biz.BackupTypeMySQL), name), file); err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Backup file: %s", name))
-	}
-
-	return nil
+	return r.createSQLBackup(name, storage, target, r.mysqlBackupEngine())
 }
 
 // createPostgres 创建 PostgreSQL 备份
 func (r *backupRepo) createPostgres(name string, storage storage.Storage, target string) error {
-	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
-	if err != nil {
-		return err
-	}
-	postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
-	if err != nil {
-		return err
-	}
-	defer postgres.Close()
-	if exist, _ := postgres.DatabaseExists(target); !exist {
-		return errors.New(r.t.Get("database does not exist: %s", target))
-	}
-
-	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
-	if err != nil {
-		return err
-	}
-	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
-	}
-
-	// 导出数据库
-	name = name + ".sql"
-	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	if _, err = shell.Execf(`pg_dump -h 127.0.0.1 -U postgres '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
-		return err
-	}
-	_ = os.Unsetenv("PGPASSWORD")
-
-	// 压缩备份文件
-	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+".zip")); err != nil {
-		return err
-	}
-
-	// 上传备份文件到存储器
-	name = name + ".zip"
-	file, err := os.Open(filepath.Join(tmpDir, name))
-	if err != nil {
-		return err
-	}
-	defer func(file *os.File) { _ = file.Close() }(file)
-
-	if err = storage.Put(filepath.Join(string(biz.BackupTypePostgres), name), file); err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Backup file: %s", name))
-	}
-
-	return nil
+	return r.createSQLBackup(name, storage, target, r.postgresBackupEngine())
 }
 
 // restoreWebsite 恢复网站备份
@@ -645,74 +538,12 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 
 // restoreMySQL 恢复 MySQL 备份
 func (r *backupRepo) restoreMySQL(backup, target string) error {
-	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
-	if err != nil {
-		return err
-	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
-	if err != nil {
-		return err
-	}
-	defer mysql.Close()
-	if exist, _ := mysql.DatabaseExists(target); !exist {
-		return errors.New(r.t.Get("database does not exist: %s", target))
-	}
-
-	clean := false
-	if !strings.HasSuffix(backup, ".sql") {
-		backup, err = r.autoUnCompressSQL(backup)
-		if err != nil {
-			return err
-		}
-		clean = true
-	}
-
-	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysql -u root '%s' < '%s'`, target, backup); err != nil {
-		return err
-	}
-	_ = os.Unsetenv("MYSQL_PWD")
-	if clean {
-		_ = io.Remove(filepath.Dir(backup))
-	}
-
-	return nil
+	return r.restoreSQLBackup(backup, target, r.mysqlBackupEngine())
 }
 
 // restorePostgres 恢复 PostgreSQL 备份
 func (r *backupRepo) restorePostgres(backup, target string) error {
-	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
-	if err != nil {
-		return err
-	}
-	postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
-	if err != nil {
-		return err
-	}
-	defer postgres.Close()
-	if exist, _ := postgres.DatabaseExists(target); !exist {
-		return errors.New(r.t.Get("database does not exist: %s", target))
-	}
-
-	clean := false
-	if !strings.HasSuffix(backup, ".sql") {
-		backup, err = r.autoUnCompressSQL(backup)
-		if err != nil {
-			return err
-		}
-		clean = true
-	}
-
-	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	if _, err = shell.Execf(`psql -h 127.0.0.1 -U postgres '%s' < '%s'`, target, backup); err != nil {
-		return err
-	}
-	_ = os.Unsetenv("PGPASSWORD")
-	if clean {
-		_ = io.Remove(filepath.Dir(backup))
-	}
-
-	return nil
+	return r.restoreSQLBackup(backup, target, r.postgresBackupEngine())
 }
 
 // autoUnCompressSQL 自动处理压缩文件
