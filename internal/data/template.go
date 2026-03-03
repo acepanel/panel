@@ -36,7 +36,7 @@ func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {
 	}
 }
 
-// List 获取所有模版（包括本地模板）
+// List 获取所有模版，包括本地模板
 func (r *templateRepo) List() api.Templates {
 	cached, err := r.cache.Get(biz.CacheKeyTemplates)
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *templateRepo) List() api.Templates {
 		return nil
 	}
 
-	// 加载本地模板并合并（本地模板覆盖同 slug 的远端模板）
+	// 加载本地模板并合并，本地模板覆盖同 slug 的远端模板
 	localTemplates := r.loadLocalTemplates()
 	if len(localTemplates) > 0 {
 		slugMap := make(map[string]int, len(templates))
@@ -66,24 +66,7 @@ func (r *templateRepo) List() api.Templates {
 	return templates
 }
 
-// localTemplateData data.yml 的 YAML 结构（与 github.com/acepanel/templates 仓库格式一致）
-type localTemplateData struct {
-	Name          map[string]string                       `yaml:"name"`
-	Description   map[string]string                       `yaml:"description"`
-	Website       string                                  `yaml:"website"`
-	Categories    []string                                `yaml:"categories"`
-	Architectures []string                                `yaml:"architectures"`
-	Environments  map[string]localTemplateDataEnvironment `yaml:"environments"`
-}
-
-type localTemplateDataEnvironment struct {
-	Description map[string]string `yaml:"description"`
-	Type        string            `yaml:"type"`
-	Options     map[string]string `yaml:"options,omitempty"`
-	Default     any               `yaml:"default,omitempty"`
-}
-
-// loadLocalTemplates 从本地目录加载模板（与 github.com/acepanel/templates 仓库格式一致）
+// loadLocalTemplates 从本地目录加载模板，与 github.com/acepanel/templates 仓库格式一致
 func (r *templateRepo) loadLocalTemplates() api.Templates {
 	dir := filepath.Join(app.Root, "panel/storage/templates")
 	entries, err := os.ReadDir(dir)
@@ -113,7 +96,7 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 			continue
 		}
 
-		var data localTemplateData
+		var data types.TemplateData
 		if err = yaml.Unmarshal(dataBytes, &data); err != nil {
 			slog.Warn("failed to parse template data.yml", "path", dataPath, "error", err)
 			continue
@@ -139,7 +122,7 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 			Local:         true,
 		}
 
-		// 转换环境变量（从 map 格式转为数组格式）
+		// 转换环境变量，从 map 格式转为数组格式
 		for name, env := range data.Environments {
 			t.Environments = append(t.Environments, struct {
 				Name        string            `json:"name"`
@@ -156,7 +139,7 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 			})
 		}
 
-		// 读取 logo（优先 svg，其次 png）
+		// 读取 logo，优先 svg 其次 png
 		if icon := readLogo(tplDir); icon != "" {
 			t.Icon = icon
 		}
@@ -180,7 +163,7 @@ func resolveLocale(m map[string]string) string {
 	if v, ok := m["en"]; ok {
 		return v
 	}
-	// 返回任意值（最后的兜底，此时既无当前语言也无英文）
+	// 返回任意值兜底
 	for _, v := range m {
 		return v
 	}
