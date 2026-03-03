@@ -73,7 +73,7 @@ const getSelectOptions = (env: TemplateEnvironment) => {
 const formRules = computed<FormRules>(() => {
   const rules: FormRules = {}
   props.template?.environments?.forEach((env) => {
-    const isRequired = env.default == null || env.default === ''
+    const isRequired = env.default == null
 
     if (env.type === 'url') {
       rules[`envs.${env.name}`] = {
@@ -425,7 +425,7 @@ const composeOptions = computed(() => {
               :key="env.name"
               :path="`envs.${env.name}`"
               :label="env.description"
-              :required="env.default == null || env.default === ''"
+              :required="env.default == null"
             >
               <!-- Select 类型 -->
               <n-select
@@ -507,7 +507,7 @@ const composeOptions = computed(() => {
               :key="env.name"
               :path="`envs.${env.name}`"
               :label="env.description"
-              :required="env.default == null || env.default === ''"
+              :required="env.default == null"
             >
               <!-- Select 类型 -->
               <n-select

@@ -23,7 +23,7 @@ export interface TemplateEnvironment {
   description: string
   type: 'text' | 'url' | 'password' | 'number' | 'port' | 'select'
   options?: Record<string, string>
-  default: string
+  default?: string | null
 }
 
 export interface Template {
