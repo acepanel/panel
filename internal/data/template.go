@@ -180,7 +180,7 @@ func resolveLocale(m map[string]string) string {
 	if v, ok := m["en"]; ok {
 		return v
 	}
-	// 返回任意值
+	// 返回任意值（最后的兜底，此时既无当前语言也无英文）
 	for _, v := range m {
 		return v
 	}
