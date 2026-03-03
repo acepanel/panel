@@ -85,7 +85,7 @@ type localTemplateDataEnvironment struct {
 
 // loadLocalTemplates 从本地目录加载模板（与 github.com/acepanel/templates 仓库格式一致）
 func (r *templateRepo) loadLocalTemplates() api.Templates {
-	dir := filepath.Join(app.Root, "templates")
+	dir := filepath.Join(app.Root, "panel/storage/templates")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if !os.IsNotExist(err) {
