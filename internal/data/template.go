@@ -1,6 +1,7 @@
 package data
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -64,7 +66,24 @@ func (r *templateRepo) List() api.Templates {
 	return templates
 }
 
-// loadLocalTemplates 从本地目录加载模板
+// localTemplateData data.yml 的 YAML 结构（与 github.com/acepanel/templates 仓库格式一致）
+type localTemplateData struct {
+	Name          map[string]string                       `yaml:"name"`
+	Description   map[string]string                       `yaml:"description"`
+	Website       string                                  `yaml:"website"`
+	Categories    []string                                `yaml:"categories"`
+	Architectures []string                                `yaml:"architectures"`
+	Environments  map[string]localTemplateDataEnvironment `yaml:"environments"`
+}
+
+type localTemplateDataEnvironment struct {
+	Description map[string]string `yaml:"description"`
+	Type        string            `yaml:"type"`
+	Options     map[string]string `yaml:"options,omitempty"`
+	Default     any               `yaml:"default,omitempty"`
+}
+
+// loadLocalTemplates 从本地目录加载模板（与 github.com/acepanel/templates 仓库格式一致）
 func (r *templateRepo) loadLocalTemplates() api.Templates {
 	dir := filepath.Join(app.Root, "templates")
 	entries, err := os.ReadDir(dir)
@@ -77,29 +96,114 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 
 	var templates api.Templates
 	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+		if !entry.IsDir() {
 			continue
 		}
-		file := filepath.Join(dir, entry.Name())
-		data, err := os.ReadFile(file)
+
+		slug := entry.Name()
+		tplDir := filepath.Join(dir, slug)
+
+		// 读取 data.yml
+		dataPath := filepath.Join(tplDir, "data.yml")
+		dataBytes, err := os.ReadFile(dataPath)
 		if err != nil {
-			slog.Warn("failed to read template file", "file", file, "error", err)
+			if !os.IsNotExist(err) {
+				slog.Warn("failed to read template data.yml", "path", dataPath, "error", err)
+			}
 			continue
 		}
-		t := new(api.Template)
-		if err = json.Unmarshal(data, t); err != nil {
-			slog.Warn("failed to parse template file", "file", file, "error", err)
+
+		var data localTemplateData
+		if err = yaml.Unmarshal(dataBytes, &data); err != nil {
+			slog.Warn("failed to parse template data.yml", "path", dataPath, "error", err)
 			continue
 		}
-		if t.Slug == "" {
-			slog.Warn("template file missing slug", "file", file)
+
+		// 读取 docker-compose.yml
+		composePath := filepath.Join(tplDir, "docker-compose.yml")
+		composeBytes, err := os.ReadFile(composePath)
+		if err != nil {
+			slog.Warn("failed to read template docker-compose.yml", "path", composePath, "error", err)
 			continue
 		}
-		t.Local = true
+
+		// 构建模板
+		t := &api.Template{
+			Slug:          slug,
+			Name:          resolveLocale(data.Name),
+			Description:   resolveLocale(data.Description),
+			Website:       data.Website,
+			Categories:    data.Categories,
+			Architectures: data.Architectures,
+			Compose:       string(composeBytes),
+			Local:         true,
+		}
+
+		// 转换环境变量（从 map 格式转为数组格式）
+		for name, env := range data.Environments {
+			t.Environments = append(t.Environments, struct {
+				Name        string            `json:"name"`
+				Description string            `json:"description"`
+				Type        string            `json:"type"`
+				Options     map[string]string `json:"options,omitempty"`
+				Default     any               `json:"default,omitempty"`
+			}{
+				Name:        name,
+				Description: resolveLocale(env.Description),
+				Type:        env.Type,
+				Options:     env.Options,
+				Default:     env.Default,
+			})
+		}
+
+		// 读取 logo（优先 svg，其次 png）
+		if icon := readLogo(tplDir); icon != "" {
+			t.Icon = icon
+		}
+
 		templates = append(templates, t)
 	}
 
 	return templates
+}
+
+// resolveLocale 根据当前语言环境解析国际化字段
+func resolveLocale(m map[string]string) string {
+	if m == nil {
+		return ""
+	}
+	// 优先使用当前语言
+	if v, ok := m[app.Locale]; ok {
+		return v
+	}
+	// 回退到英文
+	if v, ok := m["en"]; ok {
+		return v
+	}
+	// 返回任意值
+	for _, v := range m {
+		return v
+	}
+	return ""
+}
+
+// readLogo 读取模板目录中的 logo 文件并返回 base64 data URI
+func readLogo(dir string) string {
+	candidates := []struct {
+		name string
+		mime string
+	}{
+		{"logo.svg", "image/svg+xml"},
+		{"logo.png", "image/png"},
+	}
+	for _, c := range candidates {
+		data, err := os.ReadFile(filepath.Join(dir, c.name))
+		if err != nil {
+			continue
+		}
+		return "data:" + c.mime + ";base64," + base64.StdEncoding.EncodeToString(data)
+	}
+	return ""
 }
 
 // Get 获取模版详情
