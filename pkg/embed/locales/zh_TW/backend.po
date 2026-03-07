@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-03-02 14:41\n"
+"PO-Revision-Date: 2026-03-07 17:02\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -1547,7 +1547,7 @@ msgstr "客戶端 IP 已更改，請重新登入"
 msgid "command is empty"
 msgstr "命令為空"
 
-#: internal/data/template.go:74
+#: internal/data/template.go:96
 msgid "compose %s already exists"
 msgstr "編排 %s 已存在"
 
@@ -2019,7 +2019,7 @@ msgstr "無法掛載分區：%v"
 msgid "failed to parse SMART info: %v"
 msgstr "解析 SMART 資訊失敗：%v"
 
-#: internal/data/cert.go:100
+#: internal/data/cert.go:102
 #: internal/data/setting.go:338
 #: internal/data/setting.go:412
 #: internal/data/website.go:620
@@ -2031,7 +2031,7 @@ msgstr "無法解析證書：%v"
 msgid "failed to parse disk list: %v"
 msgstr "無法解析磁碟列表：%v"
 
-#: internal/data/cert.go:103
+#: internal/data/cert.go:105
 #: internal/data/setting.go:341
 #: internal/data/setting.go:415
 #: internal/data/website.go:623
@@ -2376,7 +2376,7 @@ msgstr "journalctl 不可用"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1117
+#: internal/data/website.go:1124
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -2447,10 +2447,6 @@ msgstr "在遠端未找到匹配的資料庫伺服器"
 #: internal/service/toolbox_migration.go:321
 msgid "no migration logs available"
 msgstr "暫無遷移日誌"
-
-#: internal/data/website.go:997
-msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
-msgstr "不支持一鍵獲取通配符證書，請在證書菜單通過 DNS 方法獲取"
 
 #: internal/service/file.go:179
 msgid "open file error: %v"
@@ -2682,7 +2678,7 @@ msgstr "目標是一個目錄"
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
-#: internal/data/template.go:60
+#: internal/data/template.go:82
 msgid "template %s not found"
 msgstr "模板 %s 未找到"
 
@@ -2690,20 +2686,20 @@ msgstr "模板 %s 未找到"
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
-#: internal/data/cert.go:394
+#: internal/data/cert.go:396
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr "此證書尚未成功簽發，無法部署"
 
-#: internal/data/cert.go:310
+#: internal/data/cert.go:312
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr "此證書尚未成功簽發，無法續期"
 
-#: internal/data/cert.go:209
-#: internal/data/cert.go:319
+#: internal/data/cert.go:211
+#: internal/data/cert.go:321
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此證書未與任何網站關聯，無法簽發。您可以嘗試使用手動簽發"
 
-#: internal/data/cert.go:452
+#: internal/data/cert.go:529
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 
@@ -2768,16 +2764,17 @@ msgstr "不支援的檔案系統類型：%s"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1219
-#: internal/data/website.go:1273
+#: internal/data/website.go:1226
+#: internal/data/website.go:1280
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
-#: internal/data/website.go:1185
+#: internal/data/cert.go:492
+#: internal/data/website.go:1192
 msgid "unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
-#: internal/data/cert.go:157
+#: internal/data/cert.go:159
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上傳的證書無法設置為自動續簽"
 
@@ -2869,10 +2866,14 @@ msgstr "網站目錄不存在"
 msgid "website migration completed"
 msgstr "網站遷移完成"
 
-#: internal/data/cert.go:213
-#: internal/data/cert.go:323
+#: internal/data/cert.go:217
+#: internal/data/cert.go:325
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
+
+#: internal/data/website.go:1002
+msgid "wildcard domains require DNS verification, please select a DNS provider"
+msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
 #: internal/service/file.go:713
 msgid "write chunk %d error: %v"
