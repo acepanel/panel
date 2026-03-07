@@ -44,13 +44,10 @@ func NewTemplateRepo(t *gotext.Locale, log *slog.Logger, cache biz.CacheRepo) bi
 
 // List 获取所有模版，包括本地模板
 func (r *templateRepo) List() api.Templates {
-	cached, err := r.cache.Get(biz.CacheKeyTemplates)
-	if err != nil {
-		return nil
-	}
 	templates := make(api.Templates, 0)
-	if err = json.Unmarshal([]byte(cached), &templates); err != nil {
-		return nil
+	cached, err := r.cache.Get(biz.CacheKeyTemplates)
+	if err == nil {
+		_ = json.Unmarshal([]byte(cached), &templates)
 	}
 
 	// 加载本地模板并合并，本地模板覆盖同 slug 的远端模板
