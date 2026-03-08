@@ -161,7 +161,7 @@ importers:
         version: 10.8.0(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(vue-eslint-parser@10.4.0(eslint@9.39.3(jiti@2.6.1)))
       naive-ui:
         specifier: ^2.43.1
-        version: 2.43.2(vue@3.5.29(typescript@5.9.3))
+        version: 2.44.0(vue@3.5.29(typescript@5.9.3))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -1063,9 +1063,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/katex@0.16.8':
-    resolution: {integrity: sha512-trgaNyfU+Xh2Tc+ABIb44a5AYUpicB3uwirOioeOkNPPbmgRNtcWyDeeFRzjPZENO9Vq8gvVqfhaaXWLlevVwg==}
 
   '@types/lodash-es@4.17.12':
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
@@ -2503,8 +2500,9 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  naive-ui@2.43.2:
-    resolution: {integrity: sha512-YlLMnGrwGTOc+zMj90sG3ubaH5/7czsgLgGcjTLA981IUaz8r6t4WIujNt8r9PNr+dqv6XNEr0vxkARgPPjfBQ==}
+  naive-ui@2.44.0:
+    resolution: {integrity: sha512-+2eNNldKOluVu038BhcyJMlj661XxKKt4wBo1BDrCayzNLOkFXX8JHv1XFGSEEdewEic+zPJoFLxkTgTxOxovQ==}
+    engines: {node: '>=20'}
     peerDependencies:
       vue: ^3.0.0
 
@@ -4091,8 +4089,6 @@ snapshots:
   '@types/estree@1.0.8': {}
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/katex@0.16.8': {}
 
   '@types/lodash-es@4.17.12':
     dependencies:
@@ -5747,11 +5743,10 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  naive-ui@2.43.2(vue@3.5.29(typescript@5.9.3)):
+  naive-ui@2.44.0(vue@3.5.29(typescript@5.9.3)):
     dependencies:
       '@css-render/plugin-bem': 0.15.14(css-render@0.15.14)
       '@css-render/vue3-ssr': 0.15.14(vue@3.5.29(typescript@5.9.3))
-      '@types/katex': 0.16.8
       '@types/lodash': 4.17.24
       '@types/lodash-es': 4.17.12
       async-validator: 4.2.5
