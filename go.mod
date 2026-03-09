@@ -20,7 +20,7 @@ require (
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/go-webauthn/webauthn v0.16.0
-	github.com/gomodule/redigo v1.9.3
+	github.com/gomodule/redigo/v2 v2.0.0
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.7-0.20260302030259-166fa4925314
