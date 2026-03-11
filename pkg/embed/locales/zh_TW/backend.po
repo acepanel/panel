@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-03-07 17:02\n"
+"PO-Revision-Date: 2026-03-11 16:24\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -640,10 +640,10 @@ msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1062
-#: internal/service/cli.go:1067
-#: internal/service/cli.go:1072
-#: internal/service/cli.go:1112
+#: internal/service/cli.go:1061
+#: internal/service/cli.go:1066
+#: internal/service/cli.go:1071
+#: internal/service/cli.go:1111
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
@@ -1518,7 +1518,7 @@ msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/data/website.go:551
+#: internal/data/website.go:547
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 數據庫服務器，請先添加"
 
@@ -1679,7 +1679,7 @@ msgstr "創建 .ssh 目錄失敗：%v"
 msgid "failed to create database user on remote: %v"
 msgstr "在遠端建立資料庫使用者失敗：%v"
 
-#: internal/service/ws.go:231
+#: internal/service/ws.go:228
 msgid "failed to create docker client: %v"
 msgstr "創建 docker 客戶端失敗：%v"
 
@@ -1743,7 +1743,7 @@ msgstr "禁用 %s 服務失敗：%v"
 msgid "failed to enable %s service: %v"
 msgstr "啟用 %s 服務失敗：%v"
 
-#: internal/service/ws.go:245
+#: internal/service/ws.go:242
 msgid "failed to encode auth: %v"
 msgstr "編碼認證信息失敗：%v"
 
@@ -1886,7 +1886,7 @@ msgstr "獲取檔案系統類型失敗：%v"
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
-#: internal/data/website.go:446
+#: internal/data/website.go:442
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
@@ -2022,8 +2022,8 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/data/cert.go:102
 #: internal/data/setting.go:338
 #: internal/data/setting.go:412
-#: internal/data/website.go:620
-#: internal/data/website.go:969
+#: internal/data/website.go:616
+#: internal/data/website.go:963
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -2034,8 +2034,8 @@ msgstr "無法解析磁碟列表：%v"
 #: internal/data/cert.go:105
 #: internal/data/setting.go:341
 #: internal/data/setting.go:415
-#: internal/data/website.go:623
-#: internal/data/website.go:972
+#: internal/data/website.go:619
+#: internal/data/website.go:966
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -2059,7 +2059,7 @@ msgstr "無法解析 fail2ban 的 ignoreip"
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
-#: internal/service/ws.go:254
+#: internal/service/ws.go:251
 msgid "failed to pull image: %v"
 msgstr "拉取鏡像失敗：%v"
 
@@ -2084,7 +2084,7 @@ msgstr "讀取 fstab 失敗：%v"
 msgid "failed to read generated key: %v"
 msgstr "讀取生成的密鑰失敗：%v"
 
-#: internal/service/ws.go:219
+#: internal/service/ws.go:216
 msgid "failed to read params: %v"
 msgstr "讀取參數失敗：%v"
 
@@ -2204,7 +2204,7 @@ msgstr "設置 postgres 密碼失敗：%v"
 msgid "failed to start %s service: %v"
 msgstr "啟動 %s 服務失敗：%v"
 
-#: internal/service/ws.go:192
+#: internal/service/ws.go:190
 msgid "failed to start container terminal: %v"
 msgstr "啟動容器終端失敗：%v"
 
@@ -2325,7 +2325,7 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid logical volume size"
 msgstr "無效的邏輯卷大小"
 
-#: internal/service/ws.go:224
+#: internal/service/ws.go:221
 msgid "invalid params: %v"
 msgstr "無效的參數：%v"
 
@@ -2376,7 +2376,7 @@ msgstr "journalctl 不可用"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1124
+#: internal/data/website.go:1118
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -2572,7 +2572,7 @@ msgstr "找不到規則"
 msgid "running"
 msgstr "運行中"
 
-#: internal/data/website.go:598
+#: internal/data/website.go:594
 msgid "runtime directory does not exist"
 msgstr "運行目錄不存在"
 
@@ -2699,7 +2699,7 @@ msgstr "此證書尚未成功簽發，無法續期"
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此證書未與任何網站關聯，無法簽發。您可以嘗試使用手動簽發"
 
-#: internal/data/cert.go:529
+#: internal/data/cert.go:527
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 
@@ -2764,13 +2764,13 @@ msgstr "不支援的檔案系統類型：%s"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1226
-#: internal/data/website.go:1280
+#: internal/data/website.go:1220
+#: internal/data/website.go:1274
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
-#: internal/data/cert.go:492
-#: internal/data/website.go:1192
+#: internal/data/cert.go:490
+#: internal/data/website.go:1186
 msgid "unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
@@ -2854,11 +2854,11 @@ msgstr "未找到 Web 掛鉤"
 msgid "webhook script not found"
 msgstr "未找到 Web 掛鉤腳本"
 
-#: internal/data/website.go:805
+#: internal/data/website.go:799
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
-#: internal/data/website.go:605
+#: internal/data/website.go:601
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
@@ -2871,7 +2871,7 @@ msgstr "網站遷移完成"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/data/website.go:1002
+#: internal/data/website.go:996
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
