@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-03-11 16:24\n"
+"PO-Revision-Date: 2026-03-11 17:57\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -370,7 +370,7 @@ msgstr "下載失敗：%v"
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
-#: internal/service/file.go:299
+#: internal/service/file.go:309
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
@@ -1514,7 +1514,7 @@ msgstr "備份傳輸失敗：%v"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/file.go:282
+#: internal/service/file.go:292
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -1535,7 +1535,7 @@ msgstr "無法初始化系統磁碟"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:652
+#: internal/service/file.go:662
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
@@ -1560,11 +1560,11 @@ msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
 #: internal/service/file.go:171
-#: internal/service/file.go:575
+#: internal/service/file.go:585
 msgid "create directory error: %v"
 msgstr "創建目錄錯誤：%v"
 
-#: internal/service/file.go:690
+#: internal/service/file.go:700
 msgid "create target file error: %v"
 msgstr "創建目標文件錯誤：%v"
 
@@ -1874,7 +1874,7 @@ msgstr "獲取磁碟列表失敗：%v"
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
 
-#: internal/service/file.go:326
+#: internal/service/file.go:336
 msgid "failed to get file system info"
 msgstr "獲取檔案系統信息失敗"
 
@@ -2295,7 +2295,7 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/service/file.go:629
+#: internal/service/file.go:639
 msgid "get upload file error: %v"
 msgstr "獲取上傳文件錯誤：%v"
 
@@ -2452,7 +2452,7 @@ msgstr "暫無遷移日誌"
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:635
+#: internal/service/file.go:645
 msgid "open upload file error: %v"
 msgstr "打開上傳文件錯誤：%v"
 
@@ -2484,7 +2484,7 @@ msgstr "通行金鑰登入失敗：%v"
 msgid "passkey registration failed: %v"
 msgstr "通行金鑰註冊失敗：%v"
 
-#: internal/service/file.go:622
+#: internal/service/file.go:632
 msgid "path, file_name and file_hash are required"
 msgstr "path，file_name 和 file_hash 是必需的"
 
@@ -2515,8 +2515,8 @@ msgstr "請先完成預檢"
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
-#: internal/service/file.go:227
-#: internal/service/file.go:256
+#: internal/service/file.go:232
+#: internal/service/file.go:266
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -2544,15 +2544,15 @@ msgstr "protobuf 是一個用於序列化和反序列化數據的庫"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
-#: internal/service/file.go:707
+#: internal/service/file.go:717
 msgid "read chunk %d error: %v"
 msgstr "讀取分塊 %d 錯誤：%v"
 
-#: internal/service/file.go:643
+#: internal/service/file.go:653
 msgid "read chunk data error: %v"
 msgstr "讀取分塊數據錯誤：%v"
 
-#: internal/service/file.go:584
+#: internal/service/file.go:594
 msgid "read directory error: %v"
 msgstr "讀取目錄錯誤：%v"
 
@@ -2580,7 +2580,7 @@ msgstr "運行目錄不存在"
 msgid "s3 configuration error: %v"
 msgstr "S3 配置錯誤：%v"
 
-#: internal/service/file.go:662
+#: internal/service/file.go:672
 msgid "save chunk error: %v"
 msgstr "保存分塊錯誤：%v"
 
@@ -2673,8 +2673,8 @@ msgid "target is a directory"
 msgstr "目標是一個目錄"
 
 #: internal/service/file.go:165
-#: internal/service/file.go:568
-#: internal/service/file.go:683
+#: internal/service/file.go:578
+#: internal/service/file.go:693
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -2875,7 +2875,7 @@ msgstr "萬用字元網域無法使用 HTTP 驗證"
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
-#: internal/service/file.go:713
+#: internal/service/file.go:723
 msgid "write chunk %d error: %v"
 msgstr "寫入分塊 %d 錯誤：%v"
 
