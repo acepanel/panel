@@ -1,6 +1,6 @@
 import file from '@/api/panel/file'
 import { useFileStore } from '@/store'
-import { NButton, NFlex, NInput } from 'naive-ui'
+import { NButton, NFlex, NInput, type DialogReactive } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 export function usePaste() {
@@ -35,22 +35,34 @@ export function usePaste() {
     // 弹出重命名输入对话框
     const promptRename = (name: string): Promise<string | null> => {
       return new Promise((resolve) => {
-        const newName = ref(name)
-        window.$dialog.info({
+        let newName = name
+        let d: DialogReactive
+        d = window.$dialog.info({
           title: $gettext('Rename'),
           content: () =>
             h(NInput, {
-              value: newName.value,
+              defaultValue: name,
               onUpdateValue: (v: string) => {
-                newName.value = v
+                newName = v
               },
               autofocus: true,
-              placeholder: $gettext('Please enter a new name')
+              placeholder: $gettext('Please enter a new name'),
+              onKeydown: (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                  const trimmed = newName.trim()
+                  if (!trimmed) {
+                    window.$message.error($gettext('Name cannot be empty'))
+                    return
+                  }
+                  d.destroy()
+                  resolve(trimmed)
+                }
+              }
             }),
           positiveText: $gettext('Confirm'),
           negativeText: $gettext('Cancel'),
           onPositiveClick: () => {
-            const trimmed = newName.value.trim()
+            const trimmed = newName.trim()
             if (!trimmed) {
               window.$message.error($gettext('Name cannot be empty'))
               return false
