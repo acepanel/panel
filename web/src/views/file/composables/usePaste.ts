@@ -1,6 +1,6 @@
 import file from '@/api/panel/file'
 import { useFileStore } from '@/store'
-import { NButton, NFlex, NInput, type DialogReactive } from 'naive-ui'
+import { NButton, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 export function usePaste() {
@@ -36,8 +36,7 @@ export function usePaste() {
     const promptRename = (name: string): Promise<string | null> => {
       return new Promise((resolve) => {
         let newName = name
-        let d: DialogReactive
-        d = window.$dialog.info({
+        const d = window.$dialog.info({
           title: $gettext('Rename'),
           content: () =>
             h(NInput, {
