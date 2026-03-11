@@ -219,6 +219,11 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for item := range slices.Values(req) {
+		// 源和目标相同，跳过（同目录粘贴覆盖的情况）
+		if item.Source == item.Target {
+			continue
+		}
+
 		if io.Exists(item.Target) && !item.Force {
 			continue
 		}
@@ -248,6 +253,11 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for item := range slices.Values(req) {
+		// 源和目标相同，跳过（同目录粘贴覆盖的情况）
+		if item.Source == item.Target {
+			continue
+		}
+
 		if io.Exists(item.Target) && !item.Force {
 			continue
 		}
