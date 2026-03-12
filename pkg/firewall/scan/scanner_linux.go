@@ -77,18 +77,29 @@ type ifaceHandle struct {
 	link link.Link
 }
 
+// knownServicePorts 已知服务端口列表
+// 当 UDP 包的源端口匹配这些端口时，视为合法回包而非扫描
+// 例如 DNS 响应（源端口 53）、NTP 响应（源端口 123）等
+var knownServicePorts = []uint16{
+	53,  // DNS
+	123, // NTP
+	67,  // DHCP 服务端
+	68,  // DHCP 客户端
+}
+
 // Scanner eBPF 扫描检测器
 type Scanner struct {
-	prog      *ebpf.Program
-	events    *ebpf.Map
-	ports     *ebpf.Map // 监听端口白名单（hash map，命中则跳过）
-	handles   map[string]*ifaceHandle
-	reader    *ringbuf.Reader
-	eventsCh  chan Event
-	stopCh    chan struct{}
-	mu        sync.Mutex
-	log       *slog.Logger
-	lastPorts map[uint16]bool
+	prog         *ebpf.Program
+	events       *ebpf.Map
+	ports        *ebpf.Map // 监听端口白名单（hash map，命中则跳过）
+	skipSrcPorts *ebpf.Map // 已知服务源端口白名单，用于 UDP 回包过滤
+	handles      map[string]*ifaceHandle
+	reader       *ringbuf.Reader
+	eventsCh     chan Event
+	stopCh       chan struct{}
+	mu           sync.Mutex
+	log          *slog.Logger
+	lastPorts    map[uint16]bool
 }
 
 // newPortsMap 创建监听端口白名单 BPF map
@@ -103,7 +114,8 @@ func newPortsMap() (*ebpf.Map, error) {
 
 // buildDetector eBPF TC ingress 扫描检测程序
 // 只捕获目标端口不在 ports 白名单中的 SYN/UDP 包
-func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
+// 对于 UDP，还会过滤源端口在 skipSrcPorts 中的回包（如 DNS/NTP 响应）
+func buildDetector(events, ports, skipSrcPorts *ebpf.Map) (*ebpf.Program, error) {
 	emitEvent := func(proto int64) asm.Instructions {
 		return asm.Instructions{
 			// 查询端口白名单
@@ -150,14 +162,28 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 		return insns
 	}
 
-	// UDP 处理器：边界检查 → 端口白名单 → 输出事件
+	// UDP 处理器：边界检查 → 源端口过滤 → 端口白名单 → 输出事件
 	udpHandler := func(sym string) asm.Instructions {
 		insns := asm.Instructions{
 			asm.Mov.Reg(asm.R2, asm.R4).WithSymbol(sym),
 			asm.Add.Imm(asm.R2, udpLen),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-			// 目标端口
+			// 保存 L4 头指针到 R9（map lookup 会破坏 R1-R5，R6-R9 保留）
+			asm.Mov.Reg(asm.R9, asm.R4),
+
+			// 读取源端口（UDP 头偏移 0），检查是否为已知服务回包
+			asm.LoadMem(asm.R2, asm.R4, 0, asm.Half),
+			asm.HostTo(asm.BE, asm.R2, asm.Half),
+			asm.StoreMem(asm.RFP, -24, asm.R2, asm.Word),
+			asm.LoadMapPtr(asm.R1, skipSrcPorts.FD()),
+			asm.Mov.Reg(asm.R2, asm.RFP),
+			asm.Add.Imm(asm.R2, -24),
+			asm.FnMapLookupElem.Call(),
+			asm.JNE.Imm(asm.R0, 0, "exit"), // 命中已知服务端口 → 跳过
+
+			// 恢复 L4 头指针，读取目标端口
+			asm.Mov.Reg(asm.R4, asm.R9),
 			asm.LoadMem(asm.R2, asm.R4, 2, asm.Half),
 			asm.HostTo(asm.BE, asm.R2, asm.Half),
 			asm.Mov.Reg(asm.R9, asm.R2),
@@ -412,16 +438,25 @@ func Supported() bool {
 		return false
 	}
 
-	prog, err := buildDetector(events, ports)
+	skipSrcPorts, err := newPortsMap()
 	if err != nil {
 		_ = events.Close()
 		_ = ports.Close()
 		return false
 	}
 
+	prog, err := buildDetector(events, ports, skipSrcPorts)
+	if err != nil {
+		_ = events.Close()
+		_ = ports.Close()
+		_ = skipSrcPorts.Close()
+		return false
+	}
+
 	_ = prog.Close()
 	_ = events.Close()
 	_ = ports.Close()
+	_ = skipSrcPorts.Close()
 	return true
 }
 
@@ -449,22 +484,36 @@ func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
 		return nil, fmt.Errorf("failed to create ports whitelist map: %w", err)
 	}
 
-	prog, err := buildDetector(events, ports)
+	skipSrcPorts, err := newPortsMap()
 	if err != nil {
 		_ = events.Close()
 		_ = ports.Close()
+		return nil, fmt.Errorf("failed to create skip source ports map: %w", err)
+	}
+
+	// 填充已知服务端口，这些端口作为 UDP 源端口时视为回包
+	for _, port := range knownServicePorts {
+		_ = skipSrcPorts.Put(uint32(port), uint8(1))
+	}
+
+	prog, err := buildDetector(events, ports, skipSrcPorts)
+	if err != nil {
+		_ = events.Close()
+		_ = ports.Close()
+		_ = skipSrcPorts.Close()
 		return nil, fmt.Errorf("failed to load eBPF program: %w", err)
 	}
 
 	s := &Scanner{
-		prog:      prog,
-		events:    events,
-		ports:     ports,
-		handles:   make(map[string]*ifaceHandle),
-		eventsCh:  make(chan Event, 4096),
-		stopCh:    make(chan struct{}),
-		log:       log,
-		lastPorts: make(map[uint16]bool),
+		prog:         prog,
+		events:       events,
+		ports:        ports,
+		skipSrcPorts: skipSrcPorts,
+		handles:      make(map[string]*ifaceHandle),
+		eventsCh:     make(chan Event, 4096),
+		stopCh:       make(chan struct{}),
+		log:          log,
+		lastPorts:    make(map[uint16]bool),
 	}
 
 	for _, ifaceName := range ifaces {
@@ -525,6 +574,9 @@ func (s *Scanner) Close() error {
 	}
 	if s.ports != nil {
 		_ = s.ports.Close()
+	}
+	if s.skipSrcPorts != nil {
+		_ = s.skipSrcPorts.Close()
 	}
 
 	return nil
