@@ -169,7 +169,7 @@ func buildDetector(events, ports, skipSrcPorts *ebpf.Map) (*ebpf.Program, error)
 			asm.Add.Imm(asm.R2, udpLen),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-			// 保存 L4 头指针到 R9（map lookup 会破坏 R1-R5，R6-R9 保留）
+			// 保存 L4 头指针到 R9（R6=skb.data R7=skb.data_end R8=协议号 均已占用）
 			asm.Mov.Reg(asm.R9, asm.R4),
 
 			// 读取源端口（UDP 头偏移 0），检查是否为已知服务回包
@@ -493,7 +493,12 @@ func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
 
 	// 填充已知服务端口，这些端口作为 UDP 源端口时视为回包
 	for _, port := range knownServicePorts {
-		_ = skipSrcPorts.Put(uint32(port), uint8(1))
+		if err = skipSrcPorts.Put(uint32(port), uint8(1)); err != nil {
+			_ = events.Close()
+			_ = ports.Close()
+			_ = skipSrcPorts.Close()
+			return nil, fmt.Errorf("failed to populate skip source ports map: %w", err)
+		}
 	}
 
 	prog, err := buildDetector(events, ports, skipSrcPorts)
