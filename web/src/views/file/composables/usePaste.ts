@@ -33,31 +33,34 @@ export function usePaste() {
     }
 
     // 弹出重命名输入对话框
-    const promptRename = (name: string): Promise<string | null> => {
+    const promptRename = (name: string, source: string): Promise<string | null> => {
       return new Promise((resolve) => {
         let newName = name
         const d = window.$dialog.info({
           title: $gettext('Rename'),
           content: () =>
-            h(NInput, {
-              defaultValue: name,
-              onUpdateValue: (v: string) => {
-                newName = v
-              },
-              autofocus: true,
-              placeholder: $gettext('Please enter a new name'),
-              onKeydown: (e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                  const trimmed = newName.trim()
-                  if (!trimmed) {
-                    window.$message.error($gettext('Name cannot be empty'))
-                    return
+            h('div', [
+              h('p', { style: 'margin-bottom: 8px; word-break: break-all' }, source),
+              h(NInput, {
+                defaultValue: name,
+                onUpdateValue: (v: string) => {
+                  newName = v
+                },
+                autofocus: true,
+                placeholder: $gettext('Please enter a new name'),
+                onKeydown: (e: KeyboardEvent) => {
+                  if (e.key === 'Enter') {
+                    const trimmed = newName.trim()
+                    if (!trimmed) {
+                      window.$message.error($gettext('Name cannot be empty'))
+                      return
+                    }
+                    d.destroy()
+                    resolve(trimmed)
                   }
-                  d.destroy()
-                  resolve(trimmed)
                 }
-              }
-            }),
+              })
+            ]),
           positiveText: $gettext('Confirm'),
           negativeText: $gettext('Cancel'),
           onPositiveClick: () => {
@@ -77,19 +80,28 @@ export function usePaste() {
 
     // 处理重命名所有冲突项
     const handleRename = async () => {
-      const conflictItems = paths.filter((item) => item.force)
-      for (const item of conflictItems) {
-        const newName = await promptRename(item.name)
-        if (newName === null) {
-          window.$message.info($gettext('Canceled'))
-          return
+      let conflictItems = paths.filter((item) => item.force)
+      while (conflictItems.length > 0) {
+        for (const item of conflictItems) {
+          const newName = await promptRename(item.name, item.source)
+          if (newName === null) {
+            window.$message.info($gettext('Canceled'))
+            return
+          }
+          item.target = targetPath + '/' + newName
+          item.name = newName
+          item.force = false
         }
-        item.target = targetPath + '/' + newName
-        item.name = newName
-        item.force = false
+        // 重命名后直接检查冲突，避免重新弹出警告对话框导致无限循环
+        const targets = paths.map((item) => item.target)
+        const data: boolean[] = await file.exist(targets)
+        for (let i = 0; i < data.length; i++) {
+          const pathItem = paths[i]
+          if (pathItem) pathItem.force = !!data[i]
+        }
+        conflictItems = paths.filter((item) => item.force)
       }
-      // 重命名后重新检查冲突
-      checkAndExecute()
+      executePaste()
     }
 
     // 检查冲突并执行
