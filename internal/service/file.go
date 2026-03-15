@@ -166,6 +166,11 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
+	if force && io.Exists(path) {
+		_ = stdos.Remove(path)
+	}
+
 	if !io.Exists(filepath.Dir(path)) {
 		if err = stdos.MkdirAll(filepath.Dir(path), 0755); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
@@ -692,6 +697,11 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 	if io.Exists(targetPath) && !req.Force {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
+	}
+
+	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
+	if req.Force && io.Exists(targetPath) {
+		_ = stdos.Remove(targetPath)
 	}
 
 	// 创建目标文件
