@@ -168,10 +168,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
 	if force && io.Exists(path) {
-		if err = stdos.Remove(path); err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("delete existing file error: %v", err))
-			return
-		}
+		_ = stdos.Remove(path)
 	}
 
 	if !io.Exists(filepath.Dir(path)) {
@@ -704,10 +701,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 
 	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
 	if req.Force && io.Exists(targetPath) {
-		if err = stdos.Remove(targetPath); err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("delete existing file error: %v", err))
-			return
-		}
+		_ = stdos.Remove(targetPath)
 	}
 
 	// 创建目标文件
