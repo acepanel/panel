@@ -246,7 +246,7 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 		}
 
 		// 转换环境变量，从 map 格式转为数组格式，保留 YAML 定义顺序
-		names := extractEnvKeyOrder(dataBytes, "environments")
+		names := r.extractEnvKeyOrder(dataBytes, "environments")
 		for _, name := range names {
 			env := data.Environments[name]
 			t.Environments = append(t.Environments, struct {
@@ -295,7 +295,7 @@ func (r *templateRepo) resolveLocale(m map[string]string) string {
 }
 
 // extractEnvKeyOrder 从原始 YAML 数据中提取指定 mapping 字段的键定义顺序
-func extractEnvKeyOrder(data []byte, field string) []string {
+func (r *templateRepo) extractEnvKeyOrder(data []byte, field string) []string {
 	var node yaml.Node
 	if err := yaml.Unmarshal(data, &node); err != nil {
 		return nil
