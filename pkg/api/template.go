@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -34,6 +35,20 @@ func (t Templates) FilterByCategory(category string) Templates {
 	filtered := make(Templates, 0)
 	for _, tpl := range t {
 		if slices.Contains(tpl.Categories, category) {
+			filtered = append(filtered, tpl)
+		}
+	}
+	return filtered
+}
+
+// FilterByQuery 按关键词过滤模版
+func (t Templates) FilterByQuery(query string) Templates {
+	query = strings.ToLower(query)
+	filtered := make(Templates, 0)
+	for _, tpl := range t {
+		if strings.Contains(strings.ToLower(tpl.Name), query) ||
+			strings.Contains(strings.ToLower(tpl.Description), query) ||
+			strings.Contains(strings.ToLower(tpl.Website), query) {
 			filtered = append(filtered, tpl)
 		}
 	}

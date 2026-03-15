@@ -36,6 +36,7 @@ func (s *AppService) Categories(w http.ResponseWriter, r *http.Request) {
 
 func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
+	query := strings.ToLower(r.URL.Query().Get("query"))
 
 	all := s.appRepo.All()
 	installedApps, err := s.appRepo.Installed()
@@ -60,6 +61,9 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			show = installedAppMap[item.Slug].Show
 		}
 		if category != "" && !strings.Contains(strings.Join(item.Categories, ","), category) {
+			continue
+		}
+		if query != "" && !strings.Contains(strings.ToLower(item.Name), query) && !strings.Contains(strings.ToLower(item.Description), query) {
 			continue
 		}
 

@@ -3,7 +3,7 @@ defineOptions({
   name: 'app-index'
 })
 
-import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -19,6 +19,7 @@ const versionModalInfo = ref<any>({})
 
 // 当前选中的分类
 const selectedCategory = ref<string>('')
+const searchQuery = ref<string>('')
 
 const columns: any = [
   {
@@ -169,13 +170,14 @@ const { data: categories } = useRequest(app.categories, {
 })
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => app.list(page, pageSize, selectedCategory.value || undefined),
+  (page, pageSize) =>
+    app.list(page, pageSize, selectedCategory.value || undefined, searchQuery.value || undefined),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [selectedCategory]
+    watchingStates: [selectedCategory, searchQuery]
   }
 )
 
@@ -219,25 +221,33 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-flex>
-      <n-tag
-        :type="selectedCategory === '' ? 'primary' : 'default'"
-        :bordered="selectedCategory !== ''"
-        style="cursor: pointer"
-        @click="handleCategoryChange('')"
-      >
-        {{ $gettext('All') }}
-      </n-tag>
-      <n-tag
-        v-for="cat in categories"
-        :key="cat.value"
-        :type="selectedCategory === cat.value ? 'primary' : 'default'"
-        :bordered="selectedCategory !== cat.value"
-        style="cursor: pointer"
-        @click="handleCategoryChange(cat.value)"
-      >
-        {{ cat.label }}
-      </n-tag>
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-tag
+          :type="selectedCategory === '' ? 'primary' : 'default'"
+          :bordered="selectedCategory !== ''"
+          style="cursor: pointer"
+          @click="handleCategoryChange('')"
+        >
+          {{ $gettext('All') }}
+        </n-tag>
+        <n-tag
+          v-for="cat in categories"
+          :key="cat.value"
+          :type="selectedCategory === cat.value ? 'primary' : 'default'"
+          :bordered="selectedCategory !== cat.value"
+          style="cursor: pointer"
+          @click="handleCategoryChange(cat.value)"
+        >
+          {{ cat.label }}
+        </n-tag>
+      </n-flex>
+      <n-input
+        v-model:value="searchQuery"
+        :placeholder="$gettext('Search')"
+        clearable
+        style="width: 240px"
+      />
     </n-flex>
     <n-data-table
       striped

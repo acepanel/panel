@@ -7,6 +7,7 @@ import {
   NFlex,
   NGrid,
   NGridItem,
+  NInput,
   NPagination,
   NSpin,
   NTag
@@ -21,11 +22,18 @@ import type { Template } from './types'
 const { $gettext } = useGettext()
 
 const selectedCategory = ref<string>('')
+const searchQuery = ref<string>('')
 const deployModalShow = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => template.list(page, pageSize, selectedCategory.value || undefined),
+  (page, pageSize) =>
+    template.list(
+      page,
+      pageSize,
+      selectedCategory.value || undefined,
+      searchQuery.value || undefined
+    ),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 12,
@@ -50,6 +58,11 @@ const handleCategoryChange = (category: string) => {
   refresh()
 }
 
+const handleSearch = () => {
+  page.value = 1
+  refresh()
+}
+
 const handleDeploy = (tpl: Template) => {
   selectedTemplate.value = tpl
   deployModalShow.value = true
@@ -62,25 +75,34 @@ onMounted(() => {
 
 <template>
   <n-flex vertical :size="20">
-    <n-flex>
-      <n-tag
-        :type="selectedCategory === '' ? 'primary' : 'default'"
-        :bordered="selectedCategory !== ''"
-        style="cursor: pointer"
-        @click="handleCategoryChange('')"
-      >
-        {{ $gettext('All') }}
-      </n-tag>
-      <n-tag
-        v-for="cat in categories"
-        :key="cat.value"
-        :type="selectedCategory === cat.value ? 'primary' : 'default'"
-        :bordered="selectedCategory !== cat.value"
-        style="cursor: pointer"
-        @click="handleCategoryChange(cat.value)"
-      >
-        {{ cat.label }}
-      </n-tag>
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-tag
+          :type="selectedCategory === '' ? 'primary' : 'default'"
+          :bordered="selectedCategory !== ''"
+          style="cursor: pointer"
+          @click="handleCategoryChange('')"
+        >
+          {{ $gettext('All') }}
+        </n-tag>
+        <n-tag
+          v-for="cat in categories"
+          :key="cat.value"
+          :type="selectedCategory === cat.value ? 'primary' : 'default'"
+          :bordered="selectedCategory !== cat.value"
+          style="cursor: pointer"
+          @click="handleCategoryChange(cat.value)"
+        >
+          {{ cat.label }}
+        </n-tag>
+      </n-flex>
+      <n-input
+        v-model:value="searchQuery"
+        :placeholder="$gettext('Search')"
+        clearable
+        style="width: 240px"
+        @update:value="handleSearch"
+      />
     </n-flex>
 
     <n-spin :show="loading">

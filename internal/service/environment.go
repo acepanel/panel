@@ -31,10 +31,14 @@ func (s *EnvironmentService) Types(w http.ResponseWriter, r *http.Request) {
 
 func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 	typ := r.URL.Query().Get("type")
+	query := strings.ToLower(r.URL.Query().Get("query"))
 	all := s.environmentRepo.All()
 	var environments []types.EnvironmentDetail
 	for _, item := range all {
 		if typ != "" && !strings.EqualFold(item.Type, typ) {
+			continue
+		}
+		if query != "" && !strings.Contains(strings.ToLower(item.Name), query) && !strings.Contains(strings.ToLower(item.Description), query) {
 			continue
 		}
 		environments = append(environments, types.EnvironmentDetail{

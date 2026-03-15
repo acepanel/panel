@@ -27,11 +27,16 @@ func NewTemplateService(t *gotext.Locale, template biz.TemplateRepo, setting biz
 // List 获取所有模版
 func (s *TemplateService) List(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
+	query := r.URL.Query().Get("query")
 	templates := s.templateRepo.List()
 
 	// 按分类过滤
 	if category != "" {
 		templates = templates.FilterByCategory(category)
+	}
+	// 按关键词过滤
+	if query != "" {
+		templates = templates.FilterByQuery(query)
 	}
 
 	paged, total := Paginate(r, templates)

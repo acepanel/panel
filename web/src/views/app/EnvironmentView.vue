@@ -2,12 +2,13 @@
 import environment from '@/api/panel/environment'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
-import { NButton, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
 const selectedType = ref<string>('')
+const searchQuery = ref<string>('')
 
 const { data: types } = useRequest(environment.types, {
   initialData: []
@@ -156,13 +157,14 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => environment.list(page, pageSize, selectedType.value || undefined),
+  (page, pageSize) =>
+    environment.list(page, pageSize, selectedType.value || undefined, searchQuery.value || undefined),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [selectedType]
+    watchingStates: [selectedType, searchQuery]
   }
 )
 
@@ -207,25 +209,33 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-flex>
-      <n-tag
-        :type="selectedType === '' ? 'primary' : 'default'"
-        :bordered="selectedType !== ''"
-        style="cursor: pointer"
-        @click="handleTypeChange('')"
-      >
-        {{ $gettext('All') }}
-      </n-tag>
-      <n-tag
-        v-for="type in types"
-        :key="type.value"
-        :type="selectedType === type.value ? 'primary' : 'default'"
-        :bordered="selectedType !== type.value"
-        style="cursor: pointer"
-        @click="handleTypeChange(type.value)"
-      >
-        {{ type.label }}
-      </n-tag>
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-tag
+          :type="selectedType === '' ? 'primary' : 'default'"
+          :bordered="selectedType !== ''"
+          style="cursor: pointer"
+          @click="handleTypeChange('')"
+        >
+          {{ $gettext('All') }}
+        </n-tag>
+        <n-tag
+          v-for="type in types"
+          :key="type.value"
+          :type="selectedType === type.value ? 'primary' : 'default'"
+          :bordered="selectedType !== type.value"
+          style="cursor: pointer"
+          @click="handleTypeChange(type.value)"
+        >
+          {{ type.label }}
+        </n-tag>
+      </n-flex>
+      <n-input
+        v-model:value="searchQuery"
+        :placeholder="$gettext('Search')"
+        clearable
+        style="width: 240px"
+      />
     </n-flex>
     <n-data-table
       striped
