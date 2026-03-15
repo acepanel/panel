@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
@@ -246,12 +245,8 @@ func (r *templateRepo) loadLocalTemplates() api.Templates {
 			Local:         true,
 		}
 
-		// 转换环境变量，从 map 格式转为数组格式
-		names := make([]string, 0, len(data.Environments))
-		for name := range data.Environments {
-			names = append(names, name)
-		}
-		sort.Strings(names)
+		// 转换环境变量，从 map 格式转为数组格式，保留 YAML 定义顺序
+		names := extractEnvKeyOrder(dataBytes, "environments")
 		for _, name := range names {
 			env := data.Environments[name]
 			t.Environments = append(t.Environments, struct {
@@ -297,6 +292,38 @@ func (r *templateRepo) resolveLocale(m map[string]string) string {
 		return m[keys[0]]
 	}
 	return ""
+}
+
+// extractEnvKeyOrder 从原始 YAML 数据中提取指定 mapping 字段的键定义顺序
+func extractEnvKeyOrder(data []byte, field string) []string {
+	var node yaml.Node
+	if err := yaml.Unmarshal(data, &node); err != nil {
+		return nil
+	}
+
+	if node.Kind != yaml.DocumentNode || len(node.Content) == 0 {
+		return nil
+	}
+	root := node.Content[0]
+	if root.Kind != yaml.MappingNode {
+		return nil
+	}
+
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		if root.Content[i].Value == field {
+			m := root.Content[i+1]
+			if m.Kind != yaml.MappingNode {
+				return nil
+			}
+			keys := make([]string, 0, len(m.Content)/2)
+			for j := 0; j+1 < len(m.Content); j += 2 {
+				keys = append(keys, m.Content[j].Value)
+			}
+			return keys
+		}
+	}
+
+	return nil
 }
 
 // readLogo 读取模板目录中的 logo 文件并返回 base64 data URI
