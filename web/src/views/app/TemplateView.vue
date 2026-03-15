@@ -58,10 +58,10 @@ const handleCategoryChange = (category: string) => {
   refresh()
 }
 
-const handleSearch = () => {
+watch(searchQuery, () => {
   page.value = 1
   refresh()
-}
+})
 
 const handleDeploy = (tpl: Template) => {
   selectedTemplate.value = tpl
@@ -101,7 +101,6 @@ onMounted(() => {
         :placeholder="$gettext('Search')"
         clearable
         style="width: 240px"
-        @update:value="handleSearch"
       />
     </n-flex>
 

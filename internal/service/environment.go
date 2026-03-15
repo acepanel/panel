@@ -38,7 +38,9 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 		if typ != "" && !strings.EqualFold(item.Type, typ) {
 			continue
 		}
-		if query != "" && !strings.Contains(strings.ToLower(item.Name), query) && !strings.Contains(strings.ToLower(item.Description), query) {
+		if query != "" &&
+			!strings.Contains(strings.ToLower(item.Name), query) &&
+			!strings.Contains(strings.ToLower(item.Description), query) {
 			continue
 		}
 		environments = append(environments, types.EnvironmentDetail{

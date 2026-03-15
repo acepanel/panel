@@ -63,7 +63,9 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 		if category != "" && !strings.Contains(strings.Join(item.Categories, ","), category) {
 			continue
 		}
-		if query != "" && !strings.Contains(strings.ToLower(item.Name), query) && !strings.Contains(strings.ToLower(item.Description), query) {
+		if query != "" &&
+			!strings.Contains(strings.ToLower(item.Name), query) &&
+			!strings.Contains(strings.ToLower(item.Description), query) {
 			continue
 		}
 
