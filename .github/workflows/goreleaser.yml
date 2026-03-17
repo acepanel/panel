@@ -19,7 +19,7 @@ jobs:
           cache: true
           go-version: 'stable'
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: true
           package_json_file: web/package.json
