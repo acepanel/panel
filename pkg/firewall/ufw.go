@@ -491,6 +491,12 @@ func (r *ufw) addForward(rule Forward) error {
 		return err
 	}
 
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		if _, err = shell.Exec(r.routeAllowCommand(rule, protocol)); err != nil {
+			return err
+		}
+	}
+
 	_, err = shell.Execf("ufw reload")
 	return err
 }
@@ -539,8 +545,20 @@ func (r *ufw) removeForward(rule Forward) error {
 		return err
 	}
 
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		_, _ = shell.Exec(r.routeDeleteCommand(rule, protocol))
+	}
+
 	_, err = shell.Execf("ufw reload")
 	return err
+}
+
+func (r *ufw) routeAllowCommand(rule Forward, protocol string) string {
+	return fmt.Sprintf("ufw route allow proto %s to %s port %d", protocol, rule.TargetIP, rule.TargetPort)
+}
+
+func (r *ufw) routeDeleteCommand(rule Forward, protocol string) string {
+	return fmt.Sprintf("ufw --force delete route allow proto %s to %s port %d", protocol, rule.TargetIP, rule.TargetPort)
 }
 
 // findNatCommit 找到 *nat 段中 COMMIT 的位置

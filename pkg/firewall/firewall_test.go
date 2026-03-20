@@ -452,6 +452,26 @@ func (s *UFWSuite) TestNATRegex_NoMatch() {
 	s.False(s.fw.natRegex.MatchString(line))
 }
 
+func (s *UFWSuite) TestRouteAllowCommand() {
+	cmd := s.fw.routeAllowCommand(Forward{
+		Protocol:   ProtocolTCP,
+		Port:       8080,
+		TargetIP:   "192.168.1.100",
+		TargetPort: 80,
+	}, "tcp")
+	s.Equal("ufw route allow proto tcp to 192.168.1.100 port 80", cmd)
+}
+
+func (s *UFWSuite) TestRouteDeleteCommand() {
+	cmd := s.fw.routeDeleteCommand(Forward{
+		Protocol:   ProtocolTCP,
+		Port:       8080,
+		TargetIP:   "192.168.1.100",
+		TargetPort: 80,
+	}, "tcp")
+	s.Equal("ufw --force delete route allow proto tcp to 192.168.1.100 port 80", cmd)
+}
+
 // --- 完整 UFW 输出集成测试 ---
 
 func (s *UFWSuite) TestParseRule_FullOutput() {
