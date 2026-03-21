@@ -41,7 +41,7 @@ require (
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/gormstore v1.2.0
 	github.com/libtnb/sessions v1.4.0
-	github.com/libtnb/sqlite v1.0.0
+	github.com/libtnb/sqlite v1.0.1
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
@@ -119,10 +119,10 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
-	modernc.org/libc v1.67.6 // indirect
+	modernc.org/libc v1.70.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.46.1 // indirect
+	modernc.org/sqlite v1.47.0 // indirect
 )
 
 replace (
