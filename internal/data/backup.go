@@ -468,6 +468,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 	if err != nil {
 		return err
 	}
+	websitePath := selectWebsiteDataPath(website.Path, website.Root)
 
 	// 创建用于压缩的临时目录
 	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
@@ -482,7 +483,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 
 	// 压缩网站
 	name = name + ".zip"
-	if err = io.Compress(website.Path, nil, filepath.Join(tmpDir, name)); err != nil {
+	if err = io.Compress(websitePath, nil, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
 
@@ -626,21 +627,58 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 	if err != nil {
 		return err
 	}
+	websitePath := selectWebsiteDataPath(website.Path, website.Root)
 
-	if err = io.Remove(website.Path); err != nil {
+	if err = io.Remove(websitePath); err != nil {
 		return err
 	}
-	if err = io.UnCompress(backup, website.Path); err != nil {
+	if err = io.UnCompress(backup, websitePath); err != nil {
 		return err
 	}
-	if err = io.Chmod(website.Path, 0755); err != nil {
+	if err = io.Chmod(websitePath, 0755); err != nil {
 		return err
 	}
-	if err = io.Chown(website.Path, "www", "www"); err != nil {
+	if err = io.Chown(websitePath, "www", "www"); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// selectWebsiteDataPath 选择网站数据目录。
+// 当网站目录和运行目录互为父子目录时，优先使用更具体的目录，避免备份或恢复范围过大。
+func selectWebsiteDataPath(path, root string) string {
+	path = filepath.Clean(path)
+	root = filepath.Clean(root)
+
+	if path == "." || path == "" {
+		return root
+	}
+	if root == "." || root == "" {
+		return path
+	}
+
+	if isParentOrSelf(path, root) {
+		return root
+	}
+	if isParentOrSelf(root, path) {
+		return path
+	}
+
+	return path
+}
+
+func isParentOrSelf(parent, child string) bool {
+	rel, err := filepath.Rel(parent, child)
+	if err != nil {
+		return false
+	}
+	if rel == "." {
+		return true
+	}
+
+	prefix := ".." + string(os.PathSeparator)
+	return rel != ".." && !strings.HasPrefix(rel, prefix)
 }
 
 // restoreMySQL 恢复 MySQL 备份
