@@ -59,7 +59,7 @@ const handleSaveConfig = () => {
   <common-page show-footer>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <service-status service="grafana-server" />
+        <service-status service="grafana" />
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-flex vertical>
@@ -92,7 +92,7 @@ const handleSaveConfig = () => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log service="grafana-server" />
+        <realtime-log service="grafana" />
       </n-tab-pane>
     </n-tabs>
   </common-page>

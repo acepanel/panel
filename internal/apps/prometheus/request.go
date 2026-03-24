@@ -18,6 +18,7 @@ type Exporter struct {
 	Description string `json:"description"`
 	Installed   bool   `json:"installed"`
 	Running     bool   `json:"running"`
+	HasConfig   bool   `json:"has_config"`
 }
 
 // ExporterSlug Exporter 操作请求

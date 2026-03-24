@@ -208,35 +208,13 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// getExporters 返回所有 exporter 定义
-func (s *App) getExporters() []Exporter {
-	return []Exporter{
-		{Name: "Node Exporter", Slug: "node_exporter", Description: s.t.Get("Hardware and OS metrics")},
-		{Name: "MySQL Exporter", Slug: "mysqld_exporter", Description: s.t.Get("MySQL database metrics")},
-		{Name: "PostgreSQL Exporter", Slug: "postgres_exporter", Description: s.t.Get("PostgreSQL database metrics")},
-		{Name: "Redis Exporter", Slug: "redis_exporter", Description: s.t.Get("Redis metrics")},
-		{Name: "Memcached Exporter", Slug: "memcached_exporter", Description: s.t.Get("Memcached metrics")},
-		{Name: "Nginx Exporter", Slug: "nginx-prometheus-exporter", Description: s.t.Get("Nginx metrics")},
-	}
-}
-
-// checkExporter 检查 slug 是否有效
-func (s *App) checkExporter(slug string) bool {
-	for _, e := range s.getExporters() {
-		if e.Slug == slug {
-			return true
-		}
-	}
-	return false
-}
-
 // ExporterList 获取 Exporter 列表及状态
 func (s *App) ExporterList(w http.ResponseWriter, r *http.Request) {
 	exporters := s.getExporters()
 	for i := range exporters {
 		exporters[i].Installed = io.Exists(fmt.Sprintf("%s/server/prometheus/exporters/%s", app.Root, exporters[i].Slug))
 		if exporters[i].Installed {
-			running, _ := systemctl.Status(exporters[i].Slug)
+			running, _ := systemctl.Status("prometheus-" + exporters[i].Slug)
 			exporters[i].Running = running
 		}
 	}
@@ -306,7 +284,7 @@ func (s *App) StartExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Start(slug); err != nil {
+	if err := systemctl.Start("prometheus-" + slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -322,7 +300,7 @@ func (s *App) StopExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Stop(slug); err != nil {
+	if err := systemctl.Stop("prometheus-" + slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -338,7 +316,7 @@ func (s *App) RestartExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Restart(slug); err != nil {
+	if err := systemctl.Restart("prometheus-" + slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -354,7 +332,12 @@ func (s *App) GetExporterConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/prometheus/exporters/%s/%s.conf", app.Root, slug, slug)
+	confPath := s.getExporterConfigPath(slug)
+	if confPath == "" {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s has no configuration file", slug))
+		return
+	}
+
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -372,22 +355,62 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	confPath := s.getExporterConfigPath(slug)
+	if confPath == "" {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s has no configuration file", slug))
+		return
+	}
+
 	req, err := service.Bind[ExporterConfig](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/prometheus/exporters/%s/%s.conf", app.Root, slug, slug)
 	if err = io.Write(confPath, req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart(slug); err != nil {
+	if err = systemctl.Restart("prometheus-" + slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	service.Success(w, nil)
+}
+
+// getExporters 返回所有 exporter 定义
+func (s *App) getExporters() []Exporter {
+	return []Exporter{
+		{Name: "Node Exporter", Slug: "node_exporter", Description: s.t.Get("Hardware and OS metrics")},
+		{Name: "MySQL Exporter", Slug: "mysqld_exporter", Description: s.t.Get("MySQL database metrics"), HasConfig: true},
+		{Name: "PostgreSQL Exporter", Slug: "postgres_exporter", Description: s.t.Get("PostgreSQL database metrics"), HasConfig: true},
+		{Name: "Redis Exporter", Slug: "redis_exporter", Description: s.t.Get("Redis metrics"), HasConfig: true},
+		{Name: "Memcached Exporter", Slug: "memcached_exporter", Description: s.t.Get("Memcached metrics")},
+		{Name: "Nginx Exporter", Slug: "nginx_exporter", Description: s.t.Get("Nginx metrics")},
+	}
+}
+
+// getExporterConfigPath 获取 exporter 配置文件路径
+func (s *App) getExporterConfigPath(slug string) string {
+	base := fmt.Sprintf("%s/server/prometheus/exporters/%s", app.Root, slug)
+	switch slug {
+	case "redis_exporter", "postgres_exporter":
+		return base + "/env"
+	case "mysqld_exporter":
+		return base + "/.my.cnf"
+	default:
+		return ""
+	}
+}
+
+// checkExporter 检查 slug 是否有效
+func (s *App) checkExporter(slug string) bool {
+	for _, e := range s.getExporters() {
+		if e.Slug == slug {
+			return true
+		}
+	}
+	return false
 }

@@ -35,7 +35,7 @@ func (s *App) Route(r chi.Router) {
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("grafana-server")
+	status, err := systemctl.Status("grafana")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get grafana status: %v", err))
 		return
@@ -102,7 +102,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("grafana-server"); err != nil {
+	if err = systemctl.Restart("grafana"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -197,7 +197,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("grafana-server"); err != nil {
+	if err = systemctl.Restart("grafana"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
