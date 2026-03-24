@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 import prometheus from '@/api/apps/prometheus'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import PrometheusConfigTuneView from './PrometheusConfigTuneView.vue'
+import PrometheusExportersView from './PrometheusExportersView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -80,6 +81,9 @@ const handleSaveConfig = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <prometheus-config-tune-view />
+      </n-tab-pane>
+      <n-tab-pane name="exporters" :tab="$gettext('Exporters')">
+        <prometheus-exporters-view />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
