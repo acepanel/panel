@@ -7,6 +7,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/fail2ban"
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
+	"github.com/acepanel/panel/v3/internal/apps/grafana"
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
@@ -17,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
 	"github.com/acepanel/panel/v3/internal/apps/postgresql"
+	"github.com/acepanel/panel/v3/internal/apps/prometheus"
 	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/apps/redis"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
@@ -32,6 +34,7 @@ func NewLoader(
 	fail2ban *fail2ban.App,
 	frp *frp.App,
 	gitea *gitea.App,
+	grafana *grafana.App,
 	mariadb *mariadb.App,
 	memcached *memcached.App,
 	minio *minio.App,
@@ -42,6 +45,7 @@ func NewLoader(
 	phpmyadmin *phpmyadmin.App,
 	podman *podman.App,
 	postgresql *postgresql.App,
+	prometheus *prometheus.App,
 	pureftpd *pureftpd.App,
 	redis *redis.App,
 	rsync *rsync.App,
@@ -49,6 +53,6 @@ func NewLoader(
 	supervisor *supervisor.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(apache, codeserver, docker, fail2ban, frp, gitea, mariadb, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
+	loader.Add(apache, codeserver, docker, fail2ban, frp, gitea, grafana, mariadb, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rsync, s3fs, supervisor)
 	return loader
 }

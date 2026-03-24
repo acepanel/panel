@@ -14,6 +14,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/fail2ban"
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
+	"github.com/acepanel/panel/v3/internal/apps/grafana"
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
@@ -24,6 +25,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
 	"github.com/acepanel/panel/v3/internal/apps/postgresql"
+	"github.com/acepanel/panel/v3/internal/apps/prometheus"
 	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/apps/redis"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
@@ -80,6 +82,7 @@ func initCli() (*app.Cli, error) {
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
+	grafanaApp := grafana.NewApp(locale)
 	mariadbApp := mariadb.NewApp(locale, settingRepo, databaseServerRepo)
 	memcachedApp := memcached.NewApp(locale)
 	minioApp := minio.NewApp()
@@ -90,12 +93,13 @@ func initCli() (*app.Cli, error) {
 	phpmyadminApp := phpmyadmin.NewApp(locale)
 	podmanApp := podman.NewApp()
 	postgresqlApp := postgresql.NewApp(locale, settingRepo, databaseServerRepo)
+	prometheusApp := prometheus.NewApp(locale, config, taskRepo)
 	pureftpdApp := pureftpd.NewApp(locale)
 	redisApp := redis.NewApp(locale, databaseServerRepo)
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, grafanaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }
