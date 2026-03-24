@@ -94,13 +94,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, config)
+	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
+	service.Success(w, conf)
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
@@ -125,11 +120,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
 
 	var cfg struct {
 		Global struct {
@@ -138,10 +129,7 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 			ScrapeTimeout      string `yaml:"scrape_timeout"`
 		} `yaml:"global"`
 	}
-	if err = yaml.Unmarshal([]byte(config), &cfg); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	_ = yaml.Unmarshal([]byte(conf), &cfg)
 
 	tune := ConfigTune{
 		ScrapeInterval:     cfg.Global.ScrapeInterval,
@@ -161,11 +149,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	confPath := fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root)
-	raw, err := io.Read(confPath)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	raw, _ := io.Read(confPath)
 
 	var cfg map[string]any
 	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
@@ -338,13 +322,9 @@ func (s *App) GetExporterConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := io.Read(confPath)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	conf, _ := io.Read(confPath)
 
-	service.Success(w, config)
+	service.Success(w, conf)
 }
 
 // UpdateExporterConfig 更新 Exporter 配置

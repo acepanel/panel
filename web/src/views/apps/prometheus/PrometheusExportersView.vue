@@ -76,9 +76,11 @@ const columns: any = [
             h(NButton, { size: 'small', onClick: () => handleRestart(row.slug) }, { default: () => $gettext('Restart') })
           )
         }
-        buttons.push(
-          h(NButton, { size: 'small', onClick: () => handleOpenConfig(row.slug) }, { default: () => $gettext('Config') })
-        )
+        if (row.has_config) {
+          buttons.push(
+            h(NButton, { size: 'small', onClick: () => handleOpenConfig(row.slug) }, { default: () => $gettext('Config') })
+          )
+        }
         buttons.push(
           h(
             NPopconfirm,

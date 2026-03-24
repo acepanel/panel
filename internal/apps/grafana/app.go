@@ -81,11 +81,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	confPath := fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root)
+	config, _ := io.Read(confPath)
 
 	service.Success(w, config)
 }
@@ -112,11 +109,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Grafana 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	config, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
 
 	tune := ConfigTune{
 		// [server]
@@ -159,11 +152,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	confPath := fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root)
-	config, err := io.Read(confPath)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	config, _ := io.Read(confPath)
 
 	// [server]
 	config = s.setINIValue(config, "server", "http_port", req.HTTPPort)
