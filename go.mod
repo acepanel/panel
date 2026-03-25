@@ -23,7 +23,7 @@ require (
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
-	github.com/gookit/validate v1.5.7-0.20260316033259-350536cc8a5e
+	github.com/gookit/validate v1.5.7-0.20260325020137-d265741f19a7
 	github.com/hashicorp/go-version v1.8.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.0
