@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         run: sudo go test -v -coverprofile="coverage.out" ./...
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           disable_search: true
           files: coverage.out
