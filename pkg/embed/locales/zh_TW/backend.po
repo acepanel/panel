@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-03-27 13:06\n"
+"PO-Revision-Date: 2026-03-27 14:24\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -21,7 +21,7 @@ msgstr "%d 個鏡像"
 
 #: internal/data/database.go:253
 msgid "%s does not support database comment"
-msgstr ""
+msgstr "%s 不支援資料庫註釋"
 
 #: internal/service/environment_dotnet.go:34
 msgid ".NET-%s is not installed"
@@ -37,7 +37,7 @@ msgstr "兩步驗證 URL： %s"
 
 #: internal/service/environment_php.go:421
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
-msgstr ""
+msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲存"
 
 #: internal/bootstrap/cli.go:18
 msgid "AUTHOR"
@@ -78,7 +78,7 @@ msgstr "活動連接"
 #: internal/apps/elasticsearch/app.go:81
 #: internal/apps/opensearch/app.go:81
 msgid "Active Primary Shards"
-msgstr ""
+msgstr "活躍主分片"
 
 #: internal/service/environment_php.go:188
 msgid "Active Processes"
@@ -86,12 +86,12 @@ msgstr "活動進程"
 
 #: internal/apps/clickhouse/app.go:93
 msgid "Active Queries"
-msgstr ""
+msgstr "活躍查詢"
 
 #: internal/apps/elasticsearch/app.go:80
 #: internal/apps/opensearch/app.go:80
 msgid "Active Shards"
-msgstr ""
+msgstr "活躍分片"
 
 #: internal/apps/nginx/app.go:133
 msgid "Active connections"
@@ -191,15 +191,15 @@ msgstr "繫結網域已禁用"
 
 #: internal/apps/rocketmq/app.go:58
 msgid "Broker Name"
-msgstr ""
+msgstr "Broker 名稱"
 
 #: internal/apps/rocketmq/app.go:61
 msgid "Broker Role"
-msgstr ""
+msgstr "Broker 角色"
 
 #: internal/apps/rocketmq/app.go:57
 msgid "Broker Status"
-msgstr ""
+msgstr "Broker 狀態"
 
 #: internal/apps/apache/app.go:130
 msgid "Busy Workers"
@@ -297,12 +297,12 @@ msgstr "CloudFlare"
 #: internal/apps/elasticsearch/app.go:76
 #: internal/apps/opensearch/app.go:76
 msgid "Cluster Name"
-msgstr ""
+msgstr "叢集名稱"
 
 #: internal/apps/elasticsearch/app.go:77
 #: internal/apps/opensearch/app.go:77
 msgid "Cluster Status"
-msgstr ""
+msgstr "叢集狀態"
 
 #: internal/apps/redis/app.go:91
 #: internal/apps/valkey/app.go:91
@@ -311,7 +311,7 @@ msgstr "每秒執行命令數"
 
 #: internal/apps/prometheus/app.go:93
 msgid "Config Reload Success"
-msgstr ""
+msgstr "設定重載成功"
 
 #: internal/apps/redis/app.go:84
 #: internal/apps/valkey/app.go:84
@@ -336,7 +336,7 @@ msgstr "創建新網站"
 
 #: internal/apps/mongodb/app.go:90
 msgid "Current Connections"
-msgstr ""
+msgstr "目前連線數"
 
 #: internal/bootstrap/cli.go:17
 #: internal/bootstrap/cli.go:25
@@ -382,11 +382,11 @@ msgstr "數據庫類型"
 
 #: internal/apps/clickhouse/app.go:95
 msgid "Databases"
-msgstr ""
+msgstr "資料庫"
 
 #: internal/apps/mongodb/app.go:95
 msgid "Delete Operations"
-msgstr ""
+msgstr "刪除操作"
 
 #: internal/route/cli.go:286
 msgid "Delete database server"
@@ -439,7 +439,7 @@ msgstr "下載遠程文件 %v"
 
 #: internal/apps/prometheus/app.go:401
 msgid "Elasticsearch metrics"
-msgstr ""
+msgstr "Elasticsearch 指標"
 
 #: internal/route/cli.go:101
 msgid "Enable HTTPS"
@@ -615,7 +615,7 @@ msgstr "修復 AcePanel 升級問題"
 
 #: internal/apps/rocketmq/app.go:62
 msgid "Flush Disk Type"
-msgstr ""
+msgstr "刷盤類型"
 
 #: internal/bootstrap/cli.go:34
 msgid "Forum：https://tom.moe"
@@ -661,7 +661,7 @@ msgstr "Go-%s 未安裝"
 
 #: internal/apps/prometheus/app.go:91
 msgid "Goroutine Count"
-msgstr ""
+msgstr "Goroutine 數量"
 
 #: internal/service/cli.go:457
 msgid "HTTPS certificate generated"
@@ -677,7 +677,7 @@ msgstr "HTTPS 已啟用"
 
 #: internal/apps/prometheus/app.go:396
 msgid "Hardware and OS metrics"
-msgstr ""
+msgstr "硬體和作業系統指標"
 
 #: internal/service/cert.go:72
 msgid "Huawei Cloud"
@@ -736,7 +736,7 @@ msgstr "Innodb 索引命中率"
 
 #: internal/apps/mongodb/app.go:93
 msgid "Insert Operations"
-msgstr ""
+msgstr "插入操作"
 
 #: internal/service/environment_php.go:346
 msgid "Install PHP-%d %s module"
@@ -744,7 +744,7 @@ msgstr "安裝 PHP-%d %s 模組"
 
 #: internal/apps/prometheus/app.go:255
 msgid "Install Prometheus exporter %s"
-msgstr ""
+msgstr "安裝 Prometheus exporter %s"
 
 #: internal/data/app.go:228
 msgid "Install app %s"
@@ -772,7 +772,7 @@ msgstr "Journal 日誌"
 
 #: internal/apps/prometheus/app.go:404
 msgid "Kafka metrics"
-msgstr ""
+msgstr "Kafka 指標"
 
 #: internal/apps/redis/app.go:92
 #: internal/apps/valkey/app.go:92
@@ -807,7 +807,7 @@ msgstr "與網站關聯的監聽地址列表"
 
 #: internal/apps/rocketmq/app.go:59
 msgid "Listen Port"
-msgstr ""
+msgstr "監聽連接埠"
 
 #: internal/service/environment_php.go:184
 msgid "Listen Queue"
@@ -819,7 +819,7 @@ msgstr "監聽佇列長度"
 
 #: internal/apps/kafka/app.go:50
 msgid "Listeners"
-msgstr ""
+msgstr "監聽器"
 
 #: internal/service/cli.go:201
 msgid "Local IPv4: %s://%s:%d%s"
@@ -836,15 +836,15 @@ msgstr "本地存儲"
 
 #: internal/apps/kafka/app.go:51
 msgid "Log Dirs"
-msgstr ""
+msgstr "日誌目錄"
 
 #: internal/apps/kafka/app.go:53
 msgid "Log Retention Hours"
-msgstr ""
+msgstr "日誌保留小時數"
 
 #: internal/apps/kafka/app.go:54
 msgid "Log Segment Bytes"
-msgstr ""
+msgstr "日誌段位元組數"
 
 #: internal/route/cli.go:385
 msgid "Log rotation"
@@ -868,7 +868,7 @@ msgstr "Memcached 是一個用於連接 Memcached 伺服器的驅動程式"
 
 #: internal/apps/prometheus/app.go:403
 msgid "Memcached metrics"
-msgstr ""
+msgstr "Memcached 指標"
 
 #: internal/apps/apache/app.go:109
 #: internal/apps/nginx/app.go:126
@@ -882,7 +882,7 @@ msgstr "記憶體碎片比率"
 
 #: internal/apps/clickhouse/app.go:94
 msgid "Memory Usage (bytes)"
-msgstr ""
+msgstr "記憶體使用（位元組）"
 
 #: internal/service/toolbox_migration.go:418
 msgid "Migration completed"
@@ -894,7 +894,7 @@ msgstr "遷移已開始"
 
 #: internal/apps/prometheus/app.go:400
 msgid "MongoDB metrics"
-msgstr ""
+msgstr "MongoDB 指標"
 
 #: internal/data/backup.go:871
 msgid "Move acepanel file failed: %v"
@@ -906,7 +906,7 @@ msgstr "移動面板檔案失敗：%v"
 
 #: internal/apps/prometheus/app.go:398
 msgid "MySQL database metrics"
-msgstr ""
+msgstr "MySQL 資料庫指標"
 
 #: internal/bootstrap/cli.go:14
 #: internal/bootstrap/cli.go:22
@@ -916,11 +916,11 @@ msgstr "名稱"
 
 #: internal/apps/rocketmq/app.go:60
 msgid "NameServer Address"
-msgstr ""
+msgstr "NameServer 地址"
 
 #: internal/apps/rocketmq/app.go:56
 msgid "NameServer Status"
-msgstr ""
+msgstr "NameServer 狀態"
 
 #: internal/service/cert.go:92
 msgid "NameSilo"
@@ -932,7 +932,7 @@ msgstr "新用戶名不能為空"
 
 #: internal/apps/prometheus/app.go:397
 msgid "Nginx metrics"
-msgstr ""
+msgstr "Nginx 指標"
 
 #: internal/data/backup.go:838
 msgid "No backup file found, unable to automatically repair"
@@ -940,7 +940,7 @@ msgstr "未找到備份檔案，無法自動修復"
 
 #: internal/apps/kafka/app.go:49
 msgid "Node ID"
-msgstr ""
+msgstr "節點 ID"
 
 #: internal/service/environment_nodejs.go:36
 #: internal/service/environment_nodejs.go:56
@@ -958,17 +958,17 @@ msgstr "不使用"
 
 #: internal/apps/kafka/app.go:52
 msgid "Num Partitions"
-msgstr ""
+msgstr "分區數量"
 
 #: internal/apps/elasticsearch/app.go:79
 #: internal/apps/opensearch/app.go:79
 msgid "Number of Data Nodes"
-msgstr ""
+msgstr "資料節點數量"
 
 #: internal/apps/elasticsearch/app.go:78
 #: internal/apps/opensearch/app.go:78
 msgid "Number of Nodes"
-msgstr ""
+msgstr "節點數量"
 
 #: internal/route/cli.go:371
 msgid "Number of backups to keep"
@@ -1133,7 +1133,7 @@ msgstr "端口：%d"
 
 #: internal/apps/prometheus/app.go:399
 msgid "PostgreSQL database metrics"
-msgstr ""
+msgstr "PostgreSQL 資料庫指標"
 
 #: internal/apps/postgresql/app.go:170
 msgid "Process Count"
@@ -1191,7 +1191,7 @@ msgstr "查詢快取未快取次數"
 
 #: internal/apps/mongodb/app.go:92
 msgid "Query Operations"
-msgstr ""
+msgstr "查詢操作"
 
 #: internal/apps/nginx/app.go:157
 msgid "Reading"
@@ -1203,12 +1203,12 @@ msgstr "Readline 是一個處理文本的庫"
 
 #: internal/apps/prometheus/app.go:402
 msgid "Redis metrics"
-msgstr ""
+msgstr "Redis 指標"
 
 #: internal/apps/elasticsearch/app.go:82
 #: internal/apps/opensearch/app.go:82
 msgid "Relocating Shards"
-msgstr ""
+msgstr "遷移中的分片"
 
 #: internal/route/cli.go:482
 msgid "Remove panel application mark (use only under guidance)"
@@ -1232,7 +1232,7 @@ msgstr "每秒請求"
 
 #: internal/apps/mongodb/app.go:96
 msgid "Resident Memory (MB)"
-msgstr ""
+msgstr "常駐記憶體（MB）"
 
 #: internal/route/cli.go:31
 msgid "Restart AcePanel service"
@@ -1323,7 +1323,7 @@ msgstr "停止 AcePanel 服務"
 
 #: internal/apps/mongodb/app.go:97
 msgid "Storage Engine"
-msgstr ""
+msgstr "儲存引擎"
 
 #: internal/route/cli.go:317
 #: internal/route/cli.go:341
@@ -1336,7 +1336,7 @@ msgstr "存儲 ID（留空則為本地存儲）"
 
 #: internal/apps/prometheus/app.go:90
 msgid "Storage Retention"
-msgstr ""
+msgstr "儲存保留"
 
 #: internal/apps/postgresql/app.go:172
 msgid "Storage Usage"
@@ -1389,7 +1389,7 @@ msgstr "等待表鎖定"
 
 #: internal/apps/clickhouse/app.go:96
 msgid "Tables"
-msgstr ""
+msgstr "表"
 
 #: internal/route/cli.go:437
 msgid "Target name"
@@ -1444,7 +1444,7 @@ msgstr "總連接數"
 
 #: internal/apps/mongodb/app.go:91
 msgid "Total Connections Created"
-msgstr ""
+msgstr "建立的連線總數"
 
 #: internal/apps/redis/app.go:89
 #: internal/apps/valkey/app.go:89
@@ -1498,7 +1498,7 @@ msgstr "無法在離線模式下更新應用程式列表快取"
 #: internal/apps/elasticsearch/app.go:83
 #: internal/apps/opensearch/app.go:83
 msgid "Unassigned Shards"
-msgstr ""
+msgstr "未分配的分片"
 
 #: internal/service/environment_php.go:380
 msgid "Uninstall PHP-%d %s module"
@@ -1506,7 +1506,7 @@ msgstr "卸載 PHP-%d %s 模組"
 
 #: internal/apps/prometheus/app.go:282
 msgid "Uninstall Prometheus exporter %s"
-msgstr ""
+msgstr "解除安裝 Prometheus exporter %s"
 
 #: internal/data/app.go:282
 msgid "Uninstall app %s"
@@ -1542,7 +1542,7 @@ msgstr "更新 AcePanel 到最新版本"
 
 #: internal/apps/mongodb/app.go:94
 msgid "Update Operations"
-msgstr ""
+msgstr "更新操作"
 
 #: internal/data/app.go:341
 msgid "Update app %s"
@@ -1563,7 +1563,7 @@ msgstr "運行時間"
 #: internal/apps/clickhouse/app.go:92
 #: internal/apps/mongodb/app.go:89
 msgid "Uptime (seconds)"
-msgstr ""
+msgstr "執行時間（秒）"
 
 #: internal/apps/redis/app.go:83
 #: internal/apps/valkey/app.go:83
@@ -1606,7 +1606,7 @@ msgstr "驗證下載文件失敗：%v"
 #: internal/apps/grafana/app.go:84
 #: internal/apps/mongodb/app.go:88
 msgid "Version"
-msgstr ""
+msgstr "版本"
 
 #: internal/apps/nginx/app.go:165
 msgid "Waiting"
@@ -1835,12 +1835,12 @@ msgstr "資料庫使用者遷移完成"
 
 #: internal/apps/grafana/app.go:232
 msgid "datasource %s already exists"
-msgstr ""
+msgstr "資料來源 %s 已存在"
 
 #: internal/apps/grafana/app.go:281
 #: internal/apps/grafana/app.go:324
 msgid "datasource %s not found"
-msgstr ""
+msgstr "資料來源 %s 不存在"
 
 #: internal/service/toolbox_disk.go:218
 msgid "device not found: %s"
@@ -1889,12 +1889,12 @@ msgstr "到期時間必須小於 10 年"
 #: internal/apps/prometheus/app.go:345
 #: internal/apps/prometheus/app.go:364
 msgid "exporter %s does not exist"
-msgstr ""
+msgstr "exporter %s 不存在"
 
 #: internal/apps/prometheus/app.go:351
 #: internal/apps/prometheus/app.go:370
 msgid "exporter %s has no configuration file"
-msgstr ""
+msgstr "exporter %s 沒有設定檔"
 
 #: internal/service/toolbox_migration.go:529
 msgid "exporting database"
@@ -1923,7 +1923,7 @@ msgstr "連線遠端伺服器失敗：%v"
 
 #: internal/data/database_elasticsearch.go:115
 msgid "failed to connect to Elasticsearch: %v"
-msgstr ""
+msgstr "連線 Elasticsearch 失敗：%v"
 
 #: internal/data/database_redis.go:127
 msgid "failed to connect to Redis: %v"
@@ -2032,7 +2032,7 @@ msgstr "無法獲取 %s 服務運行狀態：%v"
 
 #: internal/apps/clickhouse/app.go:199
 msgid "failed to get ClickHouse default password: %v"
-msgstr ""
+msgstr "取得 ClickHouse 預設密碼失敗：%v"
 
 #: internal/data/cert_account.go:224
 msgid "failed to get Google EAB: %s"
@@ -2048,7 +2048,7 @@ msgstr "獲取 Memcached 狀態失敗：%v"
 
 #: internal/apps/mongodb/app.go:194
 msgid "failed to get MongoDB admin password: %v"
-msgstr ""
+msgstr "取得 MongoDB 管理員密碼失敗：%v"
 
 #: internal/apps/mysql/app.go:104
 msgid "failed to get MySQL status: %v"
@@ -2142,7 +2142,7 @@ msgstr "無法獲取磁盤空間：%v"
 
 #: internal/apps/elasticsearch/app.go:43
 msgid "failed to get elasticsearch status: %v"
-msgstr ""
+msgstr "取得 elasticsearch 狀態失敗：%v"
 
 #: internal/service/file.go:341
 msgid "failed to get file system info"
@@ -2154,7 +2154,7 @@ msgstr "獲取檔案系統類型失敗：%v"
 
 #: internal/apps/grafana/app.go:46
 msgid "failed to get grafana status: %v"
-msgstr ""
+msgstr "取得 grafana 狀態失敗：%v"
 
 #: internal/service/home.go:83
 msgid "failed to get home apps: %v"
@@ -2166,7 +2166,7 @@ msgstr "獲取首頁模板文件失敗：%v"
 
 #: internal/apps/kafka/app.go:38
 msgid "failed to get kafka status: %v"
-msgstr ""
+msgstr "取得 kafka 狀態失敗：%v"
 
 #: internal/apps/supervisor/app.go:218
 #: internal/apps/supervisor/app.go:241
@@ -2182,7 +2182,7 @@ msgstr "無法獲取 nginx 工作進程：%v"
 
 #: internal/apps/opensearch/app.go:43
 msgid "failed to get opensearch status: %v"
-msgstr ""
+msgstr "取得 opensearch 狀態失敗：%v"
 
 #: internal/service/toolbox_disk.go:115
 msgid "failed to get partition UUID: %v"
@@ -2218,7 +2218,7 @@ msgstr "獲取項目列表失敗：%v"
 
 #: internal/apps/prometheus/app.go:58
 msgid "failed to get prometheus status: %v"
-msgstr ""
+msgstr "取得 prometheus 狀態失敗：%v"
 
 #: internal/apps/redis/app.go:67
 msgid "failed to get redis info: %v"
@@ -2274,11 +2274,11 @@ msgstr "無法取得應用程式 %s 的解除安裝腳本"
 
 #: internal/apps/valkey/app.go:67
 msgid "failed to get valkey info: %v"
-msgstr ""
+msgstr "取得 valkey 資訊失敗：%v"
 
 #: internal/apps/valkey/app.go:44
 msgid "failed to get valkey status: %v"
-msgstr ""
+msgstr "取得 valkey 狀態失敗：%v"
 
 #: internal/service/toolbox_migration.go:444
 msgid "failed to get website detail: %v"
@@ -2462,11 +2462,11 @@ msgstr "運行命令失敗：%v"
 
 #: internal/apps/clickhouse/app.go:249
 msgid "failed to save ClickHouse default password: %v"
-msgstr ""
+msgstr "儲存 ClickHouse 預設密碼失敗：%v"
 
 #: internal/apps/mongodb/app.go:227
 msgid "failed to save MongoDB admin password: %v"
-msgstr ""
+msgstr "儲存 MongoDB 管理員密碼失敗：%v"
 
 #: internal/data/database_redis.go:133
 msgid "failed to select database: %v"
@@ -2478,7 +2478,7 @@ msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 
 #: internal/apps/mongodb/app.go:221
 msgid "failed to set MongoDB admin password: %v"
-msgstr ""
+msgstr "設定 MongoDB 管理員密碼失敗：%v"
 
 #: internal/service/toolbox_system.go:285
 msgid "failed to set NTP servers: %v"
@@ -2568,7 +2568,7 @@ msgstr "擦除磁碟失敗：%v"
 
 #: internal/apps/clickhouse/app.go:237
 msgid "failed to write ClickHouse user config: %v"
-msgstr ""
+msgstr "寫入 ClickHouse 使用者設定失敗：%v"
 
 #: internal/service/toolbox_disk.go:151
 msgid "failed to write fstab: %v"
@@ -2896,7 +2896,7 @@ msgstr "正在傳送備份到遠端伺服器"
 
 #: internal/data/database_elasticsearch.go:110
 msgid "server is not Elasticsearch type"
-msgstr ""
+msgstr "伺服器不是 Elasticsearch 類型"
 
 #: internal/data/database_redis.go:122
 msgid "server is not Redis type"
@@ -2925,7 +2925,7 @@ msgstr "未安裝 smartmontools，請先安裝它（例如：apt install smartmo
 
 #: internal/data/database.go:220
 msgid "sqlite does not support dropping tables from here"
-msgstr ""
+msgstr "sqlite 不支援從此處刪除表"
 
 #: internal/service/environment_php.go:446
 msgid "sqlsrv is a driver for connecting to SQL Server"

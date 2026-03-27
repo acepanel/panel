@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-03-27 13:06\n"
+"PO-Revision-Date: 2026-03-27 14:24\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -439,7 +439,7 @@ msgstr "下载远程文件 %v"
 
 #: internal/apps/prometheus/app.go:401
 msgid "Elasticsearch metrics"
-msgstr ""
+msgstr "Elasticsearch 指标"
 
 #: internal/route/cli.go:101
 msgid "Enable HTTPS"
@@ -772,7 +772,7 @@ msgstr "Journal 日志"
 
 #: internal/apps/prometheus/app.go:404
 msgid "Kafka metrics"
-msgstr ""
+msgstr "Kafka 指标"
 
 #: internal/apps/redis/app.go:92
 #: internal/apps/valkey/app.go:92
@@ -894,7 +894,7 @@ msgstr "迁移已开始"
 
 #: internal/apps/prometheus/app.go:400
 msgid "MongoDB metrics"
-msgstr ""
+msgstr "MongoDB 指标"
 
 #: internal/data/backup.go:871
 msgid "Move acepanel file failed: %v"
