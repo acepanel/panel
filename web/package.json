@@ -44,7 +44,7 @@
     "echarts": "^6.0.0",
     "highlight.js": "^11.11.1",
     "js-sha256": "^0.11.1",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.18.1",
     "luxon": "^3.7.2",
     "mitt": "^3.0.1",
     "monaco-editor": "^0.55.1",
