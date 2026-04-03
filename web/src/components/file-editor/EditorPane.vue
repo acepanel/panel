@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import file from '@/api/panel/file'
 import { useEditorStore, useThemeStore } from '@/stores'
 import { languageByPath } from '@/utils/file'
 import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
-import { useThemeVars } from 'naive-ui'
+import { NButton, NFlex, useThemeVars } from 'naive-ui'
+import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -119,14 +121,53 @@ function handleCloseTab(path: string, e: MouseEvent) {
   e.stopPropagation()
   const tab = editorStore.tabs.find((t) => t.path === path)
   if (tab?.modified) {
-    window.$dialog.warning({
+    const d = window.$dialog.warning({
       title: $gettext('Unsaved Changes'),
       content: $gettext('This file has unsaved changes. Are you sure you want to close it?'),
-      positiveText: $gettext('Close'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: () => {
-        editorStore.closeTab(path)
-      }
+      closable: false,
+      maskClosable: false,
+      action: () =>
+        h(NFlex, { justify: 'end' }, () => [
+          h(
+            NButton,
+            {
+              onClick: () => {
+                d.destroy() // 返回，不关闭标签页
+              }
+            },
+            () => $gettext('Go Back')
+          ),
+          h(
+            NButton,
+            {
+              type: 'warning',
+              onClick: () => {
+                d.destroy()
+                editorStore.closeTab(path) // 放弃更改，关闭标签页
+              }
+            },
+            () => $gettext('Discard')
+          ),
+          h(
+            NButton,
+            {
+              type: 'primary',
+              onClick: () => {
+                useRequest(file.save(tab.path, tab.content))
+                  .onSuccess(() => {
+                    editorStore.markSaved(tab.path)
+                    window.$message.success($gettext('Saved successfully'))
+                    d.destroy()
+                    editorStore.closeTab(path) // 保存成功，关闭标签页
+                  })
+                  .onError(() => {
+                    d.destroy() // 保存失败，不关闭标签页
+                  })
+              }
+            },
+            () => $gettext('Save')
+          )
+        ])
     })
   } else {
     editorStore.closeTab(path)

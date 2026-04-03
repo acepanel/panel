@@ -4,6 +4,8 @@ import DraggableWindow from '@/components/common/DraggableWindow.vue'
 import { FileEditorView } from '@/components/file-editor'
 import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
+import { NButton, NFlex } from 'naive-ui'
+import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -32,52 +34,82 @@ async function handleBeforeClose(): Promise<boolean> {
     return true // 没有未保存的文件，直接关闭
   }
 
-  // 显示确认对话框
+  // 显示确认对话框（返回/放弃/保存）
   return new Promise((resolve) => {
-    window.$dialog.warning({
+    const d = window.$dialog.warning({
       title: $gettext('Unsaved Changes'),
       content: $gettext('You have unsaved changes. Do you want to save them before closing?'),
-      positiveText: $gettext('Save'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: async () => {
-        // 保存所有未保存的文件
-        const unsavedTabs = editorStore.unsavedTabs
-        let allSaved = true
-        const failedFiles: string[] = []
-        
-        for (const tab of unsavedTabs) {
-          try {
-            await new Promise<void>((resolveInner, rejectInner) => {
-              useRequest(file.save(tab.path, tab.content))
-                .onSuccess(() => {
-                  editorStore.markSaved(tab.path)
-                  resolveInner()
-                })
-                .onError(() => {
-                  allSaved = false
-                  failedFiles.push(tab.path)
-                  rejectInner()
-                })
-            })
-          } catch {
-            // 保存失败，已记录到 failedFiles 数组中
-            // 继续尝试保存其他文件
-          }
-        }
-        
-        if (allSaved) {
-          window.$message.success($gettext('All files saved successfully'))
-          resolve(true) // 保存成功，关闭窗口
-        } else {
-          // 显示失败的文件列表
-          const fileList = failedFiles.map(f => f.split('/').pop()).join(', ')
-          window.$message.error($gettext('Failed to save files: %{ files }', { files: fileList }))
-          resolve(false) // 保存失败，不关闭窗口
-        }
-      },
-      onNegativeClick: () => {
-        resolve(false) // 用户取消，不关闭窗口
-      }
+      closable: false,
+      maskClosable: false,
+      action: () =>
+        h(NFlex, { justify: 'end' }, () => [
+          h(
+            NButton,
+            {
+              onClick: () => {
+                d.destroy()
+                resolve(false) // 返回编辑器
+              }
+            },
+            () => $gettext('Go Back')
+          ),
+          h(
+            NButton,
+            {
+              type: 'warning',
+              onClick: () => {
+                d.destroy()
+                resolve(true) // 放弃更改，关闭窗口
+              }
+            },
+            () => $gettext('Discard')
+          ),
+          h(
+            NButton,
+            {
+              type: 'primary',
+              onClick: async () => {
+                // 保存所有未保存的文件
+                const unsavedTabs = editorStore.unsavedTabs
+                let allSaved = true
+                const failedFiles: string[] = []
+
+                for (const tab of unsavedTabs) {
+                  try {
+                    await new Promise<void>((resolveInner, rejectInner) => {
+                      useRequest(file.save(tab.path, tab.content))
+                        .onSuccess(() => {
+                          editorStore.markSaved(tab.path)
+                          resolveInner()
+                        })
+                        .onError(() => {
+                          allSaved = false
+                          failedFiles.push(tab.path)
+                          rejectInner()
+                        })
+                    })
+                  } catch {
+                    // 保存失败，已记录到 failedFiles 数组中
+                    // 继续尝试保存其他文件
+                  }
+                }
+
+                d.destroy()
+                if (allSaved) {
+                  window.$message.success($gettext('All files saved successfully'))
+                  resolve(true) // 保存成功，关闭窗口
+                } else {
+                  const fileList = failedFiles.map((f) => f.split('/').pop()).join(', ')
+                  window.$message.error(
+                    $gettext('Failed to save files: %{ files }', { files: fileList })
+                  )
+                  resolve(false) // 保存失败，不关闭窗口
+                }
+              }
+            },
+            () => $gettext('Save')
+          )
+        ])
     })
   })
 }
