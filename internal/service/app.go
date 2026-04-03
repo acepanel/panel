@@ -37,6 +37,7 @@ func (s *AppService) Categories(w http.ResponseWriter, r *http.Request) {
 func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 	category := r.URL.Query().Get("category")
 	query := strings.ToLower(r.URL.Query().Get("query"))
+	onlyInstalled := r.URL.Query().Get("installed") == "true"
 
 	all := s.appRepo.All()
 	installedApps, err := s.appRepo.Installed()
@@ -59,6 +60,9 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			installedVersion = installedAppMap[item.Slug].Version
 			updateExist = s.appRepo.UpdateExist(item.Slug)
 			show = installedAppMap[item.Slug].Show
+		}
+		if onlyInstalled && !installed {
+			continue
 		}
 		if category != "" && !strings.Contains(strings.Join(item.Categories, ","), category) {
 			continue

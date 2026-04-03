@@ -4,8 +4,8 @@ export default {
   // 获取分类列表
   categories: (): any => http.Get('/app/categories'),
   // 获取应用列表
-  list: (page: number, limit: number, category?: string, query?: string): any =>
-    http.Get('/app/list', { params: { page, limit, category, query } }),
+  list: (page: number, limit: number, category?: string, query?: string, installed?: boolean): any =>
+    http.Get('/app/list', { params: { page, limit, category, query, installed } }),
   // 安装应用
   install: (slug: string, channel: string | null): any =>
     http.Post('/app/install', { slug, channel }),

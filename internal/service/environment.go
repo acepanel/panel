@@ -32,6 +32,7 @@ func (s *EnvironmentService) Types(w http.ResponseWriter, r *http.Request) {
 func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 	typ := r.URL.Query().Get("type")
 	query := strings.ToLower(r.URL.Query().Get("query"))
+	onlyInstalled := r.URL.Query().Get("installed") == "true"
 	all := s.environmentRepo.All()
 	var environments []types.EnvironmentDetail
 	for _, item := range all {
@@ -43,6 +44,10 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 			!strings.Contains(strings.ToLower(item.Description), query) {
 			continue
 		}
+		installed := s.environmentRepo.IsInstalled(item.Type, item.Slug)
+		if onlyInstalled && !installed {
+			continue
+		}
 		environments = append(environments, types.EnvironmentDetail{
 			Type:             item.Type,
 			Name:             item.Name,
@@ -50,7 +55,7 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 			Slug:             item.Slug,
 			Version:          item.Version,
 			InstalledVersion: s.environmentRepo.InstalledVersion(item.Type, item.Slug),
-			Installed:        s.environmentRepo.IsInstalled(item.Type, item.Slug),
+			Installed:        installed,
 			HasUpdate:        s.environmentRepo.HasUpdate(item.Type, item.Slug),
 		})
 	}
