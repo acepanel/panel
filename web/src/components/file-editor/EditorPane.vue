@@ -161,6 +161,7 @@ function handleCloseTab(path: string, e: MouseEvent) {
                     editorStore.closeTab(path) // 保存成功，关闭标签页
                   })
                   .onError(() => {
+                    window.$message.error($gettext('Failed to save file'))
                     d.destroy() // 保存失败，不关闭标签页
                   })
               }
