@@ -6,13 +6,8 @@ import app from '@/api/panel/app'
 import environment from '@/api/panel/environment'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
-import VersionModal from '@/views/app/VersionModal.vue'
 
 const { $gettext } = useGettext()
-
-const versionModalShow = ref(false)
-const versionModalOperation = ref($gettext('Install'))
-const versionModalInfo = ref<any>({})
 
 // 应用表格列
 const appColumns: any = [
@@ -262,7 +257,7 @@ const {
   }
 )
 
-// 获取已安装环境
+// 获取已安装环境（环境数量通常很少，无需分页）
 const {
   loading: envLoading,
   data: envData,
@@ -365,9 +360,4 @@ onMounted(() => {
       />
     </n-flex>
   </n-flex>
-  <version-modal
-    v-model:show="versionModalShow"
-    v-model:operation="versionModalOperation"
-    v-model:info="versionModalInfo"
-  />
 </template>
