@@ -370,6 +370,7 @@ type dnsSolver struct {
 	dns     DnsType
 	param   DNSParam
 	records []libdns.Record
+	mu      sync.Mutex
 }
 
 func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
@@ -393,12 +394,24 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	if err != nil {
 		return fmt.Errorf("failed to set DNS record %q for %q: %w", dnsName, zone, err)
 	}
-	if len(results) != 1 {
-		return fmt.Errorf("expected to add 1 record, but actually added %d records", len(results))
+	if len(results) == 0 {
+		return fmt.Errorf("DNS provider returned no records after setting %q", dnsName)
 	}
 
-	s.records = results
+	s.mu.Lock()
+	s.records = append(s.records, results...)
+	s.mu.Unlock()
 	return nil
+}
+
+// Wait 实现 acmez.Waiter 接口，等待 DNS TXT 记录传播后再通知 CA 进行验证
+func (s *dnsSolver) Wait(ctx context.Context, _ acme.Challenge) error {
+	select {
+	case <-time.After(60 * time.Second):
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
@@ -416,7 +429,11 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
 
-	_, _ = provider.DeleteRecords(ctx, zone+".", s.records)
+	s.mu.Lock()
+	records := s.records
+	s.mu.Unlock()
+
+	_, _ = provider.DeleteRecords(ctx, zone+".", records)
 	return nil
 }
 
