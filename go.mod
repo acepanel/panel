@@ -3,7 +3,7 @@ module github.com/acepanel/panel/v3
 go 1.26
 
 require (
-	github.com/DeRuina/timberjack v1.4.0
+	github.com/DeRuina/timberjack v1.4.1
 	github.com/andybalholm/brotli v1.2.1
 	github.com/bddjr/hlfhr v1.5.0
 	github.com/beevik/ntp v1.5.0
@@ -26,7 +26,7 @@ require (
 	github.com/gookit/validate v1.5.7
 	github.com/hashicorp/go-version v1.9.0
 	github.com/leonelquinteros/gotext v1.7.2
-	github.com/lib/pq v1.12.1
+	github.com/lib/pq v1.12.2
 	github.com/libdns/alidns v1.0.6
 	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
