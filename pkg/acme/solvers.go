@@ -399,7 +399,7 @@ type dnsSolver struct {
 	mu               sync.Mutex
 	dns              DnsType
 	param            DNSParam
-	records          map[string][]libdns.Record // zone → records
+	records          map[string][]libdns.Record // dnsName|keyAuth → records
 	alias            map[string]string          // DNS 验证别名映射 (domain → delegated domain)
 	dnsServer        string                     // DNS 验证服务器地址
 	skipVerify       bool                       // 跳过解析验证
@@ -433,10 +433,8 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	}
 
 	s.mu.Lock()
-	if s.records == nil {
-		s.records = make(map[string][]libdns.Record)
-	}
-	s.records[zone] = append(s.records[zone], results...)
+	key := dnsName + "|" + keyAuth
+	s.records[key] = append(s.records[key], results...)
 	s.mu.Unlock()
 
 	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
@@ -511,7 +509,7 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 }
 
 func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
-	_, zone, err := s.resolveAlias(challenge)
+	dnsName, zone, err := s.resolveAlias(challenge)
 	if err != nil {
 		return err
 	}
@@ -526,7 +524,9 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 	s.report("cleaning up DNS TXT records")
 
 	s.mu.Lock()
-	records := s.records[zone]
+	key := dnsName + "|" + challenge.DNS01KeyAuthorization()
+	records := s.records[key]
+	delete(s.records, key)
 	s.mu.Unlock()
 
 	if len(records) > 0 {

@@ -205,7 +205,7 @@ func (r *certRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, 
 		}
 	}
 
-	report(r.t.Get("preparing ACME client"))
+	report(r.t.Get("initializing ACME client"))
 	cert, err := r.Get(id)
 	if err != nil {
 		return nil, err
