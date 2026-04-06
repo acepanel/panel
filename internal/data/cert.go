@@ -58,6 +58,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			DNSID:       cert.DNSID,
 			Type:        cert.Type,
 			Domains:     cert.Domains,
+			Alias:       cert.Alias,
 			AutoRenewal: cert.AutoRenewal,
 			NextRenewal: cert.RenewalInfo.SelectedTime,
 			Cert:        cert.Cert,

@@ -36,7 +36,7 @@ func (c *Client) UseDns(dnsType DnsType, param DNSParam, opt ...DnsOption) {
 	solver := &dnsSolver{
 		dns:     dnsType,
 		param:   param,
-		records: []libdns.Record{},
+		records: make(map[string][]libdns.Record),
 	}
 	if len(opt) > 0 {
 		solver.alias = opt[0].Alias

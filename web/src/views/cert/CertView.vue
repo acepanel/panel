@@ -361,6 +361,7 @@ const handleUpdateCert = () => {
 
 const handleAutoRenewalUpdate = (row: any) => {
   updateModel.value.domains = row.domains
+  updateModel.value.alias = row.alias
   updateModel.value.type = row.type
   updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
   updateModel.value.account_id = row.account_id == 0 ? null : row.account_id

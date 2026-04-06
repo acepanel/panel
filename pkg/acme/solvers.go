@@ -396,14 +396,14 @@ type DNSProvider interface {
 }
 
 type dnsSolver struct {
+	mu               sync.Mutex
 	dns              DnsType
 	param            DNSParam
-	records          []libdns.Record
-	mu               sync.Mutex
-	alias            map[string]string // DNS 验证别名映射 (domain → delegated domain)
-	dnsServer        string            // DNS 验证服务器地址
-	skipVerify       bool              // 跳过解析验证
-	progressCallback func(string)      // 进度回调
+	records          map[string][]libdns.Record // zone → records
+	alias            map[string]string          // DNS 验证别名映射 (domain → delegated domain)
+	dnsServer        string                     // DNS 验证服务器地址
+	skipVerify       bool                       // 跳过解析验证
+	progressCallback func(string)               // 进度回调
 }
 
 func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
@@ -433,7 +433,10 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	}
 
 	s.mu.Lock()
-	s.records = append(s.records, results...)
+	if s.records == nil {
+		s.records = make(map[string][]libdns.Record)
+	}
+	s.records[zone] = append(s.records[zone], results...)
 	s.mu.Unlock()
 
 	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
@@ -454,7 +457,10 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 		}
 	}
 
-	dnsName, _, _ := s.resolveAlias(challenge)
+	dnsName, _, err := s.resolveAlias(challenge)
+	if err != nil {
+		return err
+	}
 	expected := challenge.DNS01KeyAuthorization()
 
 	// 确定 DNS 服务器
@@ -520,10 +526,12 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 	s.report("cleaning up DNS TXT records")
 
 	s.mu.Lock()
-	records := s.records
+	records := s.records[zone]
 	s.mu.Unlock()
 
-	_, _ = provider.DeleteRecords(ctx, zone+".", records)
+	if len(records) > 0 {
+		_, _ = provider.DeleteRecords(ctx, zone+".", records)
+	}
 	return nil
 }
 
