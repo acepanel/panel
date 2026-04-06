@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { MessageReactive } from 'naive-ui'
 import { NButton, NDataTable, NFlex, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -30,8 +29,6 @@ const props = defineProps({
 
 const { algorithms, websites, accounts, dns } = toRefs(props)
 
-let messageReactive: MessageReactive | null = null
-
 const updateModel = ref<any>({
   domains: [],
   type: 'P256',
@@ -59,6 +56,7 @@ const deployModel = ref<any>({
 })
 const obtain = ref(false)
 const obtainCert = ref(0)
+const obtainMode = ref<'obtain' | 'renew'>('obtain')
 
 const columns: any = [
   {
@@ -183,8 +181,9 @@ const columns: any = [
                 type: 'info',
                 style: 'margin-left: 15px;',
                 onClick: async () => {
-                  obtain.value = true
+                  obtainMode.value = 'obtain'
                   obtainCert.value = row.id
+                  obtain.value = true
                 }
               },
               {
@@ -219,17 +218,9 @@ const columns: any = [
                 type: 'success',
                 style: 'margin-left: 15px;',
                 onClick: async () => {
-                  messageReactive = window.$message.loading($gettext('Please wait...'), {
-                    duration: 0
-                  })
-                  useRequest(cert.renew(row.id))
-                    .onSuccess(() => {
-                      refresh()
-                      window.$message.success($gettext('Renewal successful'))
-                    })
-                    .onComplete(() => {
-                      messageReactive?.destroy()
-                    })
+                  obtainMode.value = 'renew'
+                  obtainCert.value = row.id
+                  obtain.value = true
                 }
               },
               {
@@ -579,7 +570,7 @@ onUnmounted(() => {
       </n-tab-pane>
     </n-tabs>
   </n-modal>
-  <obtain-modal v-model:id="obtainCert" v-model:show="obtain" />
+  <obtain-modal v-model:id="obtainCert" v-model:show="obtain" :mode="obtainMode" />
 </template>
 
 <style scoped lang="scss"></style>

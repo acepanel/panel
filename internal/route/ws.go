@@ -26,5 +26,7 @@ func (route *Ws) Register(r *chi.Mux) {
 		r.Get("/container/{id}", route.ws.ContainerTerminal)
 		r.Get("/container/image/pull", route.ws.ContainerImagePull)
 		r.Get("/migration/progress", route.toolboxMigration.Progress)
+		r.Get("/cert/obtain", route.ws.CertObtain)
+		r.Get("/cert/renew", route.ws.CertRenew)
 	})
 }

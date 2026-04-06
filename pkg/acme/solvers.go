@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -367,10 +368,13 @@ func (s httpSolver) cleanUpApache(path, token string) error {
 }
 
 type dnsSolver struct {
-	dns     DnsType
-	param   DNSParam
-	records []libdns.Record
-	mu      sync.Mutex
+	dns              DnsType
+	param            DNSParam
+	records          []libdns.Record
+	mu               sync.Mutex
+	dnsServer        string       // DNS 验证服务器地址
+	skipVerify       bool         // 跳过解析验证
+	progressCallback func(string) // 进度回调
 }
 
 func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
@@ -384,6 +388,8 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	if err != nil {
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
+
+	s.report(fmt.Sprintf("setting DNS TXT record %s", dnsName))
 
 	rec := libdns.TXT{
 		Name: libdns.RelativeName(dnsName+".", zone+"."),
@@ -401,17 +407,73 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	s.mu.Lock()
 	s.records = append(s.records, results...)
 	s.mu.Unlock()
+
+	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
 	return nil
 }
 
 // Wait 实现 acmez.Waiter 接口，等待 DNS TXT 记录传播后再通知 CA 进行验证
-func (s *dnsSolver) Wait(ctx context.Context, _ acme.Challenge) error {
-	select {
-	case <-time.After(60 * time.Second):
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
+func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
+	if s.skipVerify {
+		s.report("skip DNS verification, waiting 60s for propagation")
+		timer := time.NewTimer(60 * time.Second)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
+
+	dnsName := challenge.DNS01TXTRecordName()
+	expected := challenge.DNS01KeyAuthorization()
+
+	// 确定 DNS 服务器
+	dnsServer := s.dnsServer
+	if dnsServer == "" {
+		dnsServer = "8.8.8.8"
+	}
+
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{Timeout: 10 * time.Second}
+			server := dnsServer
+			if !strings.Contains(server, ":") {
+				server += ":53"
+			}
+			return d.DialContext(ctx, "udp", server)
+		},
+	}
+
+	const maxAttempts = 120
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	s.report(fmt.Sprintf("verifying TXT record %s via DNS server %s", dnsName, dnsServer))
+
+	for i := 1; i <= maxAttempts; i++ {
+		txts, err := resolver.LookupTXT(ctx, dnsName)
+		if err == nil {
+			for _, txt := range txts {
+				if txt == expected {
+					s.report(fmt.Sprintf("DNS TXT record verified (attempt %d)", i))
+					return nil
+				}
+			}
+		}
+
+		s.report(fmt.Sprintf("polling DNS record (%d/%d)", i, maxAttempts))
+
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+
+	return fmt.Errorf("DNS propagation timeout after %d attempts", maxAttempts)
 }
 
 func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
@@ -428,6 +490,8 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 	if err != nil {
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
+
+	s.report("cleaning up DNS TXT records")
 
 	s.mu.Lock()
 	records := s.records
@@ -499,6 +563,13 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 	return dns, nil
 }
 
+// report 安全地调用进度回调
+func (s *dnsSolver) report(msg string) {
+	if s.progressCallback != nil {
+		s.progressCallback(msg)
+	}
+}
+
 type DnsType string
 
 const (
@@ -514,8 +585,10 @@ const (
 )
 
 type DNSParam struct {
-	AK string `form:"ak" json:"ak"`
-	SK string `form:"sk" json:"sk"`
+	AK         string `form:"ak" json:"ak"`
+	SK         string `form:"sk" json:"sk"`
+	DnsServer  string `form:"dns_server" json:"dns_server"`   // DNS 验证服务器
+	SkipVerify bool   `form:"skip_verify" json:"skip_verify"` // 跳过解析验证
 }
 
 type DNSProvider interface {

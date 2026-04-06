@@ -60,5 +60,27 @@ export default {
       ws.onopen = () => resolve(ws)
       ws.onerror = (e) => reject(e)
     })
+  },
+  // 证书签发进度
+  certObtain: (id: number): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/cert/obtain`)
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ id }))
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
+  },
+  // 证书续签进度
+  certRenew: (id: number): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/cert/renew`)
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ id }))
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
   }
 }

@@ -30,15 +30,17 @@ type WsService struct {
 	log         *slog.Logger
 	sshRepo     biz.SSHRepo
 	settingRepo biz.SettingRepo
+	certRepo    biz.CertRepo
 }
 
-func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo, certRepo biz.CertRepo) *WsService {
 	return &WsService{
 		t:           t,
 		conf:        conf,
 		log:         log,
 		sshRepo:     ssh,
 		settingRepo: settingRepo,
+		certRepo:    certRepo,
 	}
 }
 
@@ -324,4 +326,110 @@ func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
 			break
 		}
 	}
+}
+
+// CertObtain 通过 WebSocket 签发证书并实时推送进度
+func (s *WsService) CertObtain(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("upgrade cert obtain ws error", slog.Any("err", err))
+		return
+	}
+	defer func() { _ = ws.CloseNow() }()
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
+	var req struct {
+		ID uint `json:"id"`
+	}
+	if err = json.Unmarshal(message, &req); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
+		return
+	}
+
+	progressCallback := func(msg string) {
+		data, _ := json.Marshal(map[string]any{
+			"status": "progress",
+			"msg":    msg,
+		})
+		_ = ws.Write(ctx, websocket.MessageText, data)
+	}
+
+	_, err = s.certRepo.ObtainAutoWithProgressCallback(req.ID, progressCallback)
+	if err != nil {
+		errMsg, _ := json.Marshal(map[string]any{
+			"status": "error",
+			"msg":    err.Error(),
+		})
+		_ = ws.Write(ctx, websocket.MessageText, errMsg)
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	completeMsg, _ := json.Marshal(map[string]any{
+		"status": "success",
+		"msg":    "success",
+		"data":   nil,
+	})
+	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
+	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
+// CertRenew 通过 WebSocket 续签证书并实时推送进度
+func (s *WsService) CertRenew(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("upgrade cert renew ws error", slog.Any("err", err))
+		return
+	}
+	defer func() { _ = ws.CloseNow() }()
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
+	var req struct {
+		ID uint `json:"id"`
+	}
+	if err = json.Unmarshal(message, &req); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
+		return
+	}
+
+	progressCallback := func(msg string) {
+		data, _ := json.Marshal(map[string]any{
+			"status": "progress",
+			"msg":    msg,
+		})
+		_ = ws.Write(ctx, websocket.MessageText, data)
+	}
+
+	_, err = s.certRepo.RenewWithProgressCallback(req.ID, progressCallback)
+	if err != nil {
+		errMsg, _ := json.Marshal(map[string]any{
+			"status": "error",
+			"msg":    err.Error(),
+		})
+		_ = ws.Write(ctx, websocket.MessageText, errMsg)
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	completeMsg, _ := json.Marshal(map[string]any{
+		"status": "success",
+		"msg":    "success",
+		"data":   nil,
+	})
+	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
+	_ = ws.Close(websocket.StatusNormalClosure, "")
 }

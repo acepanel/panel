@@ -192,6 +192,17 @@ func (r *certRepo) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
+	return r.ObtainAutoWithProgressCallback(id, nil)
+}
+
+func (r *certRepo) ObtainAutoWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	report := func(msg string) {
+		if progressCallback != nil {
+			progressCallback(msg)
+		}
+	}
+
+	report(r.t.Get("preparing ACME client"))
 	cert, err := r.Get(id)
 	if err != nil {
 		return nil, err
@@ -205,7 +216,11 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
 
 	if cert.DNS != nil {
-		client.UseDns(cert.DNS.Type, cert.DNS.Data)
+		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			DnsServer:        cert.DNS.Data.DnsServer,
+			SkipVerify:       cert.DNS.Data.SkipVerify,
+			ProgressCallback: progressCallback,
+		})
 	} else {
 		if cert.Website == nil {
 			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
@@ -220,13 +235,15 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		client.UseHTTP(conf, webServer)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	report(r.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	ssl, err := client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		return nil, err
 	}
 
+	report(r.t.Get("obtaining and saving certificate"))
 	cert.RenewalInfo = *ssl.RenewalInfo
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
@@ -236,6 +253,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.Website != nil {
+		report(r.t.Get("deploying certificate to website"))
 		return &ssl, r.Deploy(cert.ID, cert.WebsiteID, false)
 	}
 
@@ -298,6 +316,17 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 }
 
 func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
+	return r.RenewWithProgressCallback(id, nil)
+}
+
+func (r *certRepo) RenewWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	report := func(msg string) {
+		if progressCallback != nil {
+			progressCallback(msg)
+		}
+	}
+
+	report(r.t.Get("preparing renewal"))
 	cert, err := r.Get(id)
 	if err != nil {
 		return nil, err
@@ -315,7 +344,11 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
 
 	if cert.DNS != nil {
-		client.UseDns(cert.DNS.Type, cert.DNS.Data)
+		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			DnsServer:        cert.DNS.Data.DnsServer,
+			SkipVerify:       cert.DNS.Data.SkipVerify,
+			ProgressCallback: progressCallback,
+		})
 	} else {
 		if cert.Website == nil {
 			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
@@ -330,17 +363,20 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 		}
 	}
 
+	report(r.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	ssl, err := client.RenewCertificate(ctx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		// 续签失败，尝试重签
+		report(r.t.Get("renewal failed, attempting re-issuance"))
 		ssl, err = client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	report(r.t.Get("obtaining and saving certificate"))
 	cert.RenewalInfo = *ssl.RenewalInfo
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
@@ -350,6 +386,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.Website != nil {
+		report(r.t.Get("deploying certificate to website"))
 		return &ssl, r.Deploy(cert.ID, cert.WebsiteID, false)
 	}
 

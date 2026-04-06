@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import cert from '@/api/panel/cert'
-import { NButton, NInput, NSpace } from 'naive-ui'
+import { NButton, NInput, NSpace, NSwitch, NText } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -18,7 +18,9 @@ const { dnsProviders } = toRefs(props)
 const model = ref<any>({
   data: {
     ak: '',
-    sk: ''
+    sk: '',
+    dns_server: '8.8.8.8',
+    skip_verify: false
   },
   type: 'aliyun',
   name: ''
@@ -35,6 +37,8 @@ const handleCreateDNS = async () => {
       show.value = false
       model.value.data.ak = ''
       model.value.data.sk = ''
+      model.value.data.dns_server = '8.8.8.8'
+      model.value.data.skip_verify = false
       model.value.name = ''
       window.$message.success($gettext('Created successfully'))
     })
@@ -175,6 +179,19 @@ const handleCreateDNS = async () => {
             type="text"
             :placeholder="$gettext('Enter ClouDNS Auth Password')"
           />
+        </n-form-item>
+        <n-form-item path="dns_server" :label="$gettext('DNS Server')">
+          <n-input
+            v-model:value="model.data.dns_server"
+            type="text"
+            :placeholder="$gettext('DNS server for propagation check, e.g. 8.8.8.8')"
+          />
+        </n-form-item>
+        <n-form-item path="skip_verify" :label="$gettext('Skip DNS Verification')">
+          <n-switch v-model:value="model.data.skip_verify" />
+          <n-text depth="3" style="margin-left: 8px">
+            {{ $gettext('For intranet environments, will wait 60s instead of polling DNS') }}
+          </n-text>
         </n-form-item>
       </n-form>
       <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>
