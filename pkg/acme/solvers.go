@@ -440,10 +440,10 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := net.Dialer{Timeout: 10 * time.Second}
 			server := dnsServer
-			if !strings.Contains(server, ":") {
-				server += ":53"
+			if _, _, err := net.SplitHostPort(server); err != nil {
+				server = net.JoinHostPort(server, "53")
 			}
-			return d.DialContext(ctx, "udp", server)
+			return d.DialContext(ctx, network, server)
 		},
 	}
 

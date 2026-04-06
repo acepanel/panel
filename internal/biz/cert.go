@@ -41,11 +41,11 @@ type CertRepo interface {
 	Update(ctx context.Context, req *request.CertUpdate) error
 	Delete(ctx context.Context, id uint) error
 	ObtainAuto(id uint) (*acme.Certificate, error)
-	ObtainAutoWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error)
+	ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error)
 	ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error)
 	ObtainSelfSigned(id uint) error
 	Renew(id uint) (*acme.Certificate, error)
-	RenewWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error)
+	RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error)
 	RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error)
 	Deploy(ID, WebsiteID uint, enableHTTPS bool) error
 }

@@ -50,7 +50,12 @@ const handleWsObtainOrRenew = () => {
     .then((socket) => {
       currentWs = socket
       socket.onmessage = (event) => {
-        const data = JSON.parse(event.data)
+        let data
+        try {
+          data = JSON.parse(event.data)
+        } catch {
+          return
+        }
         if (data.status === 'success') {
           isComplete.value = true
           loading.value = false
@@ -110,9 +115,6 @@ const handleSubmit = () => {
 }
 
 const handleClose = () => {
-  if (loading.value) {
-    return
-  }
   resetState()
   model.value.type = 'auto'
 }
@@ -124,7 +126,7 @@ const modalTitle = computed(() => {
 })
 
 const showProgress = computed(() => {
-  return progressLogs.value.length > 0 || errorMsg.value || isComplete.value
+  return progressLogs.value.length > 0 || !!errorMsg.value || isComplete.value
 })
 </script>
 

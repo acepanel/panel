@@ -192,10 +192,10 @@ func (r *certRepo) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
-	return r.ObtainAutoWithProgressCallback(id, nil)
+	return r.ObtainAutoWithProgressCallback(context.Background(), id, nil)
 }
 
-func (r *certRepo) ObtainAutoWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error) {
+func (r *certRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
 	report := func(msg string) {
 		if progressCallback != nil {
 			progressCallback(msg)
@@ -236,7 +236,7 @@ func (r *certRepo) ObtainAutoWithProgressCallback(id uint, progressCallback func
 	}
 
 	report(r.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	ssl, err := client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
@@ -316,10 +316,10 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 }
 
 func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
-	return r.RenewWithProgressCallback(id, nil)
+	return r.RenewWithProgressCallback(context.Background(), id, nil)
 }
 
-func (r *certRepo) RenewWithProgressCallback(id uint, progressCallback func(string)) (*acme.Certificate, error) {
+func (r *certRepo) RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
 	report := func(msg string) {
 		if progressCallback != nil {
 			progressCallback(msg)
@@ -364,7 +364,7 @@ func (r *certRepo) RenewWithProgressCallback(id uint, progressCallback func(stri
 	}
 
 	report(r.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	ssl, err := client.RenewCertificate(ctx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
