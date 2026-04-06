@@ -134,6 +134,7 @@ func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Ce
 		DNSID:       req.DNSID,
 		Type:        req.Type,
 		Domains:     req.Domains,
+		Alias:       req.Alias,
 		AutoRenewal: req.AutoRenewal,
 	}
 	if err := r.db.Create(cert).Error; err != nil {
@@ -169,6 +170,7 @@ func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
 		Key:         req.Key,
 		Script:      req.Script,
 		Domains:     req.Domains,
+		Alias:       req.Alias,
 		AutoRenewal: req.AutoRenewal,
 	}).Error; err != nil {
 		return err
@@ -217,6 +219,7 @@ func (r *certRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, 
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
 			DnsServer:        cert.DNS.Data.DnsServer,
 			SkipVerify:       cert.DNS.Data.SkipVerify,
 			ProgressCallback: progressCallback,
@@ -345,6 +348,7 @@ func (r *certRepo) RenewWithProgressCallback(ctx context.Context, id uint, progr
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
 			DnsServer:        cert.DNS.Data.DnsServer,
 			SkipVerify:       cert.DNS.Data.SkipVerify,
 			ProgressCallback: progressCallback,

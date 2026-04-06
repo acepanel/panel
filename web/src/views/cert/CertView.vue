@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
@@ -31,6 +31,7 @@ const { algorithms, websites, accounts, dns } = toRefs(props)
 
 const updateModel = ref<any>({
   domains: [],
+  alias: {},
   type: 'P256',
   dns_id: null,
   account_id: null,
@@ -40,6 +41,22 @@ const updateModel = ref<any>({
   key: '',
   script: ''
 })
+const updateAliasList = ref<{ key: string; value: string }[]>([])
+
+watch(
+  updateAliasList,
+  (list) => {
+    const map: Record<string, string> = {}
+    for (const item of list) {
+      if (item.key && item.value) {
+        map[item.key] = item.value
+      }
+    }
+    updateModel.value.alias = map
+  },
+  { deep: true }
+)
+
 const updateModal = ref(false)
 const updateCertLoading = ref(false)
 const updateCert = ref<any>()
@@ -255,6 +272,7 @@ const columns: any = [
             onClick: () => {
               updateCert.value = row.id
               updateModel.value.domains = row.domains
+              updateModel.value.alias = row.alias || {}
               updateModel.value.type = row.type
               updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
               updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
@@ -263,6 +281,9 @@ const columns: any = [
               updateModel.value.cert = row.cert
               updateModel.value.key = row.key
               updateModel.value.script = row.script
+              updateAliasList.value = Object.entries(row.alias || {}).map(
+                ([key, value]) => ({ key, value: value as string })
+              )
               updateModal.value = true
             }
           },
@@ -321,6 +342,7 @@ const handleUpdateCert = () => {
       refresh()
       updateModal.value = false
       updateModel.value.domains = []
+      updateModel.value.alias = {}
       updateModel.value.type = 'P256'
       updateModel.value.dns_id = null
       updateModel.value.account_id = null
@@ -329,6 +351,7 @@ const handleUpdateCert = () => {
       updateModel.value.cert = ''
       updateModel.value.key = ''
       updateModel.value.script = ''
+      updateAliasList.value = []
       window.$message.success($gettext('Update successful'))
     })
     .onComplete(() => {
@@ -353,6 +376,7 @@ const handleAutoRenewalUpdate = (row: any) => {
     })
     .onComplete(() => {
       updateModel.value.domains = []
+      updateModel.value.alias = {}
       updateModel.value.type = 'P256'
       updateModel.value.dns_id = null
       updateModel.value.account_id = null
@@ -361,6 +385,7 @@ const handleAutoRenewalUpdate = (row: any) => {
       updateModel.value.cert = ''
       updateModel.value.key = ''
       updateModel.value.script = ''
+      updateAliasList.value = []
     })
 }
 
@@ -478,6 +503,31 @@ onUnmounted(() => {
             clearable
             :options="dns"
           />
+        </n-form-item>
+        <n-form-item
+          v-if="updateModel.type != 'upload' && updateModel.dns_id"
+          :label="$gettext('DNS Alias')"
+        >
+          <n-dynamic-input
+            v-model:value="updateAliasList"
+            :on-create="() => ({ key: '', value: '' })"
+          >
+            <template #default="{ value }">
+              <div style="display: flex; align-items: center; gap: 8px; width: 100%">
+                <n-input
+                  v-model:value="value.key"
+                  :placeholder="$gettext('Original domain, e.g. example.com')"
+                  style="flex: 1"
+                />
+                <span>→</span>
+                <n-input
+                  v-model:value="value.value"
+                  :placeholder="$gettext('Delegated domain, e.g. delegated.com')"
+                  style="flex: 1"
+                />
+              </div>
+            </template>
+          </n-dynamic-input>
         </n-form-item>
         <n-form-item
           v-if="updateModel.type == 'upload'"

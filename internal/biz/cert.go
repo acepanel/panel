@@ -13,11 +13,12 @@ import (
 
 type Cert struct {
 	ID          uint                  `gorm:"primaryKey" json:"id"`
-	AccountID   uint                  `gorm:"not null;default:0" json:"account_id"` // 关联的 ACME 账户 ID
-	WebsiteID   uint                  `gorm:"not null;default:0" json:"website_id"` // 关联的网站 ID
-	DNSID       uint                  `gorm:"not null;default:0" json:"dns_id"`     // 关联的 DNS ID
-	Type        string                `gorm:"not null;default:''" json:"type"`      // 证书类型 (P256, P384, 2048, 3072, 4096)
-	Domains     []string              `gorm:"not null;default:'[]';serializer:json" json:"domains"`
+	AccountID   uint                  `gorm:"not null;default:0" json:"account_id"`                      // 关联的 ACME 账户 ID
+	WebsiteID   uint                  `gorm:"not null;default:0" json:"website_id"`                      // 关联的网站 ID
+	DNSID       uint                  `gorm:"not null;default:0" json:"dns_id"`                          // 关联的 DNS ID
+	Type        string                `gorm:"not null;default:''" json:"type"`                           // 证书类型 (P256, P384, 2048, 3072, 4096)
+	Domains     []string              `gorm:"not null;default:'[]';serializer:json" json:"domains"`      // 域名
+	Alias       map[string]string     `gorm:"not null;default:'{}';serializer:json" json:"alias"`        // DNS 验证别名
 	AutoRenewal bool                  `gorm:"not null;default:false" json:"auto_renewal"`                // 自动续签
 	RenewalInfo mholtacme.RenewalInfo `gorm:"not null;default:'{}';serializer:json" json:"renewal_info"` // 续签信息
 	CertURL     string                `gorm:"not null;default:''" json:"cert_url"`                       // 证书 URL (续签时使用)
