@@ -45,8 +45,8 @@ require (
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
-	github.com/moby/moby/api v1.54.0
-	github.com/moby/moby/client v0.3.0
+	github.com/moby/moby/api v1.54.1
+	github.com/moby/moby/client v0.4.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
@@ -65,7 +65,7 @@ require (
 	golang.org/x/crypto v0.49.0
 	golang.org/x/net v0.52.0
 	gorm.io/gorm v1.31.1
-	modernc.org/sqlite v1.48.0
+	modernc.org/sqlite v1.48.1
 	resty.dev/v3 v3.0.0-beta.6
 )
 
