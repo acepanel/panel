@@ -367,6 +367,34 @@ func (s httpSolver) cleanUpApache(path, token string) error {
 	return nil
 }
 
+type DnsType string
+
+const (
+	AliYun     DnsType = "aliyun"
+	Tencent    DnsType = "tencent"
+	Huawei     DnsType = "huawei"
+	Westcn     DnsType = "westcn"
+	CloudFlare DnsType = "cloudflare"
+	Gcore      DnsType = "gcore"
+	Porkbun    DnsType = "porkbun"
+	NameSilo   DnsType = "namesilo"
+	ClouDNS    DnsType = "cloudns"
+)
+
+const defaultDNSServer = "8.8.8.8"
+
+type DNSParam struct {
+	AK         string `form:"ak" json:"ak"`
+	SK         string `form:"sk" json:"sk"`
+	DnsServer  string `form:"dns_server" json:"dns_server"`   // DNS 验证服务器
+	SkipVerify bool   `form:"skip_verify" json:"skip_verify"` // 跳过解析验证
+}
+
+type DNSProvider interface {
+	libdns.RecordSetter
+	libdns.RecordDeleter
+}
+
 type dnsSolver struct {
 	dns              DnsType
 	param            DNSParam
@@ -432,7 +460,7 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 	// 确定 DNS 服务器
 	dnsServer := s.dnsServer
 	if dnsServer == "" {
-		dnsServer = "8.8.8.8"
+		dnsServer = defaultDNSServer
 	}
 
 	resolver := &net.Resolver{
@@ -568,30 +596,4 @@ func (s *dnsSolver) report(msg string) {
 	if s.progressCallback != nil {
 		s.progressCallback(msg)
 	}
-}
-
-type DnsType string
-
-const (
-	AliYun     DnsType = "aliyun"
-	Tencent    DnsType = "tencent"
-	Huawei     DnsType = "huawei"
-	Westcn     DnsType = "westcn"
-	CloudFlare DnsType = "cloudflare"
-	Gcore      DnsType = "gcore"
-	Porkbun    DnsType = "porkbun"
-	NameSilo   DnsType = "namesilo"
-	ClouDNS    DnsType = "cloudns"
-)
-
-type DNSParam struct {
-	AK         string `form:"ak" json:"ak"`
-	SK         string `form:"sk" json:"sk"`
-	DnsServer  string `form:"dns_server" json:"dns_server"`   // DNS 验证服务器
-	SkipVerify bool   `form:"skip_verify" json:"skip_verify"` // 跳过解析验证
-}
-
-type DNSProvider interface {
-	libdns.RecordSetter
-	libdns.RecordDeleter
 }

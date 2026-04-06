@@ -294,41 +294,6 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	_ = ws.Close(websocket.StatusNormalClosure, "")
 }
 
-// getContainerSock 获取容器 socket 路径
-func (s *WsService) getContainerSock() string {
-	sock, _ := s.settingRepo.Get(biz.SettingKeyContainerSock)
-	if sock == "" {
-		sock = "/var/run/docker.sock"
-	}
-	if !strings.Contains(sock, "://") {
-		sock = fmt.Sprintf("unix://%s", sock)
-	}
-	return sock
-}
-
-func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-	opts := &websocket.AcceptOptions{
-		CompressionMode: websocket.CompressionContextTakeover,
-	}
-
-	// debug 模式下不校验 origin，方便 vite 代理调试
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	return websocket.Accept(w, r, opts)
-}
-
-// readLoop 阻塞直到客户端关闭连接
-func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
-	for {
-		if _, _, err := c.Read(ctx); err != nil {
-			_ = c.CloseNow()
-			break
-		}
-	}
-}
-
 // CertObtain 通过 WebSocket 签发证书并实时推送进度
 func (s *WsService) CertObtain(w http.ResponseWriter, r *http.Request) {
 	s.handleCertWs(w, r, "obtain", func(ctx context.Context, id uint, cb func(string)) error {
@@ -381,7 +346,9 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 			"status": "progress",
 			"msg":    msg,
 		})
-		_ = ws.Write(ctx, websocket.MessageText, data)
+		if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
+			s.log.Warn("write cert progress error", slog.Any("err", err), slog.String("action", action))
+		}
 	}
 
 	if err = fn(ctx, req.ID, progressCallback); err != nil {
@@ -401,4 +368,39 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 	})
 	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
 	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
+// getContainerSock 获取容器 socket 路径
+func (s *WsService) getContainerSock() string {
+	sock, _ := s.settingRepo.Get(biz.SettingKeyContainerSock)
+	if sock == "" {
+		sock = "/var/run/docker.sock"
+	}
+	if !strings.Contains(sock, "://") {
+		sock = fmt.Sprintf("unix://%s", sock)
+	}
+	return sock
+}
+
+func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	opts := &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionContextTakeover,
+	}
+
+	// debug 模式下不校验 origin，方便 vite 代理调试
+	if s.conf.App.Debug {
+		opts.InsecureSkipVerify = true
+	}
+
+	return websocket.Accept(w, r, opts)
+}
+
+// readLoop 阻塞直到客户端关闭连接
+func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
+	for {
+		if _, _, err := c.Read(ctx); err != nil {
+			_ = c.CloseNow()
+			break
+		}
+	}
 }
