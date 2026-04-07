@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-04-07 06:49\n"
+"PO-Revision-Date: 2026-04-07 10:35\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -159,7 +159,7 @@ msgstr "備份數據庫"
 
 #: internal/route/cli.go:347
 msgid "Backup directory"
-msgstr ""
+msgstr "備份目錄"
 
 #: internal/service/cli.go:693
 msgid "Backup failed: %v"
@@ -402,7 +402,7 @@ msgstr "刪除網站（包括網站目錄、同名數據庫）"
 
 #: internal/route/cli.go:353
 msgid "Directory path"
-msgstr ""
+msgstr "目錄路徑"
 
 #: internal/route/cli.go:106
 msgid "Disable HTTPS"
@@ -1854,7 +1854,7 @@ msgstr "資料來源 %s 不存在"
 #: internal/data/cert.go:260
 #: internal/data/cert.go:394
 msgid "deploying certificate to website"
-msgstr ""
+msgstr "部署證書到網站"
 
 #: internal/service/toolbox_disk.go:218
 msgid "device not found: %s"
@@ -2034,7 +2034,7 @@ msgstr "生成 SSH 密鑰失敗：%v"
 
 #: internal/data/setting.go:341
 msgid "failed to generate self-signed certificate: %v"
-msgstr ""
+msgstr "生成自簽名證書失敗：%v"
 
 #: internal/data/project.go:118
 msgid "failed to generate systemd config"
@@ -2634,7 +2634,7 @@ msgstr "正在遠端伺服器上匯入資料庫"
 
 #: internal/data/cert.go:208
 msgid "initializing ACME client"
-msgstr ""
+msgstr "初始化 ACME 客戶端"
 
 #: internal/data/user.go:216
 #: internal/data/user.go:235
@@ -2704,7 +2704,7 @@ msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache �
 
 #: internal/data/cert.go:242
 msgid "issuing certificate, domains: %s"
-msgstr ""
+msgstr "簽發證書，域名：%s"
 
 #: internal/service/log.go:106
 msgid "journalctl is not available"
@@ -2785,7 +2785,7 @@ msgstr "暫無遷移日誌"
 #: internal/data/cert.go:250
 #: internal/data/cert.go:384
 msgid "obtaining and saving certificate"
-msgstr ""
+msgstr "獲取並保存證書"
 
 #: internal/service/file.go:184
 msgid "open file error: %v"
@@ -2825,11 +2825,11 @@ msgstr "通行金鑰註冊失敗：%v"
 
 #: internal/data/backup.go:632
 msgid "path does not exist: %s"
-msgstr ""
+msgstr "路徑不存在：%s"
 
 #: internal/data/backup.go:635
 msgid "path is not a directory: %s"
-msgstr ""
+msgstr "路徑不是目錄：%s"
 
 #: internal/service/file.go:637
 msgid "path, file_name and file_hash are required"
@@ -2877,7 +2877,7 @@ msgstr "端口已被佔用"
 
 #: internal/data/cert.go:333
 msgid "preparing renewal"
-msgstr ""
+msgstr "準備續簽"
 
 #: internal/service/toolbox_migration.go:755
 msgid "project migration completed"
@@ -2913,11 +2913,11 @@ msgstr "遠端匯入失敗：%v"
 
 #: internal/data/cert.go:377
 msgid "renewal failed, attempting re-issuance"
-msgstr ""
+msgstr "續簽失敗，嘗試重新簽發"
 
 #: internal/data/cert.go:371
 msgid "renewing certificate, domains: %s"
-msgstr ""
+msgstr "續簽證書，域名：%s"
 
 #: internal/apps/fail2ban/app.go:109
 msgid "rule already exists"
