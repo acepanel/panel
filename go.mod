@@ -65,7 +65,7 @@ require (
 	golang.org/x/crypto v0.49.0
 	golang.org/x/net v0.52.0
 	gorm.io/gorm v1.31.1
-	modernc.org/sqlite v1.48.1
+	modernc.org/sqlite v1.48.2
 	resty.dev/v3 v3.0.0-beta.6
 )
 
@@ -128,10 +128,10 @@ require (
 )
 
 replace (
-	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260211214515-0d13ab154236
+	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292
 	github.com/moby/moby/client => github.com/libtnb/moby/client v0.0.0-20260127104057-d4b7902a560b
 	github.com/rhnvrm/simples3 => github.com/devhaozi/simples3 v0.0.0-20260124160558-447c94ecedff
-	github.com/stretchr/testify => github.com/libtnb/testify v0.0.0-20260103194301-c7a63ea79696
+	github.com/stretchr/testify => github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7
 )
 
 tool github.com/google/wire
