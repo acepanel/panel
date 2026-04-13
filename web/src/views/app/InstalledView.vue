@@ -67,9 +67,12 @@ const appColumns: any = [
                 },
                 {
                   default: () => {
+                    const targetVersion =
+                      row.channels?.find((ch: any) => ch.slug === row.installed_channel)
+                        ?.version ?? ''
                     return $gettext(
-                      'Updating app %{ app } may reset related configurations to default state, are you sure to continue?',
-                      { app: row.name }
+                      'Updating app %{ app } to %{ version } may reset related configurations to default state, are you sure to continue?',
+                      { app: row.name, version: targetVersion }
                     )
                   },
                   trigger: () => {

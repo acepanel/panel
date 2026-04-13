@@ -262,7 +262,7 @@ msgstr "Confirm"
 #: src/components/file-editor/FileTree.vue:604
 #: src/layouts/header/components/UserAvatar.vue:30
 #: src/views/app/TemplateDeployModal.vue:636
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:193
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:210
 #: src/views/container/ContainerCreate.vue:536
 #: src/views/container/ImagePullModal.vue:184
 #: src/views/container/ImagePullModal.vue:198
@@ -329,7 +329,7 @@ msgstr "Cannot save in current state"
 #: src/views/apps/frp/IndexView.vue:38 src/views/apps/frp/IndexView.vue:49
 #: src/views/apps/gitea/IndexView.vue:24
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:139
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:137
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:154
 #: src/views/apps/grafana/IndexView.vue:51
 #: src/views/apps/kafka/IndexView.vue:50
 #: src/views/apps/kafka/KafkaConfigTuneView.vue:50
@@ -399,10 +399,10 @@ msgstr "Select File"
 
 #: src/components/common/PathSelector.vue:50
 #: src/components/common/PathSelector.vue:394
-#: src/views/app/EnvironmentView.vue:28 src/views/app/InstalledView.vue:147
+#: src/views/app/EnvironmentView.vue:28 src/views/app/InstalledView.vue:150
 #: src/views/apps/fail2ban/IndexView.vue:39
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:51
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:164
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:68
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:181
 #: src/views/apps/nginx/NginxIndex.vue:152
 #: src/views/apps/nginx/NginxIndex.vue:237
 #: src/views/apps/nginx/NginxIndex.vue:602
@@ -821,7 +821,7 @@ msgstr "Failed to calculate size"
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:239
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:268
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:288
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:195
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:212
 #: src/views/apps/grafana/IndexView.vue:108
 #: src/views/apps/kafka/IndexView.vue:76
 #: src/views/apps/kafka/KafkaConfigTuneView.vue:81
@@ -1010,7 +1010,7 @@ msgid "Search (Ctrl+F)"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:221
-#: src/components/file-editor/FileTree.vue:718 src/views/app/AppView.vue:247
+#: src/components/file-editor/FileTree.vue:718 src/views/app/AppView.vue:250
 #: src/views/app/EnvironmentView.vue:235 src/views/app/TemplateView.vue:101
 #: src/views/database/ElasticsearchDataView.vue:321
 #: src/views/database/RedisDataView.vue:264
@@ -1153,7 +1153,7 @@ msgid "Trailing"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:211
-#: src/views/app/AppView.vue:232 src/views/app/EnvironmentView.vue:220
+#: src/views/app/AppView.vue:235 src/views/app/EnvironmentView.vue:220
 #: src/views/app/TemplateView.vue:86 src/views/firewall/RuleView.vue:217
 #: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:25
 #: src/views/website/stats/ErrorsTab.vue:18
@@ -1285,7 +1285,7 @@ msgstr "Rename"
 #: src/components/file-editor/FileTree.vue:601
 #: src/components/file-editor/FileTree.vue:603
 #: src/views/apps/fail2ban/IndexView.vue:100
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:90
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:107
 #: src/views/apps/nginx/NginxIndex.vue:223
 #: src/views/apps/nginx/NginxIndex.vue:299
 #: src/views/apps/nginx/NginxIndex.vue:739
@@ -1347,7 +1347,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 
 #: src/components/file-editor/FileTree.vue:608
 #: src/views/apps/fail2ban/IndexView.vue:208
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:148
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:165
 #: src/views/apps/nginx/NginxIndex.vue:412
 #: src/views/apps/nginx/NginxIndex.vue:494
 #: src/views/apps/pureftpd/IndexView.vue:164
@@ -1522,7 +1522,7 @@ msgid "Container"
 msgstr "Container"
 
 #: src/locales/menu.ts:11 src/views/apps/grafana/GrafanaConfigTuneView.vue:175
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:180
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:197
 #: src/views/backup/ListView.vue:308 src/views/home/IndexView.vue:533
 #: src/views/toolbox/MigrationView.vue:545
 #: src/views/website/CreateModal.vue:248
@@ -1564,9 +1564,9 @@ msgstr "Tasks"
 msgid "Toolbox"
 msgstr "Toolbox"
 
-#: src/locales/menu.ts:22 src/views/app/AppView.vue:94
-#: src/views/app/EnvironmentView.vue:79 src/views/app/InstalledView.vue:83
-#: src/views/app/InstalledView.vue:192
+#: src/locales/menu.ts:22 src/views/app/AppView.vue:97
+#: src/views/app/EnvironmentView.vue:79 src/views/app/InstalledView.vue:86
+#: src/views/app/InstalledView.vue:195
 #: src/views/app/TemplateDeployModal.vue:651 src/views/home/IndexView.vue:562
 #: src/views/setting/TokenModal.vue:309
 msgid "Update"
@@ -1600,8 +1600,8 @@ msgstr "Frp Manager"
 msgid "Login"
 msgstr "Login"
 
-#: src/views/app/AppView.vue:17 src/views/app/AppView.vue:153
-#: src/views/app/AppView.vue:158 src/views/app/EnvironmentView.vue:146
+#: src/views/app/AppView.vue:17 src/views/app/AppView.vue:156
+#: src/views/app/AppView.vue:161 src/views/app/EnvironmentView.vue:146
 #: src/views/apps/prometheus/PrometheusExportersView.vue:62
 #: src/views/environment/PHPView.vue:88
 msgid "Install"
@@ -1612,7 +1612,7 @@ msgid "App Name"
 msgstr "App Name"
 
 #: src/views/app/AppView.vue:41 src/views/app/EnvironmentView.vue:34
-#: src/views/app/InstalledView.vue:30 src/views/app/InstalledView.vue:153
+#: src/views/app/InstalledView.vue:30 src/views/app/InstalledView.vue:156
 #: src/views/apps/prometheus/PrometheusExportersView.vue:30
 #: src/views/environment/PHPView.vue:57 src/views/project/EditModal.vue:193
 #: src/views/project/ListView.vue:43
@@ -1620,7 +1620,7 @@ msgid "Description"
 msgstr "Description"
 
 #: src/views/app/AppView.vue:47 src/views/app/EnvironmentView.vue:46
-#: src/views/app/InstalledView.vue:36 src/views/app/InstalledView.vue:159
+#: src/views/app/InstalledView.vue:36 src/views/app/InstalledView.vue:162
 msgid "Installed Version"
 msgstr "Installed Version"
 
@@ -1629,10 +1629,10 @@ msgid "Show in Home"
 msgstr "Show in Home"
 
 #: src/views/app/AppView.vue:66 src/views/app/EnvironmentView.vue:52
-#: src/views/app/InstalledView.vue:55 src/views/app/InstalledView.vue:165
+#: src/views/app/InstalledView.vue:55 src/views/app/InstalledView.vue:168
 #: src/views/apps/fail2ban/IndexView.vue:61
 #: src/views/apps/fail2ban/IndexView.vue:120
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:78
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:95
 #: src/views/apps/nginx/NginxIndex.vue:189
 #: src/views/apps/nginx/NginxIndex.vue:265
 #: src/views/apps/nginx/NginxIndex.vue:726
@@ -1662,20 +1662,20 @@ msgstr "Show in Home"
 msgid "Actions"
 msgstr "Actions"
 
-#: src/views/app/AppView.vue:81 src/views/app/InstalledView.vue:70
+#: src/views/app/AppView.vue:84 src/views/app/InstalledView.vue:73
 msgid ""
-"Updating app %{ app } may reset related configurations to default state, are "
-"you sure to continue?"
+"Updating app %{ app } to %{ version } may reset related configurations to "
+"default state, are you sure to continue?"
 msgstr ""
-"Updating app %{ app } may reset related configurations to default state, are "
-"you sure to continue?"
+"Updating app %{ app } to %{ version } may reset related configurations to "
+"default state, are you sure to continue?"
 
-#: src/views/app/AppView.vue:110 src/views/app/EnvironmentView.vue:95
-#: src/views/app/InstalledView.vue:98 src/views/app/InstalledView.vue:207
+#: src/views/app/AppView.vue:113 src/views/app/EnvironmentView.vue:95
+#: src/views/app/InstalledView.vue:101 src/views/app/InstalledView.vue:210
 msgid "Manage"
 msgstr "Manage"
 
-#: src/views/app/AppView.vue:124 src/views/app/InstalledView.vue:109
+#: src/views/app/AppView.vue:127 src/views/app/InstalledView.vue:112
 #, fuzzy
 msgid ""
 "Reinstalling/Switching to a different web server will reset the "
@@ -1684,24 +1684,24 @@ msgstr ""
 "Updating app %{ app } may reset related configurations to default state, are "
 "you sure to continue?"
 
-#: src/views/app/AppView.vue:128 src/views/app/InstalledView.vue:113
+#: src/views/app/AppView.vue:131 src/views/app/InstalledView.vue:116
 msgid "Are you sure to uninstall app %{ app }?"
 msgstr "Are you sure to uninstall app %{ app }?"
 
-#: src/views/app/AppView.vue:138 src/views/app/EnvironmentView.vue:119
-#: src/views/app/InstalledView.vue:123 src/views/app/InstalledView.vue:229
+#: src/views/app/AppView.vue:141 src/views/app/EnvironmentView.vue:119
+#: src/views/app/InstalledView.vue:126 src/views/app/InstalledView.vue:232
 msgid "Uninstall"
 msgstr "Uninstall"
 
-#: src/views/app/AppView.vue:193 src/views/app/InstalledView.vue:273
+#: src/views/app/AppView.vue:196 src/views/app/InstalledView.vue:276
 msgid "Setup successfully"
 msgstr "Setup successfully"
 
-#: src/views/app/AppView.vue:200 src/views/app/AppView.vue:208
+#: src/views/app/AppView.vue:203 src/views/app/AppView.vue:211
 #: src/views/app/EnvironmentView.vue:180 src/views/app/EnvironmentView.vue:188
-#: src/views/app/EnvironmentView.vue:196 src/views/app/InstalledView.vue:280
-#: src/views/app/InstalledView.vue:288 src/views/app/InstalledView.vue:301
-#: src/views/app/InstalledView.vue:309 src/views/app/VersionModal.vue:40
+#: src/views/app/EnvironmentView.vue:196 src/views/app/InstalledView.vue:283
+#: src/views/app/InstalledView.vue:291 src/views/app/InstalledView.vue:304
+#: src/views/app/InstalledView.vue:312 src/views/app/VersionModal.vue:40
 msgid "Task submitted, please check the progress in background tasks"
 msgstr "Task submitted, please check the progress in background tasks"
 
@@ -1710,12 +1710,12 @@ msgstr "Task submitted, please check the progress in background tasks"
 msgid "Latest Version"
 msgstr "System Version"
 
-#: src/views/app/EnvironmentView.vue:67 src/views/app/InstalledView.vue:180
+#: src/views/app/EnvironmentView.vue:67 src/views/app/InstalledView.vue:183
 #, fuzzy
 msgid "Are you sure to update environment %{ environment }?"
 msgstr "Are you sure you want to delete user %{ username }?"
 
-#: src/views/app/EnvironmentView.vue:107 src/views/app/InstalledView.vue:217
+#: src/views/app/EnvironmentView.vue:107 src/views/app/InstalledView.vue:220
 #, fuzzy
 msgid "Are you sure to uninstall environment %{ environment }?"
 msgstr "Are you sure to uninstall app %{ app }?"
@@ -1734,11 +1734,11 @@ msgstr "Cache updated successfully"
 msgid "Installed"
 msgstr "Install"
 
-#: src/views/app/IndexView.vue:41 src/views/app/InstalledView.vue:328
+#: src/views/app/IndexView.vue:41 src/views/app/InstalledView.vue:331
 msgid "Native App"
 msgstr ""
 
-#: src/views/app/IndexView.vue:42 src/views/app/InstalledView.vue:352
+#: src/views/app/IndexView.vue:42 src/views/app/InstalledView.vue:355
 #, fuzzy
 msgid "Operating Environment"
 msgstr "Environment Variables"
@@ -1917,7 +1917,7 @@ msgstr "Update Host"
 
 #: src/views/app/TemplateDeployModal.vue:605
 #: src/views/app/TemplateDeployModal.vue:610
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:73
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:90
 #: src/views/apps/nginx/NginxIndex.vue:185 src/views/file/ListView.vue:846
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:83
@@ -1926,7 +1926,7 @@ msgstr ""
 
 #: src/views/app/TemplateDeployModal.vue:605
 #: src/views/app/TemplateDeployModal.vue:610
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:74
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:91
 #: src/views/apps/nginx/NginxIndex.vue:185 src/views/file/ListView.vue:847
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:83
@@ -2298,8 +2298,8 @@ msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:63
 #: src/views/apps/docker/IndexView.vue:70
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:68
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:176
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:85
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:193
 #: src/views/website/EditModal.vue:1184
 #, fuzzy
 msgid "Default"
@@ -2725,8 +2725,8 @@ msgstr ""
 "protection may not be effective"
 
 #: src/views/apps/fail2ban/IndexView.vue:328
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:57
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:167
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:74
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:184
 #: src/views/backup/StorageView.vue:69 src/views/backup/StorageView.vue:239
 #: src/views/backup/StorageView.vue:393 src/views/cert/CertView.vue:103
 #: src/views/cert/DnsView.vue:41 src/views/database/CreateServerModal.vue:99
@@ -2796,7 +2796,7 @@ msgstr "Run As User"
 
 #: src/views/apps/frp/IndexView.vue:75 src/views/apps/frp/IndexView.vue:76
 #: src/views/apps/frp/IndexView.vue:103 src/views/apps/frp/IndexView.vue:104
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:183
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:200
 #: src/views/apps/rsync/IndexView.vue:55 src/views/apps/rsync/IndexView.vue:284
 #: src/views/apps/rsync/IndexView.vue:338 src/views/database/IndexView.vue:36
 #: src/views/home/IndexView.vue:660 src/views/home/IndexView.vue:761
@@ -2987,17 +2987,17 @@ msgstr ""
 msgid "Level (level)"
 msgstr ""
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:43
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:60
 #, fuzzy
 msgid "Server (Proxy)"
 msgstr "Server"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:44
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:61
 #, fuzzy
 msgid "Browser (Direct)"
 msgstr "Select Directory"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:84
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:101
 #: src/views/apps/nginx/NginxIndex.vue:202
 #: src/views/apps/nginx/NginxIndex.vue:278 src/views/backup/StorageView.vue:108
 #: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:332
@@ -3007,32 +3007,32 @@ msgstr "Select Directory"
 msgid "Edit"
 msgstr "Edit"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:89
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:106
 #, fuzzy
 msgid "Are you sure you want to delete datasource %{ name }?"
 msgstr "Are you sure you want to delete module %{ name }?"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:158
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:162
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:175
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:179
 #, fuzzy
 msgid "Add Data Source"
 msgstr "Add Server"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:162
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:179
 #, fuzzy
 msgid "Edit Data Source"
 msgstr "Add User"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:165
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:182
 msgid "e.g. Prometheus"
 msgstr ""
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:173
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:190
 #, fuzzy
 msgid "Access"
 msgstr "Access Log"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:186
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:203
 #: src/views/apps/pureftpd/IndexView.vue:244
 #: src/views/apps/pureftpd/IndexView.vue:275
 #: src/views/apps/rsync/IndexView.vue:292
@@ -3053,7 +3053,7 @@ msgstr "Access Log"
 msgid "Password"
 msgstr "Password"
 
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:187
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:204
 #, fuzzy
 msgid "Leave empty to keep unchanged"
 msgstr "Leave empty to use default path"
