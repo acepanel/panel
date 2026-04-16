@@ -954,13 +954,7 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 }
 
 func (r *websiteRepo) UpdateExpireAt(id uint, expireAt *time.Time) error {
-	website := new(biz.Website)
-	if err := r.db.Where("id", id).First(website).Error; err != nil {
-		return err
-	}
-
-	website.ExpireAt = expireAt
-	return r.db.Save(website).Error
+	return r.db.Model(&biz.Website{}).Where("id = ?", id).Update("expire_at", expireAt).Error
 }
 
 func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {

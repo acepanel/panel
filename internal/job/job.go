@@ -64,7 +64,7 @@ func (r *Jobs) Register(c *cron.Cron) error {
 	if _, err := c.AddJob("* * * * *", NewWebsiteStat(r.log, r.setting, r.stat, r.aggregator)); err != nil {
 		return err
 	}
-	if _, err := c.AddJob("* * * * *", NewWebsiteExpire(r.log, r.website)); err != nil {
+	if _, err := c.AddJob("* * * * *", NewWebsiteExpire(r.db, r.log, r.website)); err != nil {
 		return err
 	}
 

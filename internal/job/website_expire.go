@@ -4,19 +4,23 @@ import (
 	"log/slog"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
 // WebsiteExpire 网站到期自动关闭任务
 type WebsiteExpire struct {
+	db          *gorm.DB
 	log         *slog.Logger
 	websiteRepo biz.WebsiteRepo
 }
 
 // NewWebsiteExpire 创建网站到期检查任务
-func NewWebsiteExpire(log *slog.Logger, websiteRepo biz.WebsiteRepo) *WebsiteExpire {
+func NewWebsiteExpire(db *gorm.DB, log *slog.Logger, websiteRepo biz.WebsiteRepo) *WebsiteExpire {
 	return &WebsiteExpire{
+		db:          db,
 		log:         log,
 		websiteRepo: websiteRepo,
 	}
@@ -27,23 +31,19 @@ func (r *WebsiteExpire) Run() {
 		return
 	}
 
-	websites, _, err := r.websiteRepo.List("all", 1, 10000)
-	if err != nil {
-		r.log.Warn("获取网站列表失败", slog.Any("err", err))
+	var websites []biz.Website
+	now := time.Now()
+	// 直接查询已到期且仍在运行的网站
+	if err := r.db.Where("expire_at IS NOT NULL AND expire_at <= ? AND status = ?", now, true).Find(&websites).Error; err != nil {
+		r.log.Warn("查询到期网站失败", slog.Any("err", err))
 		return
 	}
 
-	now := time.Now()
 	for _, website := range websites {
-		if website.ExpireAt == nil || !website.Status {
+		if err := r.websiteRepo.UpdateStatus(website.ID, false); err != nil {
+			r.log.Warn("关闭到期网站失败", slog.String("name", website.Name), slog.Any("err", err))
 			continue
 		}
-		if now.After(*website.ExpireAt) {
-			if err = r.websiteRepo.UpdateStatus(website.ID, false); err != nil {
-				r.log.Warn("关闭到期网站失败", slog.String("name", website.Name), slog.Any("err", err))
-				continue
-			}
-			r.log.Info("网站已到期自动关闭", slog.String("name", website.Name), slog.Time("expire_at", *website.ExpireAt))
-		}
+		r.log.Info("网站已到期自动关闭", slog.String("name", website.Name), slog.Time("expire_at", *website.ExpireAt))
 	}
 }
