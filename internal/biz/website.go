@@ -24,6 +24,7 @@ type Website struct {
 	Path      string      `gorm:"not null;default:''" json:"path"`
 	SSL       bool        `gorm:"not null;default:false" json:"ssl"`
 	Remark    string      `gorm:"not null;default:''" json:"remark"`
+	ExpireAt  *time.Time  `json:"expire_at"` // 到期时间，nil 表示不限时
 	CreatedAt time.Time   `json:"created_at"`
 	UpdatedAt time.Time   `json:"updated_at"`
 
@@ -48,6 +49,7 @@ type WebsiteRepo interface {
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error
 	UpdateStatus(id uint, status bool) error
+	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(req *request.WebsiteUpdateCert) error
 	ObtainCert(ctx context.Context, id uint, dnsID uint) error
 }

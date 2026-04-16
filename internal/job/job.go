@@ -27,9 +27,10 @@ type Jobs struct {
 	task        biz.TaskRepo
 	scan        biz.ScanEventRepo
 	stat        biz.WebsiteStatRepo
+	website     biz.WebsiteRepo
 }
 
-func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, aggregator *websitestat.Aggregator, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo) *Jobs {
+func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, aggregator *websitestat.Aggregator, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo, website biz.WebsiteRepo) *Jobs {
 	return &Jobs{
 		conf:        conf,
 		db:          db,
@@ -43,6 +44,7 @@ func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, aggregator *web
 		task:        task,
 		scan:        scan,
 		stat:        stat,
+		website:     website,
 	}
 }
 
@@ -60,6 +62,9 @@ func (r *Jobs) Register(c *cron.Cron) error {
 		return err
 	}
 	if _, err := c.AddJob("* * * * *", NewWebsiteStat(r.log, r.setting, r.stat, r.aggregator)); err != nil {
+		return err
+	}
+	if _, err := c.AddJob("* * * * *", NewWebsiteExpire(r.log, r.website)); err != nil {
 		return err
 	}
 

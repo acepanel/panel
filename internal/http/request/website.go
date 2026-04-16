@@ -120,6 +120,11 @@ type WebsiteUpdateStatus struct {
 	Status bool `json:"status" form:"status"`
 }
 
+type WebsiteUpdateExpireAt struct {
+	ID       uint   `json:"id" form:"id" validate:"required|exists:websites,id"`
+	ExpireAt string `json:"expire_at" form:"expire_at"` // 为空表示清除到期时间（不限时）
+}
+
 type WebsiteUpdateCert struct {
 	Name string `json:"name" validate:"required|exists:websites,name|regex:^[a-zA-Z0-9_-]+$"`
 	Cert string `json:"cert" validate:"required"`

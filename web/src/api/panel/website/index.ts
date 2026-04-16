@@ -28,6 +28,9 @@ export default {
   resetConfig: (id: number): any => http.Post(`/website/${id}/reset_config`),
   // 修改状态
   status: (id: number, status: boolean): any => http.Post(`/website/${id}/status`, { status }),
+  // 修改到期时间
+  updateExpireAt: (id: number, expire_at: string): any =>
+    http.Post(`/website/${id}/expire_at`, { expire_at }),
   // 签发证书
   obtainCert: (id: number, dns_id?: number): any =>
     http.Post(`/website/${id}/obtain_cert`, dns_id ? { dns_id } : {}),

@@ -953,6 +953,16 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 	return r.reloadWebServer()
 }
 
+func (r *websiteRepo) UpdateExpireAt(id uint, expireAt *time.Time) error {
+	website := new(biz.Website)
+	if err := r.db.Where("id", id).First(website).Error; err != nil {
+		return err
+	}
+
+	website.ExpireAt = expireAt
+	return r.db.Save(website).Error
+}
+
 func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 	website := new(biz.Website)
 	if err := r.db.Where("name", req.Name).First(&website).Error; err != nil {

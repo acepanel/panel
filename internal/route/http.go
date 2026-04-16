@@ -268,6 +268,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/update_remark", route.website.UpdateRemark)
 			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
+			r.Post("/{id}/expire_at", route.website.UpdateExpireAt)
 			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
 
 			// 网站统计

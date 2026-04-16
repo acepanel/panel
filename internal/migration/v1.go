@@ -113,4 +113,13 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260416-add-website-expire-at",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Website{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }

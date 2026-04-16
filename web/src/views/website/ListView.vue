@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopover, NSwitch, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NDatePicker, NFlex, NInput, NPopover, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
@@ -190,6 +190,22 @@ const columns: any = [
     }
   },
   {
+    title: $gettext('Expiration'),
+    key: 'expire_at',
+    width: 200,
+    render(row: any) {
+      return h(NDatePicker, {
+        type: 'datetime',
+        size: 'small',
+        clearable: true,
+        value: row.expire_at ? new Date(row.expire_at).getTime() : null,
+        onUpdateValue: (v: number | null) => {
+          handleExpireAt(row, v)
+        }
+      })
+    }
+  },
+  {
     title: $gettext('Remark'),
     key: 'remark',
     minWidth: 200,
@@ -319,6 +335,19 @@ const handleStatusChange = (row: any) => {
   })
 }
 
+// 修改到期时间
+const handleExpireAt = (row: any, timestamp: number | null) => {
+  if (isNullOrUndef(row.id)) return
+
+  const expireAt = timestamp
+    ? new Date(timestamp).toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace('T', ' ')
+    : ''
+  useRequest(website.updateExpireAt(row.id, expireAt)).onSuccess(() => {
+    row.expire_at = timestamp ? new Date(timestamp).toISOString() : null
+    window.$message.success($gettext('Modified successfully'))
+  })
+}
+
 const handleRemark = (row: any) => {
   useRequest(website.updateRemark(row.id, row.remark)).onSuccess(() => {
     window.$message.success($gettext('Modified successfully'))
@@ -383,7 +412,7 @@ onMounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1500"
+      :scroll-x="1700"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
