@@ -244,14 +244,13 @@ func (s *WebsiteService) UpdateExpireAt(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var expireAt *time.Time
+	var expireAt time.Time
 	if req.ExpireAt != "" {
-		t, err := time.Parse(time.DateTime, req.ExpireAt)
+		expireAt, err = time.Parse(time.DateTime, req.ExpireAt)
 		if err != nil {
 			Error(w, http.StatusUnprocessableEntity, "%v", err)
 			return
 		}
-		expireAt = &t
 	}
 
 	if err = s.websiteRepo.UpdateExpireAt(req.ID, expireAt); err != nil {

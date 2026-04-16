@@ -953,7 +953,7 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 	return r.reloadWebServer()
 }
 
-func (r *websiteRepo) UpdateExpireAt(id uint, expireAt *time.Time) error {
+func (r *websiteRepo) UpdateExpireAt(id uint, expireAt time.Time) error {
 	return r.db.Model(&biz.Website{}).Where("id = ?", id).Update("expire_at", expireAt).Error
 }
 

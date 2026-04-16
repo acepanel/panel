@@ -194,11 +194,12 @@ const columns: any = [
     key: 'expire_at',
     width: 200,
     render(row: any) {
+      const isSet = row.expire_at && new Date(row.expire_at).getFullYear() > 1
       return h(NDatePicker, {
         type: 'datetime',
         size: 'small',
         clearable: true,
-        value: row.expire_at ? new Date(row.expire_at).getTime() : null,
+        value: isSet ? new Date(row.expire_at).getTime() : null,
         onUpdateValue: (v: number | null) => {
           handleExpireAt(row, v)
         }
@@ -343,7 +344,7 @@ const handleExpireAt = (row: any, timestamp: number | null) => {
     ? new Date(timestamp).toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace('T', ' ')
     : ''
   useRequest(website.updateExpireAt(row.id, expireAt)).onSuccess(() => {
-    row.expire_at = timestamp ? new Date(timestamp).toISOString() : null
+    row.expire_at = timestamp ? new Date(timestamp).toISOString() : '0001-01-01T00:00:00Z'
     window.$message.success($gettext('Modified successfully'))
   })
 }
