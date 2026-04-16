@@ -345,7 +345,7 @@ onMounted(() => {
 
       <!-- WebDAV Fields -->
       <template v-if="createModel.type === 'webdav'">
-        <n-form-item label="URL" required>
+        <n-form-item :label="$gettext('URL')" required>
           <n-input
             v-model:value="createModel.info.url"
             :placeholder="$gettext('Enter WebDAV URL')"
@@ -493,7 +493,7 @@ onMounted(() => {
 
       <!-- WebDAV Fields -->
       <template v-if="editModel.type === 'webdav'">
-        <n-form-item label="URL" required>
+        <n-form-item :label="$gettext('URL')" required>
           <n-input
             v-model:value="editModel.info.url"
             :placeholder="$gettext('Enter WebDAV URL')"
