@@ -44,6 +44,7 @@ const defaultModel = {
     endpoint: '',
     scheme: 'https',
     bucket: '',
+    url: '',
     host: '',
     port: 22,
     username: '',
@@ -344,9 +345,9 @@ onMounted(() => {
 
       <!-- WebDAV Fields -->
       <template v-if="createModel.type === 'webdav'">
-        <n-form-item :label="$gettext('Host')" required>
+        <n-form-item label="URL" required>
           <n-input
-            v-model:value="createModel.info.host"
+            v-model:value="createModel.info.url"
             :placeholder="$gettext('Enter WebDAV URL')"
           />
         </n-form-item>
@@ -492,9 +493,9 @@ onMounted(() => {
 
       <!-- WebDAV Fields -->
       <template v-if="editModel.type === 'webdav'">
-        <n-form-item :label="$gettext('Host')" required>
+        <n-form-item label="URL" required>
           <n-input
-            v-model:value="editModel.info.host"
+            v-model:value="editModel.info.url"
             :placeholder="$gettext('Enter WebDAV URL')"
           />
         </n-form-item>
