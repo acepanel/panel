@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-04-09 11:26\n"
+"PO-Revision-Date: 2026-04-21 20:38\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -105,7 +105,7 @@ msgstr "添加數據庫伺服器"
 msgid "Add panel application mark (use only under guidance)"
 msgstr "添加面板應用標記（僅在指導下使用）"
 
-#: internal/service/cert.go:64
+#: internal/service/cert.go:60
 msgid "Aliyun"
 msgstr "阿里雲"
 
@@ -290,11 +290,11 @@ msgstr "清理備份"
 msgid "Clear rotated logs"
 msgstr "清除旋轉日誌"
 
-#: internal/service/cert.go:96
+#: internal/service/cert.go:92
 msgid "ClouDNS"
 msgstr "ClouDNS"
 
-#: internal/service/cert.go:80
+#: internal/service/cert.go:76
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
@@ -645,7 +645,7 @@ msgstr "全局選項"
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一個用於處理大整數的庫"
 
-#: internal/service/cert.go:84
+#: internal/service/cert.go:80
 msgid "Gcore"
 msgstr "Gcore"
 
@@ -687,7 +687,7 @@ msgstr "HTTPS 已啟用"
 msgid "Hardware and OS metrics"
 msgstr "硬體和作業系統指標"
 
-#: internal/service/cert.go:72
+#: internal/service/cert.go:68
 msgid "Huawei Cloud"
 msgstr "華為雲"
 
@@ -930,7 +930,7 @@ msgstr "NameServer 地址"
 msgid "NameServer Status"
 msgstr "NameServer 狀態"
 
-#: internal/service/cert.go:92
+#: internal/service/cert.go:88
 msgid "NameSilo"
 msgstr "NameSilo"
 
@@ -1119,7 +1119,7 @@ msgstr "請先在設置中設置面板 IP 以生成 ACME 證書"
 msgid "Podman container logs: %d files"
 msgstr "Podman 容器日誌：%d 個文件"
 
-#: internal/service/cert.go:88
+#: internal/service/cert.go:84
 msgid "Porkbun"
 msgstr "Porkbun"
 
@@ -1416,7 +1416,7 @@ msgstr "在磁碟上創建的臨時表"
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr "在 /tmp 中檢測到臨時文件，這可能是上次更新失敗導致的，請運行 acepanel fix 進行修復並重試"
 
-#: internal/service/cert.go:68
+#: internal/service/cert.go:64
 msgid "Tencent Cloud"
 msgstr "騰訊雲"
 
@@ -1658,7 +1658,7 @@ msgstr "網站名稱"
 msgid "Website：https://acepanel.net"
 msgstr "網站：https://acepanel.net"
 
-#: internal/service/cert.go:76
+#: internal/service/cert.go:72
 msgid "West.cn"
 msgstr "西部數碼"
 
@@ -2052,11 +2052,11 @@ msgstr "無法獲取 %s 服務運行狀態：%v"
 msgid "failed to get ClickHouse default password: %v"
 msgstr "取得 ClickHouse 預設密碼失敗：%v"
 
-#: internal/data/cert_account.go:224
+#: internal/data/cert_account.go:220
 msgid "failed to get Google EAB: %s"
 msgstr "無法獲取 Google EAB：%s"
 
-#: internal/data/cert_account.go:220
+#: internal/data/cert_account.go:216
 msgid "failed to get Google EAB: %v"
 msgstr "無法獲取 Google EAB：%v"
 
@@ -2104,11 +2104,11 @@ msgstr "獲取裝置 %s 的 SMART 資訊失敗"
 msgid "failed to get SWAP: %v"
 msgstr "無法獲取 SWAP：%v"
 
-#: internal/data/cert_account.go:250
+#: internal/data/cert_account.go:246
 msgid "failed to get ZeroSSL EAB"
 msgstr "無法獲取 ZeroSSL EAB"
 
-#: internal/data/cert_account.go:246
+#: internal/data/cert_account.go:242
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法獲取 ZeroSSL EAB：%v"
 
@@ -2218,11 +2218,11 @@ msgstr "無法獲取端口：%v"
 msgid "failed to get postgres password: %v"
 msgstr "無法獲取 postgres 密碼：%v"
 
-#: internal/data/cert_account.go:115
+#: internal/data/cert_account.go:113
 msgid "failed to get private key"
 msgstr "無法獲取私鑰"
 
-#: internal/data/cert_account.go:179
+#: internal/data/cert_account.go:175
 msgid "failed to get private key: %v"
 msgstr "無法獲取私鑰：%v"
 
@@ -2335,7 +2335,7 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/data/setting.go:340
 #: internal/data/setting.go:414
 #: internal/data/website.go:616
-#: internal/data/website.go:963
+#: internal/data/website.go:967
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -2347,7 +2347,7 @@ msgstr "無法解析磁碟列表：%v"
 #: internal/data/setting.go:343
 #: internal/data/setting.go:417
 #: internal/data/website.go:619
-#: internal/data/website.go:966
+#: internal/data/website.go:970
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -2405,8 +2405,8 @@ msgstr "讀取參數失敗：%v"
 msgid "failed to read sshd_config: %v"
 msgstr "讀取 sshd_config 失敗：%v"
 
-#: internal/data/cert_account.go:110
-#: internal/data/cert_account.go:174
+#: internal/data/cert_account.go:108
+#: internal/data/cert_account.go:170
 msgid "failed to register account: %v"
 msgstr "註冊帳戶失敗：%v"
 
@@ -2714,7 +2714,7 @@ msgstr "journalctl 不可用"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1118
+#: internal/data/website.go:1122
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -3111,8 +3111,8 @@ msgstr "未知存儲類型"
 msgid "unknown test type"
 msgstr "未知測試類型"
 
-#: internal/data/cert_account.go:106
-#: internal/data/cert_account.go:170
+#: internal/data/cert_account.go:104
+#: internal/data/cert_account.go:166
 msgid "unsupported CA"
 msgstr "不支援的 CA"
 
@@ -3133,13 +3133,13 @@ msgstr "不支援的檔案系統類型：%s"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1220
-#: internal/data/website.go:1274
+#: internal/data/website.go:1224
+#: internal/data/website.go:1278
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
 #: internal/data/cert.go:532
-#: internal/data/website.go:1186
+#: internal/data/website.go:1190
 msgid "unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
@@ -3240,7 +3240,7 @@ msgstr "網站遷移完成"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/data/website.go:996
+#: internal/data/website.go:1000
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
