@@ -192,7 +192,7 @@ const columns: any = [
   {
     title: $gettext('Expiration'),
     key: 'expire_at',
-    width: 200,
+    width: 220,
     render(row: any) {
       return h(NDatePicker, {
         type: 'datetime',
