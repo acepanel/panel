@@ -45,8 +45,8 @@ require (
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
-	github.com/moby/moby/api v1.54.1
-	github.com/moby/moby/client v0.4.0
+	github.com/moby/moby/api v1.54.2
+	github.com/moby/moby/client v0.4.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
