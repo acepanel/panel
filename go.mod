@@ -3,7 +3,7 @@ module github.com/acepanel/panel/v3
 go 1.26
 
 require (
-	github.com/DeRuina/timberjack v1.4.1
+	github.com/DeRuina/timberjack v1.4.2
 	github.com/andybalholm/brotli v1.2.1
 	github.com/bddjr/hlfhr v1.5.1
 	github.com/beevik/ntp v1.5.0
