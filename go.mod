@@ -22,7 +22,7 @@ require (
 	github.com/go-webauthn/webauthn v0.17.0
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
-	github.com/gookit/color v1.6.0
+	github.com/gookit/color v1.6.1
 	github.com/gookit/validate v1.5.7
 	github.com/hashicorp/go-version v1.9.0
 	github.com/leonelquinteros/gotext v1.7.2
