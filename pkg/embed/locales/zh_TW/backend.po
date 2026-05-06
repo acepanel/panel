@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-04-21 20:38\n"
+"PO-Revision-Date: 2026-05-06 21:07\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -35,7 +35,7 @@ msgstr "用戶 %s 已禁用兩步驗證"
 msgid "2FA url: %s"
 msgstr "兩步驗證 URL： %s"
 
-#: internal/service/environment_php.go:421
+#: internal/service/environment_php.go:384
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲存"
 
@@ -43,11 +43,11 @@ msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲�
 msgid "AUTHOR"
 msgstr "作者"
 
-#: internal/service/environment_php.go:183
+#: internal/service/environment_php.go:184
 msgid "Accepted Connections"
 msgstr "已接受連接"
 
-#: internal/service/home.go:67
+#: internal/service/home.go:68
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -71,29 +71,29 @@ msgstr "AcePanel 服務狀態：%s"
 msgid "AcePanel service stopped"
 msgstr "AcePanel 服務已停止"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:127
 msgid "Active Connections"
 msgstr "活動連接"
 
-#: internal/apps/elasticsearch/app.go:81
-#: internal/apps/opensearch/app.go:81
+#: internal/apps/elasticsearch/app.go:86
+#: internal/apps/opensearch/app.go:86
 msgid "Active Primary Shards"
 msgstr "活躍主分片"
 
-#: internal/service/environment_php.go:188
+#: internal/service/environment_php.go:189
 msgid "Active Processes"
 msgstr "活動進程"
 
-#: internal/apps/clickhouse/app.go:93
+#: internal/apps/clickhouse/app.go:98
 msgid "Active Queries"
 msgstr "活躍查詢"
 
-#: internal/apps/elasticsearch/app.go:80
-#: internal/apps/opensearch/app.go:80
+#: internal/apps/elasticsearch/app.go:85
+#: internal/apps/opensearch/app.go:85
 msgid "Active Shards"
 msgstr "活躍分片"
 
-#: internal/apps/nginx/app.go:133
+#: internal/apps/nginx/app.go:138
 msgid "Active connections"
 msgstr "活動連接"
 
@@ -117,7 +117,7 @@ msgstr "已清除使用者 %s 的所有通行金鑰"
 msgid "Already initialized"
 msgstr "已經初始化過了"
 
-#: internal/data/app.go:395
+#: internal/data/app.go:390
 msgid "App %s %s"
 msgstr "應用 %s %s"
 
@@ -145,7 +145,7 @@ msgstr "應用程式解除安裝失敗：%v"
 msgid "App update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
-#: internal/service/environment_php.go:180
+#: internal/service/environment_php.go:181
 msgid "Application Pool"
 msgstr "應用程序池"
 
@@ -193,37 +193,37 @@ msgstr "繫結 UA 已禁用"
 msgid "Bind domain disabled"
 msgstr "繫結網域已禁用"
 
-#: internal/apps/rocketmq/app.go:58
+#: internal/apps/rocketmq/app.go:64
 msgid "Broker Name"
 msgstr "Broker 名稱"
 
-#: internal/apps/rocketmq/app.go:61
+#: internal/apps/rocketmq/app.go:67
 msgid "Broker Role"
 msgstr "Broker 角色"
 
-#: internal/apps/rocketmq/app.go:57
+#: internal/apps/rocketmq/app.go:63
 msgid "Broker Status"
 msgstr "Broker 狀態"
 
-#: internal/apps/apache/app.go:130
+#: internal/apps/apache/app.go:135
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/mysql/app.go:123
-#: internal/apps/mysql/app.go:142
+#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:145
 msgid "Bytes Received"
 msgstr "已接收字節"
 
-#: internal/apps/mysql/app.go:122
-#: internal/apps/mysql/app.go:142
+#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:145
 msgid "Bytes Sent"
 msgstr "已發送字節"
 
-#: internal/apps/apache/app.go:151
+#: internal/apps/apache/app.go:156
 msgid "Bytes/sec"
 msgstr "每秒字節"
 
-#: internal/service/environment_php.go:466
+#: internal/service/environment_php.go:429
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr "Bzip2 是一個用於壓縮和解壓縮文件的庫"
 
@@ -240,7 +240,7 @@ msgstr "命令"
 msgid "COPYRIGHT"
 msgstr "版權"
 
-#: internal/service/environment_php.go:506
+#: internal/service/environment_php.go:469
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一個用於處理日期的庫"
 
@@ -261,16 +261,16 @@ msgstr "更改 AcePanel 監聽端口"
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
-#: internal/data/backup.go:901
+#: internal/data/backup.go:902
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理臨時目錄失敗：%v"
 
-#: internal/data/backup.go:934
+#: internal/data/backup.go:935
 msgid "Cleaning temporary file failed: %v"
 msgstr "清理臨時檔案失敗：%v"
 
-#: internal/data/backup.go:363
-#: internal/data/backup.go:427
+#: internal/data/backup.go:364
+#: internal/data/backup.go:428
 msgid "Cleanup failed: %v"
 msgstr "清理失敗：%v"
 
@@ -298,27 +298,27 @@ msgstr "ClouDNS"
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
-#: internal/apps/elasticsearch/app.go:76
-#: internal/apps/opensearch/app.go:76
+#: internal/apps/elasticsearch/app.go:81
+#: internal/apps/opensearch/app.go:81
 msgid "Cluster Name"
 msgstr "叢集名稱"
 
-#: internal/apps/elasticsearch/app.go:77
-#: internal/apps/opensearch/app.go:77
+#: internal/apps/elasticsearch/app.go:82
+#: internal/apps/opensearch/app.go:82
 msgid "Cluster Status"
 msgstr "叢集狀態"
 
-#: internal/apps/redis/app.go:91
-#: internal/apps/valkey/app.go:91
+#: internal/apps/redis/app.go:95
+#: internal/apps/valkey/app.go:95
 msgid "Commands Per Second"
 msgstr "每秒執行命令數"
 
-#: internal/apps/prometheus/app.go:93
+#: internal/apps/prometheus/app.go:100
 msgid "Config Reload Success"
 msgstr "設定重載成功"
 
-#: internal/apps/redis/app.go:84
-#: internal/apps/valkey/app.go:84
+#: internal/apps/redis/app.go:88
+#: internal/apps/valkey/app.go:88
 msgid "Connected Clients"
 msgstr "已連接客戶端數"
 
@@ -338,7 +338,7 @@ msgstr "容器名稱"
 msgid "Create new website"
 msgstr "創建新網站"
 
-#: internal/apps/mongodb/app.go:90
+#: internal/apps/mongodb/app.go:95
 msgid "Current Connections"
 msgstr "目前連線數"
 
@@ -355,7 +355,7 @@ msgstr "數據備份"
 msgid "Data synchronized successfully"
 msgstr "數據同步成功"
 
-#: internal/apps/grafana/app.go:82
+#: internal/apps/grafana/app.go:88
 #: internal/service/toolbox_migration.go:506
 msgid "Database"
 msgstr "資料庫"
@@ -384,11 +384,11 @@ msgstr "數據庫伺服器 %s 刪除成功"
 msgid "Database type"
 msgstr "數據庫類型"
 
-#: internal/apps/clickhouse/app.go:95
+#: internal/apps/clickhouse/app.go:100
 msgid "Databases"
 msgstr "資料庫"
 
-#: internal/apps/mongodb/app.go:95
+#: internal/apps/mongodb/app.go:100
 msgid "Delete Operations"
 msgstr "刪除操作"
 
@@ -432,20 +432,20 @@ msgstr "Docker 容器日誌：%d 個文件"
 msgid "Download URL is empty"
 msgstr "下載 URL 為空"
 
-#: internal/data/backup.go:1000
-#: internal/data/backup.go:997
+#: internal/data/backup.go:1001
+#: internal/data/backup.go:998
 msgid "Download failed: %v"
 msgstr "下載失敗：%v"
 
-#: internal/data/backup.go:1003
+#: internal/data/backup.go:1004
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
-#: internal/service/file.go:314
+#: internal/service/file.go:331
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
-#: internal/apps/prometheus/app.go:401
+#: internal/apps/prometheus/app.go:408
 msgid "Elasticsearch metrics"
 msgstr "Elasticsearch 指標"
 
@@ -457,7 +457,7 @@ msgstr "啟用 HTTPS"
 msgid "Enable access entrance"
 msgstr "啟用訪問入口"
 
-#: internal/service/environment_php.go:496
+#: internal/service/environment_php.go:459
 msgid "Enchant is a spell-checking library"
 msgstr "Enchant 是一個拼寫檢查庫"
 
@@ -474,11 +474,11 @@ msgstr "入口已啟用"
 msgid "Entrance: %s"
 msgstr "入口：%s"
 
-#: internal/service/environment_php.go:476
+#: internal/service/environment_php.go:439
 msgid "Event is a library for handling events"
 msgstr "Event 是一個用於處理事件的庫"
 
-#: internal/service/environment_php.go:431
+#: internal/service/environment_php.go:394
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一個用於讀取和寫入圖像元數據的庫"
 
@@ -575,7 +575,7 @@ msgstr "無法通過 ACME 獲取面板證書，使用自簽名證書"
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
-#: internal/data/backup.go:839
+#: internal/data/backup.go:840
 msgid "Failed to remove %s.db: %v"
 msgstr "無法刪除 %s.db：%v"
 
@@ -609,11 +609,11 @@ msgstr "同步分類資料失敗：%v"
 msgid "Failed to update 2FA: %v"
 msgstr "更新兩步驗證失敗： %v"
 
-#: internal/service/environment_php.go:396
+#: internal/service/environment_php.go:359
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別文件類型的庫"
 
-#: internal/data/backup.go:829
+#: internal/data/backup.go:830
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "文件正常，無需修復，請運行 acepanel update 更新面板"
 
@@ -621,7 +621,7 @@ msgstr "文件正常，無需修復，請運行 acepanel update 更新面板"
 msgid "Fix AcePanel upgrade issues"
 msgstr "修復 AcePanel 升級問題"
 
-#: internal/apps/rocketmq/app.go:62
+#: internal/apps/rocketmq/app.go:68
 msgid "Flush Disk Type"
 msgstr "刷盤類型"
 
@@ -629,11 +629,11 @@ msgstr "刷盤類型"
 msgid "Forum：https://tom.moe"
 msgstr "論壇：https://tom.moe"
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:133
 msgid "Full Joins without Index"
 msgstr "沒有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:134
 msgid "Full Range Joins without Index"
 msgstr "沒有使用索引的範圍 Join"
 
@@ -641,7 +641,7 @@ msgstr "沒有使用索引的範圍 Join"
 msgid "GLOBAL OPTIONS"
 msgstr "全局選項"
 
-#: internal/service/environment_php.go:511
+#: internal/service/environment_php.go:474
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一個用於處理大整數的庫"
 
@@ -657,7 +657,7 @@ msgstr "獲取 AcePanel 服務狀態"
 msgid "Get panel setting (use only under guidance)"
 msgstr "獲取面板設置（僅在指導下使用）"
 
-#: internal/service/environment_php.go:531
+#: internal/service/environment_php.go:494
 msgid "Gettext is a library for handling multilingual support"
 msgstr "Gettext 是一個處理多語言支持的庫"
 
@@ -667,7 +667,7 @@ msgstr "Gettext 是一個處理多語言支持的庫"
 msgid "Go-%s is not installed"
 msgstr "Go-%s 未安裝"
 
-#: internal/apps/prometheus/app.go:91
+#: internal/apps/prometheus/app.go:98
 msgid "Goroutine Count"
 msgstr "Goroutine 數量"
 
@@ -683,7 +683,7 @@ msgstr "HTTPS 已停用"
 msgid "HTTPS enabled"
 msgstr "HTTPS 已啟用"
 
-#: internal/apps/prometheus/app.go:396
+#: internal/apps/prometheus/app.go:403
 msgid "Hardware and OS metrics"
 msgstr "硬體和作業系統指標"
 
@@ -695,15 +695,15 @@ msgstr "華為雲"
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 用戶名: %s, 電子郵件: %s, 創建時間: %s"
 
-#: internal/service/environment_php.go:456
+#: internal/service/environment_php.go:419
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr "IMAP 模組允許 PHP 讀取、搜尋、刪除、下載和管理郵件"
 
-#: internal/service/environment_php.go:187
+#: internal/service/environment_php.go:188
 msgid "Idle Processes"
 msgstr "空閒進程"
 
-#: internal/apps/apache/app.go:137
+#: internal/apps/apache/app.go:142
 msgid "Idle Workers"
 msgstr "空閒的 Worker"
 
@@ -715,22 +715,22 @@ msgstr "如果您無法訪問，請檢查伺服器的安全組和防火牆是否
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr "如果您仍然無法訪問，請嘗試運行 `acepanel https off` 關閉面板 HTTPS"
 
-#: internal/service/environment_php.go:406
+#: internal/service/environment_php.go:369
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr "Igbinary 是一個用於序列化和反序列化數據的庫"
 
-#: internal/service/environment_php.go:426
+#: internal/service/environment_php.go:389
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一個創建、編輯、合成圖片的免費軟件"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:129
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1060
-#: internal/service/cli.go:1065
-#: internal/service/cli.go:1070
-#: internal/service/cli.go:1112
+#: internal/service/cli.go:1061
+#: internal/service/cli.go:1066
+#: internal/service/cli.go:1071
+#: internal/service/cli.go:1113
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
@@ -738,23 +738,23 @@ msgstr "初始化失敗：%v"
 msgid "Initialize AcePanel (use only under guidance)"
 msgstr "初始化 AcePanel（僅在指導下使用）"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:130
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
-#: internal/apps/mongodb/app.go:93
+#: internal/apps/mongodb/app.go:98
 msgid "Insert Operations"
 msgstr "插入操作"
 
-#: internal/service/environment_php.go:346
+#: internal/service/environment_php.go:309
 msgid "Install PHP-%d %s module"
 msgstr "安裝 PHP-%d %s 模組"
 
-#: internal/apps/prometheus/app.go:255
+#: internal/apps/prometheus/app.go:262
 msgid "Install Prometheus exporter %s"
 msgstr "安裝 Prometheus exporter %s"
 
-#: internal/data/app.go:228
+#: internal/data/app.go:223
 msgid "Install app %s"
 msgstr "安裝應用 %s"
 
@@ -766,7 +766,7 @@ msgstr "安裝應用程式"
 msgid "Install environment %s"
 msgstr "安裝環境 %s"
 
-#: internal/service/environment_php.go:526
+#: internal/service/environment_php.go:489
 msgid "Intl is a library for handling internationalization and localization"
 msgstr "Intl 是一個處理國際化和本地化的庫"
 
@@ -778,26 +778,26 @@ msgstr "Java-%s 未安裝"
 msgid "Journal logs"
 msgstr "Journal 日誌"
 
-#: internal/apps/prometheus/app.go:404
+#: internal/apps/prometheus/app.go:411
 msgid "Kafka metrics"
 msgstr "Kafka 指標"
 
-#: internal/apps/redis/app.go:92
-#: internal/apps/valkey/app.go:92
+#: internal/apps/redis/app.go:96
+#: internal/apps/valkey/app.go:96
 msgid "Keyspace Hits"
 msgstr "查找數據庫鍵成功次數"
 
-#: internal/apps/redis/app.go:93
-#: internal/apps/valkey/app.go:93
+#: internal/apps/redis/app.go:97
+#: internal/apps/valkey/app.go:97
 msgid "Keyspace Misses"
 msgstr "查找數據庫鍵失敗次數"
 
-#: internal/service/environment_php.go:491
+#: internal/service/environment_php.go:454
 msgid "LDAP is a protocol for accessing directory services"
 msgstr "LDAP 是一種用於訪問目錄服務的協議"
 
-#: internal/apps/redis/app.go:94
-#: internal/apps/valkey/app.go:94
+#: internal/apps/redis/app.go:98
+#: internal/apps/valkey/app.go:98
 msgid "Latest Fork Time (ms)"
 msgstr "最近一次 fork() 操作耗費的毫秒數"
 
@@ -813,19 +813,19 @@ msgstr "與網站關聯的域名列表"
 msgid "List of listening addresses associated with the website"
 msgstr "與網站關聯的監聽地址列表"
 
-#: internal/apps/rocketmq/app.go:59
+#: internal/apps/rocketmq/app.go:65
 msgid "Listen Port"
 msgstr "監聽連接埠"
 
-#: internal/service/environment_php.go:184
+#: internal/service/environment_php.go:185
 msgid "Listen Queue"
 msgstr "監聽佇列"
 
-#: internal/service/environment_php.go:186
+#: internal/service/environment_php.go:187
 msgid "Listen Queue Length"
 msgstr "監聽佇列長度"
 
-#: internal/apps/kafka/app.go:50
+#: internal/apps/kafka/app.go:55
 msgid "Listeners"
 msgstr "監聽器"
 
@@ -837,20 +837,20 @@ msgstr "本地 IPv4：%s://%s:%d%s"
 msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr "本地 IPv6：%s://[%s]:%d%s"
 
-#: internal/data/backup.go:94
+#: internal/data/backup.go:95
 #: internal/data/backup_storage.go:62
 msgid "Local Storage"
 msgstr "本地存儲"
 
-#: internal/apps/kafka/app.go:51
+#: internal/apps/kafka/app.go:56
 msgid "Log Dirs"
 msgstr "日誌目錄"
 
-#: internal/apps/kafka/app.go:53
+#: internal/apps/kafka/app.go:58
 msgid "Log Retention Hours"
 msgstr "日誌保留小時數"
 
-#: internal/apps/kafka/app.go:54
+#: internal/apps/kafka/app.go:59
 msgid "Log Segment Bytes"
 msgstr "日誌段位元組數"
 
@@ -858,37 +858,37 @@ msgstr "日誌段位元組數"
 msgid "Log rotation"
 msgstr "日誌輪替"
 
-#: internal/service/environment_php.go:190
+#: internal/service/environment_php.go:191
 msgid "Max Active Processes"
 msgstr "最大活躍進程數量"
 
-#: internal/service/environment_php.go:191
+#: internal/service/environment_php.go:192
 msgid "Max Children Reached"
 msgstr "達到進程上限次數"
 
-#: internal/service/environment_php.go:185
+#: internal/service/environment_php.go:186
 msgid "Max Listen Queue"
 msgstr "最大監聽佇列"
 
-#: internal/service/environment_php.go:416
+#: internal/service/environment_php.go:379
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr "Memcached 是一個用於連接 Memcached 伺服器的驅動程式"
 
-#: internal/apps/prometheus/app.go:403
+#: internal/apps/prometheus/app.go:410
 msgid "Memcached metrics"
 msgstr "Memcached 指標"
 
-#: internal/apps/apache/app.go:109
-#: internal/apps/nginx/app.go:126
+#: internal/apps/apache/app.go:114
+#: internal/apps/nginx/app.go:131
 msgid "Memory"
 msgstr "記憶體"
 
-#: internal/apps/redis/app.go:88
-#: internal/apps/valkey/app.go:88
+#: internal/apps/redis/app.go:92
+#: internal/apps/valkey/app.go:92
 msgid "Memory Fragmentation Ratio"
 msgstr "記憶體碎片比率"
 
-#: internal/apps/clickhouse/app.go:94
+#: internal/apps/clickhouse/app.go:99
 msgid "Memory Usage (bytes)"
 msgstr "記憶體使用（位元組）"
 
@@ -900,19 +900,19 @@ msgstr "遷移完成"
 msgid "Migration started"
 msgstr "遷移已開始"
 
-#: internal/apps/prometheus/app.go:400
+#: internal/apps/prometheus/app.go:407
 msgid "MongoDB metrics"
 msgstr "MongoDB 指標"
 
-#: internal/data/backup.go:921
+#: internal/data/backup.go:922
 msgid "Move acepanel file failed: %v"
 msgstr "移動 acepanel 文件失敗：%v"
 
-#: internal/data/backup.go:916
+#: internal/data/backup.go:917
 msgid "Move panel file failed: %v"
 msgstr "移動面板檔案失敗：%v"
 
-#: internal/apps/prometheus/app.go:398
+#: internal/apps/prometheus/app.go:405
 msgid "MySQL database metrics"
 msgstr "MySQL 資料庫指標"
 
@@ -922,11 +922,11 @@ msgstr "MySQL 資料庫指標"
 msgid "NAME"
 msgstr "名稱"
 
-#: internal/apps/rocketmq/app.go:60
+#: internal/apps/rocketmq/app.go:66
 msgid "NameServer Address"
 msgstr "NameServer 地址"
 
-#: internal/apps/rocketmq/app.go:56
+#: internal/apps/rocketmq/app.go:62
 msgid "NameServer Status"
 msgstr "NameServer 狀態"
 
@@ -938,15 +938,15 @@ msgstr "NameSilo"
 msgid "New username cannot be empty"
 msgstr "新用戶名不能為空"
 
-#: internal/apps/prometheus/app.go:397
+#: internal/apps/prometheus/app.go:404
 msgid "Nginx metrics"
 msgstr "Nginx 指標"
 
-#: internal/data/backup.go:888
+#: internal/data/backup.go:889
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
-#: internal/apps/kafka/app.go:49
+#: internal/apps/kafka/app.go:54
 msgid "Node ID"
 msgstr "節點 ID"
 
@@ -960,21 +960,21 @@ msgstr "Node.js-%s 未安裝"
 msgid "Not supported"
 msgstr "不支援"
 
-#: internal/service/home.go:282
+#: internal/service/home.go:263
 msgid "Not used"
 msgstr "不使用"
 
-#: internal/apps/kafka/app.go:52
+#: internal/apps/kafka/app.go:57
 msgid "Num Partitions"
 msgstr "分區數量"
 
-#: internal/apps/elasticsearch/app.go:79
-#: internal/apps/opensearch/app.go:79
+#: internal/apps/elasticsearch/app.go:84
+#: internal/apps/opensearch/app.go:84
 msgid "Number of Data Nodes"
 msgstr "資料節點數量"
 
-#: internal/apps/elasticsearch/app.go:78
-#: internal/apps/opensearch/app.go:78
+#: internal/apps/elasticsearch/app.go:83
+#: internal/apps/opensearch/app.go:83
 msgid "Number of Nodes"
 msgstr "節點數量"
 
@@ -991,7 +991,7 @@ msgstr "要保留的日誌數量"
 msgid "OPTIONS"
 msgstr "選項"
 
-#: internal/service/environment_php.go:401
+#: internal/service/environment_php.go:364
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體中來提升 PHP 的效能"
 
@@ -1003,7 +1003,7 @@ msgstr "獲取免費證書或生成自簽名證書"
 msgid "Old username cannot be empty"
 msgstr "舊用戶名不能為空"
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:132
 msgid "Open Tables"
 msgstr "已開啟的表"
 
@@ -1039,23 +1039,21 @@ msgstr "輸出 AcePanel 基本資訊並生成新密碼"
 msgid "PHP version used by the website (not used if not filled)"
 msgstr "網站使用的 PHP 版本（不填則不使用）"
 
-#: internal/service/environment_php.go:108
-#: internal/service/environment_php.go:127
-#: internal/service/environment_php.go:147
-#: internal/service/environment_php.go:166
-#: internal/service/environment_php.go:231
-#: internal/service/environment_php.go:245
-#: internal/service/environment_php.go:259
-#: internal/service/environment_php.go:278
-#: internal/service/environment_php.go:297
-#: internal/service/environment_php.go:330
-#: internal/service/environment_php.go:364
-#: internal/service/environment_php.go:47
-#: internal/service/environment_php.go:652
-#: internal/service/environment_php.go:67
-#: internal/service/environment_php.go:711
-#: internal/service/environment_php.go:774
-#: internal/service/environment_php.go:88
+#: internal/service/environment_php.go:109
+#: internal/service/environment_php.go:128
+#: internal/service/environment_php.go:148
+#: internal/service/environment_php.go:167
+#: internal/service/environment_php.go:232
+#: internal/service/environment_php.go:246
+#: internal/service/environment_php.go:260
+#: internal/service/environment_php.go:293
+#: internal/service/environment_php.go:327
+#: internal/service/environment_php.go:48
+#: internal/service/environment_php.go:609
+#: internal/service/environment_php.go:668
+#: internal/service/environment_php.go:68
+#: internal/service/environment_php.go:731
+#: internal/service/environment_php.go:89
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安裝"
 
@@ -1090,16 +1088,16 @@ msgstr "密碼：%s"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "網站託管的路徑（不填則使用默認路徑）"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:128
 msgid "Peak Connections"
 msgstr "峰值連接數"
 
-#: internal/apps/redis/app.go:87
-#: internal/apps/valkey/app.go:87
+#: internal/apps/redis/app.go:91
+#: internal/apps/valkey/app.go:91
 msgid "Peak Memory Usage"
 msgstr "佔用記憶體峰值"
 
-#: internal/service/environment_php.go:411
+#: internal/service/environment_php.go:374
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr "PhpRedis 連接並操作 Redis 資料庫上的資料（需先安裝上面 igbinary 模組）"
 
@@ -1139,19 +1137,19 @@ msgstr "端口範圍錯誤"
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/apps/prometheus/app.go:399
+#: internal/apps/prometheus/app.go:406
 msgid "PostgreSQL database metrics"
 msgstr "PostgreSQL 資料庫指標"
 
-#: internal/apps/postgresql/app.go:170
+#: internal/apps/postgresql/app.go:174
 msgid "Process Count"
 msgstr "進程數"
 
-#: internal/service/environment_php.go:181
+#: internal/service/environment_php.go:182
 msgid "Process Manager"
 msgstr "進程管理方式"
 
-#: internal/apps/postgresql/app.go:169
+#: internal/apps/postgresql/app.go:173
 msgid "Process PID"
 msgstr "進程 PID"
 
@@ -1159,7 +1157,7 @@ msgstr "進程 PID"
 msgid "Project"
 msgstr "項目"
 
-#: internal/service/environment_php.go:501
+#: internal/service/environment_php.go:464
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一個拼寫檢查庫"
 
@@ -1181,40 +1179,40 @@ msgstr "Python-%s 未安裝"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/apps/mysql/app.go:189
+#: internal/apps/mysql/app.go:192
 msgid "Query Cache Hit Rate"
 msgstr "查詢快取命中率"
 
-#: internal/apps/mysql/app.go:177
+#: internal/apps/mysql/app.go:180
 msgid "Query Cache Hits"
 msgstr "查詢快取命中次數"
 
-#: internal/apps/mysql/app.go:181
+#: internal/apps/mysql/app.go:184
 msgid "Query Cache Inserts"
 msgstr "查詢快取插入次數"
 
-#: internal/apps/mysql/app.go:185
+#: internal/apps/mysql/app.go:188
 msgid "Query Cache Not Cached"
 msgstr "查詢快取未快取次數"
 
-#: internal/apps/mongodb/app.go:92
+#: internal/apps/mongodb/app.go:97
 msgid "Query Operations"
 msgstr "查詢操作"
 
-#: internal/apps/nginx/app.go:157
+#: internal/apps/nginx/app.go:162
 msgid "Reading"
 msgstr "正在讀取"
 
-#: internal/service/environment_php.go:481
+#: internal/service/environment_php.go:444
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一個處理文本的庫"
 
-#: internal/apps/prometheus/app.go:402
+#: internal/apps/prometheus/app.go:409
 msgid "Redis metrics"
 msgstr "Redis 指標"
 
-#: internal/apps/elasticsearch/app.go:82
-#: internal/apps/opensearch/app.go:82
+#: internal/apps/elasticsearch/app.go:87
+#: internal/apps/opensearch/app.go:87
 msgid "Relocating Shards"
 msgstr "遷移中的分片"
 
@@ -1222,7 +1220,7 @@ msgstr "遷移中的分片"
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板應用標記（僅在指導下使用）"
 
-#: internal/data/backup.go:913
+#: internal/data/backup.go:914
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
@@ -1234,11 +1232,11 @@ msgstr "移除面板設置（僅在指導下使用）"
 msgid "Remove website"
 msgstr "移除網站"
 
-#: internal/apps/apache/app.go:144
+#: internal/apps/apache/app.go:149
 msgid "Requests/sec"
 msgstr "每秒請求"
 
-#: internal/apps/mongodb/app.go:96
+#: internal/apps/mongodb/app.go:101
 msgid "Resident Memory (MB)"
 msgstr "常駐記憶體（MB）"
 
@@ -1246,7 +1244,7 @@ msgstr "常駐記憶體（MB）"
 msgid "Restart AcePanel service"
 msgstr "重啟 AcePanel 服務"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:124
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
 
@@ -1254,7 +1252,7 @@ msgstr "每秒回滾"
 msgid "Rotation type"
 msgstr "旋轉類型"
 
-#: internal/service/environment_php.go:486
+#: internal/service/environment_php.go:449
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一種用於網絡管理的協議"
 
@@ -1262,7 +1260,7 @@ msgstr "SNMP 是一種用於網絡管理的協議"
 msgid "SSH log file not found"
 msgstr "未找到 SSH 日誌檔案"
 
-#: internal/service/environment_php.go:471
+#: internal/service/environment_php.go:434
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
 
@@ -1295,7 +1293,7 @@ msgstr "伺服器類型"
 msgid "Server username"
 msgstr "伺服器用戶名"
 
-#: internal/service/environment_php.go:787
+#: internal/service/environment_php.go:744
 msgid "Session save handler is not files, cannot clean"
 msgstr "Session 保存處理程序不是 files，無法清理"
 
@@ -1307,11 +1305,11 @@ msgstr "設置管理"
 msgid "Setting not exists"
 msgstr "設置不存在"
 
-#: internal/service/environment_php.go:192
+#: internal/service/environment_php.go:193
 msgid "Slow Requests"
 msgstr "慢請求"
 
-#: internal/apps/mysql/app.go:133
+#: internal/apps/mysql/app.go:136
 msgid "Sort Merge Passes"
 msgstr "排序後的合併次數"
 
@@ -1319,9 +1317,9 @@ msgstr "排序後的合併次數"
 msgid "Start AcePanel service"
 msgstr "啟動 AcePanel 服務"
 
-#: internal/apps/postgresql/app.go:168
-#: internal/apps/prometheus/app.go:89
-#: internal/service/environment_php.go:182
+#: internal/apps/postgresql/app.go:172
+#: internal/apps/prometheus/app.go:96
+#: internal/service/environment_php.go:183
 msgid "Start Time"
 msgstr "啟動時間"
 
@@ -1329,7 +1327,7 @@ msgstr "啟動時間"
 msgid "Stop AcePanel service"
 msgstr "停止 AcePanel 服務"
 
-#: internal/apps/mongodb/app.go:97
+#: internal/apps/mongodb/app.go:102
 msgid "Storage Engine"
 msgstr "儲存引擎"
 
@@ -1343,15 +1341,15 @@ msgstr "儲存引擎"
 msgid "Storage ID (local storage if not filled)"
 msgstr "存儲 ID（留空則為本地存儲）"
 
-#: internal/apps/prometheus/app.go:90
+#: internal/apps/prometheus/app.go:97
 msgid "Storage Retention"
 msgstr "儲存保留"
 
-#: internal/apps/postgresql/app.go:172
+#: internal/apps/postgresql/app.go:176
 msgid "Storage Usage"
 msgstr "存儲使用"
 
-#: internal/apps/mysql/app.go:132
+#: internal/apps/mysql/app.go:135
 msgid "Subqueries without Index"
 msgstr "沒有索引的子查詢"
 
@@ -1359,11 +1357,11 @@ msgstr "沒有索引的子查詢"
 msgid "Successfully obtained panel certificate via ACME"
 msgstr "成功通過 ACME 獲取面板證書"
 
-#: internal/service/environment_php.go:591
+#: internal/service/environment_php.go:554
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swoole 是構建高性能異步並發伺服器的 PHP 模組"
 
-#: internal/service/environment_php.go:600
+#: internal/service/environment_php.go:563
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swow 是構建高性能異步並發伺服器的 PHP 模組"
 
@@ -1375,28 +1373,28 @@ msgstr "與雲端同步 AcePanel 快取資料"
 msgid "Sync server time with NTP"
 msgstr "與 NTP 同步伺服器時間"
 
-#: internal/service/environment_php.go:571
+#: internal/service/environment_php.go:534
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr "Sysvmsg 是一個處理系統 V 訊息佇列的庫"
 
-#: internal/service/environment_php.go:576
+#: internal/service/environment_php.go:539
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr "Sysvsem 是一個處理系統 V 信號的庫"
 
-#: internal/service/environment_php.go:581
+#: internal/service/environment_php.go:544
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一個處理系統 V 共享記憶體的庫"
 
-#: internal/apps/redis/app.go:82
-#: internal/apps/valkey/app.go:82
+#: internal/apps/redis/app.go:86
+#: internal/apps/valkey/app.go:86
 msgid "TCP Port"
 msgstr "TCP 連接埠"
 
-#: internal/apps/mysql/app.go:134
+#: internal/apps/mysql/app.go:137
 msgid "Table Locks Waited"
 msgstr "等待表鎖定"
 
-#: internal/apps/clickhouse/app.go:96
+#: internal/apps/clickhouse/app.go:101
 msgid "Tables"
 msgstr "表"
 
@@ -1408,11 +1406,11 @@ msgstr "目標名稱"
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:131
 msgid "Temporary Tables Created on Disk"
 msgstr "在磁碟上創建的臨時表"
 
-#: internal/data/backup.go:1017
+#: internal/data/backup.go:1018
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr "在 /tmp 中檢測到臨時文件，這可能是上次更新失敗導致的，請運行 acepanel fix 進行修復並重試"
 
@@ -1420,7 +1418,7 @@ msgstr "在 /tmp 中檢測到臨時文件，這可能是上次更新失敗導致
 msgid "Tencent Cloud"
 msgstr "騰訊雲"
 
-#: internal/data/backup.go:782
+#: internal/data/backup.go:783
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr "壓縮檔案包含的檔案數量不為1，實際為 %d"
 
@@ -1432,64 +1430,64 @@ msgstr "時間同步成功"
 msgid "Toggle two-factor authentication for a user"
 msgstr "開關用戶兩步驗證"
 
-#: internal/apps/apache/app.go:116
+#: internal/apps/apache/app.go:121
 msgid "Total Accesses"
 msgstr "總訪問量"
 
-#: internal/apps/redis/app.go:85
-#: internal/apps/valkey/app.go:85
+#: internal/apps/redis/app.go:89
+#: internal/apps/valkey/app.go:89
 msgid "Total Allocated Memory"
 msgstr "已分配記憶體總量"
 
-#: internal/apps/redis/app.go:90
-#: internal/apps/valkey/app.go:90
+#: internal/apps/redis/app.go:94
+#: internal/apps/valkey/app.go:94
 msgid "Total Commands Processed"
 msgstr "已處理的命令總數"
 
-#: internal/apps/mysql/app.go:119
-#: internal/apps/postgresql/app.go:171
+#: internal/apps/mysql/app.go:122
+#: internal/apps/postgresql/app.go:175
 msgid "Total Connections"
 msgstr "總連接數"
 
-#: internal/apps/mongodb/app.go:91
+#: internal/apps/mongodb/app.go:96
 msgid "Total Connections Created"
 msgstr "建立的連線總數"
 
-#: internal/apps/redis/app.go:89
-#: internal/apps/valkey/app.go:89
+#: internal/apps/redis/app.go:93
+#: internal/apps/valkey/app.go:93
 msgid "Total Connections Received"
 msgstr "已接收的連接總數"
 
-#: internal/apps/redis/app.go:86
-#: internal/apps/valkey/app.go:86
+#: internal/apps/redis/app.go:90
+#: internal/apps/valkey/app.go:90
 msgid "Total Memory Usage"
 msgstr "記憶體使用總量"
 
-#: internal/service/environment_php.go:189
+#: internal/service/environment_php.go:190
 msgid "Total Processes"
 msgstr "總進程數"
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:121
 msgid "Total Queries"
 msgstr "查詢總數"
 
-#: internal/apps/apache/app.go:123
+#: internal/apps/apache/app.go:128
 msgid "Total Traffic"
 msgstr "總流量"
 
-#: internal/apps/nginx/app.go:141
+#: internal/apps/nginx/app.go:146
 msgid "Total connections"
 msgstr "總連接數"
 
-#: internal/apps/nginx/app.go:145
+#: internal/apps/nginx/app.go:150
 msgid "Total handshakes"
 msgstr "總握手數"
 
-#: internal/apps/nginx/app.go:149
+#: internal/apps/nginx/app.go:154
 msgid "Total requests"
 msgstr "總請求數"
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:123
 msgid "Transactions per Second"
 msgstr "每秒事務"
 
@@ -1500,24 +1498,24 @@ msgstr "每秒事務"
 msgid "USAGE"
 msgstr "使用"
 
-#: internal/service/app.go:216
+#: internal/service/app.go:223
 msgid "Unable to update app list cache in offline mode"
 msgstr "無法在離線模式下更新應用程式列表快取"
 
-#: internal/apps/elasticsearch/app.go:83
-#: internal/apps/opensearch/app.go:83
+#: internal/apps/elasticsearch/app.go:88
+#: internal/apps/opensearch/app.go:88
 msgid "Unassigned Shards"
 msgstr "未分配的分片"
 
-#: internal/service/environment_php.go:380
+#: internal/service/environment_php.go:343
 msgid "Uninstall PHP-%d %s module"
 msgstr "卸載 PHP-%d %s 模組"
 
-#: internal/apps/prometheus/app.go:282
+#: internal/apps/prometheus/app.go:289
 msgid "Uninstall Prometheus exporter %s"
 msgstr "解除安裝 Prometheus exporter %s"
 
-#: internal/data/app.go:282
+#: internal/data/app.go:277
 msgid "Uninstall app %s"
 msgstr "卸載應用 %s"
 
@@ -1537,11 +1535,11 @@ msgstr "不支援的輪轉類型：%s"
 msgid "Unused container images: %d"
 msgstr "未使用的容器鏡像：%d"
 
-#: internal/data/backup.go:904
+#: internal/data/backup.go:905
 msgid "Unzip backup file failed: %v"
 msgstr "解壓備份檔案失敗：%v"
 
-#: internal/data/backup.go:931
+#: internal/data/backup.go:932
 msgid "Unzip panel data failed: %v"
 msgstr "解壓面板數據失敗：%v"
 
@@ -1549,11 +1547,11 @@ msgstr "解壓面板數據失敗：%v"
 msgid "Update AcePanel to the latest version"
 msgstr "更新 AcePanel 到最新版本"
 
-#: internal/apps/mongodb/app.go:94
+#: internal/apps/mongodb/app.go:99
 msgid "Update Operations"
 msgstr "更新操作"
 
-#: internal/data/app.go:341
+#: internal/data/app.go:336
 msgid "Update app %s"
 msgstr "更新應用 %s"
 
@@ -1565,17 +1563,17 @@ msgstr "更新應用"
 msgid "Update environment %s"
 msgstr "更新環境 %s"
 
-#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:120
 msgid "Uptime"
 msgstr "運行時間"
 
-#: internal/apps/clickhouse/app.go:92
-#: internal/apps/mongodb/app.go:89
+#: internal/apps/clickhouse/app.go:97
+#: internal/apps/mongodb/app.go:94
 msgid "Uptime (seconds)"
 msgstr "執行時間（秒）"
 
-#: internal/apps/redis/app.go:83
-#: internal/apps/valkey/app.go:83
+#: internal/apps/redis/app.go:87
+#: internal/apps/valkey/app.go:87
 msgid "Uptime in Days"
 msgstr "已運行天數"
 
@@ -1607,17 +1605,17 @@ msgstr "使用者名稱：%s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/data/backup.go:1010
+#: internal/data/backup.go:1011
 msgid "Verify download file failed: %v"
 msgstr "驗證下載文件失敗：%v"
 
-#: internal/apps/clickhouse/app.go:91
-#: internal/apps/grafana/app.go:80
-#: internal/apps/mongodb/app.go:88
+#: internal/apps/clickhouse/app.go:96
+#: internal/apps/grafana/app.go:86
+#: internal/apps/mongodb/app.go:93
 msgid "Version"
 msgstr "版本"
 
-#: internal/apps/nginx/app.go:165
+#: internal/apps/nginx/app.go:170
 msgid "Waiting"
 msgstr "正在駐留等待"
 
@@ -1662,8 +1660,8 @@ msgstr "網站：https://acepanel.net"
 msgid "West.cn"
 msgstr "西部數碼"
 
-#: internal/apps/apache/app.go:98
-#: internal/apps/nginx/app.go:115
+#: internal/apps/apache/app.go:103
+#: internal/apps/nginx/app.go:120
 msgid "Workers"
 msgstr "工作進程"
 
@@ -1675,73 +1673,73 @@ msgstr "寫入面板設置（僅在指導下使用）"
 msgid "Write website data (use only under guidance)"
 msgstr "寫入網站數據（僅在指導下使用）"
 
-#: internal/apps/nginx/app.go:161
+#: internal/apps/nginx/app.go:166
 msgid "Writing"
 msgstr "正在寫入"
 
-#: internal/service/environment_php.go:516
+#: internal/service/environment_php.go:479
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr "XLSWriter 是一個高性能讀寫 Excel 文件的庫"
 
-#: internal/service/environment_php.go:521
+#: internal/service/environment_php.go:484
 msgid "XSL is a library for processing XML documents"
 msgstr "XSL 是用於處理 XML 文檔的庫"
 
-#: internal/service/environment_php.go:461
+#: internal/service/environment_php.go:424
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 文件的庫"
 
-#: internal/data/app.go:191
+#: internal/data/app.go:186
 msgid "app %s already installed"
 msgstr "應用 %s 已安裝"
 
-#: internal/data/app.go:90
+#: internal/data/app.go:85
 msgid "app %s not found"
 msgstr "找不到應用 %s"
 
-#: internal/data/app.go:246
-#: internal/data/app.go:300
-#: internal/http/middleware/must_install.go:38
+#: internal/data/app.go:241
+#: internal/data/app.go:295
+#: internal/http/middleware/must_install.go:36
 msgid "app %s not installed"
 msgstr "應用程式 %s 未安裝"
 
-#: internal/data/app.go:211
-#: internal/data/app.go:324
+#: internal/data/app.go:206
+#: internal/data/app.go:319
 msgid "app %s not support current panel version"
 msgstr "應用程式 %s 不支援目前面板版本"
 
-#: internal/data/app.go:202
-#: internal/data/app.go:261
-#: internal/data/app.go:315
+#: internal/data/app.go:197
+#: internal/data/app.go:256
+#: internal/data/app.go:310
 msgid "app %s requires panel version %s, current version %s"
 msgstr "應用程式 %s 需要面板版本 %s，目前版本 %s"
 
-#: internal/http/middleware/must_install.go:24
+#: internal/http/middleware/must_install.go:25
 msgid "app not found"
 msgstr "找不到應用"
 
-#: internal/data/setting.go:333
-#: internal/data/setting.go:395
-#: internal/data/setting.go:411
+#: internal/data/setting.go:341
+#: internal/data/setting.go:403
+#: internal/data/setting.go:419
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止修改某些設置，請稍後再試"
 
-#: internal/service/home.go:419
-#: internal/service/home.go:429
+#: internal/service/home.go:400
+#: internal/service/home.go:410
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止重啟，請稍後再試"
 
-#: internal/service/home.go:385
+#: internal/service/home.go:366
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "後台任務正在運行，禁止更新，請稍後再試"
 
-#: internal/data/backup.go:228
+#: internal/data/backup.go:229
 msgid "backup file not exists"
 msgstr "備份文件不存在"
 
-#: internal/data/backup.go:294
-#: internal/data/backup.go:375
-#: internal/data/backup.go:88
+#: internal/data/backup.go:295
+#: internal/data/backup.go:376
+#: internal/data/backup.go:89
 msgid "backup storage not found"
 msgstr "未找到備份存儲"
 
@@ -1753,7 +1751,7 @@ msgstr "備份傳輸失敗：%v"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/file.go:297
+#: internal/service/file.go:314
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -1774,7 +1772,7 @@ msgstr "無法初始化系統磁碟"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:667
+#: internal/service/file.go:683
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
@@ -1794,16 +1792,16 @@ msgstr "編排 %s 已存在"
 msgid "compressing directory: %s"
 msgstr "正在壓縮目錄：%s"
 
-#: internal/data/backup.go:790
+#: internal/data/backup.go:791
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
-#: internal/service/file.go:176
-#: internal/service/file.go:590
+#: internal/service/file.go:193
+#: internal/service/file.go:606
 msgid "create directory error: %v"
 msgstr "創建目錄錯誤：%v"
 
-#: internal/service/file.go:710
+#: internal/service/file.go:726
 msgid "create target file error: %v"
 msgstr "創建目標文件錯誤：%v"
 
@@ -1823,10 +1821,10 @@ msgstr "正在遠端伺服器上建立項目"
 msgid "creating website on remote server"
 msgstr "正在遠端伺服器上建立網站"
 
-#: internal/data/backup.go:525
-#: internal/data/backup.go:583
-#: internal/data/backup.go:708
-#: internal/data/backup.go:744
+#: internal/data/backup.go:526
+#: internal/data/backup.go:584
+#: internal/data/backup.go:709
+#: internal/data/backup.go:745
 msgid "database does not exist: %s"
 msgstr "資料庫不存在：%s"
 
@@ -1842,12 +1840,12 @@ msgstr "資料庫遷移完成"
 msgid "database user migration completed"
 msgstr "資料庫使用者遷移完成"
 
-#: internal/apps/grafana/app.go:221
+#: internal/apps/grafana/app.go:229
 msgid "datasource %s already exists"
 msgstr "資料來源 %s 已存在"
 
-#: internal/apps/grafana/app.go:270
-#: internal/apps/grafana/app.go:313
+#: internal/apps/grafana/app.go:266
+#: internal/apps/grafana/app.go:314
 msgid "datasource %s not found"
 msgstr "資料來源 %s 不存在"
 
@@ -1860,11 +1858,11 @@ msgstr "部署證書到網站"
 msgid "device not found: %s"
 msgstr "未找到設備：%s"
 
-#: internal/apps/pureftpd/app.go:87
+#: internal/apps/pureftpd/app.go:92
 msgid "directory %s does not exist"
 msgstr "目錄 %s 不存在"
 
-#: internal/service/toolbox_system.go:129
+#: internal/service/toolbox_system.go:130
 msgid "disk space is insufficient, current free %s"
 msgstr "磁盤空間不足，當前可用 %s"
 
@@ -1872,7 +1870,7 @@ msgstr "磁盤空間不足，當前可用 %s"
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr "重複提交，請等待前一個任務結束"
 
-#: internal/apps/s3fs/app.go:62
+#: internal/apps/s3fs/app.go:68
 msgid "endpoint should not contain bucket"
 msgstr "端點不應包含 bucket"
 
@@ -1895,18 +1893,18 @@ msgstr "到期時間必須大於當前時間"
 msgid "expiration time must be less than 10 years"
 msgstr "到期時間必須小於 10 年"
 
-#: internal/apps/prometheus/app.go:248
-#: internal/apps/prometheus/app.go:275
-#: internal/apps/prometheus/app.go:297
-#: internal/apps/prometheus/app.go:313
-#: internal/apps/prometheus/app.go:329
-#: internal/apps/prometheus/app.go:345
-#: internal/apps/prometheus/app.go:364
+#: internal/apps/prometheus/app.go:255
+#: internal/apps/prometheus/app.go:282
+#: internal/apps/prometheus/app.go:304
+#: internal/apps/prometheus/app.go:320
+#: internal/apps/prometheus/app.go:336
+#: internal/apps/prometheus/app.go:352
+#: internal/apps/prometheus/app.go:371
 msgid "exporter %s does not exist"
 msgstr "exporter %s 不存在"
 
-#: internal/apps/prometheus/app.go:351
-#: internal/apps/prometheus/app.go:370
+#: internal/apps/prometheus/app.go:358
+#: internal/apps/prometheus/app.go:377
 msgid "exporter %s has no configuration file"
 msgstr "exporter %s 沒有設定檔"
 
@@ -1927,9 +1925,13 @@ msgstr "失敗"
 msgid "failed to check ssh connection: %v"
 msgstr "檢查 ssh 連接失敗：%v"
 
-#: internal/data/backup.go:862
+#: internal/data/backup.go:863
 msgid "failed to clean temporary files: %v"
 msgstr "清理臨時文件失敗：%v"
+
+#: internal/service/systemctl.go:153
+msgid "failed to clear log for %s service: %v"
+msgstr "無法清除 %s 服務的日誌：%v"
 
 #: internal/service/toolbox_migration.go:186
 msgid "failed to connect remote server: %v"
@@ -1959,7 +1961,7 @@ msgstr "創建 docker 客戶端失敗：%v"
 msgid "failed to create logical volume: %v"
 msgstr "創建邏輯卷失敗：%v"
 
-#: internal/apps/s3fs/app.go:69
+#: internal/apps/s3fs/app.go:75
 msgid "failed to create mount path: %v"
 msgstr "創建掛載路徑失敗：%v"
 
@@ -1971,7 +1973,7 @@ msgstr "創建掛載點失敗：%v"
 msgid "failed to create partition: %v"
 msgstr "創建分區失敗：%v"
 
-#: internal/apps/s3fs/app.go:94
+#: internal/apps/s3fs/app.go:98
 msgid "failed to create passwd file: %v"
 msgstr "創建 passwd 文件失敗：%v"
 
@@ -1979,7 +1981,7 @@ msgstr "創建 passwd 文件失敗：%v"
 msgid "failed to create physical volume: %v"
 msgstr "創建物理卷失敗：%v"
 
-#: internal/data/project.go:113
+#: internal/data/project.go:112
 msgid "failed to create project directory"
 msgstr "建立項目目錄失敗"
 
@@ -1995,15 +1997,15 @@ msgstr "創建 webhook 目錄失敗：%v"
 msgid "failed to delete fstab entry: %v"
 msgstr "刪除 fstab 條目失敗：%v"
 
-#: internal/apps/nginx/stream.go:119
+#: internal/apps/nginx/stream.go:120
 msgid "failed to delete stream server config: %v"
 msgstr "刪除 Stream 伺服器配置失敗：%v"
 
-#: internal/apps/nginx/stream.go:230
+#: internal/apps/nginx/stream.go:231
 msgid "failed to delete stream upstream config: %v"
 msgstr "刪除 Stream 上游配置失敗：%v"
 
-#: internal/data/project.go:170
+#: internal/data/project.go:169
 msgid "failed to delete systemd config"
 msgstr "刪除 systemd 配置失敗"
 
@@ -2032,11 +2034,11 @@ msgstr "格式化分區失敗：%v"
 msgid "failed to generate SSH key: %v"
 msgstr "生成 SSH 密鑰失敗：%v"
 
-#: internal/data/setting.go:322
+#: internal/data/setting.go:330
 msgid "failed to generate self-signed certificate: %v"
 msgstr "生成自簽名證書失敗：%v"
 
-#: internal/data/project.go:118
+#: internal/data/project.go:117
 msgid "failed to generate systemd config"
 msgstr "生成 systemd 配置失敗"
 
@@ -2048,7 +2050,7 @@ msgstr "無法獲取 %s 服務啟用狀態：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "無法獲取 %s 服務運行狀態：%v"
 
-#: internal/apps/clickhouse/app.go:199
+#: internal/apps/clickhouse/app.go:204
 msgid "failed to get ClickHouse default password: %v"
 msgstr "取得 ClickHouse 預設密碼失敗：%v"
 
@@ -2060,39 +2062,39 @@ msgstr "無法獲取 Google EAB：%s"
 msgid "failed to get Google EAB: %v"
 msgstr "無法獲取 Google EAB：%v"
 
-#: internal/apps/memcached/app.go:40
+#: internal/apps/memcached/app.go:45
 msgid "failed to get Memcached status: %v"
 msgstr "獲取 Memcached 狀態失敗：%v"
 
-#: internal/apps/mongodb/app.go:194
+#: internal/apps/mongodb/app.go:199
 msgid "failed to get MongoDB admin password: %v"
 msgstr "取得 MongoDB 管理員密碼失敗：%v"
 
-#: internal/apps/mysql/app.go:104
+#: internal/apps/mysql/app.go:107
 msgid "failed to get MySQL status: %v"
 msgstr "獲取 MySQL 狀態失敗：%v"
 
-#: internal/service/toolbox_system.go:264
+#: internal/service/toolbox_system.go:259
 msgid "failed to get NTP configuration: %v"
 msgstr "獲取 NTP 配置失敗：%v"
 
-#: internal/apps/postgresql/app.go:143
+#: internal/apps/postgresql/app.go:147
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "無法獲取 PostgreSQL 後端 pid：%v"
 
-#: internal/apps/postgresql/app.go:153
+#: internal/apps/postgresql/app.go:157
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "無法獲取 PostgreSQL 連接：%v"
 
-#: internal/apps/postgresql/app.go:158
+#: internal/apps/postgresql/app.go:162
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "無法獲取 PostgreSQL 數據庫大小：%v"
 
-#: internal/apps/postgresql/app.go:148
+#: internal/apps/postgresql/app.go:152
 msgid "failed to get PostgreSQL process: %v"
 msgstr "無法獲取 PostgreSQL 進程：%v"
 
-#: internal/apps/postgresql/app.go:138
+#: internal/apps/postgresql/app.go:142
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 
@@ -2100,7 +2102,7 @@ msgstr "無法獲取 PostgreSQL 啟動時間：%v"
 msgid "failed to get SMART info for device %s"
 msgstr "獲取裝置 %s 的 SMART 資訊失敗"
 
-#: internal/service/toolbox_system.go:79
+#: internal/service/toolbox_system.go:80
 msgid "failed to get SWAP: %v"
 msgstr "無法獲取 SWAP：%v"
 
@@ -2112,20 +2114,20 @@ msgstr "無法獲取 ZeroSSL EAB"
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法獲取 ZeroSSL EAB：%v"
 
-#: internal/apps/apache/app.go:104
-#: internal/apps/apache/app.go:94
+#: internal/apps/apache/app.go:109
+#: internal/apps/apache/app.go:99
 msgid "failed to get apache workers: %v"
 msgstr "獲取 apache 工作進程失敗：%v"
 
-#: internal/service/toolbox_system.go:181
+#: internal/service/toolbox_system.go:182
 msgid "failed to get available timezones: %v"
 msgstr "無法獲取可用時區：%v"
 
-#: internal/apps/fail2ban/app.go:268
+#: internal/apps/fail2ban/app.go:276
 msgid "failed to get banned ip list"
 msgstr "無法獲取被封禁的 ip 列表"
 
-#: internal/apps/fail2ban/app.go:258
+#: internal/apps/fail2ban/app.go:266
 msgid "failed to get current banned list"
 msgstr "無法獲取當前被禁止的列表"
 
@@ -2154,15 +2156,15 @@ msgstr "獲取資料庫使用者列表失敗：%v"
 msgid "failed to get disk list: %v"
 msgstr "獲取磁碟列表失敗：%v"
 
-#: internal/service/toolbox_system.go:125
+#: internal/service/toolbox_system.go:126
 msgid "failed to get disk space: %v"
 msgstr "無法獲取磁盤空間：%v"
 
-#: internal/apps/elasticsearch/app.go:43
+#: internal/apps/elasticsearch/app.go:48
 msgid "failed to get elasticsearch status: %v"
 msgstr "取得 elasticsearch 狀態失敗：%v"
 
-#: internal/service/file.go:341
+#: internal/service/file.go:358
 msgid "failed to get file system info"
 msgstr "獲取檔案系統信息失敗"
 
@@ -2170,11 +2172,11 @@ msgstr "獲取檔案系統信息失敗"
 msgid "failed to get filesystem type: %v"
 msgstr "獲取檔案系統類型失敗：%v"
 
-#: internal/apps/grafana/app.go:46
+#: internal/apps/grafana/app.go:52
 msgid "failed to get grafana status: %v"
 msgstr "取得 grafana 狀態失敗：%v"
 
-#: internal/service/home.go:83
+#: internal/service/home.go:84
 msgid "failed to get home apps: %v"
 msgstr "無法獲取主頁應用：%v"
 
@@ -2182,23 +2184,22 @@ msgstr "無法獲取主頁應用：%v"
 msgid "failed to get index template file: %v"
 msgstr "獲取首頁模板文件失敗：%v"
 
-#: internal/apps/kafka/app.go:38
+#: internal/apps/kafka/app.go:43
 msgid "failed to get kafka status: %v"
 msgstr "取得 kafka 狀態失敗：%v"
 
-#: internal/apps/supervisor/app.go:218
-#: internal/apps/supervisor/app.go:241
-#: internal/apps/supervisor/app.go:358
-#: internal/apps/supervisor/app.go:368
+#: internal/apps/supervisor/app.go:217
+#: internal/apps/supervisor/app.go:343
+#: internal/apps/supervisor/app.go:353
 msgid "failed to get log path for process %s: %v"
 msgstr "無法獲取進程 %s 的日誌路徑：%v"
 
-#: internal/apps/nginx/app.go:111
-#: internal/apps/nginx/app.go:121
+#: internal/apps/nginx/app.go:116
+#: internal/apps/nginx/app.go:126
 msgid "failed to get nginx workers: %v"
 msgstr "無法獲取 nginx 工作進程：%v"
 
-#: internal/apps/opensearch/app.go:43
+#: internal/apps/opensearch/app.go:48
 msgid "failed to get opensearch status: %v"
 msgstr "取得 opensearch 狀態失敗：%v"
 
@@ -2210,7 +2211,7 @@ msgstr "獲取分區 UUID 失敗：%v"
 msgid "failed to get partitions: %v"
 msgstr "獲取分區失敗：%v"
 
-#: internal/apps/pureftpd/app.go:147
+#: internal/apps/pureftpd/app.go:152
 msgid "failed to get port: %v"
 msgstr "無法獲取端口：%v"
 
@@ -2234,15 +2235,15 @@ msgstr "獲取項目詳情失敗：%v"
 msgid "failed to get project list: %v"
 msgstr "獲取項目列表失敗：%v"
 
-#: internal/apps/prometheus/app.go:58
+#: internal/apps/prometheus/app.go:65
 msgid "failed to get prometheus status: %v"
 msgstr "取得 prometheus 狀態失敗：%v"
 
-#: internal/apps/redis/app.go:67
+#: internal/apps/redis/app.go:73
 msgid "failed to get redis info: %v"
 msgstr "無法獲取 redis 信息：%v"
 
-#: internal/apps/redis/app.go:44
+#: internal/apps/redis/app.go:50
 msgid "failed to get redis status: %v"
 msgstr "無法獲取 redis 狀態：%v"
 
@@ -2250,51 +2251,51 @@ msgstr "無法獲取 redis 狀態：%v"
 msgid "failed to get remote database servers: %v"
 msgstr "獲取遠端資料庫伺服器失敗：%v"
 
-#: internal/apps/s3fs/app.go:127
-#: internal/apps/s3fs/app.go:40
-#: internal/apps/s3fs/app.go:80
+#: internal/apps/s3fs/app.go:131
+#: internal/apps/s3fs/app.go:46
+#: internal/apps/s3fs/app.go:86
 msgid "failed to get s3fs list: %v"
 msgstr "無法獲取 s3fs 列表：%v"
 
-#: internal/service/home.go:103
+#: internal/service/home.go:104
 msgid "failed to get system info: %v"
 msgstr "無法獲取系統信息：%v"
 
-#: internal/service/home.go:398
+#: internal/service/home.go:379
 msgid "failed to get the latest version download link"
 msgstr "無法獲取最新版本下載鏈接"
 
-#: internal/service/home.go:314
-#: internal/service/home.go:350
-#: internal/service/home.go:392
+#: internal/service/home.go:295
+#: internal/service/home.go:331
+#: internal/service/home.go:373
 msgid "failed to get the latest version: %v"
 msgstr "無法獲取最新版本：%v"
 
-#: internal/apps/rsync/app.go:82
+#: internal/apps/rsync/app.go:88
 msgid "failed to get the secret key for module %s"
 msgstr "無法獲取模組 %s 的密鑰"
 
-#: internal/service/home.go:371
+#: internal/service/home.go:352
 msgid "failed to get the update information: %v"
 msgstr "無法獲取更新信息：%v"
 
-#: internal/service/toolbox_system.go:170
+#: internal/service/toolbox_system.go:171
 msgid "failed to get timezone: %v"
 msgstr "無法獲取時區：%v"
 
-#: internal/apps/fail2ban/app.go:263
+#: internal/apps/fail2ban/app.go:271
 msgid "failed to get total banned list"
 msgstr "無法獲取全部被禁止的列表"
 
-#: internal/data/app.go:270
+#: internal/data/app.go:265
 msgid "failed to get uninstall script for app %s"
 msgstr "無法取得應用程式 %s 的解除安裝腳本"
 
-#: internal/apps/valkey/app.go:67
+#: internal/apps/valkey/app.go:73
 msgid "failed to get valkey info: %v"
 msgstr "取得 valkey 資訊失敗：%v"
 
-#: internal/apps/valkey/app.go:44
+#: internal/apps/valkey/app.go:50
 msgid "failed to get valkey status: %v"
 msgstr "取得 valkey 狀態失敗：%v"
 
@@ -2306,20 +2307,20 @@ msgstr "獲取網站詳情失敗：%v"
 msgid "failed to get website list: %v"
 msgstr "獲取網站列表失敗：%v"
 
-#: internal/apps/nginx/stream.go:24
+#: internal/apps/nginx/stream.go:25
 msgid "failed to list stream servers: %v"
 msgstr "列出 Stream 伺服器失敗：%v"
 
-#: internal/apps/nginx/stream.go:135
+#: internal/apps/nginx/stream.go:136
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失敗：%v"
 
-#: internal/apps/mysql/app.go:226
-#: internal/apps/mysql/app.go:94
+#: internal/apps/mysql/app.go:209
+#: internal/apps/mysql/app.go:97
 msgid "failed to load MySQL root password: %v"
 msgstr "無法載入 MySQL root 密碼：%v"
 
-#: internal/apps/postgresql/app.go:127
+#: internal/apps/postgresql/app.go:131
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "無法載入 PostgreSQL postgres 密碼：%v"
 
@@ -2332,10 +2333,10 @@ msgid "failed to parse SMART info: %v"
 msgstr "解析 SMART 資訊失敗：%v"
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:340
-#: internal/data/setting.go:414
+#: internal/data/setting.go:348
+#: internal/data/setting.go:422
 #: internal/data/website.go:616
-#: internal/data/website.go:967
+#: internal/data/website.go:957
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -2344,10 +2345,10 @@ msgid "failed to parse disk list: %v"
 msgstr "無法解析磁碟列表：%v"
 
 #: internal/data/cert.go:106
-#: internal/data/setting.go:343
-#: internal/data/setting.go:417
+#: internal/data/setting.go:351
+#: internal/data/setting.go:425
 #: internal/data/website.go:619
-#: internal/data/website.go:970
+#: internal/data/website.go:960
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -2355,19 +2356,19 @@ msgstr "解析私鑰失敗：%v"
 msgid "failed to parse smartctl output: %v"
 msgstr "解析 smartctl 輸出失敗：%v"
 
-#: internal/data/project.go:210
+#: internal/data/project.go:209
 msgid "failed to parse systemd config"
 msgstr "解析 systemd 配置失敗"
 
-#: internal/apps/fail2ban/app.go:327
-#: internal/apps/fail2ban/app.go:355
+#: internal/apps/fail2ban/app.go:332
+#: internal/apps/fail2ban/app.go:360
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr "無法解析 fail2ban 的 ignoreip"
 
-#: internal/service/home.go:320
-#: internal/service/home.go:325
-#: internal/service/home.go:356
-#: internal/service/home.go:361
+#: internal/service/home.go:301
+#: internal/service/home.go:306
+#: internal/service/home.go:337
+#: internal/service/home.go:342
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
@@ -2384,7 +2385,7 @@ msgstr "讀取命令輸出失敗：%v"
 msgid "failed to read command: %v"
 msgstr "讀取命令失敗：%v"
 
-#: internal/apps/memcached/app.go:80
+#: internal/apps/memcached/app.go:85
 msgid "failed to read from Memcached: %v"
 msgstr "從 Memcached 讀取失敗：%v"
 
@@ -2414,26 +2415,26 @@ msgstr "註冊帳戶失敗：%v"
 msgid "failed to reload %s service: %v"
 msgstr "重新載入 %s 服務失敗：%v"
 
-#: internal/apps/postgresql/app.go:110
+#: internal/apps/postgresql/app.go:114
 #: internal/apps/postgresql/app.go:328
-#: internal/apps/postgresql/app.go:77
+#: internal/apps/postgresql/app.go:81
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重新載入 PostgreSQL 失敗：%v"
 
-#: internal/apps/apache/app.go:63
+#: internal/apps/apache/app.go:68
 msgid "failed to reload apache: %v"
 msgstr "重載 apache 失敗：%v"
 
-#: internal/apps/nginx/app.go:266
-#: internal/apps/nginx/app.go:77
-#: internal/apps/nginx/stream.go:124
-#: internal/apps/nginx/stream.go:162
-#: internal/apps/nginx/stream.go:208
-#: internal/apps/nginx/stream.go:235
-#: internal/apps/nginx/stream.go:51
-#: internal/apps/nginx/stream.go:97
-#: internal/apps/phpmyadmin/app.go:108
-#: internal/apps/phpmyadmin/app.go:139
+#: internal/apps/nginx/app.go:271
+#: internal/apps/nginx/app.go:82
+#: internal/apps/nginx/stream.go:125
+#: internal/apps/nginx/stream.go:163
+#: internal/apps/nginx/stream.go:209
+#: internal/apps/nginx/stream.go:236
+#: internal/apps/nginx/stream.go:52
+#: internal/apps/nginx/stream.go:98
+#: internal/apps/phpmyadmin/app.go:113
+#: internal/apps/phpmyadmin/app.go:144
 msgid "failed to reload nginx: %v"
 msgstr "重新載入 nginx 失敗：%v"
 
@@ -2453,7 +2454,7 @@ msgstr "刪除物理卷失敗：%v"
 msgid "failed to remove volume group: %v"
 msgstr "刪除卷組失敗：%v"
 
-#: internal/data/project.go:144
+#: internal/data/project.go:143
 msgid "failed to rename systemd config"
 msgstr "重命名 systemd 配置失敗"
 
@@ -2467,11 +2468,11 @@ msgstr "調整檔案系統大小失敗：%v"
 msgid "failed to restart %s service: %v"
 msgstr "重新啟動 %s 服務失敗：%v"
 
-#: internal/apps/supervisor/app.go:108
+#: internal/apps/supervisor/app.go:102
 msgid "failed to restart %s: %v"
 msgstr "重新啟動 %s 失敗：%v"
 
-#: internal/apps/mysql/app.go:77
+#: internal/apps/mysql/app.go:80
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
@@ -2479,11 +2480,11 @@ msgstr "重新啟動 MySQL 失敗：%v"
 msgid "failed to run command: %v"
 msgstr "運行命令失敗：%v"
 
-#: internal/apps/clickhouse/app.go:249
+#: internal/apps/clickhouse/app.go:254
 msgid "failed to save ClickHouse default password: %v"
 msgstr "儲存 ClickHouse 預設密碼失敗：%v"
 
-#: internal/apps/mongodb/app.go:227
+#: internal/apps/mongodb/app.go:232
 msgid "failed to save MongoDB admin password: %v"
 msgstr "儲存 MongoDB 管理員密碼失敗：%v"
 
@@ -2491,31 +2492,31 @@ msgstr "儲存 MongoDB 管理員密碼失敗：%v"
 msgid "failed to select database: %v"
 msgstr "選擇資料庫失敗：%v"
 
-#: internal/apps/mysql/app.go:99
+#: internal/apps/mysql/app.go:102
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr "設置 MYSQL_PWD 環境變數失敗：%v"
 
-#: internal/apps/mongodb/app.go:221
+#: internal/apps/mongodb/app.go:226
 msgid "failed to set MongoDB admin password: %v"
 msgstr "設定 MongoDB 管理員密碼失敗：%v"
 
-#: internal/service/toolbox_system.go:285
+#: internal/service/toolbox_system.go:280
 msgid "failed to set NTP servers: %v"
 msgstr "設置 NTP 伺服器失敗：%v"
 
-#: internal/apps/postgresql/app.go:132
+#: internal/apps/postgresql/app.go:136
 msgid "failed to set PGPASSWORD env: %v"
 msgstr "設置 PGPASSWORD 環境變數失敗：%v"
 
-#: internal/service/toolbox_system.go:149
+#: internal/service/toolbox_system.go:150
 msgid "failed to set SWAP permission: %v"
 msgstr "設置 SWAP 權限失敗： %v"
 
-#: internal/service/toolbox_system.go:312
+#: internal/service/toolbox_system.go:307
 msgid "failed to set hostname: %v"
 msgstr "設置主機名失敗： %v"
 
-#: internal/service/toolbox_system.go:335
+#: internal/service/toolbox_system.go:330
 msgid "failed to set hosts: %v"
 msgstr "設置 hosts 失敗： %v"
 
@@ -2541,19 +2542,19 @@ msgstr "停止 %s 服務失敗：%v"
 msgid "failed to umount partition: %v"
 msgstr "卸載分區失敗：%v"
 
-#: internal/apps/s3fs/app.go:147
+#: internal/apps/s3fs/app.go:145
 msgid "failed to unmount: %v"
 msgstr "卸載失敗：%v"
 
-#: internal/apps/mysql/app.go:108
+#: internal/apps/mysql/app.go:111
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr "取消設置 MYSQL_PWD 環境變量失敗：%v"
 
-#: internal/apps/postgresql/app.go:163
+#: internal/apps/postgresql/app.go:167
 msgid "failed to unset PGPASSWORD env: %v"
 msgstr "取消設置 PGPASSWORD 環境變量失敗：%v"
 
-#: internal/service/toolbox_system.go:58
+#: internal/service/toolbox_system.go:59
 msgid "failed to update DNS: %v"
 msgstr "更新 DNS 失敗： %v"
 
@@ -2585,7 +2586,7 @@ msgstr "更新 root 密碼失敗：%v"
 msgid "failed to wipe disk: %v"
 msgstr "擦除磁碟失敗：%v"
 
-#: internal/apps/clickhouse/app.go:237
+#: internal/apps/clickhouse/app.go:242
 msgid "failed to write ClickHouse user config: %v"
 msgstr "寫入 ClickHouse 使用者設定失敗：%v"
 
@@ -2593,17 +2594,17 @@ msgstr "寫入 ClickHouse 使用者設定失敗：%v"
 msgid "failed to write fstab: %v"
 msgstr "寫入 fstab 失敗：%v"
 
-#: internal/apps/nginx/stream.go:45
-#: internal/apps/nginx/stream.go:88
+#: internal/apps/nginx/stream.go:46
+#: internal/apps/nginx/stream.go:89
 msgid "failed to write stream server config: %v"
 msgstr "寫入 Stream 伺服器配置失敗：%v"
 
-#: internal/apps/nginx/stream.go:156
-#: internal/apps/nginx/stream.go:199
+#: internal/apps/nginx/stream.go:157
+#: internal/apps/nginx/stream.go:200
 msgid "failed to write stream upstream config: %v"
 msgstr "寫入 Stream 上游配置失敗：%v"
 
-#: internal/apps/memcached/app.go:59
+#: internal/apps/memcached/app.go:64
 msgid "failed to write to Memcached: %v"
 msgstr "寫入 Memcached 失敗： %v"
 
@@ -2612,19 +2613,19 @@ msgstr "寫入 Memcached 失敗： %v"
 msgid "failed to write webhook script: %v"
 msgstr "寫入 Web 掛鉤腳本失敗：%v"
 
-#: internal/service/file.go:88
+#: internal/service/file.go:89
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
-#: internal/service/environment_php.go:536
+#: internal/service/environment_php.go:499
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 
-#: internal/apps/fail2ban/app.go:184
+#: internal/apps/fail2ban/app.go:192
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/service/file.go:644
+#: internal/service/file.go:660
 msgid "get upload file error: %v"
 msgstr "獲取上傳文件錯誤：%v"
 
@@ -2690,7 +2691,7 @@ msgstr "無效的簽名"
 msgid "invalid size"
 msgstr "無效的大小"
 
-#: internal/service/home.go:453
+#: internal/service/home.go:434
 msgid "invalid type"
 msgstr "無效的類型"
 
@@ -2698,7 +2699,7 @@ msgstr "無效的類型"
 msgid "invalid user id, please login again"
 msgstr "無效的用戶ID，請重新登錄"
 
-#: internal/service/environment_php.go:586
+#: internal/service/environment_php.go:549
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache 之後安裝）"
 
@@ -2710,11 +2711,11 @@ msgstr "簽發證書，域名：%s"
 msgid "journalctl is not available"
 msgstr "journalctl 不可用"
 
-#: internal/data/backup.go:272
+#: internal/data/backup.go:273
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1122
+#: internal/data/website.go:1112
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -2727,30 +2728,30 @@ msgstr "遷移正在執行中"
 msgid "migration is running, cannot reset"
 msgstr "遷移正在執行中，無法重置"
 
-#: internal/apps/rsync/app.go:117
+#: internal/apps/rsync/app.go:123
 msgid "module %s already exists"
 msgstr "模組 %s 已存在"
 
-#: internal/apps/rsync/app.go:162
-#: internal/apps/rsync/app.go:204
-#: internal/service/environment_php.go:335
-#: internal/service/environment_php.go:369
+#: internal/apps/rsync/app.go:168
+#: internal/apps/rsync/app.go:210
+#: internal/service/environment_php.go:298
+#: internal/service/environment_php.go:332
 msgid "module %s does not exist"
 msgstr "模組 %s 不存在"
 
-#: internal/apps/s3fs/app.go:110
+#: internal/apps/s3fs/app.go:114
 msgid "mount failed: %v"
 msgstr "掛載失敗： %v"
 
-#: internal/apps/s3fs/app.go:139
+#: internal/apps/s3fs/app.go:137
 msgid "mount not found"
 msgstr "找不到掛載"
 
-#: internal/apps/s3fs/app.go:86
+#: internal/apps/s3fs/app.go:91
 msgid "mount path already exists"
 msgstr "掛載路徑已存在"
 
-#: internal/apps/s3fs/app.go:74
+#: internal/apps/s3fs/app.go:80
 msgid "mount path is not empty"
 msgstr "掛載路徑不為空"
 
@@ -2758,10 +2759,10 @@ msgstr "掛載路徑不為空"
 msgid "mount point %s already exists in fstab"
 msgstr "掛載點 %s 已存在於 fstab 中"
 
-#: internal/apps/nginx/stream.go:108
-#: internal/apps/nginx/stream.go:173
-#: internal/apps/nginx/stream.go:219
-#: internal/apps/nginx/stream.go:62
+#: internal/apps/nginx/stream.go:109
+#: internal/apps/nginx/stream.go:174
+#: internal/apps/nginx/stream.go:220
+#: internal/apps/nginx/stream.go:63
 msgid "name is required"
 msgstr "名稱是必填項"
 
@@ -2787,11 +2788,11 @@ msgstr "暫無遷移日誌"
 msgid "obtaining and saving certificate"
 msgstr "獲取並保存證書"
 
-#: internal/service/file.go:184
+#: internal/service/file.go:201
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:650
+#: internal/service/file.go:666
 msgid "open upload file error: %v"
 msgstr "打開上傳文件錯誤：%v"
 
@@ -2823,36 +2824,36 @@ msgstr "通行金鑰登入失敗：%v"
 msgid "passkey registration failed: %v"
 msgstr "通行金鑰註冊失敗：%v"
 
-#: internal/data/backup.go:632
+#: internal/data/backup.go:633
 msgid "path does not exist: %s"
 msgstr "路徑不存在：%s"
 
-#: internal/data/backup.go:635
+#: internal/data/backup.go:636
 msgid "path is not a directory: %s"
 msgstr "路徑不是目錄：%s"
 
-#: internal/service/file.go:637
+#: internal/service/file.go:653
 msgid "path, file_name and file_hash are required"
 msgstr "path，file_name 和 file_hash 是必需的"
 
-#: internal/service/environment_php.go:441
+#: internal/service/environment_php.go:404
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pdo_pgsql 是一個用於連接 PostgreSQL 的 PDO 驅動程序（需先安裝 PostgreSQL）"
 
-#: internal/service/environment_php.go:451
+#: internal/service/environment_php.go:414
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr "pdo_sqlsrv 是一個用於連接 SQL Server 的 PDO 驅動程序"
 
-#: internal/service/environment_php.go:436
+#: internal/service/environment_php.go:399
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pgsql 是一個用於連接 PostgreSQL 的驅動程序（需先安裝 PostgreSQL）"
 
-#: internal/apps/phpmyadmin/app.go:43
-#: internal/apps/phpmyadmin/app.go:54
+#: internal/apps/phpmyadmin/app.go:48
+#: internal/apps/phpmyadmin/app.go:59
 msgid "phpMyAdmin directory not found"
 msgstr "未找到 phpMyAdmin 目錄"
 
-#: internal/apps/phpmyadmin/app.go:65
+#: internal/apps/phpmyadmin/app.go:70
 msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 端口"
 
@@ -2861,9 +2862,9 @@ msgid "please complete pre-check first"
 msgstr "請先完成預檢"
 
 #: internal/data/user.go:134
-#: internal/service/file.go:139
-#: internal/service/file.go:237
-#: internal/service/file.go:271
+#: internal/service/file.go:156
+#: internal/service/file.go:254
+#: internal/service/file.go:288
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -2871,7 +2872,7 @@ msgstr "請不要這樣做"
 msgid "please set public ips first"
 msgstr "請先設置公網 IP 地址"
 
-#: internal/data/setting.go:361
+#: internal/data/setting.go:369
 msgid "port is already in use"
 msgstr "端口已被佔用"
 
@@ -2879,31 +2880,35 @@ msgstr "端口已被佔用"
 msgid "preparing renewal"
 msgstr "準備續簽"
 
+#: internal/apps/supervisor/app.go:309
+msgid "process %s already exists"
+msgstr "處理 %s 已存在"
+
 #: internal/service/toolbox_migration.go:755
 msgid "project migration completed"
 msgstr "項目遷移完成"
 
-#: internal/data/project.go:96
+#: internal/data/project.go:95
 msgid "project name already exists"
 msgstr "項目名已存在"
 
-#: internal/service/environment_php.go:541
+#: internal/service/environment_php.go:504
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr "protobuf 是一個用於序列化和反序列化數據的庫"
 
-#: internal/service/environment_php.go:546
+#: internal/service/environment_php.go:509
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
-#: internal/service/file.go:727
+#: internal/service/file.go:743
 msgid "read chunk %d error: %v"
 msgstr "讀取分塊 %d 錯誤：%v"
 
-#: internal/service/file.go:658
+#: internal/service/file.go:674
 msgid "read chunk data error: %v"
 msgstr "讀取分塊數據錯誤：%v"
 
-#: internal/service/file.go:599
+#: internal/service/file.go:615
 msgid "read directory error: %v"
 msgstr "讀取目錄錯誤：%v"
 
@@ -2919,11 +2924,11 @@ msgstr "續簽失敗，嘗試重新簽發"
 msgid "renewing certificate, domains: %s"
 msgstr "續簽證書，域名：%s"
 
-#: internal/apps/fail2ban/app.go:109
+#: internal/apps/fail2ban/app.go:117
 msgid "rule already exists"
 msgstr "規則已存在"
 
-#: internal/apps/fail2ban/app.go:228
+#: internal/apps/fail2ban/app.go:236
 msgid "rule not found"
 msgstr "找不到規則"
 
@@ -2939,7 +2944,7 @@ msgstr "運行目錄不存在"
 msgid "s3 configuration error: %v"
 msgstr "S3 配置錯誤：%v"
 
-#: internal/service/file.go:677
+#: internal/service/file.go:693
 msgid "save chunk error: %v"
 msgstr "保存分塊錯誤：%v"
 
@@ -2980,7 +2985,7 @@ msgstr "未安裝 smartmontools，請先安裝它（例如：apt install smartmo
 msgid "sqlite does not support dropping tables from here"
 msgstr "sqlite 不支援從此處刪除表"
 
-#: internal/service/environment_php.go:446
+#: internal/service/environment_php.go:409
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一個用於連接 SQL Server 的驅動程序"
 
@@ -3007,23 +3012,23 @@ msgstr "正在停止網站"
 msgid "storage connection error: %v"
 msgstr "存儲連接錯誤：%v"
 
-#: internal/apps/nginx/stream.go:40
-#: internal/apps/nginx/stream.go:82
+#: internal/apps/nginx/stream.go:41
+#: internal/apps/nginx/stream.go:83
 msgid "stream server config already exists: %s"
 msgstr "Stream 伺服器配置已存在：%s"
 
-#: internal/apps/nginx/stream.go:114
-#: internal/apps/nginx/stream.go:74
+#: internal/apps/nginx/stream.go:115
+#: internal/apps/nginx/stream.go:75
 msgid "stream server not found: %s"
 msgstr "未找到 Stream 伺服器：%s"
 
-#: internal/apps/nginx/stream.go:151
-#: internal/apps/nginx/stream.go:193
+#: internal/apps/nginx/stream.go:152
+#: internal/apps/nginx/stream.go:194
 msgid "stream upstream config already exists: %s"
 msgstr "Stream 上游配置已存在：%s"
 
-#: internal/apps/nginx/stream.go:185
-#: internal/apps/nginx/stream.go:225
+#: internal/apps/nginx/stream.go:186
+#: internal/apps/nginx/stream.go:226
 msgid "stream upstream not found: %s"
 msgstr "未找到 Stream 上游：%s"
 
@@ -3037,13 +3042,13 @@ msgstr "從伺服器 %s 同步"
 msgid "target backup %s already exists"
 msgstr "目標備份 %s 已存在"
 
-#: internal/service/file.go:84
+#: internal/service/file.go:85
 msgid "target is a directory"
 msgstr "目標是一個目錄"
 
-#: internal/service/file.go:165
-#: internal/service/file.go:583
-#: internal/service/file.go:698
+#: internal/service/file.go:182
+#: internal/service/file.go:599
+#: internal/service/file.go:714
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -3051,7 +3056,7 @@ msgstr "目標路徑 %s 已存在"
 msgid "template %s not found"
 msgstr "模板 %s 未找到"
 
-#: internal/service/home.go:365
+#: internal/service/home.go:346
 msgid "the current version is the latest version"
 msgstr "當前版本是最新版本"
 
@@ -3076,12 +3081,12 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 msgid "token expired"
 msgstr "令牌已過期"
 
-#: internal/service/home.go:306
-#: internal/service/home.go:342
+#: internal/service/home.go:287
+#: internal/service/home.go:323
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/home.go:380
+#: internal/service/home.go:361
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
 
@@ -3089,8 +3094,8 @@ msgstr "離線模式下無法更新"
 msgid "unknown"
 msgstr "未知"
 
-#: internal/data/backup.go:132
-#: internal/data/backup.go:240
+#: internal/data/backup.go:133
+#: internal/data/backup.go:241
 msgid "unknown backup type"
 msgstr "未知備份類型"
 
@@ -3099,11 +3104,11 @@ msgstr "未知備份類型"
 msgid "unknown log type"
 msgstr "未知日誌類型"
 
-#: internal/apps/fail2ban/app.go:180
+#: internal/apps/fail2ban/app.go:188
 msgid "unknown service"
 msgstr "未知服務"
 
-#: internal/data/backup.go:467
+#: internal/data/backup.go:468
 msgid "unknown storage type"
 msgstr "未知存儲類型"
 
@@ -3133,13 +3138,13 @@ msgstr "不支援的檔案系統類型：%s"
 msgid "unsupported system"
 msgstr "不支援的系統"
 
-#: internal/data/website.go:1224
-#: internal/data/website.go:1278
+#: internal/data/website.go:1214
+#: internal/data/website.go:1268
 msgid "unsupported web server: %s"
 msgstr "不支援的 Web 伺服器：%s"
 
 #: internal/data/cert.go:532
-#: internal/data/website.go:1190
+#: internal/data/website.go:1180
 msgid "unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
@@ -3152,7 +3157,7 @@ msgstr "上傳的證書無法設置為自動續簽"
 msgid "upload failed: %v"
 msgstr "上傳失敗：%v"
 
-#: internal/service/file.go:161
+#: internal/service/file.go:178
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
@@ -3240,15 +3245,15 @@ msgstr "網站遷移完成"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/data/website.go:1000
+#: internal/data/website.go:990
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
-#: internal/service/file.go:733
+#: internal/service/file.go:749
 msgid "write chunk %d error: %v"
 msgstr "寫入分塊 %d 錯誤：%v"
 
-#: internal/service/file.go:189
+#: internal/service/file.go:206
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
@@ -3256,7 +3261,7 @@ msgstr "寫入檔案錯誤：%v"
 msgid "ws not allowed"
 msgstr "不允許 ws"
 
-#: internal/service/environment_php.go:556
+#: internal/service/environment_php.go:519
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr "xdebug 是一個用於調試和分析 PHP 代碼的庫"
 
@@ -3264,57 +3269,57 @@ msgstr "xdebug 是一個用於調試和分析 PHP 代碼的庫"
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "xfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/environment_php.go:551
+#: internal/service/environment_php.go:514
 msgid "xhprof is a library for performance profiling"
 msgstr "xhprof 是一個用於性能分析的庫"
 
-#: internal/service/environment_php.go:561
+#: internal/service/environment_php.go:524
 msgid "yaml is a library for handling YAML"
 msgstr "yaml 是一個用於處理 YAML 的庫"
 
-#: internal/service/environment_php.go:566
+#: internal/service/environment_php.go:529
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個壓縮和解壓文件的庫"
 
-#: internal/data/backup.go:893
+#: internal/data/backup.go:894
 msgid "|-Backup file used: %s"
 msgstr "|-使用的備份檔案：%s"
 
-#: internal/data/backup.go:198
-#: internal/data/backup.go:507
-#: internal/data/backup.go:565
-#: internal/data/backup.go:623
-#: internal/data/backup.go:667
+#: internal/data/backup.go:199
+#: internal/data/backup.go:508
+#: internal/data/backup.go:566
+#: internal/data/backup.go:624
+#: internal/data/backup.go:668
 msgid "|-Backup file: %s"
 msgstr "|-備份文件：%s"
 
-#: internal/data/backup.go:1031
+#: internal/data/backup.go:1032
 msgid "|-Backup panel data failed, missing file"
 msgstr "|-備份面板數據失敗，缺少檔案"
 
-#: internal/data/backup.go:1025
-#: internal/data/backup.go:1028
+#: internal/data/backup.go:1026
+#: internal/data/backup.go:1029
 msgid "|-Backup panel data failed: %v"
 msgstr "|-備份面板數據失敗：%v"
 
-#: internal/data/backup.go:1021
+#: internal/data/backup.go:1022
 msgid "|-Backup panel data..."
 msgstr "|-備份面板數據……"
 
-#: internal/data/backup.go:118
+#: internal/data/backup.go:119
 msgid "|-Backup storage: %s"
 msgstr "|-備份存儲：%s"
 
-#: internal/data/backup.go:119
+#: internal/data/backup.go:120
 msgid "|-Backup target: %s"
 msgstr "|-備份目標：%s"
 
-#: internal/data/backup.go:136
-#: internal/data/backup.go:197
+#: internal/data/backup.go:137
+#: internal/data/backup.go:198
 msgid "|-Backup time: %s"
 msgstr "|-備份時間：%s"
 
-#: internal/data/backup.go:117
+#: internal/data/backup.go:118
 msgid "|-Backup type: %s"
 msgstr "|-備份類型：%s"
 
@@ -3322,28 +3327,28 @@ msgstr "|-備份類型：%s"
 msgid "|-Backup type: panel"
 msgstr "|-備份類型：面板"
 
-#: internal/data/backup.go:1051
+#: internal/data/backup.go:1052
 msgid "|-Clean up temporary file failed: %v"
 msgstr "|-清理臨時文件失敗：%v"
 
-#: internal/data/backup.go:1013
+#: internal/data/backup.go:1014
 msgid "|-Clean up verification file failed: %v"
 msgstr "|-清理驗證文件失敗：%v"
 
-#: internal/data/backup.go:865
+#: internal/data/backup.go:866
 msgid "|-Cleaned up temporary files, please run acepanel update to update the panel"
 msgstr "|-已清理臨時文件，請運行 acepanel update 更新面板"
 
-#: internal/data/backup.go:360
-#: internal/data/backup.go:424
+#: internal/data/backup.go:361
+#: internal/data/backup.go:425
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理過期文件：%s"
 
-#: internal/data/backup.go:1038
+#: internal/data/backup.go:1039
 msgid "|-Cleaning old version failed: %v"
 msgstr "|-清理舊版本失敗：%v"
 
-#: internal/data/backup.go:1035
+#: internal/data/backup.go:1036
 msgid "|-Cleaning old version..."
 msgstr "|-清理舊版本……"
 
@@ -3357,28 +3362,28 @@ msgstr "|-清理目標：%s"
 msgid "|-Cleaning type: %s"
 msgstr "|-清理類型：%s"
 
-#: internal/data/backup.go:989
+#: internal/data/backup.go:990
 msgid "|-Download link: %s"
 msgstr "|-下載鏈接：%s"
 
-#: internal/data/backup.go:1074
+#: internal/data/backup.go:1075
 msgid "|-Download panel service file failed: %v"
 msgstr "|-下載面板服務文件失敗：%v"
 
-#: internal/data/backup.go:994
+#: internal/data/backup.go:995
 msgid "|-Downloading..."
 msgstr "|-下載中……"
 
-#: internal/data/backup.go:990
+#: internal/data/backup.go:991
 msgid "|-File name: %s"
 msgstr "|-文件名：%s"
 
-#: internal/data/backup.go:849
-#: internal/data/backup.go:970
+#: internal/data/backup.go:850
+#: internal/data/backup.go:971
 msgid "|-Fix completed"
 msgstr "|-修復完成"
 
-#: internal/data/backup.go:842
+#: internal/data/backup.go:843
 msgid "|-Found %s.db is abnormal, removed it"
 msgstr "|-發現 %s.db 異常，已刪除"
 
@@ -3387,24 +3392,24 @@ msgstr "|-發現 %s.db 異常，已刪除"
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
-#: internal/data/backup.go:1080
+#: internal/data/backup.go:1081
 msgid "|-Move acepanel tool failed: %v"
 msgstr "|-移動 acepanel 工具失敗：%v"
 
-#: internal/data/backup.go:909
+#: internal/data/backup.go:910
 msgid "|-Move backup file..."
 msgstr "|-移動備份檔案……"
 
-#: internal/data/backup.go:1061
+#: internal/data/backup.go:1062
 msgid "|-Restore panel data failed, missing file"
 msgstr "|-還原面板資料失敗，缺少檔案"
 
-#: internal/data/backup.go:1058
+#: internal/data/backup.go:1059
 msgid "|-Restore panel data failed: %v"
 msgstr "|-還原面板數據失敗：%v"
 
-#: internal/data/backup.go:1055
-#: internal/data/backup.go:927
+#: internal/data/backup.go:1056
+#: internal/data/backup.go:928
 msgid "|-Restore panel data..."
 msgstr "|-還原面板資料……"
 
@@ -3421,63 +3426,63 @@ msgstr "|-輪轉類型：container"
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
-#: internal/data/backup.go:1068
+#: internal/data/backup.go:1069
 msgid "|-Run post-update script failed: %v"
 msgstr "|-運行更新後腳本失敗：%v"
 
-#: internal/data/backup.go:1065
+#: internal/data/backup.go:1066
 msgid "|-Run post-update script..."
 msgstr "|-執行更新後腳本……"
 
-#: internal/data/backup.go:1084
-#: internal/data/backup.go:947
+#: internal/data/backup.go:1085
+#: internal/data/backup.go:948
 msgid "|-Set key file permissions..."
 msgstr "|-設定關鍵檔案權限……"
 
-#: internal/data/backup.go:798
+#: internal/data/backup.go:799
 msgid "|-Start fixing the panel..."
 msgstr "|-開始修復面板……"
 
-#: internal/data/backup.go:988
+#: internal/data/backup.go:989
 msgid "|-Target version: %s"
 msgstr "|-目標版本：%s"
 
-#: internal/data/backup.go:486
-#: internal/data/backup.go:536
-#: internal/data/backup.go:594
-#: internal/data/backup.go:646
+#: internal/data/backup.go:487
+#: internal/data/backup.go:537
+#: internal/data/backup.go:595
+#: internal/data/backup.go:647
 msgid "|-Temporary directory: %s"
 msgstr "|-臨時目錄：%s"
 
-#: internal/data/backup.go:898
+#: internal/data/backup.go:899
 msgid "|-Unzip backup file..."
 msgstr "|-解壓備份檔案……"
 
-#: internal/data/backup.go:1048
+#: internal/data/backup.go:1049
 msgid "|-Unzip new version failed, missing file"
 msgstr "|-解壓新版本失敗，缺少檔案"
 
-#: internal/data/backup.go:1045
+#: internal/data/backup.go:1046
 msgid "|-Unzip new version failed: %v"
 msgstr "|-解壓新版本失敗：%v"
 
-#: internal/data/backup.go:1042
+#: internal/data/backup.go:1043
 msgid "|-Unzip new version..."
 msgstr "|-解壓新版本……"
 
-#: internal/data/backup.go:1091
+#: internal/data/backup.go:1092
 msgid "|-Update completed"
 msgstr "|-更新完成"
 
-#: internal/data/backup.go:1007
+#: internal/data/backup.go:1008
 msgid "|-Verify download file..."
 msgstr "|-驗證下載檔案……"
 
-#: internal/data/backup.go:1077
+#: internal/data/backup.go:1078
 msgid "|-Write new panel version failed: %v"
 msgstr "|-寫入新面板版本失敗：%v"
 
-#: internal/data/backup.go:115
+#: internal/data/backup.go:116
 #: internal/service/cli.go:689
 msgid "★ Start backup [%s]"
 msgstr "★ 開始備份 [%s]"
@@ -3495,11 +3500,11 @@ msgstr "★ 開始清理已旋轉的日誌 [%s]"
 msgid "★ Start log rotation [%s]"
 msgstr "★ 開始日誌旋轉 [%s]"
 
-#: internal/data/backup.go:157
+#: internal/data/backup.go:158
 msgid "☆ Backup completed [%s]"
 msgstr "☆ 備份完成 [%s]"
 
-#: internal/data/backup.go:147
+#: internal/data/backup.go:148
 msgid "☆ Backup failed: %v [%s]"
 msgstr "☆ 備份失敗：%v [%s]"
 
