@@ -433,7 +433,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:331
+#: internal/service/file.go:436
 msgid "Download remote file %v"
 msgstr ""
 
@@ -583,7 +583,7 @@ msgstr ""
 msgid "Failed to save user info: %v"
 msgstr ""
 
-#: internal/service/ws.go:114
+#: internal/service/ws.go:177
 msgid "Failed to start command: %v"
 msgstr ""
 
@@ -1743,7 +1743,7 @@ msgstr ""
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:314
+#: internal/service/file.go:419
 msgid "can't download a directory"
 msgstr ""
 
@@ -1764,7 +1764,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:683
+#: internal/service/file.go:788
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1772,7 +1772,7 @@ msgstr ""
 msgid "client ip changed, please login again"
 msgstr ""
 
-#: internal/service/ws.go:107
+#: internal/service/ws.go:170
 msgid "command is empty"
 msgstr ""
 
@@ -1788,12 +1788,12 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr ""
 
-#: internal/service/file.go:193
-#: internal/service/file.go:606
+#: internal/service/file.go:298
+#: internal/service/file.go:711
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:726
+#: internal/service/file.go:831
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1945,7 +1945,7 @@ msgstr ""
 msgid "failed to create database user on remote: %v"
 msgstr ""
 
-#: internal/service/ws.go:231
+#: internal/service/ws.go:294
 msgid "failed to create docker client: %v"
 msgstr ""
 
@@ -2009,7 +2009,7 @@ msgstr ""
 msgid "failed to enable %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:245
+#: internal/service/ws.go:308
 msgid "failed to encode auth: %v"
 msgstr ""
 
@@ -2156,7 +2156,7 @@ msgstr ""
 msgid "failed to get elasticsearch status: %v"
 msgstr ""
 
-#: internal/service/file.go:358
+#: internal/service/file.go:463
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2364,16 +2364,16 @@ msgstr ""
 msgid "failed to parse version: %v"
 msgstr ""
 
-#: internal/service/ws.go:254
+#: internal/service/ws.go:317
 msgid "failed to pull image: %v"
 msgstr ""
 
-#: internal/service/ws.go:79
+#: internal/service/ws.go:80
 msgid "failed to read command output: %v"
 msgstr ""
 
-#: internal/service/ws.go:102
-#: internal/service/ws.go:62
+#: internal/service/ws.go:165
+#: internal/service/ws.go:63
 msgid "failed to read command: %v"
 msgstr ""
 
@@ -2389,8 +2389,8 @@ msgstr ""
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/ws.go:219
-#: internal/service/ws.go:330
+#: internal/service/ws.go:282
+#: internal/service/ws.go:393
 msgid "failed to read params: %v"
 msgstr ""
 
@@ -2468,7 +2468,7 @@ msgstr ""
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
-#: internal/service/ws.go:68
+#: internal/service/ws.go:69
 msgid "failed to run command: %v"
 msgstr ""
 
@@ -2522,7 +2522,7 @@ msgstr ""
 msgid "failed to start %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:193
+#: internal/service/ws.go:256
 msgid "failed to start container terminal: %v"
 msgstr ""
 
@@ -2617,7 +2617,7 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:660
+#: internal/service/file.go:765
 msgid "get upload file error: %v"
 msgstr ""
 
@@ -2651,8 +2651,8 @@ msgstr ""
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/service/ws.go:224
-#: internal/service/ws.go:337
+#: internal/service/ws.go:287
+#: internal/service/ws.go:400
 msgid "invalid params: %v"
 msgstr ""
 
@@ -2780,11 +2780,11 @@ msgstr ""
 msgid "obtaining and saving certificate"
 msgstr ""
 
-#: internal/service/file.go:201
+#: internal/service/file.go:306
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:666
+#: internal/service/file.go:771
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -2824,7 +2824,12 @@ msgstr ""
 msgid "path is not a directory: %s"
 msgstr ""
 
-#: internal/service/file.go:653
+#: internal/service/file.go:131
+#: internal/service/ws.go:96
+msgid "path or service is required"
+msgstr ""
+
+#: internal/service/file.go:758
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
@@ -2854,9 +2859,9 @@ msgid "please complete pre-check first"
 msgstr ""
 
 #: internal/data/user.go:134
-#: internal/service/file.go:156
-#: internal/service/file.go:254
-#: internal/service/file.go:288
+#: internal/service/file.go:261
+#: internal/service/file.go:359
+#: internal/service/file.go:393
 msgid "please don't do this"
 msgstr ""
 
@@ -2892,15 +2897,15 @@ msgstr ""
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:743
+#: internal/service/file.go:848
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:674
+#: internal/service/file.go:779
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:615
+#: internal/service/file.go:720
 msgid "read directory error: %v"
 msgstr ""
 
@@ -2936,7 +2941,7 @@ msgstr ""
 msgid "s3 configuration error: %v"
 msgstr ""
 
-#: internal/service/file.go:693
+#: internal/service/file.go:798
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -3038,9 +3043,9 @@ msgstr ""
 msgid "target is a directory"
 msgstr ""
 
-#: internal/service/file.go:182
-#: internal/service/file.go:599
-#: internal/service/file.go:714
+#: internal/service/file.go:287
+#: internal/service/file.go:704
+#: internal/service/file.go:819
 msgid "target path %s already exists"
 msgstr ""
 
@@ -3149,7 +3154,7 @@ msgstr ""
 msgid "upload failed: %v"
 msgstr ""
 
-#: internal/service/file.go:178
+#: internal/service/file.go:283
 msgid "upload file error: %v"
 msgstr ""
 
@@ -3241,11 +3246,11 @@ msgstr ""
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:749
+#: internal/service/file.go:854
 msgid "write chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:206
+#: internal/service/file.go:311
 msgid "write file error: %v"
 msgstr ""
 
