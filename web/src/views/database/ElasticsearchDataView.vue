@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
-import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
-import ElasticsearchDocModal from '@/views/database/ElasticsearchDocModal.vue'
 import { NButton, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import ElasticsearchDocModal from '@/views/database/ElasticsearchDocModal.vue'
+
+const { confirmDelete } = useConfirm()
 
 const props = defineProps<{
   type: string
@@ -39,7 +42,7 @@ const createIndexLoading = ref(false)
 const healthColorMap: Record<string, 'success' | 'warning' | 'error' | 'default'> = {
   green: 'success',
   yellow: 'warning',
-  red: 'error'
+  red: 'error',
 }
 
 // 加载服务器列表
@@ -49,7 +52,7 @@ const loadServers = () => {
     .onSuccess(({ data }: { data: any }) => {
       serverOptions.value = (data.items || []).map((s: any) => ({
         label: `${s.name} (${s.host}:${s.port})`,
-        value: s.id
+        value: s.id,
       }))
       if (serverOptions.value.length > 0 && !selectedServer.value) {
         selectedServer.value = serverOptions.value[0].value
@@ -86,7 +89,7 @@ const indexColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Health'),
@@ -96,19 +99,19 @@ const indexColumns: any = [
       return h(
         NTag,
         { type: healthColorMap[row.health] || 'default', size: 'small' },
-        { default: () => row.health }
+        { default: () => row.health },
       )
-    }
+    },
   },
   {
     title: $gettext('Documents'),
     key: 'docs_count',
-    width: 120
+    width: 120,
   },
   {
     title: $gettext('Size'),
     key: 'store_size',
-    width: 120
+    width: 120,
   },
   {
     title: $gettext('Actions'),
@@ -124,32 +127,27 @@ const indexColumns: any = [
             type: 'info',
             onClick: () => {
               selectedIndex.value = row.name
-            }
+            },
           },
-          { default: () => $gettext('Browse') }
+          { default: () => $gettext('Browse') },
         ),
         h(
-          DeleteConfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteIndex(row.name)
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this index?'),
+              })
+              if (ok) handleDeleteIndex(row.name)
+            },
           },
-          {
-            default: () => $gettext('Are you sure you want to delete this index?'),
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 10px;'
-                },
-                { default: () => $gettext('Delete') }
-              )
-          }
-        )
+          { default: () => $gettext('Delete') },
+        ),
       ]
-    }
-  }
+    },
+  },
 ]
 
 // 文档列表列
@@ -158,14 +156,14 @@ const docColumns: any = [
     title: 'ID',
     key: 'id',
     width: 250,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Source'),
     key: 'source',
     minWidth: 300,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -183,32 +181,27 @@ const docColumns: any = [
               docModalMode.value = 'view'
               docModalId.value = row.id
               docModalShow.value = true
-            }
+            },
           },
-          { default: () => $gettext('View') }
+          { default: () => $gettext('View') },
         ),
         h(
-          DeleteConfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteDoc(row.id)
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this document?'),
+              })
+              if (ok) handleDeleteDoc(row.id)
+            },
           },
-          {
-            default: () => $gettext('Are you sure you want to delete this document?'),
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 10px;'
-                },
-                { default: () => $gettext('Delete') }
-              )
-          }
-        )
+          { default: () => $gettext('Delete') },
+        ),
       ]
-    }
-  }
+    },
+  },
 ]
 
 // 文档分页
@@ -221,8 +214,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     total: (res: any) => res.total,
     data: (res: any) => res.items,
     watchingStates: [search],
-    immediate: false
-  }
+    immediate: false,
+  },
 )
 
 // 选中索引时加载文档
@@ -255,7 +248,7 @@ const handleDeleteDoc = (id: string) => {
     () => {
       refresh()
       window.$message.success($gettext('Deleted successfully'))
-    }
+    },
   )
 }
 
@@ -299,7 +292,7 @@ onUnmounted(() => {
           :options="serverOptions"
           :loading="serverLoading"
           :placeholder="$gettext('Select Server')"
-          style="width: 250px"
+          class="w-62.5"
         />
         <n-button v-if="!selectedIndex" type="primary" @click="createIndexShow = true">
           {{ $gettext('Create Index') }}
@@ -314,7 +307,7 @@ onUnmounted(() => {
             v-model:value="searchInput"
             :placeholder="$gettext('Search query, e.g. field:value')"
             clearable
-            style="width: 300px"
+            class="!w-75"
             @keydown.enter="handleSearch"
           />
           <n-button type="primary" @click="handleSearch">
@@ -352,12 +345,11 @@ onUnmounted(() => {
         v-model:pageSize="pageSize"
         :pagination="{
           page: page,
-          pageCount: pageCount,
           pageSize: pageSize,
           itemCount: total,
           showQuickJumper: true,
           showSizePicker: true,
-          pageSizes: [20, 50, 100, 200]
+          pageSizes: [20, 50, 100, 200],
         }"
       />
     </template>
@@ -378,7 +370,7 @@ onUnmounted(() => {
     v-model:show="createIndexShow"
     preset="card"
     :title="$gettext('Create Index')"
-    style="width: 400px"
+    class="w-100"
     :bordered="false"
   >
     <n-form>

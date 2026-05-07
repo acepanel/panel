@@ -14,7 +14,7 @@ const { $gettext } = useGettext()
 // Go 运行模式
 const goModes = [
   { label: $gettext('Source Code'), value: 'source' },
-  { label: $gettext('Binary'), value: 'binary' }
+  { label: $gettext('Binary'), value: 'binary' },
 ]
 
 // Java 框架预设
@@ -25,7 +25,7 @@ const javaFrameworks = [
   { label: 'Quarkus', value: 'quarkus', command: '-jar quarkus-run.jar' },
   { label: 'Micronaut', value: 'micronaut', command: '-jar app.jar' },
   { label: 'Vert.x', value: 'vertx', command: '-jar app.jar' },
-  { label: 'Dropwizard', value: 'dropwizard', command: 'server config.yml' }
+  { label: 'Dropwizard', value: 'dropwizard', command: 'server config.yml' },
 ]
 
 // Node.js 框架预设
@@ -38,7 +38,7 @@ const nodejsFrameworks = [
   { label: 'Next.js', value: 'nextjs', command: 'node_modules/.bin/next start' },
   { label: 'Nuxt.js', value: 'nuxtjs', command: 'node_modules/.bin/nuxt start' },
   { label: 'Hapi', value: 'hapi', command: 'server.js' },
-  { label: 'AdonisJS', value: 'adonisjs', command: 'server.js' }
+  { label: 'AdonisJS', value: 'adonisjs', command: 'server.js' },
 ]
 
 // PHP 框架预设
@@ -50,7 +50,7 @@ const phpFrameworks = [
   { label: 'Webman', value: 'webman', command: 'start.php start' },
   { label: 'Hyperf', value: 'hyperf', command: 'bin/hyperf.php start' },
   { label: 'Swoole HTTP', value: 'swoole', command: 'server.php' },
-  { label: 'RoadRunner', value: 'roadrunner', command: 'vendor/bin/rr serve' }
+  { label: 'RoadRunner', value: 'roadrunner', command: 'vendor/bin/rr serve' },
 ]
 
 // Python 框架预设
@@ -62,7 +62,7 @@ const pythonFrameworks = [
   { label: 'Tornado', value: 'tornado', command: 'app.py' },
   { label: 'Sanic', value: 'sanic', command: '-m sanic server.app --host=0.0.0.0' },
   { label: 'aiohttp', value: 'aiohttp', command: 'app.py' },
-  { label: 'Gunicorn', value: 'gunicorn', command: '-m gunicorn -w 4 app:app' }
+  { label: 'Gunicorn', value: 'gunicorn', command: '-m gunicorn -w 4 app:app' },
 ]
 
 // .NET 框架预设
@@ -72,7 +72,7 @@ const dotnetFrameworks = [
   { label: 'ASP.NET Core API', value: 'aspnet-api', command: 'run' },
   { label: 'Blazor Server', value: 'blazor-server', command: 'run' },
   { label: 'gRPC Service', value: 'grpc', command: 'run' },
-  { label: 'Worker Service', value: 'worker', command: 'run' }
+  { label: 'Worker Service', value: 'worker', command: 'run' },
 ]
 
 const createModel = ref({
@@ -81,51 +81,51 @@ const createModel = ref({
   root_dir: '',
   working_dir: '',
   exec_start: '',
-  user: 'www'
+  user: 'www',
 })
 
 // 反向代理相关
 const proxyOptions = ref({
   enabled: false,
   domains: [] as string[],
-  port: null as number | null
+  port: null as number | null,
 })
 
 // Go 特有字段
 const goOptions = ref({
   mode: 'source' as string,
   version: '' as string,
-  entryFile: 'main.go' as string
+  entryFile: 'main.go' as string,
 })
 
 // Java 特有字段
 const javaOptions = ref({
   version: '' as string,
-  framework: 'custom'
+  framework: 'custom',
 })
 
 // Node.js 特有字段
 const nodejsOptions = ref({
   version: '' as string,
-  framework: 'custom'
+  framework: 'custom',
 })
 
 // PHP 特有字段
 const phpOptions = ref({
   version: null as number | null,
-  framework: 'custom'
+  framework: 'custom',
 })
 
 // Python 特有字段
 const pythonOptions = ref({
   version: '' as string,
-  framework: 'custom'
+  framework: 'custom',
 })
 
 // .NET 特有字段
 const dotnetOptions = ref({
   version: '' as string,
-  framework: 'custom'
+  framework: 'custom',
 })
 
 const showPathSelector = ref(false)
@@ -139,8 +139,8 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     nodejs: [],
     php: [],
     python: [],
-    dotnet: []
-  }
+    dotnet: [],
+  },
 })
 
 // Go 版本选项
@@ -240,11 +240,11 @@ watch(
     goOptions.value.version,
     goOptions.value.entryFile,
     createModel.value.root_dir,
-    createModel.value.name
+    createModel.value.name,
   ],
   () => {
     if (type.value === 'go') generateCommand()
-  }
+  },
 )
 
 // 监听 Java 版本和框架变化
@@ -252,7 +252,7 @@ watch(
   () => [javaOptions.value.version, javaOptions.value.framework],
   () => {
     if (type.value === 'java') generateCommand()
-  }
+  },
 )
 
 // 监听 Node.js 版本和框架变化
@@ -260,7 +260,7 @@ watch(
   () => [nodejsOptions.value.version, nodejsOptions.value.framework],
   () => {
     if (type.value === 'nodejs') generateCommand()
-  }
+  },
 )
 
 // 监听 PHP 版本和框架变化
@@ -268,7 +268,7 @@ watch(
   () => [phpOptions.value.version, phpOptions.value.framework],
   () => {
     if (type.value === 'php') generateCommand()
-  }
+  },
 )
 
 // 监听 Python 版本和框架变化
@@ -276,7 +276,7 @@ watch(
   () => [pythonOptions.value.version, pythonOptions.value.framework],
   () => {
     if (type.value === 'python') generateCommand()
-  }
+  },
 )
 
 // 监听 .NET 版本和框架变化
@@ -284,7 +284,7 @@ watch(
   () => [dotnetOptions.value.version, dotnetOptions.value.framework],
   () => {
     if (type.value === 'dotnet') generateCommand()
-  }
+  },
 )
 
 // 处理目录选择
@@ -323,7 +323,7 @@ const handleCreate = async () => {
       domains: domains,
       listens: ['80'],
       proxy: `http://127.0.0.1:${proxyOptions.value.port}`,
-      remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name })
+      remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name }),
     }
 
     try {
@@ -355,37 +355,37 @@ const handleCreate = async () => {
         root_dir: '',
         working_dir: '',
         exec_start: '',
-        user: 'www'
+        user: 'www',
       }
       proxyOptions.value = {
         enabled: false,
         domains: [],
-        port: null
+        port: null,
       }
       goOptions.value = {
         mode: 'source',
         version: '',
-        entryFile: 'main.go'
+        entryFile: 'main.go',
       }
       javaOptions.value = {
         version: '',
-        framework: 'custom'
+        framework: 'custom',
       }
       nodejsOptions.value = {
         version: '',
-        framework: 'custom'
+        framework: 'custom',
       }
       phpOptions.value = {
         version: null,
-        framework: 'custom'
+        framework: 'custom',
       }
       pythonOptions.value = {
         version: '',
-        framework: 'custom'
+        framework: 'custom',
       }
       dotnetOptions.value = {
         version: '',
-        framework: 'custom'
+        framework: 'custom',
       }
     })
     .onComplete(() => {
@@ -402,7 +402,7 @@ const modalTitle = computed(() => {
     nodejs: $gettext('Create Node.js Project'),
     php: $gettext('Create PHP Project'),
     python: $gettext('Create Python Project'),
-    dotnet: $gettext('Create .NET Project')
+    dotnet: $gettext('Create .NET Project'),
   }
   return titles[type.value] || $gettext('Create Project')
 })
@@ -437,7 +437,7 @@ const modalTitle = computed(() => {
             @keydown.enter.prevent
             :placeholder="
               $gettext(
-                'Project root directory (if left empty, defaults to project directory/project name)'
+                'Project root directory (if left empty, defaults to project directory/project name)',
               )
             "
           />
@@ -625,7 +625,7 @@ const modalTitle = computed(() => {
           :options="[
             { label: 'www', value: 'www' },
             { label: 'root', value: 'root' },
-            { label: 'nobody', value: 'nobody' }
+            { label: 'nobody', value: 'nobody' },
           ]"
           :placeholder="$gettext('Select or enter user')"
           filterable
@@ -682,7 +682,14 @@ const modalTitle = computed(() => {
       </template>
     </n-form>
 
-    <n-button type="info" block class="mt-24" :loading="loading" :disabled="loading" @click="handleCreate">
+    <n-button
+      type="info"
+      block
+      class="mt-6"
+      :loading="loading"
+      :disabled="loading"
+      @click="handleCreate"
+    >
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>

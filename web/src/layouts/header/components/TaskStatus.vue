@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import task from '@/api/panel/task'
 import { useGettext } from 'vue3-gettext'
+
+import task from '@/api/panel/task'
 
 const { $gettext } = useGettext()
 const router = useRouter()
@@ -15,7 +16,7 @@ const goToTask = () => {
 <template>
   <n-tooltip trigger="hover">
     <template #trigger>
-      <n-icon mr-20 cursor-pointer size="20" @click="goToTask">
+      <n-icon mr-5 cursor-pointer size="20" @click="goToTask">
         <i-mdi-sync v-if="data.task" class="animate-spin" />
         <i-mdi-checkbox-outline v-else />
       </n-icon>

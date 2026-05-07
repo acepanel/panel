@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NPopconfirm, NPopover, NSpin, NTag } from 'naive-ui'
+import { NButton, NDataTable, NPopover, NSpin, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import CreateModal from '@/views/firewall/CreateModal.vue'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const createModalShow = ref(false)
 
 // 端口进程信息缓存
@@ -40,9 +42,9 @@ const columns: any = [
             return row.protocol
           }
           return $gettext('None')
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Network Protocol'),
@@ -57,9 +59,9 @@ const columns: any = [
             return row.family
           }
           return $gettext('None')
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Port'),
@@ -72,7 +74,7 @@ const columns: any = [
         return row.port_start
       }
       return `${row.port_start}-${row.port_end}`
-    }
+    },
   },
   {
     title: $gettext('Status'),
@@ -91,7 +93,7 @@ const columns: any = [
           placement: 'bottom',
           onUpdateShow: (show: boolean) => {
             if (show) fetchPortUsage(row.port_start, row.protocol)
-          }
+          },
         },
         {
           trigger: () =>
@@ -99,9 +101,9 @@ const columns: any = [
               NTag,
               {
                 type: 'success',
-                style: 'cursor: pointer;'
+                style: 'cursor: pointer;',
               },
-              { default: () => $gettext('In Use') }
+              { default: () => $gettext('In Use') },
             ),
           default: () => {
             if (portUsageLoading.value[key]) {
@@ -109,7 +111,11 @@ const columns: any = [
             }
             const processes = portUsageCache.value[key]
             if (!processes || processes.length === 0) {
-              return h('div', { style: 'padding: 4px; color: var(--n-text-color);' }, $gettext('No process information'))
+              return h(
+                'div',
+                { style: 'padding: 4px; color: var(--n-text-color);' },
+                $gettext('No process information'),
+              )
             }
             return h(
               'div',
@@ -121,29 +127,29 @@ const columns: any = [
                     style:
                       i > 0
                         ? 'padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--n-border-color);'
-                        : ''
+                        : '',
                   },
                   [
                     h('div', { style: 'font-size: 13px;' }, [
                       h('span', { style: 'font-weight: bold;' }, `${p.name}`),
-                      h('span', { style: 'margin-left: 8px; opacity: 0.6;' }, `PID: ${p.pid}`)
+                      h('span', { style: 'margin-left: 8px; opacity: 0.6;' }, `PID: ${p.pid}`),
                     ]),
                     h(
                       'div',
                       {
                         style:
-                          'font-size: 12px; opacity: 0.8; margin-top: 4px; word-break: break-all; font-family: monospace;'
+                          'font-size: 12px; opacity: 0.8; margin-top: 4px; word-break: break-all; font-family: monospace;',
                       },
-                      p.command
-                    )
-                  ]
+                      p.command,
+                    ),
+                  ],
                 )
-              })
+              }),
             )
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Strategy'),
@@ -160,7 +166,7 @@ const columns: any = [
                 ? 'warning'
                 : row.strategy === 'reject'
                   ? 'error'
-                  : 'default'
+                  : 'default',
         },
         {
           default: () => {
@@ -176,10 +182,10 @@ const columns: any = [
               default:
                 return $gettext('Unknown')
             }
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Direction'),
@@ -189,7 +195,7 @@ const columns: any = [
       return h(
         NTag,
         {
-          type: row.direction === 'in' ? 'info' : 'default'
+          type: row.direction === 'in' ? 'info' : 'default',
         },
         {
           default: () => {
@@ -201,10 +207,10 @@ const columns: any = [
               default:
                 return $gettext('Unknown')
             }
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Target'),
@@ -217,9 +223,9 @@ const columns: any = [
             return $gettext('All')
           }
           return row.address
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -227,34 +233,22 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDelete(row)
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete?'),
+            })
+            if (ok) handleDelete(row)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete?')
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+        },
+        { default: () => $gettext('Delete') },
+      )
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -263,8 +257,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const selectedRowKeys = ref<any>([])
@@ -308,16 +302,22 @@ onMounted(() => {
       <n-button type="primary" @click="createModalShow = true">
         {{ $gettext('Create Rule') }}
       </n-button>
-      <n-popconfirm @positive-click="batchDelete">
+      <ConfirmDialog
+        type="danger"
+        :content="$gettext('Are you sure you want to delete the selected rules?')"
+        @confirm="batchDelete"
+      >
         <template #trigger>
           <n-button type="error" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{ $gettext('Are you sure you want to delete the selected rules?') }}
-      </n-popconfirm>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1500"
@@ -325,17 +325,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => JSON.stringify(row)"
-      v-model:checked-row-keys="selectedRowKeys"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

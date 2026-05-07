@@ -1,8 +1,9 @@
-import { resolveResError } from '@/utils/http/helpers'
 import type { AlovaXHRResponse } from '@alova/adapter-xhr'
 import { xhrRequestAdapter } from '@alova/adapter-xhr'
 import { createAlova, Method } from 'alova'
 import VueHook from 'alova/vue'
+
+import { resolveResError } from '@/utils/http/helpers'
 
 export const http = createAlova({
   id: 'panel',
@@ -29,7 +30,7 @@ export const http = createAlova({
         const code = json?.code ?? status
         const msg = resolveResError(
           code,
-          (typeof json?.msg === 'string' && json.msg.trim()) || statusText
+          (typeof json?.msg === 'string' && json.msg.trim()) || statusText,
         )
         const noAlert = meta?.noAlert
         if (!noAlert) {
@@ -39,7 +40,7 @@ export const http = createAlova({
             window.$dialog.error({
               title: '错误',
               content: msg,
-              maskClosable: false
+              maskClosable: false,
             })
           }
         }
@@ -57,11 +58,11 @@ export const http = createAlova({
         window.$dialog.error({
           title: '接口请求失败',
           content: errorMsg,
-          maskClosable: false
+          maskClosable: false,
         })
       }
 
       throw error
-    }
-  }
+    },
+  },
 })

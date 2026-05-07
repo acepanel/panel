@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import copy2clipboard from '@vavt/copy2clipboard'
 import type { DropdownOption, SelectOption } from 'naive-ui'
 import {
   NButton,
   NCheckbox,
   NEllipsis,
   NFlex,
-  NPopconfirm,
   NPopselect,
   NSpin,
   NTag,
-  useThemeVars
+  useThemeVars,
 } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -24,14 +24,13 @@ import {
   getFilename,
   getIconByExt,
   isCompress,
-  isImage
+  isImage,
 } from '@/utils/file'
 import { usePaste } from '@/views/file/composables/usePaste'
 import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
 import type { FileInfo } from '@/views/file/types'
-import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
@@ -48,7 +47,7 @@ const sort = computed(() => fileStore.sort)
 const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
 const path = computed({
   get: () => tab.value.path,
-  set: (v: string) => fileStore.updateTabPath(props.tabId, v)
+  set: (v: string) => fileStore.updateTabPath(props.tabId, v),
 })
 const keyword = computed(() => tab.value.keyword)
 const sub = computed(() => tab.value.sub)
@@ -60,7 +59,7 @@ const compress = defineModel<boolean>('compress', { type: Boolean, required: tru
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', {
   type: Array,
-  default: () => []
+  default: () => [],
 })
 
 const editorModal = ref(false)
@@ -170,7 +169,7 @@ const handleInlineCreateKeydown = (event: KeyboardEvent) => {
 const unCompressModal = ref(false)
 const unCompressModel = ref({
   path: '',
-  file: ''
+  file: '',
 })
 
 // 目录大小计算状态（列表视图用）
@@ -189,7 +188,8 @@ let selEndX = 0
 let selEndY = 0
 
 // 缓存 item 位置，框选期间不再每帧 querySelectorAll + getBoundingClientRect
-let cachedItemRects: { path: string; left: number; top: number; right: number; bottom: number }[] = []
+let cachedItemRects: { path: string; left: number; top: number; right: number; bottom: number }[] =
+  []
 let cachedContainerRect: DOMRect | null = null
 
 // 将 hex 颜色转换为 RGB
@@ -217,7 +217,7 @@ const themeStyles = computed(() => {
     '--card-color': themeVars.value.cardColor,
     '--border-color': themeVars.value.borderColor,
     '--text-color': themeVars.value.textColor1,
-    '--text-color-3': themeVars.value.textColor3
+    '--text-color-3': themeVars.value.textColor3,
   }
 })
 
@@ -239,11 +239,11 @@ const confirmImmutableOperation = (row: any, callback: () => void) => {
       title: $gettext('Warning'),
       content: $gettext(
         '%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
-        { name: row.name }
+        { name: row.name },
       ),
       positiveText: $gettext('Continue'),
       negativeText: $gettext('Cancel'),
-      onPositiveClick: callback
+      onPositiveClick: callback,
     })
   } else {
     callback()
@@ -290,12 +290,12 @@ const options = computed<DropdownOption[]>(() => {
   if (isEmptyContextMenu.value) {
     const options: DropdownOption[] = [
       { label: $gettext('New File'), key: 'new-file' },
-      { label: $gettext('New Folder'), key: 'new-folder' }
+      { label: $gettext('New Folder'), key: 'new-folder' },
     ]
     if (marked.value.length) {
       options.unshift({
         label: $gettext('Paste'),
-        key: 'paste'
+        key: 'paste',
       })
     }
     return options
@@ -308,12 +308,12 @@ const options = computed<DropdownOption[]>(() => {
       { label: $gettext('Move'), key: 'move' },
       { label: $gettext('Compress'), key: 'compress' },
       { label: $gettext('Permission'), key: 'permission' },
-      { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' }
+      { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
     ]
     if (marked.value.length) {
       options.unshift({
         label: $gettext('Paste'),
-        key: 'paste'
+        key: 'paste',
       })
     }
     return options
@@ -336,28 +336,28 @@ const options = computed<DropdownOption[]>(() => {
           ? 'preview'
           : isCompress(selectedRow.value.name)
             ? 'uncompress'
-            : 'edit'
+            : 'edit',
     },
     { label: $gettext('Copy'), key: 'copy' },
     { label: $gettext('Move'), key: 'move' },
     { label: $gettext('Permission'), key: 'permission' },
     {
       label: selectedRow.value.dir ? $gettext('Compress') : $gettext('Download'),
-      key: selectedRow.value.dir ? 'compress' : 'download'
+      key: selectedRow.value.dir ? 'compress' : 'download',
     },
     { label: $gettext('Rename'), key: 'rename' },
     {
       label: $gettext('Terminal'),
       key: 'terminal',
-      show: selectedRow.value.dir
+      show: selectedRow.value.dir,
     },
     { label: $gettext('Properties'), key: 'properties' },
-    { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' }
+    { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
   ]
   if (marked.value.length) {
     options.unshift({
       label: $gettext('Paste'),
-      key: 'paste'
+      key: 'paste',
     })
   }
   return options
@@ -582,7 +582,7 @@ const onSelectionStart = (event: MouseEvent) => {
         left: itemRect.left - rect.left + scrollLeft,
         top: itemRect.top - rect.top + scrollTop,
         right: itemRect.right - rect.left + scrollLeft,
-        bottom: itemRect.bottom - rect.top + scrollTop
+        bottom: itemRect.bottom - rect.top + scrollTop,
       })
     }
   })
@@ -643,22 +643,14 @@ const updateSelectionFromBox = () => {
 
   const newSelected: string[] = []
   for (const item of cachedItemRects) {
-    if (
-      item.right >= left &&
-      item.left <= right &&
-      item.bottom >= top &&
-      item.top <= bottom
-    ) {
+    if (item.right >= left && item.left <= right && item.bottom >= top && item.top <= bottom) {
       newSelected.push(item.path)
     }
   }
 
   // 只在选中集合真正变化时才更新
   const currentSet = selectedSet.value
-  if (
-    newSelected.length !== currentSet.size ||
-    newSelected.some((v) => !currentSet.has(v))
-  ) {
+  if (newSelected.length !== currentSet.size || newSelected.some((v) => !currentSet.has(v))) {
     selected.value = newSelected
   }
 }
@@ -677,12 +669,12 @@ const markFiles = (items: any[], type: 'copy' | 'move') => {
     items.map((item: any) => ({
       name: item.name,
       source: item.full,
-      force: false
+      force: false,
     })),
-    type
+    type,
   )
   window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste')
+    $gettext('Marked successfully, please navigate to the destination path to paste'),
   )
 }
 
@@ -782,8 +774,8 @@ const submitInlineRename = () => {
               window.$message.success(
                 $gettext('Renamed %{ source } to %{ target } successfully', {
                   source: sourceName,
-                  target: targetName
-                })
+                  target: targetName,
+                }),
               )
             })
             .onComplete(() => {
@@ -792,7 +784,7 @@ const submitInlineRename = () => {
         },
         onNegativeClick: () => {
           // 保持编辑状态，让用户修改名称
-        }
+        },
       })
     } else {
       useRequest(file.move([{ source, target, force: false }]))
@@ -801,8 +793,8 @@ const submitInlineRename = () => {
           window.$message.success(
             $gettext('Renamed %{ source } to %{ target } successfully', {
               source: sourceName,
-              target: targetName
-            })
+              target: targetName,
+            }),
           )
         })
         .onComplete(() => {
@@ -841,7 +833,7 @@ const deleteFiles = (items: any[]) => {
     window.$dialog.warning({
       title: $gettext('Warning'),
       content: $gettext('Are you sure you want to delete %{count} items?', {
-        count: items.length
+        count: items.length,
       }),
       positiveText: $gettext('Yes'),
       negativeText: $gettext('No'),
@@ -851,7 +843,7 @@ const deleteFiles = (items: any[]) => {
           window.$bus.emit('file:refresh')
           window.$message.success($gettext('Deleted successfully'))
         })
-      }
+      },
     })
   }
 }
@@ -951,7 +943,7 @@ const getMoreOptions = (item: any): SelectOption[] => {
     { label: $gettext('Copy'), value: 'copy' },
     { label: $gettext('Move'), value: 'move' },
     { label: $gettext('Permission'), value: 'permission' },
-    { label: $gettext('Compress'), value: 'compress' }
+    { label: $gettext('Compress'), value: 'compress' },
   ]
 
   // 如果是压缩文件，添加解压选项
@@ -1212,7 +1204,7 @@ const handleUnCompress = () => {
     return
   }
   const message = window.$message.loading($gettext('Uncompressing...'), {
-    duration: 0
+    duration: 0,
   })
   useRequest(file.unCompress(unCompressModel.value.file, unCompressModel.value.path))
     .onSuccess(() => {
@@ -1231,7 +1223,7 @@ const {
   page,
   total,
   pageSize,
-  refresh
+  refresh,
 } = usePagination(
   (page, pageSize) =>
     file.list(encodeURIComponent(path.value), keyword.value, sub.value, sort.value, page, pageSize),
@@ -1239,8 +1231,8 @@ const {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const data = computed(() => {
@@ -1270,7 +1262,7 @@ onMounted(() => {
         refresh()
       })
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // 监听排序变化
@@ -1314,14 +1306,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 gap-4 min-h-0" :style="themeStyles">
+  <div class="flex flex-col flex-1 gap-1 min-h-0" :style="themeStyles">
     <n-spin :show="loading" class="flex flex-col flex-1 min-h-0">
       <div
         ref="gridContainerRef"
         class="file-container"
         :class="{
           'grid-mode': fileStore.viewType === 'grid',
-          'list-mode': fileStore.viewType === 'list'
+          'list-mode': fileStore.viewType === 'list',
         }"
         @mousedown="onSelectionStart"
         @contextmenu="handleEmptyContextMenu"
@@ -1444,7 +1436,7 @@ onUnmounted(() => {
             <span v-else class="text-center max-w-full">
               <n-ellipsis
                 :line-clamp="2"
-                class="text-12 leading-normal break-all"
+                class="text-xs leading-normal break-all"
                 :tooltip="{ width: 300 }"
               >
                 {{ item.name }}
@@ -1489,7 +1481,7 @@ onUnmounted(() => {
               }}</n-tag>
               <span
                 v-else
-                class="text-primary text-12 cursor-pointer hover:opacity-80"
+                class="text-primary text-xs cursor-pointer hover:opacity-80"
                 @click.stop="calculateDirSize(item.full)"
               >
                 <n-spin v-if="sizeLoading.get(item.full)" />
@@ -1551,14 +1543,19 @@ onUnmounted(() => {
                 <n-button size="tiny" type="warning" tertiary @click.stop="handleRenameClick(item)">
                   {{ $gettext('Rename') }}
                 </n-button>
-                <n-popconfirm @positive-click="handleDeleteClick(item)">
+                <ConfirmDialog
+                  type="delete"
+                  :content="
+                    $gettext('Are you sure you want to delete %{ name }?', { name: item.name })
+                  "
+                  @confirm="handleDeleteClick(item)"
+                >
                   <template #trigger>
                     <n-button size="tiny" type="error" tertiary @click.stop>
                       {{ $gettext('Delete') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Are you sure you want to delete %{ name }?', { name: item.name }) }}
-                </n-popconfirm>
+                </ConfirmDialog>
                 <n-popselect
                   :options="getMoreOptions(item)"
                   trigger="click"
@@ -1593,7 +1590,7 @@ onUnmounted(() => {
           </n-button>
         </template>
         <template v-else>
-          <span class="text-14 text-gray-400">{{
+          <span class="text-base text-gray-400">{{
             $gettext('%{count} item(s)', { count: data.length })
           }}</span>
         </template>

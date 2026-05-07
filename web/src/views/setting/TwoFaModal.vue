@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import user from '@/api/panel/user'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import user from '@/api/panel/user'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -10,7 +11,7 @@ const id = defineModel<number>('id', { type: Number, required: true })
 const model = ref({
   img: '',
   url: '',
-  secret: ''
+  secret: '',
 })
 const code = ref('')
 const loading = ref(false)
@@ -41,7 +42,7 @@ watch(
       })
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -70,7 +71,7 @@ watch(
             <n-text>
               {{
                 $gettext(
-                  'If you cannot scan the QR code, please enter the URL below in your 2FA app'
+                  'If you cannot scan the QR code, please enter the URL below in your 2FA app',
                 )
               }}
             </n-text>
@@ -90,7 +91,9 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{
+        $gettext('Submit')
+      }}</n-button>
     </n-flex>
   </n-modal>
 </template>

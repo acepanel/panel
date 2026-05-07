@@ -11,7 +11,7 @@ const saved = ref('')
 
 const { loading } = useRequest(settingApi.getMemo(), {
   initialData: '',
-  immediate: false
+  immediate: false,
 }).onSuccess(({ data }: any) => {
   content.value = data || ''
   saved.value = content.value
@@ -38,11 +38,21 @@ const handleBlur = () => {
 </script>
 
 <template>
-  <n-popover trigger="click" placement="bottom-end" :show="show" @update:show="(v: boolean) => { show = v; handleShow(v) }">
+  <n-popover
+    trigger="click"
+    placement="bottom-end"
+    :show="show"
+    @update:show="
+      (v: boolean) => {
+        show = v
+        handleShow(v)
+      }
+    "
+  >
     <template #trigger>
       <n-tooltip trigger="hover">
         <template #trigger>
-          <n-icon mr-20 cursor-pointer size="20" @click="show = !show">
+          <n-icon mr-5 cursor-pointer size="20" @click="show = !show">
             <i-mdi-note-text-outline />
           </n-icon>
         </template>

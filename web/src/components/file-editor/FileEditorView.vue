@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { useEditorStore } from '@/stores'
 import { useGettext } from 'vue3-gettext'
+
+import { useEditorStore } from '@/stores'
+
 import EditorPane from './EditorPane.vue'
 import EditorStatusBar from './EditorStatusBar.vue'
 import EditorToolbar from './EditorToolbar.vue'
@@ -95,7 +97,7 @@ onBeforeUnmount(() => {
 // 暴露方法
 defineExpose({
   refresh: () => fileTreeRef.value?.refresh(),
-  focus: () => editorPaneRef.value?.focus()
+  focus: () => editorPaneRef.value?.focus(),
 })
 </script>
 
@@ -138,7 +140,12 @@ defineExpose({
     </div>
 
     <!-- 设置弹窗 -->
-    <n-modal v-model:show="showSettings" preset="card" :title="$gettext('Editor Settings')" style="width: 600px">
+    <n-modal
+      v-model:show="showSettings"
+      preset="card"
+      :title="$gettext('Editor Settings')"
+      class="w-150"
+    >
       <n-scrollbar style="max-height: 70vh">
         <n-form label-placement="left" label-width="140" class="settings-form">
           <!-- 基础设置 -->
@@ -163,7 +170,9 @@ defineExpose({
               v-model:value="editorStore.settings.fontSize"
               :min="10"
               :max="24"
-              @update:value="(v: number | null) => editorStore.updateSettings({ fontSize: v || 14 })"
+              @update:value="
+                (v: number | null) => editorStore.updateSettings({ fontSize: v || 14 })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Word Wrap')">
@@ -173,9 +182,12 @@ defineExpose({
                 { label: $gettext('Off'), value: 'off' },
                 { label: $gettext('On'), value: 'on' },
                 { label: $gettext('Word Wrap Column'), value: 'wordWrapColumn' },
-                { label: $gettext('Bounded'), value: 'bounded' }
+                { label: $gettext('Bounded'), value: 'bounded' },
               ]"
-              @update:value="(v: 'on' | 'off' | 'wordWrapColumn' | 'bounded') => editorStore.updateSettings({ wordWrap: v })"
+              @update:value="
+                (v: 'on' | 'off' | 'wordWrapColumn' | 'bounded') =>
+                  editorStore.updateSettings({ wordWrap: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Show Minimap')">
@@ -195,9 +207,12 @@ defineExpose({
                 { label: $gettext('On'), value: 'on' },
                 { label: $gettext('Off'), value: 'off' },
                 { label: $gettext('Relative'), value: 'relative' },
-                { label: $gettext('Interval'), value: 'interval' }
+                { label: $gettext('Interval'), value: 'interval' },
               ]"
-              @update:value="(v: 'on' | 'off' | 'relative' | 'interval') => editorStore.updateSettings({ lineNumbers: v })"
+              @update:value="
+                (v: 'on' | 'off' | 'relative' | 'interval') =>
+                  editorStore.updateSettings({ lineNumbers: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Render Whitespace')">
@@ -208,15 +223,20 @@ defineExpose({
                 { label: $gettext('Boundary'), value: 'boundary' },
                 { label: $gettext('Selection'), value: 'selection' },
                 { label: $gettext('Trailing'), value: 'trailing' },
-                { label: $gettext('All'), value: 'all' }
+                { label: $gettext('All'), value: 'all' },
               ]"
-              @update:value="(v: 'none' | 'boundary' | 'selection' | 'trailing' | 'all') => editorStore.updateSettings({ renderWhitespace: v })"
+              @update:value="
+                (v: 'none' | 'boundary' | 'selection' | 'trailing' | 'all') =>
+                  editorStore.updateSettings({ renderWhitespace: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Bracket Colorization')">
             <n-switch
               :value="editorStore.settings.bracketPairColorization"
-              @update:value="(v: boolean) => editorStore.updateSettings({ bracketPairColorization: v })"
+              @update:value="
+                (v: boolean) => editorStore.updateSettings({ bracketPairColorization: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Indent Guides')">
@@ -244,9 +264,19 @@ defineExpose({
                 { label: $gettext('Underline'), value: 'underline' },
                 { label: $gettext('Line Thin'), value: 'line-thin' },
                 { label: $gettext('Block Outline'), value: 'block-outline' },
-                { label: $gettext('Underline Thin'), value: 'underline-thin' }
+                { label: $gettext('Underline Thin'), value: 'underline-thin' },
               ]"
-              @update:value="(v: 'line' | 'block' | 'underline' | 'line-thin' | 'block-outline' | 'underline-thin') => editorStore.updateSettings({ cursorStyle: v })"
+              @update:value="
+                (
+                  v:
+                    | 'line'
+                    | 'block'
+                    | 'underline'
+                    | 'line-thin'
+                    | 'block-outline'
+                    | 'underline-thin',
+                ) => editorStore.updateSettings({ cursorStyle: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Cursor Blinking')">
@@ -257,9 +287,12 @@ defineExpose({
                 { label: $gettext('Smooth'), value: 'smooth' },
                 { label: $gettext('Phase'), value: 'phase' },
                 { label: $gettext('Expand'), value: 'expand' },
-                { label: $gettext('Solid'), value: 'solid' }
+                { label: $gettext('Solid'), value: 'solid' },
               ]"
-              @update:value="(v: 'blink' | 'smooth' | 'phase' | 'expand' | 'solid') => editorStore.updateSettings({ cursorBlinking: v })"
+              @update:value="
+                (v: 'blink' | 'smooth' | 'phase' | 'expand' | 'solid') =>
+                  editorStore.updateSettings({ cursorBlinking: v })
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Smooth Scrolling')">

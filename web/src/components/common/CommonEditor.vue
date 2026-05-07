@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { useThemeStore } from '@/stores'
-import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
 import { useThemeVars } from 'naive-ui'
+
+import { useThemeStore } from '@/stores'
+import { getMonaco } from '@/utils/monaco'
 
 const value = defineModel<string>('value', { type: String, required: true })
 const props = defineProps({
   lang: {
     type: String,
     required: false,
-    default: 'ini'
+    default: 'ini',
   },
   height: {
     type: String,
     required: false,
-    default: '60vh'
+    default: '60vh',
   },
   readOnly: {
     type: Boolean,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const containerRef = ref<HTMLDivElement>()
@@ -44,7 +45,7 @@ async function initEditor() {
     automaticLayout: true,
     smoothScrolling: true,
     formatOnPaste: true,
-    formatOnType: true
+    formatOnType: true,
   })
 
   editorRef.value.onDidChangeModelContent(() => {
@@ -72,7 +73,7 @@ watch(
         monacoRef.value.editor.setModelLanguage(model, newLang)
       }
     }
-  }
+  },
 )
 
 watch(
@@ -81,7 +82,7 @@ watch(
     if (editorRef.value) {
       editorRef.value.updateOptions({ readOnly: newReadOnly })
     }
-  }
+  },
 )
 
 onMounted(() => {

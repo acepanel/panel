@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import backup from '@/api/panel/backup'
-import storage from '@/api/panel/backup-storage'
 import type { MessageReactive } from 'naive-ui'
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
+import backup from '@/api/panel/backup'
+import storage from '@/api/panel/backup-storage'
 import website from '@/api/panel/website'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import UploadModal from '@/views/backup/UploadModal.vue'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const type = defineModel<string>('type', { type: String, required: true })
 
 let messageReactive: MessageReactive | null = null
@@ -22,7 +24,7 @@ const restoreLoading = ref(false)
 const createModal = ref(false)
 const createModel = ref({
   target: '',
-  storage: 0
+  storage: 0,
 })
 
 const storages = ref<any[]>([])
@@ -30,7 +32,7 @@ const storages = ref<any[]>([])
 const restoreModal = ref(false)
 const restoreModel = ref({
   file: '',
-  target: ''
+  target: '',
 })
 
 const websites = ref<any>([])
@@ -41,13 +43,13 @@ const columns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Size'),
     key: 'size',
     width: 160,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Update Date'),
@@ -56,7 +58,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.time)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -64,7 +66,7 @@ const columns: any = [
     width: 260,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -74,39 +76,27 @@ const columns: any = [
             onClick: () => {
               restoreModel.value.file = row.path
               restoreModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Restore')
-          }
+          { default: () => $gettext('Restore') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDelete(row.name)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this backup?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this backup?'),
+              })
+              if (ok) handleDelete(row.name)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -115,8 +105,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleCreate = () => {
@@ -135,7 +125,7 @@ const handleCreate = () => {
 const handleRestore = () => {
   restoreLoading.value = true
   messageReactive = window.$message.loading($gettext('Restoring...'), {
-    duration: 0
+    duration: 0,
   })
 
   useRequest(backup.restore(type.value, restoreModel.value.file, restoreModel.value.target))
@@ -168,7 +158,7 @@ watch(
     }
     refresh()
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 onMounted(() => {
@@ -178,7 +168,7 @@ onMounted(() => {
         for (const item of data.items) {
           websites.value.push({
             label: item.name,
-            value: item.name
+            value: item.name,
           })
         }
         if (type.value === 'website') {
@@ -192,7 +182,7 @@ onMounted(() => {
     for (const item of data.items) {
       storages.value.push({
         label: item.name,
-        value: item.id
+        value: item.id,
       })
     }
     createModel.value.storage = storages.value[0]?.value || 0
@@ -211,7 +201,7 @@ onUnmounted(() => {
     <n-alert type="info">
       {{
         $gettext(
-          'Only local backups are displayed here. Remote backups are stored in the corresponding backup storage.'
+          'Only local backups are displayed here. Remote backups are stored in the corresponding backup storage.',
         )
       }}
     </n-alert>
@@ -219,11 +209,13 @@ onUnmounted(() => {
       <n-button type="primary" @click="createModal = true">{{
         $gettext('Create Backup')
       }}</n-button>
-      <n-button type="primary" @click="uploadModal = true" ghost>{{
-        $gettext('Upload Backup')
-      }}</n-button>
+      <n-button type="primary" ghost @click="uploadModal = true">
+        {{ $gettext('Upload Backup') }}
+      </n-button>
     </n-flex>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1000"
@@ -231,16 +223,13 @@ onUnmounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.name"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>
@@ -284,8 +273,9 @@ onUnmounted(() => {
       :loading="createLoading"
       :disabled="createLoading"
       @click="handleCreate"
-      >{{ $gettext('Submit') }}</n-button
     >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
   <n-modal
     v-model:show="restoreModal"
@@ -315,8 +305,9 @@ onUnmounted(() => {
       :loading="restoreLoading"
       :disabled="restoreLoading"
       @click="handleRestore"
-      >{{ $gettext('Submit') }}</n-button
     >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
   <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>

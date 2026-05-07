@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'operation-log'
+  name: 'operation-log',
 })
 
 import { NButton, NPopover, NTag } from 'naive-ui'
@@ -39,10 +39,11 @@ const dateOptions = computed(() => {
   return options
 })
 
-const { loading, data, send: refresh } = useRequest(
-  () => log.list('app', limit.value, selectedDate.value || ''),
-  { initialData: [] }
-)
+const {
+  loading,
+  data,
+  send: refresh,
+} = useRequest(() => log.list('app', limit.value, selectedDate.value || ''), { initialData: [] })
 
 // 表格列配置
 const columns = [
@@ -53,7 +54,7 @@ const columns = [
     render: (row: LogEntry) => {
       const date = new Date(row.time)
       return date.toLocaleString()
-    }
+    },
   },
   {
     title: $gettext('Level'),
@@ -64,10 +65,10 @@ const columns = [
         INFO: 'success',
         WARN: 'warning',
         ERROR: 'error',
-        DEBUG: 'info'
+        DEBUG: 'info',
       }
       return h(NTag, { type: typeMap[row.level] || 'default', size: 'small' }, () => row.level)
-    }
+    },
   },
   {
     title: $gettext('Type'),
@@ -75,7 +76,7 @@ const columns = [
     width: 120,
     render: (row: LogEntry) => {
       return row.type || '-'
-    }
+    },
   },
   {
     title: $gettext('Operator'),
@@ -86,14 +87,14 @@ const columns = [
         return $gettext('System')
       }
       return row.operator_name || `#${row.operator_id}`
-    }
+    },
   },
   {
     title: $gettext('Message'),
     key: 'msg',
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: $gettext('Details'),
@@ -116,7 +117,7 @@ const columns = [
         {
           trigger: () =>
             h(NButton, { text: true, type: 'primary', size: 'small' }, () =>
-              $gettext('%{count} fields', { count: Object.keys(extra).length.toString() })
+              $gettext('%{count} fields', { count: Object.keys(extra).length.toString() }),
             ),
           default: () =>
             h(
@@ -128,9 +129,9 @@ const columns = [
                     'div',
                     {
                       style:
-                        'font-weight: bold; color: var(--n-text-color); font-size: 13px; margin-bottom: 2px;'
+                        'font-weight: bold; color: var(--n-text-color); font-size: 13px; margin-bottom: 2px;',
                     },
-                    key
+                    key,
                   ),
                   h(
                     typeof value === 'object' && value !== null ? 'pre' : 'div',
@@ -138,17 +139,17 @@ const columns = [
                       style:
                         typeof value === 'object' && value !== null
                           ? 'background: var(--n-color); padding: 6px 8px; border-radius: 4px; font-size: 12px; white-space: pre-wrap; word-break: break-all; margin: 0;'
-                          : 'color: var(--n-text-color); font-size: 13px; word-break: break-all;'
+                          : 'color: var(--n-text-color); font-size: 13px; word-break: break-all;',
                     },
-                    formatValue(value)
-                  )
-                ])
-              )
-            )
-        }
+                    formatValue(value),
+                  ),
+                ]),
+              ),
+            ),
+        },
       )
-    }
-  }
+    },
+  },
 ]
 
 // 刷新
@@ -158,13 +159,13 @@ const handleRefresh = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
-    <div class="mb-4 flex gap-4 items-center">
+  <n-flex vertical class="h-full">
+    <n-flex align="center">
       <span>{{ $gettext('Date') }}:</span>
       <n-select
         v-model:value="selectedDate"
         :options="dateOptions"
-        class="w-150px"
+        class="w-37"
         @update:value="handleRefresh"
       />
       <span>{{ $gettext('Show entries') }}:</span>
@@ -174,15 +175,15 @@ const handleRefresh = () => {
           { label: '100', value: 100 },
           { label: '200', value: 200 },
           { label: '500', value: 500 },
-          { label: '1000', value: 1000 }
+          { label: '1000', value: 1000 },
         ]"
-        class="w-100px"
+        class="w-25"
         @update:value="handleRefresh"
       />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>
-    </div>
+    </n-flex>
     <n-data-table
       class="flex-1 min-h-0"
       :columns="columns"
@@ -193,5 +194,5 @@ const handleRefresh = () => {
       :scroll-x="800"
       virtual-scroll
     />
-  </div>
+  </n-flex>
 </template>

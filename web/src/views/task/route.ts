@@ -7,7 +7,7 @@ export default {
   path: '/task',
   component: Layout,
   meta: {
-    order: 80
+    order: 80,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Task',
         icon: 'mdi:timetable',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

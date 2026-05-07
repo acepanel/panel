@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import file from '@/api/panel/file'
 import { useGettext } from 'vue3-gettext'
+
+import file from '@/api/panel/file'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -20,7 +21,7 @@ watch(
       mime.value = data.mime
       content.value = data.content
     })
-  }
+  },
 )
 </script>
 

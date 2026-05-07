@@ -40,7 +40,7 @@ const isSingleDay = computed(() => ctx.dateRange.value.start === ctx.dateRange.v
 const loadData = () => {
   loading.value = true
   useRequest(
-    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value)
+    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
   )
     .onSuccess(({ data }: any) => {
       totals.value = data.current
@@ -74,7 +74,7 @@ const cards = computed(() => [
   { label: '2xx', value: totals.value.status_2xx || 0, color: '#18a058' },
   { label: '3xx', value: totals.value.status_3xx || 0, color: '#2080f0' },
   { label: '4xx', value: totals.value.status_4xx || 0, color: '#f0a020' },
-  { label: '5xx', value: totals.value.status_5xx || 0, color: '#d03050' }
+  { label: '5xx', value: totals.value.status_5xx || 0, color: '#d03050' },
 ])
 
 // 图表
@@ -104,7 +104,7 @@ const chartOption = computed<EChartsOption>(() => {
         }
         html += '</div>'
         return html
-      }
+      },
     },
     legend: { top: 0, right: 0 },
     grid: { left: 60, right: 20, top: 40, bottom: 30 },
@@ -118,12 +118,12 @@ const chartOption = computed<EChartsOption>(() => {
               const hour = parseInt(value.split(':')[0] || '0', 10)
               return hour % 3 === 0
             }
-          : 'auto'
-      }
+          : 'auto',
+      },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { type: 'dashed' } }
+      splitLine: { lineStyle: { type: 'dashed' } },
     },
     series: [
       {
@@ -135,7 +135,7 @@ const chartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.6 },
         lineStyle: { width: 1 },
         itemStyle: { color: '#18a058' },
-        data: data.map((s) => s.status_2xx || 0)
+        data: data.map((s) => s.status_2xx || 0),
       },
       {
         name: '3xx',
@@ -146,7 +146,7 @@ const chartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.6 },
         lineStyle: { width: 1 },
         itemStyle: { color: '#2080f0' },
-        data: data.map((s) => s.status_3xx || 0)
+        data: data.map((s) => s.status_3xx || 0),
       },
       {
         name: '4xx',
@@ -157,7 +157,7 @@ const chartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.6 },
         lineStyle: { width: 1 },
         itemStyle: { color: '#f0a020' },
-        data: data.map((s) => s.status_4xx || 0)
+        data: data.map((s) => s.status_4xx || 0),
       },
       {
         name: '5xx',
@@ -168,9 +168,9 @@ const chartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.6 },
         lineStyle: { width: 1 },
         itemStyle: { color: '#d03050' },
-        data: data.map((s) => s.status_5xx || 0)
-      }
-    ]
+        data: data.map((s) => s.status_5xx || 0),
+      },
+    ],
   }
 })
 </script>
@@ -178,9 +178,9 @@ const chartOption = computed<EChartsOption>(() => {
 <template>
   <n-flex vertical :size="20">
     <n-spin :show="loading">
-      <div class="gap-12 grid grid-cols-2 lg:grid-cols-4">
+      <div class="gap-3 grid grid-cols-2 lg:grid-cols-4">
         <n-card v-for="c in cards" :key="c.label" :bordered="false" size="small">
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
             <span class="text-12px" :style="{ color: c.color }">{{ c.label }}</span>
             <span class="text-20px font-bold">{{ c.value.toLocaleString() }}</span>
             <span class="text-12px text-[var(--text-color-3)]">{{ pct(c.value) }}</span>

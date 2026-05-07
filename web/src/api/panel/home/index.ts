@@ -29,5 +29,5 @@ export default {
   // 运行时信息
   runtimeInfo: (): any => http.Get('/home/runtime_info'),
   // Goroutine 列表
-  goroutines: (): any => http.Get('/home/goroutines')
+  goroutines: (): any => http.Get('/home/goroutines'),
 }

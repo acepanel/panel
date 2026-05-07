@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'file-index'
+  name: 'file-index',
 })
 
 import { useFileStore } from '@/stores'
@@ -9,8 +9,8 @@ import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
 import ToolBar from '@/views/file/ToolBar.vue'
-import UploadModal from '@/views/file/UploadModal.vue'
 import type { FileInfo } from '@/views/file/types'
+import UploadModal from '@/views/file/UploadModal.vue'
 
 const fileStore = useFileStore()
 
@@ -31,7 +31,7 @@ watch(
   () => fileStore.activeTabId,
   () => {
     selected.value = []
-  }
+  },
 )
 
 // n-tabs 事件
@@ -83,7 +83,7 @@ const handleDragOver = (e: DragEvent) => {
 // 递归读取目录中的所有文件
 const readDirectoryRecursively = async (
   entry: FileSystemDirectoryEntry,
-  basePath: string = ''
+  basePath: string = '',
 ): Promise<File[]> => {
   const files: File[] = []
   const reader = entry.createReader()
@@ -115,7 +115,7 @@ const readDirectoryRecursively = async (
     } else if (childEntry.isDirectory) {
       const subFiles = await readDirectoryRecursively(
         childEntry as FileSystemDirectoryEntry,
-        childPath
+        childPath,
       )
       files.push(...subFiles)
     }
@@ -145,7 +145,7 @@ const handleDrop = async (e: DragEvent) => {
         } else if (entry.isDirectory) {
           const dirFiles = await readDirectoryRecursively(
             entry as FileSystemDirectoryEntry,
-            entry.name
+            entry.name,
           )
           files.push(...dirFiles)
         }
@@ -168,8 +168,8 @@ watch(upload, (val) => {
 </script>
 
 <template>
-  <common-page
-    show-footer
+  <PageContainer
+    :show-footer="true"
     flex
     @dragenter="handleDragEnter"
     @dragleave="handleDragLeave"
@@ -191,10 +191,7 @@ watch(upload, (val) => {
       >
         <n-tab-pane v-for="tab in fileStore.tabs" :key="tab.id" :name="tab.id">
           <template #tab>
-            <span
-              :title="tab.path"
-              @mousedown.middle.prevent="handleTabMiddleClick(tab.id)"
-            >
+            <span :title="tab.path" @mousedown.middle.prevent="handleTabMiddleClick(tab.id)">
               {{ tab.label }}
             </span>
           </template>
@@ -251,14 +248,14 @@ watch(upload, (val) => {
       v-model:path="fileStore.activeTab.path"
       :initial-files="droppedFiles"
     />
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss">
 .drag-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;

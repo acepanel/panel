@@ -1,29 +1,30 @@
 <script setup lang="ts">
-import { useThemeStore } from '@/stores'
-import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
 import { useThemeVars } from 'naive-ui'
+
+import { useThemeStore } from '@/stores'
+import { getMonaco } from '@/utils/monaco'
 
 const props = defineProps({
   original: {
     type: String,
-    required: true
+    required: true,
   },
   lang: {
     type: String,
     required: false,
-    default: 'yaml'
+    default: 'yaml',
   },
   height: {
     type: String,
     required: false,
-    default: '60vh'
+    default: '60vh',
   },
   readOnly: {
     type: Boolean,
     required: false,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const modified = defineModel<string>('modified', { type: String, required: true })
@@ -52,12 +53,12 @@ async function initEditor() {
     readOnly: props.readOnly,
     renderSideBySide: true,
     enableSplitViewResizing: true,
-    originalEditable: false
+    originalEditable: false,
   })
 
   editorRef.value.setModel({
     original: originalModel,
-    modified: modifiedModel
+    modified: modifiedModel,
   })
 
   // 监听修改后的内容变化
@@ -80,7 +81,7 @@ watch(
         model.original.setValue(newOriginal)
       }
     }
-  }
+  },
 )
 
 watch(modified, (newModified) => {
@@ -104,7 +105,7 @@ watch(
         monacoRef.value.editor.setModelLanguage(model.modified, newLang)
       }
     }
-  }
+  },
 )
 
 watch(
@@ -113,7 +114,7 @@ watch(
     if (editorRef.value) {
       editorRef.value.updateOptions({ readOnly: newReadOnly })
     }
-  }
+  },
 )
 
 onMounted(() => {

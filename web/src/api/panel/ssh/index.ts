@@ -10,5 +10,5 @@ export default {
   // 修改主机
   update: (id: number, req: any): any => http.Put(`/ssh/${id}`, req),
   // 删除主机
-  delete: (id: number): any => http.Delete(`/ssh/${id}`)
+  delete: (id: number): any => http.Delete(`/ssh/${id}`),
 }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import container from '@/api/panel/container'
 import { useGettext } from 'vue3-gettext'
+
+import container from '@/api/panel/container'
+
 import ImagePullModal from './ImagePullModal.vue'
 
 const { $gettext } = useGettext()
@@ -42,7 +44,7 @@ const createModel = reactive({
   tty: false,
   open_stdin: false,
   auto_remove: false,
-  privileged: false
+  privileged: false,
 })
 
 const networks = ref<{ label: string; value: string }[]>([])
@@ -51,17 +53,17 @@ const restartPolicyOptions = [
   { label: $gettext('None'), value: 'no' },
   { label: $gettext('Always'), value: 'always' },
   { label: $gettext('On failure (default 5 retries)'), value: 'on-failure' },
-  { label: $gettext('Unless stopped'), value: 'unless-stopped' }
+  { label: $gettext('Unless stopped'), value: 'unless-stopped' },
 ]
 
 const protocolOptions = [
   { label: 'TCP', value: 'tcp' },
-  { label: 'UDP', value: 'udp' }
+  { label: 'UDP', value: 'udp' },
 ]
 
 const volumeModeOptions = [
   { label: $gettext('Read-Write'), value: 'rw' },
-  { label: $gettext('Read-Only'), value: 'ro' }
+  { label: $gettext('Read-Only'), value: 'ro' },
 ]
 
 // 端口映射操作
@@ -71,14 +73,14 @@ const onCreatePort = () => ({
   host_start: 80,
   host_end: 80,
   host: '',
-  protocol: 'tcp'
+  protocol: 'tcp',
 })
 
 // 挂载卷操作
 const onCreateVolume = () => ({
   host: '/www',
   container: '/www',
-  mode: 'rw'
+  mode: 'rw',
 })
 
 // 环境变量操作
@@ -91,7 +93,7 @@ const getNetworks = () => {
   useRequest(container.networkList(1, 1000)).onSuccess(({ data }) => {
     networks.value = data.items.map((item: any) => ({
       label: item.name,
-      value: item.id
+      value: item.id,
     }))
     if (networks.value.length > 0) {
       createModel.network = networks.value[0]?.value ?? ''
@@ -179,7 +181,7 @@ watch(show, (val) => {
     v-model:show="show"
     :title="$gettext('Create Container')"
     preset="card"
-    style="width: 70vw"
+    :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -276,7 +278,7 @@ watch(show, (val) => {
                   <n-input
                     v-model:value="value.host"
                     :placeholder="$gettext('IP (optional)')"
-                    style="width: 120px"
+                    class="w-30"
                   />
                   <span>:</span>
                   <n-input-number
@@ -285,7 +287,7 @@ watch(show, (val) => {
                     :max="65535"
                     :show-button="false"
                     :placeholder="$gettext('Host Start')"
-                    style="width: 90px"
+                    class="w-22.5"
                   />
                   <span>-</span>
                   <n-input-number
@@ -294,7 +296,7 @@ watch(show, (val) => {
                     :max="65535"
                     :show-button="false"
                     :placeholder="$gettext('Host End')"
-                    style="width: 90px"
+                    class="w-22.5"
                   />
                   <span>:</span>
                   <n-input-number
@@ -303,7 +305,7 @@ watch(show, (val) => {
                     :max="65535"
                     :show-button="false"
                     :placeholder="$gettext('Container Start')"
-                    style="width: 90px"
+                    class="w-22.5"
                   />
                   <span>-</span>
                   <n-input-number
@@ -312,12 +314,12 @@ watch(show, (val) => {
                     :max="65535"
                     :show-button="false"
                     :placeholder="$gettext('Container End')"
-                    style="width: 90px"
+                    class="w-22.5"
                   />
                   <n-select
                     v-model:value="value.protocol"
                     :options="protocolOptions"
-                    style="width: 90px"
+                    class="w-22.5"
                   />
                 </n-flex>
               </template>
@@ -327,7 +329,7 @@ watch(show, (val) => {
           <n-alert v-if="createModel.publish_all_ports" type="info">
             {{
               $gettext(
-                'All exposed ports in the image will be automatically mapped to random host ports.'
+                'All exposed ports in the image will be automatically mapped to random host ports.',
               )
             }}
           </n-alert>
@@ -356,20 +358,16 @@ watch(show, (val) => {
                     :placeholder="$gettext('Container path')"
                     style="flex: 1"
                   />
-                  <n-select
-                    v-model:value="value.mode"
-                    :options="volumeModeOptions"
-                    style="width: 120px"
-                  />
+                  <n-select v-model:value="value.mode" :options="volumeModeOptions" class="w-30" />
                 </n-flex>
               </template>
             </n-dynamic-input>
           </n-form-item>
 
-          <n-alert type="info" style="margin-top: 16px">
+          <n-alert type="info" class="mt-4">
             {{
               $gettext(
-                'Mount host directories or volumes into the container. Use absolute paths for host directories.'
+                'Mount host directories or volumes into the container. Use absolute paths for host directories.',
               )
             }}
           </n-alert>
@@ -379,10 +377,10 @@ watch(show, (val) => {
       <!-- 资源限制 -->
       <n-tab-pane name="resources" :tab="$gettext('Resource Limits')">
         <n-form :model="createModel" label-placement="left" label-width="120">
-          <n-alert type="info" style="margin-bottom: 16px">
+          <n-alert type="info" class="mb-4">
             {{
               $gettext(
-                'Set resource limits to prevent the container from consuming too many system resources. Set to 0 for no limit.'
+                'Set resource limits to prevent the container from consuming too many system resources. Set to 0 for no limit.',
               )
             }}
           </n-alert>
@@ -422,7 +420,7 @@ watch(show, (val) => {
             </n-col>
           </n-row>
 
-          <n-collapse style="margin-top: 16px">
+          <n-collapse class="mt-4">
             <n-collapse-item :title="$gettext('Resource Limit Description')">
               <n-descriptions :column="1" label-placement="left">
                 <n-descriptions-item :label="$gettext('Memory')">
@@ -431,14 +429,14 @@ watch(show, (val) => {
                 <n-descriptions-item :label="$gettext('CPU Cores')">
                   {{
                     $gettext(
-                      'Number of CPU cores the container can use. 0.5 means half a core, 2 means 2 cores.'
+                      'Number of CPU cores the container can use. 0.5 means half a core, 2 means 2 cores.',
                     )
                   }}
                 </n-descriptions-item>
                 <n-descriptions-item :label="$gettext('CPU Shares')">
                   {{
                     $gettext(
-                      'Relative CPU weight. Default is 1024. Higher values get more CPU time when competing.'
+                      'Relative CPU weight. Default is 1024. Higher values get more CPU time when competing.',
                     )
                   }}
                 </n-descriptions-item>

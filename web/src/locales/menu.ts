@@ -27,7 +27,7 @@ export function translateTitle(key: string): string {
     'S3fs Manager': $gettext('S3fs Manager'),
     'Supervisor Manager': $gettext('Supervisor Manager'),
     'Rsync Manager': $gettext('Rsync Manager'),
-    'Frp Manager': $gettext('Frp Manager')
+    'Frp Manager': $gettext('Frp Manager'),
   }
 
   return titles[key] || key

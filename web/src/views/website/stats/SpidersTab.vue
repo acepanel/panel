@@ -22,7 +22,7 @@ const total = ref(0)
 const loadData = () => {
   loading.value = true
   useRequest(
-    website.statSpiders(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value)
+    website.statSpiders(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -52,22 +52,22 @@ const chartOption = computed<EChartsOption>(() => {
         const p = params[0]
         const item = data[p.dataIndex]
         return `<div style="font-size:12px"><b>${p.name}</b><br/>${$gettext('Requests')}: ${p.value.toLocaleString()}<br/>${$gettext('Percentage')}: ${item?.percent?.toFixed(1) || 0}%</div>`
-      }
+      },
     },
     grid: { left: 120, right: 40, top: 10, bottom: 30 },
     xAxis: { type: 'value' },
     yAxis: {
       type: 'category',
       data: data.map((i: any) => i.spider).reverse(),
-      axisLabel: { width: 100, overflow: 'truncate' }
+      axisLabel: { width: 100, overflow: 'truncate' },
     },
     series: [
       {
         type: 'bar',
         data: data.map((i: any) => i.requests).reverse(),
-        barMaxWidth: 30
-      }
-    ]
+        barMaxWidth: 30,
+      },
+    ],
   }
 })
 
@@ -76,13 +76,13 @@ const columns = computed(() => [
   {
     title: $gettext('Requests'),
     key: 'requests',
-    sorter: (a: any, b: any) => a.requests - b.requests
+    sorter: (a: any, b: any) => a.requests - b.requests,
   },
   {
     title: $gettext('Percentage'),
     key: 'percent',
-    render: (row: any) => `${(row.percent || 0).toFixed(1)}%`
-  }
+    render: (row: any) => `${(row.percent || 0).toFixed(1)}%`,
+  },
 ])
 </script>
 

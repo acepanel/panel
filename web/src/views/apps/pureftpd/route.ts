@@ -15,8 +15,8 @@ export default {
       meta: {
         title: 'Pure-FTPd',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

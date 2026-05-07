@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import file from '@/api/panel/file'
-import TheIcon from '@/components/custom/TheIcon.vue'
-import { checkName, checkPath, getExt, getIconByExt } from '@/utils'
 import type { DataTableColumns, InputInst } from 'naive-ui'
 import { NButton, NDataTable, NEllipsis, NFlex, NSpin, NTag, useThemeVars } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { useGettext } from 'vue3-gettext'
+
+import file from '@/api/panel/file'
+import TheIcon from '@/components/custom/TheIcon.vue'
+import { checkName, checkPath, getExt, getIconByExt } from '@/utils'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
@@ -14,8 +15,8 @@ const path = defineModel<string>('path', { type: String, required: true })
 const props = defineProps({
   dir: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const currentPath = ref('/')
@@ -34,7 +35,7 @@ const create = ref(false)
 const createLoading = ref(false)
 const createModel = ref({
   dir: false,
-  path: ''
+  path: '',
 })
 
 const columns: DataTableColumns<RowData> = [
@@ -44,7 +45,7 @@ const columns: DataTableColumns<RowData> = [
     fixed: 'left',
     disabled(row) {
       return props.dir ? !row.dir : row.dir
-    }
+    },
   },
   {
     title: $gettext('Name'),
@@ -68,7 +69,7 @@ const columns: DataTableColumns<RowData> = [
             if (row.dir) {
               currentPath.value = row.full
             }
-          }
+          },
         },
         () => [
           h(TheIcon, { icon, size: 24 }),
@@ -79,11 +80,11 @@ const columns: DataTableColumns<RowData> = [
               } else {
                 return row.name
               }
-            }
-          })
-        ]
+            },
+          }),
+        ],
       )
-    }
+    },
   },
   {
     title: $gettext('Permissions'),
@@ -93,9 +94,9 @@ const columns: DataTableColumns<RowData> = [
       return h(
         NTag,
         { type: 'success', size: 'small', bordered: false },
-        { default: () => row.mode }
+        { default: () => row.mode },
       )
-    }
+    },
   },
   {
     title: $gettext('Owner / Group'),
@@ -105,9 +106,9 @@ const columns: DataTableColumns<RowData> = [
       return h('div', null, [
         h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.owner }),
         ' / ',
-        h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.group })
+        h(NTag, { type: 'primary', size: 'small', bordered: false }, { default: () => row.group }),
       ])
-    }
+    },
   },
   {
     title: $gettext('Size'),
@@ -119,7 +120,7 @@ const columns: DataTableColumns<RowData> = [
         return h(
           NTag,
           { type: 'info', size: 'small', bordered: false },
-          { default: () => row.size }
+          { default: () => row.size },
         )
       }
       // 目录
@@ -128,7 +129,7 @@ const columns: DataTableColumns<RowData> = [
         return h(
           NTag,
           { type: 'info', size: 'small', bordered: false },
-          { default: () => cachedSize }
+          { default: () => cachedSize },
         )
       }
       const isLoading = sizeLoading.value.get(row.full)
@@ -143,11 +144,11 @@ const columns: DataTableColumns<RowData> = [
             e.preventDefault()
             e.stopPropagation()
             calculateDirSize(row.full)
-          }
+          },
         },
-        $gettext('Calculate')
+        $gettext('Calculate'),
       )
-    }
+    },
   },
   {
     title: $gettext('Modification Time'),
@@ -157,10 +158,10 @@ const columns: DataTableColumns<RowData> = [
       return h(
         NTag,
         { type: 'warning', size: 'small', bordered: false },
-        { default: () => row.modify }
+        { default: () => row.modify },
       )
-    }
-  }
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, reload } = usePagination(
@@ -170,8 +171,8 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleInput = () => {
@@ -316,14 +317,14 @@ watch(selected, (val) => {
       <n-popselect
         :options="[
           { label: $gettext('File'), value: 'file' },
-          { label: $gettext('Folder'), value: 'folder' }
+          { label: $gettext('Folder'), value: 'folder' },
         ]"
         @update:value="showCreate"
       >
         <n-button type="primary"> {{ $gettext('Create') }} </n-button>
       </n-popselect>
       <n-button @click="handleUp">
-        <i-mdi-arrow-up :size="16" />
+        <i-mdi-arrow-up class="text-base" />
       </n-button>
       <n-input-group flex-1>
         <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
@@ -350,14 +351,14 @@ watch(selected, (val) => {
         />
       </n-input-group>
       <n-button @click="reload">
-        <i-mdi-refresh :size="16" />
+        <i-mdi-refresh class="text-base" />
       </n-button>
     </n-flex>
     <n-data-table
       remote
       striped
       virtual-scroll
-      pt-20
+      pt-5
       size="small"
       :scroll-x="600"
       :columns="columns"
@@ -376,7 +377,7 @@ watch(selected, (val) => {
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000]
+        pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000],
       }"
     />
   </n-modal>
@@ -395,7 +396,15 @@ watch(selected, (val) => {
           <n-input v-model:value="createModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="createLoading"
+        :disabled="createLoading"
+        @click="handleCreate"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
 </template>

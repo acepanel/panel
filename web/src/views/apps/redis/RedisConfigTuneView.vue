@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'redis-config-tune'
+  name: 'redis-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -33,7 +33,7 @@ const saveLoading = ref(false)
 const sizeUnitOptions = [
   { label: 'kb', value: 'kb' },
   { label: 'mb', value: 'mb' },
-  { label: 'gb', value: 'gb' }
+  { label: 'gb', value: 'gb' },
 ]
 
 // 解析带单位的值，如 "256mb" -> { num: 256, unit: "mb" }
@@ -60,18 +60,18 @@ const maxmemoryPolicyOptions = [
   { label: 'volatile-lru', value: 'volatile-lru' },
   { label: 'volatile-lfu', value: 'volatile-lfu' },
   { label: 'volatile-random', value: 'volatile-random' },
-  { label: 'volatile-ttl', value: 'volatile-ttl' }
+  { label: 'volatile-ttl', value: 'volatile-ttl' },
 ]
 
 const appendfsyncOptions = [
   { label: 'always', value: 'always' },
   { label: 'everysec', value: 'everysec' },
-  { label: 'no', value: 'no' }
+  { label: 'no', value: 'no' },
 ]
 
 const yesNoOptions = [
   { label: 'yes', value: 'yes' },
-  { label: 'no', value: 'no' }
+  { label: 'no', value: 'no' },
 ]
 
 useRequest(redis.configTune()).onSuccess(({ data }: any) => {
@@ -99,7 +99,7 @@ const getConfigData = () => ({
   maxmemory: composeSizeValue(maxmemoryNum.value, maxmemoryUnit.value),
   maxmemory_policy: maxmemoryPolicy.value ?? '',
   appendonly: appendonly.value ?? '',
-  appendfsync: appendfsync.value ?? ''
+  appendfsync: appendfsync.value ?? '',
 })
 
 const handleSave = () => {
@@ -126,10 +126,21 @@ const handleSave = () => {
             <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
           </n-form-item>
           <n-form-item :label="$gettext('Port (port)')">
-            <n-input-number class="w-full" v-model:value="port" :placeholder="$gettext('e.g. 6379')" :min="1" :max="65535" />
+            <n-input-number
+              class="w-full"
+              v-model:value="port"
+              :placeholder="$gettext('e.g. 6379')"
+              :min="1"
+              :max="65535"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Databases (databases)')">
-            <n-input-number class="w-full" v-model:value="databases" :placeholder="$gettext('e.g. 16')" :min="1" />
+            <n-input-number
+              class="w-full"
+              v-model:value="databases"
+              :placeholder="$gettext('e.g. 16')"
+              :min="1"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Password (requirepass)')">
             <n-input
@@ -140,14 +151,29 @@ const handleSave = () => {
             />
           </n-form-item>
           <n-form-item :label="$gettext('Timeout (timeout)')">
-            <n-input-number class="w-full" v-model:value="timeout" :placeholder="$gettext('e.g. 0 (disabled) or seconds')" :min="0" />
+            <n-input-number
+              class="w-full"
+              v-model:value="timeout"
+              :placeholder="$gettext('e.g. 0 (disabled) or seconds')"
+              :min="0"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('TCP Keepalive (tcp-keepalive)')">
-            <n-input-number class="w-full" v-model:value="tcpKeepalive" :placeholder="$gettext('e.g. 300')" :min="0" />
+            <n-input-number
+              class="w-full"
+              v-model:value="tcpKeepalive"
+              :placeholder="$gettext('e.g. 300')"
+              :min="0"
+            />
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -161,8 +187,14 @@ const handleSave = () => {
         <n-form>
           <n-form-item :label="$gettext('Max Memory (maxmemory)')">
             <n-input-group>
-              <n-input-number class="w-full" v-model:value="maxmemoryNum" :placeholder="$gettext('e.g. 256')" :min="0" style="flex: 1" />
-              <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" style="width: 80px" />
+              <n-input-number
+                class="w-full"
+                v-model:value="maxmemoryNum"
+                :placeholder="$gettext('e.g. 256')"
+                :min="0"
+                style="flex: 1"
+              />
+              <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
@@ -170,7 +202,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -190,7 +227,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

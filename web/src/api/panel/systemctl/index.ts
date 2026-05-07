@@ -18,5 +18,5 @@ export default {
   // 停止服务
   stop: (service: string): any => http.Post('/systemctl/stop', { service }),
   // 清空指定服务的 journald 日志
-  clearLog: (service: string): any => http.Post('/systemctl/clear_log', { service })
+  clearLog: (service: string): any => http.Post('/systemctl/clear_log', { service }),
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useGettext } from 'vue3-gettext'
+
 import app from '@/api/panel/app'
 import storage from '@/api/panel/backup-storage'
 import container from '@/api/panel/container'
@@ -8,7 +10,6 @@ import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import CronSelector from '@/components/common/CronSelector.vue'
 import PathSelector from '@/components/common/PathSelector.vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -41,7 +42,7 @@ const defaultModel = () => ({
   body: '',
   timeout: 10,
   insecure: false,
-  retries: 0
+  retries: 0,
 })
 
 const headerList = ref<{ key: string; value: string }[]>([])
@@ -58,10 +59,10 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     db: [
       {
         label: '',
-        value: ''
-      }
-    ]
-  }
+        value: '',
+      },
+    ],
+  },
 })
 
 const mySQLInstalled = computed(() => {
@@ -110,7 +111,7 @@ const handleSubmit = async () => {
       window.$message.success(
         props.mode === 'create'
           ? $gettext('Created successfully')
-          : $gettext('Modified successfully')
+          : $gettext('Modified successfully'),
       )
       emit('saved')
       window.$bus.emit('task:refresh-cron')
@@ -129,14 +130,14 @@ const generateTaskName = () => {
       website: $gettext('Backup Website'),
       mysql: $gettext('Backup MySQL'),
       postgresql: $gettext('Backup PostgreSQL'),
-      path: $gettext('Backup Directory')
+      path: $gettext('Backup Directory'),
     }
     const prefix = backupTypeMap[formModel.value.sub_type] || $gettext('Backup')
     formModel.value.name = targets.length ? `${prefix} - ${targets.join(', ')}` : prefix
   } else if (type === 'cutoff') {
     const cutoffTypeMap: Record<string, string> = {
       website: $gettext('Log Rotation - Website'),
-      container: $gettext('Log Rotation - Container')
+      container: $gettext('Log Rotation - Container'),
     }
     const prefix = cutoffTypeMap[formModel.value.sub_type] || $gettext('Log Rotation')
     formModel.value.name = targets.length ? `${prefix} - ${targets.join(', ')}` : prefix
@@ -156,14 +157,14 @@ watch(
     formModel.value.sub_type,
     formModel.value.targets,
     formModel.value.url,
-    formModel.value.method
+    formModel.value.method,
   ],
   () => {
     if (props.mode === 'create') {
       generateTaskName()
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 const skipClearTargets = ref(false)
@@ -174,14 +175,14 @@ watch(
   () => {
     if (skipClearTargets.value) return
     formModel.value.targets = []
-  }
+  },
 )
 watch(
   () => formModel.value.type,
   () => {
     if (skipClearTargets.value) return
     formModel.value.targets = []
-  }
+  },
 )
 
 // 加载容器列表
@@ -189,7 +190,7 @@ const loadContainers = () => {
   useRequest(container.containerList(1, 10000)).onSuccess(({ data }: { data: any }) => {
     containers.value = (data.items || []).map((item: any) => ({
       label: item.name,
-      value: item.name
+      value: item.name,
     }))
   })
 }
@@ -199,7 +200,7 @@ const loadDatabases = (type: string) => {
   useRequest(database.list(1, 10000, type)).onSuccess(({ data }: { data: any }) => {
     databases.value = (data.items || []).map((item: any) => ({
       label: `${item.name} (${item.server_name || 'local'})`,
-      value: item.name
+      value: item.name,
     }))
   })
 }
@@ -227,14 +228,14 @@ watch(show, (val) => {
         body: config.body || '',
         timeout: config.timeout ?? 10,
         insecure: config.insecure ?? false,
-        retries: config.retries ?? 0
+        retries: config.retries ?? 0,
       }
       nextTick(() => {
         skipClearTargets.value = false
       })
       // 回填 headerList
       headerList.value = Object.entries(config.headers || {}).map(
-        ([key, value]: [string, any]) => ({ key, value })
+        ([key, value]: [string, any]) => ({ key, value }),
       )
       // 加载关联数据
       if (props.editData.type === 'cutoff' && config.type === 'container') {
@@ -263,7 +264,7 @@ watch(
     if (formModel.value.type === 'backup' && (val === 'mysql' || val === 'postgresql')) {
       loadDatabases(val)
     }
-  }
+  },
 )
 
 onMounted(() => {
@@ -273,7 +274,7 @@ onMounted(() => {
         for (const item of data.items) {
           websites.value.push({
             label: item.name,
-            value: item.name
+            value: item.name,
           })
         }
       })
@@ -287,7 +288,7 @@ onMounted(() => {
     for (const item of data.items) {
       storages.value.push({
         label: item.name,
-        value: item.id
+        value: item.id,
       })
     }
   })
@@ -313,7 +314,7 @@ onMounted(() => {
             { label: $gettext('Backup Data'), value: 'backup' },
             { label: $gettext('Log Rotation'), value: 'cutoff' },
             { label: $gettext('Access URL'), value: 'url' },
-            { label: $gettext('Sync Time'), value: 'synctime' }
+            { label: $gettext('Sync Time'), value: 'synctime' },
           ]"
         />
       </n-form-item>
@@ -340,7 +341,7 @@ onMounted(() => {
         <n-text ml-10 depth="3">
           {{
             $gettext(
-              'Prevent duplicate execution: skip this run if the previous one is still running'
+              'Prevent duplicate execution: skip this run if the previous one is still running',
             )
           }}
         </n-text>
@@ -360,7 +361,7 @@ onMounted(() => {
               { label: 'PUT', value: 'PUT' },
               { label: 'DELETE', value: 'DELETE' },
               { label: 'PATCH', value: 'PATCH' },
-              { label: 'HEAD', value: 'HEAD' }
+              { label: 'HEAD', value: 'HEAD' },
             ]"
           />
         </n-form-item>

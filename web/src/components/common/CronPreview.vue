@@ -6,8 +6,8 @@ const { $gettext } = useGettext()
 const props = defineProps({
   cron: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 
 // 星期名称映射
@@ -19,7 +19,7 @@ const weekdayNames: Record<string, string> = {
   '4': $gettext('Thursday'),
   '5': $gettext('Friday'),
   '6': $gettext('Saturday'),
-  '7': $gettext('Sunday') // 有些系统用 7 表示周日
+  '7': $gettext('Sunday'), // 有些系统用 7 表示周日
 }
 
 // 格式化时间为 HH:MM

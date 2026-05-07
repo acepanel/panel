@@ -16,7 +16,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
       onFinish()
       window.$bus.emit('backup:refresh')
       window.$message.success(
-        $gettext('Upload %{ filename } successfully', { filename: file.name })
+        $gettext('Upload %{ filename } successfully', { filename: file.name }),
       )
     })
     .onError(() => {
@@ -44,10 +44,10 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
     <n-flex vertical>
       <n-upload ref="upload" multiple directory-dnd :custom-request="uploadRequest">
         <n-upload-dragger>
-          <div style="margin-bottom: 12px">
+          <div class="mb-3">
             <the-icon :size="60" icon="mdi:arrow-up-bold-box-outline" />
           </div>
-          <NText text-18>{{ $gettext('Click or drag files to this area to upload') }}</NText>
+          <NText text-xl>{{ $gettext('Click or drag files to this area to upload') }}</NText>
           <NP depth="3" m-10>{{
             $gettext('For large files, it is recommended to use SFTP or other methods to upload')
           }}</NP>

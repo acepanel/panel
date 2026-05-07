@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import SideSetting from '@/layouts/sidebar/components/SideSetting.vue'
+
 import SideLogo from './components/SideLogo.vue'
 import SideMenu from './components/SideMenu.vue'
 </script>

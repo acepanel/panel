@@ -1,17 +1,19 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'app-index'
+  name: 'app-index',
 })
 
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
 import VersionModal from '@/views/app/VersionModal.vue'
 
 const { $gettext } = useGettext()
+const { confirmDelete, confirmAction } = useConfirm()
 
 const versionModalShow = ref(false)
 const versionModalOperation = ref($gettext('Install'))
@@ -29,25 +31,25 @@ const columns: any = [
     align: 'center',
     render(row: any) {
       return renderLocalIcon('app', row.slug, { size: 26 })()
-    }
+    },
   },
   {
     title: $gettext('App Name'),
     key: 'name',
     width: 200,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Description'),
     key: 'description',
     minWidth: 300,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Installed Version'),
     key: 'installed_version',
     width: 160,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Show in Home'),
@@ -58,9 +60,9 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.show,
-        onUpdateValue: () => handleShowChange(row)
+        onUpdateValue: () => handleShowChange(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -69,84 +71,68 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, null, {
-        default: () => [
-          row.installed && row.update_exist
-            ? h(
-                NPopconfirm,
+        default: () => {
+          const items: any[] = []
+          if (row.installed && row.update_exist) {
+            const targetVersion =
+              row.channels?.find((ch: any) => ch.slug === row.installed_channel)?.version ?? ''
+            items.push(
+              h(
+                NButton,
                 {
-                  onPositiveClick: () => handleUpdate(row.slug)
-                },
-                {
-                  default: () => {
-                    const targetVersion =
-                      row.channels?.find((ch: any) => ch.slug === row.installed_channel)
-                        ?.version ?? ''
-                    return $gettext(
-                      'Updating app %{ app } to %{ version } may reset related configurations to default state, are you sure to continue?',
-                      { app: row.name, version: targetVersion }
-                    )
+                  size: 'small',
+                  type: 'warning',
+                  onClick: async () => {
+                    const ok = await confirmAction({
+                      type: 'warning',
+                      title: $gettext('Confirm Update'),
+                      content: $gettext(
+                        'Updating app %{ app } to %{ version } may reset related configurations to default state, are you sure to continue?',
+                        { app: row.name, version: targetVersion },
+                      ),
+                    })
+                    if (ok) handleUpdate(row.slug)
                   },
-                  trigger: () => {
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'warning'
-                      },
-                      {
-                        default: () => $gettext('Update')
-                      }
-                    )
-                  }
-                }
-              )
-            : null,
-          row.installed
-            ? h(
+                },
+                { default: () => $gettext('Update') },
+              ),
+            )
+          }
+          if (row.installed) {
+            items.push(
+              h(
                 NButton,
                 {
                   size: 'small',
                   type: 'info',
-                  onClick: () => handleManage(row.slug)
+                  onClick: () => handleManage(row.slug),
                 },
+                { default: () => $gettext('Manage') },
+              ),
+              h(
+                NButton,
                 {
-                  default: () => $gettext('Manage')
-                }
-              )
-            : null,
-          row.installed
-            ? h(
-                NPopconfirm,
-                {
-                  onPositiveClick: () => handleUninstall(row.slug)
-                },
-                {
-                  default: () => {
-                    // Web 服务器卸载时的提示信息
-                    if (row.categories.includes('webserver')) {
-                      return $gettext(
-                        'Reinstalling/Switching to a different web server will reset the configuration of all websites, are you sure to continue?'
-                      )
-                    }
-                    return $gettext('Are you sure to uninstall app %{ app }?', { app: row.name })
+                  size: 'small',
+                  type: 'error',
+                  onClick: async () => {
+                    const ok = await confirmDelete({
+                      title: $gettext('Confirm Uninstall'),
+                      content: row.categories.includes('webserver')
+                        ? $gettext(
+                            'Reinstalling/Switching to a different web server will reset the configuration of all websites, are you sure to continue?',
+                          )
+                        : $gettext('Are you sure to uninstall app %{ app }?', { app: row.name }),
+                      positiveText: $gettext('Uninstall'),
+                    })
+                    if (ok) handleUninstall(row.slug)
                   },
-                  trigger: () => {
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'error'
-                      },
-                      {
-                        default: () => $gettext('Uninstall')
-                      }
-                    )
-                  }
-                }
-              )
-            : null,
-          !row.installed
-            ? h(
+                },
+                { default: () => $gettext('Uninstall') },
+              ),
+            )
+          } else {
+            items.push(
+              h(
                 NButton,
                 {
                   size: 'small',
@@ -155,21 +141,21 @@ const columns: any = [
                     versionModalShow.value = true
                     versionModalOperation.value = $gettext('Install')
                     versionModalInfo.value = row
-                  }
+                  },
                 },
-                {
-                  default: () => $gettext('Install')
-                }
-              )
-            : null
-        ]
+                { default: () => $gettext('Install') },
+              ),
+            )
+          }
+          return items
+        },
       })
-    }
-  }
+    },
+  },
 ]
 
 const { data: categories } = useRequest(app.categories, {
-  initialData: []
+  initialData: [],
 })
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -180,8 +166,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [selectedCategory, searchQuery]
-  }
+    watchingStates: [selectedCategory, searchQuery],
+  },
 )
 
 // 处理分类切换
@@ -200,7 +186,7 @@ const handleShowChange = (row: any) => {
 const handleUpdate = (slug: string) => {
   useRequest(app.update(slug)).onSuccess(() => {
     window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks')
+      $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
 }
@@ -208,7 +194,7 @@ const handleUpdate = (slug: string) => {
 const handleUninstall = (slug: string) => {
   useRequest(app.uninstall(slug)).onSuccess(() => {
     window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks')
+      $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
 }
@@ -229,7 +215,7 @@ onMounted(() => {
         <n-tag
           :type="selectedCategory === '' ? 'primary' : 'default'"
           :bordered="selectedCategory !== ''"
-          style="cursor: pointer"
+          class="cursor-pointer"
           @click="handleCategoryChange('')"
         >
           {{ $gettext('All') }}
@@ -239,7 +225,7 @@ onMounted(() => {
           :key="cat.value"
           :type="selectedCategory === cat.value ? 'primary' : 'default'"
           :bordered="selectedCategory !== cat.value"
-          style="cursor: pointer"
+          class="cursor-pointer"
           @click="handleCategoryChange(cat.value)"
         >
           {{ cat.label }}
@@ -249,10 +235,12 @@ onMounted(() => {
         v-model:value="searchQuery"
         :placeholder="$gettext('Search')"
         clearable
-        style="width: 240px"
+        class="!w-60"
       />
     </n-flex>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1300"
@@ -260,16 +248,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.slug"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

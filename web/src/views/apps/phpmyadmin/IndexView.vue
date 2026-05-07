@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-phpmyadmin-index'
+  name: 'apps-phpmyadmin-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -22,8 +22,8 @@ const url = computed(() => {
 
 const { data: config } = useRequest(phpmyadmin.config, {
   initialData: {
-    config: ''
-  }
+    config: '',
+  },
 })
 
 const getInfo = async () => {
@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Status')">
         <n-flex vertical>
@@ -74,7 +74,12 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Port')">
             <n-flex>
               <n-input-number v-model:value="newPort" :min="1" :max="65535" />
-              <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+              <n-button
+                type="primary"
+                :loading="saveLoading"
+                :disabled="saveLoading"
+                @click="handleSave"
+              >
                 {{ $gettext('Save') }}
               </n-button>
             </n-flex>
@@ -87,18 +92,23 @@ onMounted(() => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

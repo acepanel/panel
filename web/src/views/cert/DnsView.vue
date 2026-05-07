@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NInput, NPopconfirm, NSpace, NSwitch, NTag, NText } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const props = defineProps({
   dnsProviders: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { dnsProviders } = toRefs(props)
@@ -20,10 +22,10 @@ const updateDNSModel = ref<any>({
     ak: '',
     sk: '',
     dns_server: '8.8.8.8',
-    skip_verify: false
+    skip_verify: false,
   },
   type: 'aliyun',
-  name: ''
+  name: '',
 })
 const updateDNSModal = ref(false)
 const updateDNSLoading = ref(false)
@@ -35,7 +37,7 @@ const columns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Type'),
@@ -48,7 +50,7 @@ const columns: any = [
         NTag,
         {
           type: 'info',
-          bordered: false
+          bordered: false,
         },
         {
           default: () => {
@@ -58,10 +60,10 @@ const columns: any = [
             } else {
               return $gettext('Unknown')
             }
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -69,7 +71,7 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -84,44 +86,31 @@ const columns: any = [
               updateDNSModel.value.type = row.type
               updateDNSModel.value.name = row.name
               updateDNSModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: async () => {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete the DNS?'),
+              })
+              if (!ok) return
               useRequest(cert.dnsDelete(row.id)).onSuccess(() => {
                 refresh()
                 window.$message.success($gettext('Deletion successful'))
               })
-            }
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete the DNS?')
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -130,8 +119,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleUpdateDNS = () => {
@@ -167,6 +156,8 @@ onUnmounted(() => {
 <template>
   <n-space vertical size="large">
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1000"
@@ -174,16 +165,13 @@ onUnmounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-space>
@@ -327,12 +315,20 @@ onUnmounted(() => {
         </n-form-item>
         <n-form-item path="skip_verify" :label="$gettext('Skip DNS Verification')">
           <n-switch v-model:value="updateDNSModel.data.skip_verify" />
-          <n-text depth="3" style="margin-left: 8px">
+          <n-text depth="3" class="ml-2">
             {{ $gettext('For intranet environments, will wait 60s instead of polling DNS') }}
           </n-text>
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="updateDNSLoading" :disabled="updateDNSLoading" @click="handleUpdateDNS">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="updateDNSLoading"
+        :disabled="updateDNSLoading"
+        @click="handleUpdateDNS"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
 </template>

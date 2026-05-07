@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'prometheus-config-tune'
+  name: 'prometheus-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -24,7 +24,7 @@ useRequest(prometheus.configTune()).onSuccess(({ data }: any) => {
 const getConfigData = () => ({
   scrape_interval: scrapeInterval.value,
   evaluation_interval: evaluationInterval.value,
-  scrape_timeout: scrapeTimeout.value
+  scrape_timeout: scrapeTimeout.value,
 })
 
 const handleSave = () => {

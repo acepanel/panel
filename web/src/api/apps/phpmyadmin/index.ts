@@ -8,5 +8,5 @@ export default {
   // 获取配置
   config: (): any => http.Get('/apps/phpmyadmin/config'),
   // 保存配置
-  updateConfig: (config: string): any => http.Post('/apps/phpmyadmin/config', { config })
+  updateConfig: (config: string): any => http.Post('/apps/phpmyadmin/config', { config }),
 }

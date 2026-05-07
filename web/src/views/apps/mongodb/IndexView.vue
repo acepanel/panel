@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-mongodb-index'
+  name: 'apps-mongodb-index',
 })
 
 import copy2clipboard from '@vavt/copy2clipboard'
@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 
 import mongodb from '@/api/apps/mongodb'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import MongoDBConfigTuneView from './MongoDBConfigTuneView.vue'
 
 const { $gettext } = useGettext()
@@ -17,10 +18,10 @@ const setAdminPasswordLoading = ref(false)
 const saveConfigLoading = ref(false)
 
 const { data: adminPassword } = useRequest(mongodb.adminPassword, {
-  initialData: ''
+  initialData: '',
 })
 const { data: config, send: refreshConfig } = useRequest(mongodb.config, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -30,7 +31,7 @@ watch(currentTab, (val) => {
 })
 
 const { data: load } = useRequest(mongodb.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -39,14 +40,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -79,7 +80,7 @@ const handleCopyAdminPassword = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -89,22 +90,23 @@ const handleCopyAdminPassword = () => {
               <n-alert type="info">
                 {{
                   $gettext(
-                    'The MongoDB admin password is used to manage the database. Keep it safe!'
+                    'The MongoDB admin password is used to manage the database. Keep it safe!',
                   )
                 }}
               </n-alert>
               <n-flex>
                 <n-input-group>
-                  <n-input
-                    v-model:value="adminPassword"
-                    type="password"
-                    show-password-on="click"
-                  />
+                  <n-input v-model:value="adminPassword" type="password" show-password-on="click" />
                   <n-button type="primary" ghost @click="handleCopyAdminPassword">
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" :loading="setAdminPasswordLoading" :disabled="setAdminPasswordLoading" @click="handleSetAdminPassword">
+                <n-button
+                  type="primary"
+                  :loading="setAdminPasswordLoading"
+                  :disabled="setAdminPasswordLoading"
+                  @click="handleSetAdminPassword"
+                >
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -117,13 +119,18 @@ const handleCopyAdminPassword = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the MongoDB configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the MongoDB configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -146,5 +153,5 @@ const handleCopyAdminPassword = () => {
         <realtime-log service="mongod" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

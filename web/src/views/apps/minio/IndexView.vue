@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-minio-index'
+  name: 'apps-minio-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -14,7 +14,7 @@ const currentTab = ref('status')
 const saveEnvLoading = ref(false)
 
 const { data: env } = useRequest(minio.env, {
-  initialData: ''
+  initialData: '',
 })
 
 const handleSaveEnv = () => {
@@ -30,7 +30,7 @@ const handleSaveEnv = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="minio" />
@@ -40,13 +40,18 @@ const handleSaveEnv = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This is modifying the MinIO environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!'
+                'This is modifying the MinIO environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="env" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveEnvLoading" :disabled="saveEnvLoading" @click="handleSaveEnv">
+            <n-button
+              type="primary"
+              :loading="saveEnvLoading"
+              :disabled="saveEnvLoading"
+              @click="handleSaveEnv"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -56,5 +61,5 @@ const handleSaveEnv = () => {
         <realtime-log service="minio" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

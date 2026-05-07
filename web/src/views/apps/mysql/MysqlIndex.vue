@@ -7,6 +7,7 @@ import mysql from '@/api/apps/mysql'
 import file from '@/api/panel/file'
 import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import MysqlConfigTuneView from './MysqlConfigTuneView.vue'
 
 const props = defineProps<{
@@ -24,10 +25,10 @@ const runLogRef = ref<{ clear: () => void } | null>(null)
 const slowLogRef = ref<{ clear: () => void } | null>(null)
 
 const { data: rootPassword } = useRequest(props.api.rootPassword, {
-  initialData: ''
+  initialData: '',
 })
 const { data: config, send: refreshConfig } = useRequest(props.api.config, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -36,10 +37,10 @@ watch(currentTab, (val) => {
   }
 })
 const { data: slowLog } = useRequest(props.api.slowLog, {
-  initialData: ''
+  initialData: '',
 })
 const { data: load } = useRequest(props.api.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -48,14 +49,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -112,7 +113,7 @@ const handleCopyRootPassword = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -122,7 +123,7 @@ const handleCopyRootPassword = () => {
               <n-alert type="info">
                 {{
                   $gettext(
-                    'The "root" user password is used to manage the database system. Keep it safe!'
+                    'The "root" user password is used to manage the database system. Keep it safe!',
                   )
                 }}
               </n-alert>
@@ -133,7 +134,12 @@ const handleCopyRootPassword = () => {
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" :loading="setRootPasswordLoading" :disabled="setRootPasswordLoading" @click="handleSetRootPassword">
+                <n-button
+                  type="primary"
+                  :loading="setRootPasswordLoading"
+                  :disabled="setRootPasswordLoading"
+                  @click="handleSetRootPassword"
+                >
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -147,13 +153,18 @@ const handleCopyRootPassword = () => {
             {{
               $gettext(
                 'This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { name }
+                { name },
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -175,7 +186,12 @@ const handleCopyRootPassword = () => {
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
+            <n-button
+              type="primary"
+              :loading="clearLogLoading"
+              :disabled="clearLogLoading"
+              @click="handleClearLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -185,7 +201,12 @@ const handleCopyRootPassword = () => {
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearSlowLogLoading" :disabled="clearSlowLogLoading" @click="handleClearSlowLog">
+            <n-button
+              type="primary"
+              :loading="clearSlowLogLoading"
+              :disabled="clearSlowLogLoading"
+              @click="handleClearSlowLog"
+            >
               {{ $gettext('Clear Slow Log') }}
             </n-button>
           </n-flex>
@@ -193,5 +214,5 @@ const handleCopyRootPassword = () => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

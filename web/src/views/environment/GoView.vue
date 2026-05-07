@@ -17,12 +17,12 @@ const proxyOptions = [
   { label: $gettext('China - Qiniu (goproxy.cn)'), value: 'https://goproxy.cn,direct' },
   {
     label: $gettext('China - Alibaba (mirrors.aliyun.com)'),
-    value: 'https://mirrors.aliyun.com/goproxy/,direct'
+    value: 'https://mirrors.aliyun.com/goproxy/,direct',
   },
   {
     label: $gettext('China - Tencent (mirrors.tencent.com)'),
-    value: 'https://mirrors.tencent.com/go/,direct'
-  }
+    value: 'https://mirrors.tencent.com/go/,direct',
+  },
 ]
 
 // 获取当前代理设置
@@ -55,7 +55,7 @@ const handleSaveProxy = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-card>
         <template #header> Go {{ slug }} </template>
@@ -72,7 +72,7 @@ const handleSaveProxy = async () => {
             <n-alert type="info" :show-icon="false">
               {{
                 $gettext(
-                  'GOPROXY is used to configure the Go module proxy. Using a domestic mirror can speed up dependency downloads.'
+                  'GOPROXY is used to configure the Go module proxy. Using a domestic mirror can speed up dependency downloads.',
                 )
               }}
             </n-alert>
@@ -94,5 +94,5 @@ const handleSaveProxy = async () => {
         </n-spin>
       </n-card>
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>

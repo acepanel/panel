@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { translateTitle } from '@/locales/menu'
-import { usePermissionStore, useTabStore, useThemeStore } from '@/stores'
-import { isUrl, renderIcon } from '@/utils'
-
 import type { MenuInst, MenuOption } from 'naive-ui'
 import { useThemeVars } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 import { RouterLink } from 'vue-router'
+
+import { translateTitle } from '@/locales/menu'
+import { usePermissionStore, useTabStore, useThemeStore } from '@/stores'
 import type { Meta, RouteType } from '@/types/router'
+import { isUrl, renderIcon } from '@/utils'
 
 const themeVars = useThemeVars()
 const router = useRouter()
@@ -47,21 +47,21 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
       h(
         RouterLink,
         {
-          to: { name: route.name as string }
+          to: { name: route.name as string },
         },
         {
-          default: () => (route.meta?.title ? translateTitle(route.meta.title) : route.name)
-        }
+          default: () => (route.meta?.title ? translateTitle(route.meta.title) : route.name),
+        },
       ),
     key: route.name,
     path: resolvePath(basePath, route.path),
-    icon: getIcon(route.meta)
+    icon: getIcon(route.meta),
   }
 
   const visibleChildren = route.children
     ? route.children.filter(
         (item: RouteType) =>
-          item.name && !item.isHidden && !permissionStore.hiddenRoutes.includes(item.name)
+          item.name && !item.isHidden && !permissionStore.hiddenRoutes.includes(item.name),
       )
     : []
 
@@ -75,16 +75,16 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
         h(
           RouterLink,
           {
-            to: { name: singleRoute.name as string }
+            to: { name: singleRoute.name as string },
           },
           {
             default: () =>
-              singleRoute.meta?.title ? translateTitle(singleRoute.meta.title) : singleRoute?.name
-          }
+              singleRoute.meta?.title ? translateTitle(singleRoute.meta.title) : singleRoute?.name,
+          },
         ),
       key: singleRoute.name,
       path: resolvePath(menuItem.path, singleRoute.path),
-      icon: getIcon(singleRoute.meta)
+      icon: getIcon(singleRoute.meta),
     }
     const visibleItems = singleRoute.children
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
@@ -101,7 +101,7 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
 }
 
 function getIcon(meta?: Meta): (() => VNodeChild) | undefined {
-  if (meta?.icon) return renderIcon(meta.icon, { size: 14, class: `${meta.icon} text-14` })
+  if (meta?.icon) return renderIcon(meta.icon, { size: 14, class: `${meta.icon} text-base` })
   return undefined
 }
 
@@ -144,8 +144,8 @@ function handleMenuSelect(key: string, item: MenuOption) {
 <style lang="scss">
 .side-menu {
   .n-menu-item-content__icon {
-    border: 1px solid rgb(229, 231, 235);
-    border-radius: 4px;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
   }
 
   .n-menu-item-content--child-active,

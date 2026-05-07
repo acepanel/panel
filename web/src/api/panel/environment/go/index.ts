@@ -7,5 +7,5 @@ export default {
   getProxy: (slug: string): any => http.Get(`/environment/go/${slug}/proxy`),
   // 设置代理
   setProxy: (slug: string, proxy: string): any =>
-    http.Post(`/environment/go/${slug}/proxy`, { proxy })
+    http.Post(`/environment/go/${slug}/proxy`, { proxy }),
 }

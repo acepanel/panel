@@ -1,23 +1,24 @@
 <script setup lang="ts">
+import type * as Monaco from 'monaco-editor'
+import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { useGettext } from 'vue3-gettext'
+
 import file from '@/api/panel/file'
 import { useThemeStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { languageByPath } from '@/utils/file'
 import { getMonaco } from '@/utils/monaco'
-import type * as Monaco from 'monaco-editor'
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const props = defineProps({
   path: {
     type: String,
-    required: true
+    required: true,
   },
   readOnly: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const themeStore = useThemeStore()
@@ -45,7 +46,7 @@ async function initEditor() {
     automaticLayout: true,
     smoothScrolling: true,
     formatOnPaste: true,
-    formatOnType: true
+    formatOnType: true,
   })
 
   editorRef.value.onDidChangeModelContent(() => {
@@ -70,7 +71,7 @@ watch(
     if (editorRef.value) {
       editorRef.value.updateOptions({ readOnly: newReadOnly })
     }
-  }
+  },
 )
 
 const get = () => {
@@ -105,7 +106,7 @@ onBeforeUnmount(() => {
 
 defineExpose({
   get,
-  save
+  save,
 })
 </script>
 

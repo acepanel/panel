@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import cert from '@/api/panel/cert'
 import { NButton, NInput, NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import cert from '@/api/panel/cert'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -9,20 +10,20 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   algorithms: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   websites: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   accounts: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   dns: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { algorithms, websites, accounts, dns } = toRefs(props)
@@ -34,7 +35,7 @@ const model = ref<any>({
   type: 'P256',
   account_id: null,
   website_id: null,
-  auto_renewal: true
+  auto_renewal: true,
 })
 
 const aliasList = ref<{ key: string; value: string }[]>([])
@@ -51,7 +52,7 @@ watch(
     }
     model.value.alias = map
   },
-  { deep: true }
+  { deep: true },
 )
 
 const loading = ref(false)
@@ -93,7 +94,7 @@ const handleCreateCert = () => {
       <n-alert type="info">
         {{
           $gettext(
-            'You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates'
+            'You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates',
           )
         }}
       </n-alert>
@@ -158,7 +159,9 @@ const handleCreateCert = () => {
           </n-dynamic-input>
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateCert">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateCert">
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
 </template>

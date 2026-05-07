@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'php-config-tune'
+  name: 'php-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -171,7 +171,7 @@ const getConfigData = () => {
     pm_max_children: String(pmMaxChildren.value ?? ''),
     pm_start_servers: String(pmStartServers.value ?? ''),
     pm_min_spare_servers: String(pmMinSpareServers.value ?? ''),
-    pm_max_spare_servers: String(pmMaxSpareServers.value ?? '')
+    pm_max_spare_servers: String(pmMaxSpareServers.value ?? ''),
   }
 }
 
@@ -203,27 +203,27 @@ const handleCleanSession = () => {
 const sessionHandlerOptions = [
   { label: 'files', value: 'files' },
   { label: 'redis', value: 'redis' },
-  { label: 'memcached', value: 'memcached' }
+  { label: 'memcached', value: 'memcached' },
 ]
 
 // PM 模式选项
 const pmOptions = [
   { label: 'dynamic', value: 'dynamic' },
   { label: 'static', value: 'static' },
-  { label: 'ondemand', value: 'ondemand' }
+  { label: 'ondemand', value: 'ondemand' },
 ]
 
 // short_open_tag / display_errors 选项
 const onOffOptions = [
   { label: 'On', value: 'On' },
-  { label: 'Off', value: 'Off' }
+  { label: 'Off', value: 'Off' },
 ]
 
 // 容量单位选项
 const sizeUnitOptions = [
   { label: 'K', value: 'K' },
   { label: 'M', value: 'M' },
-  { label: 'G', value: 'G' }
+  { label: 'G', value: 'G' },
 ]
 
 // 解析带单位的值，如 "50M" -> { num: 50, unit: "M" }
@@ -281,7 +281,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
         <n-alert type="info">
           {{
             $gettext(
-              'Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc.'
+              'Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc.',
             )
           }}
         </n-alert>
@@ -312,7 +312,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
         <n-alert type="info">
           {{
             $gettext(
-              'Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize.'
+              'Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize.',
             )
           }}
         </n-alert>
@@ -329,7 +329,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               <n-select
                 v-model:value="uploadMaxFilesizeUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -342,11 +342,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="postMaxSizeUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="postMaxSizeUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Max File Uploads (max_file_uploads)')">
@@ -366,11 +362,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="memoryLimitUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="memoryLimitUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
         </n-form>
@@ -450,7 +442,10 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Start Servers (pm.start_servers)')">
+          <n-form-item
+            v-if="pm === 'dynamic'"
+            :label="$gettext('Start Servers (pm.start_servers)')"
+          >
             <n-input-number
               class="w-full"
               v-model:value="pmStartServers"
@@ -458,7 +453,10 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Min Spare Servers (pm.min_spare_servers)')">
+          <n-form-item
+            v-if="pm === 'dynamic'"
+            :label="$gettext('Min Spare Servers (pm.min_spare_servers)')"
+          >
             <n-input-number
               class="w-full"
               v-model:value="pmMinSpareServers"
@@ -466,7 +464,10 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Max Spare Servers (pm.max_spare_servers)')">
+          <n-form-item
+            v-if="pm === 'dynamic'"
+            :label="$gettext('Max Spare Servers (pm.max_spare_servers)')"
+          >
             <n-input-number
               class="w-full"
               v-model:value="pmMaxSpareServers"
@@ -492,7 +493,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
         <n-alert type="info">
           {{
             $gettext(
-              'Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running.'
+              'Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running.',
             )
           }}
         </n-alert>
@@ -501,7 +502,10 @@ const composeSizeValue = (num: number | null, unit: string): string => {
             <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
           </n-form-item>
           <!-- files 模式：显示路径 -->
-          <n-form-item v-if="sessionSaveHandler === 'files'" :label="$gettext('Save Path (session.save_path)')">
+          <n-form-item
+            v-if="sessionSaveHandler === 'files'"
+            :label="$gettext('Save Path (session.save_path)')"
+          >
             <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
           </n-form-item>
           <!-- redis 模式：显示主机、端口、密码 -->
@@ -556,7 +560,11 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           >
             {{ $gettext('Save') }}
           </n-button>
-          <n-popconfirm v-if="sessionSaveHandler === 'files'" @positive-click="handleCleanSession">
+          <ConfirmDialog
+            type="danger"
+            :content="$gettext('Are you sure you want to clean all session files?')"
+            @confirm="handleCleanSession"
+          >
             <template #trigger>
               <n-button
                 type="warning"
@@ -566,8 +574,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
                 {{ $gettext('Clean Session Files') }}
               </n-button>
             </template>
-            {{ $gettext('Are you sure you want to clean all session files?') }}
-          </n-popconfirm>
+          </ConfirmDialog>
         </n-flex>
       </n-flex>
     </n-tab-pane>

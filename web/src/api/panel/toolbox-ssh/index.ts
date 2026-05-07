@@ -18,5 +18,5 @@ export default {
   // 获取 Root 公钥
   rootKey: (): any => http.Get('/toolbox_ssh/root_key'),
   // 生成 Root 密钥对
-  generateRootKey: (): any => http.Post('/toolbox_ssh/root_key')
+  generateRootKey: (): any => http.Post('/toolbox_ssh/root_key'),
 }

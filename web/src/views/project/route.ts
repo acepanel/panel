@@ -7,7 +7,7 @@ export default {
   path: '/project',
   component: Layout,
   meta: {
-    order: 4
+    order: 4,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Project',
         icon: 'mdi:folder-multiple-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

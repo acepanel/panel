@@ -11,5 +11,5 @@ export default {
   // 更新备份账号
   update: (id: number, data: any): any => http.Put(`/backup_storage/${id}`, data),
   // 删除备份账号
-  delete: (id: number): any => http.Delete(`/backup_storage/${id}`)
+  delete: (id: number): any => http.Delete(`/backup_storage/${id}`),
 }

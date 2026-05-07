@@ -15,8 +15,8 @@ export default {
       meta: {
         title: 'Prometheus',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

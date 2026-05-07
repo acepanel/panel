@@ -8,5 +8,5 @@ export default {
   saveConfigTune: (data: any): any => http.Post('/apps/mongodb/config_tune', data),
   adminPassword: (): any => http.Get('/apps/mongodb/admin_password'),
   setAdminPassword: (password: string): any =>
-    http.Post('/apps/mongodb/admin_password', { password })
+    http.Post('/apps/mongodb/admin_password', { password }),
 }

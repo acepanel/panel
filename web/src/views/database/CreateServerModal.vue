@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
-import PathSelector from '@/components/common/PathSelector.vue'
 import { NButton, NInput, NInputGroup } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
+import PathSelector from '@/components/common/PathSelector.vue'
 
 const props = defineProps<{
   type?: string
@@ -27,7 +28,7 @@ const createModel = ref({
   port: defaultPort(props.type || 'mysql'),
   username: '',
   password: '',
-  remark: ''
+  remark: '',
 })
 
 const typeOptions = [
@@ -37,7 +38,7 @@ const typeOptions = [
   { label: 'MongoDB', value: 'mongodb' },
   { label: 'SQLite', value: 'sqlite' },
   { label: 'Elasticsearch', value: 'elasticsearch' },
-  { label: 'Redis', value: 'redis' }
+  { label: 'Redis', value: 'redis' },
 ]
 
 // 切换类型时自动更新端口和主机
@@ -46,7 +47,7 @@ watch(
   (val) => {
     createModel.value.port = defaultPort(val)
     createModel.value.host = val === 'sqlite' ? '' : '127.0.0.1'
-  }
+  },
 )
 
 // 每次弹窗打开时重置 type 和端口
@@ -57,7 +58,7 @@ watch(
       createModel.value.type = props.type || 'mysql'
       createModel.value.port = defaultPort(props.type || 'mysql')
     }
-  }
+  },
 )
 
 const showPathSelector = ref(false)
@@ -121,7 +122,16 @@ const handleCreate = () => {
               @keydown.enter.prevent
               :placeholder="$gettext('Enter SQLite database file path, e.g. /data/app.db')"
             />
-            <n-button type="primary" ghost @click="pathSelectorPath = createModel.host || '/'; showPathSelector = true">
+            <n-button
+              type="primary"
+              ghost
+              @click="
+                () => {
+                  pathSelectorPath = createModel.host || '/'
+                  showPathSelector = true
+                }
+              "
+            >
               {{ $gettext('Select') }}
             </n-button>
           </n-input-group>
@@ -151,7 +161,11 @@ const handleCreate = () => {
             </n-form-item>
           </n-col>
         </n-row>
-        <n-form-item v-if="!['redis', 'sqlite'].includes(createModel.type)" path="username" :label="$gettext('Username')">
+        <n-form-item
+          v-if="!['redis', 'sqlite'].includes(createModel.type)"
+          path="username"
+          :label="$gettext('Username')"
+        >
           <n-input
             v-model:value="createModel.username"
             type="text"
@@ -159,7 +173,11 @@ const handleCreate = () => {
             :placeholder="$gettext('Enter database server username')"
           />
         </n-form-item>
-        <n-form-item v-if="createModel.type !== 'sqlite'" path="password" :label="$gettext('Password')">
+        <n-form-item
+          v-if="createModel.type !== 'sqlite'"
+          path="password"
+          :label="$gettext('Password')"
+        >
           <n-input
             v-model:value="createModel.password"
             type="password"
@@ -178,7 +196,9 @@ const handleCreate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
   <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="false" />
 </template>

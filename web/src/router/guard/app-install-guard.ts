@@ -1,5 +1,6 @@
-import app from '@/api/panel/app'
 import type { Router } from 'vue-router'
+
+import app from '@/api/panel/app'
 
 // 防止重复显示错误消息
 let lastErrorMsg = ''
@@ -35,7 +36,7 @@ export function createAppInstallGuard(router: Router) {
             showErrorMessage(`Web 服务器未安装`)
             return router.push({ name: 'app-index' })
           }
-        }
+        },
       )
     }
 

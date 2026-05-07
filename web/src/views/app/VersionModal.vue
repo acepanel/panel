@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { App } from '@/views/app/types'
 import { useGettext } from 'vue3-gettext'
+
+import type { App } from '@/views/app/types'
+
 import app from '../../api/panel/app'
 
 const { $gettext } = useGettext()
@@ -14,14 +16,14 @@ const doSubmit = ref(false)
 const model = ref({
   channel: null,
   version: '',
-  log: ''
+  log: '',
 })
 
 const options = computed(() => {
   return info.value.channels.map((channel) => {
     return {
       label: channel.name,
-      value: channel.slug
+      value: channel.slug,
     }
   })
 })
@@ -34,10 +36,10 @@ const handleSubmit = () => {
       model.value = {
         channel: null,
         version: '',
-        log: ''
+        log: '',
       }
       window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks')
+        $gettext('Task submitted, please check the progress in background tasks'),
       )
     })
     .onComplete(() => {
@@ -58,7 +60,7 @@ const handleClose = () => {
   model.value = {
     channel: null,
     version: '',
-    log: ''
+    log: '',
   }
 }
 </script>

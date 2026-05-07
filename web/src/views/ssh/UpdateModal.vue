@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import ssh from '@/api/panel/ssh'
 import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import ssh from '@/api/panel/ssh'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -17,7 +18,7 @@ const model = ref({
   password: '',
   key: '',
   passphrase: '',
-  remark: ''
+  remark: '',
 })
 
 const handleSubmit = () => {
@@ -65,7 +66,7 @@ watch(show, async () => {
       <n-form-item :label="$gettext('Name')">
         <n-input v-model:value="model.name" placeholder="127.0.0.1" />
       </n-form-item>
-      <n-row :gutter="[0, 24]" pt-20>
+      <n-row :gutter="[0, 24]" pt-5>
         <n-col :span="15">
           <n-form-item :label="$gettext('Host')">
             <n-input v-model:value="model.host" placeholder="127.0.0.1" />
@@ -83,7 +84,7 @@ watch(show, async () => {
           v-model:value="model.auth_method"
           :options="[
             { label: $gettext('Password'), value: 'password' },
-            { label: $gettext('Private Key'), value: 'publickey' }
+            { label: $gettext('Private Key'), value: 'publickey' },
           ]"
         >
         </n-select>
@@ -109,7 +110,7 @@ watch(show, async () => {
         <n-input v-model:value="model.remark" type="textarea" />
       </n-form-item>
     </n-form>
-    <n-row :gutter="[0, 24]" pt-20>
+    <n-row :gutter="[0, 24]" pt-5>
       <n-col :span="24">
         <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
           {{ $gettext('Submit') }}

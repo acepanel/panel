@@ -24,5 +24,5 @@ export default {
   restartExporter: (slug: string): any => http.Post(`/apps/prometheus/exporters/${slug}/restart`),
   exporterConfig: (slug: string): any => http.Get(`/apps/prometheus/exporters/${slug}/config`),
   saveExporterConfig: (slug: string, config: string): any =>
-    http.Post(`/apps/prometheus/exporters/${slug}/config`, { config })
+    http.Post(`/apps/prometheus/exporters/${slug}/config`, { config }),
 }

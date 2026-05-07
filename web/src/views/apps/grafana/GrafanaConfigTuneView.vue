@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'grafana-config-tune'
+  name: 'grafana-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -46,30 +46,30 @@ const saveLoading = ref(false)
 
 const protocolOptions = [
   { label: 'http', value: 'http' },
-  { label: 'https', value: 'https' }
+  { label: 'https', value: 'https' },
 ]
 
 const dbTypeOptions = [
   { label: 'sqlite3', value: 'sqlite3' },
   { label: 'mysql', value: 'mysql' },
-  { label: 'postgres', value: 'postgres' }
+  { label: 'postgres', value: 'postgres' },
 ]
 
 const boolOptions = [
   { label: 'true', value: 'true' },
-  { label: 'false', value: 'false' }
+  { label: 'false', value: 'false' },
 ]
 
 const orgRoleOptions = [
   { label: 'Viewer', value: 'Viewer' },
   { label: 'Editor', value: 'Editor' },
-  { label: 'Admin', value: 'Admin' }
+  { label: 'Admin', value: 'Admin' },
 ]
 
 const logModeOptions = [
   { label: 'console', value: 'console' },
   { label: 'file', value: 'file' },
-  { label: 'console file', value: 'console file' }
+  { label: 'console file', value: 'console file' },
 ]
 
 const logLevelOptions = [
@@ -77,7 +77,7 @@ const logLevelOptions = [
   { label: 'info', value: 'info' },
   { label: 'warn', value: 'warn' },
   { label: 'error', value: 'error' },
-  { label: 'critical', value: 'critical' }
+  { label: 'critical', value: 'critical' },
 ]
 
 useRequest(grafana.configTune()).onSuccess(({ data }: any) => {
@@ -129,7 +129,7 @@ const getConfigData = () => ({
   smtp_password: smtpPassword.value,
   smtp_from_address: smtpFromAddress.value,
   log_mode: logMode.value ?? '',
-  log_level: logLevel.value ?? ''
+  log_level: logLevel.value ?? '',
 })
 
 const handleSave = () => {
@@ -153,20 +153,34 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('HTTP Port (http_port)')">
-            <n-input-number class="w-full" v-model:value="httpPort" :placeholder="$gettext('e.g. 3000')" :min="1" :max="65535" />
+            <n-input-number
+              class="w-full"
+              v-model:value="httpPort"
+              :placeholder="$gettext('e.g. 3000')"
+              :min="1"
+              :max="65535"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Domain (domain)')">
             <n-input v-model:value="domain" :placeholder="$gettext('e.g. localhost')" />
           </n-form-item>
           <n-form-item :label="$gettext('Root URL (root_url)')">
-            <n-input v-model:value="rootUrl" :placeholder="$gettext('e.g. %(protocol)s://%(domain)s:%(http_port)s/')" />
+            <n-input
+              v-model:value="rootUrl"
+              :placeholder="$gettext('e.g. %(protocol)s://%(domain)s:%(http_port)s/')"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Protocol (protocol)')">
             <n-select v-model:value="protocol" :options="protocolOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -195,7 +209,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -215,7 +234,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -235,7 +259,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -251,7 +280,10 @@ const handleSave = () => {
             <n-select v-model:value="smtpEnabled" :options="boolOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Host (host)')">
-            <n-input v-model:value="smtpHost" :placeholder="$gettext('e.g. smtp.example.com:587')" />
+            <n-input
+              v-model:value="smtpHost"
+              :placeholder="$gettext('e.g. smtp.example.com:587')"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('User (user)')">
             <n-input v-model:value="smtpUser" />
@@ -260,11 +292,19 @@ const handleSave = () => {
             <n-input v-model:value="smtpPassword" type="password" show-password-on="click" />
           </n-form-item>
           <n-form-item :label="$gettext('From Address (from_address)')">
-            <n-input v-model:value="smtpFromAddress" :placeholder="$gettext('e.g. admin@example.com')" />
+            <n-input
+              v-model:value="smtpFromAddress"
+              :placeholder="$gettext('e.g. admin@example.com')"
+            />
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -284,7 +324,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

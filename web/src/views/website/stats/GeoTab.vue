@@ -5,7 +5,7 @@ import {
   GeoComponent,
   GridComponent,
   TooltipComponent,
-  VisualMapComponent
+  VisualMapComponent,
 } from 'echarts/components'
 import { registerMap, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -28,7 +28,7 @@ use([
   TooltipComponent,
   GridComponent,
   VisualMapComponent,
-  GeoComponent
+  GeoComponent,
 ])
 
 const ctx = inject<any>('statContext')!
@@ -60,8 +60,8 @@ const loadData = () => {
       ctx.sitesParam.value,
       groupBy.value,
       undefined,
-      100
-    )
+      100,
+    ),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -102,19 +102,19 @@ const columns = computed(() => [
         return codeToName[val] || val || $gettext('Unknown')
       }
       return val || $gettext('Unknown')
-    }
+    },
   },
   {
     title: $gettext('Requests'),
     key: 'requests',
-    sorter: (a: any, b: any) => a.requests - b.requests
+    sorter: (a: any, b: any) => a.requests - b.requests,
   },
   {
     title: $gettext('Bandwidth'),
     key: 'bandwidth',
     render: (row: any) => formatBytes(row.bandwidth),
-    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth
-  }
+    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth,
+  },
 ])
 
 // ========== 图表 ==========
@@ -151,7 +151,7 @@ const mapChartOption = computed<EChartsOption>(() => {
     name: item.geoName,
     value: item.requests,
     bandwidth: item.bandwidth,
-    originalName: codeToName[item.country] || item.country
+    originalName: codeToName[item.country] || item.country,
   }))
 
   const maxValue = data.reduce((max, d) => Math.max(max, d.value), 0)
@@ -163,7 +163,7 @@ const mapChartOption = computed<EChartsOption>(() => {
         if (!params.data?.value) return `${params.name}: ${$gettext('No data')}`
         const originalName = params.data.originalName || params.name
         return `${originalName}<br/>${$gettext('Requests')}: ${params.data.value.toLocaleString()}<br/>${$gettext('Bandwidth')}: ${formatBytes(params.data.bandwidth)}`
-      }
+      },
     },
     visualMap: {
       min: 0,
@@ -174,11 +174,11 @@ const mapChartOption = computed<EChartsOption>(() => {
       inRange: {
         color: isDark
           ? ['#1a3a4a', '#2a6a8a', '#3a9aca', '#5ac0ea', '#8ae0ff']
-          : ['#e0f3ff', '#a0d4f0', '#60b0e0', '#2090d0', '#0070c0']
+          : ['#e0f3ff', '#a0d4f0', '#60b0e0', '#2090d0', '#0070c0'],
       },
       textStyle: {
-        color: isDark ? '#ccc' : '#333'
-      }
+        color: isDark ? '#ccc' : '#333',
+      },
     },
     series: [
       {
@@ -189,15 +189,15 @@ const mapChartOption = computed<EChartsOption>(() => {
         roam: true,
         emphasis: {
           label: { show: true },
-          itemStyle: { areaColor: isDark ? '#4a8aaa' : '#3399cc' }
+          itemStyle: { areaColor: isDark ? '#4a8aaa' : '#3399cc' },
         },
         itemStyle: {
           areaColor: isDark ? '#2a2a3a' : '#e9ecef',
-          borderColor: isDark ? '#444' : '#aaa'
+          borderColor: isDark ? '#444' : '#aaa',
         },
-        data
-      }
-    ]
+        data,
+      },
+    ],
   }
 })
 
@@ -216,22 +216,22 @@ const barChartOption = computed<EChartsOption>(() => {
         const item = data[idx]
         if (!item) return ''
         return `${params[0].name}<br/>${$gettext('Requests')}: ${params[0].value.toLocaleString()}<br/>${$gettext('Bandwidth')}: ${formatBytes(item.bandwidth)}`
-      }
+      },
     },
     grid: { left: 100, right: 40, top: 10, bottom: 30 },
     xAxis: { type: 'value' },
     yAxis: {
       type: 'category',
       data: reversed.map((i: any) => i[key] || $gettext('Unknown')),
-      axisLabel: { width: 80, overflow: 'truncate' }
+      axisLabel: { width: 80, overflow: 'truncate' },
     },
     series: [
       {
         type: 'bar',
         data: reversed.map((i: any) => i.requests),
-        barMaxWidth: 30
-      }
-    ]
+        barMaxWidth: 30,
+      },
+    ],
   }
 })
 
@@ -242,7 +242,7 @@ const showMap = computed(() => groupBy.value === 'country' && mapReady.value)
   <n-flex vertical :size="20">
     <n-spin :show="loading">
       <!-- 维度切换 -->
-      <n-flex align="center" class="mb-12">
+      <n-flex align="center" class="mb-3">
         <n-radio-group v-model:value="groupBy" size="small">
           <n-radio-button value="country">{{ $gettext('Country') }}</n-radio-button>
           <n-radio-button value="region">{{ $gettext('Region') }}</n-radio-button>

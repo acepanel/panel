@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import PhpConfigTuneView from '@/views/environment/PhpConfigTuneView.vue'
-import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/panel/environment/php'
 import file from '@/api/panel/file'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import PhpConfigTuneView from '@/views/environment/PhpConfigTuneView.vue'
+
+const { confirmAction } = useConfirm()
 
 const route = useRoute()
 const slug = Number(route.params.slug)
@@ -20,10 +23,10 @@ const phpinfoContent = ref('')
 const phpinfoLoading = ref(false)
 
 const { data: config, send: refreshConfig } = useRequest(php.config(slug), {
-  initialData: ''
+  initialData: '',
 })
 const { data: fpmConfig, send: refreshFpmConfig } = useRequest(php.fpmConfig(slug), {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -37,16 +40,16 @@ const logRef = ref<{ clear: () => void } | null>(null)
 const slowLogRef = ref<{ clear: () => void } | null>(null)
 
 const { data: log } = useRequest(php.log(slug), {
-  initialData: ''
+  initialData: '',
 })
 const { data: slowLog } = useRequest(php.slowLog(slug), {
-  initialData: ''
+  initialData: '',
 })
 const { data: load } = useRequest(php.load(slug), {
-  initialData: []
+  initialData: [],
 })
 const { data: modules } = useRequest(php.modules(slug), {
-  initialData: []
+  initialData: [],
 })
 
 const moduleColumns: any = [
@@ -55,14 +58,14 @@ const moduleColumns: any = [
     key: 'name',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Description'),
     key: 'description',
     resizable: true,
     minWidth: 250,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -70,62 +73,41 @@ const moduleColumns: any = [
     width: 240,
     hideInExcel: true,
     render(row: any) {
-      return [
-        !row.installed
-          ? h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleInstallModule(row.slug)
-              },
-              {
-                default: () => {
-                  return $gettext('Are you sure you want to install %{ name }?', { name: row.name })
-                },
-                trigger: () => {
-                  return h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'info'
-                    },
-                    {
-                      default: () => $gettext('Install')
-                    }
-                  )
-                }
-              }
-            )
-          : null,
+      return h(
+        NButton,
         row.installed
-          ? h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleUninstallModule(row.slug)
+          ? {
+              size: 'small',
+              type: 'error',
+              onClick: async () => {
+                const ok = await confirmAction({
+                  type: 'warning',
+                  title: $gettext('Confirm Uninstall'),
+                  content: $gettext('Are you sure you want to uninstall %{ name }?', {
+                    name: row.name,
+                  }),
+                })
+                if (ok) handleUninstallModule(row.slug)
               },
-              {
-                default: () => {
-                  return $gettext('Are you sure you want to uninstall %{ name }?', {
-                    name: row.name
-                  })
-                },
-                trigger: () => {
-                  return h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'error'
-                    },
-                    {
-                      default: () => $gettext('Delete')
-                    }
-                  )
-                }
-              }
-            )
-          : null
-      ]
-    }
-  }
+            }
+          : {
+              size: 'small',
+              type: 'info',
+              onClick: async () => {
+                const ok = await confirmAction({
+                  type: 'info',
+                  title: $gettext('Confirm Install'),
+                  content: $gettext('Are you sure you want to install %{ name }?', {
+                    name: row.name,
+                  }),
+                })
+                if (ok) handleInstallModule(row.slug)
+              },
+            },
+        { default: () => (row.installed ? $gettext('Delete') : $gettext('Install')) },
+      )
+    },
+  },
 ]
 
 const loadColumns: any = [
@@ -134,14 +116,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSetCli = async () => {
@@ -202,14 +184,12 @@ const handleUninstallModule = async (module: string) => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <n-card>
-            <template #header>
-              PHP {{ slug }}
-            </template>
+            <template #header> PHP {{ slug }} </template>
             <template #header-extra>
               <n-flex>
                 <n-button type="info" @click="handleSetCli">
@@ -246,7 +226,7 @@ const handleUninstallModule = async (module: string) => {
             {{
               $gettext(
                 'This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { version: slug }
+                { version: slug },
               )
             }}
           </n-alert>
@@ -264,7 +244,7 @@ const handleUninstallModule = async (module: string) => {
             {{
               $gettext(
                 'This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { version: slug }
+                { version: slug },
               )
             }}
           </n-alert>
@@ -316,16 +296,16 @@ const handleUninstallModule = async (module: string) => {
       v-model:show="showPHPInfoModal"
       preset="card"
       :title="$gettext('PHPInfo') + ' - PHP ' + slug"
-      style="width: 90%; max-width: 1200px"
+      :style="{ width: '90%', maxWidth: '1200px' }"
       :mask-closable="true"
     >
       <n-spin :show="phpinfoLoading">
-        <n-scrollbar style="max-height: 70vh">
+        <n-scrollbar :style="{ maxHeight: '70vh' }">
           <div class="phpinfo-content" v-html="phpinfoContent"></div>
         </n-scrollbar>
       </n-spin>
     </n-modal>
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss">

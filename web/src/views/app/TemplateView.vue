@@ -10,12 +10,13 @@ import {
   NInput,
   NPagination,
   NSpin,
-  NTag
+  NTag,
 } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
 import template from '@/api/panel/template'
+
 import TemplateDeployModal from './TemplateDeployModal.vue'
 import type { Template } from './types'
 
@@ -32,19 +33,19 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
       page,
       pageSize,
       selectedCategory.value || undefined,
-      searchQuery.value || undefined
+      searchQuery.value || undefined,
     ),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 12,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 // 获取所有分类
 const { data: categories } = useRequest(app.categories, {
-  initialData: []
+  initialData: [],
 })
 
 const getCategoryLabel = (catValue: string) => {
@@ -100,7 +101,7 @@ onMounted(() => {
         v-model:value="searchQuery"
         :placeholder="$gettext('Search')"
         clearable
-        style="width: 240px"
+        class="!w-60"
       />
     </n-flex>
 
@@ -136,7 +137,7 @@ onMounted(() => {
               <n-ellipsis :line-clamp="2" :tooltip="{ width: 300 }">
                 {{ tpl.description }}
               </n-ellipsis>
-              <n-flex :size="4" style="margin-top: auto">
+              <n-flex :size="4" class="mt-auto">
                 <n-tag v-if="tpl.local" size="small" type="warning">
                   {{ $gettext('Local') }}
                 </n-tag>
@@ -163,7 +164,6 @@ onMounted(() => {
       <n-pagination
         v-model:page="page"
         v-model:page-size="pageSize"
-        :page-count="pageCount"
         :item-count="total"
         show-quick-jumper
         show-size-picker

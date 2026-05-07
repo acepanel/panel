@@ -9,7 +9,7 @@ const DEFAULT_CACHE_TIME = 0
 export function setLocal(key: string, value: any, expire: number | null = DEFAULT_CACHE_TIME) {
   const storageData: StorageData = {
     value,
-    expire: expire !== 0 && expire !== null ? new Date().getTime() + expire * 1000 : 0
+    expire: expire !== 0 && expire !== null ? new Date().getTime() + expire * 1000 : 0,
   }
   const json = JSON.stringify(storageData)
   window.localStorage.setItem(key, json)

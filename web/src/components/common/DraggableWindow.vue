@@ -21,8 +21,8 @@ const props = withDefaults(
     minHeight: 300,
     defaultWidth: 800,
     defaultHeight: 600,
-    closeOnOverlay: true
-  }
+    closeOnOverlay: true,
+  },
 )
 
 const show = defineModel<boolean>('show', { default: false })
@@ -60,14 +60,14 @@ const windowStyle = computed(() => ({
   '--text-color-3': themeVars.value.textColor3,
   '--hover-color': themeVars.value.buttonColor2Hover,
   '--primary-color': themeVars.value.primaryColor,
-  '--border-radius': themeVars.value.borderRadius
+  '--border-radius': themeVars.value.borderRadius,
 }))
 
 // 初始化窗口位置（居中）
 function initPosition() {
   position.value = {
     x: (window.innerWidth - size.value.width) / 2,
-    y: (window.innerHeight - size.value.height) / 2
+    y: (window.innerHeight - size.value.height) / 2,
   }
 }
 
@@ -77,7 +77,7 @@ function startDrag(e: MouseEvent) {
   isDragging.value = true
   dragStart.value = {
     x: e.clientX - position.value.x,
-    y: e.clientY - position.value.y
+    y: e.clientY - position.value.y,
   }
   document.addEventListener('mousemove', onDrag)
   document.addEventListener('mouseup', stopDrag)
@@ -87,7 +87,7 @@ function onDrag(e: MouseEvent) {
   if (!isDragging.value) return
   position.value = {
     x: Math.max(0, Math.min(window.innerWidth - size.value.width, e.clientX - dragStart.value.x)),
-    y: Math.max(0, Math.min(window.innerHeight - size.value.height, e.clientY - dragStart.value.y))
+    y: Math.max(0, Math.min(window.innerHeight - size.value.height, e.clientY - dragStart.value.y)),
   }
 }
 
@@ -110,7 +110,7 @@ function startResize(e: MouseEvent, direction: string) {
     width: size.value.width,
     height: size.value.height,
     posX: position.value.x,
-    posY: position.value.y
+    posY: position.value.y,
   }
   document.addEventListener('mousemove', onResize)
   document.addEventListener('mouseup', stopResize)
@@ -185,7 +185,7 @@ function toggleMaximize() {
       x: position.value.x,
       y: position.value.y,
       width: size.value.width,
-      height: size.value.height
+      height: size.value.height,
     }
     position.value = { x: 0, y: 0 }
     size.value = { width: window.innerWidth, height: window.innerHeight }
@@ -271,7 +271,11 @@ onBeforeUnmount(() => {
         <div class="draggable-window-header" @mousedown="startDrag" @dblclick="onTitleDoubleClick">
           <span class="draggable-window-title">{{ title }}</span>
           <div class="draggable-window-controls">
-            <button class="control-btn minimize" @click.stop="minimize" :title="$gettext('Minimize')">
+            <button
+              class="control-btn minimize"
+              @click.stop="minimize"
+              :title="$gettext('Minimize')"
+            >
               <i-mdi-window-minimize />
             </button>
             <button
@@ -315,7 +319,7 @@ onBeforeUnmount(() => {
         :style="{
           background: themeVars.cardColor,
           color: themeVars.textColor1,
-          '--border-radius': themeVars.borderRadius
+          '--border-radius': themeVars.borderRadius,
         }"
         @click="restore"
       >

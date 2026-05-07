@@ -34,7 +34,7 @@ const loadSmartDisks = () => {
     if (data.available && data.disks) {
       diskOptions.value = data.disks.map((d: SmartDisk) => ({
         label: d.model ? `${d.name} (${d.model})` : d.name,
-        value: d.name
+        value: d.name,
       }))
       // 自动选中第一个
       if (diskOptions.value.length > 0) {
@@ -107,7 +107,7 @@ const deviceInfo = computed(() => {
   if (d.user_capacity?.bytes) {
     items.push({
       label: $gettext('Capacity'),
-      value: formatCapacity(d.user_capacity.bytes)
+      value: formatCapacity(d.user_capacity.bytes),
     })
   }
   if (d.device_type?.name) {
@@ -116,7 +116,7 @@ const deviceInfo = computed(() => {
   if (d.rotation_rate != null) {
     items.push({
       label: $gettext('Rotation Rate'),
-      value: d.rotation_rate === 0 ? 'SSD' : `${d.rotation_rate} RPM`
+      value: d.rotation_rate === 0 ? 'SSD' : `${d.rotation_rate} RPM`,
     })
   }
   if (d.power_on_time?.hours != null) {
@@ -135,13 +135,13 @@ const deviceInfo = computed(() => {
     if (nvme.data_units_read != null) {
       items.push({
         label: $gettext('Data Read'),
-        value: formatCapacity(nvme.data_units_read * 512000)
+        value: formatCapacity(nvme.data_units_read * 512000),
       })
     }
     if (nvme.data_units_written != null) {
       items.push({
         label: $gettext('Data Written'),
-        value: formatCapacity(nvme.data_units_written * 512000)
+        value: formatCapacity(nvme.data_units_written * 512000),
       })
     }
   }
@@ -175,7 +175,7 @@ const nvmeAttributes = computed(() => {
     power_on_hours: $gettext('Power On Hours'),
     unsafe_shutdowns: $gettext('Unsafe Shutdowns'),
     media_errors: $gettext('Media Errors'),
-    num_err_log_entries: $gettext('Error Log Entries')
+    num_err_log_entries: $gettext('Error Log Entries'),
   }
   for (const [key, label] of Object.entries(mapping)) {
     if (nvme[key] != null) {
@@ -211,7 +211,7 @@ const ataColumns = computed<DataTableColumns>(() => [
     width: 150,
     render(row: any) {
       return String(row.raw?.value ?? '')
-    }
+    },
   },
   {
     title: $gettext('Status'),
@@ -222,14 +222,14 @@ const ataColumns = computed<DataTableColumns>(() => [
         return h(NTag, { type: 'error', size: 'small' }, { default: () => row.when_failed })
       }
       return h(NTag, { type: 'success', size: 'small' }, { default: () => 'OK' })
-    }
-  }
+    },
+  },
 ])
 
 // NVMe 属性表格列
 const nvmeColumns = computed<DataTableColumns>(() => [
   { title: $gettext('Attribute'), key: 'name', width: 220 },
-  { title: $gettext('Value'), key: 'value' }
+  { title: $gettext('Value'), key: 'value' },
 ])
 
 // 格式化容量
@@ -249,11 +249,9 @@ const formatCapacity = (bytes: number): string => {
 <template>
   <n-spin :show="loadingDisks">
     <!-- 不可用时 -->
-    <n-result
+    <n-empty
       v-if="!loadingDisks && !available"
-      status="warning"
-      :title="$gettext('SMART Not Available')"
-      :description="unavailableMessage"
+      :description="unavailableMessage || $gettext('SMART Not Available')"
     />
 
     <!-- 可用时 -->
@@ -264,7 +262,7 @@ const formatCapacity = (bytes: number): string => {
         <n-select
           v-model:value="selectedDisk"
           :options="diskOptions"
-          style="width: 300px"
+          class="w-75"
           :placeholder="$gettext('Select a disk')"
         />
       </n-flex>
@@ -289,7 +287,7 @@ const formatCapacity = (bytes: number): string => {
                   :color="temperatureColor"
                   :rail-color="temperatureColor + '20'"
                   :stroke-width="10"
-                  style="width: 120px"
+                  class="w-30"
                 >
                   <span>{{ temperature }}°C</span>
                 </n-progress>

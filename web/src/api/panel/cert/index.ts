@@ -48,5 +48,5 @@ export default {
   renew: (id: number): any => http.Post(`/cert/cert/${id}/renew`, { id }),
   // 部署
   deploy: (id: number, website_id: number, enable_https: boolean = false): any =>
-    http.Post(`/cert/cert/${id}/deploy`, { id, website_id, enable_https })
+    http.Post(`/cert/cert/${id}/deploy`, { id, website_id, enable_https }),
 }

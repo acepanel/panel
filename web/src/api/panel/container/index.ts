@@ -71,5 +71,5 @@ export default {
   // 删除卷
   volumeRemove: (id: string): any => http.Delete(`/container/volume/${id}`),
   // 清理卷
-  volumePrune: (): any => http.Post(`/container/volume/prune`)
+  volumePrune: (): any => http.Post(`/container/volume/prune`),
 }

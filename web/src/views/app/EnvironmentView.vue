@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import environment from '@/api/panel/environment'
-import { router } from '@/router'
-import { renderLocalIcon } from '@/utils'
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import environment from '@/api/panel/environment'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { router } from '@/router'
+import { renderLocalIcon } from '@/utils'
+
 const { $gettext } = useGettext()
+const { confirmDelete, confirmAction } = useConfirm()
 
 const selectedType = ref<string>('')
 const searchQuery = ref<string>('')
 
 const { data: types } = useRequest(environment.types, {
-  initialData: []
+  initialData: [],
 })
 
 const columns: any = [
@@ -22,31 +25,31 @@ const columns: any = [
     align: 'center',
     render(row: any) {
       return renderLocalIcon('environment', row.type, { size: 26 })()
-    }
+    },
   },
   {
     title: $gettext('Name'),
     key: 'name',
     width: 200,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Description'),
     key: 'description',
     minWidth: 300,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Latest Version'),
     key: 'version',
     width: 160,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Installed Version'),
     key: 'installed_version',
     width: 160,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -55,117 +58,104 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, null, {
-        default: () => [
-          row.installed && row.has_update
-            ? h(
-                NPopconfirm,
+        default: () => {
+          const items: any[] = []
+          if (row.installed && row.has_update) {
+            items.push(
+              h(
+                NButton,
                 {
-                  onPositiveClick: () => handleUpdate(row.type, row.slug)
-                },
-                {
-                  default: () => {
-                    return $gettext('Are you sure to update environment %{ environment }?', {
-                      environment: row.name
+                  size: 'small',
+                  type: 'warning',
+                  onClick: async () => {
+                    const ok = await confirmAction({
+                      type: 'warning',
+                      title: $gettext('Confirm Update'),
+                      content: $gettext('Are you sure to update environment %{ environment }?', {
+                        environment: row.name,
+                      }),
                     })
+                    if (ok) handleUpdate(row.type, row.slug)
                   },
-                  trigger: () => {
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'warning'
-                      },
-                      {
-                        default: () => $gettext('Update')
-                      }
-                    )
-                  }
-                }
-              )
-            : null,
-          row.installed
-            ? h(
+                },
+                { default: () => $gettext('Update') },
+              ),
+            )
+          }
+          if (row.installed) {
+            items.push(
+              h(
                 NButton,
                 {
                   size: 'small',
                   type: 'info',
-                  onClick: () => handleManage(row.type, row.slug)
+                  onClick: () => handleManage(row.type, row.slug),
                 },
+                { default: () => $gettext('Manage') },
+              ),
+              h(
+                NButton,
                 {
-                  default: () => $gettext('Manage')
-                }
-              )
-            : null,
-          row.installed
-            ? h(
-                NPopconfirm,
-                {
-                  onPositiveClick: () => handleUninstall(row.type, row.slug)
-                },
-                {
-                  default: () => {
-                    return $gettext('Are you sure to uninstall environment %{ environment }?', {
-                      environment: row.name
+                  size: 'small',
+                  type: 'error',
+                  onClick: async () => {
+                    const ok = await confirmDelete({
+                      title: $gettext('Confirm Uninstall'),
+                      content: $gettext('Are you sure to uninstall environment %{ environment }?', {
+                        environment: row.name,
+                      }),
+                      positiveText: $gettext('Uninstall'),
                     })
+                    if (ok) handleUninstall(row.type, row.slug)
                   },
-                  trigger: () => {
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'error'
-                      },
-                      {
-                        default: () => $gettext('Uninstall')
-                      }
-                    )
-                  }
-                }
-              )
-            : null,
-          !row.installed
-            ? h(
-                NPopconfirm,
-                {
-                  onPositiveClick: () => handleInstall(row.type, row.slug)
                 },
+                { default: () => $gettext('Uninstall') },
+              ),
+            )
+          } else {
+            items.push(
+              h(
+                NButton,
                 {
-                  default: () => {
-                    return $gettext('Are you sure to install environment %{ environment }?', {
-                      environment: row.name
+                  size: 'small',
+                  type: 'success',
+                  onClick: async () => {
+                    const ok = await confirmAction({
+                      type: 'info',
+                      title: $gettext('Confirm Install'),
+                      content: $gettext('Are you sure to install environment %{ environment }?', {
+                        environment: row.name,
+                      }),
                     })
+                    if (ok) handleInstall(row.type, row.slug)
                   },
-                  trigger: () => {
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'success'
-                      },
-                      {
-                        default: () => $gettext('Install')
-                      }
-                    )
-                  }
-                }
-              )
-            : null
-        ]
+                },
+                { default: () => $gettext('Install') },
+              ),
+            )
+          }
+          return items
+        },
       })
-    }
-  }
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
   (page, pageSize) =>
-    environment.list(page, pageSize, selectedType.value || undefined, searchQuery.value || undefined),
+    environment.list(
+      page,
+      pageSize,
+      selectedType.value || undefined,
+      searchQuery.value || undefined,
+    ),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [selectedType, searchQuery]
-  }
+    watchingStates: [selectedType, searchQuery],
+  },
 )
 
 // 处理类型切换
@@ -177,7 +167,7 @@ const handleTypeChange = (type: string) => {
 const handleInstall = (type: string, slug: string) => {
   useRequest(environment.install(type, slug)).onSuccess(() => {
     window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks')
+      $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
 }
@@ -185,7 +175,7 @@ const handleInstall = (type: string, slug: string) => {
 const handleUpdate = (type: string, slug: string) => {
   useRequest(environment.update(type, slug)).onSuccess(() => {
     window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks')
+      $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
 }
@@ -193,7 +183,7 @@ const handleUpdate = (type: string, slug: string) => {
 const handleUninstall = (type: string, slug: string) => {
   useRequest(environment.uninstall(type, slug)).onSuccess(() => {
     window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks')
+      $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
 }
@@ -214,7 +204,7 @@ onMounted(() => {
         <n-tag
           :type="selectedType === '' ? 'primary' : 'default'"
           :bordered="selectedType !== ''"
-          style="cursor: pointer"
+          class="cursor-pointer"
           @click="handleTypeChange('')"
         >
           {{ $gettext('All') }}
@@ -224,7 +214,7 @@ onMounted(() => {
           :key="type.value"
           :type="selectedType === type.value ? 'primary' : 'default'"
           :bordered="selectedType !== type.value"
-          style="cursor: pointer"
+          class="cursor-pointer"
           @click="handleTypeChange(type.value)"
         >
           {{ type.label }}
@@ -234,10 +224,12 @@ onMounted(() => {
         v-model:value="searchQuery"
         :placeholder="$gettext('Search')"
         clearable
-        style="width: 240px"
+        class="!w-60"
       />
     </n-flex>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1200"
@@ -245,16 +237,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.slug"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

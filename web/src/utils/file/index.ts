@@ -326,7 +326,7 @@ const isImage = (name: string) => {
     'tiff',
     'heif',
     'heic',
-    'jxl'
+    'jxl',
   ].includes(ext)
 }
 
@@ -365,5 +365,5 @@ export {
   isCompress,
   isImage,
   languageByPath,
-  lastDirectory
+  lastDirectory,
 }

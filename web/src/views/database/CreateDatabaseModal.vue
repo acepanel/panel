@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
-import { generateRandomString } from '@/utils'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
+import { generateRandomString } from '@/utils'
 
 const props = defineProps<{
   type: string
@@ -16,7 +17,7 @@ const createModel = ref({
   create_user: false,
   username: '',
   password: '',
-  host: 'localhost'
+  host: 'localhost',
 })
 
 const servers = ref<{ label: string; value: string }[]>([])
@@ -24,7 +25,7 @@ const servers = ref<{ label: string; value: string }[]>([])
 const hostTypeOptions = [
   { label: $gettext('Local (localhost)'), value: 'localhost' },
   { label: $gettext('All (%)'), value: '%' },
-  { label: $gettext('Specific'), value: 'specific' }
+  { label: $gettext('Specific'), value: 'specific' },
 ]
 const hostType = ref('localhost')
 
@@ -61,12 +62,12 @@ watch(
         for (const server of data.items) {
           servers.value.push({
             label: server.name,
-            value: server.id
+            value: server.id,
           })
         }
       })
     }
-  }
+  },
 )
 </script>
 
@@ -135,7 +136,11 @@ watch(
           </n-button>
         </n-input-group>
       </n-form-item>
-      <n-form-item v-if="createModel.create_user && props.type === 'mysql'" path="host-select" :label="$gettext('Host')">
+      <n-form-item
+        v-if="createModel.create_user && props.type === 'mysql'"
+        path="host-select"
+        :label="$gettext('Host')"
+      >
         <n-select
           v-model:value="hostType"
           @keydown.enter.prevent
@@ -156,7 +161,9 @@ watch(
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
 </template>
 

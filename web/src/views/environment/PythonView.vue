@@ -16,20 +16,20 @@ const mirrorOptions = [
   { label: $gettext('Official (pypi.org)'), value: 'https://pypi.org/simple' },
   {
     label: $gettext('China - Alibaba (mirrors.aliyun.com)'),
-    value: 'https://mirrors.aliyun.com/pypi/simple/'
+    value: 'https://mirrors.aliyun.com/pypi/simple/',
   },
   {
     label: $gettext('China - Tencent (mirrors.tencent.com)'),
-    value: 'https://mirrors.tencent.com/pypi/simple/'
+    value: 'https://mirrors.tencent.com/pypi/simple/',
   },
   {
     label: $gettext('China - Tsinghua (tuna.tsinghua.edu.cn)'),
-    value: 'https://pypi.tuna.tsinghua.edu.cn/simple'
+    value: 'https://pypi.tuna.tsinghua.edu.cn/simple',
   },
   {
     label: $gettext('China - USTC (pypi.mirrors.ustc.edu.cn)'),
-    value: 'https://pypi.mirrors.ustc.edu.cn/simple/'
-  }
+    value: 'https://pypi.mirrors.ustc.edu.cn/simple/',
+  },
 ]
 
 // 获取当前镜像设置
@@ -62,7 +62,7 @@ const handleSaveMirror = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-card>
         <template #header> Python {{ slug }} </template>
@@ -79,7 +79,7 @@ const handleSaveMirror = async () => {
             <n-alert type="info" :show-icon="false">
               {{
                 $gettext(
-                  'pip mirror is used to configure the Python package source. Using a domestic mirror can speed up package downloads.'
+                  'pip mirror is used to configure the Python package source. Using a domestic mirror can speed up package downloads.',
                 )
               }}
             </n-alert>
@@ -101,5 +101,5 @@ const handleSaveMirror = async () => {
         </n-spin>
       </n-card>
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>

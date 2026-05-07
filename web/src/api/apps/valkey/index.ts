@@ -5,5 +5,5 @@ export default {
   config: (): any => http.Get('/apps/valkey/config'),
   saveConfig: (config: string): any => http.Post('/apps/valkey/config', { config }),
   configTune: (): any => http.Get('/apps/valkey/config_tune'),
-  saveConfigTune: (data: any): any => http.Post('/apps/valkey/config_tune', data)
+  saveConfigTune: (data: any): any => http.Post('/apps/valkey/config_tune', data),
 }

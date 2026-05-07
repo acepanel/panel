@@ -1,17 +1,19 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'grafana-datasources'
+  name: 'grafana-datasources',
 })
 
-import { NButton, NDataTable, NPopconfirm, NSpace, NTag, NModal, NForm, NFormItem, NInput, NSelect, NSwitch } from 'naive-ui'
+import { NButton, NDataTable, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import grafana from '@/api/apps/grafana'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const { data: datasources, send: refreshList } = useRequest(grafana.datasources, {
-  initialData: []
+  initialData: [],
 })
 
 const showModal = ref(false)
@@ -27,7 +29,7 @@ const formModel = ref({
   is_default: false,
   database: '',
   user: '',
-  password: ''
+  password: '',
 })
 
 const typeOptions = [
@@ -53,33 +55,35 @@ const typeOptions = [
   // 性能分析
   { label: 'Pyroscope', value: 'grafana-pyroscope-datasource' },
   // 测试
-  { label: 'TestData', value: 'testdata' }
+  { label: 'TestData', value: 'testdata' },
 ]
 
 const accessOptions = [
   { label: $gettext('Server (Proxy)'), value: 'proxy' },
-  { label: $gettext('Browser (Direct)'), value: 'direct' }
+  { label: $gettext('Browser (Direct)'), value: 'direct' },
 ]
 
-const needsDbFields = computed(() => ['mysql', 'postgres', 'influxdb', 'mssql'].includes(formModel.value.type))
+const needsDbFields = computed(() =>
+  ['mysql', 'postgres', 'influxdb', 'mssql'].includes(formModel.value.type),
+)
 
 const columns: any = [
   {
     title: $gettext('Name'),
     key: 'name',
     minWidth: 150,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Type'),
     key: 'type',
-    width: 140
+    width: 140,
   },
   {
     title: 'URL',
     key: 'url',
     minWidth: 200,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Default'),
@@ -89,28 +93,44 @@ const columns: any = [
       return row.isDefault
         ? h(NTag, { type: 'success', size: 'small' }, { default: () => $gettext('Yes') })
         : h(NTag, { type: 'default', size: 'small' }, { default: () => $gettext('No') })
-    }
+    },
   },
   {
     title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     render(row: any) {
-      return h(NSpace, { size: 'small' }, {
-        default: () => [
-          h(NButton, { size: 'small', onClick: () => handleEdit(row) }, { default: () => $gettext('Edit') }),
-          h(
-            NPopconfirm,
-            { onPositiveClick: () => handleDelete(row.name) },
-            {
-              default: () => $gettext('Are you sure you want to delete datasource %{ name }?', { name: row.name }),
-              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') })
-            }
-          )
-        ]
-      })
-    }
-  }
+      return h(
+        NSpace,
+        { size: 'small' },
+        {
+          default: () => [
+            h(
+              NButton,
+              { size: 'small', onClick: () => handleEdit(row) },
+              { default: () => $gettext('Edit') },
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'error',
+                onClick: async () => {
+                  const ok = await confirmDelete({
+                    content: $gettext('Are you sure you want to delete datasource %{ name }?', {
+                      name: row.name,
+                    }),
+                  })
+                  if (ok) handleDelete(row.name)
+                },
+              },
+              { default: () => $gettext('Delete') },
+            ),
+          ],
+        },
+      )
+    },
+  },
 ]
 
 const handleAdd = () => {
@@ -123,7 +143,7 @@ const handleAdd = () => {
     is_default: false,
     database: '',
     user: '',
-    password: ''
+    password: '',
   }
   showModal.value = true
 }
@@ -139,7 +159,7 @@ const handleEdit = (row: any) => {
     is_default: row.isDefault || false,
     database: row.database || '',
     user: row.user || '',
-    password: ''
+    password: '',
   }
   showModal.value = true
 }
@@ -176,7 +196,12 @@ const handleDelete = (name: string) => {
       </n-button>
     </n-flex>
     <n-data-table striped :columns="columns" :data="datasources" :scroll-x="800" />
-    <n-modal v-model:show="showModal" preset="card" :title="editMode ? $gettext('Edit Data Source') : $gettext('Add Data Source')" style="width: 600px">
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      :title="editMode ? $gettext('Edit Data Source') : $gettext('Add Data Source')"
+      class="w-150"
+    >
       <n-form :model="formModel" label-placement="left" label-width="auto">
         <n-form-item :label="$gettext('Name')">
           <n-input v-model:value="formModel.name" :placeholder="$gettext('e.g. Prometheus')" />
@@ -201,14 +226,23 @@ const handleDelete = (name: string) => {
             <n-input v-model:value="formModel.user" />
           </n-form-item>
           <n-form-item :label="$gettext('Password')">
-            <n-input v-model:value="formModel.password" type="password" :placeholder="editMode ? $gettext('Leave empty to keep unchanged') : ''" />
+            <n-input
+              v-model:value="formModel.password"
+              type="password"
+              :placeholder="editMode ? $gettext('Leave empty to keep unchanged') : ''"
+            />
           </n-form-item>
         </template>
       </n-form>
       <template #footer>
         <n-flex justify="end">
           <n-button @click="showModal = false">{{ $gettext('Cancel') }}</n-button>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-clickhouse-index'
+  name: 'apps-clickhouse-index',
 })
 
 import copy2clipboard from '@vavt/copy2clipboard'
@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 
 import clickhouse from '@/api/apps/clickhouse'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import ClickHouseConfigTuneView from './ClickHouseConfigTuneView.vue'
 
 const { $gettext } = useGettext()
@@ -17,10 +18,10 @@ const setDefaultPasswordLoading = ref(false)
 const saveConfigLoading = ref(false)
 
 const { data: defaultPassword } = useRequest(clickhouse.defaultPassword, {
-  initialData: ''
+  initialData: '',
 })
 const { data: config, send: refreshConfig } = useRequest(clickhouse.config, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -30,7 +31,7 @@ watch(currentTab, (val) => {
 })
 
 const { data: load } = useRequest(clickhouse.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -39,14 +40,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -79,7 +80,7 @@ const handleCopyDefaultPassword = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -89,7 +90,7 @@ const handleCopyDefaultPassword = () => {
               <n-alert type="info">
                 {{
                   $gettext(
-                    'The ClickHouse default user password is used to access the database. Keep it safe!'
+                    'The ClickHouse default user password is used to access the database. Keep it safe!',
                   )
                 }}
               </n-alert>
@@ -104,7 +105,12 @@ const handleCopyDefaultPassword = () => {
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" :loading="setDefaultPasswordLoading" :disabled="setDefaultPasswordLoading" @click="handleSetDefaultPassword">
+                <n-button
+                  type="primary"
+                  :loading="setDefaultPasswordLoading"
+                  :disabled="setDefaultPasswordLoading"
+                  @click="handleSetDefaultPassword"
+                >
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -117,13 +123,18 @@ const handleCopyDefaultPassword = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the ClickHouse configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the ClickHouse configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -146,5 +157,5 @@ const handleCopyDefaultPassword = () => {
         <realtime-log service="clickhouse-server" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

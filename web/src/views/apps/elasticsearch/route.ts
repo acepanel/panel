@@ -15,8 +15,8 @@ export default {
       meta: {
         title: 'ElasticSearch',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

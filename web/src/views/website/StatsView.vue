@@ -52,7 +52,7 @@ const dateRange = computed<{ start: string; end: string }>(() => {
       if (customRange.value) {
         return {
           start: getDateStr(new Date(customRange.value[0])),
-          end: getDateStr(new Date(customRange.value[1]))
+          end: getDateStr(new Date(customRange.value[1])),
         }
       }
       return { start: getDateStr(todayDate), end: getDateStr(todayDate) }
@@ -111,14 +111,14 @@ provide('statContext', {
   sitesParam,
   siteOptions,
   activePreset,
-  refreshKey
+  refreshKey,
 })
 </script>
 
 <template>
   <n-flex vertical :size="20">
     <!-- 共享工具栏 -->
-    <div class="flex flex-wrap gap-12 w-full items-center">
+    <div class="flex flex-wrap gap-3 w-full items-center">
       <!-- 站点选择器 -->
       <n-select
         v-model:value="selectedSites"
@@ -126,7 +126,7 @@ provide('statContext', {
         clearable
         :options="siteOptions"
         :placeholder="$gettext('All Sites')"
-        style="min-width: 200px; max-width: 400px"
+        :style="{ minWidth: '200px', maxWidth: '400px' }"
       />
 
       <!-- 时间预设 -->
@@ -171,18 +171,21 @@ provide('statContext', {
         </n-popover>
       </n-button-group>
 
-      <div class="ml-auto flex gap-8">
+      <div class="ml-auto flex gap-2">
         <n-button size="small" @click="handleRefresh">
           {{ $gettext('Refresh') }}
         </n-button>
-        <n-popconfirm @positive-click="handleClear">
+        <ConfirmDialog
+          type="danger"
+          :content="$gettext('Are you sure you want to clear all statistics data?')"
+          @confirm="handleClear"
+        >
           <template #trigger>
             <n-button type="error" ghost size="small">
               {{ $gettext('Clear Data') }}
             </n-button>
           </template>
-          {{ $gettext('Are you sure you want to clear all statistics data?') }}
-        </n-popconfirm>
+        </ConfirmDialog>
       </div>
     </div>
 

@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const createModel = ref({
   name: '',
   driver: 'local',
   options: [],
-  labels: []
+  labels: [],
 })
 
 const options = [{ label: 'local', value: 'local' }]
@@ -28,28 +30,28 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Driver'),
     key: 'driver',
     width: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Scope'),
     key: 'scope',
     width: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Mount Point'),
     key: 'mount_point',
     resizable: true,
     minWidth: 150,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Creation Time'),
@@ -58,7 +60,7 @@ const columns: any = [
     resizable: true,
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -66,35 +68,22 @@ const columns: any = [
     width: 120,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: async () => {
-              await handleDelete(row)
-            }
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete?'),
+            })
+            if (ok) await handleDelete(row)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete?')
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+        },
+        { default: () => $gettext('Delete') },
+      )
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -103,8 +92,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = async (row: any) => {
@@ -159,19 +148,31 @@ onMounted(() => {
       <n-button type="primary" @click="createModal = true">{{
         $gettext('Create Volume')
       }}</n-button>
-      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>{{
-        $gettext('Cleanup Volumes')
-      }}</n-button>
-      <n-popconfirm @positive-click="handleBulkDelete">
+      <n-button
+        type="primary"
+        ghost
+        :loading="pruneLoading"
+        :disabled="pruneLoading"
+        @click="handlePrune"
+      >
+        {{ $gettext('Cleanup Volumes') }}
+      </n-button>
+      <ConfirmDialog
+        type="danger"
+        :content="$gettext('Are you sure you want to delete the selected volumes?')"
+        @confirm="handleBulkDelete"
+      >
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{ $gettext('Are you sure you want to delete the selected volumes?') }}
-      </n-popconfirm>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :loading="loading"
@@ -179,17 +180,13 @@ onMounted(() => {
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.name"
-      v-model:checked-row-keys="selectedRowKeys"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

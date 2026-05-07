@@ -1,28 +1,22 @@
 <script setup lang="ts">
-import {
-  type MessageReactive,
-  NButton,
-  NDataTable,
-  NInput,
-  NPopconfirm,
-  NSpace,
-  NTag
-} from 'naive-ui'
+import { type MessageReactive, NButton, NDataTable, NFlex, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const props = defineProps({
   caProviders: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   algorithms: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { caProviders, algorithms } = toRefs(props)
@@ -34,7 +28,7 @@ const updateAccountModel = ref<any>({
   email: '',
   kid: '',
   key_type: 'P256',
-  ca: 'letsencrypt'
+  ca: 'letsencrypt',
 })
 const updateAccountModal = ref(false)
 const updateAccountLoading = ref(false)
@@ -46,7 +40,7 @@ const columns: any = [
     key: 'email',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: 'CA',
@@ -59,22 +53,22 @@ const columns: any = [
         NTag,
         {
           type: 'info',
-          bordered: false
+          bordered: false,
         },
         {
           default: () => {
             return caProviders.value?.find((item: any) => item.value === row.ca)?.label
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Key Type'),
     key: 'key_type',
     width: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -82,7 +76,7 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -96,44 +90,31 @@ const columns: any = [
               updateAccountModel.value.key_type = row.key_type
               updateAccountModel.value.ca = row.ca
               updateAccountModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete the account?'),
+              })
+              if (!ok) return
               useRequest(cert.accountDelete(row.id)).onSuccess(() => {
                 window.$message.success($gettext('Deletion successful'))
                 refresh()
               })
-            }
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete the account?')
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -142,8 +123,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleUpdateAccount = () => {
@@ -151,8 +132,8 @@ const handleUpdateAccount = () => {
   messageReactive = window.$message.loading(
     $gettext('Registering account with CA, please wait patiently'),
     {
-      duration: 0
-    }
+      duration: 0,
+    },
   )
   useRequest(cert.accountUpdate(updateAccount.value, updateAccountModel.value))
     .onSuccess(() => {
@@ -184,6 +165,8 @@ onUnmounted(() => {
 <template>
   <n-space vertical size="large">
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1000"
@@ -191,16 +174,13 @@ onUnmounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-space>
@@ -216,13 +196,13 @@ onUnmounted(() => {
     <n-space vertical>
       <n-alert type="info">{{
         $gettext(
-          'LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their official websites first'
+          'LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their official websites first',
         )
       }}</n-alert>
       <n-alert type="warning">
         {{
           $gettext(
-            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt or LiteSSL"
+            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt or LiteSSL",
           )
         }}
       </n-alert>
@@ -268,7 +248,15 @@ onUnmounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="updateAccountLoading" :disabled="updateAccountLoading" @click="handleUpdateAccount">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="updateAccountLoading"
+        :disabled="updateAccountLoading"
+        @click="handleUpdateAccount"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
 </template>

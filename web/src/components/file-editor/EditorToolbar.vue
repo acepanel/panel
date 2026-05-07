@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useThemeVars } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
 import file from '@/api/panel/file'
 import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
-import { useThemeVars } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
@@ -82,8 +83,8 @@ async function handleSaveAll() {
     window.$message.warning(
       $gettext('Saved %{ success } files, %{ fail } failed', {
         success: successCount,
-        fail: failCount
-      })
+        fail: failCount,
+      }),
     )
   }
 }
@@ -101,7 +102,7 @@ function handleRefresh() {
       negativeText: $gettext('Cancel'),
       onPositiveClick: () => {
         doRefresh(tab.path)
-      }
+      },
     })
   } else {
     doRefresh(tab.path)
@@ -163,7 +164,7 @@ function handleToggleWordWrap() {
 defineExpose({
   save: handleSave,
   saveAll: handleSaveAll,
-  refresh: handleRefresh
+  refresh: handleRefresh,
 })
 </script>
 
@@ -253,7 +254,7 @@ defineExpose({
         :min="10"
         :max="24"
         :show-button="true"
-        class="w-80"
+        class="w-20"
       >
         <template #minus-icon>
           <i-mdi-format-font-size-decrease />

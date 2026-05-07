@@ -58,7 +58,7 @@ const defaultSettings: EditorSettings = {
   guides: true,
   folding: true,
   formatOnPaste: false,
-  formatOnType: false
+  formatOnType: false,
 }
 
 export const useEditorStore = defineStore('editor', {
@@ -66,7 +66,7 @@ export const useEditorStore = defineStore('editor', {
     tabs: [],
     activeTabPath: null,
     settings: { ...defaultSettings },
-    rootPath: '/'
+    rootPath: '/',
   }),
 
   getters: {
@@ -90,7 +90,7 @@ export const useEditorStore = defineStore('editor', {
     activeTabIndex(): number {
       if (!this.activeTabPath) return -1
       return this.tabs.findIndex((tab) => tab.path === this.activeTabPath)
-    }
+    },
   },
 
   actions: {
@@ -117,7 +117,7 @@ export const useEditorStore = defineStore('editor', {
         loading: false,
         lineEnding,
         cursorLine: 1,
-        cursorColumn: 1
+        cursorColumn: 1,
       }
 
       this.tabs.push(newTab)
@@ -256,10 +256,10 @@ export const useEditorStore = defineStore('editor', {
 
       const [movedTab] = this.tabs.splice(fromIndex, 1)
       if (movedTab) this.tabs.splice(toIndex, 0, movedTab)
-    }
+    },
   },
 
   persist: {
-    pick: ['settings', 'rootPath']
-  }
+    pick: ['settings', 'rootPath'],
+  },
 })

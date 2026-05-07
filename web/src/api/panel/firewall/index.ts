@@ -48,8 +48,26 @@ export default {
   scanTopPorts: (start: string, end: string, limit: number): any =>
     http.Get('/firewall/scan/top_ports', { params: { start, end, limit } }),
   // 扫描感知 - 获取事件列表
-  scanEvents: (start: string, end: string, page: number, limit: number, sourceIP?: string, port?: number, location?: string): any =>
-    http.Get('/firewall/scan/events', { params: { start, end, page, limit, source_ip: sourceIP, port: port || undefined, location: location || undefined } }),
+  scanEvents: (
+    start: string,
+    end: string,
+    page: number,
+    limit: number,
+    sourceIP?: string,
+    port?: number,
+    location?: string,
+  ): any =>
+    http.Get('/firewall/scan/events', {
+      params: {
+        start,
+        end,
+        page,
+        limit,
+        source_ip: sourceIP,
+        port: port || undefined,
+        location: location || undefined,
+      },
+    }),
   // 扫描感知 - 清空数据
-  scanClear: (): any => http.Post('/firewall/scan/clear')
+  scanClear: (): any => http.Post('/firewall/scan/clear'),
 }

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
-import { generateRandomString } from '@/utils'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
+import { generateRandomString } from '@/utils'
 
 const props = defineProps<{
   type?: string
@@ -16,7 +17,7 @@ const createModel = ref({
   password: '',
   host: 'localhost',
   privileges: [],
-  remark: ''
+  remark: '',
 })
 
 const servers = ref<{ label: string; value: string }[]>([])
@@ -27,7 +28,7 @@ const userSupportedTypes = ['mysql', 'postgresql', 'clickhouse']
 const hostTypeOptions = [
   { label: $gettext('Local (localhost)'), value: 'localhost' },
   { label: $gettext('All (%)'), value: '%' },
-  { label: $gettext('Specific'), value: 'specific' }
+  { label: $gettext('Specific'), value: 'specific' },
 ]
 const hostType = ref('localhost')
 
@@ -67,12 +68,12 @@ watch(
           }
           servers.value.push({
             label: server.name,
-            value: server.id
+            value: server.id,
           })
         }
       })
     }
-  }
+  },
 )
 </script>
 
@@ -132,7 +133,11 @@ watch(
             :options="hostTypeOptions"
           />
         </n-form-item>
-        <n-form-item v-if="hostType === 'specific' && props.type === 'mysql'" path="host" :label="$gettext('Specific Host')">
+        <n-form-item
+          v-if="hostType === 'specific' && props.type === 'mysql'"
+          path="host"
+          :label="$gettext('Specific Host')"
+        >
           <n-input
             v-model:value="createModel.host"
             type="text"
@@ -155,7 +160,9 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-flex>
   </n-modal>
 </template>

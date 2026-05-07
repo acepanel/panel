@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-openresty-index'
+  name: 'apps-openresty-index',
 })
 
 import openresty from '@/api/apps/openresty'

@@ -207,7 +207,7 @@ export const codeToGeoName: Record<string, string> = {
   ZM: 'Zambia',
   ZW: 'Zimbabwe',
   HK: 'China',
-  MO: 'China'
+  MO: 'China',
 }
 
 // ISO 3166-1 alpha-2 国家代码 → 中文显示名
@@ -419,5 +419,5 @@ export const codeToName: Record<string, string> = {
   ZM: '赞比亚',
   ZW: '津巴布韦',
   HK: '中国香港',
-  MO: '中国澳门'
+  MO: '中国澳门',
 }

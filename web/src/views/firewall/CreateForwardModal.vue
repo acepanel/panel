@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import firewall from '@/api/panel/firewall'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import firewall from '@/api/panel/firewall'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -10,23 +11,23 @@ const loading = ref(false)
 const protocols = [
   {
     label: 'TCP',
-    value: 'tcp'
+    value: 'tcp',
   },
   {
     label: 'UDP',
-    value: 'udp'
+    value: 'udp',
   },
   {
     label: 'TCP/UDP',
-    value: 'tcp/udp'
-  }
+    value: 'tcp/udp',
+  },
 ]
 
 const createModel = ref({
   protocol: 'tcp',
   port: 8080,
   target_ip: '127.0.0.1',
-  target_port: 80
+  target_port: 80,
 })
 
 const handleCreate = () => {
@@ -38,7 +39,7 @@ const handleCreate = () => {
         protocol: 'tcp',
         port: 8080,
         target_ip: '127.0.0.1',
-        target_port: 80
+        target_port: 80,
       }
       window.$message.success($gettext('Created successfully'))
     })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'home-update'
+  name: 'home-update',
 })
 
 import type { MessageReactive } from 'naive-ui'
@@ -12,7 +12,7 @@ import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 const { data: versions } = useRequest(home.updateInfo, {
-  initialData: []
+  initialData: [],
 })
 
 let messageReactive: MessageReactive | null = null
@@ -32,7 +32,7 @@ const handleUpdate = () => {
     onPositiveClick: () => {
       updateLoading.value = true
       messageReactive = window.$message.loading($gettext('Panel updating...'), {
-        duration: 0
+        duration: 0,
       })
       useRequest(home.update())
         .onSuccess(() => {
@@ -51,18 +51,18 @@ const handleUpdate = () => {
     },
     onNegativeClick: () => {
       window.$message.info($gettext('Update canceled'))
-    }
+    },
   })
 }
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-list v-if="versions.length" hoverable>
       <n-list-item v-for="(item, index) in versions" :key="index">
         <n-thing>
           <template #header>
-            <div flex gap-3 items-center>
+            <div class="flex gap-3 items-center">
               <span>v{{ item.version }}</span>
               <n-tag v-if="index === 0" type="success" size="small" :bordered="false">
                 {{ $gettext('Latest') }}
@@ -96,12 +96,12 @@ const handleUpdate = () => {
         </n-thing>
       </n-list-item>
     </n-list>
-    <div v-else pt-40>
+    <div v-else pt-10>
       <n-result
         status="418"
         title="Loading..."
         :description="$gettext('Loading update information, please wait a moment')"
       />
     </div>
-  </common-page>
+  </PageContainer>
 </template>

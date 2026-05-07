@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { useGettext } from 'vue3-gettext'
+
 import firewall from '@/api/panel/firewall'
 import safe from '@/api/panel/safe'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const model = ref({
   firewallStatus: false,
-  pingStatus: false
+  pingStatus: false,
 })
 
 useRequest(firewall.status).onSuccess(({ data }) => {
@@ -56,7 +57,7 @@ useRequest(firewall.scanSetting()).onSuccess(({ data }) => {
 useRequest(firewall.scanInterfaces()).onSuccess(({ data }) => {
   interfaceOptions.value = (data || []).map((iface: any) => ({
     label: `${iface.name} (${iface.ips?.join(', ') || iface.status})`,
-    value: iface.name
+    value: iface.name,
   }))
 })
 
@@ -71,8 +72,8 @@ const handleSaveScanSetting = () => {
       block_threshold: blockThreshold.value,
       block_window: blockWindow.value,
       block_duration: blockDuration.value,
-      whitelist: whitelist.value
-    })
+      whitelist: whitelist.value,
+    }),
   )
     .onSuccess(() => {
       window.$message.success($gettext('Settings saved successfully'))

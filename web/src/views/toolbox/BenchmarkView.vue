@@ -1,11 +1,12 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-benchmark'
+  name: 'toolbox-benchmark',
 })
+
+import { useGettext } from 'vue3-gettext'
 
 import benchmark from '@/api/panel/toolbox-benchmark'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const inTest = ref(false)
@@ -21,7 +22,7 @@ const tests = [
   'physics',
   'json',
   'memory',
-  'disk'
+  'disk',
 ]
 
 const cpu = ref({
@@ -31,7 +32,7 @@ const cpu = ref({
   encryption: 0,
   compression: 0,
   physics: 0,
-  json: 0
+  json: 0,
 })
 
 const cpuTotal = computed(() => {
@@ -41,23 +42,23 @@ const cpuTotal = computed(() => {
 const memory = ref({
   score: 0,
   bandwidth: $gettext('Pending benchmark'),
-  latency: $gettext('Pending benchmark')
+  latency: $gettext('Pending benchmark'),
 })
 
 const disk = ref({
   score: 0,
   1024: {
     read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark')
+    write_speed: $gettext('Pending benchmark'),
   },
   4: {
     read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark')
+    write_speed: $gettext('Pending benchmark'),
   },
   64: {
     read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark')
-  }
+    write_speed: $gettext('Pending benchmark'),
+  },
 })
 
 const handleTest = async () => {
@@ -87,7 +88,7 @@ const handleTest = async () => {
     <n-alert type="warning">
       {{
         $gettext(
-          'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!'
+          'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!',
         )
       }}
     </n-alert>
@@ -100,8 +101,8 @@ const handleTest = async () => {
     </n-alert>
     <n-progress v-if="inTest" :percentage="progress" processing />
   </n-flex>
-  <n-flex vertical pt-40 items-center>
-    <div w-800>
+  <n-flex vertical pt-10 items-center>
+    <div w-200>
       <n-grid :cols="3">
         <n-gi>
           <n-popover trigger="hover">
@@ -251,8 +252,8 @@ const handleTest = async () => {
       :disabled="inTest"
       :loading="inTest"
       @click="handleTest"
-      mt-40
-      w-200
+      mt-10
+      w-50
     >
       {{ inTest ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
     </n-button>

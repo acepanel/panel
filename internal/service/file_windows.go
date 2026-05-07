@@ -28,6 +28,8 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {}
 
 func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {}
 
+func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {}
+
 func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {}
 
 func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {}

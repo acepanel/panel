@@ -7,7 +7,7 @@ export default {
   path: '/ssh',
   component: Layout,
   meta: {
-    order: 70
+    order: 70,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Terminal',
         icon: 'mdi:console',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

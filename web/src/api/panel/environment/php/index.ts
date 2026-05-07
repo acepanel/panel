@@ -35,5 +35,5 @@ export default {
   saveConfigTune: (slug: number, data: any): any =>
     http.Post(`/environment/php/${slug}/config_tune`, data),
   // 清理 Session 文件
-  cleanSession: (slug: number): any => http.Post(`/environment/php/${slug}/clean_session`)
+  cleanSession: (slug: number): any => http.Post(`/environment/php/${slug}/clean_session`),
 }

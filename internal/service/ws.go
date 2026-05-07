@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -81,6 +82,68 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	s.readLoop(ctx, ws)
+}
+
+// Follow 文件或 systemd 服务实时跟踪
+// path 给定时用 tail -F；service 给定时用 journalctl -f
+func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.FileFollow](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if req.Path == "" && req.Service == "" {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("path or service is required"))
+		return
+	}
+
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("upgrade follow ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	var cmd *exec.Cmd
+	if req.Service != "" {
+		cmd = exec.CommandContext(ctx, "journalctl", "--no-pager", "-n", "0", "-f", "-u", req.Service)
+	} else {
+		cmd = exec.CommandContext(ctx, "tail", "-n", "0", "-F", req.Path)
+	}
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+	if err := cmd.Start(); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, rerr := stdout.Read(buf)
+			if n > 0 {
+				if werr := ws.Write(ctx, websocket.MessageBinary, buf[:n]); werr != nil {
+					return
+				}
+			}
+			if rerr != nil {
+				return
+			}
+		}
+	}()
+
+	for {
+		_, _, rerr := ws.Read(ctx)
+		if rerr != nil {
+			return
+		}
+	}
 }
 
 // PTY 通用 PTY 命令执行

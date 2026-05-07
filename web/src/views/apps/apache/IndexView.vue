@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-apache-index'
+  name: 'apps-apache-index',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -14,13 +14,13 @@ const saveConfigLoading = ref(false)
 const clearErrorLogLoading = ref(false)
 
 const { data: config } = useRequest(apache.config, {
-  initialData: ''
+  initialData: '',
 })
 const { data: errorLog } = useRequest(apache.errorLog, {
-  initialData: ''
+  initialData: '',
 })
 const { data: load } = useRequest(apache.load, {
-  initialData: []
+  initialData: [],
 })
 
 const columns: any = [
@@ -29,14 +29,14 @@ const columns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -66,7 +66,7 @@ const handleClearErrorLog = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="apache" show-reload />
@@ -77,13 +77,18 @@ const handleClearErrorLog = () => {
             {{
               $gettext(
                 'This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { name: 'Apache' }
+                { name: 'Apache' },
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" lang="apache" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -105,7 +110,12 @@ const handleClearErrorLog = () => {
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearErrorLogLoading" :disabled="clearErrorLogLoading" @click="handleClearErrorLog">
+            <n-button
+              type="primary"
+              :loading="clearErrorLogLoading"
+              :disabled="clearErrorLogLoading"
+              @click="handleClearErrorLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -113,5 +123,5 @@ const handleClearErrorLog = () => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

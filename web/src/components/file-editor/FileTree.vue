@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type { TreeOption } from 'naive-ui'
+import { NInput, useThemeVars } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { getExt, getIconByExt } from '@/utils/file'
-import type { TreeOption } from 'naive-ui'
-import { NInput, useThemeVars } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
@@ -49,8 +50,8 @@ function createInlineNode(): TreeOption {
       h(TheIcon, {
         icon: inlineCreateType.value === 'dir' ? 'mdi:folder' : 'mdi:file-outline',
         size: 18,
-        color: inlineCreateType.value === 'dir' ? '#f59e0b' : '#6b7280'
-      })
+        color: inlineCreateType.value === 'dir' ? '#f59e0b' : '#6b7280',
+      }),
   }
 }
 
@@ -75,11 +76,11 @@ async function loadDirectory(path: string): Promise<TreeOption[]> {
               h(TheIcon, {
                 icon: item.dir ? 'mdi:folder' : getIconByExt(getExt(item.name)),
                 size: 18,
-                color: item.dir ? '#f59e0b' : '#6b7280'
+                color: item.dir ? '#f59e0b' : '#6b7280',
               }),
             isDir: item.dir,
-            children: item.dir ? undefined : undefined
-          }))
+            children: item.dir ? undefined : undefined,
+          })),
         )
       })
       .onError(() => {
@@ -342,9 +343,9 @@ function doSearch(keyword: string) {
           h(TheIcon, {
             icon: item.dir ? 'mdi:folder' : getIconByExt(getExt(item.name)),
             size: 18,
-            color: item.dir ? '#f59e0b' : '#6b7280'
+            color: item.dir ? '#f59e0b' : '#6b7280',
           }),
-        isDir: item.dir
+        isDir: item.dir,
       }))
     })
     .onError(() => {
@@ -401,7 +402,7 @@ function renderLabel({ option }: { option: TreeOption }) {
       },
       onClick: (e: MouseEvent) => {
         e.stopPropagation()
-      }
+      },
     })
   }
 
@@ -437,7 +438,7 @@ function renderLabel({ option }: { option: TreeOption }) {
       },
       onClick: (e: MouseEvent) => {
         e.stopPropagation()
-      }
+      },
     })
   }
 
@@ -476,7 +477,7 @@ const contextMenuOptions = computed(() => {
   const isDir = !contextMenuNode.value.isLeaf
   const options = [
     { label: $gettext('Rename'), key: 'rename' },
-    { label: $gettext('Delete'), key: 'delete', props: { style: { color: 'red' } } }
+    { label: $gettext('Delete'), key: 'delete', props: { style: { color: 'red' } } },
   ]
   if (!isDir) {
     options.unshift({ label: $gettext('Download'), key: 'download' })
@@ -626,7 +627,7 @@ function handleDelete(path: string, name: string, isDir: boolean) {
         .onError(() => {
           window.$message.error($gettext('Failed to delete'))
         })
-    }
+    },
   })
 }
 
@@ -638,7 +639,7 @@ function handleDownload(path: string) {
 // 节点属性（用于绑定右键菜单）
 function nodeProps({ option }: { option: TreeOption }) {
   return {
-    onContextmenu: (e: MouseEvent) => handleContextMenu(e, option)
+    onContextmenu: (e: MouseEvent) => handleContextMenu(e, option),
   }
 }
 
@@ -671,7 +672,7 @@ watch(
   () => props.rootPath,
   () => {
     initTree()
-  }
+  },
 )
 
 onMounted(() => {
@@ -679,7 +680,7 @@ onMounted(() => {
 })
 
 defineExpose({
-  refresh: handleRefresh
+  refresh: handleRefresh,
 })
 </script>
 
@@ -701,7 +702,7 @@ defineExpose({
         <n-popselect
           :options="[
             { label: $gettext('New File'), value: 'file' },
-            { label: $gettext('New Folder'), value: 'dir' }
+            { label: $gettext('New Folder'), value: 'dir' },
           ]"
           @update:value="showCreate"
         >

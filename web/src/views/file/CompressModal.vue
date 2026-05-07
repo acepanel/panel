@@ -39,7 +39,7 @@ const handleArchive = () => {
   ensureExtension(format.value)
   loading.value = true
   const message = window.$message.loading($gettext('Compressing...'), {
-    duration: 0
+    duration: 0,
   })
   const paths = selected.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
   useRequest(api.compress(path.value, paths, file.value))
@@ -61,7 +61,7 @@ onMounted(() => {
     () => {
       file.value = generateName()
     },
-    { immediate: true }
+    { immediate: true },
   )
 })
 </script>
@@ -95,7 +95,7 @@ onMounted(() => {
               { label: '.tgz', value: '.tgz' },
               { label: '.tar.bz2', value: '.tar.bz2' },
               { label: '.tar.xz', value: '.tar.xz' },
-              { label: '.7z', value: '.7z' }
+              { label: '.7z', value: '.7z' },
             ]"
             @update:value="ensureExtension"
           />

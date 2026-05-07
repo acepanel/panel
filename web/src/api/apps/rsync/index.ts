@@ -13,5 +13,6 @@ export default {
   // 删除模块
   deleteModule: (name: string): any => http.Delete(`/apps/rsync/modules/${name}`),
   // 更新模块
-  updateModule: (name: string, module: any): any => http.Post(`/apps/rsync/modules/${name}`, module)
+  updateModule: (name: string, module: any): any =>
+    http.Post(`/apps/rsync/modules/${name}`, module),
 }

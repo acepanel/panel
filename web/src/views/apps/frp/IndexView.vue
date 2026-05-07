@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-frp-index'
+  name: 'apps-frp-index',
 })
 
 import { NButton, NFormItem, NInput } from 'naive-ui'
@@ -15,11 +15,11 @@ const saveUserFrpsLoading = ref(false)
 const saveUserFrpcLoading = ref(false)
 const config = ref({
   frpc: '',
-  frps: ''
+  frps: '',
 })
 const userInfo = ref({
   frpc: { user: '', group: '' },
-  frps: { user: '', group: '' }
+  frps: { user: '', group: '' },
 })
 
 const getConfig = async () => {
@@ -36,7 +36,7 @@ const handleSaveConfig = (service: string) => {
   useRequest(frp.saveConfig(service, config.value[service as keyof typeof config.value])).onSuccess(
     () => {
       window.$message.success($gettext('Saved successfully'))
-    }
+    },
   )
 }
 
@@ -60,14 +60,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="frps" tab="Frps">
         <n-flex vertical>
           <service-status service="frps" />
           <n-card :title="$gettext('Run User')">
             <template #header-extra>
-              <n-button type="primary" :loading="saveUserFrpsLoading" :disabled="saveUserFrpsLoading" @click="handleSaveUser('frps')">
+              <n-button
+                type="primary"
+                :loading="saveUserFrpsLoading"
+                :disabled="saveUserFrpsLoading"
+                @click="handleSaveUser('frps')"
+              >
                 {{ $gettext('Save') }}
               </n-button>
             </template>
@@ -95,7 +100,12 @@ onMounted(() => {
           <service-status service="frpc" />
           <n-card :title="$gettext('Run User')">
             <template #header-extra>
-              <n-button type="primary" :loading="saveUserFrpcLoading" :disabled="saveUserFrpcLoading" @click="handleSaveUser('frpc')">
+              <n-button
+                type="primary"
+                :loading="saveUserFrpcLoading"
+                :disabled="saveUserFrpcLoading"
+                @click="handleSaveUser('frpc')"
+              >
                 {{ $gettext('Save') }}
               </n-button>
             </template>
@@ -119,5 +129,5 @@ onMounted(() => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

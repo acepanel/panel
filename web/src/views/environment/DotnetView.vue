@@ -16,21 +16,23 @@ const handleSetCli = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-card>
-        <template #header>
-          .NET {{ slug }}
-        </template>
+        <template #header> .NET {{ slug }} </template>
         <template #header-extra>
           <n-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
           </n-button>
         </template>
         <n-alert type="info" :show-icon="false">
-          {{ $gettext('.NET is a free, open-source, cross-platform framework for building modern apps and powerful cloud services.') }}
+          {{
+            $gettext(
+              '.NET is a free, open-source, cross-platform framework for building modern apps and powerful cloud services.',
+            )
+          }}
         </n-alert>
       </n-card>
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>

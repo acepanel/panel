@@ -1,14 +1,16 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-s3fs-index'
+  name: 'apps-s3fs-index',
 })
 
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import s3fs from '@/api/apps/s3fs'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const addMountModal = ref(false)
 const addMountLoading = ref(false)
 
@@ -17,7 +19,7 @@ const addMountModel = ref({
   sk: '',
   bucket: '',
   url: '',
-  path: ''
+  path: '',
 })
 
 const columns: any = [
@@ -26,7 +28,7 @@ const columns: any = [
     key: 'path',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   { title: 'Bucket', key: 'bucket', resizable: true, minWidth: 150, ellipsis: { tooltip: true } },
   {
@@ -35,35 +37,25 @@ const columns: any = [
     width: 150,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteMount(row.id)
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete mount %{ path }?', {
+                path: row.path,
+              }),
+              positiveText: $gettext('Unmount'),
+            })
+            if (ok) handleDeleteMount(row.id)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete mount %{ path }?', {
-                path: row.path
-              })
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error'
-                },
-                {
-                  default: () => $gettext('Unmount')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+        },
+        { default: () => $gettext('Unmount') },
+      )
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -72,8 +64,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleAddMount = () => {
@@ -102,7 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-flex>
         <n-button type="primary" @click="addMountModal = true">
@@ -110,6 +102,8 @@ onMounted(() => {
         </n-button>
       </n-flex>
       <n-data-table
+        v-model:page="page"
+        v-model:pageSize="pageSize"
         striped
         remote
         :scroll-x="450"
@@ -117,20 +111,17 @@ onMounted(() => {
         :columns="columns"
         :data="data"
         :row-key="(row: any) => row.id"
-        v-model:page="page"
-        v-model:pageSize="pageSize"
         :pagination="{
           page: page,
-          pageCount: pageCount,
           pageSize: pageSize,
           itemCount: total,
           showQuickJumper: true,
           showSizePicker: true,
-          pageSizes: [20, 50, 100, 200]
+          pageSizes: [20, 50, 100, 200],
         }"
       />
     </n-flex>
-  </common-page>
+  </PageContainer>
   <n-modal v-model:show="addMountModal" :title="$gettext('Add Mount')">
     <n-card
       closable
@@ -170,7 +161,7 @@ onMounted(() => {
             @keydown.enter.prevent
             :placeholder="
               $gettext(
-                'Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)'
+                'Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)',
               )
             "
           />
@@ -184,7 +175,15 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="addMountLoading" :disabled="addMountLoading" @click="handleAddMount">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="addMountLoading"
+        :disabled="addMountLoading"
+        @click="handleAddMount"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-card>
   </n-modal>
 </template>

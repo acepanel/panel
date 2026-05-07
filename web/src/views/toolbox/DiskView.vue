@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-disk'
+  name: 'toolbox-disk',
 })
 
 import { useRequest } from 'alova/client'
@@ -12,10 +12,9 @@ import { useGettext } from 'vue3-gettext'
 import disk from '@/api/panel/toolbox-disk'
 import { formatBytes } from '@/utils'
 
-import SmartView from './disk/SmartView.vue'
 import RaidView from './disk/RaidView.vue'
+import SmartView from './disk/SmartView.vue'
 
-// lsblk JSON 输出的数据结构
 interface BlockDevice {
   name: string
   size: number
@@ -28,7 +27,6 @@ interface BlockDevice {
   children?: BlockDevice[]
 }
 
-// 分区展示数据
 interface PartitionData {
   name: string
   size: number
@@ -40,7 +38,6 @@ interface PartitionData {
   isSystemDisk: boolean
 }
 
-// 磁盘展示数据
 interface DiskData {
   name: string
   size: number
@@ -52,6 +49,8 @@ interface DiskData {
 
 const { $gettext, $pgettext } = useGettext()
 const currentTab = ref('disk')
+const diskOpTab = ref('mount')
+const lvmOpTab = ref('pv')
 const diskList = ref<DiskData[]>([])
 const lvmInfo = ref<any>({ pvs: [], vgs: [], lvs: [] })
 
@@ -68,10 +67,9 @@ const fsTypeOptions = [
   { label: 'ext4', value: 'ext4' },
   { label: 'ext3', value: 'ext3' },
   { label: 'xfs', value: 'xfs' },
-  { label: 'btrfs', value: 'btrfs' }
+  { label: 'btrfs', value: 'btrfs' },
 ]
 
-// fstab 管理
 interface FstabEntry {
   device: string
   mount_point: string
@@ -82,7 +80,7 @@ interface FstabEntry {
 }
 const fstabList = ref<FstabEntry[]>([])
 
-// LVM管理
+// LVM 管理
 const pvDevice = ref('')
 const vgName = ref('')
 const vgDevices = ref<string[]>([])
@@ -93,7 +91,6 @@ const extendLvPath = ref('')
 const extendSize = ref(1)
 const extendResize = ref(true)
 
-// df 数据类型
 interface DfInfo {
   size: string
   used: string
@@ -101,7 +98,6 @@ interface DfInfo {
   percent: string
 }
 
-// 加载磁盘列表
 const loadDiskList = () => {
   useRequest(disk.list()).onSuccess(({ data }) => {
     try {
@@ -115,18 +111,12 @@ const loadDiskList = () => {
   })
 }
 
-// 解析磁盘数据
 const parseDiskData = (devices: BlockDevice[], dfData: Record<string, DfInfo>): DiskData[] => {
   const disks: DiskData[] = []
-
   for (const device of devices) {
-    // 只处理磁盘类型
     if (device.type !== 'disk') continue
-
     const partitions: PartitionData[] = []
     let isSystemDisk = false
-
-    // 先遍历一遍判断是否为系统盘
     if (device.children) {
       for (const child of device.children) {
         if (child.type === 'part' && child.mountpoint === '/') {
@@ -135,15 +125,11 @@ const parseDiskData = (devices: BlockDevice[], dfData: Record<string, DfInfo>): 
         }
       }
     }
-
-    // 处理分区
     if (device.children) {
       for (const child of device.children) {
         if (child.type === 'part') {
-          // 获取 df 数据
           const mountpoint = child.mountpoint
           const dfInfo = mountpoint ? dfData[mountpoint] : null
-
           partitions.push({
             name: child.name,
             size: child.size,
@@ -152,44 +138,38 @@ const parseDiskData = (devices: BlockDevice[], dfData: Record<string, DfInfo>): 
             usagePercent: dfInfo ? parseInt(dfInfo.percent) : 0,
             mountpoint: child.mountpoint,
             fstype: child.fstype,
-            isSystemDisk
+            isSystemDisk,
           })
         }
       }
     }
-
     disks.push({
       name: device.name,
       size: device.size,
       type: device.type,
       model: device.model,
       isSystemDisk,
-      partitions
+      partitions,
     })
   }
-
   return disks
 }
 
-// 获取磁盘类型标签
 const getDiskTypeLabel = (model: string | null): string => {
   if (!model) return $gettext('Unknown')
   const modelLower = model.toLowerCase()
-  if (modelLower.includes('ssd') || modelLower.includes('nvme')) {
-    return 'SSD'
-  }
+  if (modelLower.includes('ssd') || modelLower.includes('nvme')) return 'SSD'
   return model.toUpperCase()
 }
 
-// 未挂载的分区选项（用于挂载和格式化）
 const unmountedPartitionOptions = computed(() => {
   const options: { label: string; value: string }[] = []
-  for (const disk of diskList.value) {
-    for (const part of disk.partitions) {
+  for (const d of diskList.value) {
+    for (const part of d.partitions) {
       if (!part.mountpoint) {
         options.push({
           label: `${part.name} (${formatBytes(part.size)})`,
-          value: part.name
+          value: part.name,
         })
       }
     }
@@ -197,109 +177,83 @@ const unmountedPartitionOptions = computed(() => {
   return options
 })
 
-// 非系统盘的磁盘选项（用于初始化）
 const nonSystemDiskOptions = computed(() => {
   return diskList.value
-    .filter((disk) => !disk.isSystemDisk)
-    .map((disk) => ({
-      label: `${disk.name} (${formatBytes(disk.size)})`,
-      value: disk.name
+    .filter((d) => !d.isSystemDisk)
+    .map((d) => ({
+      label: `${d.name} (${formatBytes(d.size)})`,
+      value: d.name,
     }))
 })
 
-// 可用于创建 PV 的设备选项（未加入 VG 的分区或磁盘）
 const availablePVDeviceOptions = computed(() => {
   const options: { label: string; value: string }[] = []
-  // 获取已有的 PV 设备列表
   const existingPVs = new Set(lvmInfo.value.pvs?.map((pv: any) => pv.field_0) || [])
-
-  for (const disk of diskList.value) {
-    // 跳过系统盘
-    if (disk.isSystemDisk) continue
-
-    // 如果磁盘没有分区，可以直接作为 PV
-    if (disk.partitions.length === 0) {
-      const devPath = `/dev/${disk.name}`
+  for (const d of diskList.value) {
+    if (d.isSystemDisk) continue
+    if (d.partitions.length === 0) {
+      const devPath = `/dev/${d.name}`
       if (!existingPVs.has(devPath)) {
-        options.push({
-          label: `${disk.name} (${formatBytes(disk.size)})`,
-          value: disk.name
-        })
+        options.push({ label: `${d.name} (${formatBytes(d.size)})`, value: d.name })
       }
     }
-
-    // 添加未挂载且未作为 PV 的分区
-    for (const part of disk.partitions) {
+    for (const part of d.partitions) {
       const devPath = `/dev/${part.name}`
       if (!part.mountpoint && !existingPVs.has(devPath)) {
-        options.push({
-          label: `${part.name} (${formatBytes(part.size)})`,
-          value: part.name
-        })
+        options.push({ label: `${part.name} (${formatBytes(part.size)})`, value: part.name })
       }
     }
   }
   return options
 })
 
-// 可用的 PV 选项（用于创建 VG）
 const availablePVOptions = computed(() => {
   return (lvmInfo.value.pvs || [])
-    .filter((pv: any) => !pv.field_1) // 只显示未加入 VG 的 PV（field_1 是 VG 名）
-    .map((pv: any) => ({
-      label: `${pv.field_0} (${pv.field_2})`,
-      value: pv.field_0
-    }))
+    .filter((pv: any) => !pv.field_1)
+    .map((pv: any) => ({ label: `${pv.field_0} (${pv.field_2})`, value: pv.field_0 }))
 })
 
-// VG 选项（用于创建 LV）
 const vgOptions = computed(() => {
   return (lvmInfo.value.vgs || []).map((vg: any) => ({
     label: `${vg.field_0} (${$gettext('Free')}: ${vg.field_4})`,
-    value: vg.field_0
+    value: vg.field_0,
   }))
 })
 
-// LV 选项（用于扩展 LV）
 const lvOptions = computed(() => {
   return (lvmInfo.value.lvs || []).map((lv: any) => ({
     label: `${lv.field_0} (${lv.field_2}) - ${lv.field_3}`,
-    value: lv.field_3 // 使用 LV 路径作为值
+    value: lv.field_3,
   }))
 })
 
-// 分区表格列定义
 const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
-  {
-    title: $gettext('Partition Name'),
-    key: 'name',
-    width: 200
-  },
+  { title: $gettext('Partition'), key: 'name', width: 180 },
   {
     title: $gettext('Size'),
     key: 'size',
-    width: 120,
+    width: 110,
     render(row) {
       return formatBytes(row.size)
-    }
+    },
   },
   {
     title: $gettext('Used'),
     key: 'used',
-    width: 120,
+    width: 110,
     render(row) {
       if (!row.mountpoint) return '-'
       return formatBytes(row.used)
-    }
+    },
   },
   {
     title: $gettext('Available'),
     key: 'available',
-    width: 120,
+    width: 110,
     render(row) {
       if (!row.mountpoint) return '-'
       return formatBytes(row.available)
-    }
+    },
   },
   {
     title: $gettext('Usage'),
@@ -309,8 +263,8 @@ const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
       if (!row.mountpoint) {
         return h(
           NTag,
-          { type: 'warning', size: 'small' },
-          { default: () => $gettext('Not Mounted') }
+          { type: 'warning', size: 'small', bordered: false },
+          { default: () => $gettext('Not Mounted') },
         )
       }
       const percent = row.usagePercent
@@ -320,30 +274,30 @@ const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
         percentage: percent,
         status,
         indicatorPlacement: 'inside',
-        style: { width: '120px' }
+        style: { width: '120px' },
       })
-    }
+    },
   },
   {
     title: $gettext('Mount Point'),
     key: 'mountpoint',
-    width: 200,
+    minWidth: 180,
     render(row) {
       return row.mountpoint || '-'
-    }
+    },
   },
   {
-    title: $gettext('Filesystem'),
+    title: $gettext('FS'),
     key: 'fstype',
-    width: 100,
+    width: 90,
     render(row) {
       return row.fstype || '-'
-    }
+    },
   },
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 120,
+    width: 110,
     render(row) {
       if (row.mountpoint) {
         return h(
@@ -353,24 +307,22 @@ const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
             type: 'warning',
             secondary: true,
             disabled: row.isSystemDisk,
-            onClick: () => handleUmount(row.mountpoint!)
+            onClick: () => handleUmount(row.mountpoint!),
           },
-          { default: () => $gettext('Unmount') }
+          { default: () => $gettext('Unmount') },
         )
       }
       return null
-    }
-  }
+    },
+  },
 ])
 
-// 加载LVM信息
 const loadLVMInfo = () => {
   useRequest(disk.lvmInfo()).onSuccess(({ data }) => {
     lvmInfo.value = data
   })
 }
 
-// 加载fstab列表
 const loadFstabList = () => {
   useRequest(disk.fstabList()).onSuccess(({ data }) => {
     fstabList.value = data || []
@@ -383,26 +335,20 @@ onMounted(() => {
   loadFstabList()
 })
 
-// 挂载分区
 const handleMount = () => {
   if (!selectedDevice.value || !mountPath.value) {
     window.$message.error($gettext('Please fill in all fields'))
     return
   }
-
   const confirmContent = mountWriteFstab.value
     ? $gettext(
         'Are you sure you want to mount %{ device } to %{ path } and write to fstab for auto-mount on boot?',
-        {
-          device: selectedDevice.value,
-          path: mountPath.value
-        }
+        { device: selectedDevice.value, path: mountPath.value },
       )
     : $gettext('Are you sure you want to mount %{ device } to %{ path }?', {
         device: selectedDevice.value,
-        path: mountPath.value
+        path: mountPath.value,
       })
-
   window.$dialog.warning({
     title: $gettext('Confirm'),
     content: confirmContent,
@@ -410,23 +356,20 @@ const handleMount = () => {
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
       useRequest(
-        disk.mount(selectedDevice.value, mountPath.value, mountWriteFstab.value, mountOption.value)
+        disk.mount(selectedDevice.value, mountPath.value, mountWriteFstab.value, mountOption.value),
       ).onSuccess(() => {
         window.$message.success($gettext('Mounted successfully'))
         loadDiskList()
-        if (mountWriteFstab.value) {
-          loadFstabList()
-        }
+        if (mountWriteFstab.value) loadFstabList()
         selectedDevice.value = ''
         mountPath.value = ''
         mountWriteFstab.value = false
         mountOption.value = ''
       })
-    }
+    },
   })
 }
 
-// 卸载分区
 const handleUmount = (path: string) => {
   window.$dialog.warning({
     title: $gettext('Confirm'),
@@ -438,21 +381,19 @@ const handleUmount = (path: string) => {
         window.$message.success($gettext('Unmounted successfully'))
         loadDiskList()
       })
-    }
+    },
   })
 }
 
-// 格式化分区
 const handleFormat = () => {
   if (!formatDevice.value) {
     window.$message.error($gettext('Please select a device'))
     return
   }
-
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext(
-      'Formatting will erase all data on the partition. This operation is irreversible. Are you sure?'
+      'Formatting will erase all data on the partition. This operation is irreversible. Are you sure?',
     ),
     positiveText: $gettext('Confirm Format'),
     negativeText: $gettext('Cancel'),
@@ -463,22 +404,20 @@ const handleFormat = () => {
         formatDevice.value = ''
         formatFsType.value = 'ext4'
       })
-    }
+    },
   })
 }
 
-// 初始化磁盘
 const handleInit = () => {
   if (!initDevice.value) {
     window.$message.error($gettext('Please enter disk name'))
     return
   }
-
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext(
       'This will delete all partitions on %{ device } and create a single partition. All data will be permanently lost. Are you absolutely sure?',
-      { device: initDevice.value }
+      { device: initDevice.value },
     ),
     positiveText: $gettext('Confirm Initialize'),
     negativeText: $gettext('Cancel'),
@@ -489,21 +428,19 @@ const handleInit = () => {
         initDevice.value = ''
         initFsType.value = 'ext4'
       })
-    }
+    },
   })
 }
 
-// 创建物理卷
 const handleCreatePV = () => {
   if (!pvDevice.value) {
     window.$message.error($gettext('Please select a device'))
     return
   }
-
   window.$dialog.warning({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to create a physical volume on %{ device }?', {
-      device: pvDevice.value
+      device: pvDevice.value,
     }),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -513,16 +450,15 @@ const handleCreatePV = () => {
         loadLVMInfo()
         pvDevice.value = ''
       })
-    }
+    },
   })
 }
 
-// 删除物理卷
 const handleRemovePV = (device: string) => {
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext('Are you sure you want to remove the physical volume %{ device }?', {
-      device
+      device,
     }),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -531,21 +467,19 @@ const handleRemovePV = (device: string) => {
         window.$message.success($gettext('Physical volume removed successfully'))
         loadLVMInfo()
       })
-    }
+    },
   })
 }
 
-// 创建卷组
 const handleCreateVG = () => {
   if (!vgName.value || vgDevices.value.length === 0) {
     window.$message.error($gettext('Please fill in all fields'))
     return
   }
-
   window.$dialog.warning({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to create volume group %{ name }?', {
-      name: vgName.value
+      name: vgName.value,
     }),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -556,17 +490,16 @@ const handleCreateVG = () => {
         vgName.value = ''
         vgDevices.value = []
       })
-    }
+    },
   })
 }
 
-// 删除卷组
 const handleRemoveVG = (name: string) => {
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext(
       'Are you sure you want to remove the volume group %{ name }? All logical volumes in this group will be deleted!',
-      { name }
+      { name },
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -575,25 +508,20 @@ const handleRemoveVG = (name: string) => {
         window.$message.success($gettext('Volume group removed successfully'))
         loadLVMInfo()
       })
-    }
+    },
   })
 }
 
-// 创建逻辑卷
 const handleCreateLV = () => {
   if (!lvName.value || !lvVgName.value || lvSize.value < 1) {
     window.$message.error($gettext('Please fill in all fields'))
     return
   }
-
   window.$dialog.warning({
     title: $gettext('Confirm'),
     content: $gettext(
       'Are you sure you want to create logical volume %{ name } with %{ size }GB?',
-      {
-        name: lvName.value,
-        size: lvSize.value
-      }
+      { name: lvName.value, size: lvSize.value },
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -605,17 +533,16 @@ const handleCreateLV = () => {
         lvVgName.value = ''
         lvSize.value = 1
       })
-    }
+    },
   })
 }
 
-// 删除逻辑卷
 const handleRemoveLV = (path: string) => {
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext(
       'Are you sure you want to remove the logical volume %{ path }? All data on this volume will be lost!',
-      { path }
+      { path },
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -624,22 +551,20 @@ const handleRemoveLV = (path: string) => {
         window.$message.success($gettext('Logical volume removed successfully'))
         loadLVMInfo()
       })
-    }
+    },
   })
 }
 
-// 扩容逻辑卷
 const handleExtendLV = () => {
   if (!extendLvPath.value || extendSize.value < 1) {
     window.$message.error($gettext('Please fill in all fields'))
     return
   }
-
   window.$dialog.warning({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to extend %{ path } by %{ size }GB?', {
       path: extendLvPath.value,
-      size: extendSize.value
+      size: extendSize.value,
     }),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -650,19 +575,18 @@ const handleExtendLV = () => {
           loadLVMInfo()
           extendLvPath.value = ''
           extendSize.value = 1
-        }
+        },
       )
-    }
+    },
   })
 }
 
-// 删除 fstab 条目
 const handleDeleteFstab = (mountPoint: string) => {
   window.$dialog.error({
     title: $gettext('Dangerous Operation'),
     content: $gettext(
       'Are you sure you want to remove the fstab entry for %{ mountPoint }? This will prevent auto-mount on boot.',
-      { mountPoint }
+      { mountPoint },
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -671,359 +595,555 @@ const handleDeleteFstab = (mountPoint: string) => {
         window.$message.success($gettext('Fstab entry removed successfully'))
         loadFstabList()
       })
-    }
+    },
   })
 }
+
+const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
+  { title: $gettext('Device'), key: 'device', ellipsis: { tooltip: true } },
+  { title: $gettext('Mount Point'), key: 'mount_point', minWidth: 160 },
+  { title: $gettext('FS'), key: 'fs_type', width: 100 },
+  { title: $gettext('Options'), key: 'options', ellipsis: { tooltip: true } },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 100,
+    render(row: FstabEntry) {
+      if (row.mount_point === '/') return null
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          secondary: true,
+          onClick: () => handleDeleteFstab(row.mount_point),
+        },
+        { default: () => $gettext('Remove') },
+      )
+    },
+  },
+])
 </script>
 
 <template>
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <!-- 磁盘管理标签页 -->
+    <!-- 磁盘管理 -->
     <n-tab-pane name="disk" :tab="$gettext('Disk Management')">
       <n-flex vertical :size="16">
         <!-- 磁盘卡片列表 -->
-        <n-card v-for="diskItem in diskList" :key="diskItem.name">
-          <template #header>
-            <n-flex align="center" :size="12">
-              <span style="font-weight: 600">{{ $gettext('Disk Name: ') }}{{ diskItem.name }}</span>
-              <n-tag v-if="diskItem.isSystemDisk" type="error" size="small">
-                {{ $gettext('System Disk') }}
-              </n-tag>
+        <div v-if="diskList.length > 0" class="disk-list">
+          <div v-for="diskItem in diskList" :key="diskItem.name" class="disk-card">
+            <div class="disk-card__head">
+              <div class="disk-card__title">
+                <i-mdi-harddisk class="text-lg text-brand" />
+                <span class="disk-card__name">{{ diskItem.name }}</span>
+                <n-tag v-if="diskItem.isSystemDisk" type="error" size="small" :bordered="false">
+                  {{ $gettext('System Disk') }}
+                </n-tag>
+                <n-tag size="small" :bordered="false">
+                  {{ getDiskTypeLabel(diskItem.model) }}
+                </n-tag>
+              </div>
+              <div class="disk-card__meta">
+                <span>{{ formatBytes(diskItem.size) }}</span>
+                <span class="disk-card__sep">·</span>
+                <span>
+                  {{
+                    $gettext('%{ count } partitions', {
+                      count: diskItem.partitions.length.toString(),
+                    })
+                  }}
+                </span>
+              </div>
+            </div>
+            <n-data-table
+              :columns="partitionColumns"
+              :data="diskItem.partitions"
+              :bordered="false"
+              :single-line="false"
+              size="small"
+              :row-key="(row: PartitionData) => row.name"
+            />
+          </div>
+        </div>
+        <n-empty v-else :description="$gettext('No disks found')" />
+
+        <!-- 操作面板 -->
+        <n-tabs
+          v-model:value="diskOpTab"
+          type="line"
+          animated
+          size="small"
+          :theme-overrides="{
+            tabGapSmallLine: '20px',
+            tabPaddingSmallLine: '8px 0',
+          }"
+          pane-style="padding-top: 16px;"
+        >
+          <n-tab-pane name="mount" :tab="$gettext('Mount')">
+            <n-flex vertical :size="12">
+              <n-grid :x-gap="12" :y-gap="12" cols="1 m:2" responsive="screen">
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Partition') }}</div>
+                  <n-select
+                    v-model:value="selectedDevice"
+                    :options="unmountedPartitionOptions"
+                    :placeholder="$gettext('Select partition')"
+                    filterable
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Mount Path') }}</div>
+                  <n-input v-model:value="mountPath" :placeholder="$gettext('e.g., /mnt/data')" />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Mount Options') }}</div>
+                  <n-input
+                    v-model:value="mountOption"
+                    :placeholder="$gettext('e.g., defaults,noatime')"
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Auto-mount on boot') }}</div>
+                  <n-switch v-model:value="mountWriteFstab" />
+                </n-gi>
+              </n-grid>
+              <n-flex justify="end">
+                <n-button type="primary" @click="handleMount">
+                  {{ $gettext('Mount') }}
+                </n-button>
+              </n-flex>
             </n-flex>
-          </template>
-          <template #header-extra>
-            <n-flex align="center" :size="16">
-              <span>{{ $gettext('Size: ') }}{{ formatBytes(diskItem.size) }}</span>
-              <span>{{ $gettext('Partitions: ') }}{{ diskItem.partitions.length }}</span>
-              <span>{{ $gettext('Disk Type: ') }}</span>
-              <n-tag size="small">{{ getDiskTypeLabel(diskItem.model) }}</n-tag>
+          </n-tab-pane>
+
+          <n-tab-pane name="format" :tab="$pgettext('disk action', 'Format')">
+            <n-flex vertical :size="12">
+              <n-alert type="error">
+                {{ $gettext('Warning: Formatting will erase all data!') }}
+              </n-alert>
+              <n-grid :x-gap="12" :y-gap="12" cols="1 m:2" responsive="screen">
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Partition') }}</div>
+                  <n-select
+                    v-model:value="formatDevice"
+                    :options="unmountedPartitionOptions"
+                    :placeholder="$gettext('Select partition')"
+                    filterable
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Filesystem Type') }}</div>
+                  <n-select v-model:value="formatFsType" :options="fsTypeOptions" />
+                </n-gi>
+              </n-grid>
+              <n-flex justify="end">
+                <n-button type="error" @click="handleFormat">
+                  {{ $pgettext('disk action', 'Format') }}
+                </n-button>
+              </n-flex>
             </n-flex>
-          </template>
+          </n-tab-pane>
 
-          <n-data-table
-            :columns="partitionColumns"
-            :data="diskItem.partitions"
-            :bordered="false"
-            :single-line="false"
-            size="small"
-            :row-key="(row: PartitionData) => row.name"
-          />
-
-          <n-alert v-if="diskItem.isSystemDisk" type="warning" mt-12>
-            {{ $gettext('This is the system disk and cannot be operated on.') }}
-          </n-alert>
-        </n-card>
-
-        <!-- 无磁盘时显示 -->
-        <n-empty v-if="diskList.length === 0" :description="$gettext('No disks found')" />
-
-        <!-- 挂载分区 -->
-        <n-card :title="$gettext('Mount Partition')">
-          <n-form>
-            <n-flex :size="16" :wrap="true">
-              <n-form-item :label="$gettext('Partition')">
-                <n-select
-                  v-model:value="selectedDevice"
-                  :options="unmountedPartitionOptions"
-                  :placeholder="$gettext('Select partition')"
-                  style="width: 200px"
-                  filterable
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Mount Path')">
-                <n-input
-                  v-model:value="mountPath"
-                  :placeholder="$gettext('e.g., /mnt/data')"
-                  style="width: 200px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Mount Options')">
-                <n-input
-                  v-model:value="mountOption"
-                  :placeholder="$gettext('e.g., defaults,noatime')"
-                  style="width: 200px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Auto-mount on boot')">
-                <n-switch v-model:value="mountWriteFstab" />
-              </n-form-item>
-              <n-form-item>
-                <n-button type="primary" @click="handleMount">{{ $gettext('Mount') }}</n-button>
-              </n-form-item>
+          <n-tab-pane name="init" :tab="$gettext('Initialize')">
+            <n-flex vertical :size="12">
+              <n-alert type="error">
+                {{
+                  $gettext(
+                    'Warning: This will delete all partitions and create a single partition. All data will be lost!',
+                  )
+                }}
+              </n-alert>
+              <n-grid :x-gap="12" :y-gap="12" cols="1 m:2" responsive="screen">
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Disk') }}</div>
+                  <n-select
+                    v-model:value="initDevice"
+                    :options="nonSystemDiskOptions"
+                    :placeholder="$gettext('Select disk')"
+                    filterable
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Filesystem Type') }}</div>
+                  <n-select v-model:value="initFsType" :options="fsTypeOptions" />
+                </n-gi>
+              </n-grid>
+              <n-flex justify="end">
+                <n-button type="error" @click="handleInit">
+                  {{ $gettext('Initialize') }}
+                </n-button>
+              </n-flex>
             </n-flex>
-          </n-form>
-          <n-alert v-if="mountWriteFstab" type="info" mt-12>
-            {{
-              $gettext(
-                'When enabled, the partition UUID will be written to /etc/fstab for automatic mounting on system boot.'
-              )
-            }}
-          </n-alert>
-        </n-card>
-        <!-- 格式化分区 -->
-        <n-card :title="$gettext('Format Partition')">
-          <n-alert type="error" style="margin-bottom: 16px">
-            {{ $gettext('Warning: Formatting will erase all data!') }}
-          </n-alert>
-          <n-form inline>
-            <n-form-item :label="$gettext('Partition')">
-              <n-select
-                v-model:value="formatDevice"
-                :options="unmountedPartitionOptions"
-                :placeholder="$gettext('Select partition')"
-                style="width: 200px"
-                filterable
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Filesystem Type')">
-              <n-select
-                v-model:value="formatFsType"
-                :options="fsTypeOptions"
-                style="width: 150px"
-              />
-            </n-form-item>
-            <n-form-item>
-              <n-button type="error" @click="handleFormat">
-                {{ $pgettext('disk action', 'Format') }}
-              </n-button>
-            </n-form-item>
-          </n-form>
-        </n-card>
-        <!-- 初始化磁盘 -->
-        <n-card :title="$gettext('Initialize Disk')">
-          <n-alert type="error" style="margin-bottom: 16px">
-            {{
-              $gettext(
-                'Warning: This will delete all partitions and create a single partition. All data will be lost!'
-              )
-            }}
-          </n-alert>
-          <n-form inline>
-            <n-form-item :label="$gettext('Disk')">
-              <n-select
-                v-model:value="initDevice"
-                :options="nonSystemDiskOptions"
-                :placeholder="$gettext('Select disk')"
-                style="width: 200px"
-                filterable
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Filesystem Type')">
-              <n-select v-model:value="initFsType" :options="fsTypeOptions" style="width: 150px" />
-            </n-form-item>
-            <n-form-item>
-              <n-button type="error" @click="handleInit">{{ $gettext('Initialize') }}</n-button>
-            </n-form-item>
-          </n-form>
-        </n-card>
-        <!-- 开机自动挂载 (fstab) -->
-        <n-card :title="$gettext('Auto-mount Configuration (fstab)')">
-          <n-space vertical>
+          </n-tab-pane>
+
+          <n-tab-pane name="fstab" :tab="$gettext('Auto-mount (fstab)')">
             <n-data-table
               v-if="fstabList.length > 0"
-              :columns="[
-                { title: $gettext('Device'), key: 'device', ellipsis: { tooltip: true } },
-                { title: $gettext('Mount Point'), key: 'mount_point' },
-                { title: $gettext('Filesystem'), key: 'fs_type', width: 100 },
-                { title: $gettext('Options'), key: 'options', ellipsis: { tooltip: true } },
-                {
-                  title: $gettext('Actions'),
-                  key: 'actions',
-                  width: 100,
-                  render(row: FstabEntry) {
-                    // 不允许删除根目录挂载
-                    if (row.mount_point === '/') return null
-                    return h(
-                      NButton,
-                      {
-                        size: 'small',
-                        type: 'error',
-                        onClick: () => handleDeleteFstab(row.mount_point)
-                      },
-                      { default: () => $gettext('Remove') }
-                    )
-                  }
-                }
-              ]"
+              :columns="fstabColumns"
               :data="fstabList"
               :bordered="false"
               size="small"
               :row-key="(row: FstabEntry) => row.mount_point"
             />
             <n-empty v-else :description="$gettext('No fstab entries')" />
-          </n-space>
-        </n-card>
+          </n-tab-pane>
+        </n-tabs>
       </n-flex>
     </n-tab-pane>
 
-    <!-- LVM管理标签页 -->
+    <!-- LVM 管理 -->
     <n-tab-pane name="lvm" :tab="$gettext('LVM Management')">
-      <n-flex vertical>
-        <n-card :title="$gettext('Physical Volumes')">
-          <n-space vertical>
-            <n-list v-if="lvmInfo.pvs && lvmInfo.pvs.length > 0" bordered>
-              <n-list-item v-for="(pv, index) in lvmInfo.pvs" :key="index">
-                <n-thing>
-                  <template #header>{{ pv.field_0 }}</template>
-                  <template #description>
-                    VG: {{ pv.field_1 }} | Size: {{ pv.field_2 }} | Free: {{ pv.field_3 }}
-                  </template>
-                  <template #action>
-                    <n-button size="small" type="error" @click="handleRemovePV(pv.field_0)">
-                      {{ $gettext('Remove') }}
-                    </n-button>
-                  </template>
-                </n-thing>
-              </n-list-item>
-            </n-list>
-            <n-empty v-else :description="$gettext('No physical volumes')" />
+      <n-flex vertical :size="16">
+        <!-- PV / VG / LV 概览 -->
+        <n-grid :x-gap="16" :y-gap="16" cols="1 l:3" responsive="screen">
+          <!-- PVs -->
+          <n-gi>
+            <div class="lvm-card">
+              <div class="lvm-card__head">
+                <span class="lvm-card__title">{{ $gettext('Physical Volumes') }}</span>
+                <n-tag size="small" :bordered="false">
+                  {{ (lvmInfo.pvs || []).length }}
+                </n-tag>
+              </div>
+              <div class="lvm-card__body">
+                <div v-for="(pv, index) in lvmInfo.pvs || []" :key="index" class="lvm-item">
+                  <div class="lvm-item__main">
+                    <div class="lvm-item__name">{{ pv.field_0 }}</div>
+                    <div class="lvm-item__meta">
+                      VG: {{ pv.field_1 || '-' }} · {{ pv.field_2 }}
+                      <template v-if="pv.field_3">· Free: {{ pv.field_3 }}</template>
+                    </div>
+                  </div>
+                  <n-button size="tiny" quaternary type="error" @click="handleRemovePV(pv.field_0)">
+                    <template #icon>
+                      <i-mdi-close />
+                    </template>
+                  </n-button>
+                </div>
+                <n-empty
+                  v-if="!(lvmInfo.pvs || []).length"
+                  size="small"
+                  :description="$gettext('No physical volumes')"
+                />
+              </div>
+            </div>
+          </n-gi>
 
-            <n-divider />
-            <n-form>
-              <n-form-item :label="$gettext('Device')">
+          <!-- VGs -->
+          <n-gi>
+            <div class="lvm-card">
+              <div class="lvm-card__head">
+                <span class="lvm-card__title">{{ $gettext('Volume Groups') }}</span>
+                <n-tag size="small" :bordered="false">
+                  {{ (lvmInfo.vgs || []).length }}
+                </n-tag>
+              </div>
+              <div class="lvm-card__body">
+                <div v-for="(vg, index) in lvmInfo.vgs || []" :key="index" class="lvm-item">
+                  <div class="lvm-item__main">
+                    <div class="lvm-item__name">{{ vg.field_0 }}</div>
+                    <div class="lvm-item__meta">
+                      PV: {{ vg.field_1 }} · LV: {{ vg.field_2 }} · {{ vg.field_3 }} · Free:
+                      {{ vg.field_4 }}
+                    </div>
+                  </div>
+                  <n-button size="tiny" quaternary type="error" @click="handleRemoveVG(vg.field_0)">
+                    <template #icon>
+                      <i-mdi-close />
+                    </template>
+                  </n-button>
+                </div>
+                <n-empty
+                  v-if="!(lvmInfo.vgs || []).length"
+                  size="small"
+                  :description="$gettext('No volume groups')"
+                />
+              </div>
+            </div>
+          </n-gi>
+
+          <!-- LVs -->
+          <n-gi>
+            <div class="lvm-card">
+              <div class="lvm-card__head">
+                <span class="lvm-card__title">{{ $gettext('Logical Volumes') }}</span>
+                <n-tag size="small" :bordered="false">
+                  {{ (lvmInfo.lvs || []).length }}
+                </n-tag>
+              </div>
+              <div class="lvm-card__body">
+                <div v-for="(lv, index) in lvmInfo.lvs || []" :key="index" class="lvm-item">
+                  <div class="lvm-item__main">
+                    <div class="lvm-item__name">{{ lv.field_0 }}</div>
+                    <div class="lvm-item__meta">VG: {{ lv.field_1 }} · {{ lv.field_2 }}</div>
+                    <div class="lvm-item__path">{{ lv.field_3 }}</div>
+                  </div>
+                  <n-button size="tiny" quaternary type="error" @click="handleRemoveLV(lv.field_3)">
+                    <template #icon>
+                      <i-mdi-close />
+                    </template>
+                  </n-button>
+                </div>
+                <n-empty
+                  v-if="!(lvmInfo.lvs || []).length"
+                  size="small"
+                  :description="$gettext('No logical volumes')"
+                />
+              </div>
+            </div>
+          </n-gi>
+        </n-grid>
+
+        <!-- LVM 操作面板 -->
+        <n-tabs
+          v-model:value="lvmOpTab"
+          type="line"
+          animated
+          size="small"
+          :theme-overrides="{
+            tabGapSmallLine: '20px',
+            tabPaddingSmallLine: '8px 0',
+          }"
+          pane-style="padding-top: 16px;"
+        >
+          <n-tab-pane name="pv" :tab="$gettext('Create PV')">
+            <n-flex vertical :size="12">
+              <div>
+                <div class="form-label">{{ $gettext('Device') }}</div>
                 <n-select
                   v-model:value="pvDevice"
                   :options="availablePVDeviceOptions"
                   :placeholder="$gettext('Select device')"
                   filterable
-                  style="width: 300px"
                 />
-              </n-form-item>
-              <n-button type="primary" @click="handleCreatePV">
-                {{ $gettext('Create PV') }}
-              </n-button>
-            </n-form>
-          </n-space>
-        </n-card>
+              </div>
+              <n-flex justify="end">
+                <n-button type="primary" @click="handleCreatePV">
+                  {{ $gettext('Create PV') }}
+                </n-button>
+              </n-flex>
+            </n-flex>
+          </n-tab-pane>
 
-        <n-card :title="$gettext('Volume Groups')">
-          <n-space vertical>
-            <n-list v-if="lvmInfo.vgs && lvmInfo.vgs.length > 0" bordered>
-              <n-list-item v-for="(vg, index) in lvmInfo.vgs" :key="index">
-                <n-thing>
-                  <template #header>{{ vg.field_0 }}</template>
-                  <template #description>
-                    PV: {{ vg.field_1 }} | LV: {{ vg.field_2 }} | Size: {{ vg.field_3 }} | Free:
-                    {{ vg.field_4 }}
-                  </template>
-                  <template #action>
-                    <n-button size="small" type="error" @click="handleRemoveVG(vg.field_0)">
-                      {{ $gettext('Remove') }}
-                    </n-button>
-                  </template>
-                </n-thing>
-              </n-list-item>
-            </n-list>
-            <n-empty v-else :description="$gettext('No volume groups')" />
-
-            <n-divider />
-            <n-form>
-              <n-form-item :label="$gettext('VG Name')">
-                <n-input
-                  v-model:value="vgName"
-                  :placeholder="$gettext('Enter VG name')"
-                  style="width: 300px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Physical Volumes')">
+          <n-tab-pane name="vg" :tab="$gettext('Create VG')">
+            <n-flex vertical :size="12">
+              <div>
+                <div class="form-label">{{ $gettext('VG Name') }}</div>
+                <n-input v-model:value="vgName" :placeholder="$gettext('Enter VG name')" />
+              </div>
+              <div>
+                <div class="form-label">{{ $gettext('Physical Volumes') }}</div>
                 <n-select
                   v-model:value="vgDevices"
                   :options="availablePVOptions"
                   :placeholder="$gettext('Select PVs')"
                   multiple
                   filterable
-                  style="width: 400px"
                 />
-              </n-form-item>
-              <n-button type="primary" @click="handleCreateVG">
-                {{ $gettext('Create VG') }}
-              </n-button>
-            </n-form>
-          </n-space>
-        </n-card>
+              </div>
+              <n-flex justify="end">
+                <n-button type="primary" @click="handleCreateVG">
+                  {{ $gettext('Create VG') }}
+                </n-button>
+              </n-flex>
+            </n-flex>
+          </n-tab-pane>
 
-        <n-card :title="$gettext('Logical Volumes')">
-          <n-space vertical>
-            <n-list v-if="lvmInfo.lvs && lvmInfo.lvs.length > 0" bordered>
-              <n-list-item v-for="(lv, index) in lvmInfo.lvs" :key="index">
-                <n-thing>
-                  <template #header>{{ lv.field_0 }}</template>
-                  <template #description>
-                    VG: {{ lv.field_1 }} | Size: {{ lv.field_2 }} | Path: {{ lv.field_3 }}
-                  </template>
-                  <template #action>
-                    <n-button size="small" type="error" @click="handleRemoveLV(lv.field_3)">
-                      {{ $gettext('Remove') }}
-                    </n-button>
-                  </template>
-                </n-thing>
-              </n-list-item>
-            </n-list>
-            <n-empty v-else :description="$gettext('No logical volumes')" />
+          <n-tab-pane name="lv" :tab="$gettext('Create LV')">
+            <n-flex vertical :size="12">
+              <n-grid :x-gap="12" :y-gap="12" cols="1 m:2" responsive="screen">
+                <n-gi>
+                  <div class="form-label">{{ $gettext('LV Name') }}</div>
+                  <n-input v-model:value="lvName" :placeholder="$gettext('Enter LV name')" />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Volume Group') }}</div>
+                  <n-select
+                    v-model:value="lvVgName"
+                    :options="vgOptions"
+                    :placeholder="$gettext('Select VG')"
+                    filterable
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Size (GB)') }}</div>
+                  <n-input-number v-model:value="lvSize" :min="1" class="!w-full" />
+                </n-gi>
+              </n-grid>
+              <n-flex justify="end">
+                <n-button type="primary" @click="handleCreateLV">
+                  {{ $gettext('Create LV') }}
+                </n-button>
+              </n-flex>
+            </n-flex>
+          </n-tab-pane>
 
-            <n-divider />
-            <n-form>
-              <n-form-item :label="$gettext('LV Name')">
-                <n-input
-                  v-model:value="lvName"
-                  :placeholder="$gettext('Enter LV name')"
-                  style="width: 300px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Volume Group')">
-                <n-select
-                  v-model:value="lvVgName"
-                  :options="vgOptions"
-                  :placeholder="$gettext('Select VG')"
-                  filterable
-                  style="width: 300px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Size (GB)')">
-                <n-input-number v-model:value="lvSize" :min="1" />
-              </n-form-item>
-              <n-button type="primary" @click="handleCreateLV">
-                {{ $gettext('Create LV') }}
-              </n-button>
-            </n-form>
-          </n-space>
-        </n-card>
-
-        <n-card :title="$gettext('Extend Logical Volume')">
-          <n-form>
-            <n-form-item :label="$gettext('Logical Volume')">
-              <n-select
-                v-model:value="extendLvPath"
-                :options="lvOptions"
-                :placeholder="$gettext('Select LV')"
-                filterable
-                style="width: 400px"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Extend Size (GB)')">
-              <n-input-number v-model:value="extendSize" :min="1" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Auto Resize Filesystem')">
-              <n-switch v-model:value="extendResize" />
-            </n-form-item>
-            <n-button type="primary" @click="handleExtendLV">
-              {{ $gettext('Extend LV') }}
-            </n-button>
-          </n-form>
-        </n-card>
+          <n-tab-pane name="extend" :tab="$gettext('Extend LV')">
+            <n-flex vertical :size="12">
+              <n-grid :x-gap="12" :y-gap="12" cols="1 m:2" responsive="screen">
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Logical Volume') }}</div>
+                  <n-select
+                    v-model:value="extendLvPath"
+                    :options="lvOptions"
+                    :placeholder="$gettext('Select LV')"
+                    filterable
+                  />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Extend Size (GB)') }}</div>
+                  <n-input-number v-model:value="extendSize" :min="1" class="!w-full" />
+                </n-gi>
+                <n-gi>
+                  <div class="form-label">{{ $gettext('Auto Resize Filesystem') }}</div>
+                  <n-switch v-model:value="extendResize" />
+                </n-gi>
+              </n-grid>
+              <n-flex justify="end">
+                <n-button type="primary" @click="handleExtendLV">
+                  {{ $gettext('Extend LV') }}
+                </n-button>
+              </n-flex>
+            </n-flex>
+          </n-tab-pane>
+        </n-tabs>
       </n-flex>
     </n-tab-pane>
 
-    <!-- SMART 状态标签页 -->
     <n-tab-pane name="smart" tab="SMART">
       <smart-view />
     </n-tab-pane>
 
-    <!-- RAID 状态标签页 -->
     <n-tab-pane name="raid" tab="RAID">
       <raid-view />
     </n-tab-pane>
   </n-tabs>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.disk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.disk-card {
+  padding: 16px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+}
+
+.disk-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.disk-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.disk-card__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.disk-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+.disk-card__sep {
+  opacity: 0.5;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.lvm-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+  height: 100%;
+  min-height: 200px;
+}
+
+.lvm-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.lvm-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.lvm-card__body {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.lvm-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+
+.lvm-item__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.lvm-item__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-family: 'JetBrains Mono Variable', monospace;
+}
+
+.lvm-item__meta {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.lvm-item__path {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-family: 'JetBrains Mono Variable', monospace;
+}
+</style>

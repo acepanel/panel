@@ -27,6 +27,6 @@ export default {
     createUpstream: (data: any): any => http.Post('/apps/nginx/stream/upstreams', data),
     updateUpstream: (name: string, data: any): any =>
       http.Put(`/apps/nginx/stream/upstreams/${name}`, data),
-    deleteUpstream: (name: string): any => http.Delete(`/apps/nginx/stream/upstreams/${name}`)
-  }
+    deleteUpstream: (name: string): any => http.Delete(`/apps/nginx/stream/upstreams/${name}`),
+  },
 }

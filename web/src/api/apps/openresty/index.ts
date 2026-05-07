@@ -27,6 +27,6 @@ export default {
     createUpstream: (data: any): any => http.Post('/apps/openresty/stream/upstreams', data),
     updateUpstream: (name: string, data: any): any =>
       http.Put(`/apps/openresty/stream/upstreams/${name}`, data),
-    deleteUpstream: (name: string): any => http.Delete(`/apps/openresty/stream/upstreams/${name}`)
-  }
+    deleteUpstream: (name: string): any => http.Delete(`/apps/openresty/stream/upstreams/${name}`),
+  },
 }

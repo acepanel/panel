@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { NButton, NFlex } from 'naive-ui'
+import { h } from 'vue'
+import { useGettext } from 'vue3-gettext'
+
 import file from '@/api/panel/file'
 import DraggableWindow from '@/components/common/DraggableWindow.vue'
 import { FileEditorView } from '@/components/file-editor'
 import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
-import { NButton, NFlex } from 'naive-ui'
-import { h } from 'vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
@@ -49,9 +50,9 @@ async function handleBeforeClose(): Promise<boolean> {
               onClick: () => {
                 d.destroy()
                 resolve(false) // 返回编辑器
-              }
+              },
             },
-            () => $gettext('Go Back')
+            () => $gettext('Go Back'),
           ),
           h(
             NButton,
@@ -60,9 +61,9 @@ async function handleBeforeClose(): Promise<boolean> {
               onClick: () => {
                 d.destroy()
                 resolve(true) // 放弃更改，关闭窗口
-              }
+              },
             },
-            () => $gettext('Discard')
+            () => $gettext('Discard'),
           ),
           h(
             NButton,
@@ -101,15 +102,15 @@ async function handleBeforeClose(): Promise<boolean> {
                 } else {
                   const fileList = failedFiles.map((f) => f.split('/').pop()).join(', ')
                   window.$message.error(
-                    $gettext('Failed to save files: %{ files }', { files: fileList })
+                    $gettext('Failed to save files: %{ files }', { files: fileList }),
                   )
                   resolve(false) // 保存失败，不关闭窗口
                 }
-              }
+              },
             },
-            () => $gettext('Save')
-          )
-        ])
+            () => $gettext('Save'),
+          ),
+        ]),
     })
   })
 }
@@ -119,7 +120,7 @@ function loadFile(path: string) {
   if (!path) return
 
   // 如果文件已经打开，直接切换到该标签页
-  if (editorStore.tabs.some(f => f.path === path)) {
+  if (editorStore.tabs.some((f) => f.path === path)) {
     editorStore.switchTab(path)
     return
   }

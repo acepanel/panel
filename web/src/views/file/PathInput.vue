@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import copy2clipboard from '@vavt/copy2clipboard'
 import type { InputInst } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import { useFileStore } from '@/stores'
 import { checkPath } from '@/utils/file'
-import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
@@ -93,7 +93,7 @@ watch(
   (value) => {
     input.value = value.slice(1)
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -103,7 +103,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleBack">
-            <i-mdi-arrow-left :size="16" />
+            <i-mdi-arrow-left class="text-base" />
           </n-button>
         </template>
         {{ $gettext('Back') }}
@@ -111,7 +111,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleForward">
-            <i-mdi-arrow-right :size="16" />
+            <i-mdi-arrow-right class="text-base" />
           </n-button>
         </template>
         {{ $gettext('Forward') }}
@@ -119,7 +119,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleUp">
-            <i-mdi-arrow-up :size="16" />
+            <i-mdi-arrow-up class="text-base" />
           </n-button>
         </template>
         {{ $gettext('Up') }}
@@ -127,7 +127,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleRefresh">
-            <i-mdi-refresh :size="16" />
+            <i-mdi-refresh class="text-base" />
           </n-button>
         </template>
         {{ $gettext('Refresh') }}
@@ -135,8 +135,8 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">
-            <i-mdi-eye v-if="fileStore.showHidden" :size="16" />
-            <i-mdi-eye-off v-else :size="16" />
+            <i-mdi-eye v-if="fileStore.showHidden" class="text-base" />
+            <i-mdi-eye-off v-else class="text-base" />
           </n-button>
         </template>
         {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
@@ -172,7 +172,7 @@ watch(
         @blur="handleBlur"
       />
     </n-input-group>
-    <n-input-group w-400>
+    <n-input-group w-100>
       <n-input v-model:value="tab.keyword" :placeholder="$gettext('Enter search content')">
         <template #suffix>
           <n-checkbox v-model:checked="tab.sub">
@@ -181,7 +181,7 @@ watch(
         </template>
       </n-input>
       <n-button type="primary" @click="handleSearch">
-        <i-mdi-search :size="16" />
+        <i-mdi-search class="text-base" />
       </n-button>
     </n-input-group>
   </n-flex>

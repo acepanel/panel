@@ -6,11 +6,11 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer text-14 f-c-c flex-col>
+  <footer class="text-sm text-text-tertiary f-c-c flex-col gap-1">
     <p>
       © 2022 - {{ year }}
       <a
-        hover="decoration-primary color-primary"
+        class="hover:text-brand-hover hover:underline"
         rel="noreferrer"
         target="__blank"
         href="https://acepanel.net/"
@@ -19,9 +19,9 @@ const year = new Date().getFullYear()
       </a>
       {{ $gettext('All Rights Reserved.') }}
     </p>
-    <p>
+    <p class="flex gap-1 items-center">
       <a
-        hover="decoration-primary color-primary"
+        class="hover:text-brand-hover hover:underline"
         rel="noreferrer"
         target="_blank"
         href="https://jq.qq.com/?_wv=1027&k=I1oJKSTH"
@@ -30,7 +30,7 @@ const year = new Date().getFullYear()
       </a>
       <n-divider vertical />
       <a
-        hover="decoration-primary color-primary"
+        class="hover:text-brand-hover hover:underline"
         rel="noreferrer"
         target="_blank"
         href="https://acepanel.net"
@@ -39,7 +39,7 @@ const year = new Date().getFullYear()
       </a>
       <n-divider vertical />
       <a
-        hover="decoration-primary color-primary"
+        class="hover:text-brand-hover hover:underline"
         rel="noreferrer"
         target="_blank"
         href="https://tom.moe/c/technical/acepanel"
@@ -48,7 +48,7 @@ const year = new Date().getFullYear()
       </a>
       <n-divider vertical />
       <a
-        hover="decoration-primary color-primary"
+        class="hover:text-brand-hover hover:underline"
         rel="noreferrer"
         target="_blank"
         href="https://afdian.com/a/tnborg"

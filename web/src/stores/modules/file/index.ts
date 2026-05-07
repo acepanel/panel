@@ -41,7 +41,7 @@ const createNewTab = (path: string): FileTab => ({
   keyword: '',
   sub: false,
   history: [path],
-  historyCursor: 0
+  historyCursor: 0,
 })
 
 export const useFileStore = defineStore('file', {
@@ -56,8 +56,8 @@ export const useFileStore = defineStore('file', {
       sortOrder: 'asc',
       clipboard: {
         marked: [],
-        markedType: 'copy'
-      }
+        markedType: 'copy',
+      },
     }
   },
   getters: {
@@ -67,7 +67,7 @@ export const useFileStore = defineStore('file', {
     },
     activeTab(): FileTab | undefined {
       return this.tabs.find((t) => t.id === this.activeTabId)
-    }
+    },
   },
   actions: {
     // 新建标签页
@@ -169,7 +169,7 @@ export const useFileStore = defineStore('file', {
         this.sortKey = key
         this.sortOrder = 'asc'
       }
-    }
+    },
   },
   persist: {
     afterHydrate(ctx: any) {
@@ -184,6 +184,6 @@ export const useFileStore = defineStore('file', {
       } else if (!store.tabs.some((t) => t.id === store.activeTabId)) {
         store.activeTabId = store.tabs[0]!.id
       }
-    }
-  }
+    },
+  },
 })

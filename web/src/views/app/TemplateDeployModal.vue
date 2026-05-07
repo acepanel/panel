@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { FormInst, FormItemRule, FormRules } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
 import containerApi from '@/api/panel/container'
 import templateApi from '@/api/panel/template'
 import DiffEditor from '@/components/common/DiffEditor.vue'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import type { FormInst, FormItemRule, FormRules } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 
 import type { Template, TemplateEnvironment } from './types'
 
@@ -32,7 +33,7 @@ const composeList = ref<{ name: string; path: string }[]>([])
 const composeListLoading = ref(false)
 const selectedCompose = ref<string | null>(null)
 const selectedComposeData = ref<{ compose: string; envs: { key: string; value: string }[] } | null>(
-  null
+  null,
 )
 
 // 启动终端
@@ -43,7 +44,7 @@ const deployModel = reactive({
   name: '',
   autoStart: true,
   autoFirewall: false,
-  envs: {} as Record<string, any>
+  envs: {} as Record<string, any>,
 })
 
 // 最终编排内容
@@ -65,7 +66,7 @@ const getSelectOptions = (env: TemplateEnvironment) => {
   if (!env.options) return []
   return Object.entries(env.options).map(([label, value]) => ({
     label,
-    value
+    value,
   }))
 }
 
@@ -87,7 +88,7 @@ const formRules = computed<FormRules>(() => {
           } catch {
             return new Error($gettext('Please enter a valid URL'))
           }
-        }
+        },
       }
     } else if (isRequired) {
       // 为必填字段添加校验规则
@@ -99,7 +100,7 @@ const formRules = computed<FormRules>(() => {
             return new Error($gettext('This field is required'))
           }
           return true
-        }
+        },
       }
     }
   })
@@ -123,7 +124,7 @@ const loadComposeDetailAndFillEnvs = (name: string) => {
   useRequest(containerApi.composeGet(name)).onSuccess(({ data }) => {
     selectedComposeData.value = {
       compose: data.compose,
-      envs: data.envs || []
+      envs: data.envs || [],
     }
     // 用旧编排的环境变量预填充表单
     const oldEnvs = data.envs || []
@@ -154,7 +155,7 @@ const goToStep3 = () => {
 const generateFinalEnvs = () => {
   return Object.entries(deployModel.envs).map(([key, value]) => ({
     key,
-    value: String(value)
+    value: String(value),
   }))
 }
 
@@ -229,8 +230,8 @@ const handleSubmit = async () => {
         name: deployModel.name,
         compose: finalCompose.value,
         envs: finalEnvs.value,
-        auto_firewall: deployModel.autoFirewall
-      })
+        auto_firewall: deployModel.autoFirewall,
+      }),
     )
       .onSuccess(({ data }) => {
         window.$message.success($gettext('Created successfully'))
@@ -250,8 +251,8 @@ const handleSubmit = async () => {
     useRequest(
       containerApi.composeUpdate(selectedCompose.value!, {
         compose: finalCompose.value,
-        envs: finalEnvs.value
-      })
+        envs: finalEnvs.value,
+      }),
     )
       .onSuccess(() => {
         window.$message.success($gettext('Update successful'))
@@ -309,14 +310,14 @@ watch(
     if (props.template) {
       initEnvDefaults()
     }
-  }
+  },
 )
 
 // 编排选项
 const composeOptions = computed(() => {
   return composeList.value.map((item) => ({
     label: item.name,
-    value: item.name
+    value: item.name,
   }))
 })
 </script>
@@ -326,7 +327,7 @@ const composeOptions = computed(() => {
     v-model:show="show"
     :title="$gettext('Deploy Template') + (template ? ` - ${template.name}` : '')"
     preset="card"
-    style="width: 70vw"
+    :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -334,7 +335,7 @@ const composeOptions = computed(() => {
     :closable="!doSubmit"
   >
     <!-- 步骤指示器 -->
-    <n-steps :current="currentStep" size="small" class="mb-24">
+    <n-steps :current="currentStep" size="small" class="mb-6">
       <n-step :title="$gettext('Deploy Mode')" />
       <n-step :title="$gettext('Configuration')" />
       <n-step :title="$gettext('Preview & Edit')" />
@@ -561,10 +562,10 @@ const composeOptions = computed(() => {
           </template>
           <!-- 更新模式：差异编辑器 -->
           <template v-else>
-            <n-alert type="info" style="margin-bottom: 12px">
+            <n-alert type="info" class="mb-3">
               {{
                 $gettext(
-                  'Left side shows the original compose, right side shows the new compose. You can edit the right side.'
+                  'Left side shows the original compose, right side shows the new compose. You can edit the right side.',
                 )
               }}
             </n-alert>

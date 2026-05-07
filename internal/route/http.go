@@ -552,6 +552,7 @@ func (route *Http) Register(r *chi.Mux) {
 		r.Route("/file", func(r chi.Router) {
 			r.Post("/create", route.file.Create)
 			r.Get("/content", route.file.Content)
+			r.Get("/tail", route.file.Tail)
 			r.Post("/save", route.file.Save)
 			r.Post("/truncate", route.file.Truncate)
 			r.Post("/delete", route.file.Delete)

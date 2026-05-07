@@ -7,7 +7,7 @@ export default {
   path: '/cert',
   component: Layout,
   meta: {
-    order: 10
+    order: 10,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Certificate',
         icon: 'mdi:certificate-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

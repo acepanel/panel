@@ -4,7 +4,7 @@ import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
-import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import UpdateUserModal from '@/views/database/UpdateUserModal.vue'
 
@@ -13,6 +13,7 @@ const props = defineProps<{
 }>()
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const updateModal = ref(false)
 const updateID = ref(0)
 
@@ -25,7 +26,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.username || $gettext('None')
-    }
+    },
   },
   {
     title: $gettext('Password'),
@@ -39,7 +40,7 @@ const columns: any = [
             type: 'password',
             showPasswordOn: 'click',
             readonly: true,
-            placeholder: $gettext('Not saved')
+            placeholder: $gettext('Not saved'),
           }),
           h(
             NButton,
@@ -50,13 +51,13 @@ const columns: any = [
                 copy2clipboard(row.password).then(() => {
                   window.$message.success($gettext('Copied successfully'))
                 })
-              }
+              },
             },
-            { default: () => $gettext('Copy') }
-          )
-        ]
+            { default: () => $gettext('Copy') },
+          ),
+        ],
       })
-    }
+    },
   },
   {
     title: $gettext('Host'),
@@ -64,9 +65,9 @@ const columns: any = [
     width: 150,
     render(row: any) {
       return h(NTag, null, {
-        default: () => row.host || $gettext('None')
+        default: () => row.host || $gettext('None'),
       })
-    }
+    },
   },
   {
     title: $gettext('Server'),
@@ -74,7 +75,7 @@ const columns: any = [
     width: 150,
     render(row: any) {
       return row.server.name
-    }
+    },
   },
   {
     title: $gettext('Privileges'),
@@ -85,11 +86,11 @@ const columns: any = [
         default: () =>
           row.privileges.map((privilege: string) =>
             h(NTag, null, {
-              default: () => privilege
-            })
-          )
+              default: () => privilege,
+            }),
+          ),
       })
-    }
+    },
   },
   {
     title: $gettext('Comment'),
@@ -104,9 +105,9 @@ const columns: any = [
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Status'),
@@ -116,9 +117,9 @@ const columns: any = [
       return h(
         NTag,
         { type: row.status === 'valid' ? 'success' : 'error' },
-        { default: () => (row.status === 'valid' ? $gettext('Valid') : $gettext('Invalid')) }
+        { default: () => (row.status === 'valid' ? $gettext('Valid') : $gettext('Invalid')) },
       )
-    }
+    },
   },
   {
     title: $gettext('Update Date'),
@@ -127,7 +128,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.updated_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -135,7 +136,7 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -144,39 +145,27 @@ const columns: any = [
             onClick: () => {
               updateID.value = row.id
               updateModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          DeleteConfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDelete(row.id)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete the user?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete the user?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -185,8 +174,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = (id: number) => {
@@ -226,12 +215,11 @@ onUnmounted(() => {
     v-model:pageSize="pageSize"
     :pagination="{
       page: page,
-      pageCount: pageCount,
       pageSize: pageSize,
       itemCount: total,
       showQuickJumper: true,
       showSizePicker: true,
-      pageSizes: [20, 50, 100, 200]
+      pageSizes: [20, 50, 100, 200],
     }"
   />
   <update-user-modal v-model:show="updateModal" v-model:id="updateID" />

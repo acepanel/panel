@@ -35,8 +35,8 @@ const loadData = () => {
       ctx.dateRange.value.end,
       ctx.sitesParam.value,
       page.value,
-      limit.value
-    )
+      limit.value,
+    ),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -55,8 +55,8 @@ const loadISPs = () => {
       ctx.sitesParam.value,
       'isp',
       undefined,
-      15
-    )
+      15,
+    ),
   ).onSuccess(({ data }: any) => {
     ispItems.value = data.items || []
   })
@@ -89,22 +89,22 @@ const ispBarOption = computed<EChartsOption>(() => {
         const item = sorted[idx]
         if (!item) return ''
         return `${params[0].name}<br/>${$gettext('Requests')}: ${params[0].value.toLocaleString()}<br/>${$gettext('Bandwidth')}: ${formatBytes(item.bandwidth)}`
-      }
+      },
     },
     grid: { left: 100, right: 40, top: 10, bottom: 30 },
     xAxis: { type: 'value' },
     yAxis: {
       type: 'category',
       data: reversed.map((i: any) => i.country || $gettext('Unknown')),
-      axisLabel: { width: 80, overflow: 'truncate' }
+      axisLabel: { width: 80, overflow: 'truncate' },
     },
     series: [
       {
         type: 'bar',
         data: reversed.map((i: any) => i.requests),
-        barMaxWidth: 30
-      }
-    ]
+        barMaxWidth: 30,
+      },
+    ],
   }
 })
 
@@ -122,25 +122,25 @@ const columns = computed(() => [
     title: $gettext('Location'),
     key: 'country',
     render: (row: any) => formatGeo(row),
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: 'ISP',
     key: 'isp',
     render: (row: any) => row.isp || '-',
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Requests'),
     key: 'requests',
-    sorter: (a: any, b: any) => a.requests - b.requests
+    sorter: (a: any, b: any) => a.requests - b.requests,
   },
   {
     title: $gettext('Bandwidth'),
     key: 'bandwidth',
     render: (row: any) => formatBytes(row.bandwidth),
-    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth
-  }
+    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth,
+  },
 ])
 
 const handlePageChange = (p: number) => {
@@ -162,7 +162,7 @@ const handlePageSizeChange = (s: number) => {
         <v-chart class="h-300px" :option="ispBarOption" autoresize />
       </n-card>
       <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
-      <n-flex justify="end" class="mt-12" v-if="total > 0">
+      <n-flex justify="end" class="mt-3" v-if="total > 0">
         <n-pagination
           v-model:page="page"
           :page-size="limit"

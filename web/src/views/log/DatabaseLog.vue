@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'database-log'
+  name: 'database-log',
 })
 
 import { NTag } from 'naive-ui'
@@ -36,10 +36,11 @@ const dateOptions = computed(() => {
   return options
 })
 
-const { loading, data, send: refresh } = useRequest(
-  () => log.list('db', limit.value, selectedDate.value || ''),
-  { initialData: [] }
-)
+const {
+  loading,
+  data,
+  send: refresh,
+} = useRequest(() => log.list('db', limit.value, selectedDate.value || ''), { initialData: [] })
 
 // 表格列配置
 const columns = [
@@ -50,7 +51,7 @@ const columns = [
     render: (row: LogEntry) => {
       const date = new Date(row.time)
       return date.toLocaleString()
-    }
+    },
   },
   {
     title: $gettext('Level'),
@@ -61,20 +62,20 @@ const columns = [
         INFO: 'success',
         WARN: 'warning',
         ERROR: 'error',
-        DEBUG: 'info'
+        DEBUG: 'info',
       }
       return h(NTag, { type: typeMap[row.level] || 'default', size: 'small' }, () => row.level)
-    }
+    },
   },
   {
     title: $gettext('Query'),
     key: 'query',
     ellipsis: {
-      tooltip: true
+      tooltip: true,
     },
     render: (row: LogEntry) => {
       return row.extra?.query || row.msg || '-'
-    }
+    },
   },
   {
     title: $gettext('Duration'),
@@ -87,7 +88,7 @@ const columns = [
         return `${ms.toFixed(2)} ms`
       }
       return '-'
-    }
+    },
   },
   {
     title: $gettext('Rows'),
@@ -95,8 +96,8 @@ const columns = [
     width: 80,
     render: (row: LogEntry) => {
       return row.extra?.rows !== undefined ? row.extra.rows : '-'
-    }
-  }
+    },
+  },
 ]
 
 // 刷新
@@ -106,13 +107,13 @@ const handleRefresh = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
-    <div class="mb-4 flex gap-4 items-center">
+  <n-flex vertical class="h-full">
+    <n-flex align="center">
       <span>{{ $gettext('Date') }}:</span>
       <n-select
         v-model:value="selectedDate"
         :options="dateOptions"
-        class="w-150px"
+        class="w-37"
         @update:value="handleRefresh"
       />
       <span>{{ $gettext('Show entries') }}:</span>
@@ -122,15 +123,15 @@ const handleRefresh = () => {
           { label: '100', value: 100 },
           { label: '200', value: 200 },
           { label: '500', value: 500 },
-          { label: '1000', value: 1000 }
+          { label: '1000', value: 1000 },
         ]"
-        class="w-100px"
+        class="w-25"
         @update:value="handleRefresh"
       />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>
-    </div>
+    </n-flex>
     <n-data-table
       class="flex-1 min-h-0"
       :columns="columns"
@@ -141,5 +142,5 @@ const handleRefresh = () => {
       :scroll-x="800"
       virtual-scroll
     />
-  </div>
+  </n-flex>
 </template>

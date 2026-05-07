@@ -11,7 +11,7 @@ const httpsMode = computed({
   get: () => model.value.tls || 'off',
   set: (v: string) => {
     model.value.tls = v
-  }
+  },
 })
 </script>
 
@@ -29,7 +29,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Set the maximum lifetime (in minutes) of the login state, after which you need to log in again'
+                'Set the maximum lifetime (in minutes) of the login state, after which you need to log in again',
               )
             }}
           </n-tooltip>
@@ -57,7 +57,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Set the access entrance of the panel (e.g. /mypanel) to prevent some malicious access. Leave blank to disable (not recommended)'
+                'Set the access entrance of the panel (e.g. /mypanel) to prevent some malicious access. Leave blank to disable (not recommended)',
               )
             }}
           </n-tooltip>
@@ -75,7 +75,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Set the error page to display when accessing with wrong entrance. 418 shows teapot page, Nginx 404 shows nginx style 404 page, Close Connection will close the connection immediately'
+                'Set the error page to display when accessing with wrong entrance. 418 shows teapot page, Nginx 404 shows nginx style 404 page, Close Connection will close the connection immediately',
               )
             }}
           </n-tooltip>
@@ -85,7 +85,7 @@ const httpsMode = computed({
           :options="[
             { label: $gettext(`418 I'm a teapot`), value: '418' },
             { label: $gettext('Nginx 404'), value: 'nginx' },
-            { label: $gettext('Close Connection'), value: 'close' }
+            { label: $gettext('Close Connection'), value: 'close' },
           ]"
           :placeholder="$gettext(`418 I'm a teapot`)"
         />
@@ -101,7 +101,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'When enabled, a captcha will be required after 3 failed login attempts to prevent brute force attacks'
+                'When enabled, a captcha will be required after 3 failed login attempts to prevent brute force attacks',
               )
             }}
           </n-tooltip>
@@ -119,7 +119,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Set the header that carries the real IP of the client, useful when using CDN or reverse proxy. Leave blank to use the client IP directly'
+                'Set the header that carries the real IP of the client, useful when using CDN or reverse proxy. Leave blank to use the client IP directly',
               )
             }}
           </n-tooltip>
@@ -137,7 +137,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Restrict panel access to the specified domain names. Leave blank to allow access from any domain'
+                'Restrict panel access to the specified domain names. Leave blank to allow access from any domain',
               )
             }}
           </n-tooltip>
@@ -159,7 +159,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Restrict panel access to the specified IP addresses. Leave blank to allow access from any IP'
+                'Restrict panel access to the specified IP addresses. Leave blank to allow access from any IP',
               )
             }}
           </n-tooltip>
@@ -177,7 +177,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Restrict panel access to the specified User-Agent strings. Leave blank to allow access from any User-Agent'
+                'Restrict panel access to the specified User-Agent strings. Leave blank to allow access from any User-Agent',
               )
             }}
           </n-tooltip>
@@ -199,7 +199,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'When enabled, the panel will not attempt to connect to external services for updates or other features. This may limit some functionalities'
+                'When enabled, the panel will not attempt to connect to external services for updates or other features. This may limit some functionalities',
               )
             }}
           </n-tooltip>
@@ -217,7 +217,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'When enabled, the panel will automatically check for and install updates when they are available. It is recommended to keep this enabled to ensure you have the latest features and security patches'
+                'When enabled, the panel will automatically check for and install updates when they are available. It is recommended to keep this enabled to ensure you have the latest features and security patches',
               )
             }}
           </n-tooltip>
@@ -235,7 +235,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Self-Signed generates a certificate automatically (browsers will show a warning). Custom allows you to provide your own certificate'
+                'Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Self-Signed generates a certificate automatically (browsers will show a warning). Custom allows you to provide your own certificate',
               )
             }}
           </n-tooltip>
@@ -246,7 +246,7 @@ const httpsMode = computed({
               { label: $gettext('Disabled'), value: 'off' },
               { label: $gettext('ACME (Auto)'), value: 'acme' },
               { label: $gettext('Self-Signed'), value: 'self-signed' },
-              { label: $gettext('Custom Certificate'), value: 'custom' }
+              { label: $gettext('Custom Certificate'), value: 'custom' },
             ]"
             :key="option.value"
             :value="option.value"
@@ -265,7 +265,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Panel public IP is used to issue HTTPS certificates using ACME. Ensure that the entered IP address is accessible from the public network.'
+                'Panel public IP is used to issue HTTPS certificates using ACME. Ensure that the entered IP address is accessible from the public network.',
               )
             }}
           </n-tooltip>

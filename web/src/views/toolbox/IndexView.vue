@@ -1,7 +1,9 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-index'
+  name: 'toolbox-index',
 })
+
+import { useGettext } from 'vue3-gettext'
 
 import BenchmarkView from '@/views/toolbox/BenchmarkView.vue'
 import DiskView from '@/views/toolbox/DiskView.vue'
@@ -13,15 +15,14 @@ import ProcessView from '@/views/toolbox/ProcessView.vue'
 import SshView from '@/views/toolbox/SshView.vue'
 import SystemView from '@/views/toolbox/SystemView.vue'
 import WebHookView from '@/views/toolbox/WebHookView.vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const current = ref('process')
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="current" animated>
         <n-tab name="process" :tab="$gettext('Process')" />
         <n-tab name="network" :tab="$gettext('Network')" />
@@ -47,7 +48,7 @@ const current = ref('process')
       <migration-view v-if="current === 'migration'" />
       <panel-view v-if="current === 'panel'" />
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss"></style>

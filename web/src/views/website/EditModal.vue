@@ -54,7 +54,7 @@ const initialSetting = {
   rate_limit: null,
   real_ip: null,
   basic_auth: {},
-  custom_configs: []
+  custom_configs: [],
 }
 const setting = ref<any>({ ...initialSetting })
 const fetchSetting = () => {
@@ -81,16 +81,16 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     php: [
       {
         label: $gettext('Not used'),
-        value: 0
-      }
+        value: 0,
+      },
     ],
     db: [
       {
         label: '',
-        value: ''
-      }
-    ]
-  }
+        value: '',
+      },
+    ],
+  },
 })
 
 // 是否为 Nginx
@@ -100,12 +100,12 @@ useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
   certs.value = data.items
 })
 const { data: rewrites } = useRequest(website.rewrites, {
-  initialData: {}
+  initialData: {},
 })
 const rewriteOptions = computed(() => {
   return Object.keys(rewrites.value).map((key) => ({
     label: key,
-    value: key
+    value: key,
   }))
 })
 const rewriteValue = ref(null)
@@ -118,7 +118,7 @@ const title = computed(() => {
 const certOptions = computed(() => {
   return certs.value.map((item: any) => ({
     label: item.domains.join(', '),
-    value: item.id
+    value: item.id,
   }))
 })
 const selectedCert = ref(null)
@@ -132,7 +132,7 @@ const handleSave = () => {
     }
     setting.value.listens.push({
       address: '443',
-      args
+      args,
     })
   }
   // 如果关闭了ssl，自动禁用所有ssl和quic
@@ -192,13 +192,13 @@ const handleObtainCert = () => {
     useRequest(cert.dns(1, 10000)).onSuccess(({ data }) => {
       dnsList.value = data.items.map((item: any) => ({
         label: item.name,
-        value: item.id
+        value: item.id,
       }))
       if (dnsList.value.length === 0) {
         window.$message.error(
           $gettext(
-            'Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first.'
-          )
+            'Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first.',
+          ),
         )
         return
       }
@@ -223,7 +223,7 @@ const handleDnsObtainCert = () => {
 const doObtainCert = (dnsId?: number) => {
   isObtainCert.value = true
   messageReactive = window.$message.loading($gettext('Please wait...'), {
-    duration: 0
+    duration: 0,
   })
   useRequest(website.obtainCert(id.value, dnsId))
     .onSuccess(() => {
@@ -268,7 +268,7 @@ const clearLog = async () => {
 const onCreateListen = () => {
   return {
     address: '',
-    args: []
+    args: [],
   }
 }
 
@@ -311,7 +311,7 @@ watch(
   () => {
     ensureItemIds()
   },
-  { immediate: true, deep: false }
+  { immediate: true, deep: false },
 )
 
 // ========== Upstreams 相关 ==========
@@ -328,7 +328,7 @@ const addUpstream = () => {
     algo: '',
     keepalive: 32,
     resolver: [],
-    resolver_timeout: 5 * 1000000000 // 5秒，以纳秒为单位
+    resolver_timeout: 5 * 1000000000, // 5秒，以纳秒为单位
   })
 }
 
@@ -358,7 +358,7 @@ const locationMatchTypes = [
   { label: $gettext('Priority Prefix Match (^~)'), value: '^~' },
   { label: $gettext('Prefix Match'), value: '' },
   { label: $gettext('Case-sensitive Regex (~)'), value: '~' },
-  { label: $gettext('Case-insensitive Regex (~*)'), value: '~*' }
+  { label: $gettext('Case-insensitive Regex (~*)'), value: '~*' },
 ]
 
 // 解析 location 字符串，返回匹配类型和表达式
@@ -424,7 +424,7 @@ const addProxy = () => {
     client_max_body_size: 0,
     ssl_backend: null,
     response_headers: null,
-    access_control: null
+    access_control: null,
   })
 }
 
@@ -438,7 +438,7 @@ const createDefaultCacheConfig = () => ({
   lock: false,
   min_uses: 0,
   methods: [],
-  key: ''
+  key: '',
 })
 
 // 切换缓存启用状态
@@ -490,33 +490,33 @@ const buildSize = (value: number, unit: string): number => {
 const createDefaultTimeoutConfig = () => ({
   connect: 60 * SECOND,
   read: 60 * SECOND,
-  send: 60 * SECOND
+  send: 60 * SECOND,
 })
 
 // 创建默认重试配置
 const createDefaultRetryConfig = () => ({
   conditions: ['error', 'timeout'],
   tries: 0,
-  timeout: 0
+  timeout: 0,
 })
 
 // 创建默认 SSL 后端配置
 const createDefaultSSLBackendConfig = () => ({
   verify: false,
   trusted_certificate: '',
-  verify_depth: 1
+  verify_depth: 1,
 })
 
 // 创建默认响应头配置
 const createDefaultResponseHeadersConfig = () => ({
   hide: [],
-  add: {}
+  add: {},
 })
 
 // 创建默认访问控制配置
 const createDefaultAccessControlConfig = () => ({
   allow: [],
-  deny: []
+  deny: [],
 })
 
 // 切换超时配置启用状态
@@ -645,7 +645,7 @@ const HOUR = 60 * MINUTE
 const timeUnitOptions = [
   { label: $gettext('Seconds'), value: 's' },
   { label: $gettext('Minutes'), value: 'm' },
-  { label: $gettext('Hours'), value: 'h' }
+  { label: $gettext('Hours'), value: 'h' },
 ]
 
 // 从纳秒解析为 {value, unit} 格式
@@ -691,7 +691,7 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
 const redirectTypeOptions = [
   { label: $gettext('URL Redirect'), value: 'url' },
   { label: $gettext('Host Redirect'), value: 'host' },
-  { label: $gettext('404 Redirect'), value: '404' }
+  { label: $gettext('404 Redirect'), value: '404' },
 ]
 
 // 状态码选项
@@ -699,7 +699,7 @@ const redirectStatusCodeOptions = [
   { label: '301 - ' + $gettext('Moved Permanently'), value: 301 },
   { label: '302 - ' + $gettext('Found'), value: 302 },
   { label: '307 - ' + $gettext('Temporary Redirect'), value: 307 },
-  { label: '308 - ' + $gettext('Permanent Redirect'), value: 308 }
+  { label: '308 - ' + $gettext('Permanent Redirect'), value: 308 },
 ]
 
 // 添加重定向规则
@@ -713,7 +713,7 @@ const addRedirect = () => {
     from: '/',
     to: '/new',
     keep_uri: true,
-    status_code: 308
+    status_code: 308,
   })
 }
 
@@ -738,11 +738,11 @@ const defaultErrorLog = computed(() => `/opt/ace/sites/${setting.value.name}/log
 // 日志路径选项
 const accessLogOptions = computed(() => [
   { label: $gettext('Disabled'), value: 'off' },
-  { label: $gettext('Default Path'), value: defaultAccessLog.value }
+  { label: $gettext('Default Path'), value: defaultAccessLog.value },
 ])
 const errorLogOptions = computed(() => [
   { label: $gettext('Disabled'), value: 'off' },
-  { label: $gettext('Default Path'), value: defaultErrorLog.value }
+  { label: $gettext('Default Path'), value: defaultErrorLog.value },
 ])
 
 // 限流限速是否启用
@@ -753,12 +753,12 @@ const rateLimitEnabled = computed({
       setting.value.rate_limit = {
         per_server: 0,
         per_ip: 0,
-        rate: 0
+        rate: 0,
       }
     } else {
       setting.value.rate_limit = null
     }
-  }
+  },
 })
 
 // 真实 IP 是否启用
@@ -769,12 +769,12 @@ const realIPEnabled = computed({
       setting.value.real_ip = {
         from: [],
         header: 'X-Real-IP',
-        recursive: false
+        recursive: false,
       }
     } else {
       setting.value.real_ip = null
     }
-  }
+  },
 })
 
 // 真实 IP 来源列表，多行文本与数组双向转换
@@ -784,7 +784,7 @@ const realIPFrom = computed({
     if (setting.value.real_ip) {
       setting.value.real_ip.from = value.split('\n')
     }
-  }
+  },
 })
 
 // ========== 自定义配置相关 ==========
@@ -798,7 +798,7 @@ const addCustomConfig = () => {
     _id: generateId(),
     name: `custom_${index}`,
     scope: 'site',
-    content: ''
+    content: '',
   })
 }
 
@@ -815,7 +815,7 @@ const removeCustomConfig = (index: number) => {
     v-model:show="show"
     preset="card"
     :title="title"
-    style="width: 70vw"
+    :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -845,9 +845,9 @@ const removeCustomConfig = (index: number) => {
                     <n-checkbox
                       :checked="hasArg(value.args, 'ssl')"
                       @update:checked="(checked: boolean) => toggleArg(value.args, 'ssl', checked)"
-                      ml-20
-                      mr-20
-                      w-120
+                      ml-5
+                      mr-5
+                      w-30
                     >
                       HTTPS
                     </n-checkbox>
@@ -855,7 +855,7 @@ const removeCustomConfig = (index: number) => {
                       v-if="isNginx"
                       :checked="hasArg(value.args, 'quic')"
                       @update:checked="(checked: boolean) => toggleArg(value.args, 'quic', checked)"
-                      w-200
+                      w-50
                     >
                       QUIC(HTTP3)
                     </n-checkbox>
@@ -912,7 +912,7 @@ const removeCustomConfig = (index: number) => {
               ghost-class="ghost-card"
             >
               <template #item="{ element: upstream, index }">
-                <n-card closable @close="removeUpstream(index)" mb-16>
+                <n-card closable @close="removeUpstream(index)" mb-4>
                   <template #header>
                     <n-flex align="center" :size="8">
                       <!-- 拖拽手柄 -->
@@ -924,7 +924,7 @@ const removeCustomConfig = (index: number) => {
                         v-model:value="upstream.name"
                         :placeholder="$gettext('Upstream name')"
                         size="small"
-                        style="width: 200px"
+                        class="w-50"
                       />
                     </n-flex>
                   </template>
@@ -940,12 +940,12 @@ const removeCustomConfig = (index: number) => {
                                   { label: 'least_conn', value: 'least_conn' },
                                   { label: 'ip_hash', value: 'ip_hash' },
                                   { label: 'hash', value: 'hash' },
-                                  { label: 'random', value: 'random' }
+                                  { label: 'random', value: 'random' },
                                 ]
                               : [
                                   { label: $gettext('Round Robin (default)'), value: '' },
                                   { label: $gettext('Least Busy'), value: 'bybusyness' },
-                                  { label: $gettext('By Traffic'), value: 'bytraffic' }
+                                  { label: $gettext('By Traffic'), value: 'bytraffic' },
                                 ]
                           "
                         />
@@ -984,7 +984,7 @@ const removeCustomConfig = (index: number) => {
                           <n-select
                             :value="parseDuration(upstream.resolver_timeout).unit"
                             :options="timeUnitOptions"
-                            style="width: 100px"
+                            class="w-25"
                             @update:value="(v: string) => updateUpstreamTimeoutUnit(upstream, v)"
                           />
                         </n-input-group>
@@ -1010,7 +1010,7 @@ const removeCustomConfig = (index: number) => {
             </n-empty>
 
             <!-- 添加按钮 -->
-            <n-button type="primary" dashed @click="addUpstream" mb-20>
+            <n-button type="primary" dashed @click="addUpstream" mb-5>
               {{ $gettext('Add Upstream') }}
             </n-button>
           </n-flex>
@@ -1026,7 +1026,7 @@ const removeCustomConfig = (index: number) => {
               ghost-class="ghost-card"
             >
               <template #item="{ element: proxy, index }">
-                <n-card closable @close="removeProxy(index)" mb-16>
+                <n-card closable @close="removeProxy(index)" mb-4>
                   <template #header>
                     <n-flex align="center" :size="8">
                       <!-- 拖拽手柄 -->
@@ -1063,7 +1063,7 @@ const removeCustomConfig = (index: number) => {
                           :value="proxy.pass"
                           :placeholder="
                             $gettext(
-                              'Backend address, e.g., http://127.0.0.1:8080 or http://upstream_name'
+                              'Backend address, e.g., http://127.0.0.1:8080 or http://upstream_name',
                             )
                           "
                           @update:value="(v: string) => handleProxyPassChange(proxy, v)"
@@ -1114,14 +1114,14 @@ const removeCustomConfig = (index: number) => {
                           <n-select
                             :value="parseDuration(proxy.resolver_timeout).unit"
                             :options="timeUnitOptions"
-                            style="width: 100px"
+                            class="w-25"
                             @update:value="(v: string) => updateTimeoutUnit(proxy, v)"
                           />
                         </n-input-group>
                       </n-form-item-gi>
                     </n-grid>
                     <!-- 可折叠配置区域 -->
-                    <n-collapse :default-expanded-names="[]" mt-16>
+                    <n-collapse :default-expanded-names="[]" mt-4>
                       <!-- 缓存配置详情 -->
                       <n-collapse-item
                         v-if="isNginx && isCacheEnabled(proxy)"
@@ -1149,7 +1149,7 @@ const removeCustomConfig = (index: number) => {
                                 { label: '$arg_nocache', value: '$arg_nocache' },
                                 { label: '$http_pragma', value: '$http_pragma' },
                                 { label: '$http_authorization', value: '$http_authorization' },
-                                { label: '$http_cache_control', value: '$http_cache_control' }
+                                { label: '$http_cache_control', value: '$http_cache_control' },
                               ]"
                               multiple
                               filterable
@@ -1168,7 +1168,7 @@ const removeCustomConfig = (index: number) => {
                                 { label: 'http_500', value: 'http_500' },
                                 { label: 'http_502', value: 'http_502' },
                                 { label: 'http_503', value: 'http_503' },
-                                { label: 'http_504', value: 'http_504' }
+                                { label: 'http_504', value: 'http_504' },
                               ]"
                               multiple
                               :placeholder="$gettext('When to use stale cache')"
@@ -1200,7 +1200,7 @@ const removeCustomConfig = (index: number) => {
                               :options="[
                                 { label: 'GET', value: 'GET' },
                                 { label: 'HEAD', value: 'HEAD' },
-                                { label: 'POST', value: 'POST' }
+                                { label: 'POST', value: 'POST' },
                               ]"
                               multiple
                               :placeholder="$gettext('Default: GET HEAD')"
@@ -1261,7 +1261,7 @@ const removeCustomConfig = (index: number) => {
                               :options="[
                                 { label: 'HTTP/1.0', value: '1.0' },
                                 { label: 'HTTP/1.1', value: '1.1' },
-                                { label: 'HTTP/2', value: '2' }
+                                { label: 'HTTP/2', value: '2' },
                               ]"
                               :placeholder="$gettext('Select HTTP version')"
                             />
@@ -1290,9 +1290,9 @@ const removeCustomConfig = (index: number) => {
                                 :options="[
                                   { label: 'KB', value: 'k' },
                                   { label: 'MB', value: 'm' },
-                                  { label: 'GB', value: 'g' }
+                                  { label: 'GB', value: 'g' },
                                 ]"
-                                style="width: 80px"
+                                class="w-20"
                                 @update:value="(v: string) => updateClientMaxBodySizeUnit(proxy, v)"
                               />
                             </n-input-group>
@@ -1324,7 +1324,7 @@ const removeCustomConfig = (index: number) => {
                                 <n-select
                                   :value="parseDuration(proxy.timeout.connect).unit"
                                   :options="timeUnitOptions"
-                                  style="width: 100px"
+                                  class="w-25"
                                   @update:value="
                                     (v: string) => updateProxyTimeoutUnit(proxy, 'connect', v)
                                   "
@@ -1345,7 +1345,7 @@ const removeCustomConfig = (index: number) => {
                                 <n-select
                                   :value="parseDuration(proxy.timeout.read).unit"
                                   :options="timeUnitOptions"
-                                  style="width: 100px"
+                                  class="w-25"
                                   @update:value="
                                     (v: string) => updateProxyTimeoutUnit(proxy, 'read', v)
                                   "
@@ -1366,7 +1366,7 @@ const removeCustomConfig = (index: number) => {
                                 <n-select
                                   :value="parseDuration(proxy.timeout.send).unit"
                                   :options="timeUnitOptions"
-                                  style="width: 100px"
+                                  class="w-25"
                                   @update:value="
                                     (v: string) => updateProxyTimeoutUnit(proxy, 'send', v)
                                   "
@@ -1422,7 +1422,7 @@ const removeCustomConfig = (index: number) => {
                                   { label: 'http_504', value: 'http_504' },
                                   { label: 'http_429', value: 'http_429' },
                                   { label: 'non_idempotent', value: 'non_idempotent' },
-                                  { label: 'off', value: 'off' }
+                                  { label: 'off', value: 'off' },
                                 ]"
                                 multiple
                                 :placeholder="$gettext('Select retry conditions')"
@@ -1454,7 +1454,7 @@ const removeCustomConfig = (index: number) => {
                                 <n-select
                                   :value="parseDuration(proxy.retry.timeout).unit"
                                   :options="timeUnitOptions"
-                                  style="width: 100px"
+                                  class="w-25"
                                   @update:value="(v: string) => updateRetryTimeoutUnit(proxy, v)"
                                 />
                               </n-input-group>
@@ -1480,7 +1480,7 @@ const removeCustomConfig = (index: number) => {
                                 v-model:value="proxy.ssl_backend.trusted_certificate"
                                 :placeholder="
                                   $gettext(
-                                    'CA certificate path, e.g. /etc/ssl/certs/ca-certificates.crt'
+                                    'CA certificate path, e.g. /etc/ssl/certs/ca-certificates.crt',
                                   )
                                 "
                               />
@@ -1500,7 +1500,7 @@ const removeCustomConfig = (index: number) => {
                                   { label: 'X-AspNet-Version', value: 'X-AspNet-Version' },
                                   { label: 'X-AspNetMvc-Version', value: 'X-AspNetMvc-Version' },
                                   { label: 'X-Runtime', value: 'X-Runtime' },
-                                  { label: 'X-Version', value: 'X-Version' }
+                                  { label: 'X-Version', value: 'X-Version' },
                                 ]"
                                 multiple
                                 filterable
@@ -1560,7 +1560,7 @@ const removeCustomConfig = (index: number) => {
             </n-empty>
 
             <!-- 添加按钮 -->
-            <n-button type="primary" dashed @click="addProxy" mb-20>
+            <n-button type="primary" dashed @click="addProxy" mb-5>
               {{ $gettext('Add Proxy Rule') }}
             </n-button>
           </n-flex>
@@ -1631,7 +1631,7 @@ const removeCustomConfig = (index: number) => {
                       { label: 'TLS 1.0', value: 'TLSv1' },
                       { label: 'TLS 1.1', value: 'TLSv1.1' },
                       { label: 'TLS 1.2', value: 'TLSv1.2' },
-                      { label: 'TLS 1.3', value: 'TLSv1.3' }
+                      { label: 'TLS 1.3', value: 'TLSv1.3' },
                     ]"
                     multiple
                   />
@@ -1691,7 +1691,7 @@ const removeCustomConfig = (index: number) => {
               ghost-class="ghost-card"
             >
               <template #item="{ element: redirect, index }">
-                <n-card closable @close="removeRedirect(index)" mb-16>
+                <n-card closable @close="removeRedirect(index)" mb-4>
                   <template #header>
                     <n-flex align="center" :size="8">
                       <!-- 拖拽手柄 -->
@@ -1749,7 +1749,7 @@ const removeCustomConfig = (index: number) => {
                       </n-form-item-gi>
                       <n-form-item-gi :span="12" :label="$gettext('Keep URI')">
                         <n-switch v-model:value="redirect.keep_uri" />
-                        <n-text depth="3" class="ml-8">
+                        <n-text depth="3" class="ml-2">
                           {{ $gettext('Keep the original request path and query parameters') }}
                         </n-text>
                       </n-form-item-gi>
@@ -1765,7 +1765,7 @@ const removeCustomConfig = (index: number) => {
             </n-empty>
 
             <!-- 添加按钮 -->
-            <n-button type="primary" dashed @click="addRedirect" mb-20>
+            <n-button type="primary" dashed @click="addRedirect" mb-5>
               {{ $gettext('Add Redirect Rule') }}
             </n-button>
           </n-flex>
@@ -1861,17 +1861,17 @@ const removeCustomConfig = (index: number) => {
 
             <!-- 真实 IP 设置 -->
             <n-collapse-item :title="$gettext('Real IP')" name="real_ip">
-              <n-alert type="info" mb-16>
+              <n-alert type="info" mb-4>
                 {{
                   $gettext(
-                    'Configure trusted proxy IPs (e.g., CDN or Frp) to identify real visitor IPs.'
+                    'Configure trusted proxy IPs (e.g., CDN or Frp) to identify real visitor IPs.',
                   )
                 }}
               </n-alert>
-              <n-alert type="warning" mb-16>
+              <n-alert type="warning" mb-4>
                 {{
                   $gettext(
-                    'If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) or ::/0 (ipv6) [insecure].'
+                    'If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) or ::/0 (ipv6) [insecure].',
                   )
                 }}
               </n-alert>
@@ -1897,7 +1897,7 @@ const removeCustomConfig = (index: number) => {
                         { label: 'CF-Connecting-IP', value: 'CF-Connecting-IP' },
                         { label: 'True-Client-IP', value: 'True-Client-IP' },
                         { label: 'Ali-Cdn-Real-Ip', value: 'Ali-Cdn-Real-Ip' },
-                        { label: 'EO-Connecting-IP', value: 'EO-Connecting-IP' }
+                        { label: 'EO-Connecting-IP', value: 'EO-Connecting-IP' },
                       ]"
                       filterable
                       tag
@@ -1931,7 +1931,7 @@ const removeCustomConfig = (index: number) => {
               <n-alert v-if="Object.keys(setting.basic_auth || {}).length > 0" type="info">
                 {{
                   $gettext(
-                    'Visitors will need to enter a username and password to access this website.'
+                    'Visitors will need to enter a username and password to access this website.',
                   )
                 }}
               </n-alert>
@@ -1949,7 +1949,7 @@ const removeCustomConfig = (index: number) => {
               ghost-class="ghost-card"
             >
               <template #item="{ element: config, index }">
-                <n-card closable @close="removeCustomConfig(index)" mb-16>
+                <n-card closable @close="removeCustomConfig(index)" mb-4>
                   <template #header>
                     <n-flex align="center" :size="8">
                       <!-- 拖拽手柄 -->
@@ -1974,7 +1974,7 @@ const removeCustomConfig = (index: number) => {
                           v-model:value="config.scope"
                           :options="[
                             { label: $gettext('This Website'), value: 'site' },
-                            { label: $gettext('Global'), value: 'shared' }
+                            { label: $gettext('Global'), value: 'shared' },
                           ]"
                         />
                       </n-form-item-gi>
@@ -1997,7 +1997,7 @@ const removeCustomConfig = (index: number) => {
             </n-empty>
 
             <!-- 添加按钮 -->
-            <n-button type="primary" dashed @click="addCustomConfig" mb-20>
+            <n-button type="primary" dashed @click="addCustomConfig" mb-5>
               {{ $gettext('Add Custom Config') }}
             </n-button>
           </n-flex>
@@ -2015,7 +2015,7 @@ const removeCustomConfig = (index: number) => {
                 {{ $gettext('view') }}.
               </n-alert>
             </n-flex>
-            <realtime-log ref="accessLogRef" :path="setting.access_log" pb-20 />
+            <realtime-log ref="accessLogRef" :path="setting.access_log" pb-5 />
           </n-flex>
         </n-tab-pane>
         <n-tab-pane
@@ -2038,14 +2038,17 @@ const removeCustomConfig = (index: number) => {
     </n-spin>
     <template #footer>
       <n-flex justify="end">
-        <n-popconfirm v-if="current === 'log' || current === 'error_log'" @positive-click="clearLog">
+        <ConfirmDialog
+          type="danger"
+          :content="$gettext('Are you sure you want to clear?')"
+          @confirm="clearLog"
+        >
           <template #trigger>
             <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading">
               {{ $gettext('Clear Logs') }}
             </n-button>
           </template>
-          {{ $gettext('Are you sure you want to clear?') }}
-        </n-popconfirm>
+        </ConfirmDialog>
         <n-button
           v-if="current === 'https' && setting && setting.domains.length > 0"
           :loading="isObtainCert"
@@ -2055,14 +2058,17 @@ const removeCustomConfig = (index: number) => {
         >
           {{ $gettext('One-click Certificate Issuance') }}
         </n-button>
-        <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
+        <ConfirmDialog
+          type="danger"
+          :content="$gettext('Are you sure you want to reset the configuration?')"
+          @confirm="handleReset"
+        >
           <template #trigger>
             <n-button type="warning" :loading="resetLoading" :disabled="resetLoading">
               {{ $gettext('Reset Configuration') }}
             </n-button>
           </template>
-          {{ $gettext('Are you sure you want to reset the configuration?') }}
-        </n-popconfirm>
+        </ConfirmDialog>
         <n-button @click="show = false">
           {{ $gettext('Cancel') }}
         </n-button>
@@ -2090,7 +2096,7 @@ const removeCustomConfig = (index: number) => {
       <n-alert type="warning">
         {{
           $gettext(
-            'Your website contains wildcard domains (e.g. *.example.com), which require DNS verification to issue certificates.'
+            'Your website contains wildcard domains (e.g. *.example.com), which require DNS verification to issue certificates.',
           )
         }}
       </n-alert>

@@ -18,7 +18,7 @@ const title = computed(() => {
     v-model:show="show"
     preset="card"
     :title="title"
-    style="width: 500px"
+    class="w-125"
     size="huge"
     :bordered="false"
     :segmented="false"

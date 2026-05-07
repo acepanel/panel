@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'website-index'
+  name: 'website-index',
 })
 
 import BulkCreateModal from '@/views/website/BulkCreateModal.vue'
@@ -19,8 +19,8 @@ const editId = ref(0)
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="all" :tab="$gettext('All')" />
         <n-tab name="proxy" :tab="$gettext('Reverse Proxy')" />
@@ -43,5 +43,5 @@ const editId = ref(0)
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
     <bulk-create-modal v-model:show="bulkCreateModal" v-model:type="currentTab" />
     <edit-modal v-model:show="editModal" v-model:edit-id="editId" />
-  </common-page>
+  </PageContainer>
 </template>

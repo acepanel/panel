@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-redis-index'
+  name: 'apps-redis-index',
 })
 
 import { NButton, NDataTable } from 'naive-ui'
@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import redis from '@/api/apps/redis'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import RedisConfigTuneView from './RedisConfigTuneView.vue'
 
 const { $gettext } = useGettext()
@@ -15,7 +16,7 @@ const currentTab = ref('status')
 const saveConfigLoading = ref(false)
 
 const { data: config, send: refreshConfig } = useRequest(redis.config, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -24,7 +25,7 @@ watch(currentTab, (val) => {
   }
 })
 const { data: load } = useRequest(redis.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -33,14 +34,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -56,7 +57,7 @@ const handleSaveConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="redis" />
@@ -66,13 +67,18 @@ const handleSaveConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -95,5 +101,5 @@ const handleSaveConfig = () => {
         <realtime-log service="redis" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

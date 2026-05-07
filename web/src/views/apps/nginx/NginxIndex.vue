@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import {
-  NButton,
-  NDataTable,
-  NDynamicTags,
-  NInputGroup,
-  NInputNumber,
-  NPopconfirm,
-  NSelect
-} from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import nginx from '@/api/apps/nginx'
 import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+
 import NginxConfigTuneView from './NginxConfigTuneView.vue'
 
 const props = defineProps<{
@@ -21,6 +15,7 @@ const props = defineProps<{
 }>()
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
 const streamTab = ref('server')
 const saveConfigLoading = ref(false)
@@ -72,31 +67,31 @@ const updateResolverTimeoutUnit = (unit: string) => {
 }
 
 const { data: config, send: refreshConfig } = useRequest(props.api.config, {
-  initialData: ''
+  initialData: '',
 })
 const { data: errorLog } = useRequest(props.api.errorLog, {
-  initialData: ''
+  initialData: '',
 })
 const { data: load } = useRequest(props.api.load, {
-  initialData: []
+  initialData: [],
 })
 
 // Stream Server 数据
 const {
   data: streamServers,
   loading: streamServersLoading,
-  refresh: loadStreamServers
+  refresh: loadStreamServers,
 } = usePagination(props.api.stream.listServers, {
-  initialData: []
+  initialData: [],
 })
 
 // Stream Upstream 数据
 const {
   data: streamUpstreams,
   loading: streamUpstreamsLoading,
-  refresh: loadStreamUpstreams
+  refresh: loadStreamUpstreams,
 } = usePagination(props.api.stream.listUpstreams, {
-  initialData: []
+  initialData: [],
 })
 
 // 创建/编辑 Stream Server 模态框
@@ -113,7 +108,7 @@ const streamServerModel = ref({
   proxy_connect_timeout: 0,
   ssl: false,
   ssl_certificate: '',
-  ssl_certificate_key: ''
+  ssl_certificate_key: '',
 })
 
 // 创建/编辑 Stream Upstream 模态框
@@ -125,7 +120,7 @@ const streamUpstreamModel = ref({
   algo: '',
   servers: {} as Record<string, string>,
   resolver: [] as string[],
-  resolver_timeout: 5 * SECOND
+  resolver_timeout: 5 * SECOND,
 })
 
 // Upstream 服务器编辑
@@ -138,14 +133,14 @@ const columns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 // Stream Server 列表列
@@ -155,14 +150,14 @@ const streamServerColumns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Listen'),
     key: 'listen',
     minWidth: 120,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Protocol'),
@@ -170,14 +165,14 @@ const streamServerColumns: any = [
     minWidth: 80,
     render(row: any) {
       return row.udp ? 'UDP' : 'TCP'
-    }
+    },
   },
   {
     title: $gettext('Proxy Pass'),
     key: 'proxy_pass',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: 'SSL',
@@ -185,52 +180,40 @@ const streamServerColumns: any = [
     minWidth: 60,
     render(row: any) {
       return row.ssl ? $gettext('Yes') : $gettext('No')
-    }
+    },
   },
   {
     title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'info',
-            onClick: () => handleEditStreamServer(row)
+            onClick: () => handleEditStreamServer(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteStreamServer(row.name)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete %{ name }?', { name: row.name })
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete %{ name }?', { name: row.name }),
+              })
+              if (ok) handleDeleteStreamServer(row.name)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 // Stream Upstream 列表列
@@ -240,7 +223,7 @@ const streamUpstreamColumns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Algorithm'),
@@ -250,7 +233,7 @@ const streamUpstreamColumns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.algo || $gettext('Round Robin')
-    }
+    },
   },
   {
     title: $gettext('Servers'),
@@ -261,52 +244,40 @@ const streamUpstreamColumns: any = [
     render(row: any) {
       const servers = row.servers || {}
       return Object.keys(servers).length + $gettext(' server(s)')
-    }
+    },
   },
   {
     title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'info',
-            onClick: () => handleEditStreamUpstream(row)
+            onClick: () => handleEditStreamUpstream(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteStreamUpstream(row.name)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete %{ name }?', { name: row.name })
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete %{ name }?', { name: row.name }),
+              })
+              if (ok) handleDeleteStreamUpstream(row.name)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 // 监听标签页切换
@@ -379,7 +350,7 @@ const handleCreateStreamServer = () => {
     proxy_connect_timeout: 0,
     ssl: false,
     ssl_certificate: '',
-    ssl_certificate_key: ''
+    ssl_certificate_key: '',
   }
   streamServerModal.value = true
 }
@@ -397,7 +368,7 @@ const handleEditStreamServer = (row: any) => {
     proxy_connect_timeout: row.proxy_connect_timeout ? row.proxy_connect_timeout / 1000000000 : 0,
     ssl: row.ssl || false,
     ssl_certificate: row.ssl_certificate || '',
-    ssl_certificate_key: row.ssl_certificate_key || ''
+    ssl_certificate_key: row.ssl_certificate_key || '',
   }
   streamServerModal.value = true
 }
@@ -406,7 +377,7 @@ const handleSaveStreamServer = () => {
   const data = {
     ...streamServerModel.value,
     proxy_timeout: streamServerModel.value.proxy_timeout * 1000000000,
-    proxy_connect_timeout: streamServerModel.value.proxy_connect_timeout * 1000000000
+    proxy_connect_timeout: streamServerModel.value.proxy_connect_timeout * 1000000000,
   }
 
   const request = streamServerEditName.value
@@ -441,7 +412,7 @@ const handleCreateStreamUpstream = () => {
     algo: '',
     servers: {},
     resolver: [],
-    resolver_timeout: 5 * SECOND
+    resolver_timeout: 5 * SECOND,
   }
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
@@ -456,7 +427,7 @@ const handleEditStreamUpstream = (row: any) => {
     algo: row.algo || '',
     servers: { ...row.servers },
     resolver: row.resolver,
-    resolver_timeout: row.resolver_timeout || 5 * SECOND
+    resolver_timeout: row.resolver_timeout || 5 * SECOND,
   }
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
@@ -488,7 +459,7 @@ const handleSaveStreamUpstream = () => {
     algo: streamUpstreamModel.value.algo,
     servers: streamUpstreamModel.value.servers,
     resolver: streamUpstreamModel.value.resolver,
-    resolver_timeout: streamUpstreamModel.value.resolver_timeout
+    resolver_timeout: streamUpstreamModel.value.resolver_timeout,
   }
 
   const request = streamUpstreamEditName.value
@@ -516,7 +487,7 @@ const handleDeleteStreamUpstream = (name: string) => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="nginx" show-reload />
@@ -527,13 +498,18 @@ const handleDeleteStreamUpstream = (name: string) => {
             {{
               $gettext(
                 'This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { name: service === 'nginx' ? 'Nginx' : 'OpenResty' }
+                { name: service === 'nginx' ? 'Nginx' : 'OpenResty' },
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" lang="nginx" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -593,7 +569,12 @@ const handleDeleteStreamUpstream = (name: string) => {
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearRunLogLoading" :disabled="clearRunLogLoading" @click="handleClearRunLog">
+            <n-button
+              type="primary"
+              :loading="clearRunLogLoading"
+              :disabled="clearRunLogLoading"
+              @click="handleClearRunLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -603,7 +584,12 @@ const handleDeleteStreamUpstream = (name: string) => {
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearErrorLogLoading" :disabled="clearErrorLogLoading" @click="handleClearErrorLog">
+            <n-button
+              type="primary"
+              :loading="clearErrorLogLoading"
+              :disabled="clearErrorLogLoading"
+              @click="handleClearErrorLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -611,7 +597,7 @@ const handleDeleteStreamUpstream = (name: string) => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
   <!-- Stream Server 模态框 -->
   <n-modal
     v-model:show="streamServerModal"
@@ -688,7 +674,15 @@ const handleDeleteStreamUpstream = (name: string) => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="saveStreamServerLoading" :disabled="saveStreamServerLoading" @click="handleSaveStreamServer">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="saveStreamServerLoading"
+      :disabled="saveStreamServerLoading"
+      @click="handleSaveStreamServer"
+    >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
   <!-- Stream Upstream 模态框 -->
   <n-modal
@@ -720,23 +714,23 @@ const handleDeleteStreamUpstream = (name: string) => {
             { label: 'hash $remote_addr', value: 'hash $remote_addr' },
             { label: 'random', value: 'random' },
             { label: 'least_time connect', value: 'least_time connect' },
-            { label: 'least_time first_byte', value: 'least_time first_byte' }
+            { label: 'least_time first_byte', value: 'least_time first_byte' },
           ]"
         />
       </n-form-item>
       <n-form-item :label="$gettext('Servers')">
-        <n-flex vertical wh-full>
+        <n-flex vertical class="wh-full">
           <n-flex>
             <n-input
               v-model:value="upstreamServerAddr"
               type="text"
-              flex-1
+              class="flex-1"
               :placeholder="$gettext('Server address, e.g. 127.0.0.1:3306')"
             />
             <n-input
               v-model:value="upstreamServerOptions"
               type="text"
-              flex-1
+              class="flex-1"
               :placeholder="$gettext('Options (optional), e.g. weight=5 backup')"
             />
             <n-button type="primary" @click="handleAddUpstreamServer">
@@ -748,7 +742,7 @@ const handleDeleteStreamUpstream = (name: string) => {
               <tr>
                 <th>{{ $gettext('Address') }}</th>
                 <th>{{ $gettext('Options') }}</th>
-                <th w-100>{{ $gettext('Actions') }}</th>
+                <th class="w-25">{{ $gettext('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -766,7 +760,7 @@ const handleDeleteStreamUpstream = (name: string) => {
                 </td>
               </tr>
               <tr v-if="Object.keys(streamUpstreamModel.servers).length === 0">
-                <td colspan="3" text-center>
+                <td colspan="3" class="text-center">
                   {{ $gettext('No servers added yet') }}
                 </td>
               </tr>
@@ -790,7 +784,7 @@ const handleDeleteStreamUpstream = (name: string) => {
             :value="parseDuration(streamUpstreamModel.resolver_timeout).value"
             :min="1"
             :max="3600"
-            style="flex: 1"
+            class="flex-1"
             @update:value="(v: number | null) => updateResolverTimeoutValue(v ?? 5)"
           />
           <n-select
@@ -798,15 +792,21 @@ const handleDeleteStreamUpstream = (name: string) => {
             :options="[
               { label: $gettext('Seconds'), value: 's' },
               { label: $gettext('Minutes'), value: 'm' },
-              { label: $gettext('Hours'), value: 'h' }
+              { label: $gettext('Hours'), value: 'h' },
             ]"
-            style="width: 100px"
+            class="w-25"
             @update:value="(v: string) => updateResolverTimeoutUnit(v)"
           />
         </n-input-group>
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="saveStreamUpstreamLoading" :disabled="saveStreamUpstreamLoading" @click="handleSaveStreamUpstream">
+    <n-button
+      type="info"
+      block
+      :loading="saveStreamUpstreamLoading"
+      :disabled="saveStreamUpstreamLoading"
+      @click="handleSaveStreamUpstream"
+    >
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>

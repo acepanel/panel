@@ -1,15 +1,14 @@
 import '@/styles/index.scss'
 import '@/styles/reset.css'
 import 'virtual:uno.css'
-
 import { createApp } from 'vue'
-import App from './App.vue'
 
+import home from '@/api/panel/home'
 import { setupRouter } from '@/router'
 import { setupStore, usePermissionStore, useThemeStore } from '@/stores'
 import { gettext, setCurrent, setupNaiveDiscreteApi } from '@/utils'
 
-import home from '@/api/panel/home'
+import App from './App.vue'
 
 async function setupApp() {
   const app = createApp(App)
@@ -35,8 +34,8 @@ const setupPanel = async () => {
         name: import.meta.env.VITE_APP_TITLE,
         locale: 'en',
         hidden_menu: [],
-        custom_logo: ''
-      }
+        custom_logo: '',
+      },
     }).onSuccess(async ({ data }: { data: any }) => {
       setCurrent(data.locale)
       themeStore.setLocale(data.locale)

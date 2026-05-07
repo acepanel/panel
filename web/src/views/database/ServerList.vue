@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import copy2clipboard from '@vavt/copy2clipboard'
-import { NButton, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import UpdateServerModal from '@/views/database/UpdateServerModal.vue'
 
@@ -13,6 +14,7 @@ const props = defineProps<{
 }>()
 
 const { $gettext } = useGettext()
+const { confirmDelete, confirmAction } = useConfirm()
 const updateModal = ref(false)
 const updateID = ref(0)
 
@@ -65,7 +67,7 @@ const columns: any = [
     key: 'name',
     minWidth: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Username'),
@@ -74,7 +76,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.username || $gettext('None')
-    }
+    },
   },
   {
     title: $gettext('Password'),
@@ -88,7 +90,7 @@ const columns: any = [
             type: 'password',
             showPasswordOn: 'click',
             readonly: true,
-            placeholder: $gettext('None')
+            placeholder: $gettext('None'),
           }),
           h(
             NButton,
@@ -99,13 +101,13 @@ const columns: any = [
                 copy2clipboard(row.password).then(() => {
                   window.$message.success($gettext('Copied successfully'))
                 })
-              }
+              },
             },
-            { default: () => $gettext('Copy') }
-          )
-        ]
+            { default: () => $gettext('Copy') },
+          ),
+        ],
       })
-    }
+    },
   },
   {
     title: $gettext('Host'),
@@ -113,9 +115,9 @@ const columns: any = [
     width: 150,
     render(row: any) {
       return h(NTag, null, {
-        default: () => `${row.host}:${row.port}`
+        default: () => `${row.host}:${row.port}`,
       })
-    }
+    },
   },
   {
     title: $gettext('Comment'),
@@ -130,9 +132,9 @@ const columns: any = [
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Status'),
@@ -142,9 +144,9 @@ const columns: any = [
       return h(
         NTag,
         { type: row.status === 'valid' ? 'success' : 'error' },
-        { default: () => (row.status === 'valid' ? $gettext('Valid') : $gettext('Invalid')) }
+        { default: () => (row.status === 'valid' ? $gettext('Valid') : $gettext('Invalid')) },
       )
-    }
+    },
   },
   {
     title: $gettext('Update Date'),
@@ -153,7 +155,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.updated_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -161,104 +163,92 @@ const columns: any = [
     width: 350,
     hideInExcel: true,
     render(row: any) {
-      return [
+      const items = [
         h(
           NButton,
           {
             size: 'small',
             type: 'info',
-            onClick: () => openTerminal(row)
+            onClick: () => openTerminal(row),
           },
-          {
-            default: () => $gettext('Terminal')
-          }
+          { default: () => $gettext('Terminal') },
         ),
-        !['redis', 'mongodb', 'sqlite', 'elasticsearch'].includes(row.type)
-          ? h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => {
-                  useRequest(database.serverSync(row.id)).onSuccess(() => {
-                    refresh()
-                    window.$message.success($gettext('Synchronized successfully'))
-                  })
-                }
+      ]
+      if (!['redis', 'mongodb', 'sqlite', 'elasticsearch'].includes(row.type)) {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'success',
+              onClick: async () => {
+                const ok = await confirmAction({
+                  type: 'warning',
+                  title: $gettext('Confirm Sync'),
+                  content: $gettext(
+                    'Are you sure you want to synchronize database users (excluding password) to the panel?',
+                  ),
+                })
+                if (!ok) return
+                useRequest(database.serverSync(row.id)).onSuccess(() => {
+                  refresh()
+                  window.$message.success($gettext('Synchronized successfully'))
+                })
               },
-              {
-                default: () => {
-                  return $gettext(
-                    'Are you sure you want to synchronize database users (excluding password) to the panel?'
-                  )
-                },
-                trigger: () => {
-                  return h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'success',
-                      style: 'margin-left: 15px;'
-                    },
-                    {
-                      default: () => $gettext('Sync')
-                    }
-                  )
-                }
-              }
-            )
-          : null,
+            },
+            { default: () => $gettext('Sync') },
+          ),
+        )
+      }
+      items.push(
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
             onClick: () => {
               updateID.value = row.id
               updateModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => {
-              // 防手贱
-              if (['local_mysql', 'local_postgresql', 'local_redis', 'local_valkey', 'local_clickhouse', 'local_mongodb', 'local_elasticsearch', 'local_opensearch'].includes(row.name)) {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const builtIns = [
+                'local_mysql',
+                'local_postgresql',
+                'local_redis',
+                'local_valkey',
+                'local_clickhouse',
+                'local_mongodb',
+                'local_elasticsearch',
+                'local_opensearch',
+              ]
+              if (builtIns.includes(row.name)) {
                 window.$message.error(
                   $gettext(
-                    'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app'
-                  )
+                    'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app',
+                  ),
                 )
                 return
               }
-              handleDelete(row.id)
-            }
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete the server?')
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete the server?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      )
+      return h(NFlex, { size: 'small', align: 'center' }, () => items)
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -267,8 +257,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = (id: number) => {
@@ -297,6 +287,8 @@ onUnmounted(() => {
 
 <template>
   <n-data-table
+    v-model:page="page"
+    v-model:pageSize="pageSize"
     striped
     remote
     :scroll-x="1700"
@@ -304,16 +296,13 @@ onUnmounted(() => {
     :columns="columns"
     :data="data"
     :row-key="(row: any) => row.name"
-    v-model:page="page"
-    v-model:pageSize="pageSize"
     :pagination="{
       page: page,
-      pageCount: pageCount,
       pageSize: pageSize,
       itemCount: total,
       showQuickJumper: true,
       showSizePicker: true,
-      pageSizes: [20, 50, 100, 200]
+      pageSizes: [20, 50, 100, 200],
     }"
   />
   <update-server-modal v-model:id="updateID" v-model:show="updateModal" />

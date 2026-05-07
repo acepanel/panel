@@ -7,7 +7,7 @@ export default {
   path: '/log',
   component: Layout,
   meta: {
-    order: 35
+    order: 35,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Logs',
         icon: 'mdi:file-document-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

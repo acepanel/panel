@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'rocketmq-config-tune'
+  name: 'rocketmq-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -28,12 +28,12 @@ const saveLoading = ref(false)
 const brokerRoleOptions = [
   { label: 'ASYNC_MASTER', value: 'ASYNC_MASTER' },
   { label: 'SYNC_MASTER', value: 'SYNC_MASTER' },
-  { label: 'SLAVE', value: 'SLAVE' }
+  { label: 'SLAVE', value: 'SLAVE' },
 ]
 
 const flushDiskTypeOptions = [
   { label: 'ASYNC_FLUSH', value: 'ASYNC_FLUSH' },
-  { label: 'SYNC_FLUSH', value: 'SYNC_FLUSH' }
+  { label: 'SYNC_FLUSH', value: 'SYNC_FLUSH' },
 ]
 
 useRequest(rocketmq.configTune()).onSuccess(({ data }: any) => {
@@ -63,7 +63,7 @@ const getConfigData = () => ({
   namesrv_heap_init_size: namesrvHeapInitSize.value,
   namesrv_heap_max_size: namesrvHeapMaxSize.value,
   broker_heap_init_size: brokerHeapInitSize.value,
-  broker_heap_max_size: brokerHeapMaxSize.value
+  broker_heap_max_size: brokerHeapMaxSize.value,
 })
 
 const handleSave = () => {
@@ -103,7 +103,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -119,14 +124,22 @@ const handleSave = () => {
             <n-input v-model:value="storePathRootDir" placeholder="/data/rocketmq/store" />
           </n-form-item>
           <n-form-item :label="$gettext('CommitLog Path (storePathCommitLog)')">
-            <n-input v-model:value="storePathCommitLog" placeholder="/data/rocketmq/store/commitlog" />
+            <n-input
+              v-model:value="storePathCommitLog"
+              placeholder="/data/rocketmq/store/commitlog"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Max Message Size (maxMessageSize)')">
             <n-input v-model:value="maxMessageSize" placeholder="4194304" />
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -154,7 +167,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

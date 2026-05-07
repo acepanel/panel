@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import cert from '@/api/panel/cert'
 import type { MessageReactive } from 'naive-ui'
 import { NButton, NInput, NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import cert from '@/api/panel/cert'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -10,12 +11,12 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   caProviders: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   algorithms: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { caProviders, algorithms } = toRefs(props)
@@ -28,7 +29,7 @@ const model = ref<any>({
   email: '',
   kid: '',
   key_type: 'P256',
-  ca: 'letsencrypt'
+  ca: 'letsencrypt',
 })
 
 const showEAB = computed(() => {
@@ -40,8 +41,8 @@ const handleCreateAccount = () => {
   messageReactive = window.$message.loading(
     $gettext('Registering account with CA, please wait patiently'),
     {
-      duration: 0
-    }
+      duration: 0,
+    },
   )
   useRequest(cert.accountCreate(model.value))
     .onSuccess(() => {
@@ -73,13 +74,13 @@ const handleCreateAccount = () => {
     <n-space vertical>
       <n-alert type="info">{{
         $gettext(
-          'LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their official websites first'
+          'LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their official websites first',
         )
       }}</n-alert>
       <n-alert type="warning">
         {{
           $gettext(
-            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt or LiteSSL"
+            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt or LiteSSL",
           )
         }}
       </n-alert>
@@ -125,7 +126,15 @@ const handleCreateAccount = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateAccount">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="loading"
+        :disabled="loading"
+        @click="handleCreateAccount"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
 </template>

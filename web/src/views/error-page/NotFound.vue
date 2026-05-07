@@ -6,10 +6,10 @@ const { replace } = useRouter()
 </script>
 
 <template>
-  <AppPage>
+  <PageContainer>
     <n-result
+      class="m-auto"
       :description="$gettext('Sorry, the page you visited does not exist.')"
-      m-auto
       status="404"
     >
       <template #icon>
@@ -19,5 +19,5 @@ const { replace } = useRouter()
         <n-button @click="replace('/')">{{ $gettext('Back to Home') }}</n-button>
       </template>
     </n-result>
-  </AppPage>
+  </PageContainer>
 </template>

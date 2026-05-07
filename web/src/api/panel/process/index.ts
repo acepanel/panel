@@ -17,5 +17,5 @@ export default {
   // 杀死进程 (SIGKILL)
   kill: (pid: number) => http.Post(`/process/kill`, { pid }),
   // 向进程发送信号
-  signal: (pid: number, signal: number) => http.Post(`/process/signal`, { pid, signal })
+  signal: (pid: number, signal: number) => http.Post(`/process/signal`, { pid, signal }),
 }

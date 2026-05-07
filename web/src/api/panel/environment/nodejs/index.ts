@@ -7,5 +7,5 @@ export default {
   getRegistry: (slug: string): any => http.Get(`/environment/nodejs/${slug}/registry`),
   // 设置镜像
   setRegistry: (slug: string, registry: string): any =>
-    http.Post(`/environment/nodejs/${slug}/registry`, { registry })
+    http.Post(`/environment/nodejs/${slug}/registry`, { registry }),
 }

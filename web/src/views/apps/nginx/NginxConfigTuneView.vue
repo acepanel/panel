@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'nginx-config-tune'
+  name: 'nginx-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -54,20 +54,20 @@ const saveLoading = ref(false)
 
 const onOffOptions = [
   { label: 'on', value: 'on' },
-  { label: 'off', value: 'off' }
+  { label: 'off', value: 'off' },
 ]
 
 const onOffAlwaysOptions = [
   { label: 'on', value: 'on' },
   { label: 'off', value: 'off' },
-  { label: 'always', value: 'always' }
+  { label: 'always', value: 'always' },
 ]
 
 // Nginx 容量单位选项（小写）
 const sizeUnitOptions = [
   { label: 'k', value: 'k' },
   { label: 'm', value: 'm' },
-  { label: 'g', value: 'g' }
+  { label: 'g', value: 'g' },
 ]
 
 // 解析带单位的值，如 "200m" -> { num: 200, unit: "m" }
@@ -132,11 +132,11 @@ const getConfigData = () => ({
   client_max_body_size: composeSizeValue(clientMaxBodySizeNum.value, clientMaxBodySizeUnit.value),
   client_body_buffer_size: composeSizeValue(
     clientBodyBufferSizeNum.value,
-    clientBodyBufferSizeUnit.value
+    clientBodyBufferSizeUnit.value,
   ),
   client_header_buffer_size: composeSizeValue(
     clientHeaderBufferSizeNum.value,
-    clientHeaderBufferSizeUnit.value
+    clientHeaderBufferSizeUnit.value,
   ),
   server_names_hash_bucket_size: String(serverNamesHashBucketSize.value ?? ''),
   server_tokens: serverTokens.value ?? '',
@@ -155,7 +155,7 @@ const getConfigData = () => ({
   zstd_min_length: composeSizeValue(zstdMinLengthNum.value, zstdMinLengthUnit.value),
   zstd_comp_level: String(zstdCompLevel.value ?? ''),
   zstd_types: zstdTypes.value,
-  zstd_static: zstdStatic.value ?? ''
+  zstd_static: zstdStatic.value ?? '',
 })
 
 const handleSave = () => {
@@ -212,7 +212,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="clientMaxBodySizeUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -228,7 +228,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="clientBodyBufferSizeUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -244,7 +244,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="clientHeaderBufferSizeUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -279,7 +279,7 @@ const handleSave = () => {
         <n-alert type="info">
           {{
             $gettext(
-              'Gzip compression settings. Gzip is the most widely supported compression method.'
+              'Gzip compression settings. Gzip is the most widely supported compression method.',
             )
           }}
         </n-alert>
@@ -296,11 +296,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="gzipMinLengthUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="gzipMinLengthUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
@@ -333,7 +329,7 @@ const handleSave = () => {
         <n-alert type="info">
           {{
             $gettext(
-              'Brotli compression settings. Brotli provides better compression ratio than Gzip.'
+              'Brotli compression settings. Brotli provides better compression ratio than Gzip.',
             )
           }}
         </n-alert>
@@ -353,7 +349,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="brotliMinLengthUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -399,11 +395,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="zstdMinLengthUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="zstdMinLengthUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">

@@ -7,7 +7,7 @@ export default {
   path: '/app',
   component: Layout,
   meta: {
-    order: 1
+    order: 1,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Apps',
         icon: 'mdi:apps',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

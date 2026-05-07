@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'ssh-log'
+  name: 'ssh-log',
 })
 
 import { NTag } from 'naive-ui'
@@ -57,36 +57,38 @@ const columns = [
   {
     title: $gettext('Time'),
     key: 'time',
-    width: 180
+    width: 180,
   },
   {
     title: $gettext('Status'),
     key: 'status',
     width: 120,
     render: (row: SSHLogEntry) => {
-      return h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
-    }
+      return h(NTag, { type: getStatusType(row.status), size: 'small' }, () =>
+        getStatusLabel(row.status),
+      )
+    },
   },
   {
     title: $gettext('User'),
     key: 'user',
-    width: 120
+    width: 120,
   },
   {
     title: $gettext('Source IP'),
     key: 'ip',
-    width: 150
+    width: 150,
   },
   {
     title: $gettext('Port'),
     key: 'port',
-    width: 80
+    width: 80,
   },
   {
     title: $gettext('Auth Method'),
     key: 'method',
-    width: 120
-  }
+    width: 120,
+  },
 ]
 
 const handleRefresh = () => {
@@ -95,8 +97,8 @@ const handleRefresh = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
-    <div class="mb-4 flex gap-4 items-center">
+  <n-flex vertical class="h-full">
+    <n-flex align="center">
       <span>{{ $gettext('Show entries') }}:</span>
       <n-select
         v-model:value="limit"
@@ -104,15 +106,15 @@ const handleRefresh = () => {
           { label: '100', value: 100 },
           { label: '200', value: 200 },
           { label: '500', value: 500 },
-          { label: '1000', value: 1000 }
+          { label: '1000', value: 1000 },
         ]"
-        class="w-100px"
+        class="w-25"
         @update:value="handleRefresh"
       />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>
-    </div>
+    </n-flex>
     <n-data-table
       class="flex-1 min-h-0"
       :columns="columns"
@@ -123,5 +125,5 @@ const handleRefresh = () => {
       :scroll-x="800"
       virtual-scroll
     />
-  </div>
+  </n-flex>
 </template>

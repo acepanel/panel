@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import cert from '@/api/panel/cert'
 import { NButton, NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import cert from '@/api/panel/cert'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 
 const model = ref<any>({
   cert: '',
-  key: ''
+  key: '',
 })
 
 const loading = ref(false)
@@ -59,7 +60,9 @@ const handleSubmit = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{
+        $gettext('Submit')
+      }}</n-button>
     </n-space>
   </n-modal>
 </template>

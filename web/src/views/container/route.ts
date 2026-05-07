@@ -7,7 +7,7 @@ export default {
   path: '/container',
   component: Layout,
   meta: {
-    order: 2
+    order: 2,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Container',
         icon: 'mdi:layers-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

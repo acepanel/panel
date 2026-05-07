@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'project-index'
+  name: 'project-index',
 })
 
 import CreateModal from '@/views/project/CreateModal.vue'
@@ -15,8 +15,8 @@ const editId = ref(0)
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="all" :tab="$gettext('All')" />
         <n-tab name="general" :tab="$gettext('General')" />
@@ -36,5 +36,5 @@ const editId = ref(0)
     />
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
     <edit-modal v-model:show="editModal" v-model:editId="editId" />
-  </common-page>
+  </PageContainer>
 </template>

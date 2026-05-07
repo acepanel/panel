@@ -3,7 +3,7 @@ import { renderIcon } from '@/utils'
 
 const props = withDefaults(defineProps<Props>(), {
   size: 14,
-  color: undefined
+  color: undefined,
 })
 
 interface Props {

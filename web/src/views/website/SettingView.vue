@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import website from '@/api/panel/website'
-import home from '@/api/panel/home'
 import { useGettext } from 'vue3-gettext'
+
+import home from '@/api/panel/home'
+import website from '@/api/panel/website'
 
 const { $gettext } = useGettext()
 
@@ -13,8 +14,8 @@ const { data: model } = useRequest(website.defaultConfig, {
     index: '',
     stop: '',
     not_found: '',
-    tls_versions: ['TLSv1.2', 'TLSv1.3']
-  }
+    tls_versions: ['TLSv1.2', 'TLSv1.3'],
+  },
 })
 
 // 判断 webserver 类型
@@ -30,7 +31,7 @@ const statSetting = ref({
   uv_max_keys: 1000000,
   ip_max_keys: 500000,
   detail_max_keys: 100000,
-  body_enabled: true
+  body_enabled: true,
 })
 const statSaveLoading = ref(false)
 
@@ -67,7 +68,12 @@ const handleSaveStatSetting = () => {
       <n-flex vertical>
         <common-editor v-model:value="model.index" height="60vh" />
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -77,7 +83,12 @@ const handleSaveStatSetting = () => {
       <n-flex>
         <common-editor v-model:value="model.stop" height="60vh" />
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -87,7 +98,12 @@ const handleSaveStatSetting = () => {
       <n-flex>
         <common-editor v-model:value="model.not_found" height="60vh" />
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-flex>
@@ -101,14 +117,14 @@ const handleSaveStatSetting = () => {
         <n-alert type="info">
           {{
             $gettext(
-              'Modifying the default TLS version will affect all newly created websites. Existing websites will not be affected.'
+              'Modifying the default TLS version will affect all newly created websites. Existing websites will not be affected.',
             )
           }}
         </n-alert>
         <n-alert type="warning">
           {{
             $gettext(
-              'Please adjust the settings carefully, improper configuration may lead to website inaccessible.'
+              'Please adjust the settings carefully, improper configuration may lead to website inaccessible.',
             )
           }}
         </n-alert>
@@ -120,12 +136,17 @@ const handleSaveStatSetting = () => {
                 { label: 'TLS 1.0', value: 'TLSv1' },
                 { label: 'TLS 1.1', value: 'TLSv1.1' },
                 { label: 'TLS 1.2', value: 'TLSv1.2' },
-                { label: 'TLS 1.3', value: 'TLSv1.3' }
+                { label: 'TLS 1.3', value: 'TLSv1.3' },
               ]"
               multiple
             />
           </n-form-item>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-form>
@@ -134,16 +155,15 @@ const handleSaveStatSetting = () => {
     <n-tab-pane v-if="isNginx" name="stat-setting" :tab="$gettext('Statistics')">
       <n-flex vertical>
         <n-alert type="info">
-          {{ $gettext('Modifications to the limits below will take effect after restarting the panel.') }}
+          {{
+            $gettext(
+              'Modifications to the limits below will take effect after restarting the panel.',
+            )
+          }}
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Data Retention Days')">
-            <n-input-number
-              v-model:value="statSetting.days"
-              :min="1"
-              :max="365"
-              style="width: 200px"
-            />
+            <n-input-number v-model:value="statSetting.days" :min="1" :max="365" class="w-50" />
           </n-form-item>
           <n-form-item :label="$gettext('Error Buffer Max Size')">
             <n-input-number
@@ -151,7 +171,7 @@ const handleSaveStatSetting = () => {
               :min="100"
               :max="1000000"
               :step="1000"
-              style="width: 200px"
+              class="w-50"
             />
           </n-form-item>
           <n-form-item :label="$gettext('UV Max Keys')">
@@ -160,7 +180,7 @@ const handleSaveStatSetting = () => {
               :min="1000"
               :max="100000000"
               :step="100000"
-              style="width: 200px"
+              class="w-50"
             />
           </n-form-item>
           <n-form-item :label="$gettext('IP Max Keys')">
@@ -169,7 +189,7 @@ const handleSaveStatSetting = () => {
               :min="1000"
               :max="100000000"
               :step="100000"
-              style="width: 200px"
+              class="w-50"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Detail Max Keys')">
@@ -178,7 +198,7 @@ const handleSaveStatSetting = () => {
               :min="1000"
               :max="100000000"
               :step="10000"
-              style="width: 200px"
+              class="w-50"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Record Request Body')">

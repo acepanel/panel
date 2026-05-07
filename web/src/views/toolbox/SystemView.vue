@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-system'
+  name: 'toolbox-system',
 })
 
 import { DateTime } from 'luxon'
@@ -91,7 +91,7 @@ const handleUpdateHost = () => {
   hostLoading.value = true
   Promise.all([
     useRequest(system.updateHostname(hostname.value)),
-    useRequest(system.updateHosts(hosts.value))
+    useRequest(system.updateHosts(hosts.value)),
   ])
     .then(() => {
       window.$message.success($gettext('Saved successfully'))
@@ -105,7 +105,7 @@ const handleUpdateTime = () => {
   timeLoading.value = true
   Promise.all([
     useRequest(system.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
-    useRequest(system.updateTimezone(timezone.value))
+    useRequest(system.updateTimezone(timezone.value)),
   ])
     .then(() => {
       window.$message.success($gettext('Saved successfully'))
@@ -170,7 +170,7 @@ const handleSaveNtpServers = () => {
         <n-alert type="info">
           {{
             $gettext('Current DNS manager: %{ manager }', {
-              manager: dnsManager
+              manager: dnsManager,
             })
           }}
         </n-alert>
@@ -186,7 +186,12 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="dnsLoading" :disabled="dnsLoading" @click="handleUpdateDNS">
+          <n-button
+            type="primary"
+            :loading="dnsLoading"
+            :disabled="dnsLoading"
+            @click="handleUpdateDNS"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -199,7 +204,7 @@ const handleSaveNtpServers = () => {
             $gettext('System total %{ total }, used %{ used }, free %{ free }', {
               total: swapTotal,
               used: swapUsed,
-              free: swapFree
+              free: swapFree,
             })
           }}
         </n-alert>
@@ -210,7 +215,12 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="swapLoading" :disabled="swapLoading" @click="handleUpdateSwap">
+          <n-button
+            type="primary"
+            :loading="swapLoading"
+            :disabled="swapLoading"
+            @click="handleUpdateSwap"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -228,7 +238,12 @@ const handleSaveNtpServers = () => {
           <common-editor v-model:value="hosts" height="60vh" />
         </n-form-item>
       </n-form>
-      <n-button type="primary" :loading="hostLoading" :disabled="hostLoading" @click="handleUpdateHost">
+      <n-button
+        type="primary"
+        :loading="hostLoading"
+        :disabled="hostLoading"
+        @click="handleUpdateHost"
+      >
         {{ $gettext('Save') }}
       </n-button>
     </n-tab-pane>
@@ -237,7 +252,7 @@ const handleSaveNtpServers = () => {
         <n-alert type="info">
           {{
             $gettext(
-              'After manually changing the time, it may still be overwritten by system automatic time synchronization.'
+              'After manually changing the time, it may still be overwritten by system automatic time synchronization.',
             )
           }}
         </n-alert>
@@ -266,10 +281,20 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="timeLoading" :disabled="timeLoading" @click="handleUpdateTime">
+          <n-button
+            type="primary"
+            :loading="timeLoading"
+            :disabled="timeLoading"
+            @click="handleUpdateTime"
+          >
             {{ $gettext('Save') }}
           </n-button>
-          <n-button type="info" :loading="syncTimeLoading" :disabled="syncTimeLoading" @click="handleSyncTime">
+          <n-button
+            type="info"
+            :loading="syncTimeLoading"
+            :disabled="syncTimeLoading"
+            @click="handleSyncTime"
+          >
             {{ $gettext('Synchronize Time') }}
           </n-button>
         </n-flex>
@@ -291,7 +316,7 @@ const handleSaveNtpServers = () => {
       <n-alert v-if="ntpServiceType === 'unknown'" type="warning">
         {{
           $gettext(
-            'Unable to detect NTP service. Please ensure chrony or systemd-timesyncd is installed.'
+            'Unable to detect NTP service. Please ensure chrony or systemd-timesyncd is installed.',
           )
         }}
       </n-alert>
@@ -300,8 +325,8 @@ const handleSaveNtpServers = () => {
           $gettext(
             'Current NTP service: %{ service }. Changes will be applied to system configuration.',
             {
-              service: ntpServiceType === 'chrony' ? 'Chrony' : 'systemd-timesyncd'
-            }
+              service: ntpServiceType === 'chrony' ? 'Chrony' : 'systemd-timesyncd',
+            },
           )
         }}
       </n-alert>
@@ -338,7 +363,12 @@ const handleSaveNtpServers = () => {
             {{ $gettext('Reset to Default') }}
           </n-button>
         </n-flex>
-        <n-button type="primary" :loading="ntpLoading" :disabled="ntpLoading" @click="handleSaveNtpServers">
+        <n-button
+          type="primary"
+          :loading="ntpLoading"
+          :disabled="ntpLoading"
+          @click="handleSaveNtpServers"
+        >
           {{ $gettext('Save') }}
         </n-button>
       </n-flex>

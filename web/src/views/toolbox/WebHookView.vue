@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import copy2clipboard from '@vavt/copy2clipboard'
+import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import webhook from '@/api/panel/webhook'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
-import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 // 创建弹窗
 const createModal = ref(false)
@@ -15,7 +17,7 @@ const createModel = ref({
   name: '',
   script: '#!/bin/bash\n\n',
   raw: false,
-  user: 'root'
+  user: 'root',
 })
 
 // 编辑弹窗
@@ -27,7 +29,7 @@ const editModel = ref({
   script: '',
   raw: false,
   user: '',
-  status: true
+  status: true,
 })
 
 const columns: any = [
@@ -36,7 +38,7 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: 'Key',
@@ -49,13 +51,13 @@ const columns: any = [
         NTag,
         {
           type: 'info',
-          bordered: false
+          bordered: false,
         },
         {
-          default: () => row.key
-        }
+          default: () => row.key,
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Run As User'),
@@ -65,7 +67,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.user || 'root'
-    }
+    },
   },
   {
     title: $gettext('Raw Output'),
@@ -77,13 +79,13 @@ const columns: any = [
         NTag,
         {
           type: row.raw ? 'success' : 'default',
-          size: 'small'
+          size: 'small',
         },
         {
-          default: () => (row.raw ? $gettext('Yes') : $gettext('No'))
-        }
+          default: () => (row.raw ? $gettext('Yes') : $gettext('No')),
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Enabled'),
@@ -95,16 +97,16 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.status,
-        onUpdateValue: () => handleStatusChange(row)
+        onUpdateValue: () => handleStatusChange(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Call Count'),
     key: 'call_count',
     width: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Last Call'),
@@ -117,7 +119,7 @@ const columns: any = [
         return '-'
       }
       return formatDateTime(row.last_call_at)
-    }
+    },
   },
   {
     title: $gettext('Creation Time'),
@@ -127,7 +129,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -135,58 +137,43 @@ const columns: any = [
     width: 280,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'info',
             secondary: true,
-            onClick: () => handleCopyUrl(row)
+            onClick: () => handleCopyUrl(row),
           },
-          {
-            default: () => $gettext('Copy URL')
-          }
+          { default: () => $gettext('Copy URL') },
         ),
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 10px;',
-            onClick: () => handleEdit(row)
+            onClick: () => handleEdit(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDelete(row.id)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this WebHook?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this WebHook?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 10px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -195,8 +182,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleStatusChange = (row: any) => {
@@ -206,8 +193,8 @@ const handleStatusChange = (row: any) => {
       script: row.script,
       raw: row.raw,
       user: row.user,
-      status: !row.status
-    })
+      status: !row.status,
+    }),
   ).onSuccess(() => {
     row.status = !row.status
     window.$message.success($gettext('Modified successfully'))
@@ -228,7 +215,7 @@ const handleEdit = (row: any) => {
     script: row.script,
     raw: row.raw,
     user: row.user || 'root',
-    status: row.status
+    status: row.status,
   }
   editModal.value = true
 }
@@ -257,7 +244,7 @@ const handleCreate = () => {
         name: '',
         script: '#!/bin/bash\n\n',
         raw: false,
-        user: 'root'
+        user: 'root',
       }
       window.$message.success($gettext('Created successfully'))
       refresh()
@@ -283,8 +270,8 @@ const handleUpdate = () => {
       script: editModel.value.script,
       raw: editModel.value.raw,
       user: editModel.value.user,
-      status: editModel.value.status
-    })
+      status: editModel.value.status,
+    }),
   )
     .onSuccess(() => {
       editModal.value = false
@@ -309,6 +296,8 @@ onMounted(() => {
       </n-button>
     </n-flex>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1600"
@@ -316,16 +305,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>
@@ -352,7 +338,7 @@ onMounted(() => {
       </n-form-item>
       <n-form-item :label="$gettext('Raw Output')">
         <n-switch v-model:value="createModel.raw" />
-        <span text-gray ml-10>
+        <span class="text-text-tertiary ml-2">
           {{ $gettext('Return script output as raw text instead of JSON') }}
         </span>
       </n-form-item>
@@ -360,7 +346,13 @@ onMounted(() => {
         <common-editor v-model:value="createModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
-    <n-button type="info" :loading="createLoading" :disabled="createLoading" @click="handleCreate" block>
+    <n-button
+      type="info"
+      :loading="createLoading"
+      :disabled="createLoading"
+      @click="handleCreate"
+      block
+    >
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>
@@ -387,7 +379,7 @@ onMounted(() => {
       </n-form-item>
       <n-form-item :label="$gettext('Raw Output')">
         <n-switch v-model:value="editModel.raw" />
-        <span text-gray ml-10>
+        <span class="text-text-tertiary ml-2">
           {{ $gettext('Return script output as raw text instead of JSON') }}
         </span>
       </n-form-item>
@@ -398,7 +390,13 @@ onMounted(() => {
         <common-editor v-model:value="editModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
-    <n-button type="info" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate" block>
+    <n-button
+      type="info"
+      :loading="updateLoading"
+      :disabled="updateLoading"
+      @click="handleUpdate"
+      block
+    >
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>

@@ -8,5 +8,5 @@ export default {
   saveConfigTune: (data: any): any => http.Post('/apps/clickhouse/config_tune', data),
   defaultPassword: (): any => http.Get('/apps/clickhouse/default_password'),
   setDefaultPassword: (password: string): any =>
-    http.Post('/apps/clickhouse/default_password', { password })
+    http.Post('/apps/clickhouse/default_password', { password }),
 }

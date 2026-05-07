@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import cert from '@/api/panel/cert'
 import { NButton, NInput, NSpace, NSwitch, NText } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import cert from '@/api/panel/cert'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -9,8 +10,8 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   dnsProviders: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { dnsProviders } = toRefs(props)
@@ -20,10 +21,10 @@ const model = ref<any>({
     ak: '',
     sk: '',
     dns_server: '8.8.8.8',
-    skip_verify: false
+    skip_verify: false,
   },
   type: 'aliyun',
-  name: ''
+  name: '',
 })
 
 const loading = ref(false)
@@ -189,12 +190,14 @@ const handleCreateDNS = async () => {
         </n-form-item>
         <n-form-item path="skip_verify" :label="$gettext('Skip DNS Verification')">
           <n-switch v-model:value="model.data.skip_verify" />
-          <n-text depth="3" style="margin-left: 8px">
+          <n-text depth="3" class="ml-2">
             {{ $gettext('For intranet environments, will wait 60s instead of polling DNS') }}
           </n-text>
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>
+      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreateDNS">{{
+        $gettext('Submit')
+      }}</n-button>
     </n-space>
   </n-modal>
 </template>

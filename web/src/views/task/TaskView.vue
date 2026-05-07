@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import task from '@/api/panel/task'
 import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const logModal = ref(false)
 const logPath = ref('')
 const logModalRef = ref<{ clear: () => void } | null>(null)
@@ -26,7 +28,7 @@ const columns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Status'),
@@ -41,7 +43,7 @@ const columns: any = [
           : row.status === 'failed'
             ? $gettext('Failed')
             : $gettext('Running')
-    }
+    },
   },
   {
     title: $gettext('Creation Time'),
@@ -50,7 +52,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Completion Time'),
@@ -59,7 +61,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return formatDateTime(row.updated_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -67,53 +69,45 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
-        row.status != 'waiting'
-          ? h(
-              NButton,
-              {
-                size: 'small',
-                type: 'warning',
-                secondary: true,
-                onClick: () => {
-                  logPath.value = row.log
-                  logModal.value = true
-                }
+      const items: any[] = []
+      if (row.status != 'waiting') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'warning',
+              secondary: true,
+              onClick: () => {
+                logPath.value = row.log
+                logModal.value = true
               },
-              {
-                default: () => $gettext('Logs')
-              }
-            )
-          : null,
-        row.status != 'waiting' && row.status != 'running'
-          ? h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleDelete(row.id)
+            },
+            { default: () => $gettext('Logs') },
+          ),
+        )
+      }
+      if (row.status != 'waiting' && row.status != 'running') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              onClick: async () => {
+                const ok = await confirmDelete({
+                  content: $gettext('Are you sure you want to delete?'),
+                })
+                if (ok) handleDelete(row.id)
               },
-              {
-                default: () => {
-                  return $gettext('Are you sure you want to delete?')
-                },
-                trigger: () => {
-                  return h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'error',
-                      style: 'margin-left: 15px;'
-                    },
-                    {
-                      default: () => $gettext('Delete')
-                    }
-                  )
-                }
-              }
-            )
-          : null
-      ]
-    }
-  }
+            },
+            { default: () => $gettext('Delete') },
+          ),
+        )
+      }
+      return h(NFlex, { size: 'small', align: 'center' }, () => items)
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -122,8 +116,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = (id: number) => {
@@ -144,6 +138,8 @@ onMounted(() => {
       $gettext('If logs cannot be loaded, please disable ad blockers!')
     }}</n-alert>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1000"
@@ -151,16 +147,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

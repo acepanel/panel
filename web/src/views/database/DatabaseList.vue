@@ -3,13 +3,14 @@ import { NButton, NInput, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
-import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const props = defineProps<{
   type: string
 }>()
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const hasEncoding = computed(() => ['mysql', 'postgresql'].includes(props.type))
 const hasComment = computed(() => ['postgresql'].includes(props.type))
@@ -21,13 +22,13 @@ const columns: any = computed(() => {
       key: 'name',
       minWidth: 100,
       resizable: true,
-      ellipsis: { tooltip: true }
+      ellipsis: { tooltip: true },
     },
     {
       title: $gettext('Server'),
       key: 'server',
-      width: 150
-    }
+      width: 150,
+    },
   ]
 
   if (hasEncoding.value) {
@@ -37,9 +38,9 @@ const columns: any = computed(() => {
       width: 150,
       render(row: any) {
         return h(NTag, null, {
-          default: () => row.encoding
+          default: () => row.encoding,
         })
-      }
+      },
     })
   }
 
@@ -57,9 +58,9 @@ const columns: any = computed(() => {
           onBlur: () => handleComment(row),
           onUpdateValue(v: string) {
             row.comment = v
-          }
+          },
         })
-      }
+      },
     })
   }
 
@@ -69,33 +70,21 @@ const columns: any = computed(() => {
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          DeleteConfirm,
-          {
-            onPositiveClick: () => handleDelete(row.server_id, row.name)
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete this database?'),
+            })
+            if (ok) handleDelete(row.server_id, row.name)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this database?')
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
+        },
+        { default: () => $gettext('Delete') },
+      )
+    },
   })
 
   return cols
@@ -107,8 +96,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = (serverID: number, name: string) => {
@@ -148,12 +137,11 @@ onUnmounted(() => {
     v-model:pageSize="pageSize"
     :pagination="{
       page: page,
-      pageCount: pageCount,
       pageSize: pageSize,
       itemCount: total,
       showQuickJumper: true,
       showSizePicker: true,
-      pageSizes: [20, 50, 100, 200]
+      pageSizes: [20, 50, 100, 200],
     }"
   />
 </template>

@@ -8,7 +8,7 @@ const { isFullscreen, toggle } = useFullscreen()
 <template>
   <n-tooltip trigger="hover">
     <template #trigger>
-      <n-icon mr-20 cursor-pointer size="20" @click="toggle">
+      <n-icon mr-5 cursor-pointer size="20" @click="toggle">
         <i-mdi-fullscreen-exit v-if="isFullscreen" />
         <i-mdi-fullscreen v-else />
       </n-icon>

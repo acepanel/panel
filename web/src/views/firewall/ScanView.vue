@@ -4,16 +4,18 @@ import { LineChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
+import { NButton } from 'naive-ui'
 import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
-import { NButton, NPopconfirm } from 'naive-ui'
 
 import { codeToName } from '../website/stats/country-name-map'
 
 const { $gettext, $pgettext } = useGettext()
+const { confirmAction } = useConfirm()
 
 use([CanvasRenderer, LineChart, TooltipComponent, LegendComponent, GridComponent])
 
@@ -86,7 +88,7 @@ const loadSummary = () => {
     useRequest(firewall.scanSummary(formatDate(prevStart), formatDate(prevEnd))).onSuccess(
       ({ data }) => {
         prevSummary.value = data
-      }
+      },
     )
   }
 }
@@ -134,8 +136,8 @@ const loadEvents = () => {
       eventsPageSize.value,
       searchIP.value || undefined,
       searchPort.value || undefined,
-      searchLocation.value || undefined
-    )
+      searchLocation.value || undefined,
+    ),
   )
     .onSuccess(({ data }) => {
       events.value = data.items || []
@@ -185,11 +187,11 @@ onMounted(() => {
 // 趋势图表
 const trendOption = computed<EChartsOption>(() => ({
   tooltip: {
-    trigger: 'axis'
+    trigger: 'axis',
   },
   legend: {
     data: [$gettext('Scan Count'), $gettext('Source IPs')],
-    top: 0
+    top: 0,
   },
   grid: {
     left: '3%',
@@ -197,40 +199,40 @@ const trendOption = computed<EChartsOption>(() => ({
     top: '15%',
     bottom: '3%',
     outerBoundsMode: 'same',
-    outerBoundsContain: 'axisLabel'
+    outerBoundsContain: 'axisLabel',
   },
   xAxis: {
     type: 'category',
-    data: trendData.value.map((d: any) => d.date)
+    data: trendData.value.map((d: any) => d.date),
   },
   yAxis: [
     {
       type: 'value',
       name: $gettext('Scan Count'),
-      axisLine: { show: false }
+      axisLine: { show: false },
     },
     {
       type: 'value',
       name: $gettext('Source IPs'),
       splitLine: { lineStyle: { type: 'dashed' } },
-      axisLine: { show: false }
-    }
+      axisLine: { show: false },
+    },
   ],
   series: [
     {
       name: $gettext('Scan Count'),
       type: 'line',
       smooth: true,
-      data: trendData.value.map((d: any) => d.total_count)
+      data: trendData.value.map((d: any) => d.total_count),
     },
     {
       name: $gettext('Source IPs'),
       type: 'line',
       smooth: true,
       yAxisIndex: 1,
-      data: trendData.value.map((d: any) => d.unique_ips)
-    }
-  ]
+      data: trendData.value.map((d: any) => d.unique_ips),
+    },
+  ],
 }))
 
 // 拉黑 IP
@@ -242,8 +244,8 @@ const handleBlock = (ip: string) => {
       protocol: 'tcp/udp',
       address: ip,
       strategy: 'drop',
-      direction: 'in'
-    })
+      direction: 'in',
+    }),
   ).onSuccess(() => {
     window.$message.success($gettext('%{ address } blocked successfully', { address: ip }))
   })
@@ -256,14 +258,21 @@ const blockColumn = {
   width: 100,
   render: (row: any) =>
     h(
-      NPopconfirm,
-      { onPositiveClick: () => handleBlock(row.source_ip) },
+      NButton,
       {
-        default: () => $pgettext('firewall', 'Block %{ ip }?', { ip: row.source_ip }),
-        trigger: () =>
-          h(NButton, { size: 'tiny', type: 'error' }, () => $pgettext('firewall', 'Block'))
-      }
-    )
+        size: 'tiny',
+        type: 'error',
+        onClick: async () => {
+          const ok = await confirmAction({
+            type: 'warning',
+            title: $pgettext('firewall', 'Block IP'),
+            content: $pgettext('firewall', 'Block %{ ip }?', { ip: row.source_ip }),
+          })
+          if (ok) handleBlock(row.source_ip)
+        },
+      },
+      () => $pgettext('firewall', 'Block'),
+    ),
 }
 
 const topIPColumns: any = [
@@ -274,7 +283,7 @@ const topIPColumns: any = [
     minWidth: 120,
     render: (row: any) =>
       [codeToName[row.country] || row.country, row.region, row.city].filter(Boolean).join(' ') ||
-      '-'
+      '-',
   },
   { title: $gettext('Scan Count'), key: 'total_count', width: 120, sorter: 'default' },
   { title: $gettext('Port Count'), key: 'port_count', width: 120 },
@@ -282,16 +291,16 @@ const topIPColumns: any = [
     title: $gettext('Last Seen'),
     key: 'last_seen',
     width: 180,
-    render: (row: any) => formatDateTime(row.last_seen)
+    render: (row: any) => formatDateTime(row.last_seen),
   },
-  blockColumn
+  blockColumn,
 ]
 
 const topPortColumns: any = [
   { title: $gettext('Port'), key: 'port', width: 100 },
   { title: $gettext('Protocol'), key: 'protocol', width: 100 },
   { title: $gettext('Scan Count'), key: 'total_count', width: 120, sorter: 'default' },
-  { title: $gettext('IP Count'), key: 'ip_count', width: 120 }
+  { title: $gettext('IP Count'), key: 'ip_count', width: 120 },
 ]
 
 const eventColumns: any = [
@@ -302,7 +311,7 @@ const eventColumns: any = [
     minWidth: 120,
     render: (row: any) =>
       [codeToName[row.country] || row.country, row.region, row.city].filter(Boolean).join(' ') ||
-      '-'
+      '-',
   },
   { title: $gettext('Port'), key: 'port', width: 100 },
   { title: $gettext('Protocol'), key: 'protocol', width: 100 },
@@ -311,15 +320,15 @@ const eventColumns: any = [
     title: $gettext('First Seen'),
     key: 'first_seen',
     width: 180,
-    render: (row: any) => formatDateTime(row.first_seen)
+    render: (row: any) => formatDateTime(row.first_seen),
   },
   {
     title: $gettext('Last Seen'),
     key: 'last_seen',
     width: 180,
-    render: (row: any) => formatDateTime(row.last_seen)
+    render: (row: any) => formatDateTime(row.last_seen),
   },
-  blockColumn
+  blockColumn,
 ]
 
 const handleClear = () => {
@@ -361,7 +370,7 @@ const handleClear = () => {
           v-model:value="searchIP"
           :placeholder="$gettext('Search IP')"
           clearable
-          style="width: 160px"
+          class="!w-40"
           @clear="loadEvents()"
           @keyup.enter="loadEvents()"
         />
@@ -371,7 +380,7 @@ const handleClear = () => {
           :placeholder="$gettext('Port')"
           clearable
           :show-button="false"
-          style="width: 100px"
+          class="!w-25"
           @clear="loadEvents()"
           @keyup.enter="loadEvents()"
         />
@@ -380,18 +389,21 @@ const handleClear = () => {
           v-model:value="searchLocation"
           :placeholder="$gettext('Location')"
           clearable
-          style="width: 160px"
+          class="!w-40"
           @clear="loadEvents()"
           @keyup.enter="loadEvents()"
         />
-        <n-popconfirm @positive-click="handleClear">
+        <ConfirmDialog
+          type="danger"
+          :content="$gettext('Are you sure you want to clear all scan data?')"
+          @confirm="handleClear"
+        >
           <template #trigger>
             <n-button type="error" ghost>
               {{ $gettext('Clear Data') }}
             </n-button>
           </template>
-          {{ $gettext('Are you sure you want to clear all scan data?') }}
-        </n-popconfirm>
+        </ConfirmDialog>
       </n-flex>
     </div>
 
@@ -474,6 +486,8 @@ const handleClear = () => {
     <template v-if="currentTab === 'events'">
       <n-card :bordered="false">
         <n-data-table
+          v-model:page="eventsPage"
+          v-model:pageSize="eventsPageSize"
           striped
           remote
           :scroll-x="1100"
@@ -481,15 +495,13 @@ const handleClear = () => {
           :columns="eventColumns"
           :data="events"
           :row-key="(row: any) => row.id"
-          v-model:page="eventsPage"
-          v-model:pageSize="eventsPageSize"
           :pagination="{
             page: eventsPage,
             pageSize: eventsPageSize,
             itemCount: eventsTotal,
             showQuickJumper: true,
             showSizePicker: true,
-            pageSizes: [20, 50, 100]
+            pageSizes: [20, 50, 100],
           }"
         />
       </n-card>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'monitor-index'
+  name: 'monitor-index',
 })
 
 import type { EChartsOption } from 'echarts'
@@ -10,7 +10,7 @@ import {
   GridComponent,
   LegendComponent,
   TitleComponent,
-  TooltipComponent
+  TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -28,7 +28,7 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  DataZoomComponent
+  DataZoomComponent,
 ])
 
 // 监控设置
@@ -56,7 +56,7 @@ interface TimeRange {
 // 获取时间范围
 function getTimeRange(
   preset: TimePreset,
-  customRange?: [number, number]
+  customRange?: [number, number],
 ): { start: number; end: number } {
   const now = new Date()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
@@ -104,7 +104,7 @@ initTimeRanges()
 function updateTimeRange(
   key: 'load' | 'cpu' | 'mem' | 'net' | 'diskIO',
   preset: TimePreset,
-  customRange?: [number, number]
+  customRange?: [number, number],
 ) {
   const range = getTimeRange(preset, customRange)
   const newValue = { ...range, preset, customRange: customRange || null }
@@ -219,38 +219,38 @@ const emptyData: MonitorData = {
   swap: { total: '0', used: [], free: [] },
   net: [],
   disk_io: [],
-  top_processes: []
+  top_processes: [],
 }
 
 // 各图表数据
 const { loading: loadLoading, data: loadData } = useWatcher(
   () => monitor.list(loadTime.value.start, loadTime.value.end),
   [loadTime],
-  { initialData: emptyData, debounce: [300], immediate: true }
+  { initialData: emptyData, debounce: [300], immediate: true },
 )
 
 const { loading: cpuLoading, data: cpuData } = useWatcher(
   () => monitor.list(cpuTime.value.start, cpuTime.value.end),
   [cpuTime],
-  { initialData: emptyData, debounce: [300], immediate: true }
+  { initialData: emptyData, debounce: [300], immediate: true },
 )
 
 const { loading: memLoading, data: memData } = useWatcher(
   () => monitor.list(memTime.value.start, memTime.value.end),
   [memTime],
-  { initialData: emptyData, debounce: [300], immediate: true }
+  { initialData: emptyData, debounce: [300], immediate: true },
 )
 
 const { loading: netLoading, data: netData } = useWatcher(
   () => monitor.list(netTime.value.start, netTime.value.end),
   [netTime],
-  { initialData: emptyData, debounce: [300], immediate: true }
+  { initialData: emptyData, debounce: [300], immediate: true },
 )
 
 const { loading: diskIOLoading, data: diskIOData } = useWatcher(
   () => monitor.list(diskIOTime.value.start, diskIOTime.value.end),
   [diskIOTime],
-  { initialData: emptyData, debounce: [300], immediate: true }
+  { initialData: emptyData, debounce: [300], immediate: true },
 )
 
 // 网卡和磁盘筛选
@@ -328,7 +328,7 @@ const procTdStyle = `padding:2px 6px;white-space:nowrap`
 function buildProcessTable(
   procs: ProcessStat[],
   metricHeader: string,
-  formatValue: (v: number) => string
+  formatValue: (v: number) => string,
 ): string {
   if (!procs || procs.length === 0) return ''
   let html = `<table style="${procTableStyle}">`
@@ -379,30 +379,30 @@ function createBaseOption(valueFormatter?: any, timeRangeMs?: number) {
         const dateMatch = datePart.match(/\d{2}-\d{2}$/)
         const shortDate = dateMatch ? dateMatch[0] : datePart
         return `${shortDate}\n${timePart}`
-      }
-    }
+      },
+    },
   }
   return {
     tooltip: {
       trigger: 'axis' as const,
-      valueFormatter: valueFormatter
+      valueFormatter: valueFormatter,
     },
     legend: {
       type: 'scroll' as const,
       left: 20,
-      top: 0
+      top: 0,
     },
     grid: {
       left: 60,
       right: 20,
       top: 50,
-      bottom: 80
+      bottom: 80,
     },
     xAxis: xAxisConfig,
     yAxis: [
       {
-        type: 'value' as const
-      }
+        type: 'value' as const,
+      },
     ],
     dataZoom: {
       type: 'slider' as const,
@@ -410,8 +410,8 @@ function createBaseOption(valueFormatter?: any, timeRangeMs?: number) {
       realtime: true,
       start: 0,
       end: 100,
-      bottom: 10
-    }
+      bottom: 10,
+    },
   }
 }
 
@@ -431,26 +431,26 @@ const loadOption = computed<EChartsOption>(() => {
         markPoint: {
           data: [
             { type: 'max', name: $gettext('Maximum') },
-            { type: 'min', name: $gettext('Minimum') }
-          ]
+            { type: 'min', name: $gettext('Minimum') },
+          ],
         },
         markLine: {
-          data: [{ type: 'average', name: $gettext('Average') }]
-        }
+          data: [{ type: 'average', name: $gettext('Average') }],
+        },
       },
       {
         name: $gettext('5 minutes'),
         type: 'line',
         smooth: true,
-        data: loadData.value?.load?.load5 || []
+        data: loadData.value?.load?.load5 || [],
       },
       {
         name: $gettext('15 minutes'),
         type: 'line',
         smooth: true,
-        data: loadData.value?.load?.load15 || []
-      }
-    ]
+        data: loadData.value?.load?.load15 || [],
+      },
+    ],
   }
 })
 
@@ -474,7 +474,7 @@ const cpuOption = computed<EChartsOption>(() => {
         html += buildProcessTable(procs, 'CPU%', (v) => `${v.toFixed(1)}%`)
         html += `</div>`
         return html
-      }
+      },
     },
     xAxis: { ...base.xAxis, data: cpuData.value?.times || [] },
     yAxis: [
@@ -484,9 +484,9 @@ const cpuOption = computed<EChartsOption>(() => {
         min: 0,
         max: 100,
         axisLabel: {
-          formatter: '{value}%'
-        }
-      }
+          formatter: '{value}%',
+        },
+      },
     ],
     series: [
       {
@@ -494,20 +494,20 @@ const cpuOption = computed<EChartsOption>(() => {
         type: 'line',
         smooth: true,
         areaStyle: {
-          opacity: 0.3
+          opacity: 0.3,
         },
         data: cpuData.value?.cpu?.percent || [],
         markPoint: {
           data: [
             { type: 'max', name: $gettext('Maximum') },
-            { type: 'min', name: $gettext('Minimum') }
-          ]
+            { type: 'min', name: $gettext('Minimum') },
+          ],
         },
         markLine: {
-          data: [{ type: 'average', name: $gettext('Average') }]
-        }
-      }
-    ]
+          data: [{ type: 'average', name: $gettext('Average') }],
+        },
+      },
+    ],
   }
 })
 
@@ -532,11 +532,11 @@ const memOption = computed<EChartsOption>(() => {
         html += buildProcessTable(procs, $gettext('Memory'), (v) => formatBytes(v))
         html += `</div>`
         return html
-      }
+      },
     },
     legend: {
       ...base.legend,
-      data: [$gettext('Memory'), 'Swap']
+      data: [$gettext('Memory'), 'Swap'],
     },
     xAxis: { ...base.xAxis, data: memData.value?.times || [] },
     yAxis: [
@@ -546,9 +546,9 @@ const memOption = computed<EChartsOption>(() => {
         min: 0,
         max: total > 0 ? total : undefined,
         axisLabel: {
-          formatter: '{value} M'
-        }
-      }
+          formatter: '{value} M',
+        },
+      },
     ],
     series: [
       {
@@ -556,26 +556,26 @@ const memOption = computed<EChartsOption>(() => {
         type: 'line',
         smooth: true,
         areaStyle: {
-          opacity: 0.3
+          opacity: 0.3,
         },
         data: memData.value?.mem?.used || [],
         markPoint: {
           data: [
             { type: 'max', name: $gettext('Maximum') },
-            { type: 'min', name: $gettext('Minimum') }
-          ]
+            { type: 'min', name: $gettext('Minimum') },
+          ],
         },
         markLine: {
-          data: [{ type: 'average', name: $gettext('Average') }]
-        }
+          data: [{ type: 'average', name: $gettext('Average') }],
+        },
       },
       {
         name: 'Swap',
         type: 'line',
         smooth: true,
-        data: memData.value?.swap?.used || []
-      }
-    ]
+        data: memData.value?.swap?.used || [],
+      },
+    ],
   }
 })
 
@@ -587,7 +587,7 @@ const netOption = computed<EChartsOption>(() => {
   // 根据选中的网卡筛选数据
   const devices =
     netData.value?.net?.filter((d: { name: string }) =>
-      selectedNetDevices.value.includes(d.name)
+      selectedNetDevices.value.includes(d.name),
     ) || []
 
   const series: any[] = []
@@ -596,13 +596,13 @@ const netOption = computed<EChartsOption>(() => {
       name: `${device.name} ${$gettext('Upload')}`,
       type: 'line',
       smooth: true,
-      data: device.tx
+      data: device.tx,
     })
     series.push({
       name: `${device.name} ${$gettext('Download')}`,
       type: 'line',
       smooth: true,
-      data: device.rx
+      data: device.rx,
     })
   })
 
@@ -614,11 +614,11 @@ const netOption = computed<EChartsOption>(() => {
         type: 'value',
         name: 'KB/s',
         axisLabel: {
-          formatter: '{value}'
-        }
-      }
+          formatter: '{value}',
+        },
+      },
     ],
-    series
+    series,
   }
 })
 
@@ -630,7 +630,7 @@ const diskIOOption = computed<EChartsOption>(() => {
   // 根据选中的磁盘筛选数据
   const disks =
     diskIOData.value?.disk_io?.filter((d: { name: string }) =>
-      selectedDisks.value.includes(d.name)
+      selectedDisks.value.includes(d.name),
     ) || []
 
   const series: any[] = []
@@ -640,18 +640,18 @@ const diskIOOption = computed<EChartsOption>(() => {
       type: 'line',
       smooth: true,
       areaStyle: {
-        opacity: 0.3
+        opacity: 0.3,
       },
-      data: disk.read_speed
+      data: disk.read_speed,
     })
     series.push({
       name: `${disk.name} ${$gettext('Write')}`,
       type: 'line',
       smooth: true,
       areaStyle: {
-        opacity: 0.3
+        opacity: 0.3,
       },
-      data: disk.write_speed
+      data: disk.write_speed,
     })
   })
 
@@ -671,7 +671,7 @@ const diskIOOption = computed<EChartsOption>(() => {
         html += buildDiskIOProcessTable(procs)
         html += `</div>`
         return html
-      }
+      },
     },
     xAxis: { ...base.xAxis, data: diskIOData.value?.times || [] },
     yAxis: [
@@ -679,11 +679,11 @@ const diskIOOption = computed<EChartsOption>(() => {
         type: 'value',
         name: 'KB/s',
         axisLabel: {
-          formatter: '{value}'
-        }
-      }
+          formatter: '{value}',
+        },
+      },
     ],
-    series
+    series,
   }
 })
 
@@ -707,40 +707,48 @@ const handleClear = async () => {
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
-      <div class="py-4 flex flex-wrap gap-8 items-center justify-between">
-        <div class="flex flex-wrap gap-6 items-center">
-          <div class="flex gap-10 items-center">
+  <PageContainer :show-footer="true">
+    <template #tabs>
+      <div class="py-2 flex flex-wrap gap-3 items-center justify-between">
+        <div class="flex flex-wrap gap-3 items-center">
+          <div class="flex gap-2 items-center">
             {{ $gettext('Enable Monitoring') }}
             <n-switch v-model:value="monitorSwitch" @update-value="handleUpdate" />
           </div>
-          <div class="pl-20 flex gap-10 items-center">
+          <div class="flex gap-2 items-center">
             {{ $gettext('Save Days') }}
             <n-input-number v-model:value="saveDay" :min="1" :max="365">
-              <template #suffix> {{ $gettext('days') }} </template>
+              <template #suffix>{{ $gettext('days') }}</template>
             </n-input-number>
           </div>
-          <div class="pl-20 flex gap-10 items-center">
+          <div class="flex gap-2 items-center">
             {{ $gettext('Collection Interval') }}
             <n-input-number v-model:value="monitorInterval" :min="1" :max="120">
-              <template #suffix> {{ $gettext('minutes') }} </template>
+              <template #suffix>{{ $gettext('minutes') }}</template>
             </n-input-number>
           </div>
-          <div>
-            <n-button type="primary" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate">{{ $gettext('Confirm') }}</n-button>
-          </div>
+          <n-button
+            type="primary"
+            :loading="updateLoading"
+            :disabled="updateLoading"
+            @click="handleUpdate"
+          >
+            {{ $gettext('Confirm') }}
+          </n-button>
         </div>
 
-        <div class="flex gap-10 items-center">
-          <n-popconfirm @positive-click="handleClear">
+        <div class="flex gap-2 items-center">
+          <ConfirmDialog
+            type="danger"
+            :content="$gettext('Are you sure you want to clear?')"
+            @confirm="handleClear"
+          >
             <template #trigger>
               <n-button type="error">
                 {{ $gettext('Clear Monitoring Records') }}
               </n-button>
             </template>
-            {{ $gettext('Are you sure you want to clear?') }}
-          </n-popconfirm>
+          </ConfirmDialog>
         </div>
       </div>
     </template>
@@ -957,7 +965,7 @@ const handleClear = async () => {
               <n-checkbox-group
                 v-if="availableDisks.length > 0"
                 v-model:value="selectedDisks"
-                class="flex flex-wrap gap-x-4 gap-y-1"
+                class="flex flex-wrap gap-x-1 gap-y-1"
               >
                 <n-checkbox
                   v-for="disk in availableDisks"
@@ -1024,7 +1032,7 @@ const handleClear = async () => {
               <n-checkbox-group
                 v-if="availableNetDevices.length > 0"
                 v-model:value="selectedNetDevices"
-                class="flex flex-wrap gap-x-4 gap-y-1"
+                class="flex flex-wrap gap-x-1 gap-y-1"
               >
                 <n-checkbox
                   v-for="device in availableNetDevices"
@@ -1042,7 +1050,7 @@ const handleClear = async () => {
         </n-card>
       </div>
     </div>
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss"></style>

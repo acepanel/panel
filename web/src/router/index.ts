@@ -1,7 +1,9 @@
-import { usePermissionStore } from '@/stores'
 import type { App } from 'vue'
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
+
+import { usePermissionStore } from '@/stores'
 import type { RoutesType, RouteType } from '@/types/router'
+
 import { setupRouterGuard } from './guard'
 import { basicRoutes, EMPTY_ROUTE, NOT_FOUND_ROUTE } from './routes'
 
@@ -11,7 +13,7 @@ export const router = createRouter({
     ? createWebHashHistory(import.meta.env.VITE_PUBLIC_PATH || '/')
     : createWebHistory(import.meta.env.VITE_PUBLIC_PATH || '/'),
   routes: basicRoutes,
-  scrollBehavior: () => ({ left: 0, top: 0 })
+  scrollBehavior: () => ({ left: 0, top: 0 }),
 })
 
 export async function setupRouter(app: App) {

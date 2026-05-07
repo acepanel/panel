@@ -75,7 +75,7 @@ const emptyTotals: StatTotals = {
   status_2xx: 0,
   status_3xx: 0,
   status_4xx: 0,
-  status_5xx: 0
+  status_5xx: 0,
 }
 
 const overview = ref<OverviewData>({
@@ -83,21 +83,21 @@ const overview = ref<OverviewData>({
   previous: { ...emptyTotals },
   series: [],
   previous_series: [],
-  sites: []
+  sites: [],
 })
 const loading = ref(false)
 
 const loadOverview = () => {
   loading.value = true
   useRequest(
-    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value)
+    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
   )
     .onSuccess(({ data }: any) => {
       overview.value = data
       // 回填站点选项到父组件
       ctx.siteOptions.value = (data.sites || []).map((s: any) => ({
         label: s.name,
-        value: s.name
+        value: s.name,
       }))
     })
     .onComplete(() => {
@@ -140,7 +140,7 @@ const metrics: Array<{ key: MetricKey; label: string; isBytes?: boolean }> = [
   { key: 'bandwidth', label: $gettext('Bandwidth'), isBytes: true },
   { key: 'requests', label: $gettext('Requests') },
   { key: 'errors', label: $gettext('Errors') },
-  { key: 'spiders', label: $gettext('Spiders') }
+  { key: 'spiders', label: $gettext('Spiders') },
 ]
 
 // ============ 统计卡片 ============
@@ -154,7 +154,7 @@ function formatValue(value: number, isBytes?: boolean): string {
 
 function formatDiff(
   current: number,
-  previous: number
+  previous: number,
 ): { text: string; type: 'up' | 'down' | 'same' } {
   if (previous === 0) {
     if (current === 0) return { text: '-', type: 'same' }
@@ -198,8 +198,8 @@ const chartOption = computed<EChartsOption>(() => {
       symbol: 'none',
       areaStyle: { opacity: 0.15 },
       lineStyle: { width: 2 },
-      data: currentData
-    }
+      data: currentData,
+    },
   ]
 
   if (showPrevious.value && previousData.length > 0) {
@@ -210,7 +210,7 @@ const chartOption = computed<EChartsOption>(() => {
       symbol: 'none',
       lineStyle: { width: 1.5, type: 'dashed' },
       areaStyle: { opacity: 0.05 },
-      data: previousData
+      data: previousData,
     })
   }
 
@@ -226,7 +226,7 @@ const chartOption = computed<EChartsOption>(() => {
         }
         html += '</div>'
         return html
-      }
+      },
     },
     legend: { top: 0, right: 0 },
     grid: { left: 60, right: 20, top: 40, bottom: 30 },
@@ -240,15 +240,15 @@ const chartOption = computed<EChartsOption>(() => {
               const hour = parseInt(value.split(':')[0] || '0', 10)
               return hour % 3 === 0
             }
-          : 'auto'
-      }
+          : 'auto',
+      },
     },
     yAxis: {
       type: 'value',
       axisLabel: { formatter: isBytes ? (v: number) => formatBytes(v) : undefined },
-      splitLine: { lineStyle: { type: 'dashed' } }
+      splitLine: { lineStyle: { type: 'dashed' } },
     },
-    series: chartSeries
+    series: chartSeries,
   }
 })
 
@@ -293,7 +293,7 @@ const perfChartOption = computed<EChartsOption>(() => {
         }
         html += '</div>'
         return html
-      }
+      },
     },
     legend: {
       top: 0,
@@ -301,7 +301,7 @@ const perfChartOption = computed<EChartsOption>(() => {
       formatter: (name: string) => {
         if (name === 'QPS') return `QPS: ${lastQps}`
         return `${$gettext('Avg Response Time')}: ${lastRt}ms`
-      }
+      },
     },
     grid: { left: 50, right: 50, top: 50, bottom: 30 },
     xAxis: {
@@ -314,20 +314,20 @@ const perfChartOption = computed<EChartsOption>(() => {
               const hour = parseInt(value.split(':')[0] || '0', 10)
               return hour % 3 === 0
             }
-          : 'auto'
-      }
+          : 'auto',
+      },
     },
     yAxis: [
       {
         type: 'value',
         name: 'QPS',
-        splitLine: { lineStyle: { type: 'dashed' } }
+        splitLine: { lineStyle: { type: 'dashed' } },
       },
       {
         type: 'value',
         name: 'ms',
-        splitLine: { show: false }
-      }
+        splitLine: { show: false },
+      },
     ],
     series: [
       {
@@ -338,7 +338,7 @@ const perfChartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.15 },
         lineStyle: { width: 2 },
         itemStyle: { color: '#18a058' },
-        data: qpsData
+        data: qpsData,
       },
       {
         name: $gettext('Avg Response Time'),
@@ -349,9 +349,9 @@ const perfChartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.1 },
         lineStyle: { width: 2 },
         itemStyle: { color: '#2080f0' },
-        data: avgRtData
-      }
-    ]
+        data: avgRtData,
+      },
+    ],
   }
 })
 
@@ -379,7 +379,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         }
         html += '</div>'
         return html
-      }
+      },
     },
     legend: {
       top: 0,
@@ -388,7 +388,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         if (name === $gettext('Outbound'))
           return `${$gettext('Outbound')}: ${formatBytes(totalOut)}`
         return `${$gettext('Inbound')}: ${formatBytes(totalIn)}`
-      }
+      },
     },
     grid: { left: 60, right: 20, top: 50, bottom: 30 },
     xAxis: {
@@ -401,13 +401,13 @@ const trafficChartOption = computed<EChartsOption>(() => {
               const hour = parseInt(value.split(':')[0] || '0', 10)
               return hour % 3 === 0
             }
-          : 'auto'
-      }
+          : 'auto',
+      },
     },
     yAxis: {
       type: 'value',
       axisLabel: { formatter: (v: number) => formatBytes(v) },
-      splitLine: { lineStyle: { type: 'dashed' } }
+      splitLine: { lineStyle: { type: 'dashed' } },
     },
     series: [
       {
@@ -418,7 +418,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.15 },
         lineStyle: { width: 2 },
         itemStyle: { color: '#18a058' },
-        data: outData
+        data: outData,
       },
       {
         name: $gettext('Inbound'),
@@ -428,9 +428,9 @@ const trafficChartOption = computed<EChartsOption>(() => {
         areaStyle: { opacity: 0.1 },
         lineStyle: { width: 2 },
         itemStyle: { color: '#2080f0' },
-        data: inData
-      }
-    ]
+        data: inData,
+      },
+    ],
   }
 })
 </script>
@@ -439,14 +439,14 @@ const trafficChartOption = computed<EChartsOption>(() => {
   <n-flex vertical :size="20">
     <!-- 统计卡片 -->
     <n-spin :show="loading">
-      <div class="gap-12 grid grid-cols-3 lg:grid-cols-10 sm:grid-cols-5">
+      <div class="gap-3 grid grid-cols-3 lg:grid-cols-10 sm:grid-cols-5">
         <n-card v-for="m in metrics" :key="m.key" :bordered="false" size="small">
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
             <span class="text-12px text-[var(--text-color-3)]">{{ m.label }}</span>
             <span class="text-20px font-bold">{{
               formatValue(overview.current[m.key] || 0, m.isBytes)
             }}</span>
-            <div class="text-12px flex gap-4 items-center">
+            <div class="text-12px flex gap-1 items-center">
               <span
                 :class="{
                   'text-[var(--success-color)]':
@@ -457,7 +457,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
                     'down',
                   'text-[var(--text-color-3)]':
                     formatDiff(overview.current[m.key] || 0, overview.previous[m.key] || 0).type ===
-                    'same'
+                    'same',
                 }"
               >
                 {{ formatDiff(overview.current[m.key] || 0, overview.previous[m.key] || 0).text }}
@@ -467,7 +467,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
           </div>
         </n-card>
         <n-card :bordered="false" size="small">
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
             <span class="text-12px text-[var(--text-color-3)]">
               {{ $gettext('Outbound') }}
             </span>
@@ -475,7 +475,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
           </div>
         </n-card>
         <n-card :bordered="false" size="small">
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
             <span class="text-12px text-[var(--text-color-3)]">
               {{ $gettext('Inbound') }}
             </span>
@@ -483,7 +483,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
           </div>
         </n-card>
         <n-card :bordered="false" size="small">
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
             <span class="text-12px text-[var(--text-color-3)]">RPS</span>
             <span class="text-20px font-bold">{{ realtime.rps.toFixed(1) }}</span>
           </div>
@@ -494,7 +494,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
     <!-- 趋势图 -->
     <n-card :bordered="false">
       <template #header>
-        <div class="flex flex-wrap gap-8 items-center justify-between">
+        <div class="flex flex-wrap gap-2 items-center justify-between">
           <n-radio-group v-model:value="activeMetric" size="small">
             <n-radio-button v-for="m in metrics" :key="m.key" :value="m.key">
               {{ m.label }}

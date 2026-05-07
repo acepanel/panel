@@ -7,5 +7,5 @@ export default {
   // 添加
   add: (data: any): any => http.Post('/apps/s3fs/mounts', data),
   // 删除
-  delete: (id: number): any => http.Delete('/apps/s3fs/mounts', { id })
+  delete: (id: number): any => http.Delete('/apps/s3fs/mounts', { id }),
 }

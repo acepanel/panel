@@ -11,5 +11,5 @@ export default {
   // 更新项目
   update: (id: number, data: any): any => http.Put(`/project/${id}`, data),
   // 删除项目
-  delete: (id: number): any => http.Delete(`/project/${id}`)
+  delete: (id: number): any => http.Delete(`/project/${id}`),
 }

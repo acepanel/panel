@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'pureftpd-config-tune'
+  name: 'pureftpd-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -22,7 +22,7 @@ const saveLoading = ref(false)
 
 const yesNoOptions = [
   { label: 'yes', value: 'yes' },
-  { label: 'no', value: 'no' }
+  { label: 'no', value: 'no' },
 ]
 
 useRequest(pureftpd.configTune()).onSuccess(({ data }: any) => {
@@ -47,8 +47,8 @@ const handleSave = () => {
       passive_port_range: passivePortRange.value,
       anonymous_only: anonymousOnly.value ?? '',
       no_anonymous: noAnonymous.value ?? '',
-      max_disk_usage: String(maxDiskUsage.value ?? '')
-    })
+      max_disk_usage: String(maxDiskUsage.value ?? ''),
+    }),
   )
     .onSuccess(() => {
       window.$message.success($gettext('Saved successfully'))
@@ -66,16 +66,36 @@ const handleSave = () => {
     </n-alert>
     <n-form>
       <n-form-item :label="$gettext('MaxClientsNumber')">
-        <n-input-number class="w-full" v-model:value="maxClientsNumber" :placeholder="$gettext('e.g. 50')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxClientsNumber"
+          :placeholder="$gettext('e.g. 50')"
+          :min="1"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('MaxClientsPerIP')">
-        <n-input-number class="w-full" v-model:value="maxClientsPerIP" :placeholder="$gettext('e.g. 8')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxClientsPerIP"
+          :placeholder="$gettext('e.g. 8')"
+          :min="1"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('MaxIdleTime (minutes)')">
-        <n-input-number class="w-full" v-model:value="maxIdleTime" :placeholder="$gettext('e.g. 15')" :min="0" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxIdleTime"
+          :placeholder="$gettext('e.g. 15')"
+          :min="0"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('MaxLoad')">
-        <n-input-number class="w-full" v-model:value="maxLoad" :placeholder="$gettext('e.g. 4')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxLoad"
+          :placeholder="$gettext('e.g. 4')"
+          :min="1"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('PassivePortRange (start end)')">
         <n-input v-model:value="passivePortRange" :placeholder="$gettext('e.g. 39000 40000')" />
@@ -87,7 +107,13 @@ const handleSave = () => {
         <n-select v-model:value="noAnonymous" :options="yesNoOptions" clearable />
       </n-form-item>
       <n-form-item :label="$gettext('MaxDiskUsage (%)')">
-        <n-input-number class="w-full" v-model:value="maxDiskUsage" :placeholder="$gettext('e.g. 99')" :min="1" :max="100" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxDiskUsage"
+          :placeholder="$gettext('e.g. 99')"
+          :min="1"
+          :max="100"
+        />
       </n-form-item>
     </n-form>
     <n-flex>

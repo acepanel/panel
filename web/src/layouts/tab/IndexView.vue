@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { useThemeVars } from 'naive-ui'
+
 import { translateTitle } from '@/locales/menu'
 import type { TabItem } from '@/stores'
 import { useTabStore } from '@/stores'
-import { useThemeVars } from 'naive-ui'
+
 import ContextMenu from './components/ContextMenu.vue'
 
 const themeVars = useThemeVars()
@@ -22,7 +24,7 @@ const contextMenuOption = reactive<ContextMenuOption>({
   keepAlive: false,
   x: 0,
   y: 0,
-  currentPath: ''
+  currentPath: '',
 })
 
 function handleTagClick(path: string) {
@@ -33,16 +35,13 @@ function handleTagClick(path: string) {
 function showContextMenu() {
   contextMenuOption.show = true
 }
-
 function hideContextMenu() {
   contextMenuOption.show = false
 }
-
 function setContextMenu(x: number, y: number, keepAlive: boolean, currentPath: string) {
   Object.assign(contextMenuOption, { x, y, keepAlive, currentPath })
 }
 
-// 右击菜单
 async function handleContextMenu(e: MouseEvent, tabItem: TabItem) {
   const { clientX, clientY } = e
   hideContextMenu()

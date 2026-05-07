@@ -9,5 +9,5 @@ export default {
   // 清空监控记录
   clear: (): any => http.Post('/monitor/clear'),
   // 监控记录
-  list: (start: number, end: number): any => http.Get('/monitor/list', { params: { start, end } })
+  list: (start: number, end: number): any => http.Get('/monitor/list', { params: { start, end } }),
 }

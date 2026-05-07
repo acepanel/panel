@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-podman-index'
+  name: 'apps-podman-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -15,11 +15,11 @@ const saveRegistryConfigLoading = ref(false)
 const saveStorageConfigLoading = ref(false)
 
 const { data: registryConfig } = useRequest(podman.registryConfig, {
-  initialData: ''
+  initialData: '',
 })
 
 const { data: storageConfig } = useRequest(podman.storageConfig, {
-  initialData: ''
+  initialData: '',
 })
 
 const handleSaveRegistryConfig = () => {
@@ -46,14 +46,14 @@ const handleSaveStorageConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <n-alert type="info">
             {{
               $gettext(
-                'Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!'
+                'Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!',
               )
             }}
           </n-alert>
@@ -65,13 +65,18 @@ const handleSaveStorageConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Podman registry configuration file (/etc/containers/registries.conf)'
+                'This modifies the Podman registry configuration file (/etc/containers/registries.conf)',
               )
             }}
           </n-alert>
           <common-editor v-model:value="registryConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveRegistryConfigLoading" :disabled="saveRegistryConfigLoading" @click="handleSaveRegistryConfig">
+            <n-button
+              type="primary"
+              :loading="saveRegistryConfigLoading"
+              :disabled="saveRegistryConfigLoading"
+              @click="handleSaveRegistryConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -82,13 +87,18 @@ const handleSaveStorageConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Podman storage configuration file (/etc/containers/storage.conf)'
+                'This modifies the Podman storage configuration file (/etc/containers/storage.conf)',
               )
             }}
           </n-alert>
           <common-editor v-model:value="storageConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveStorageConfigLoading" :disabled="saveStorageConfigLoading" @click="handleSaveStorageConfig">
+            <n-button
+              type="primary"
+              :loading="saveStorageConfigLoading"
+              :disabled="saveStorageConfigLoading"
+              @click="handleSaveStorageConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -98,5 +108,5 @@ const handleSaveStorageConfig = () => {
         <realtime-log service="podman" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

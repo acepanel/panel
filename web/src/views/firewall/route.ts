@@ -7,7 +7,7 @@ export default {
   path: '/firewall',
   component: Layout,
   meta: {
-    order: 40
+    order: 40,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Firewall',
         icon: 'mdi:firewall',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

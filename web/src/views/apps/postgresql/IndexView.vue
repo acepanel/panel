@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-postgresql-index'
+  name: 'apps-postgresql-index',
 })
 
 import copy2clipboard from '@vavt/copy2clipboard'
@@ -11,6 +11,7 @@ import postgresql from '@/api/apps/postgresql'
 import file from '@/api/panel/file'
 import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import PostgresqlConfigTuneView from './PostgresqlConfigTuneView.vue'
 
 const { $gettext } = useGettext()
@@ -24,11 +25,11 @@ const runLogRef = ref<{ clear: () => void } | null>(null)
 const appLogRef = ref<{ clear: () => void } | null>(null)
 
 const { data: postgresPassword } = useRequest(postgresql.postgresPassword, {
-  initialData: ''
+  initialData: '',
 })
 const selectedLog = ref('')
 const { data: logList } = useRequest(postgresql.log, {
-  initialData: []
+  initialData: [],
 }).onSuccess(({ data }) => {
   if (!data?.length) {
     selectedLog.value = ''
@@ -43,14 +44,14 @@ const { data: logList } = useRequest(postgresql.log, {
 const logOptions = computed(() =>
   (logList.value as string[]).map((p) => ({
     label: p.split('/').pop() ?? p,
-    value: p
-  }))
+    value: p,
+  })),
 )
 const { data: config, send: refreshConfig } = useRequest(postgresql.config, {
-  initialData: ''
+  initialData: '',
 })
 const { data: userConfig, send: refreshUserConfig } = useRequest(postgresql.userConfig, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -61,7 +62,7 @@ watch(currentTab, (val) => {
   }
 })
 const { data: load } = useRequest(postgresql.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -70,14 +71,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -146,7 +147,7 @@ const handleCopyPostgresPassword = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -156,7 +157,7 @@ const handleCopyPostgresPassword = () => {
               <n-alert type="info">
                 {{
                   $gettext(
-                    'The "postgres" superuser password is used to manage the database system. Keep it safe!'
+                    'The "postgres" superuser password is used to manage the database system. Keep it safe!',
                   )
                 }}
               </n-alert>
@@ -171,7 +172,12 @@ const handleCopyPostgresPassword = () => {
                     {{ $gettext('Copy') }}
                   </n-button>
                 </n-input-group>
-                <n-button type="primary" :loading="setPostgresPasswordLoading" :disabled="setPostgresPasswordLoading" @click="handleSetPostgresPassword">
+                <n-button
+                  type="primary"
+                  :loading="setPostgresPasswordLoading"
+                  :disabled="setPostgresPasswordLoading"
+                  @click="handleSetPostgresPassword"
+                >
                   {{ $gettext('Save') }}
                 </n-button>
               </n-flex>
@@ -184,13 +190,18 @@ const handleCopyPostgresPassword = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -204,13 +215,18 @@ const handleCopyPostgresPassword = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="userConfig" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveUserConfigLoading" :disabled="saveUserConfigLoading" @click="handleSaveUserConfig">
+            <n-button
+              type="primary"
+              :loading="saveUserConfigLoading"
+              :disabled="saveUserConfigLoading"
+              @click="handleSaveUserConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -229,7 +245,12 @@ const handleCopyPostgresPassword = () => {
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
+            <n-button
+              type="primary"
+              :loading="clearLogLoading"
+              :disabled="clearLogLoading"
+              @click="handleClearLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -239,8 +260,13 @@ const handleCopyPostgresPassword = () => {
       <n-tab-pane name="app-log" :tab="$gettext('Application Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-select v-model:value="selectedLog" :options="logOptions" style="width: 240px" />
-            <n-button type="primary" :loading="clearAppLogLoading" :disabled="clearAppLogLoading || !selectedLog" @click="handleClearAppLog">
+            <n-select v-model:value="selectedLog" :options="logOptions" class="w-60" />
+            <n-button
+              type="primary"
+              :loading="clearAppLogLoading"
+              :disabled="clearAppLogLoading || !selectedLog"
+              @click="handleClearAppLog"
+            >
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
@@ -248,5 +274,5 @@ const handleCopyPostgresPassword = () => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

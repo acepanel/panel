@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-percona-index'
+  name: 'apps-percona-index',
 })
 
 import percona from '@/api/apps/percona'

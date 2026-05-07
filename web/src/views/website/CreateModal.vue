@@ -27,7 +27,7 @@ const effectiveType = computed(() => {
 const typeOptions = computed(() => [
   { label: $gettext('Reverse Proxy'), value: 'proxy' },
   { label: $gettext('PHP'), value: 'php' },
-  { label: $gettext('Pure Static'), value: 'static' }
+  { label: $gettext('Pure Static'), value: 'static' },
 ])
 const createModel = ref({
   type: '',
@@ -43,7 +43,7 @@ const createModel = ref({
   remark: '',
 
   php: null,
-  proxy: ''
+  proxy: '',
 })
 
 const showPathSelector = ref(false)
@@ -55,16 +55,16 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     php: [
       {
         label: $gettext('Not used'),
-        value: 0
-      }
+        value: 0,
+      },
     ],
     db: [
       {
         label: '',
-        value: ''
-      }
-    ]
-  }
+        value: '',
+      },
+    ],
+  },
 })
 
 // 获取模态框标题
@@ -117,7 +117,7 @@ const handleCreate = async () => {
     .onSuccess(() => {
       window.$bus.emit('website:refresh')
       window.$message.success(
-        $gettext('Website %{ name } created successfully', { name: createModel.value.name })
+        $gettext('Website %{ name } created successfully', { name: createModel.value.name }),
       )
       show.value = false
       createModel.value = {
@@ -133,7 +133,7 @@ const handleCreate = async () => {
         path: '',
         remark: '',
         php: null,
-        proxy: ''
+        proxy: '',
       }
     })
     .onComplete(() => {
@@ -191,7 +191,7 @@ watch(showPathSelector, (val) => {
           @keydown.enter.prevent
           :placeholder="
             $gettext(
-              'Must be unique, used for directory naming, database naming, etc., and only supports letters, numbers, hyphens, and underscores'
+              'Must be unique, used for directory naming, database naming, etc., and only supports letters, numbers, hyphens, and underscores',
             )
           "
         />
@@ -310,7 +310,7 @@ watch(showPathSelector, (val) => {
             @keydown.enter.prevent
             :placeholder="
               $gettext(
-                'Website root directory (if left empty, defaults to website directory/website name/public)'
+                'Website root directory (if left empty, defaults to website directory/website name/public)',
               )
             "
           />

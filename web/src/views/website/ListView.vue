@@ -1,13 +1,23 @@
 <script lang="ts" setup>
-import { NButton, NCheckbox, NDataTable, NDatePicker, NFlex, NInput, NPopover, NSwitch, NTag } from 'naive-ui'
+import copy2clipboard from '@vavt/copy2clipboard'
+import {
+  NButton,
+  NCheckbox,
+  NDataTable,
+  NDatePicker,
+  NFlex,
+  NInput,
+  NPopover,
+  NSwitch,
+  NTag,
+} from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
-import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
+import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 import { useFileStore } from '@/stores'
 import { isNullOrUndef } from '@/utils'
-import copy2clipboard from '@vavt/copy2clipboard'
 
 const type = defineModel<string>('type', { type: String, required: true }) // 网站类型
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true }) // 创建网站
@@ -29,7 +39,17 @@ const columns: any = [
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
-      const elements = [h('span', {}, row.name)]
+      const elements = [
+        h(
+          'span',
+          {
+            class: 'cursor-pointer hover:text-brand transition-colors',
+            title: $gettext('Click to edit'),
+            onClick: () => handleEdit(row),
+          },
+          row.name,
+        ),
+      ]
       if (row.domains && row.domains.length > 0) {
         elements.push(
           h(
@@ -44,9 +64,9 @@ const columns: any = [
                     onDblclick: () => {
                       const protocol = row.ssl ? 'https' : 'http'
                       window.open(`${protocol}://${row.domains[0]}`, '_blank')
-                    }
+                    },
                   },
-                  [h(TheIcon, { icon: 'mdi:link-variant', size: 16 })]
+                  [h(TheIcon, { icon: 'mdi:link-variant', size: 16 })],
                 ),
               default: () =>
                 h(
@@ -67,9 +87,9 @@ const columns: any = [
                                 {
                                   href: url,
                                   target: '_blank',
-                                  class: 'hover:underline'
+                                  class: 'hover:underline',
                                 },
-                                url
+                                url,
                               ),
                               h(
                                 'span',
@@ -79,22 +99,22 @@ const columns: any = [
                                     copy2clipboard(url).then(() => {
                                       window.$message.success($gettext('Copied'))
                                     })
-                                  }
+                                  },
                                 },
-                                [h(TheIcon, { icon: 'mdi:content-copy', size: 14 })]
-                              )
-                            ]
-                          }
+                                [h(TheIcon, { icon: 'mdi:content-copy', size: 14 })],
+                              ),
+                            ],
+                          },
                         )
-                      })
-                  }
-                )
-            }
-          )
+                      }),
+                  },
+                ),
+            },
+          ),
         )
       }
       return h(NFlex, { align: 'center', wrap: false }, { default: () => elements })
-    }
+    },
   },
   {
     title: $gettext('Website Type'),
@@ -105,11 +125,11 @@ const columns: any = [
       const typeMap: any = {
         proxy: { label: $gettext('Reverse Proxy'), type: 'warning' },
         php: { label: $gettext('PHP'), type: 'info' },
-        static: { label: $gettext('Pure Static'), type: 'success' }
+        static: { label: $gettext('Pure Static'), type: 'success' },
       }
       const config = typeMap[row.type] || { label: row.type, type: 'default' }
       return h(NTag, { type: config.type }, { default: () => config.label })
-    }
+    },
   },
   {
     title: $gettext('Running'),
@@ -120,9 +140,9 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.status,
-        onUpdateValue: () => handleStatusChange(row)
+        onUpdateValue: () => handleStatusChange(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Directory'),
@@ -138,11 +158,11 @@ const columns: any = [
           onClick: () => {
             if (fileStore.activeTab) fileStore.updateTabPath(fileStore.activeTabId, row.path)
             router.push({ name: 'file-index' })
-          }
+          },
         },
-        { default: () => row.path }
+        { default: () => row.path },
       )
-    }
+    },
   },
   {
     title: 'HTTPS',
@@ -153,9 +173,9 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.ssl,
-        onClick: () => handleEdit(row)
+        onClick: () => handleEdit(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Certificate expiration'),
@@ -167,7 +187,7 @@ const columns: any = [
         {
           type: row.cert_expire == 0 ? 'default' : row.cert_expire > 0 ? 'success' : 'error',
           class: 'cursor-pointer hover:opacity-60',
-          onClick: () => handleEdit(row)
+          onClick: () => handleEdit(row),
         },
         {
           default: () => {
@@ -176,18 +196,18 @@ const columns: any = [
             }
             if (row.cert_expire < 0) {
               return $gettext('Expired %{ days } days ago', {
-                days: Math.abs(row.cert_expire)
+                days: Math.abs(row.cert_expire),
               })
             }
             if (row.cert_expire > 0) {
               return $gettext('Expires in %{ days } days', {
-                days: row.cert_expire
+                days: row.cert_expire,
               })
             }
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Expiration'),
@@ -201,9 +221,9 @@ const columns: any = [
         value: row.expire_at ? new Date(row.expire_at).getTime() : null,
         onUpdateValue: (v: number | null) => {
           handleExpireAt(row, v)
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Remark'),
@@ -218,9 +238,9 @@ const columns: any = [
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -228,32 +248,27 @@ const columns: any = [
     width: 220,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
-            onClick: () => handleEdit(row)
+            onClick: () => handleEdit(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          DeleteConfirm,
+          ConfirmDialog,
           {
-            showIcon: false,
-            onPositiveClick: () => handleDelete(row.id)
+            type: 'delete',
+            onConfirm: () => handleDelete(row.id),
           },
           {
-            default: () => {
-              return h(
+            default: () =>
+              h(
                 NFlex,
-                {
-                  vertical: true
-                },
+                { vertical: true },
                 {
                   default: () => [
                     h(
@@ -262,53 +277,41 @@ const columns: any = [
                       {
                         default: () =>
                           $gettext('Are you sure you want to delete website %{ name }?', {
-                            name: row.name
-                          })
-                      }
+                            name: row.name,
+                          }),
+                      },
                     ),
                     h(
                       NCheckbox,
                       {
                         checked: deleteModel.value.path,
-                        onUpdateChecked: (v) => (deleteModel.value.path = v)
+                        onUpdateChecked: (v) => (deleteModel.value.path = v),
                       },
-                      { default: () => $gettext('Delete website directory') }
+                      { default: () => $gettext('Delete website directory') },
                     ),
                     h(
                       NCheckbox,
                       {
                         checked: deleteModel.value.db,
-                        onUpdateChecked: (v) => (deleteModel.value.db = v)
+                        onUpdateChecked: (v) => (deleteModel.value.db = v),
                       },
-                      { default: () => $gettext('Delete local database with the same name') }
-                    )
-                  ]
-                }
-              )
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
+                      { default: () => $gettext('Delete local database with the same name') },
+                    ),
+                  ],
                 },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+              ),
+            trigger: () =>
+              h(NButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
+          },
+        ),
+      ])
+    },
+  },
 ]
 
 const deleteModel = ref({
   path: true,
-  db: false
+  db: false,
 })
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -317,8 +320,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 // 修改运行状态
@@ -340,7 +343,16 @@ const handleExpireAt = (row: any, timestamp: number | null) => {
   if (isNullOrUndef(row.id)) return
 
   const expireAt = timestamp
-    ? new Date(timestamp).toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace('T', ' ')
+    ? new Date(timestamp)
+        .toLocaleString('sv-SE', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+        .replace('T', ' ')
     : ''
   useRequest(website.updateExpireAt(row.id, expireAt)).onSuccess(() => {
     row.expire_at = timestamp ? new Date(timestamp).toISOString() : null
@@ -395,18 +407,21 @@ onMounted(() => {
       <n-button type="primary" @click="bulkCreateModal = true">
         {{ $gettext('Bulk Create Website') }}
       </n-button>
-      <delete-confirm @positive-click="bulkDelete">
+      <ConfirmDialog
+        type="delete"
+        :content="
+          $gettext(
+            'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?',
+          )
+        "
+        @confirm="bulkDelete"
+      >
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{
-          $gettext(
-            'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?'
-          )
-        }}
-      </delete-confirm>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
       striped
@@ -421,12 +436,11 @@ onMounted(() => {
       v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

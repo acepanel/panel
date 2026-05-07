@@ -12,5 +12,5 @@ export interface NetworkListParams {
 }
 
 export default {
-  list: (params: NetworkListParams) => http.Get('/toolbox_network/list', { params })
+  list: (params: NetworkListParams) => http.Get('/toolbox_network/list', { params }),
 }

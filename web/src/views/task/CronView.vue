@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { decodeBase64, formatDateTime } from '@/utils'
 import CreateModal from '@/views/task/CreateModal.vue'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const logPath = ref('')
 const logModal = ref(false)
 const logModalRef = ref<{ clear: () => void } | null>(null)
@@ -35,7 +37,7 @@ const shellEditTask = ref({
   type: 'shell',
   flock: false,
   time: '',
-  script: ''
+  script: '',
 })
 
 // backup/cutoff 类型编辑数据
@@ -49,7 +51,7 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Task Type'),
@@ -64,11 +66,11 @@ const columns: any = [
         shell: { type: 'warning', label: $gettext('Run Script') },
         backup: { type: 'success', label: $gettext('Backup Data') },
         url: { type: 'default', label: $gettext('Access URL') },
-        synctime: { type: 'primary', label: $gettext('Sync Time') }
+        synctime: { type: 'primary', label: $gettext('Sync Time') },
       }
       const info = typeMap[row.type] || { type: 'info' as const, label: $gettext('Log Rotation') }
       return h(NTag, { type: info.type }, { default: () => info.label })
-    }
+    },
   },
   {
     title: $gettext('Enabled'),
@@ -80,9 +82,9 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.status,
-        onUpdateValue: () => handleStatusChange(row)
+        onUpdateValue: () => handleStatusChange(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Task Schedule'),
@@ -92,7 +94,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return h(CronPreview, { cron: row.time })
-    }
+    },
   },
   {
     title: $gettext('Creation Time'),
@@ -102,7 +104,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Last Update Time'),
@@ -111,7 +113,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return formatDateTime(row.updated_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -119,18 +121,16 @@ const columns: any = [
     width: 350,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'success',
             secondary: true,
-            onClick: () => handleRun(row)
+            onClick: () => handleRun(row),
           },
-          {
-            default: () => $gettext('Run')
-          }
+          { default: () => $gettext('Run') },
         ),
         h(
           NButton,
@@ -138,55 +138,39 @@ const columns: any = [
             size: 'small',
             type: 'warning',
             secondary: true,
-            style: 'margin-left: 15px;',
             onClick: () => {
               logPath.value = row.log
               logModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Logs')
-          }
+          { default: () => $gettext('Logs') },
         ),
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
-            onClick: () => handleEdit(row)
+            onClick: () => handleEdit(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDelete(row.id)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this task?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this task?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -195,8 +179,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleStatusChange = (row: any) => {
@@ -267,8 +251,8 @@ const saveShellEdit = async () => {
       type: shellEditTask.value.type,
       flock: shellEditTask.value.flock,
       time: shellEditTask.value.time,
-      script: shellEditTask.value.script
-    })
+      script: shellEditTask.value.script,
+    }),
   )
     .onSuccess(() => {
       shellEditModal.value = false
@@ -294,6 +278,9 @@ onUnmounted(() => {
 
 <template>
   <n-data-table
+    v-model:checked-row-keys="selectedRowKeys"
+    v-model:page="page"
+    v-model:pageSize="pageSize"
     striped
     remote
     :scroll-x="1600"
@@ -301,17 +288,13 @@ onUnmounted(() => {
     :columns="columns"
     :data="data"
     :row-key="(row: any) => row.id"
-    v-model:checked-row-keys="selectedRowKeys"
-    v-model:page="page"
-    v-model:pageSize="pageSize"
     :pagination="{
       page: page,
-      pageCount: pageCount,
       pageSize: pageSize,
       itemCount: total,
       showQuickJumper: true,
       showSizePicker: true,
-      pageSizes: [20, 50, 100, 200]
+      pageSizes: [20, 50, 100, 200],
     }"
   />
   <realtime-log-modal
@@ -340,10 +323,10 @@ onUnmounted(() => {
       </n-form-item>
       <n-form-item :label="$gettext('Process Lock')">
         <n-switch v-model:value="shellEditTask.flock" />
-        <n-text ml-10 depth="3">
+        <n-text class="ml-2" depth="3">
           {{
             $gettext(
-              'Prevent duplicate execution: skip this run if the previous one is still running'
+              'Prevent duplicate execution: skip this run if the previous one is still running',
             )
           }}
         </n-text>
@@ -351,12 +334,12 @@ onUnmounted(() => {
     </n-form>
     <common-editor v-model:value="shellEditTask.script" lang="shell" height="40vh" />
     <n-button
+      class="mt-2"
       type="info"
+      block
       :loading="saveTaskEditLoading"
       :disabled="saveTaskEditLoading"
       @click="saveShellEdit"
-      mt-10
-      block
     >
       {{ $gettext('Save') }}
     </n-button>

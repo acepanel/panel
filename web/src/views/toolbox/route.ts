@@ -7,7 +7,7 @@ export default {
   path: '/toolbox',
   component: Layout,
   meta: {
-    order: 90
+    order: 90,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Toolbox',
         icon: 'mdi:tools',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

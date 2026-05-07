@@ -7,7 +7,7 @@ export default {
   path: '/file',
   component: Layout,
   meta: {
-    order: 50
+    order: 50,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Files',
         icon: 'mdi:folder-open-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

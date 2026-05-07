@@ -19,7 +19,7 @@ export function filterAsyncRoutes(routes: RoutesType = [], role: Array<string>):
     if (hasPermission(route, role)) {
       const curRoute: RouteType = {
         ...route,
-        children: []
+        children: [],
       }
       if (route.children && route.children.length)
         curRoute.children = filterAsyncRoutes(route.children, role) || []

@@ -17,8 +17,8 @@ export default {
         title: 'Go',
         icon: 'mdi:language-go',
         role: ['admin'],
-        requireAuth: true
-      }
+        requireAuth: true,
+      },
     },
     {
       name: 'environment-java',
@@ -29,8 +29,8 @@ export default {
         title: 'Java',
         icon: 'mdi:language-java',
         role: ['admin'],
-        requireAuth: true
-      }
+        requireAuth: true,
+      },
     },
     {
       name: 'environment-nodejs',
@@ -41,8 +41,8 @@ export default {
         title: 'Node.js',
         icon: 'mdi:nodejs',
         role: ['admin'],
-        requireAuth: true
-      }
+        requireAuth: true,
+      },
     },
     {
       name: 'environment-php',
@@ -53,8 +53,8 @@ export default {
         title: 'PHP',
         icon: 'mdi:language-php',
         role: ['admin'],
-        requireAuth: true
-      }
+        requireAuth: true,
+      },
     },
     {
       name: 'environment-python',
@@ -65,8 +65,8 @@ export default {
         title: 'Python',
         icon: 'mdi:language-python',
         role: ['admin'],
-        requireAuth: true
-      }
+        requireAuth: true,
+      },
     },
     {
       name: 'environment-dotnet',
@@ -77,8 +77,8 @@ export default {
         title: '.NET',
         icon: 'mdi:dot-net',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

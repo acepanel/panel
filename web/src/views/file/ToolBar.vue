@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { useGettext } from 'vue3-gettext'
+
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/stores'
 import { checkName, lastDirectory } from '@/utils/file'
 import { usePaste } from '@/views/file/composables/usePaste'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
@@ -30,7 +31,7 @@ const download = ref(false)
 const downloadLoading = ref(false)
 const downloadModel = ref({
   path: '',
-  url: ''
+  url: '',
 })
 
 const showCreate = (value: string) => {
@@ -46,12 +47,12 @@ const handleDownload = () => {
 
   downloadLoading.value = true
   useRequest(
-    file.remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url)
+    file.remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url),
   )
     .onSuccess(() => {
       download.value = false
       window.$message.success(
-        $gettext('Download task created successfully, please check the task list for progress')
+        $gettext('Download task created successfully, please check the task list for progress'),
       )
     })
     .onComplete(() => {
@@ -68,13 +69,13 @@ const handleCopy = () => {
     selected.value.map((p) => ({
       name: lastDirectory(p),
       source: p,
-      force: false
+      force: false,
     })),
-    'copy'
+    'copy',
   )
   selected.value = []
   window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste')
+    $gettext('Marked successfully, please navigate to the destination path to paste'),
   )
 }
 
@@ -87,13 +88,13 @@ const handleMove = () => {
     selected.value.map((p) => ({
       name: lastDirectory(p),
       source: p,
-      force: false
+      force: false,
     })),
-    'move'
+    'move',
   )
   selected.value = []
   window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste')
+    $gettext('Marked successfully, please navigate to the destination path to paste'),
   )
 }
 
@@ -125,13 +126,13 @@ watch(
       if (path) {
         downloadModel.value.path = decodeURIComponent(path).replace(
           /[~!@#$%^&*()+=[\]{}|;:'",<>?/]/g,
-          '-'
+          '-',
         )
       }
     } catch (error) {
       /* empty */
     }
-  }
+  },
 )
 
 // 打开终端
@@ -148,7 +149,7 @@ const toggleViewType = () => {
 const sortOptions = computed(() => [
   { label: $gettext('Name'), value: 'name' },
   { label: $gettext('Size'), value: 'size' },
-  { label: $gettext('Modification Time'), value: 'modify' }
+  { label: $gettext('Modification Time'), value: 'modify' },
 ])
 
 // 当前排序显示文本
@@ -171,7 +172,7 @@ const handleSortSelect = (key: string) => {
     <n-popselect
       :options="[
         { label: $gettext('File'), value: 'file' },
-        { label: $gettext('Folder'), value: 'folder' }
+        { label: $gettext('Folder'), value: 'folder' },
       ]"
       @update:value="showCreate"
     >
@@ -183,7 +184,7 @@ const handleSortSelect = (key: string) => {
     <n-popselect :options="sortOptions" :value="fileStore.sortKey" @update:value="handleSortSelect">
       <n-button>
         <template #icon>
-          <i-mdi-sort :size="16" />
+          <i-mdi-sort class="text-base" />
         </template>
         {{ currentSortLabel }}
       </n-button>
@@ -191,8 +192,8 @@ const handleSortSelect = (key: string) => {
     <n-tooltip>
       <template #trigger>
         <n-button @click="toggleViewType">
-          <i-mdi-view-list v-if="fileStore.viewType === 'list'" :size="16" />
-          <i-mdi-view-grid v-else :size="16" />
+          <i-mdi-view-list v-if="fileStore.viewType === 'list'" class="text-base" />
+          <i-mdi-view-grid v-else class="text-base" />
         </n-button>
       </template>
       {{
@@ -201,7 +202,7 @@ const handleSortSelect = (key: string) => {
           : $gettext('Switch to list view')
       }}
     </n-tooltip>
-    <div ml-auto>
+    <div class="ml-auto">
       <n-flex>
         <n-button v-if="marked.length" secondary type="error" @click="handleCancel">
           {{ $gettext('Cancel') }}
@@ -214,14 +215,17 @@ const handleSortSelect = (key: string) => {
           <n-button @click="handleMove">{{ $gettext('Move') }}</n-button>
           <n-button @click="compress = true">{{ $gettext('Compress') }}</n-button>
           <n-button @click="permission = true">{{ $gettext('Permission') }}</n-button>
-          <n-popconfirm @positive-click="bulkDelete">
+          <ConfirmDialog
+            type="danger"
+            :content="$gettext('Are you sure you want to delete in bulk?')"
+            @confirm="bulkDelete"
+          >
             <template #trigger>
               <n-button :disabled="selected.length === 0" ghost>
                 {{ $gettext('Delete') }}
               </n-button>
             </template>
-            {{ $gettext('Are you sure you want to delete in bulk?') }}
-          </n-popconfirm>
+          </ConfirmDialog>
         </n-button-group>
       </n-flex>
     </div>

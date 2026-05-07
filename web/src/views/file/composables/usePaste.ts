@@ -1,7 +1,8 @@
-import file from '@/api/panel/file'
-import { useFileStore } from '@/stores'
 import { NButton, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import file from '@/api/panel/file'
+import { useFileStore } from '@/stores'
 
 export function usePaste() {
   const { $gettext } = useGettext()
@@ -18,7 +19,7 @@ export function usePaste() {
       name: item.name,
       source: item.source,
       target: targetPath + '/' + item.name,
-      force: false
+      force: false,
     }))
 
     const executePaste = () => {
@@ -58,8 +59,8 @@ export function usePaste() {
                     d.destroy()
                     resolve(trimmed)
                   }
-                }
-              })
+                },
+              }),
             ]),
           positiveText: $gettext('Confirm'),
           negativeText: $gettext('Cancel'),
@@ -73,7 +74,7 @@ export function usePaste() {
           },
           onNegativeClick: () => resolve(null),
           onClose: () => resolve(null),
-          onMaskClick: () => resolve(null)
+          onMaskClick: () => resolve(null),
         })
       })
     }
@@ -130,7 +131,7 @@ export function usePaste() {
             title: $gettext('Warning'),
             content: $gettext(
               'There are items with the same name %{ items } Do you want to overwrite?',
-              { items: conflictNames }
+              { items: conflictNames },
             ),
             action: () =>
               h(NFlex, { justify: 'end' }, () => [
@@ -140,9 +141,9 @@ export function usePaste() {
                     onClick: () => {
                       d.destroy()
                       window.$message.info($gettext('Canceled'))
-                    }
+                    },
                   },
-                  () => $gettext('Cancel')
+                  () => $gettext('Cancel'),
                 ),
                 h(
                   NButton,
@@ -151,9 +152,9 @@ export function usePaste() {
                     onClick: () => {
                       d.destroy()
                       handleRename()
-                    }
+                    },
                   },
-                  () => $gettext('Rename')
+                  () => $gettext('Rename'),
                 ),
                 h(
                   NButton,
@@ -162,11 +163,11 @@ export function usePaste() {
                     onClick: () => {
                       d.destroy()
                       executePaste()
-                    }
+                    },
                   },
-                  () => $gettext('Overwrite')
-                )
-              ])
+                  () => $gettext('Overwrite'),
+                ),
+              ]),
           })
         } else {
           executePaste()

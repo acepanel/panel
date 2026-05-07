@@ -12,5 +12,5 @@ export default {
   // 删除任务
   delete: (id: number): any => http.Delete(`/cron/${id}`),
   // 修改任务状态
-  status: (id: number, status: boolean): any => http.Post('/cron/' + id + '/status', { status })
+  status: (id: number, status: boolean): any => http.Post('/cron/' + id + '/status', { status }),
 }

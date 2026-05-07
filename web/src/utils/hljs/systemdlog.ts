@@ -46,7 +46,7 @@ export default function systemdJournal(hljs: any) {
     'timed',
     'denied',
     'refused',
-    'segfault'
+    'segfault',
   ]
 
   const SYSTEMD_VERBS = [
@@ -70,7 +70,7 @@ export default function systemdJournal(hljs: any) {
     'triggered',
     'queued',
     'succeeded',
-    'success'
+    'success',
   ]
 
   // Prefix: "<timestamp> <host> <ident>[pid]: "
@@ -83,37 +83,37 @@ export default function systemdJournal(hljs: any) {
       1: 'meta', // timestamp
       3: 'title', // hostname
       5: 'symbol', // identifier
-      6: 'number' // [pid]
+      6: 'number', // [pid]
     },
     end: /: /,
     endScope: 'punctuation',
-    relevance: 10
+    relevance: 10,
   }
 
   const SEVERITY = {
     match: new RegExp(`\\b(?:${PRIORITY_WORDS.join('|')})\\b`, 'i'),
     scope: 'keyword',
-    relevance: 2
+    relevance: 2,
   }
 
   const STATUS_VERB = {
     match: new RegExp(`\\b(?:${SYSTEMD_VERBS.join('|')})\\b`, 'i'),
     scope: 'built_in',
-    relevance: 1
+    relevance: 1,
   }
 
   // key=value（如：code=exited status=1/FAILURE UNIT=foo.service）
   const KEY_VALUE = {
     begin: /\b[\w.-]+=/,
     scope: 'attr',
-    relevance: 0
+    relevance: 0,
   }
 
   // kernel/journal 常见的 monotonic timestamp: "[ 123.456]"
   const MONOTONIC = {
     match: /\[\s*\d+(?:\.\d+)?\]/,
     scope: 'meta',
-    relevance: 0
+    relevance: 0,
   }
 
   const DQUOTE = {
@@ -121,7 +121,7 @@ export default function systemdJournal(hljs: any) {
     begin: /"/,
     end: /"/,
     illegal: /\n/,
-    relevance: 0
+    relevance: 0,
   }
 
   const SQUOTE = {
@@ -129,13 +129,13 @@ export default function systemdJournal(hljs: any) {
     begin: /'/,
     end: /'/,
     illegal: /\n/,
-    relevance: 0
+    relevance: 0,
   }
 
   const PATH = {
     match: /(?:\/[^\s"'():[\]]+)+/,
     scope: 'string',
-    relevance: 0
+    relevance: 0,
   }
 
   return {
@@ -161,7 +161,7 @@ export default function systemdJournal(hljs: any) {
       // strings/paths
       DQUOTE,
       SQUOTE,
-      PATH
-    ]
+      PATH,
+    ],
   }
 }

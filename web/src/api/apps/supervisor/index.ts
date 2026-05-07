@@ -29,5 +29,5 @@ export default {
   // 创建进程
   createProcess: (process: any): any => http.Post('/apps/supervisor/processes', process),
   // 删除进程
-  deleteProcess: (process: string): any => http.Delete(`/apps/supervisor/processes/${process}`)
+  deleteProcess: (process: string): any => http.Delete(`/apps/supervisor/processes/${process}`),
 }

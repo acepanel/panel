@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import firewall from '@/api/panel/firewall'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import firewall from '@/api/panel/firewall'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -10,53 +11,53 @@ const loading = ref(false)
 const protocols = [
   {
     label: 'TCP',
-    value: 'tcp'
+    value: 'tcp',
   },
   {
     label: 'UDP',
-    value: 'udp'
+    value: 'udp',
   },
   {
     label: 'TCP/UDP',
-    value: 'tcp/udp'
-  }
+    value: 'tcp/udp',
+  },
 ]
 
 const families = [
   {
     label: 'IPv4',
-    value: 'ipv4'
+    value: 'ipv4',
   },
   {
     label: 'IPv6',
-    value: 'ipv6'
-  }
+    value: 'ipv6',
+  },
 ]
 
 const strategies = [
   {
     label: $gettext('Accept'),
-    value: 'accept'
+    value: 'accept',
   },
   {
     label: $gettext('Drop'),
-    value: 'drop'
+    value: 'drop',
   },
   {
     label: $gettext('Reject'),
-    value: 'reject'
-  }
+    value: 'reject',
+  },
 ]
 
 const directions = [
   {
     label: $gettext('Inbound'),
-    value: 'in'
+    value: 'in',
   },
   {
     label: $gettext('Outbound'),
-    value: 'out'
-  }
+    value: 'out',
+  },
 ]
 
 const createModel = ref({
@@ -66,7 +67,7 @@ const createModel = ref({
   port_end: 80,
   address: [] as string[],
   strategy: 'accept',
-  direction: 'in'
+  direction: 'in',
 })
 
 // 当起始端口改变时，同步更新结束端口（如果结束端口小于起始端口）
@@ -76,7 +77,7 @@ watch(
     if (createModel.value.port_end < newStart) {
       createModel.value.port_end = newStart
     }
-  }
+  },
 )
 
 const handleCreate = async () => {
@@ -88,11 +89,11 @@ const handleCreate = async () => {
     useRequest(
       firewall.createRule({
         ...createModel.value,
-        address
-      })
+        address,
+      }),
     ).onSuccess(() => {
       window.$message.success($gettext('%{ address } created successfully', { address: address }))
-    })
+    }),
   )
   await Promise.all(promises)
   show.value = false

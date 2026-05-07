@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
 import { NButton, NInput, NInputNumber, NSelect } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -22,7 +23,7 @@ const model = ref({
   key: '',
   value: '',
   type: 'string',
-  ttl: -1 as number
+  ttl: -1 as number,
 })
 
 const typeOptions = [
@@ -30,7 +31,7 @@ const typeOptions = [
   { label: 'List', value: 'list' },
   { label: 'Set', value: 'set' },
   { label: 'ZSet', value: 'zset' },
-  { label: 'Hash', value: 'hash' }
+  { label: 'Hash', value: 'hash' },
 ]
 
 // 弹窗打开时初始化
@@ -45,7 +46,7 @@ watch(
             key: data.key,
             value: data.value,
             type: data.type,
-            ttl: data.ttl
+            ttl: data.ttl,
           }
         })
         .onComplete(() => {
@@ -54,7 +55,7 @@ watch(
     } else if (val && props.mode === 'create') {
       model.value = { key: '', value: '', type: 'string', ttl: -1 }
     }
-  }
+  },
 )
 
 const saveLoading = ref(false)
@@ -68,8 +69,8 @@ const handleSave = () => {
       key: model.value.key,
       value: model.value.value,
       type: model.value.type,
-      ttl: model.value.ttl > 0 ? model.value.ttl : 0
-    })
+      ttl: model.value.ttl > 0 ? model.value.ttl : 0,
+    }),
   )
     .onSuccess(() => {
       show.value = false
@@ -96,11 +97,7 @@ const handleSave = () => {
     <n-spin :show="loading">
       <n-form :model="model">
         <n-form-item :label="$gettext('Type')">
-          <n-select
-            v-model:value="model.type"
-            :options="typeOptions"
-            :disabled="mode === 'view'"
-          />
+          <n-select v-model:value="model.type" :options="typeOptions" :disabled="mode === 'view'" />
         </n-form-item>
         <n-form-item :label="$gettext('Key')">
           <n-input
@@ -115,9 +112,7 @@ const handleSave = () => {
             type="textarea"
             :rows="10"
             :placeholder="
-              model.type === 'string'
-                ? $gettext('Enter value')
-                : $gettext('Enter JSON value')
+              model.type === 'string' ? $gettext('Enter value') : $gettext('Enter JSON value')
             "
           />
         </n-form-item>
@@ -131,13 +126,7 @@ const handleSave = () => {
         </n-form-item>
       </n-form>
     </n-spin>
-    <n-button
-      type="info"
-      block
-      :loading="saveLoading"
-      :disabled="saveLoading"
-      @click="handleSave"
-    >
+    <n-button type="info" block :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>

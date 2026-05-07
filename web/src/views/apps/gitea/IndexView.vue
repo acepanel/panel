@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-gitea-index'
+  name: 'apps-gitea-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -14,7 +14,7 @@ const currentTab = ref('status')
 const saveConfigLoading = ref(false)
 
 const { data: config } = useRequest(gitea.config, {
-  initialData: ''
+  initialData: '',
 })
 
 const handleSaveConfig = () => {
@@ -30,7 +30,7 @@ const handleSaveConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="gitea" />
@@ -40,13 +40,18 @@ const handleSaveConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -56,5 +61,5 @@ const handleSaveConfig = () => {
         <realtime-log service="gitea" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

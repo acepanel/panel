@@ -1,16 +1,18 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-rsync-index'
+  name: 'apps-rsync-index',
 })
 
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
 const saveConfigLoading = ref(false)
 const modelAddLoading = ref(false)
@@ -23,7 +25,7 @@ const addModuleModel = ref({
   comment: '',
   auth_user: '',
   secret: generateRandomString(16),
-  hosts_allow: '0.0.0.0/0'
+  hosts_allow: '0.0.0.0/0',
 })
 
 const editModuleModal = ref(false)
@@ -33,7 +35,7 @@ const editModuleModel = ref({
   comment: '',
   auth_user: '',
   secret: '',
-  hosts_allow: ''
+  hosts_allow: '',
 })
 
 const processColumns: any = [
@@ -42,28 +44,28 @@ const processColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Directory'),
     key: 'path',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('User'),
     key: 'auth_user',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Host'),
     key: 'hosts_allow',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   { title: $gettext('Comment'), key: 'comment', resizable: true, ellipsis: { tooltip: true } },
   {
@@ -72,47 +74,35 @@ const processColumns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
             size: 'small',
             type: 'info',
-            onClick: () => handleModelEdit(row)
+            onClick: () => handleModelEdit(row),
           },
-          {
-            default: () => $gettext('Configure')
-          }
+          { default: () => $gettext('Configure') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleModelDelete(row.name)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete module %{ name }?', {
-                name: row.name
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete module %{ name }?', {
+                  name: row.name,
+                }),
               })
+              if (ok) handleModelDelete(row.name)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -121,8 +111,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const getConfig = async () => {
@@ -154,7 +144,7 @@ const handleModelAdd = async () => {
         comment: '',
         auth_user: '',
         secret: generateRandomString(16),
-        hosts_allow: '0.0.0.0/0'
+        hosts_allow: '0.0.0.0/0',
       }
       window.$message.success($gettext('Added successfully'))
     })
@@ -188,7 +178,7 @@ const handleSaveModuleConfig = async () => {
       refresh()
       getConfig()
       window.$message.success($gettext('Saved successfully'))
-    }
+    },
   )
 }
 
@@ -199,7 +189,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="rsyncd" />
@@ -212,6 +202,8 @@ onMounted(() => {
             </n-button>
           </n-flex>
           <n-data-table
+            v-model:page="page"
+            v-model:pageSize="pageSize"
             striped
             remote
             :scroll-x="1200"
@@ -219,16 +211,13 @@ onMounted(() => {
             :columns="processColumns"
             :data="data"
             :row-key="(row: any) => row.name"
-            v-model:page="page"
-            v-model:pageSize="pageSize"
             :pagination="{
               page: page,
-              pageCount: pageCount,
               pageSize: pageSize,
               itemCount: total,
               showQuickJumper: true,
               showSizePicker: true,
-              pageSizes: [20, 50, 100, 200]
+              pageSizes: [20, 50, 100, 200],
             }"
           />
         </n-flex>
@@ -238,13 +227,18 @@ onMounted(() => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -254,7 +248,7 @@ onMounted(() => {
         <realtime-log service="rsyncd" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
   <n-modal
     v-model:show="addModuleModal"
     preset="card"
@@ -315,7 +309,15 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="modelAddLoading" :disabled="modelAddLoading" @click="handleModelAdd">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="modelAddLoading"
+      :disabled="modelAddLoading"
+      @click="handleModelAdd"
+    >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
   <n-modal
     v-model:show="editModuleModal"

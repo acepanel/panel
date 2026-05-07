@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'kafka-config-tune'
+  name: 'kafka-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -40,7 +40,7 @@ const getConfigData = () => ({
   retention_hours: retentionHours.value,
   log_segment_bytes: logSegmentBytes.value,
   heap_init_size: heapInitSize.value,
-  heap_max_size: heapMaxSize.value
+  heap_max_size: heapMaxSize.value,
 })
 
 const handleSave = () => {
@@ -77,7 +77,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -103,7 +108,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

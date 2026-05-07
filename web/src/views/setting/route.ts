@@ -7,7 +7,7 @@ export default {
   path: '/setting',
   component: Layout,
   meta: {
-    order: 999
+    order: 999,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Setting',
         icon: 'mdi:settings-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

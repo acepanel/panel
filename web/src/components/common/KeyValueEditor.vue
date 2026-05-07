@@ -4,7 +4,7 @@
  * 用于编辑 Object<string, string> 类型的数据
  */
 defineOptions({
-  name: 'KeyValueEditor'
+  name: 'KeyValueEditor',
 })
 
 const props = withDefaults(
@@ -36,8 +36,8 @@ const props = withDefaults(
     defaultValue: '',
     separator: '=',
     valueType: 'text',
-    showPasswordToggle: false
-  }
+    showPasswordToggle: false,
+  },
 )
 
 const emit = defineEmits<{

@@ -1,17 +1,20 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-pureftpd-index'
+  name: 'apps-pureftpd-index',
 })
 
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import PureftpdConfigTuneView from './PureftpdConfigTuneView.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { generateRandomString } from '@/utils'
 
+import PureftpdConfigTuneView from './PureftpdConfigTuneView.vue'
+
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
 const savePortLoading = ref(false)
 const addUserLoading = ref(false)
@@ -23,12 +26,12 @@ const changePasswordModal = ref(false)
 const addUserModel = ref({
   username: '',
   password: generateRandomString(16),
-  path: ''
+  path: '',
 })
 
 const changePasswordModel = ref({
   username: '',
-  password: generateRandomString(16)
+  password: generateRandomString(16),
 })
 
 const userColumns: any = [
@@ -37,14 +40,14 @@ const userColumns: any = [
     key: 'username',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Path'),
     key: 'path',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -52,7 +55,7 @@ const userColumns: any = [
     width: 240,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -63,41 +66,29 @@ const userColumns: any = [
               changePasswordModel.value.username = row.username
               changePasswordModel.value.password = generateRandomString(16)
               changePasswordModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Change Password')
-          }
+          { default: () => $gettext('Change Password') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteUser(row.username)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete user %{ username }?', {
-                username: row.username
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete user %{ username }?', {
+                  username: row.username,
+                }),
               })
+              if (ok) handleDeleteUser(row.username)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -106,8 +97,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const getPort = async () => {
@@ -128,7 +119,7 @@ const handleSavePort = async () => {
 const handleAddUser = async () => {
   addUserLoading.value = true
   useRequest(
-    pureftpd.add(addUserModel.value.username, addUserModel.value.password, addUserModel.value.path)
+    pureftpd.add(addUserModel.value.username, addUserModel.value.password, addUserModel.value.path),
   )
     .onSuccess(() => {
       refresh()
@@ -146,7 +137,7 @@ const handleAddUser = async () => {
 const handleChangePassword = async () => {
   changePasswordLoading.value = true
   useRequest(
-    pureftpd.changePassword(changePasswordModel.value.username, changePasswordModel.value.password)
+    pureftpd.changePassword(changePasswordModel.value.username, changePasswordModel.value.password),
   )
     .onSuccess(() => {
       refresh()
@@ -172,7 +163,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -180,7 +171,12 @@ onMounted(() => {
           <n-card :title="$gettext('Port Settings')">
             <n-flex>
               <n-input-number v-model:value="port" :min="1" :max="65535" />
-              <n-button type="primary" :loading="savePortLoading" :disabled="savePortLoading" @click="handleSavePort">
+              <n-button
+                type="primary"
+                :loading="savePortLoading"
+                :disabled="savePortLoading"
+                @click="handleSavePort"
+              >
                 {{ $gettext('Save') }}
               </n-button>
             </n-flex>
@@ -196,6 +192,8 @@ onMounted(() => {
             </n-button>
           </n-flex>
           <n-data-table
+            v-model:page="page"
+            v-model:pageSize="pageSize"
             striped
             remote
             :scroll-x="1000"
@@ -203,16 +201,13 @@ onMounted(() => {
             :columns="userColumns"
             :data="data"
             :row-key="(row: any) => row.username"
-            v-model:page="page"
-            v-model:pageSize="pageSize"
             :pagination="{
               page: page,
-              pageCount: pageCount,
               pageSize: pageSize,
               itemCount: total,
               showQuickJumper: true,
               showSizePicker: true,
-              pageSizes: [20, 50, 100, 200]
+              pageSizes: [20, 50, 100, 200],
             }"
           />
         </n-flex>
@@ -224,7 +219,7 @@ onMounted(() => {
         <realtime-log service="pure-ftpd" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
   <n-modal v-model:show="addUserModal" :title="$gettext('Create User')">
     <n-card
       closable
@@ -261,7 +256,15 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="addUserLoading" :disabled="addUserLoading" @click="handleAddUser">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="addUserLoading"
+        :disabled="addUserLoading"
+        @click="handleAddUser"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-card>
   </n-modal>
   <n-modal v-model:show="changePasswordModal">
@@ -283,7 +286,15 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="changePasswordLoading" :disabled="changePasswordLoading" @click="handleChangePassword">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="changePasswordLoading"
+        :disabled="changePasswordLoading"
+        @click="handleChangePassword"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-card>
   </n-modal>
 </template>

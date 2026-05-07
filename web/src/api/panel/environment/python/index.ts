@@ -7,5 +7,5 @@ export default {
   getMirror: (slug: string): any => http.Get(`/environment/python/${slug}/mirror`),
   // 设置镜像
   setMirror: (slug: string, mirror: string): any =>
-    http.Post(`/environment/python/${slug}/mirror`, { mirror })
+    http.Post(`/environment/python/${slug}/mirror`, { mirror }),
 }

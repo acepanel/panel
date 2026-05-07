@@ -1,10 +1,11 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-panel'
+  name: 'toolbox-panel',
 })
 
-import home from '@/api/panel/home'
 import { useGettext } from 'vue3-gettext'
+
+import home from '@/api/panel/home'
 
 const { $gettext } = useGettext()
 const currentTab = ref('runtime')

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-grafana-index'
+  name: 'apps-grafana-index',
 })
 
 import { NButton, NDataTable } from 'naive-ui'
@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import grafana from '@/api/apps/grafana'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import GrafanaConfigTuneView from './GrafanaConfigTuneView.vue'
 import GrafanaDataSourcesView from './GrafanaDataSourcesView.vue'
 
@@ -16,7 +17,7 @@ const currentTab = ref('status')
 const saveConfigLoading = ref(false)
 
 const { data: config, send: refreshConfig } = useRequest(grafana.config, {
-  initialData: ''
+  initialData: '',
 })
 
 watch(currentTab, (val) => {
@@ -25,7 +26,7 @@ watch(currentTab, (val) => {
   }
 })
 const { data: load } = useRequest(grafana.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -34,14 +35,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -57,7 +58,7 @@ const handleSaveConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -80,7 +81,7 @@ const handleSaveConfig = () => {
               <span>
                 {{
                   $gettext(
-                    'Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source.'
+                    'Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source.',
                   )
                 }}
               </span>
@@ -93,7 +94,7 @@ const handleSaveConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Grafana main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the Grafana main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
@@ -130,5 +131,5 @@ const handleSaveConfig = () => {
         <realtime-log service="grafana" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

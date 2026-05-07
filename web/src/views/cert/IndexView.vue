@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'cert-index'
+  name: 'cert-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -44,7 +44,7 @@ const getAsyncData = () => {
         for (const item of data.items) {
           websites.value.push({
             label: item.name,
-            value: item.id
+            value: item.id,
           })
         }
       })
@@ -56,7 +56,7 @@ const getAsyncData = () => {
     for (const item of data.items) {
       dns.value.push({
         label: item.name,
-        value: item.id
+        value: item.id,
       })
     }
   })
@@ -72,7 +72,7 @@ const getAsyncData = () => {
         const caLabel = caProviders.value?.find((ca: any) => ca.value === item.ca)?.label
         accounts.value.push({
           label: `${item.email} (${caLabel ?? item.ca})`,
-          value: item.id
+          value: item.id,
         })
       }
     })
@@ -90,8 +90,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="cert" :tab="$gettext('Certificate')" />
         <n-tab name="account" :tab="$gettext('Account')" />
@@ -127,7 +127,7 @@ onUnmounted(() => {
       />
       <dns-view v-if="currentTab == 'dns'" :dns-providers="dnsProviders" />
     </n-flex>
-  </common-page>
+  </PageContainer>
   <upload-cert-modal v-model:show="uploadCert" />
   <create-cert-modal
     v-model:show="createCert"

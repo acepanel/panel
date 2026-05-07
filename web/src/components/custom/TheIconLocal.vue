@@ -4,7 +4,7 @@ import { renderLocalIcon } from '@/utils'
 const props = withDefaults(defineProps<Props>(), {
   type: 'app',
   size: 14,
-  color: undefined
+  color: undefined,
 })
 
 interface Props {

@@ -14,7 +14,7 @@ const items = ref<any[]>([])
 const loadData = () => {
   loading.value = true
   useRequest(
-    website.statSites(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value)
+    website.statSites(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -41,25 +41,25 @@ const columns = computed(() => [
     title: $gettext('Outbound'),
     key: 'bandwidth',
     render: (row: any) => formatBytes(row.bandwidth),
-    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth
+    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth,
   },
   {
     title: $gettext('Inbound'),
     key: 'bandwidth_in',
     render: (row: any) => formatBytes(row.bandwidth_in),
-    sorter: (a: any, b: any) => a.bandwidth_in - b.bandwidth_in
+    sorter: (a: any, b: any) => a.bandwidth_in - b.bandwidth_in,
   },
   {
     title: $gettext('Requests'),
     key: 'requests',
-    sorter: (a: any, b: any) => a.requests - b.requests
+    sorter: (a: any, b: any) => a.requests - b.requests,
   },
   { title: $gettext('Errors'), key: 'errors', sorter: (a: any, b: any) => a.errors - b.errors },
   {
     title: $gettext('Spiders'),
     key: 'spiders',
-    sorter: (a: any, b: any) => a.spiders - b.spiders
-  }
+    sorter: (a: any, b: any) => a.spiders - b.spiders,
+  },
 ])
 </script>
 

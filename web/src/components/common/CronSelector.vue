@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useGettext } from 'vue3-gettext'
+
 import CronPreview from './CronPreview.vue'
 
 const { $gettext } = useGettext()
@@ -7,7 +8,7 @@ const { $gettext } = useGettext()
 // 生成的 Cron 表达式值
 const value = defineModel<string>('value', {
   type: String,
-  required: true
+  required: true,
 })
 
 // 当前选择的周期类型
@@ -29,7 +30,7 @@ const formData = ref({
   weekday: 1, // 星期（0-6，0=周日）
 
   // 自定义表达式
-  customCron: '* * * * *'
+  customCron: '* * * * *',
 })
 
 // 是否已初始化
@@ -188,7 +189,7 @@ const options = [
   { label: $gettext('Monthly'), value: 'every-month' },
   { label: $gettext('Yearly'), value: 'every-year' },
   { label: $gettext('After Reboot'), value: 'reboot' },
-  { label: $gettext('Custom'), value: 'custom' }
+  { label: $gettext('Custom'), value: 'custom' },
 ]
 
 // 星期选项
@@ -199,13 +200,13 @@ const weekdayOptions = [
   { label: $gettext('Wednesday'), value: 3 },
   { label: $gettext('Thursday'), value: 4 },
   { label: $gettext('Friday'), value: 5 },
-  { label: $gettext('Saturday'), value: 6 }
+  { label: $gettext('Saturday'), value: 6 },
 ]
 
 // 月份选项
 const monthOptions = Array.from({ length: 12 }, (_, i) => ({
   label: $gettext('Month %{month}', { month: String(i + 1) }),
-  value: i + 1
+  value: i + 1,
 }))
 
 // 生成 Cron 表达式
@@ -287,22 +288,22 @@ watch(
       value.value = generateCron()
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 // 判断是否显示某个输入框
 const showMonth = computed(() => selectedOption.value === 'every-year')
 
 const showDay = computed(() =>
-  ['every-n-days', 'every-month', 'every-year'].includes(selectedOption.value)
+  ['every-n-days', 'every-month', 'every-year'].includes(selectedOption.value),
 )
 
 const showWeekday = computed(() => selectedOption.value === 'every-week')
 
 const showHour = computed(() =>
   ['every-n-days', 'every-day', 'every-week', 'every-month', 'every-year'].includes(
-    selectedOption.value
-  )
+    selectedOption.value,
+  ),
 )
 
 const showMinute = computed(() =>
@@ -314,8 +315,8 @@ const showMinute = computed(() =>
     'every-day',
     'every-week',
     'every-month',
-    'every-year'
-  ].includes(selectedOption.value)
+    'every-year',
+  ].includes(selectedOption.value),
 )
 
 const showNDays = computed(() => selectedOption.value === 'every-n-days')

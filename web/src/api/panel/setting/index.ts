@@ -10,5 +10,5 @@ export default {
   // 获取便签
   getMemo: (): any => http.Get('/setting/memo'),
   // 保存便签
-  updateMemo: (content: string): any => http.Post('/setting/memo', { content })
+  updateMemo: (content: string): any => http.Post('/setting/memo', { content }),
 }

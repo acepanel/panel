@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import storage from '@/api/panel/backup-storage'
-import { formatDateTime } from '@/utils'
-import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import storage from '@/api/panel/backup-storage'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { formatDateTime } from '@/utils'
+
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const createModal = ref(false)
 const createLoading = ref(false)
@@ -15,22 +18,22 @@ const editId = ref(0)
 const typeOptions = [
   { label: 'S3', value: 's3' },
   { label: 'SFTP', value: 'sftp' },
-  { label: 'WebDAV', value: 'webdav' }
+  { label: 'WebDAV', value: 'webdav' },
 ]
 
 const styleOptions = [
   { label: 'Virtual Hosted', value: 'virtual-hosted' },
-  { label: 'Path', value: 'path' }
+  { label: 'Path', value: 'path' },
 ]
 
 const schemeOptions = [
   { label: 'HTTPS', value: 'https' },
-  { label: 'HTTP', value: 'http' }
+  { label: 'HTTP', value: 'http' },
 ]
 
 const sftpAuthOptions = [
   { label: $gettext('Password'), value: 'password' },
-  { label: $gettext('Private Key'), value: 'private_key' }
+  { label: $gettext('Private Key'), value: 'private_key' },
 ]
 
 const defaultModel = {
@@ -51,8 +54,8 @@ const defaultModel = {
     password: '',
     private_key: '',
     auth_type: 'password',
-    path: ''
-  }
+    path: '',
+  },
 }
 
 const createModel = ref({ ...defaultModel, info: { ...defaultModel.info } })
@@ -64,7 +67,7 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Type'),
@@ -75,10 +78,10 @@ const columns: any = [
         local: $gettext('Local'),
         s3: 'S3',
         sftp: 'SFTP',
-        webdav: 'WebDAV'
+        webdav: 'WebDAV',
       }
       return typeMap[row.type] || row.type
-    }
+    },
   },
   {
     title: $gettext('Created At'),
@@ -86,7 +89,7 @@ const columns: any = [
     width: 180,
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -95,7 +98,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       const isLocal = row.type === 'local'
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -103,37 +106,28 @@ const columns: any = [
             type: 'primary',
             secondary: true,
             disabled: isLocal,
-            onClick: () => handleEdit(row)
+            onClick: () => handleEdit(row),
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDelete(row.id)
+            size: 'small',
+            type: 'error',
+            disabled: isLocal,
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this storage?'),
+              })
+              if (ok) handleDelete(row.id)
+            },
           },
-          {
-            default: () => $gettext('Are you sure you want to delete this storage?'),
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  disabled: isLocal,
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-          }
-        )
-      ]
-    }
-  }
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -142,8 +136,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleCreate = () => {
@@ -165,7 +159,7 @@ const handleEdit = (row: any) => {
   editModel.value = {
     type: row.type,
     name: row.name,
-    info: { ...defaultModel.info, ...row.info }
+    info: { ...defaultModel.info, ...row.info },
   }
   editModal.value = true
 }
@@ -201,6 +195,8 @@ onMounted(() => {
       <n-button type="primary" @click="createModal = true">{{ $gettext('Add Storage') }}</n-button>
     </n-flex>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="800"
@@ -208,16 +204,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>
@@ -373,7 +366,15 @@ onMounted(() => {
         </n-form-item>
       </template>
     </n-form>
-    <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="createLoading"
+      :disabled="createLoading"
+      @click="handleCreate"
+    >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
 
   <!-- Edit Modal -->
@@ -494,10 +495,7 @@ onMounted(() => {
       <!-- WebDAV Fields -->
       <template v-if="editModel.type === 'webdav'">
         <n-form-item :label="$gettext('URL')" required>
-          <n-input
-            v-model:value="editModel.info.url"
-            :placeholder="$gettext('Enter WebDAV URL')"
-          />
+          <n-input v-model:value="editModel.info.url" :placeholder="$gettext('Enter WebDAV URL')" />
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
           <n-input
@@ -521,7 +519,15 @@ onMounted(() => {
         </n-form-item>
       </template>
     </n-form>
-    <n-button type="info" block :loading="editLoading" :disabled="editLoading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="editLoading"
+      :disabled="editLoading"
+      @click="handleUpdate"
+    >
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
 </template>
 

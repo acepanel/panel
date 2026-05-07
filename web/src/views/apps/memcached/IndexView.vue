@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-memcached-index'
+  name: 'apps-memcached-index',
 })
 
 import { NButton, NDataTable } from 'naive-ui'
@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import memcached from '@/api/apps/memcached'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import MemcachedConfigTuneView from './MemcachedConfigTuneView.vue'
 
 const { $gettext } = useGettext()
@@ -20,24 +21,24 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const { data: load } = useRequest(memcached.load, {
-  initialData: []
+  initialData: [],
 })
 
 const { data: config, send: refreshConfig } = useRequest(memcached.config, {
   initialData: {
-    config: ''
-  }
+    config: '',
+  },
 })
 
 watch(currentTab, (val) => {
@@ -59,7 +60,7 @@ const handleSaveConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="memcached" />
@@ -68,7 +69,12 @@ const handleSaveConfig = () => {
         <n-flex vertical>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -91,5 +97,5 @@ const handleSaveConfig = () => {
         <realtime-log service="memcached" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

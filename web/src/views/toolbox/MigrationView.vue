@@ -1,13 +1,14 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-migration'
+  name: 'toolbox-migration',
 })
+
+import { useRequest } from 'alova/client'
+import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import migration from '@/api/panel/toolbox-migration'
 import ws from '@/api/ws'
-import { useRequest } from 'alova/client'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
@@ -19,7 +20,7 @@ const loading = ref(false)
 const connectionForm = ref({
   url: '',
   token_id: 1,
-  token: ''
+  token: '',
 })
 
 // 第二步：环境对比
@@ -142,9 +143,9 @@ const checkEnvironment = () => {
         'Web server mismatch: local is %{local}, remote is %{remote}. Migration cannot proceed.',
         {
           local: localEnv.value.webserver || $gettext('none'),
-          remote: remoteEnv.value.webserver || $gettext('none')
-        }
-      )
+          remote: remoteEnv.value.webserver || $gettext('none'),
+        },
+      ),
     )
     passed = false
   }
@@ -159,9 +160,9 @@ const checkEnvironment = () => {
         $gettext(
           '%{type} is installed locally but not on the remote server. Related projects may need reconfiguration.',
           {
-            type: envType.toUpperCase()
-          }
-        )
+            type: envType.toUpperCase(),
+          },
+        ),
       )
     }
   }
@@ -179,9 +180,9 @@ const checkEnvironment = () => {
         $gettext(
           '%{type} is installed locally but not on the remote server. Database migration for this type will be skipped.',
           {
-            type: dbType.toUpperCase()
-          }
-        )
+            type: dbType.toUpperCase(),
+          },
+        ),
       )
     }
   }
@@ -219,7 +220,7 @@ const handleStartMigration = () => {
         type: d.type,
         name: d.name,
         server_id: d.server_id,
-        server: d.server
+        server: d.server,
       })),
     database_users: databaseUsers.value
       .filter((_: any, i: number) => selectedDatabaseUsers.value.includes(i))
@@ -230,12 +231,12 @@ const handleStartMigration = () => {
         host: u.host,
         server_id: u.server_id,
         server: u.server?.name,
-        type: u.server?.type
+        type: u.server?.type,
       })),
     projects: projects.value
       .filter((_: any, i: number) => selectedProjects.value.includes(i))
       .map((p: any) => ({ id: p.id, name: p.name, path: p.root_dir || p.path })),
-    stop_on_mig: stopOnMig.value
+    stop_on_mig: stopOnMig.value,
   }
 
   if (
@@ -251,7 +252,7 @@ const handleStartMigration = () => {
   window.$dialog.warning({
     title: $gettext('Confirm Migration'),
     content: $gettext(
-      'Are you sure you want to start migration? This will transfer the selected items to the remote server.'
+      'Are you sure you want to start migration? This will transfer the selected items to the remote server.',
     ),
     positiveText: $gettext('Start'),
     negativeText: $gettext('Cancel'),
@@ -270,7 +271,7 @@ const handleStartMigration = () => {
         .onComplete(() => {
           loading.value = false
         })
-    }
+    },
   })
 }
 
@@ -367,7 +368,7 @@ const handleReset = () => {
         migrationEndedAt.value = null
         window.$message.success($gettext('Migration state has been reset'))
       })
-    }
+    },
   })
 }
 
@@ -451,12 +452,12 @@ const formatDuration = (seconds: number) => {
     <!-- 第二步：环境预检查 -->
     <n-card v-if="currentStep === 2" :title="$gettext('Environment Pre-check')">
       <!-- 警告信息 -->
-      <n-flex v-if="envWarnings.length > 0" vertical style="margin-bottom: 16px">
+      <n-flex v-if="envWarnings.length > 0" vertical class="mb-4">
         <n-alert
           v-for="(warning, index) in envWarnings"
           :key="index"
           :type="envCheckPassed ? 'warning' : 'error'"
-          style="margin-bottom: 8px"
+          class="mb-2"
         >
           {{ warning }}
         </n-alert>
@@ -580,7 +581,7 @@ const formatDuration = (seconds: number) => {
         </tbody>
       </n-table>
 
-      <n-flex justify="space-between" style="margin-top: 16px">
+      <n-flex justify="space-between" class="mt-4">
         <n-flex>
           <n-button @click="currentStep = 1">{{ $gettext('Previous') }}</n-button>
           <n-button :loading="loading" :disabled="loading" @click="handleRefreshPreCheck">
@@ -601,13 +602,13 @@ const formatDuration = (seconds: number) => {
     <!-- 第三步：选择迁移项 -->
     <n-card v-if="currentStep === 3" :title="$gettext('Select Migration Items')">
       <!-- 网站 -->
-      <n-card :title="$gettext('Websites')" size="small" embedded style="margin-bottom: 12px">
+      <n-card :title="$gettext('Websites')" size="small" embedded class="mb-3">
         <template v-if="websites.length > 0">
           <n-checkbox-group v-model:value="selectedWebsites">
             <n-flex vertical>
               <n-checkbox v-for="(site, index) in websites" :key="site.id" :value="index">
                 {{ site.name }}
-                <n-text depth="3" style="margin-left: 8px">{{ site.path }}</n-text>
+                <n-text depth="3" class="ml-2">{{ site.path }}</n-text>
               </n-checkbox>
             </n-flex>
           </n-checkbox-group>
@@ -616,14 +617,14 @@ const formatDuration = (seconds: number) => {
       </n-card>
 
       <!-- 数据库 -->
-      <n-card :title="$gettext('Databases')" size="small" embedded style="margin-bottom: 12px">
+      <n-card :title="$gettext('Databases')" size="small" embedded class="mb-3">
         <template v-if="databases.length > 0">
           <n-checkbox-group v-model:value="selectedDatabases">
             <n-flex vertical>
               <n-checkbox v-for="(db, index) in databases" :key="db.name" :value="String(index)">
                 {{ db.name }}
-                <n-tag size="small" style="margin-left: 8px">{{ db.type }}</n-tag>
-                <n-text depth="3" style="margin-left: 8px">{{ db.server }}</n-text>
+                <n-tag size="small" class="ml-2">{{ db.type }}</n-tag>
+                <n-text depth="3" class="ml-2">{{ db.server }}</n-text>
               </n-checkbox>
             </n-flex>
           </n-checkbox-group>
@@ -632,15 +633,15 @@ const formatDuration = (seconds: number) => {
       </n-card>
 
       <!-- 数据库用户 -->
-      <n-card :title="$gettext('Database Users')" size="small" embedded style="margin-bottom: 12px">
+      <n-card :title="$gettext('Database Users')" size="small" embedded class="mb-3">
         <template v-if="databaseUsers.length > 0">
           <n-checkbox-group v-model:value="selectedDatabaseUsers">
             <n-flex vertical>
               <n-checkbox v-for="(user, index) in databaseUsers" :key="user.id" :value="index">
                 {{ user.username }}
-                <n-text v-if="user.host" depth="3" style="margin-left: 4px">@{{ user.host }}</n-text>
-                <n-tag size="small" style="margin-left: 8px">{{ user.server?.type }}</n-tag>
-                <n-text depth="3" style="margin-left: 8px">{{ user.server?.name }}</n-text>
+                <n-text v-if="user.host" depth="3" class="ml-1">@{{ user.host }}</n-text>
+                <n-tag size="small" class="ml-2">{{ user.server?.type }}</n-tag>
+                <n-text depth="3" class="ml-2">{{ user.server?.name }}</n-text>
               </n-checkbox>
             </n-flex>
           </n-checkbox-group>
@@ -649,14 +650,14 @@ const formatDuration = (seconds: number) => {
       </n-card>
 
       <!-- 项目 -->
-      <n-card :title="$gettext('Projects')" size="small" embedded style="margin-bottom: 12px">
+      <n-card :title="$gettext('Projects')" size="small" embedded class="mb-3">
         <template v-if="projects.length > 0">
           <n-checkbox-group v-model:value="selectedProjects">
             <n-flex vertical>
               <n-checkbox v-for="(proj, index) in projects" :key="proj.id" :value="index">
                 {{ proj.name }}
-                <n-tag size="small" style="margin-left: 8px">{{ proj.type }}</n-tag>
-                <n-text depth="3" style="margin-left: 8px">{{ proj.root_dir || proj.path }}</n-text>
+                <n-tag size="small" class="ml-2">{{ proj.type }}</n-tag>
+                <n-text depth="3" class="ml-2">{{ proj.root_dir || proj.path }}</n-text>
               </n-checkbox>
             </n-flex>
           </n-checkbox-group>
@@ -665,7 +666,7 @@ const formatDuration = (seconds: number) => {
       </n-card>
 
       <!-- 选项 -->
-      <n-card size="small" embedded style="margin-bottom: 12px">
+      <n-card size="small" embedded class="mb-3">
         <n-checkbox v-model:checked="stopOnMig">
           {{ $gettext('Stop services during migration to ensure data consistency (recommended)') }}
         </n-checkbox>
@@ -687,7 +688,7 @@ const formatDuration = (seconds: number) => {
     <!-- 第四步：迁移进度 -->
     <n-card v-if="currentStep === 4" :title="$gettext('Migration Progress')">
       <!-- 迁移项状态 -->
-      <n-table :bordered="true" :single-line="false" size="small" style="margin-bottom: 12px">
+      <n-table :bordered="true" :single-line="false" size="small" class="mb-3">
         <thead>
           <tr>
             <th>{{ $gettext('Type') }}</th>
@@ -774,7 +775,7 @@ const formatDuration = (seconds: number) => {
       </n-result>
 
       <!-- 详细结果表 -->
-      <n-table :bordered="true" :single-line="false" size="small" style="margin-top: 16px">
+      <n-table :bordered="true" :single-line="false" size="small" class="mt-4">
         <thead>
           <tr>
             <th>{{ $gettext('Type') }}</th>
@@ -816,16 +817,16 @@ const formatDuration = (seconds: number) => {
         v-if="envWarnings.length > 0"
         type="warning"
         :title="$gettext('Reminder')"
-        style="margin-top: 16px"
+        class="mt-4"
       >
         {{
           $gettext(
-            'Some environments differ between local and remote servers. You may need to adjust settings on the remote server otherwise related items may not work properly after migration.'
+            'Some environments differ between local and remote servers. You may need to adjust settings on the remote server otherwise related items may not work properly after migration.',
           )
         }}
       </n-alert>
 
-      <n-flex justify="center" style="margin-top: 16px">
+      <n-flex justify="center" class="mt-4">
         <n-button tag="a" :href="migration.logUrl" target="_blank">
           {{ $gettext('Download Log') }}
         </n-button>

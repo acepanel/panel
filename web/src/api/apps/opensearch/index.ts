@@ -5,5 +5,5 @@ export default {
   config: (): any => http.Get('/apps/opensearch/config'),
   saveConfig: (config: string): any => http.Post('/apps/opensearch/config', { config }),
   configTune: (): any => http.Get('/apps/opensearch/config_tune'),
-  saveConfigTune: (data: any): any => http.Post('/apps/opensearch/config_tune', data)
+  saveConfigTune: (data: any): any => http.Post('/apps/opensearch/config_tune', data),
 }

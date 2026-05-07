@@ -10,7 +10,7 @@ export default {
     device: string,
     path: string,
     write_fstab: boolean = false,
-    mount_option: string = ''
+    mount_option: string = '',
   ): any => http.Post('/toolbox_disk/mount', { device, path, write_fstab, mount_option }),
   // 卸载分区
   umount: (path: string): any => http.Post('/toolbox_disk/umount', { path }),
@@ -46,8 +46,7 @@ export default {
   // 获取 SMART 磁盘列表
   smartDisks: (): any => http.Get('/toolbox_disk/smart/disks'),
   // 获取 SMART 详细信息
-  smartInfo: (device: string): any =>
-    http.Get('/toolbox_disk/smart/info', { params: { device } }),
+  smartInfo: (device: string): any => http.Get('/toolbox_disk/smart/info', { params: { device } }),
   // 获取 RAID 状态
-  raidInfo: (): any => http.Get('/toolbox_disk/raid/info')
+  raidInfo: (): any => http.Get('/toolbox_disk/raid/info'),
 }

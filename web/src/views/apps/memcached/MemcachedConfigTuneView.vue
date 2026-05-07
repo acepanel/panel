@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'memcached-config-tune'
+  name: 'memcached-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -36,8 +36,8 @@ const handleSave = () => {
       listen_address: listenAddress.value,
       memory: String(memory.value ?? ''),
       max_connections: String(maxConnections.value ?? ''),
-      threads: String(threads.value ?? '')
-    })
+      threads: String(threads.value ?? ''),
+    }),
   )
     .onSuccess(() => {
       window.$message.success($gettext('Saved successfully'))
@@ -55,22 +55,49 @@ const handleSave = () => {
     </n-alert>
     <n-form>
       <n-form-item :label="$gettext('Port (-p)')">
-        <n-input-number class="w-full" v-model:value="port" :placeholder="$gettext('e.g. 11211')" :min="1" :max="65535" />
+        <n-input-number
+          class="w-full"
+          v-model:value="port"
+          :placeholder="$gettext('e.g. 11211')"
+          :min="1"
+          :max="65535"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('UDP Port (-U, 0 to disable)')">
-        <n-input-number class="w-full" v-model:value="udpPort" :placeholder="$gettext('e.g. 0')" :min="0" :max="65535" />
+        <n-input-number
+          class="w-full"
+          v-model:value="udpPort"
+          :placeholder="$gettext('e.g. 0')"
+          :min="0"
+          :max="65535"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('Listen Address (-l)')">
         <n-input v-model:value="listenAddress" :placeholder="$gettext('e.g. 127.0.0.1')" />
       </n-form-item>
       <n-form-item :label="$gettext('Memory (-m, MB)')">
-        <n-input-number class="w-full" v-model:value="memory" :placeholder="$gettext('e.g. 64')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="memory"
+          :placeholder="$gettext('e.g. 64')"
+          :min="1"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('Max Connections (-c)')">
-        <n-input-number class="w-full" v-model:value="maxConnections" :placeholder="$gettext('e.g. 1024')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="maxConnections"
+          :placeholder="$gettext('e.g. 1024')"
+          :min="1"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('Threads (-t)')">
-        <n-input-number class="w-full" v-model:value="threads" :placeholder="$gettext('e.g. 4')" :min="1" />
+        <n-input-number
+          class="w-full"
+          v-model:value="threads"
+          :placeholder="$gettext('e.g. 4')"
+          :min="1"
+        />
       </n-form-item>
     </n-form>
     <n-flex>

@@ -39,8 +39,7 @@ export default {
   // 删除数据库用户
   userDelete: (id: number) => http.Delete(`/database_user/${id}`),
   // 更新用户备注
-  userRemark: (id: number, remark: string) =>
-    http.Put(`/database_user/${id}/remark`, { remark }),
+  userRemark: (id: number, remark: string) => http.Put(`/database_user/${id}/remark`, { remark }),
   // Redis 获取数据库数量
   redisDatabases: (server_id: number) =>
     http.Get('/database_redis/databases', { params: { server_id } }),
@@ -83,5 +82,5 @@ export default {
   esDocumentSet: (data: any) => http.Post('/database_elasticsearch/document', data),
   // Elasticsearch 删除文档
   esDocumentDelete: (server_id: number, index: string, id: string) =>
-    http.Delete('/database_elasticsearch/document', { server_id, index, id })
+    http.Delete('/database_elasticsearch/document', { server_id, index, id }),
 }

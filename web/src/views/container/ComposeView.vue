@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFileStore } from '@/stores'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmDelete, confirmAction } = useConfirm()
 const fileStore = useFileStore()
 const router = useRouter()
 
@@ -16,7 +18,7 @@ const forcePull = ref(false)
 const createModel = ref({
   name: '',
   compose: '',
-  envs: []
+  envs: [],
 })
 const createModal = ref(false)
 
@@ -25,7 +27,7 @@ const selectedRowKeys = ref<any>([])
 const updateModel = ref({
   name: '',
   compose: '',
-  envs: []
+  envs: [],
 })
 const updateModal = ref(false)
 
@@ -58,7 +60,7 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Directory'),
@@ -74,18 +76,18 @@ const columns: any = [
           onClick: () => {
             if (fileStore.activeTab) fileStore.updateTabPath(fileStore.activeTabId, row.path)
             router.push({ name: 'file-index' })
-          }
+          },
         },
-        { default: () => row.path }
+        { default: () => row.path },
       )
-    }
+    },
   },
   {
     title: $gettext('Status'),
     key: 'status',
     width: 250,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Creation Time'),
@@ -94,7 +96,7 @@ const columns: any = [
     resizable: true,
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -102,7 +104,7 @@ const columns: any = [
     width: 280,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -112,31 +114,25 @@ const columns: any = [
                 updateModel.value = {
                   name: row.name,
                   compose: data.compose,
-                  envs: data.envs
+                  envs: data.envs,
                 }
                 updateModal.value = true
               })
-            }
+            },
           },
-          {
-            default: () => $gettext('Edit')
-          }
+          { default: () => $gettext('Edit') },
         ),
         h(
           NPopconfirm,
           {
             showIcon: false,
-            onPositiveClick: () => {
-              handleComposeUp(row, forcePull.value)
-            }
+            onPositiveClick: () => handleComposeUp(row, forcePull.value),
           },
           {
-            default: () => {
-              return h(
+            default: () =>
+              h(
                 NFlex,
-                {
-                  vertical: true
-                },
+                { vertical: true },
                 {
                   default: () => [
                     h(
@@ -145,43 +141,41 @@ const columns: any = [
                       {
                         default: () =>
                           $gettext(`Are you sure you want to start compose %{ name }?`, {
-                            name: row.name
-                          })
-                      }
+                            name: row.name,
+                          }),
+                      },
                     ),
                     h(
                       NCheckbox,
                       {
                         checked: forcePull.value,
-                        onUpdateChecked: (v) => (forcePull.value = v)
+                        onUpdateChecked: (v) => (forcePull.value = v),
                       },
-                      { default: () => $gettext('Force pull images') }
-                    )
-                  ]
-                }
-              )
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  style: 'margin-left: 15px;',
-                  size: 'small',
-                  type: 'success'
+                      { default: () => $gettext('Force pull images') },
+                    ),
+                  ],
                 },
-                {
-                  default: () => $gettext('Start')
-                }
-              )
-            }
-          }
+              ),
+            trigger: () =>
+              h(NButton, { size: 'small', type: 'success' }, { default: () => $gettext('Start') }),
+          },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => {
+            size: 'small',
+            type: 'warning',
+            onClick: async () => {
+              const ok = await confirmAction({
+                type: 'warning',
+                title: $gettext('Confirm'),
+                content: $gettext('Are you sure you want to stop compose %{ name }?', {
+                  name: row.name,
+                }),
+              })
+              if (!ok) return
               const messageReactive = window.$message.loading($gettext('Stopping...'), {
-                duration: 0
+                duration: 0,
               })
               useRequest(container.composeDown(row.name))
                 .onSuccess(() => {
@@ -189,66 +183,34 @@ const columns: any = [
                   forcePull.value = false
                   window.$message.success($gettext('Stop successful'))
                 })
-                .onComplete(() => {
-                  messageReactive?.destroy()
-                })
-            }
-          },
-          {
-            default: () => {
-              return $gettext(`Are you sure you want to stop compose %{ name }?`, {
-                name: row.name
-              })
+                .onComplete(() => messageReactive?.destroy())
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  style: 'margin-left: 15px;',
-                  size: 'small',
-                  type: 'warning'
-                },
-                {
-                  default: () => $gettext('Stop')
-                }
-              )
-            }
-          }
+          },
+          { default: () => $gettext('Stop') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete compose %{ name }?', {
+                  name: row.name,
+                }),
+              })
+              if (!ok) return
               useRequest(container.composeRemove(row.name)).onSuccess(() => {
                 refresh()
                 window.$message.success($gettext('Delete successful'))
               })
-            }
-          },
-          {
-            default: () => {
-              return $gettext(`Are you sure you want to delete compose %{ name }?`, {
-                name: row.name
-              })
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  style: 'margin-left: 15px;',
-                  size: 'small',
-                  type: 'error'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -257,8 +219,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleCreate = () => {
@@ -274,7 +236,7 @@ const handleCreate = () => {
       createModel.value = {
         name: '',
         compose: '',
-        envs: []
+        envs: [],
       }
     })
 }
@@ -292,7 +254,7 @@ const handleUpdate = () => {
       updateModel.value = {
         name: '',
         compose: '',
-        envs: []
+        envs: [],
       }
     })
 }
@@ -317,16 +279,22 @@ onMounted(() => {
       <n-button type="primary" @click="createModal = true">
         {{ $gettext('Create Compose') }}
       </n-button>
-      <n-popconfirm @positive-click="handleBatchDelete">
+      <ConfirmDialog
+        type="danger"
+        :content="$gettext('Are you sure you want to delete the selected composes?')"
+        @confirm="handleBatchDelete"
+      >
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{ $gettext('Are you sure you want to delete the selected composes?') }}
-      </n-popconfirm>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :loading="loading"
@@ -334,17 +302,13 @@ onMounted(() => {
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.name"
-      v-model:checked-row-keys="selectedRowKeys"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

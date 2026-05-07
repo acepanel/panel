@@ -11,14 +11,14 @@ export default {
     password: string,
     pass_code: string,
     safe_login: boolean,
-    captcha_code: string
+    captcha_code: string,
   ): any =>
     http.Post('/user/login', {
       username,
       password,
       pass_code,
       safe_login,
-      captcha_code
+      captcha_code,
     }),
   // 登出
   logout: (): any => http.Post('/user/logout'),
@@ -70,5 +70,5 @@ export default {
   passkeyFinishLogin: (assertion: any): any => http.Put('/user/passkey/login', assertion),
   passkeyList: (user_id: number): any => http.Get('/user_passkeys', { params: { user_id } }),
   passkeyDelete: (id: number, user_id: number): any =>
-    http.Delete(`/user_passkeys/${id}`, { params: { user_id } })
+    http.Delete(`/user_passkeys/${id}`, { params: { user_id } }),
 }

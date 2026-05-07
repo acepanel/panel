@@ -1,265 +1,561 @@
 <script setup lang="ts">
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
-import { ClipboardAddon } from '@xterm/addon-clipboard'
-import { FitAddon } from '@xterm/addon-fit'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
-import { WebLinksAddon } from '@xterm/addon-web-links'
-import { WebglAddon } from '@xterm/addon-webgl'
-import { Terminal } from '@xterm/xterm'
-import '@xterm/xterm/css/xterm.css'
+import Anser from 'anser'
 import { useGettext } from 'vue3-gettext'
 
+import file from '@/api/panel/file'
 import ws from '@/api/ws'
 
 const { $gettext } = useGettext()
 const props = defineProps({
   path: {
     type: String,
-    required: false
+    required: false,
   },
   service: {
     type: String,
-    required: false
-  }
+    required: false,
+  },
 })
 
-const terminalRef = ref<HTMLElement | null>(null)
-const term = ref<Terminal | null>(null)
-let ptyWs: WebSocket | null = null
-let fitAddon: FitAddon | null = null
-let webglAddon: WebglAddon | null = null
-let resizeObserver: ResizeObserver | null = null
-
-// 根据 props 构建要执行的命令
-const buildCommand = (): string => {
-  if (props.path) return `tail -n 1000 -F '${props.path}'`
-  if (props.service) return `journalctl --no-pager -n 1000 -f -u '${props.service}'`
-  return ''
+interface LogLine {
+  id: number
+  html: string
+  raw: string
 }
 
-// 初始化终端并连接 PTY
-const initTerminal = async () => {
-  if (!terminalRef.value) return
-  const command = buildCommand()
-  if (!command) {
-    window.$message.error($gettext('Path or service cannot be empty'))
-    return
-  }
+const lines = ref<LogLine[]>([])
+const followMode = ref(true)
+const isLoadingMore = ref(false)
+const hasMore = ref(false)
+const fontSize = ref(13)
+const connected = ref(false)
+const searchKeyword = ref('')
+const scrollEl = ref<HTMLElement | null>(null)
 
-  try {
-    ptyWs = await ws.pty(command)
-    ptyWs.binaryType = 'arraybuffer'
+let nextId = 0
+let pendingTail = ''
+let loadedFromEnd = 0
+let followWs: WebSocket | null = null
+let suppressScrollHandler = false
+let isManuallyClosed = false
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let lastSearchIndex = -1
 
-    term.value = new Terminal({
-      allowProposedApi: true,
-      lineHeight: 1.2,
-      fontSize: 14,
-      fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: false,
-      cursorStyle: 'bar',
-      tabStopWidth: 4,
-      disableStdin: false,
-      convertEol: true,
-      scrollback: 10000,
-      theme: { background: '#111', foreground: '#fff' }
-    })
+const sourceParams = computed(() =>
+  props.path ? { path: props.path } : props.service ? { service: props.service } : null,
+)
 
-    fitAddon = new FitAddon()
-    webglAddon = new WebglAddon()
+const titleLabel = computed(() => props.path || props.service || '')
 
-    term.value.loadAddon(fitAddon)
-    term.value.loadAddon(new ClipboardAddon())
-    term.value.loadAddon(new WebLinksAddon())
-    term.value.loadAddon(new Unicode11Addon())
-    term.value.unicode.activeVersion = '11'
-    term.value.loadAddon(webglAddon)
-    webglAddon.onContextLoss(() => {
-      webglAddon?.dispose()
-    })
-    term.value.open(terminalRef.value)
+const supported = computed(() => !!sourceParams.value)
 
-    ptyWs.onmessage = (ev) => {
-      const data: ArrayBuffer | string = ev.data
-      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
-    }
+const parseLine = (raw: string): LogLine => ({
+  id: nextId++,
+  raw,
+  html: Anser.ansiToHtml(Anser.escapeForHtml(raw), { use_classes: true }),
+})
 
-    term.value.onData((data) => {
-      if (ptyWs?.readyState === WebSocket.OPEN) {
-        ptyWs.send(data)
-      }
-    })
-    term.value.onBinary((data) => {
-      if (ptyWs?.readyState === WebSocket.OPEN) {
-        const buffer = new Uint8Array(data.length)
-        for (let i = 0; i < data.length; ++i) {
-          buffer[i] = data.charCodeAt(i) & 255
+const scrollToBottom = () => {
+  const el = scrollEl.value
+  if (!el) return
+  suppressScrollHandler = true
+  el.scrollTop = el.scrollHeight
+  requestAnimationFrame(() => {
+    suppressScrollHandler = false
+  })
+}
+
+const scrollToTop = () => {
+  const el = scrollEl.value
+  if (el) el.scrollTop = 0
+}
+
+const scheduleReconnect = () => {
+  if (isManuallyClosed) return
+  if (reconnectTimer) clearTimeout(reconnectTimer)
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null
+    if (!isManuallyClosed) startFollow()
+  }, 3000)
+}
+
+const startFollow = () => {
+  if (!sourceParams.value) return
+  isManuallyClosed = false
+  ws.follow(sourceParams.value)
+    .then((socket) => {
+      followWs = socket
+      socket.binaryType = 'arraybuffer'
+      connected.value = true
+
+      socket.onmessage = (ev) => {
+        const data: string =
+          typeof ev.data === 'string' ? ev.data : new TextDecoder().decode(new Uint8Array(ev.data))
+        const combined = pendingTail + data
+        const parts = combined.split('\n')
+        pendingTail = parts.pop() ?? ''
+        if (parts.length > 0) {
+          lines.value.push(...parts.map(parseLine))
+          if (followMode.value) {
+            nextTick(() => scrollToBottom())
+          }
         }
-        ptyWs.send(buffer)
+      }
+
+      socket.onclose = () => {
+        connected.value = false
+        scheduleReconnect()
+      }
+
+      socket.onerror = () => {
+        connected.value = false
+        socket.close()
       }
     })
-    term.value.onResize(({ rows, cols }) => {
-      if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
-        ptyWs.send(
-          JSON.stringify({
-            resize: true,
-            columns: cols,
-            rows: rows
+    .catch(() => {
+      connected.value = false
+      scheduleReconnect()
+    })
+}
+
+const PAGE_SIZE = 100
+
+const loadInitial = () => {
+  if (!sourceParams.value) return
+  useRequest(file.tail({ ...sourceParams.value, offset: 0, limit: PAGE_SIZE })).onSuccess(
+    ({ data }: any) => {
+      const newLines: string[] = data?.lines ?? []
+      lines.value = newLines.map(parseLine)
+      loadedFromEnd = newLines.length
+      hasMore.value = data?.has_more ?? false
+      nextTick(() => {
+        scrollToBottom()
+        followMode.value = true
+        startFollow()
+      })
+    },
+  )
+}
+
+const loadOlder = () => {
+  if (!sourceParams.value || isLoadingMore.value || !hasMore.value) return
+  isLoadingMore.value = true
+  const el = scrollEl.value
+  const oldScrollTop = el?.scrollTop ?? 0
+  const oldScrollHeight = el?.scrollHeight ?? 0
+
+  useRequest(file.tail({ ...sourceParams.value, offset: loadedFromEnd, limit: PAGE_SIZE }))
+    .onSuccess(({ data }: any) => {
+      const newOldLines: string[] = data?.lines ?? []
+      if (newOldLines.length === 0) {
+        hasMore.value = false
+        return
+      }
+      lines.value.unshift(...newOldLines.map(parseLine))
+      loadedFromEnd += newOldLines.length
+      hasMore.value = data?.has_more ?? false
+      // 保持视觉位置:scrollTop = 新 scrollHeight - 旧 scrollHeight + 旧 scrollTop
+      nextTick(() => {
+        const target = scrollEl.value
+        if (target) {
+          suppressScrollHandler = true
+          target.scrollTop = target.scrollHeight - oldScrollHeight + oldScrollTop
+          requestAnimationFrame(() => {
+            suppressScrollHandler = false
           })
-        )
-      }
+        }
+      })
     })
+    .onComplete(() => {
+      isLoadingMore.value = false
+    })
+}
 
-    fitAddon.fit()
-    window.addEventListener('resize', onTerminalResize, false)
-
-    // 外层弹窗/容器动画尺寸变化时也能 fit
-    if (terminalRef.value.parentElement) {
-      resizeObserver = new ResizeObserver(() => onTerminalResize())
-      resizeObserver.observe(terminalRef.value.parentElement)
-    }
-
-    ptyWs.onclose = () => {
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection closed.'))
-      }
-    }
-
-    ptyWs.onerror = (event) => {
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection error.'))
-      }
-      console.error(event)
-      ptyWs?.close()
-    }
-  } catch (error) {
-    console.error('Failed to start PTY:', error)
-    window.$message.error($gettext('Failed to get log stream'))
+const onScroll = () => {
+  if (suppressScrollHandler) return
+  const el = scrollEl.value
+  if (!el) return
+  const { scrollTop, scrollHeight, clientHeight } = el
+  followMode.value = scrollHeight - scrollTop - clientHeight < 30
+  if (scrollTop < 60 && hasMore.value && !isLoadingMore.value) {
+    loadOlder()
   }
 }
 
-// 关闭终端并清理资源
-const closeTerminal = () => {
-  try {
-    if (ptyWs) {
-      ptyWs.close()
-      ptyWs = null
-    }
-    if (term.value) {
-      term.value.dispose()
-      term.value = null
-    }
-    fitAddon = null
-    webglAddon = null
-    if (resizeObserver) {
-      resizeObserver.disconnect()
-      resizeObserver = null
-    }
-    if (terminalRef.value) {
-      terminalRef.value.innerHTML = ''
-    }
-    window.removeEventListener('resize', onTerminalResize)
-  } catch {
-    /* empty */
+const toggleFollow = () => {
+  if (followMode.value) {
+    followMode.value = false
+  } else {
+    scrollToBottom()
+    followMode.value = true
   }
 }
 
-// 窗口或父容器尺寸变化时重新 fit
-const onTerminalResize = () => {
-  if (fitAddon && term.value) {
-    fitAddon.fit()
+const increaseFont = () => {
+  if (fontSize.value < 24) fontSize.value++
+}
+
+const decreaseFont = () => {
+  if (fontSize.value > 10) fontSize.value--
+}
+
+const handleSearch = () => {
+  if (!searchKeyword.value || !scrollEl.value) return
+  const kw = searchKeyword.value.toLowerCase()
+  const startIdx = lastSearchIndex + 1
+  // 从上次匹配位置之后查找,找不到再从头查(回环)
+  let idx = lines.value.findIndex((l, i) => i >= startIdx && l.raw.toLowerCase().includes(kw))
+  if (idx < 0) {
+    idx = lines.value.findIndex((l) => l.raw.toLowerCase().includes(kw))
+  }
+  if (idx >= 0) {
+    lastSearchIndex = idx
+    const lineEls = scrollEl.value.querySelectorAll('.log-line')
+    const target = lineEls[idx] as HTMLElement | undefined
+    if (target) {
+      target.scrollIntoView({ block: 'center' })
+      followMode.value = false
+    }
+  } else {
+    window.$message.warning($gettext('Not found'))
   }
 }
 
-// 按住 Ctrl 滚轮缩放字号
-const onTerminalWheel = (event: WheelEvent) => {
-  if (event.ctrlKey && term.value && fitAddon) {
-    event.preventDefault()
-    if (event.deltaY > 0) {
-      if (term.value.options.fontSize! > 12) {
-        term.value.options.fontSize = term.value.options.fontSize! - 1
-      }
-    } else {
-      term.value.options.fontSize = term.value.options.fontSize! + 1
-    }
-    fitAddon.fit()
+// 关键字变化时重置搜索游标
+watch(searchKeyword, () => {
+  lastSearchIndex = -1
+})
+
+const cleanup = () => {
+  isManuallyClosed = true
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
   }
+  followWs?.close()
+  followWs = null
+  lines.value = []
+  loadedFromEnd = 0
+  pendingTail = ''
+  hasMore.value = false
+  connected.value = false
+  lastSearchIndex = -1
 }
 
 watch(
   () => [props.path, props.service],
-  async () => {
-    closeTerminal()
-    await nextTick()
-    await initTerminal()
-  }
+  () => {
+    cleanup()
+    nextTick(() => loadInitial())
+  },
 )
 
-onMounted(async () => {
-  await nextTick()
-  await initTerminal()
+onMounted(() => {
+  loadInitial()
 })
 
 onUnmounted(() => {
-  closeTerminal()
+  cleanup()
 })
 
-// 由父组件在清空源文件/日志成功后调用，重启 PTY 让 tail/journalctl 重新读取已清空的源
-const clear = async () => {
-  closeTerminal()
-  await nextTick()
-  await initTerminal()
+const clear = () => {
+  cleanup()
+  nextTick(() => loadInitial())
 }
 
 defineExpose({ clear })
 </script>
 
 <template>
-  <div
-    v-if="props.path || props.service"
-    ref="terminalRef"
-    class="realtime-log-terminal"
-    @wheel="onTerminalWheel"
-  ></div>
+  <div v-if="supported" class="log-shell">
+    <header class="log-titlebar">
+      <div class="log-title">
+        <span class="status-dot" :class="connected ? 'ok' : 'err'"></span>
+        <span class="log-title-text">{{ titleLabel }}</span>
+      </div>
+      <div class="titlebar-actions">
+        <button
+          class="action-btn"
+          :class="{ active: followMode }"
+          :title="followMode ? $gettext('Pause Auto-scroll') : $gettext('Resume Auto-scroll')"
+          @click="toggleFollow"
+        >
+          <i-mdi-pause v-if="followMode" class="text-base" />
+          <i-mdi-play v-else class="text-base" />
+        </button>
+        <button class="action-btn" :title="$gettext('Jump to Top')" @click="scrollToTop">
+          <i-mdi-arrow-collapse-up class="text-base" />
+        </button>
+        <button class="action-btn" :title="$gettext('Jump to Bottom')" @click="scrollToBottom">
+          <i-mdi-arrow-collapse-down class="text-base" />
+        </button>
+        <n-popover trigger="click" placement="bottom-end">
+          <template #trigger>
+            <button class="action-btn" :title="$gettext('Search')">
+              <i-mdi-magnify class="text-base" />
+            </button>
+          </template>
+          <n-input
+            v-model:value="searchKeyword"
+            size="small"
+            :placeholder="$gettext('Enter keyword and press Enter')"
+            class="!w-60"
+            @keyup.enter="handleSearch"
+          />
+        </n-popover>
+        <div class="action-divider"></div>
+        <button class="action-btn" :title="$gettext('Decrease Font Size')" @click="decreaseFont">
+          <i-mdi-format-font-size-decrease class="text-base" />
+        </button>
+        <button class="action-btn" :title="$gettext('Increase Font Size')" @click="increaseFont">
+          <i-mdi-format-font-size-increase class="text-base" />
+        </button>
+      </div>
+    </header>
+
+    <div
+      ref="scrollEl"
+      class="log-content"
+      :style="{ fontSize: `${fontSize}px` }"
+      @scroll="onScroll"
+    >
+      <div v-for="line in lines" :key="line.id" class="log-line" v-html="line.html"></div>
+    </div>
+  </div>
   <n-empty v-else :description="$gettext('No logs available')" />
 </template>
 
+<style lang="scss">
+/* anser 默认 use_classes 输出的 ANSI 颜色类名,需要全局可达 */
+.log-line {
+  .ansi-black-fg {
+    color: #3f3f3f;
+  }
+  .ansi-red-fg {
+    color: #c91b00;
+  }
+  .ansi-green-fg {
+    color: #00c200;
+  }
+  .ansi-yellow-fg {
+    color: #c7c400;
+  }
+  .ansi-blue-fg {
+    color: #2f80ed;
+  }
+  .ansi-magenta-fg {
+    color: #c930c7;
+  }
+  .ansi-cyan-fg {
+    color: #00c5c7;
+  }
+  .ansi-white-fg {
+    color: #c7c7c7;
+  }
+  .ansi-bright-black-fg {
+    color: #686868;
+  }
+  .ansi-bright-red-fg {
+    color: #ff6e67;
+  }
+  .ansi-bright-green-fg {
+    color: #5ffa68;
+  }
+  .ansi-bright-yellow-fg {
+    color: #fffc67;
+  }
+  .ansi-bright-blue-fg {
+    color: #6871ff;
+  }
+  .ansi-bright-magenta-fg {
+    color: #ff77ff;
+  }
+  .ansi-bright-cyan-fg {
+    color: #60fdff;
+  }
+  .ansi-bright-white-fg {
+    color: #ffffff;
+  }
+
+  .ansi-black-bg {
+    background-color: #3f3f3f;
+  }
+  .ansi-red-bg {
+    background-color: #c91b00;
+  }
+  .ansi-green-bg {
+    background-color: #00c200;
+  }
+  .ansi-yellow-bg {
+    background-color: #c7c400;
+  }
+  .ansi-blue-bg {
+    background-color: #2f80ed;
+  }
+  .ansi-magenta-bg {
+    background-color: #c930c7;
+  }
+  .ansi-cyan-bg {
+    background-color: #00c5c7;
+  }
+  .ansi-white-bg {
+    background-color: #c7c7c7;
+  }
+
+  .ansi-bold {
+    font-weight: bold;
+  }
+  .ansi-italic {
+    font-style: italic;
+  }
+  .ansi-underline {
+    text-decoration: underline;
+  }
+  .ansi-strikethrough {
+    text-decoration: line-through;
+  }
+  .ansi-dim {
+    opacity: 0.6;
+  }
+}
+</style>
+
 <style scoped lang="scss">
-.realtime-log-terminal {
+.log-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   height: 60vh;
   min-height: 300px;
-  background: #111;
+  background: var(--color-bg-terminal);
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  color: #e6edf3;
 }
 
-:deep(.xterm) {
-  padding: 1rem !important;
+.log-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar) {
-  border-radius: 0.4rem;
-  height: 6px;
+.log-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: 'JetBrains Mono Variable', monospace;
+}
+
+.log-title-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-dot {
   width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.ok {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  }
+
+  &.err {
+    background: #ef4444;
+  }
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-thumb) {
-  background-color: #666;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
+.titlebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-thumb) {
-  background-color: #aaa;
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 3px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  &.active {
+    background: rgba(34, 197, 94, 0.18);
+    color: rgb(74, 222, 128);
+  }
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-track) {
-  background-color: #111;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
+.action-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
 }
 
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-track) {
-  background-color: #444;
+.log-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono Variable', monospace;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  padding: 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+  }
+}
+
+.log-line {
+  padding: 0 12px;
+  white-space: pre;
+  user-select: text;
+  cursor: text;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
 }
 </style>

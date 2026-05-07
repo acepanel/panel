@@ -15,5 +15,5 @@ export default {
   // 获取白名单
   whitelist: (): any => http.Get('/apps/fail2ban/white_list'),
   // 设置白名单
-  setWhitelist: (ip: string): any => http.Post('/apps/fail2ban/white_list', { ip })
+  setWhitelist: (ip: string): any => http.Post('/apps/fail2ban/white_list', { ip }),
 }

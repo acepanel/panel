@@ -1,0 +1,121 @@
+/**
+ * AcePanel CSS 变量层 —— 暗色切换中枢
+ * 所有颜色与阴影通过 CSS 变量暴露,html.dark 下重定义
+ */
+
+:root {
+  /* 文本 */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+  --color-text-disabled: #cbd5e1;
+  --color-text-inverse: #ffffff;
+
+  /* 背景 */
+  --color-bg-base: #f8fafc;
+  --color-bg-elevated: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-bg-inverse: #0f172a;
+  --color-bg-terminal: #0a0e1a;
+
+  /* 边框 */
+  --color-border-default: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-border-subtle: #f1f5f9;
+
+  /* 品牌 */
+  --color-brand: #18a058;
+  --color-brand-hover: #0e9249;
+  --color-brand-pressed: #0c7a43;
+  --color-brand-subtle: #e8f7ee;
+
+  /* 状态 */
+  --color-success-fg: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning-fg: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-error-fg: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-info-fg: #0284c7;
+  --color-info-bg: #f0f9ff;
+
+  /* 遮罩 */
+  --color-overlay: rgba(15, 23, 42, 0.45);
+
+  /* 阴影 */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 20px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 24px 40px -8px rgba(15, 23, 42, 0.12), 0 8px 16px -8px rgba(15, 23, 42, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(24, 160, 88, 0.2);
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* 动效 */
+  --duration-instant: 80ms;
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1.05);
+  --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-drawer: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-tooltip: 1500;
+  --z-notification: 1600;
+  --z-loading-bar: 1700;
+}
+
+html.dark {
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-text-disabled: #475569;
+  --color-text-inverse: #0f172a;
+
+  --color-bg-base: #0b0f17;
+  --color-bg-elevated: #151b27;
+  --color-bg-subtle: #1e2533;
+  --color-bg-inverse: #f8fafc;
+  --color-bg-terminal: #05080f;
+
+  --color-border-default: #1f2937;
+  --color-border-strong: #374151;
+  --color-border-subtle: #151b27;
+
+  --color-brand: #36ad6a;
+  --color-brand-hover: #7dd3a3;
+  --color-brand-pressed: #18a058;
+  --color-brand-subtle: rgba(54, 173, 106, 0.14);
+
+  --color-success-fg: #4ade80;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-warning-fg: #fbbf24;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-error-fg: #f87171;
+  --color-error-bg: rgba(239, 68, 68, 0.12);
+  --color-info-fg: #38bdf8;
+  --color-info-bg: rgba(14, 165, 233, 0.12);
+
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 20px -4px rgba(0, 0, 0, 0.55), 0 4px 8px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 24px 40px -8px rgba(0, 0, 0, 0.65), 0 8px 16px -8px rgba(0, 0, 0, 0.45);
+  --shadow-focus: 0 0 0 3px rgba(54, 173, 106, 0.25);
+}

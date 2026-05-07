@@ -15,5 +15,5 @@ export default {
     auto_firewall: boolean
   }): any => http.Post('/template', data),
   // 模版下载回调
-  callback: (slug: string): any => http.Post(`/template/${slug}/callback`)
+  callback: (slug: string): any => http.Post(`/template/${slug}/callback`),
 }

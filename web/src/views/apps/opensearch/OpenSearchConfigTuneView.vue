@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'opensearch-config-tune'
+  name: 'opensearch-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -24,7 +24,7 @@ const saveLoading = ref(false)
 
 const discoveryTypeOptions = [
   { label: 'single-node', value: 'single-node' },
-  { label: 'multi-node', value: 'multi-node' }
+  { label: 'multi-node', value: 'multi-node' },
 ]
 
 useRequest(opensearch.configTune()).onSuccess(({ data }: any) => {
@@ -48,7 +48,7 @@ const getConfigData = () => ({
   path_data: pathData.value,
   path_logs: pathLogs.value,
   heap_init_size: heapInitSize.value,
-  heap_max_size: heapMaxSize.value
+  heap_max_size: heapMaxSize.value,
 })
 
 const handleSave = () => {
@@ -88,7 +88,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -97,7 +102,11 @@ const handleSave = () => {
     <n-tab-pane name="paths-jvm" :tab="$gettext('Paths & JVM')">
       <n-flex vertical>
         <n-alert type="info">
-          {{ $gettext('Data paths and JVM heap memory settings. Heap size is recommended to be 50% of system RAM, max 31g.') }}
+          {{
+            $gettext(
+              'Data paths and JVM heap memory settings. Heap size is recommended to be 50% of system RAM, max 31g.',
+            )
+          }}
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Data Path (path.data)')">
@@ -114,7 +123,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

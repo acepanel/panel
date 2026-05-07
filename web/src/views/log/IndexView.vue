@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'log-index'
+  name: 'log-index',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -17,8 +17,8 @@ const activeTab = ref('operation')
 </script>
 
 <template>
-  <common-page show-header show-footer flex>
-    <template #tabbar>
+  <PageContainer :show-footer="true" flex>
+    <template #tabs>
       <n-tabs v-model:value="activeTab" animated>
         <n-tab name="operation" :tab="$gettext('Operation Log')" />
         <n-tab name="database" :tab="$gettext('Database Log')" />
@@ -30,7 +30,7 @@ const activeTab = ref('operation')
     <database-log v-if="activeTab === 'database'" />
     <http-log v-if="activeTab === 'http'" />
     <SSHLog v-if="activeTab === 'ssh'" />
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss"></style>

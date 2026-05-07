@@ -7,7 +7,7 @@ export default {
   path: '/database',
   component: Layout,
   meta: {
-    order: 5
+    order: 5,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Database',
         icon: 'mdi:database-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

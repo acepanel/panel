@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import user from '@/api/panel/user'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import user from '@/api/panel/user'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const model = ref({
   username: '',
   password: '',
-  email: ''
+  email: '',
 })
 
 const loading = ref(false)
 
 const handleCreate = () => {
   loading.value = true
-  useRequest(() =>
-    user.create(model.value.username, model.value.password, model.value.email)
-  )
+  useRequest(() => user.create(model.value.username, model.value.password, model.value.email))
     .onSuccess(() => {
       show.value = false
       window.$message.success($gettext('Created successfully'))
@@ -68,7 +67,9 @@ const handleCreate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{
+      $gettext('Submit')
+    }}</n-button>
   </n-modal>
 </template>
 

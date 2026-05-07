@@ -7,7 +7,7 @@ export function defaultSettings(): Theme.Setting {
   const sider = themeSetting.sider || {
     width: 160,
     collapsedWidth: 64,
-    collapsed: false
+    collapsed: false,
   }
   const header = themeSetting.header || { visible: true, height: 60 }
   const tab = themeSetting.tab || { visible: true, height: 50 }

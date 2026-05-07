@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import user from '@/api/panel/user'
-import { formatDateTime } from '@/utils'
 import copy2clipboard from '@vavt/copy2clipboard'
-import { NAlert, NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
+import { NAlert, NButton, NDataTable, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import user from '@/api/panel/user'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { formatDateTime } from '@/utils'
+
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
 
@@ -17,11 +20,11 @@ const updateLoading = ref(false)
 const currentID = ref(0)
 const createModel = ref({
   ips: [] as Array<string>,
-  expired_at: new Date().getTime() + 31536000 * 1000 // 1 year
+  expired_at: new Date().getTime() + 31536000 * 1000, // 1 year
 })
 const updateModel = ref({
   ips: [] as Array<string>,
-  expired_at: new Date().getTime() + 31536000 * 1000 // 1 year
+  expired_at: new Date().getTime() + 31536000 * 1000, // 1 year
 })
 
 const columns: any = [
@@ -30,7 +33,7 @@ const columns: any = [
     key: 'id',
     width: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Creation Time'),
@@ -39,7 +42,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Expiration Time'),
@@ -48,7 +51,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.expired_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -56,7 +59,7 @@ const columns: any = [
     width: 260,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -65,40 +68,27 @@ const columns: any = [
             onClick: () => {
               currentID.value = row.id
               updateModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            style: 'margin-left: 15px;',
-            onPositiveClick: () => handleDelete(row.id)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this access token?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this access token?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -107,8 +97,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = (id: number) => {
@@ -120,61 +110,60 @@ const handleDelete = (id: number) => {
 
 const handleCreate = () => {
   createLoading.value = true
-  useRequest(() =>
-    user.tokenCreate(id.value, createModel.value.ips, createModel.value.expired_at)
-  ).onSuccess(({ data }) => {
-    createModal.value = false
-    window.$dialog.success({
-      title: $gettext('Created successfully'),
-      content: () => {
-        return [
-          h(
-            NFlex,
-            {
-              vertical: true
-            },
-            {
-              default: () => [
-                h(
-                  NAlert,
-                  {
-                    type: 'warning'
-                  },
-                  {
-                    default: () =>
-                      $gettext(
-                        'Token is only displayed once, please save it before closing the dialog.'
-                      )
-                  }
-                ),
-                h(NInput, {
-                  value: data.token,
-                  type: 'password',
-                  showPasswordOn: 'click',
-                  readonly: true
-                })
-              ]
-            }
-          )
-        ]
-      },
-      maskClosable: false,
-      positiveText: $gettext('Copy and close'),
-      onPositiveClick: () => {
-        copy2clipboard(data.token)
-          .then(() => {
-            window.$message.success($gettext('Copied successfully'))
-          })
-          .catch(() => {
-            window.$message.error($gettext('Copy failed'))
-          })
-          .finally(() => {
-            createModal.value = false
-          })
-      }
+  useRequest(() => user.tokenCreate(id.value, createModel.value.ips, createModel.value.expired_at))
+    .onSuccess(({ data }) => {
+      createModal.value = false
+      window.$dialog.success({
+        title: $gettext('Created successfully'),
+        content: () => {
+          return [
+            h(
+              NFlex,
+              {
+                vertical: true,
+              },
+              {
+                default: () => [
+                  h(
+                    NAlert,
+                    {
+                      type: 'warning',
+                    },
+                    {
+                      default: () =>
+                        $gettext(
+                          'Token is only displayed once, please save it before closing the dialog.',
+                        ),
+                    },
+                  ),
+                  h(NInput, {
+                    value: data.token,
+                    type: 'password',
+                    showPasswordOn: 'click',
+                    readonly: true,
+                  }),
+                ],
+              },
+            ),
+          ]
+        },
+        maskClosable: false,
+        positiveText: $gettext('Copy and close'),
+        onPositiveClick: () => {
+          copy2clipboard(data.token)
+            .then(() => {
+              window.$message.success($gettext('Copied successfully'))
+            })
+            .catch(() => {
+              window.$message.error($gettext('Copy failed'))
+            })
+            .finally(() => {
+              createModal.value = false
+            })
+        },
+      })
+      refresh()
     })
-    refresh()
-  })
     .onComplete(() => {
       createLoading.value = false
     })
@@ -183,12 +172,13 @@ const handleCreate = () => {
 const handleUpdate = () => {
   updateLoading.value = true
   useRequest(() =>
-    user.tokenUpdate(currentID.value, updateModel.value.ips, updateModel.value.expired_at)
-  ).onSuccess(() => {
-    window.$message.success($gettext('Updated successfully'))
-    updateModal.value = false
-    refresh()
-  })
+    user.tokenUpdate(currentID.value, updateModel.value.ips, updateModel.value.expired_at),
+  )
+    .onSuccess(() => {
+      window.$message.success($gettext('Updated successfully'))
+      updateModal.value = false
+      refresh()
+    })
     .onComplete(() => {
       updateLoading.value = false
     })
@@ -201,7 +191,7 @@ watch(
       refresh()
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -223,6 +213,8 @@ watch(
         </n-button>
       </n-flex>
       <n-data-table
+        v-model:page="page"
+        v-model:pageSize="pageSize"
         striped
         remote
         :scroll-x="800"
@@ -230,16 +222,13 @@ watch(
         :columns="columns"
         :data="data"
         :row-key="(row: any) => row.name"
-        v-model:page="page"
-        v-model:pageSize="pageSize"
         :pagination="{
           page: page,
-          pageCount: pageCount,
           pageSize: pageSize,
           itemCount: total,
           showQuickJumper: true,
           showSizePicker: true,
-          pageSizes: [20, 50, 100, 200]
+          pageSizes: [20, 50, 100, 200],
         }"
       />
     </n-flex>
@@ -272,7 +261,12 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="primary" :loading="createLoading" :disabled="createLoading" @click="handleCreate">
+      <n-button
+        type="primary"
+        :loading="createLoading"
+        :disabled="createLoading"
+        @click="handleCreate"
+      >
         {{ $gettext('Create') }}
       </n-button>
     </n-flex>
@@ -305,7 +299,12 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="primary" :loading="updateLoading" :disabled="updateLoading" @click="handleUpdate">
+      <n-button
+        type="primary"
+        :loading="updateLoading"
+        :disabled="updateLoading"
+        @click="handleUpdate"
+      >
         {{ $gettext('Update') }}
       </n-button>
     </n-flex>

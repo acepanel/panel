@@ -15,8 +15,8 @@ export default {
       meta: {
         title: 'Fail2ban Manager',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

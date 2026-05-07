@@ -10,5 +10,5 @@ export default {
   // 获取错误日志
   errorLog: (): any => http.Get('/apps/apache/error_log'),
   // 清空错误日志
-  clearErrorLog: (): any => http.Post('/apps/apache/clear_error_log')
+  clearErrorLog: (): any => http.Post('/apps/apache/clear_error_log'),
 }

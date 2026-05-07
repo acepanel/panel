@@ -30,16 +30,16 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     php: [
       {
         label: $gettext('Not used'),
-        value: 0
-      }
+        value: 0,
+      },
     ],
     db: [
       {
         label: '',
-        value: ''
-      }
-    ]
-  }
+        value: '',
+      },
+    ],
+  },
 })
 
 // 批量创建网站请求模型
@@ -58,7 +58,7 @@ interface BulkCreateModel {
 const typeOptions = computed(() => [
   { label: $gettext('Reverse Proxy'), value: 'proxy' },
   { label: $gettext('PHP'), value: 'php' },
-  { label: $gettext('Pure Static'), value: 'static' }
+  { label: $gettext('Pure Static'), value: 'static' },
 ])
 
 // 获取模态框标题
@@ -90,7 +90,7 @@ const placeholderText = computed(() => {
 const fourthColumnHelp = computed(() => {
   if (effectiveType.value === 'proxy') {
     return $gettext(
-      'Proxy Target: The target address for reverse proxy (e.g., http://127.0.0.1:3000).'
+      'Proxy Target: The target address for reverse proxy (e.g., http://127.0.0.1:3000).',
     )
   }
   return $gettext('Path: The path of the website, can be empty to use the default path.')
@@ -147,7 +147,7 @@ const handleCreate = async () => {
       path: effectiveType.value === 'proxy' ? '' : fourthColumn,
       proxy: effectiveType.value === 'proxy' ? fourthColumn : '',
       php: php,
-      remark: remark
+      remark: remark,
     }
 
     // 去除空的域名和端口
@@ -162,7 +162,7 @@ const handleCreate = async () => {
     useRequest(website.create(model))
       .onSuccess(() => {
         window.$message.success(
-          $gettext('Website %{ name } created successfully', { name: model.name })
+          $gettext('Website %{ name } created successfully', { name: model.name }),
         )
         window.$bus.emit('website:refresh')
       })
@@ -196,7 +196,7 @@ const handleCreate = async () => {
       <n-alert type="info">
         {{
           $gettext(
-            'Please enter the website name, domain, port, path, and remark in the text area below, one per line.'
+            'Please enter the website name, domain, port, path, and remark in the text area below, one per line.',
           )
         }}
       </n-alert>
@@ -209,21 +209,21 @@ const handleCreate = async () => {
       <n-text>
         {{
           $gettext(
-            'Name: The name of the website, which will be displayed in the website list, must be unique.'
+            'Name: The name of the website, which will be displayed in the website list, must be unique.',
           )
         }}
       </n-text>
       <n-text>
         {{
           $gettext(
-            'Domain: The domain name of the website, multiple domains can be separated by commas.'
+            'Domain: The domain name of the website, multiple domains can be separated by commas.',
           )
         }}
       </n-text>
       <n-text>
         {{
           $gettext(
-            'Port: The port number of the website, multiple ports can be separated by commas.'
+            'Port: The port number of the website, multiple ports can be separated by commas.',
           )
         }}
       </n-text>

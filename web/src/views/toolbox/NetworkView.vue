@@ -32,7 +32,7 @@ const stateOptions = [
   { label: 'FIN_WAIT2', value: 'FIN_WAIT2' },
   { label: 'LAST_ACK', value: 'LAST_ACK' },
   { label: 'CLOSING', value: 'CLOSING' },
-  { label: 'NONE', value: 'NONE' }
+  { label: 'NONE', value: 'NONE' },
 ]
 
 // 渲染状态标签
@@ -62,14 +62,14 @@ const columns = computed<any[]>(() => [
     key: 'type',
     width: 100,
     sortOrder: sortKeyMapOrder.value.type || false,
-    sorter: true
+    sorter: true,
   },
   {
     title: 'PID',
     key: 'pid',
     width: 120,
     sortOrder: sortKeyMapOrder.value.pid || false,
-    sorter: true
+    sorter: true,
   },
   {
     title: $gettext('Process'),
@@ -78,19 +78,19 @@ const columns = computed<any[]>(() => [
     resizable: true,
     sortOrder: sortKeyMapOrder.value.process || false,
     sorter: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Local Address'),
     key: 'local',
     width: 280,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Remote Address'),
     key: 'remote',
     width: 280,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Status'),
@@ -98,8 +98,8 @@ const columns = computed<any[]>(() => [
     width: 160,
     render(row: any) {
       return renderState(row.state)
-    }
-  }
+    },
+  },
 ])
 
 // 处理排序变化
@@ -128,7 +128,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       state: stateFilter.value.length ? stateFilter.value.join(',') : undefined,
       pid: pidSearch.value || undefined,
       process: processSearch.value || undefined,
-      port: portSearch.value || undefined
+      port: portSearch.value || undefined,
     }
     return toolboxNetwork.list(params)
   },
@@ -137,8 +137,8 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
     initialPageSize: 50,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [sortState, stateFilter, pidSearch, processSearch, portSearch]
-  }
+    watchingStates: [sortState, stateFilter, pidSearch, processSearch, portSearch],
+  },
 )
 </script>
 
@@ -152,14 +152,14 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
         :options="stateOptions"
         :placeholder="$gettext('Filter by status')"
         clearable
-        style="min-width: 200px; max-width: 400px"
+        class="w-70"
         @update:value="page = 1"
       />
       <n-input
         v-model:value="pidSearch"
         :placeholder="$gettext('Search PID')"
         clearable
-        style="width: 140px"
+        class="!w-35"
       >
         <template #prefix>
           <the-icon :size="16" icon="mdi:magnify" />
@@ -169,7 +169,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
         v-model:value="processSearch"
         :placeholder="$gettext('Search process')"
         clearable
-        style="width: 180px"
+        class="!w-45"
       >
         <template #prefix>
           <the-icon :size="16" icon="mdi:magnify" />
@@ -179,7 +179,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
         v-model:value="portSearch"
         :placeholder="$gettext('Search port')"
         clearable
-        style="width: 140px"
+        class="!w-35"
       >
         <template #prefix>
           <the-icon :size="16" icon="mdi:magnify" />
@@ -204,12 +204,11 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [50, 100, 200, 500]
+        pageSizes: [50, 100, 200, 500],
       }"
     />
   </n-flex>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import ws from '@/api/ws'
 import { useGettext } from 'vue3-gettext'
+
+import ws from '@/api/ws'
 
 const { $gettext } = useGettext()
 
@@ -28,7 +29,7 @@ const totalProgress = computed(() => {
 
   // 统计各状态的层数
   const completed = layers.filter(
-    (p) => p.status === 'Pull complete' || p.status === 'Already exists'
+    (p) => p.status === 'Pull complete' || p.status === 'Already exists',
   ).length
   const total = layers.filter((p) => p.id && p.id.length === 12).length
 
@@ -154,18 +155,18 @@ onUnmounted(() => {
         processing
       />
 
-      <n-card size="small" :bordered="true" class="max-h-300 overflow-y-auto">
+      <n-card size="small" :bordered="true" class="max-h-75 overflow-y-auto">
         <n-flex vertical :size="8">
           <div
             v-for="[id, progress] in pullProgress"
             :key="id"
-            class="p-1 px-2 rounded bg-gray-100 dark:bg-gray-800"
+            class="p-1 px-2 rounded bg-bg-subtle"
           >
             <n-flex justify="space-between" align="center">
-              <n-text depth="3" class="text-12 font-mono">
+              <n-text depth="3" class="text-xs font-mono">
                 {{ id.substring(0, 12) }}
               </n-text>
-              <n-text depth="2" class="text-12">
+              <n-text depth="2" class="text-xs">
                 {{ progress.status }}
                 <template v-if="progress.progress">
                   {{ progress.progress }}

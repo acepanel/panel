@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-docker-index'
+  name: 'apps-docker-index',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -13,8 +13,8 @@ const currentTab = ref('status')
 
 const { data: config } = useRequest(docker.config, {
   initialData: {
-    config: ''
-  }
+    config: '',
+  },
 })
 
 // 基本设置
@@ -26,7 +26,7 @@ const settings = ref<any>({
   'log-driver': 'json-file',
   'log-opts': {
     'max-size': '',
-    'max-file': ''
+    'max-file': '',
   },
   'cgroup-driver': '',
   hosts: [],
@@ -36,7 +36,7 @@ const settings = ref<any>({
   'firewall-backend': '',
   'ip-forward': true,
   ipv6: false,
-  bip: ''
+  bip: '',
 })
 
 // 镜像输入
@@ -55,14 +55,14 @@ const logDriverOptions = [
   { label: 'gelf', value: 'gelf' },
   { label: 'splunk', value: 'splunk' },
   { label: 'awslogs', value: 'awslogs' },
-  { label: 'none', value: 'none' }
+  { label: 'none', value: 'none' },
 ]
 
 // cgroup 驱动选项
 const cgroupDriverOptions = [
   { label: $gettext('Default'), value: '' },
   { label: 'systemd', value: 'systemd' },
-  { label: 'cgroupfs', value: 'cgroupfs' }
+  { label: 'cgroupfs', value: 'cgroupfs' },
 ]
 
 // 存储驱动选项
@@ -72,7 +72,7 @@ const storageDriverOptions = [
   { label: 'fuse-overlayfs', value: 'fuse-overlayfs' },
   { label: 'btrfs', value: 'btrfs' },
   { label: 'zfs', value: 'zfs' },
-  { label: 'vfs', value: 'vfs' }
+  { label: 'vfs', value: 'vfs' },
 ]
 
 // 防火墙后端选项
@@ -80,7 +80,7 @@ const firewallBackendOptions = [
   { label: 'iptables (' + $gettext('Default') + ')', value: '' },
   { label: 'iptables', value: 'iptables' },
   { label: 'nftables (' + $gettext('Experimental') + ')', value: 'nftables' },
-  { label: $gettext('None'), value: 'none' }
+  { label: $gettext('None'), value: 'none' },
 ]
 
 // 常用镜像源预设
@@ -89,8 +89,8 @@ const mirrorPresets = [
   { label: $gettext('China - DaoCloud'), value: 'https://docker.m.daocloud.io' },
   {
     label: $gettext('China - Tencent (Internal only)'),
-    value: 'https://mirror.ccs.tencentyun.com'
-  }
+    value: 'https://mirror.ccs.tencentyun.com',
+  },
 ]
 
 // 获取设置
@@ -105,7 +105,7 @@ const fetchSettings = () => {
         'log-driver': res.data['log-driver'] || 'json-file',
         'log-opts': {
           'max-size': res.data['log-opts']?.['max-size'] || '',
-          'max-file': res.data['log-opts']?.['max-file'] || ''
+          'max-file': res.data['log-opts']?.['max-file'] || '',
         },
         'cgroup-driver': res.data['cgroup-driver'] || '',
         hosts: res.data.hosts || [],
@@ -115,7 +115,7 @@ const fetchSettings = () => {
         'firewall-backend': res.data['firewall-backend'] || '',
         'ip-forward': res.data['ip-forward'] ?? true,
         ipv6: res.data.ipv6 ?? false,
-        bip: res.data.bip || ''
+        bip: res.data.bip || '',
       }
     })
     .onComplete(() => {
@@ -128,7 +128,7 @@ const addMirror = () => {
   if (mirrorInput.value && !settings.value['registry-mirrors']?.includes(mirrorInput.value)) {
     settings.value['registry-mirrors'] = [
       ...(settings.value['registry-mirrors'] || []),
-      mirrorInput.value
+      mirrorInput.value,
     ]
     mirrorInput.value = ''
   }
@@ -142,7 +142,7 @@ const addInsecureRegistry = () => {
   ) {
     settings.value['insecure-registries'] = [
       ...(settings.value['insecure-registries'] || []),
-      insecureRegistryInput.value
+      insecureRegistryInput.value,
     ]
     insecureRegistryInput.value = ''
   }
@@ -186,7 +186,7 @@ watch(currentTab, (tab) => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="docker" />
@@ -224,7 +224,7 @@ watch(currentTab, (tab) => {
                 <n-alert type="info" :show-icon="false">
                   {{
                     $gettext(
-                      'Configure registry mirrors to speed up image downloads. Domestic users can configure domestic mirrors.'
+                      'Configure registry mirrors to speed up image downloads. Domestic users can configure domestic mirrors.',
                     )
                   }}
                 </n-alert>
@@ -251,7 +251,7 @@ watch(currentTab, (tab) => {
                 <n-alert type="info" :show-icon="false">
                   {{
                     $gettext(
-                      'Configure log driver and rotation settings. Setting max-size and max-file can prevent log files from growing indefinitely.'
+                      'Configure log driver and rotation settings. Setting max-size and max-file can prevent log files from growing indefinitely.',
                     )
                   }}
                 </n-alert>
@@ -261,7 +261,7 @@ watch(currentTab, (tab) => {
                       v-model:value="settings['log-driver']"
                       :options="logDriverOptions"
                       :placeholder="$gettext('Select log driver')"
-                      style="width: 200px"
+                      class="w-50"
                     />
                   </n-form-item>
                   <n-row :gutter="[24, 0]">
@@ -304,7 +304,7 @@ watch(currentTab, (tab) => {
                         v-model:value="settings['cgroup-driver']"
                         :options="cgroupDriverOptions"
                         :placeholder="$gettext('Select cgroup driver')"
-                        style="width: 200px"
+                        class="w-50"
                       />
                     </n-form-item>
                   </n-col>
@@ -345,7 +345,7 @@ watch(currentTab, (tab) => {
                 <n-alert type="info" :show-icon="false">
                   {{
                     $gettext(
-                      'Configure Docker firewall backend. nftables is experimental and does not support Swarm mode.'
+                      'Configure Docker firewall backend. nftables is experimental and does not support Swarm mode.',
                     )
                   }}
                 </n-alert>
@@ -355,7 +355,7 @@ watch(currentTab, (tab) => {
                       v-model:value="settings['firewall-backend']"
                       :options="firewallBackendOptions"
                       :placeholder="$gettext('Select firewall backend')"
-                      style="width: 280px"
+                      class="w-70"
                     />
                   </n-form-item>
                 </n-form>
@@ -370,7 +370,7 @@ watch(currentTab, (tab) => {
                     v-model:value="settings['storage-driver']"
                     :options="storageDriverOptions"
                     :placeholder="$gettext('Select storage driver')"
-                    style="width: 200px"
+                    class="w-50"
                   />
                 </n-form-item>
                 <n-form-item :label="$gettext('Data Root')">
@@ -431,7 +431,7 @@ watch(currentTab, (tab) => {
                 <n-alert type="warning" :show-icon="false">
                   {{
                     $gettext(
-                      'Insecure registries allow Docker to communicate with registries using HTTP or self-signed certificates. Use with caution.'
+                      'Insecure registries allow Docker to communicate with registries using HTTP or self-signed certificates. Use with caution.',
                     )
                   }}
                 </n-alert>
@@ -478,5 +478,5 @@ watch(currentTab, (tab) => {
         <realtime-log service="docker" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

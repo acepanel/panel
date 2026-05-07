@@ -1,6 +1,5 @@
 import { icons as mdi } from '@iconify-json/mdi'
 import { addCollection, Icon } from '@iconify/vue'
-
 import { NIcon } from 'naive-ui'
 
 addCollection(mdi)
@@ -8,7 +7,7 @@ addCollection(mdi)
 const localIcons = import.meta.glob<string>('@/assets/icons/**/*.svg', {
   eager: true,
   query: '?raw',
-  import: 'default'
+  import: 'default',
 })
 
 function getLocalIconSvg(type: string, icon: string): string {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -19,7 +20,7 @@ const emit = defineEmits<{
 const loading = ref(false)
 const model = ref({
   id: '',
-  body: ''
+  body: '',
 })
 
 watch(
@@ -31,7 +32,7 @@ watch(
         .onSuccess(({ data }: { data: any }) => {
           model.value = {
             id: data.id,
-            body: JSON.stringify(JSON.parse(data.source), null, 2)
+            body: JSON.stringify(JSON.parse(data.source), null, 2),
           }
         })
         .onComplete(() => {
@@ -40,7 +41,7 @@ watch(
     } else if (val && props.mode === 'create') {
       model.value = { id: '', body: '{\n  \n}' }
     }
-  }
+  },
 )
 
 const saveLoading = ref(false)
@@ -52,8 +53,8 @@ const handleSave = () => {
       server_id: props.serverId,
       index: props.index,
       id: model.value.id || undefined,
-      body: model.value.body
-    })
+      body: model.value.body,
+    }),
   )
     .onSuccess(() => {
       show.value = false
@@ -96,13 +97,7 @@ const handleSave = () => {
         </n-form-item>
       </n-form>
     </n-spin>
-    <n-button
-      type="info"
-      block
-      :loading="saveLoading"
-      :disabled="saveLoading"
-      @click="handleSave"
-    >
+    <n-button type="info" block :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>

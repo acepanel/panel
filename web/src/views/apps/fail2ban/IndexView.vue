@@ -1,17 +1,19 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-fail2ban-index'
+  name: 'apps-fail2ban-index',
 })
 
-import { NButton, NDataTable, NInput, NPopconfirm, NSwitch } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import fail2ban from '@/api/apps/fail2ban'
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
 const white = ref('')
 const saveWhiteListLoading = ref(false)
@@ -26,7 +28,7 @@ const addJailModel = ref({
   bantime: 600,
   website_name: '',
   website_mode: 'cc',
-  website_path: '/'
+  website_path: '/',
 })
 
 const jailModal = ref(false)
@@ -39,7 +41,7 @@ const jailsColumns: any = [
     title: $gettext('Name'),
     key: 'name',
     minWidth: 250,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Status'),
@@ -50,9 +52,9 @@ const jailsColumns: any = [
         size: 'small',
         rubberBand: false,
         value: row.enabled,
-        disabled: true
+        disabled: true,
       })
-    }
+    },
   },
   { title: $gettext('Max Retries'), key: 'max_retry', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Ban Time'), key: 'ban_time', minWidth: 150, ellipsis: { tooltip: true } },
@@ -63,7 +65,7 @@ const jailsColumns: any = [
     width: 280,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -73,39 +75,29 @@ const jailsColumns: any = [
             onClick: async () => {
               await getJailInfo(row.name)
               jailModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('View')
-          }
+          { default: () => $gettext('View') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: () => handleDeleteJail(row.name)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete rule %{ name }?', { name: row.name })
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete rule %{ name }?', {
+                  name: row.name,
+                }),
+              })
+              if (ok) handleDeleteJail(row.name)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const banedIPColumns: any = [
@@ -114,7 +106,7 @@ const banedIPColumns: any = [
     key: 'ip',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Actions'),
@@ -122,33 +114,23 @@ const banedIPColumns: any = [
     width: 100,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleUnBan(row.name, row.ip)
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to unban %{ ip }?', { ip: row.ip }),
+              positiveText: $gettext('Unban'),
+            })
+            if (ok) handleUnBan(row.name, row.ip)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to unban %{ ip }?', { ip: row.ip })
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error'
-                },
-                {
-                  default: () => $gettext('Unban')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+        },
+        { default: () => $gettext('Unban') },
+      )
+    },
+  },
 ]
 
 const websites = ref<any[]>([])
@@ -173,7 +155,7 @@ const getWebsiteList = async (page: number, limit: number) => {
   for (const item of data.items) {
     websites.value.push({
       label: item.name,
-      value: item.name
+      value: item.name,
     })
   }
   addJailModel.value.website_name = websites.value[0]?.value
@@ -185,8 +167,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleAddJail = () => {
@@ -235,7 +217,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -264,6 +246,8 @@ onMounted(() => {
         <n-flex>
           <n-card :title="$gettext('Rule List')" :segmented="true">
             <n-data-table
+              v-model:page="page"
+              v-model:pageSize="pageSize"
               striped
               remote
               :scroll-x="1100"
@@ -271,23 +255,20 @@ onMounted(() => {
               :columns="jailsColumns"
               :data="data"
               :row-key="(row: any) => row.name"
-              v-model:page="page"
-              v-model:pageSize="pageSize"
               :pagination="{
                 page: page,
-                pageCount: pageCount,
                 pageSize: pageSize,
                 itemCount: total,
                 showQuickJumper: true,
                 showSizePicker: true,
-                pageSizes: [20, 50, 100, 200]
+                pageSizes: [20, 50, 100, 200],
               }"
             />
           </n-card>
           <n-flex>
             <n-button
               v-if="currentTab == 'jails'"
-              class="ml-16"
+              class="ml-4"
               type="primary"
               @click="addJailModal = true"
             >
@@ -300,7 +281,7 @@ onMounted(() => {
         <realtime-log service="fail2ban" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
   <n-modal v-model:show="addJailModal" :title="$gettext('Add Rule')">
     <n-card
       closable
@@ -312,14 +293,14 @@ onMounted(() => {
         <n-alert type="info">
           {{
             $gettext(
-              'If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)'
+              'If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)',
             )
           }}
         </n-alert>
         <n-alert type="warning">
           {{
             $gettext(
-              'Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective'
+              'Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective',
             )
           }}
         </n-alert>
@@ -330,7 +311,7 @@ onMounted(() => {
               v-model:value="addJailModel.type"
               :options="[
                 { label: $gettext('Website'), value: 'website' },
-                { label: $gettext('Service'), value: 'service' }
+                { label: $gettext('Service'), value: 'service' },
               ]"
             >
             </n-select>
@@ -347,7 +328,7 @@ onMounted(() => {
               v-model:value="addJailModel.website_mode"
               :options="[
                 { label: 'CC', value: 'cc' },
-                { label: $gettext('Path'), value: 'path' }
+                { label: $gettext('Path'), value: 'path' },
               ]"
             >
             </n-select>
@@ -367,7 +348,7 @@ onMounted(() => {
               :options="[
                 { label: 'SSH', value: 'ssh' },
                 { label: 'MySQL', value: 'mysql' },
-                { label: 'Pure-Ftpd', value: 'pure-ftpd' }
+                { label: 'Pure-Ftpd', value: 'pure-ftpd' },
               ]"
             >
             </n-select>
@@ -388,8 +369,9 @@ onMounted(() => {
           :loading="addJailLoading"
           :disabled="addJailLoading"
           @click="handleAddJail"
-          >{{ $gettext('Submit') }}</n-button
         >
+          {{ $gettext('Submit') }}
+        </n-button>
       </n-space>
     </n-card>
   </n-modal>

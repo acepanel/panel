@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'home-index'
+  name: 'home-index',
 })
 
 import { LineChart } from 'echarts/charts'
@@ -9,11 +9,12 @@ import {
   GridComponent,
   LegendComponent,
   TitleComponent,
-  TooltipComponent
+  TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { NButton, NDropdown, useThemeVars } from 'naive-ui'
+import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 import draggable from 'vuedraggable'
 
@@ -24,7 +25,7 @@ import { router } from '@/router'
 import { useTabStore } from '@/stores'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'
 import { formatBytes, formatPercent } from '@/utils/file'
-import VChart from 'vue-echarts'
+
 import type { ProcessStat, Realtime } from './types'
 
 use([
@@ -34,7 +35,7 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  DataZoomComponent
+  DataZoomComponent,
 ])
 
 const { current: locale, $gettext } = useGettext()
@@ -100,11 +101,11 @@ const { data: systemInfo } = useRequest(home.systemInfo, {
     boot_time: 0,
     uptime: 0,
     nets: [],
-    disks: []
-  }
+    disks: [],
+  },
 })
 const { data: apps, loading: appLoading } = useRequest(home.apps, {
-  initialData: []
+  initialData: [],
 })
 
 const handleAppOrderChange = async () => {
@@ -118,8 +119,8 @@ const { data: countInfo } = useRequest(home.countInfo, {
     database: 0,
     project: 0,
     cron: 0,
-    container: -1
-  }
+    container: -1,
+  },
 })
 
 const nets = ref<Array<string>>([]) // 选择的网卡
@@ -130,7 +131,7 @@ const units = [
   { label: 'B', value: 'B' },
   { label: 'KB', value: 'KB' },
   { label: 'MB', value: 'MB' },
-  { label: 'GB', value: 'GB' }
+  { label: 'GB', value: 'GB' },
 ]
 
 const cores = ref(0)
@@ -146,7 +147,7 @@ const total = reactive({
   diskRWBytes: 0,
   diskRWTime: 0,
   netBytesSent: 0,
-  netBytesRecv: 0
+  netBytesRecv: 0,
 })
 
 const current = reactive({
@@ -156,7 +157,7 @@ const current = reactive({
   diskRWTime: 0,
   netBytesSent: 0,
   netBytesRecv: 0,
-  time: 0
+  time: 0,
 })
 
 const statusColor = (percentage: number) => {
@@ -187,13 +188,13 @@ const chartOptions = computed(() => {
       text: chartType.value == 'net' ? $gettext('Network') : $gettext('Disk'),
       textAlign: 'left',
       textStyle: {
-        fontSize: 20
-      }
+        fontSize: 20,
+      },
     },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'cross'
+        type: 'cross',
       },
       formatter: function (params: any) {
         let res = params[0].name + '<br/>'
@@ -201,26 +202,26 @@ const chartOptions = computed(() => {
           res += `${item.marker} ${item.seriesName}: ${item.value} ${unitType.value}<br/>`
         })
         return res
-      }
+      },
     },
     legend: {
       align: 'left',
       data:
         chartType.value == 'net'
           ? [$gettext('Send'), $gettext('Receive')]
-          : [$gettext('Read'), $gettext('Write')]
+          : [$gettext('Read'), $gettext('Write')],
     },
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: timeDiskData.value
+      data: timeDiskData.value,
     },
     yAxis: {
       name: $gettext('Unit %{unit}', { unit: unitType.value }),
       type: 'value',
       axisLabel: {
-        formatter: `{value} ${unitType.value}`
-      }
+        formatter: `{value} ${unitType.value}`,
+      },
     },
     series: [
       {
@@ -231,21 +232,21 @@ const chartOptions = computed(() => {
         markPoint: {
           data: [
             { type: 'max', name: $gettext('Maximum') },
-            { type: 'min', name: $gettext('Minimum') }
-          ]
+            { type: 'min', name: $gettext('Minimum') },
+          ],
         },
         markLine: {
-          data: [{ type: 'average', name: $gettext('Average') }]
+          data: [{ type: 'average', name: $gettext('Average') }],
         },
         lineStyle: {
-          color: 'rgb(247, 184, 81)'
+          color: 'rgb(247, 184, 81)',
         },
         itemStyle: {
-          color: 'rgb(247, 184, 81)'
+          color: 'rgb(247, 184, 81)',
         },
         areaStyle: {
-          color: 'rgb(247, 184, 81)'
-        }
+          color: 'rgb(247, 184, 81)',
+        },
       },
       {
         name: chartType.value == 'net' ? $gettext('Receive') : $gettext('Write'),
@@ -255,23 +256,23 @@ const chartOptions = computed(() => {
         markPoint: {
           data: [
             { type: 'max', name: $gettext('Maximum') },
-            { type: 'min', name: $gettext('Minimum') }
-          ]
+            { type: 'min', name: $gettext('Minimum') },
+          ],
         },
         markLine: {
-          data: [{ type: 'average', name: $gettext('Average') }]
+          data: [{ type: 'average', name: $gettext('Average') }],
         },
         lineStyle: {
-          color: 'rgb(82, 169, 255)'
+          color: 'rgb(82, 169, 255)',
         },
         itemStyle: {
-          color: 'rgb(82, 169, 255)'
+          color: 'rgb(82, 169, 255)',
         },
         areaStyle: {
-          color: 'rgb(82, 169, 255)'
-        }
-      }
-    ]
+          color: 'rgb(82, 169, 255)',
+        },
+      },
+    ],
   }
 })
 
@@ -387,12 +388,12 @@ const handleRestartServer = () => {
 const restartOptions = computed(() => [
   {
     label: $gettext('Restart Panel'),
-    key: 'panel'
+    key: 'panel',
   },
   {
     label: $gettext('Restart Server'),
-    key: 'server'
-  }
+    key: 'server',
+  },
 ])
 
 const handleRestartSelect = (key: string) => {
@@ -491,7 +492,7 @@ if (import.meta.hot) {
 </script>
 
 <template>
-  <app-page :show-footer="true" min-w-375>
+  <PageContainer :show-footer="true" bare class="min-w-94">
     <div flex-1>
       <n-space vertical>
         <!-- 系统是否 EOL -->
@@ -500,8 +501,8 @@ if (import.meta.hot) {
             $gettext(
               'Your operating system %{ os_name } has reached its end-of-life. Please consider upgrading to a supported version to ensure optimal performance and security.',
               {
-                os_name: systemInfo?.os_name
-              }
+                os_name: systemInfo?.os_name,
+              },
             )
           }}
         </n-alert>
@@ -511,8 +512,8 @@ if (import.meta.hot) {
             $gettext(
               'Your operating system %{ os_name } is not officially supported. Some features may not work as expected. Please consider using a supported operating system for the best experience.',
               {
-                os_name: systemInfo?.os_name
-              }
+                os_name: systemInfo?.os_name,
+              },
             )
           }}
         </n-alert>
@@ -570,7 +571,7 @@ if (import.meta.hot) {
           <n-flex v-if="realtime" size="large">
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
+                <n-flex vertical p-5 pl-10 pr-10 flex items-center>
                   <p>{{ $gettext('Load Status') }}</p>
                   <n-progress
                     type="dashboard"
@@ -581,7 +582,7 @@ if (import.meta.hot) {
                   <p>{{ statusText((realtime.load.load1 / cores) * 100) }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-340>
+              <n-scrollbar max-h-85>
                 <n-descriptions label-placement="top" :column="3" bordered size="small">
                   <n-descriptions-item :label="$gettext('Last 1 minute')">
                     {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
@@ -600,7 +601,7 @@ if (import.meta.hot) {
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
+                <n-flex vertical p-5 pl-10 pr-10 flex items-center>
                   <p>CPU</p>
                   <n-progress
                     type="dashboard"
@@ -611,7 +612,7 @@ if (import.meta.hot) {
                   <p>{{ cores }} {{ $gettext('cores') }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-440>
+              <n-scrollbar max-h-110>
                 <n-descriptions label-placement="top" :column="3" bordered size="small">
                   <n-descriptions-item :label="$gettext('Model')" :span="3">
                     {{ realtime.cpus[0]?.modelName }}
@@ -650,7 +651,7 @@ if (import.meta.hot) {
                   :single-line="false"
                   size="small"
                   striped
-                  style="margin-top: 8px"
+                  class="mt-2"
                 >
                   <thead>
                     <tr>
@@ -683,7 +684,7 @@ if (import.meta.hot) {
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
+                <n-flex vertical p-5 pl-10 pr-10 flex items-center>
                   <p>{{ $gettext('Memory') }}</p>
                   <n-progress
                     type="dashboard"
@@ -694,7 +695,7 @@ if (import.meta.hot) {
                   <p>{{ formatBytes(realtime.mem.total) }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-440>
+              <n-scrollbar max-h-110>
                 <n-descriptions label-placement="top" :column="4" bordered size="small">
                   <n-descriptions-item :label="$gettext('Physical Memory Size')">
                     {{ formatBytes(realtime.mem.total) }}
@@ -751,7 +752,7 @@ if (import.meta.hot) {
                   :single-line="false"
                   size="small"
                   striped
-                  style="margin-top: 8px"
+                  class="mt-2"
                 >
                   <thead>
                     <tr>
@@ -789,7 +790,7 @@ if (import.meta.hot) {
               trigger="hover"
             >
               <template #trigger>
-                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
+                <n-flex vertical p-5 pl-10 pr-10 flex items-center>
                   <p>{{ item.path }}</p>
                   <n-progress
                     type="dashboard"
@@ -800,7 +801,7 @@ if (import.meta.hot) {
                   <p>{{ formatBytes(item.used) }} / {{ formatBytes(item.total) }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-340>
+              <n-scrollbar max-h-85>
                 <n-descriptions label-placement="top" :column="3" bordered size="small">
                   <n-descriptions-item :label="$gettext('Mount Point')">
                     {{ item.path }}
@@ -835,8 +836,8 @@ if (import.meta.hot) {
         >
           <n-gi>
             <n-flex vertical>
-              <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-340>
-                <n-scrollbar max-h-270>
+              <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-85>
+                <n-scrollbar class="max-h-68">
                   <draggable
                     v-if="!appLoading"
                     v-model="apps"
@@ -860,7 +861,7 @@ if (import.meta.hot) {
                           <n-flex>
                             <n-thing>
                               <template #avatar>
-                                <div class="mt-8">
+                                <div class="mt-2">
                                   <the-icon-local type="app" :size="30" :icon="item.slug" />
                                 </div>
                               </template>
@@ -960,7 +961,7 @@ if (import.meta.hot) {
                       v-model:value="unitType"
                       :options="units"
                       @update-value="clearCurrent"
-                      w-80
+                      w-20
                     ></n-select>
                   </n-form-item>
                   <n-form-item v-if="chartType == 'net'" :label="$gettext('Network Card')">
@@ -969,7 +970,7 @@ if (import.meta.hot) {
                       v-model:value="nets"
                       :options="systemInfo.nets"
                       @update-value="clearCurrent"
-                      w-200
+                      w-50
                     ></n-select>
                   </n-form-item>
                   <n-form-item v-if="chartType == 'disk'" :label="$gettext('Disk')">
@@ -978,7 +979,7 @@ if (import.meta.hot) {
                       v-model:value="disks"
                       :options="systemInfo.disks"
                       @update-value="clearCurrent"
-                      w-200
+                      w-50
                     ></n-select>
                   </n-form-item>
                 </n-form>
@@ -1004,7 +1005,7 @@ if (import.meta.hot) {
                   >
                   <n-tag>{{ $gettext('Read/Write Latency') }} {{ current.diskRWTime }}ms</n-tag>
                 </n-flex>
-                <n-card :bordered="false" pt-10 h-530>
+                <n-card :bordered="false" class="pt-10 h-132">
                   <v-chart class="chart" :option="chartOptions" autoresize />
                 </n-card>
               </n-flex>
@@ -1014,7 +1015,7 @@ if (import.meta.hot) {
         </n-grid>
       </n-space>
     </div>
-  </app-page>
+  </PageContainer>
 
   <!-- 服务器重启确认弹窗 -->
   <n-modal

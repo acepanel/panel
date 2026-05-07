@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { NButton, NDataTable, NFlex, NInput, NSwitch } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
 import user from '@/api/panel/user'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import PasskeyModal from '@/views/setting/PasskeyModal.vue'
 import PasswordModal from '@/views/setting/PasswordModal.vue'
 import TokenModal from '@/views/setting/TokenModal.vue'
 import TwoFaModal from '@/views/setting/TwoFaModal.vue'
-import { NButton, NDataTable, NInput, NPopconfirm, NSwitch } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const currentID = ref(0)
 const passwordModal = ref(false)
@@ -29,9 +32,9 @@ const columns: any = [
         onBlur: () => handleUsername(row),
         onUpdateValue(v) {
           row.username = v
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Email'),
@@ -45,9 +48,9 @@ const columns: any = [
         onBlur: () => handleEmail(row),
         onUpdateValue(v) {
           row.email = v
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('2FA'),
@@ -68,9 +71,9 @@ const columns: any = [
               refresh()
             })
           }
-        }
+        },
       })
-    }
+    },
   },
   {
     title: $gettext('Creation Time'),
@@ -79,7 +82,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -87,7 +90,7 @@ const columns: any = [
     width: 500,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -96,70 +99,51 @@ const columns: any = [
             onClick: () => {
               currentID.value = row.id
               tokenModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Access Tokens')
-          }
+          { default: () => $gettext('Access Tokens') },
         ),
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
             onClick: () => {
               currentID.value = row.id
               passkeyModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Passkeys')
-          }
+          { default: () => $gettext('Passkeys') },
         ),
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
             onClick: () => {
               currentID.value = row.id
               passwordModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Change Password')
-          }
+          { default: () => $gettext('Change Password') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            style: 'margin-left: 15px;',
-            onPositiveClick: () => handleDelete(row.id)
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete this user?')
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete this user?'),
+              })
+              if (ok) handleDelete(row.id)
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      ])
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -168,8 +152,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleUsername = (row: any) => {
@@ -199,6 +183,8 @@ onMounted(() => {
 <template>
   <n-flex vertical>
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1200"
@@ -206,16 +192,13 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.name"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>

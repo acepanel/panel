@@ -48,6 +48,7 @@ export default [
     viteOptimizeDeps: true
   }),
   Components({
+    dirs: ['src/components', 'src/components/system'],
     resolvers: [
       NaiveUiResolver(),
       IconsResolver()

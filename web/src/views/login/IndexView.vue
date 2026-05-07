@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
+import { until } from '@vueuse/core'
+import { useGettext } from 'vue3-gettext'
+
 import user from '@/api/panel/user'
 import bgImg from '@/assets/images/login_bg.webp'
 import logoImg from '@/assets/images/logo.svg'
@@ -6,9 +10,6 @@ import { addDynamicRoutes } from '@/router'
 import { useThemeStore, useUserStore } from '@/stores'
 import { getLocal, removeLocal, setLocal } from '@/utils'
 import { rsaEncrypt } from '@/utils/encrypt'
-import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
-import { until } from '@vueuse/core'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const router = useRouter()
@@ -33,7 +34,7 @@ const loginInfo = ref<LoginInfo>({
   password: '',
   safe_login: true,
   pass_code: '',
-  captcha_code: ''
+  captcha_code: '',
 })
 
 const localLoginInfo = getLocal('loginInfo') as LoginInfo
@@ -149,7 +150,7 @@ async function handleLogin() {
   if (!key.value) {
     logining.value = false
     window.$message.warning(
-      $gettext('Failed to get encryption public key, please refresh the page and try again')
+      $gettext('Failed to get encryption public key, please refresh the page and try again'),
     )
     return
   }
@@ -159,8 +160,8 @@ async function handleLogin() {
       rsaEncrypt(password, String(unref(key))),
       pass_code,
       safe_login,
-      trimmedCaptcha
-    )
+      trimmedCaptcha,
+    ),
   )
     .onSuccess(async () => {
       if (isRemember.value) {
@@ -216,19 +217,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppPage :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" bg-cover>
+  <PageContainer :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" class="bg-cover">
     <div m-auto flex flex-col items-center>
       <!-- Logo -->
-      <n-image :src="logo" preview-disabled mb-22 h-80 w-80 object-contain />
+      <n-image :src="logo" preview-disabled mb-22 h-20 w-20 object-contain />
 
       <!-- 登录卡片 -->
-      <div px-28 py-32 rounded-lg bg-white min-w-380 card-shadow class="dark:bg-dark">
-        <h2 text-32 font-600 mb-28 text-center>{{ themeStore.name }}</h2>
+      <div px-7 py-8 rounded-lg bg-white min-w-95 card-shadow class="dark:bg-dark">
+        <h2 text-4xl font-600 mb-7 text-center>{{ themeStore.name }}</h2>
 
         <!-- 通行密钥正在尝试中 -->
-        <div v-if="passkeyAttempting" class="py-20 text-center">
+        <div v-if="passkeyAttempting" class="py-5 text-center">
           <n-spin size="large" />
-          <p class="text-14 text-gray-500 mt-12">
+          <p class="text-base text-gray-500 mt-3">
             {{ $gettext('Authenticating with passkey...') }}
           </p>
         </div>
@@ -236,7 +237,7 @@ onMounted(() => {
         <!-- 密码登录表单 -->
         <template v-else>
           <!-- 通行密钥登录失败提示 -->
-          <n-alert v-if="passkeyFailed" type="warning" class="mb-20" :bordered="false">
+          <n-alert v-if="passkeyFailed" type="warning" class="mb-5" :bordered="false">
             {{ $gettext('Passkey login failed, please use username and password.') }}
           </n-alert>
 
@@ -245,7 +246,7 @@ onMounted(() => {
             :maxlength="32"
             :placeholder="$gettext('Username')"
             autofocus
-            class="text-15 h-48 items-center"
+            class="text-md h-12 items-center"
             :on-blur="isTwoFA"
           />
 
@@ -253,7 +254,7 @@ onMounted(() => {
             v-model:value="loginInfo.password"
             :maxlength="32"
             :placeholder="$gettext('Password')"
-            class="text-15 mt-20 h-48 items-center"
+            class="text-md mt-5 h-12 items-center"
             type="password"
             show-password-on="click"
             @keydown.enter="handleLogin"
@@ -265,17 +266,17 @@ onMounted(() => {
             :maxlength="6"
             :placeholder="$gettext('2FA Code')"
             :input-props="{ autocomplete: 'one-time-code' }"
-            class="text-15 mt-20 h-48 items-center"
+            class="text-md mt-5 h-12 items-center"
             type="text"
             @keydown.enter="handleLogin"
           />
 
-          <n-flex v-if="captchaRequired" align="center" class="mt-20">
+          <n-flex v-if="captchaRequired" align="center" class="mt-5">
             <n-input
               v-model:value="loginInfo.captcha_code"
               :maxlength="4"
               :placeholder="$gettext('Captcha Code')"
-              class="text-15 h-48 items-center"
+              class="text-md h-12 items-center"
               style="flex: 1"
               type="text"
               @keydown.enter="handleLogin"
@@ -283,12 +284,12 @@ onMounted(() => {
             <n-image
               :src="captchaImage"
               preview-disabled
-              class="rounded h-48 cursor-pointer"
+              class="rounded h-12 cursor-pointer"
               @click="refreshCaptcha"
             />
           </n-flex>
 
-          <n-flex class="mt-20">
+          <n-flex class="mt-5">
             <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
             <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
           </n-flex>
@@ -296,7 +297,7 @@ onMounted(() => {
           <n-button
             :loading="!keyLoaded || logining"
             :disabled="!keyLoaded || logining"
-            class="text-16 mt-24 h-48 w-full"
+            class="text-lg mt-6 h-12 w-full"
             type="primary"
             @click="handleLogin"
           >
@@ -307,7 +308,7 @@ onMounted(() => {
           <n-button
             v-if="passkeyAvailable"
             quaternary
-            class="text-14 mt-12 w-full"
+            class="text-base mt-3 w-full"
             @click="attemptPasskeyLogin"
           >
             {{ $gettext('Login with Passkey') }}
@@ -315,5 +316,5 @@ onMounted(() => {
         </template>
       </div>
     </div>
-  </AppPage>
+  </PageContainer>
 </template>

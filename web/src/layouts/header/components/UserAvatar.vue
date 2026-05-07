@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import { useGettext } from 'vue3-gettext'
+
 import user from '@/api/panel/user'
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
 import { renderIcon } from '@/utils'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const userStore = useUserStore()
@@ -12,13 +13,13 @@ const options = [
   {
     label: $gettext('Change Password'),
     key: 'changePassword',
-    icon: renderIcon('mdi:key', { size: 14 })
+    icon: renderIcon('mdi:key', { size: 14 }),
   },
   {
     label: $gettext('Logout'),
     key: 'logout',
-    icon: renderIcon('mdi:exit-to-app', { size: 14 })
-  }
+    icon: renderIcon('mdi:exit-to-app', { size: 14 }),
+  },
 ]
 
 const handleSelect = (key: string) => {
@@ -33,7 +34,7 @@ const handleSelect = (key: string) => {
           userStore.logout()
         })
         window.$message.success($gettext('Logged out successfully!'))
-      }
+      },
     })
   }
   if (key === 'changePassword') {
@@ -52,7 +53,7 @@ const username = computed(() => {
 <template>
   <n-dropdown :options="options" @select="handleSelect">
     <div flex cursor-pointer items-center>
-      <span text-16>{{ username }}</span>
+      <span text-lg>{{ username }}</span>
     </div>
   </n-dropdown>
 </template>

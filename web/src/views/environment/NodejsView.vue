@@ -16,16 +16,16 @@ const registryOptions = [
   { label: $gettext('Official (registry.npmjs.org)'), value: 'https://registry.npmjs.org/' },
   {
     label: $gettext('China - npmmirror (npmmirror.com)'),
-    value: 'https://registry.npmmirror.com/'
+    value: 'https://registry.npmmirror.com/',
   },
   {
     label: $gettext('China - Tencent (mirrors.tencent.com)'),
-    value: 'https://mirrors.tencent.com/npm/'
+    value: 'https://mirrors.tencent.com/npm/',
   },
   {
     label: $gettext('China - Huawei (repo.huaweicloud.com)'),
-    value: 'https://repo.huaweicloud.com/repository/npm/'
-  }
+    value: 'https://repo.huaweicloud.com/repository/npm/',
+  },
 ]
 
 // 获取当前镜像设置
@@ -58,7 +58,7 @@ const handleSaveRegistry = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-card>
         <template #header> Node.js {{ slug }} </template>
@@ -75,7 +75,7 @@ const handleSaveRegistry = async () => {
             <n-alert type="info" :show-icon="false">
               {{
                 $gettext(
-                  'npm registry is used to configure the npm package source. Using a domestic mirror can speed up package downloads.'
+                  'npm registry is used to configure the npm package source. Using a domestic mirror can speed up package downloads.',
                 )
               }}
             </n-alert>
@@ -97,5 +97,5 @@ const handleSaveRegistry = async () => {
         </n-spin>
       </n-card>
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>

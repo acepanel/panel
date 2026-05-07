@@ -1,12 +1,13 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'backup-index'
+  name: 'backup-index',
 })
+
+import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import ListView from '@/views/backup/ListView.vue'
 import StorageView from '@/views/backup/StorageView.vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const currentTab = ref('website')
@@ -16,10 +17,10 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     db: [
       {
         label: '',
-        value: ''
-      }
-    ]
-  }
+        value: '',
+      },
+    ],
+  },
 })
 
 const mySQLInstalled = computed(() => {
@@ -32,8 +33,8 @@ const postgreSQLInstalled = computed(() => {
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="website" :tab="$gettext('Website')" />
         <n-tab v-if="mySQLInstalled" name="mysql" tab="MySQL" />
@@ -43,5 +44,5 @@ const postgreSQLInstalled = computed(() => {
     </template>
     <list-view v-if="currentTab !== 'storage'" v-model:type="currentTab" />
     <storage-view v-else />
-  </common-page>
+  </PageContainer>
 </template>

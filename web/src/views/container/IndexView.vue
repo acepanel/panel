@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'container-index'
+  name: 'container-index',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -16,8 +16,8 @@ const current = ref('container')
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="current" animated>
         <n-tab name="container" :tab="$gettext('Containers')" />
         <n-tab name="compose" :tab="$gettext('Compose')" />
@@ -31,5 +31,5 @@ const current = ref('container')
     <image-view v-else-if="current === 'image'" />
     <network-view v-else-if="current === 'network'" />
     <volume-view v-else-if="current === 'volume'" />
-  </common-page>
+  </PageContainer>
 </template>

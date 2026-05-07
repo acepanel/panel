@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'setting-index'
+  name: 'setting-index',
 })
 
 import type { MessageReactive } from 'naive-ui'
@@ -34,7 +34,7 @@ const httpsSettingsDirty = computed(() => {
 const snapshotHttpsState = () => {
   savedHttpsState.value = {
     tls: model.value.tls,
-    public_ip: JSON.stringify(model.value.public_ip)
+    public_ip: JSON.stringify(model.value.public_ip),
   }
 }
 
@@ -67,8 +67,8 @@ const { data: model } = useRequest(setting.list, {
     tls: 'off',
     public_ip: [],
     cert: '',
-    key: ''
-  }
+    key: '',
+  },
 })
 
 // 数据加载完成后快照 HTTPS 状态
@@ -116,7 +116,7 @@ const handleSave = () => {
 const handleObtainCert = () => {
   isObtainCert.value = true
   messageReactive = window.$message.loading($gettext('Please wait...'), {
-    duration: 0
+    duration: 0,
   })
   useRequest(setting.obtainCert())
     .onSuccess(() => {
@@ -141,8 +141,8 @@ const handleCreate = () => {
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="base" :tab="$gettext('Basic')" />
         <n-tab name="safe" :tab="$gettext('Safe')" />
@@ -183,7 +183,7 @@ const handleCreate = () => {
         </n-button>
       </n-flex>
     </n-flex>
-  </common-page>
+  </PageContainer>
   <create-modal v-model:show="createModal" />
 </template>
 

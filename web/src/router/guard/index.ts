@@ -1,5 +1,7 @@
-import { createTabGuard } from '@/router/guard/tab-guard'
 import type { Router } from 'vue-router'
+
+import { createTabGuard } from '@/router/guard/tab-guard'
+
 import { createAppInstallGuard } from './app-install-guard'
 import { createPageLoadingGuard } from './page-loading-guard'
 import { createPageTitleGuard } from './page-title-guard'

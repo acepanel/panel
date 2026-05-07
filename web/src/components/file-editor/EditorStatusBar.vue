@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useEditorStore } from '@/stores'
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import { useEditorStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
@@ -32,7 +33,7 @@ const languages = [
   'shell',
   'sql',
   'nginx',
-  'dockerfile'
+  'dockerfile',
 ]
 
 // 缩进选项
@@ -40,7 +41,7 @@ const indentOptions = computed(() => [
   { label: `${$gettext('Spaces')}: 2`, value: '2-spaces' },
   { label: `${$gettext('Spaces')}: 4`, value: '4-spaces' },
   { label: `${$gettext('Tabs')}: 2`, value: '2-tabs' },
-  { label: `${$gettext('Tabs')}: 4`, value: '4-tabs' }
+  { label: `${$gettext('Tabs')}: 4`, value: '4-tabs' },
 ])
 
 // 当前缩进显示
@@ -68,7 +69,7 @@ function handleIndentChange(value: string) {
   const [size, type] = value.split('-') as [string, string]
   editorStore.updateSettings({
     tabSize: parseInt(size),
-    insertSpaces: type === 'spaces'
+    insertSpaces: type === 'spaces',
   })
 }
 </script>
@@ -89,7 +90,7 @@ function handleIndentChange(value: string) {
       :value="editorStore.activeTab.lineEnding"
       :options="[
         { label: 'LF', value: 'LF' },
-        { label: 'CRLF', value: 'CRLF' }
+        { label: 'CRLF', value: 'CRLF' },
       ]"
       @update:value="handleLineEndingChange"
     >

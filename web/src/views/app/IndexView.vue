@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'app-index'
+  name: 'app-index',
 })
 
 import { NButton } from 'naive-ui'
@@ -33,8 +33,8 @@ const handleUpdateCache = () => {
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <div class="flex items-center justify-between">
         <n-tabs v-model:value="currentTab" animated class="flex-1">
           <n-tab name="installed" :tab="$gettext('Installed')" />
@@ -42,7 +42,13 @@ const handleUpdateCache = () => {
           <n-tab name="environment" :tab="$gettext('Operating Environment')" />
           <n-tab name="template" :tab="$gettext('Container Template')" />
         </n-tabs>
-        <n-button v-if="currentTab != 'installed'" type="primary" :loading="updateCacheLoading" :disabled="updateCacheLoading" @click="handleUpdateCache">
+        <n-button
+          v-if="currentTab != 'installed'"
+          type="primary"
+          :loading="updateCacheLoading"
+          :disabled="updateCacheLoading"
+          @click="handleUpdateCache"
+        >
           {{ $gettext('Update Cache') }}
         </n-button>
       </div>
@@ -51,5 +57,5 @@ const handleUpdateCache = () => {
     <app-view v-if="currentTab === 'app'" />
     <environment-view v-if="currentTab === 'environment'" />
     <template-view v-if="currentTab === 'template'" />
-  </common-page>
+  </PageContainer>
 </template>

@@ -10,5 +10,5 @@ export default {
   // 修改 WebHook
   update: (id: number, req: any): any => http.Put(`/webhook/${id}`, req),
   // 删除 WebHook
-  delete: (id: number): any => http.Delete(`/webhook/${id}`)
+  delete: (id: number): any => http.Delete(`/webhook/${id}`),
 }

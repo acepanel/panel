@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import database from '@/api/panel/database'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import database from '@/api/panel/database'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -13,7 +14,7 @@ const updateModel = ref({
   port: 3306,
   username: '',
   password: '',
-  remark: ''
+  remark: '',
 })
 
 const loading = ref(false)
@@ -45,7 +46,7 @@ watch(
         updateModel.value.remark = data.remark
       })
     }
-  }
+  },
 )
 </script>
 
@@ -118,7 +119,9 @@ watch(
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{
+      $gettext('Submit')
+    }}</n-button>
   </n-modal>
 </template>
 

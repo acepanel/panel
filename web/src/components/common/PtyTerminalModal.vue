@@ -7,6 +7,7 @@ import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { Terminal } from '@xterm/xterm'
+
 import '@xterm/xterm/css/xterm.css'
 import { useGettext } from 'vue3-gettext'
 
@@ -18,12 +19,12 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   title: {
     type: String,
-    default: ''
+    default: '',
   },
   command: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits<{
@@ -60,7 +61,13 @@ const initTerminal = async () => {
       tabStopWidth: 4,
       disableStdin: false,
       convertEol: true,
-      theme: { background: '#111', foreground: '#fff' }
+      theme: {
+        background:
+          getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-bg-terminal')
+            .trim() || '#0a0e1a',
+        foreground: '#e6edf3',
+      },
     })
 
     fitAddon = new FitAddon()
@@ -102,8 +109,8 @@ const initTerminal = async () => {
           JSON.stringify({
             resize: true,
             columns: cols,
-            rows: rows
-          })
+            rows: rows,
+          }),
         )
       }
     })
@@ -194,7 +201,7 @@ const handleBeforeClose = (): Promise<boolean> => {
       window.$dialog.warning({
         title: $gettext('Confirm'),
         content: $gettext(
-          'Command may still running. Closing the window will terminate the command. Are you sure?'
+          'Command may still running. Closing the window will terminate the command. Are you sure?',
         ),
         positiveText: $gettext('Confirm'),
         negativeText: $gettext('Cancel'),
@@ -209,7 +216,7 @@ const handleBeforeClose = (): Promise<boolean> => {
         },
         onMaskClick: () => {
           resolve(false)
-        }
+        },
       })
     } else {
       resolve(true)
@@ -232,7 +239,7 @@ watch(
       await nextTick()
       await initTerminal()
     }
-  }
+  },
 )
 
 onUnmounted(() => {
@@ -241,7 +248,7 @@ onUnmounted(() => {
 
 defineExpose({
   initTerminal,
-  closeTerminal
+  closeTerminal,
 })
 </script>
 
@@ -251,7 +258,13 @@ defineExpose({
     preset="card"
     :title="title || $gettext('Terminal')"
     style="width: 90vw; height: 80vh; max-height: 80vh"
-    :content-style="{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1, minHeight: 0 }"
+    :content-style="{
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      flex: 1,
+      minHeight: 0,
+    }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -261,44 +274,102 @@ defineExpose({
     @mask-click="handleMaskClick"
     @after-leave="handleModalClose"
   >
-    <div
-      ref="terminalRef"
-      @wheel="onTerminalWheel"
-      style="flex: 1; min-height: 0; background: #111"
-    ></div>
+    <div class="terminal-shell flex-1 min-h-0">
+      <header class="terminal-titlebar">
+        <div class="terminal-title">
+          <span class="status-dot" :class="isRunning ? 'ok' : 'err'"></span>
+          <span class="terminal-title-text">{{ command }}</span>
+        </div>
+      </header>
+      <div ref="terminalRef" class="terminal-content" @wheel="onTerminalWheel"></div>
+    </div>
   </n-modal>
 </template>
 
 <style scoped lang="scss">
-:deep(.xterm) {
-  padding: 1rem !important;
+.terminal-shell {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-terminal);
+  border: 1px solid var(--color-border-default);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar) {
-  border-radius: 0.4rem;
-  height: 6px;
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: 'JetBrains Mono Variable', monospace;
+}
+
+.terminal-title-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-dot {
   width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.ok {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  }
+
+  &.err {
+    background: #ef4444;
+  }
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-thumb) {
-  background-color: #666;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
+.terminal-content {
+  flex: 1;
+  min-height: 0;
+  background: var(--color-bg-terminal);
 }
 
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-thumb) {
-  background-color: #aaa;
+:deep(.xterm) {
+  padding: 12px !important;
+  height: 100%;
 }
 
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-track) {
-  background-color: #111;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
-}
+:deep(.xterm-viewport) {
+  background-color: var(--color-bg-terminal) !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-track) {
-  background-color: #444;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+  }
 }
 </style>

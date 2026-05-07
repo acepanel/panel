@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', {
     return {
       id: '',
       username: '',
-      role: []
+      role: [],
     }
   },
   actions: {
@@ -39,7 +39,7 @@ export const useUserStore = defineStore('user', {
       resetRouter()
       this.$reset()
       window.location.reload()
-    }
+    },
   },
-  persist: true
+  persist: true,
 })

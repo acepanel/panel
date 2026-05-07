@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import user from '@/api/panel/user'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import user from '@/api/panel/user'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
 const model = ref({
-  password: ''
+  password: '',
 })
 
 const loading = ref(false)
@@ -48,7 +49,9 @@ const handleUpdate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{
+      $gettext('Submit')
+    }}</n-button>
   </n-modal>
 </template>
 

@@ -24,8 +24,8 @@ const loadData = () => {
       ctx.sitesParam.value,
       threshold.value && threshold.value > 0 ? threshold.value : undefined,
       page.value,
-      limit.value
-    )
+      limit.value,
+    ),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -60,7 +60,7 @@ const columns = computed(() => [
   {
     title: $gettext('Requests'),
     key: 'requests',
-    sorter: (a: any, b: any) => a.requests - b.requests
+    sorter: (a: any, b: any) => a.requests - b.requests,
   },
   {
     title: $gettext('Avg Response Time'),
@@ -70,15 +70,15 @@ const columns = computed(() => [
       const aAvg = a.request_time_count > 0 ? a.request_time_sum / a.request_time_count : 0
       const bAvg = b.request_time_count > 0 ? b.request_time_sum / b.request_time_count : 0
       return aAvg - bAvg
-    }
+    },
   },
   {
     title: $gettext('Bandwidth'),
     key: 'bandwidth',
     render: (row: any) => formatBytes(row.bandwidth),
-    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth
+    sorter: (a: any, b: any) => a.bandwidth - b.bandwidth,
   },
-  { title: $gettext('Errors'), key: 'errors', sorter: (a: any, b: any) => a.errors - b.errors }
+  { title: $gettext('Errors'), key: 'errors', sorter: (a: any, b: any) => a.errors - b.errors },
 ])
 
 const handlePageChange = (p: number) => {
@@ -102,7 +102,7 @@ const handlePageSizeChange = (s: number) => {
         :min="0"
         :step="50"
         size="small"
-        style="width: 140px"
+        class="w-35"
         @update:value="handleThresholdChange"
       >
         <template #suffix>ms</template>
@@ -110,7 +110,7 @@ const handlePageSizeChange = (s: number) => {
     </n-flex>
     <n-spin :show="loading">
       <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
-      <n-flex justify="end" class="mt-12" v-if="total > 0">
+      <n-flex justify="end" class="mt-3" v-if="total > 0">
         <n-pagination
           v-model:page="page"
           :page-size="limit"

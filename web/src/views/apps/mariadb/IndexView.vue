@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-mariadb-index'
+  name: 'apps-mariadb-index',
 })
 
 import mariadb from '@/api/apps/mariadb'

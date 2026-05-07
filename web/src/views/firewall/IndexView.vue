@@ -1,22 +1,23 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'firewall-index'
+  name: 'firewall-index',
 })
+
+import { useGettext } from 'vue3-gettext'
 
 import ForwardView from '@/views/firewall/ForwardView.vue'
 import IpRuleView from '@/views/firewall/IpRuleView.vue'
 import RuleView from '@/views/firewall/RuleView.vue'
 import ScanView from '@/views/firewall/ScanView.vue'
 import SettingView from '@/views/firewall/SettingView.vue'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const currentTab = ref('rule')
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="rule" :tab="$gettext('Port Rules')" />
         <n-tab name="ip-rule" :tab="$gettext('IP Rules')" />
@@ -30,7 +31,7 @@ const currentTab = ref('rule')
     <forward-view v-if="currentTab === 'forward'" />
     <scan-view v-if="currentTab === 'scan'" />
     <setting-view v-if="currentTab === 'setting'" />
-  </common-page>
+  </PageContainer>
 </template>
 
 <style scoped lang="scss"></style>

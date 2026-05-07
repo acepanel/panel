@@ -17,7 +17,7 @@ const group = ref('www')
 const checkbox = ref({
   owner: ['read', 'write', 'execute'],
   group: ['read', 'execute'],
-  other: ['read', 'execute']
+  other: ['read', 'execute'],
 })
 
 // 规范化 mode 字符串，确保为3位数字
@@ -41,12 +41,12 @@ watch(
         updateCheckboxes()
       }
     }
-  }
+  },
 )
 
 const handlePermission = async () => {
   const promises = selected.value.map((path) =>
-    file.permission(path, `0${mode.value}`, owner.value, group.value)
+    file.permission(path, `0${mode.value}`, owner.value, group.value),
   )
   await Promise.all(promises)
 

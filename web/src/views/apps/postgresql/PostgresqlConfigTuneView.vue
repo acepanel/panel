@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'postgresql-config-tune'
+  name: 'postgresql-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -56,7 +56,7 @@ const saveLoading = ref(false)
 const sizeUnitOptions = [
   { label: 'kB', value: 'kB' },
   { label: 'MB', value: 'MB' },
-  { label: 'GB', value: 'GB' }
+  { label: 'GB', value: 'GB' },
 ]
 
 // 解析带单位的值，如 "256MB" -> { num: 256, unit: "MB" }
@@ -80,19 +80,19 @@ const composeSizeValue = (num: number | null, unit: string): string => {
 const walLevelOptions = [
   { label: 'minimal', value: 'minimal' },
   { label: 'replica', value: 'replica' },
-  { label: 'logical', value: 'logical' }
+  { label: 'logical', value: 'logical' },
 ]
 
 const hugePagesOptions = [
   { label: 'off', value: 'off' },
   { label: 'on', value: 'on' },
-  { label: 'try', value: 'try' }
+  { label: 'try', value: 'try' },
 ]
 
 const ioMethodOptions = [
   { label: 'sync', value: 'sync' },
   { label: 'worker', value: 'worker' },
-  { label: 'io_uring', value: 'io_uring' }
+  { label: 'io_uring', value: 'io_uring' },
 ]
 
 useRequest(postgresql.configTune()).onSuccess(({ data }: any) => {
@@ -154,7 +154,7 @@ const getConfigData = () => ({
   log_destination: logDestination.value ?? '',
   log_min_duration_statement: String(logMinDurationStatement.value ?? ''),
   log_timezone: logTimezone.value,
-  io_method: ioMethod.value ?? ''
+  io_method: ioMethod.value ?? '',
 })
 
 const handleSave = () => {
@@ -200,7 +200,9 @@ const handleSave = () => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item :label="$gettext('Superuser Reserved Connections (superuser_reserved_connections)')">
+          <n-form-item
+            :label="$gettext('Superuser Reserved Connections (superuser_reserved_connections)')"
+          >
             <n-input-number
               class="w-full"
               v-model:value="superuserReservedConnections"
@@ -236,11 +238,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="sharedBuffersUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="sharedBuffersUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Work Mem (work_mem)')">
@@ -252,11 +250,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="workMemUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="workMemUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Maintenance Work Mem (maintenance_work_mem)')">
@@ -271,7 +265,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="maintenanceWorkMemUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -287,7 +281,7 @@ const handleSave = () => {
               <n-select
                 v-model:value="effectiveCacheSizeUnit"
                 :options="sizeUnitOptions"
-                style="width: 80px"
+                class="w-20"
               />
             </n-input-group>
           </n-form-item>
@@ -325,11 +319,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="walBuffersUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="walBuffersUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Max WAL Size (max_wal_size)')">
@@ -341,11 +331,7 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="maxWalSizeUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="maxWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Min WAL Size (min_wal_size)')">
@@ -357,14 +343,12 @@ const handleSave = () => {
                 :min="0"
                 style="flex: 1"
               />
-              <n-select
-                v-model:value="minWalSizeUnit"
-                :options="sizeUnitOptions"
-                style="width: 80px"
-              />
+              <n-select v-model:value="minWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
             </n-input-group>
           </n-form-item>
-          <n-form-item :label="$gettext('Checkpoint Completion Target (checkpoint_completion_target)')">
+          <n-form-item
+            :label="$gettext('Checkpoint Completion Target (checkpoint_completion_target)')"
+          >
             <n-input
               v-model:value="checkpointCompletionTarget"
               :placeholder="$gettext('e.g. 0.9')"

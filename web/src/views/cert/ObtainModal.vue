@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import cert from '@/api/panel/cert'
-import ws from '@/api/ws'
 import { NButton, NTimeline, NTimelineItem } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+
+import cert from '@/api/panel/cert'
+import ws from '@/api/ws'
 
 const { $gettext } = useGettext()
 
@@ -12,12 +13,12 @@ const id = defineModel<number>('id', { type: Number, required: true })
 const props = defineProps({
   mode: {
     type: String as () => 'obtain' | 'renew',
-    default: 'obtain'
-  }
+    default: 'obtain',
+  },
 })
 
 const model = ref({
-  type: 'auto'
+  type: 'auto',
 })
 
 const loading = ref(false)
@@ -28,7 +29,7 @@ let currentWs: WebSocket | null = null
 
 const options = [
   { label: $gettext('Automatic'), value: 'auto' },
-  { label: $gettext('Self-signed'), value: 'self-signed' }
+  { label: $gettext('Self-signed'), value: 'self-signed' },
 ]
 
 const resetState = () => {
@@ -64,7 +65,7 @@ const handleWsObtainOrRenew = () => {
           window.$message.success(
             props.mode === 'renew'
               ? $gettext('Renewal successful')
-              : $gettext('Issuance successful')
+              : $gettext('Issuance successful'),
           )
         } else if (data.status === 'error') {
           errorMsg.value = data.msg
@@ -120,9 +121,7 @@ const handleClose = () => {
 }
 
 const modalTitle = computed(() => {
-  return props.mode === 'renew'
-    ? $gettext('Renew Certificate')
-    : $gettext('Issue Certificate')
+  return props.mode === 'renew' ? $gettext('Renew Certificate') : $gettext('Issue Certificate')
 })
 
 const showProgress = computed(() => {
@@ -165,9 +164,7 @@ const showProgress = computed(() => {
         v-if="isComplete"
         type="success"
         :content="
-          mode === 'renew'
-            ? $gettext('Renewal successful')
-            : $gettext('Issuance successful')
+          mode === 'renew' ? $gettext('Renewal successful') : $gettext('Issuance successful')
         "
       />
     </n-timeline>

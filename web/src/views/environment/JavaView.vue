@@ -16,21 +16,23 @@ const handleSetCli = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-flex vertical>
       <n-card>
-        <template #header>
-          Java {{ slug }} (Amazon Corretto)
-        </template>
+        <template #header> Java {{ slug }} (Amazon Corretto) </template>
         <template #header-extra>
           <n-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
           </n-button>
         </template>
         <n-alert type="info" :show-icon="false">
-          {{ $gettext('Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK).') }}
+          {{
+            $gettext(
+              'Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK).',
+            )
+          }}
         </n-alert>
       </n-card>
     </n-flex>
-  </common-page>
+  </PageContainer>
 </template>

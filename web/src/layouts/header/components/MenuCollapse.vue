@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { useThemeStore } from '@/stores'
 import { useGettext } from 'vue3-gettext'
+
+import { useThemeStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()

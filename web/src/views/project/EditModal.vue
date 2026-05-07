@@ -42,7 +42,7 @@ const model = ref({
   protect_home: false,
   protect_system: '',
   read_write_paths: [] as string[],
-  read_only_paths: [] as string[]
+  read_only_paths: [] as string[],
 })
 
 const loading = ref(false)
@@ -54,7 +54,7 @@ const restartOptions = [
   { label: $gettext('Restart on failure'), value: 'on-failure' },
   { label: $gettext('Restart on abnormal'), value: 'on-abnormal' },
   { label: $gettext('Restart on abort'), value: 'on-abort' },
-  { label: $gettext('Restart on success'), value: 'on-success' }
+  { label: $gettext('Restart on success'), value: 'on-success' },
 ]
 
 // 输出选项
@@ -64,7 +64,7 @@ const outputOptions = [
   { label: 'kmsg', value: 'kmsg' },
   { label: 'null', value: 'null' },
   { label: $gettext('File (append)'), value: 'append:/var/log/' },
-  { label: $gettext('File (truncate)'), value: 'truncate:/var/log/' }
+  { label: $gettext('File (truncate)'), value: 'truncate:/var/log/' },
 ]
 
 // ProtectSystem 选项
@@ -72,7 +72,7 @@ const protectSystemOptions = [
   { label: $gettext('Disabled'), value: '' },
   { label: 'true', value: 'true' },
   { label: 'full', value: 'full' },
-  { label: 'strict', value: 'strict' }
+  { label: 'strict', value: 'strict' },
 ]
 
 // 目录选择器
@@ -129,7 +129,7 @@ const loadProject = async () => {
         protect_home: data.protect_home || false,
         protect_system: data.protect_system || '',
         read_write_paths: data.read_write_paths || [],
-        read_only_paths: data.read_only_paths || []
+        read_only_paths: data.read_only_paths || [],
       }
     })
     .onComplete(() => {
@@ -170,7 +170,7 @@ const handleSave = async () => {
     v-model:show="show"
     :title="$gettext('Edit Project - %{ name }', { name: model.name })"
     preset="card"
-    style="width: 70vw"
+    :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
     :bordered="false"
     :segmented="false"
@@ -240,7 +240,7 @@ const handleSave = async () => {
                 :options="[
                   { label: 'www', value: 'www' },
                   { label: 'root', value: 'root' },
-                  { label: 'nobody', value: 'nobody' }
+                  { label: 'nobody', value: 'nobody' },
                 ]"
                 :placeholder="$gettext('Select or enter user')"
                 filterable
@@ -406,10 +406,10 @@ const handleSave = async () => {
         <!-- 依赖设置 -->
         <n-tab-pane name="dependencies" :tab="$gettext('Dependencies')">
           <n-form :model="model" label-placement="left" label-width="140">
-            <n-alert type="info" style="margin-bottom: 16px">
+            <n-alert type="info" class="mb-4">
               {{
                 $gettext(
-                  'Configure service dependencies to control startup order. Common services: network.target, mysqld.service, postgresql.service, redis.service'
+                  'Configure service dependencies to control startup order. Common services: network.target, mysqld.service, postgresql.service, redis.service',
                 )
               }}
             </n-alert>
@@ -457,10 +457,10 @@ const handleSave = async () => {
         <!-- 资源限制 -->
         <n-tab-pane name="resources" :tab="$gettext('Resource Limits')">
           <n-form :model="model" label-placement="left" label-width="140">
-            <n-alert type="info" style="margin-bottom: 16px">
+            <n-alert type="info" class="mb-4">
               {{
                 $gettext(
-                  'Set resource limits to prevent the service from consuming too many system resources'
+                  'Set resource limits to prevent the service from consuming too many system resources',
                 )
               }}
             </n-alert>
@@ -504,10 +504,10 @@ const handleSave = async () => {
         <!-- 安全设置 -->
         <n-tab-pane name="security" :tab="$gettext('Security Settings')">
           <n-form :model="model" label-placement="left" label-width="160">
-            <n-alert type="warning" style="margin-bottom: 16px">
+            <n-alert type="warning" class="mb-4">
               {{
                 $gettext(
-                  'Security settings can enhance service isolation but may affect functionality. Please test thoroughly before enabling.'
+                  'Security settings can enhance service isolation but may affect functionality. Please test thoroughly before enabling.',
                 )
               }}
             </n-alert>
@@ -542,7 +542,7 @@ const handleSave = async () => {
                 <span class="text-gray-400">
                   {{
                     $gettext(
-                      'true: /usr, /boot read-only; full: + /etc read-only; strict: entire filesystem read-only'
+                      'true: /usr, /boot read-only; full: + /etc read-only; strict: entire filesystem read-only',
                     )
                   }}
                 </span>

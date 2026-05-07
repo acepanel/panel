@@ -94,7 +94,7 @@ const calculateFileIdentifier = async (file: File): Promise<string> => {
 
   // 合并所有数据计算hash
   const combined = new Uint8Array(
-    metaBuffer.byteLength + headBuffer.byteLength + tailBuffer.byteLength
+    metaBuffer.byteLength + headBuffer.byteLength + tailBuffer.byteLength,
   )
   combined.set(new Uint8Array(metaBuffer), 0)
   combined.set(new Uint8Array(headBuffer), metaBuffer.byteLength)
@@ -128,7 +128,7 @@ const uploadChunkWithRetry = async (
   chunkIndex: number,
   chunkSize: number,
   onChunkComplete: (size: number) => void,
-  task: UploadTask
+  task: UploadTask,
 ): Promise<void> => {
   let lastError: Error | null = null
   for (let attempt = 1; attempt <= CHUNK_RETRY_COUNT; attempt++) {
@@ -158,18 +158,18 @@ const uploadChunkWithRetry = async (
       lastError = error as Error
       console.warn(
         `Chunk ${chunkIndex} upload failed (attempt ${attempt}/${CHUNK_RETRY_COUNT}):`,
-        error
+        error,
       )
       if (attempt < CHUNK_RETRY_COUNT) {
         // 等待一段时间后重试，指数退避
         await new Promise((resolve) =>
-          setTimeout(resolve, Math.min(1000 * Math.pow(2, attempt - 1), 10000))
+          setTimeout(resolve, Math.min(1000 * Math.pow(2, attempt - 1), 10000)),
         )
       }
     }
   }
   throw new Error(
-    `Chunk ${chunkIndex} upload failed after ${CHUNK_RETRY_COUNT} attempts: ${lastError?.message}`
+    `Chunk ${chunkIndex} upload failed after ${CHUNK_RETRY_COUNT} attempts: ${lastError?.message}`,
   )
 }
 
@@ -178,7 +178,7 @@ const chunkedUpload = async (
   file: File,
   onProgress: (e: { percent: number }) => void,
   onFinish: () => void,
-  onError: () => void
+  onError: () => void,
 ) => {
   // 创建此文件的上传任务
   const fileKey = getFileKey(file)
@@ -207,7 +207,7 @@ const chunkedUpload = async (
       file_name: file.name,
       file_hash: fileHash,
       chunk_count: chunkCount,
-      force: forceOverwrite.value
+      force: forceOverwrite.value,
     })
     task.activeRequests.push(startMethod)
     const startRes = await startMethod
@@ -292,7 +292,7 @@ const chunkedUpload = async (
       file_name: file.name,
       file_hash: fileHash,
       chunk_count: chunkCount,
-      force: forceOverwrite.value
+      force: forceOverwrite.value,
     })
     task.activeRequests.push(finishMethod)
     await finishMethod
@@ -334,7 +334,7 @@ watch(
           title: $gettext('Confirm Upload'),
           content: $gettext(
             'You are about to upload %{count} files. This may take a while. Do you want to continue?',
-            { count: files.length }
+            { count: files.length },
           ),
           positiveText: $gettext('Continue'),
           negativeText: $gettext('Cancel'),
@@ -343,14 +343,14 @@ watch(
           },
           onNegativeClick: () => {
             show.value = false
-          }
+          },
         })
       } else {
         addFilesToList(files, true)
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 // 将文件添加到上传列表
@@ -359,7 +359,7 @@ const addFilesToList = (files: File[], autoUpload: boolean = false) => {
     id: `dropped-${Date.now()}-${index}`,
     name: file.name,
     status: 'pending' as const,
-    file: file
+    file: file,
   }))
 
   // 自动开始上传
@@ -406,7 +406,9 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
       if (!task.isCancelled) {
         onFinish()
         window.$bus.emit('file:refresh')
-        window.$message.success($gettext('Upload %{ fileName } successful', { fileName: file.name }))
+        window.$message.success(
+          $gettext('Upload %{ fileName } successful', { fileName: file.name }),
+        )
       }
     })
     .onError(() => {
@@ -435,7 +437,7 @@ const handleRemove = ({ file }: { file: UploadFileInfo }) => {
 // 处理文件选择变化（用于文件数量确认）
 const handleChange = (data: { fileList: UploadFileInfo[] }) => {
   const newFiles = data.fileList.filter(
-    (f) => !fileList.value.some((existing) => existing.id === f.id)
+    (f) => !fileList.value.some((existing) => existing.id === f.id),
   )
 
   // 如果新增文件数量超过阈值，弹窗确认
@@ -444,13 +446,13 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
       title: $gettext('Confirm Upload'),
       content: $gettext(
         'You are about to upload %{count} files. This may take a while. Do you want to continue?',
-        { count: newFiles.length }
+        { count: newFiles.length },
       ),
       positiveText: $gettext('Continue'),
       negativeText: $gettext('Cancel'),
       onPositiveClick: () => {
         fileList.value = data.fileList
-      }
+      },
     })
   } else {
     fileList.value = data.fileList
@@ -494,10 +496,10 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
         @remove="handleRemove"
       >
         <n-upload-dragger>
-          <div style="margin-bottom: 12px">
+          <div class="mb-3">
             <the-icon :size="60" icon="mdi:arrow-up-bold-box-outline" />
           </div>
-          <NText text-18> {{ $gettext('Click or drag files to this area to upload') }}</NText>
+          <NText text-xl> {{ $gettext('Click or drag files to this area to upload') }}</NText>
           <NP depth="3" m-10>
             {{
               $gettext('For large files, it is recommended to use SFTP and other methods to upload')

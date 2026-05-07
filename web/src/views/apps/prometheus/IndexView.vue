@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-prometheus-index'
+  name: 'apps-prometheus-index',
 })
 
 import { NButton, NDataTable } from 'naive-ui'
@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import prometheus from '@/api/apps/prometheus'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+
 import PrometheusConfigTuneView from './PrometheusConfigTuneView.vue'
 import PrometheusExportersView from './PrometheusExportersView.vue'
 
@@ -17,11 +18,14 @@ const saveConfigLoading = ref(false)
 const saveAlertmanagerLoading = ref(false)
 
 const { data: config, send: refreshConfig } = useRequest(prometheus.config, {
-  initialData: ''
+  initialData: '',
 })
-const { data: alertmanagerConfig, send: refreshAlertmanagerConfig } = useRequest(prometheus.alertmanagerConfig, {
-  initialData: ''
-})
+const { data: alertmanagerConfig, send: refreshAlertmanagerConfig } = useRequest(
+  prometheus.alertmanagerConfig,
+  {
+    initialData: '',
+  },
+)
 
 watch(currentTab, (val) => {
   if (val === 'config') {
@@ -32,7 +36,7 @@ watch(currentTab, (val) => {
   }
 })
 const { data: load } = useRequest(prometheus.load, {
-  initialData: []
+  initialData: [],
 })
 
 const loadColumns: any = [
@@ -41,14 +45,14 @@ const loadColumns: any = [
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
-    ellipsis: { tooltip: true }
-  }
+    ellipsis: { tooltip: true },
+  },
 ]
 
 const handleSaveConfig = () => {
@@ -75,13 +79,17 @@ const handleSaveAlertmanagerConfig = () => {
 </script>
 
 <template>
-  <common-page show-footer>
+  <PageContainer :show-footer="true">
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <service-status service="prometheus" />
           <n-alert type="info">
-            {{ $gettext('By default, the firewall does not allow access to the Prometheus port (9090). If you need external access, please manually open the port in the firewall settings.') }}
+            {{
+              $gettext(
+                'By default, the firewall does not allow access to the Prometheus port (9090). If you need external access, please manually open the port in the firewall settings.',
+              )
+            }}
           </n-alert>
         </n-flex>
       </n-tab-pane>
@@ -90,13 +98,18 @@ const handleSaveAlertmanagerConfig = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the Prometheus main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the Prometheus main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -111,13 +124,18 @@ const handleSaveAlertmanagerConfig = () => {
           <n-alert type="info">
             {{
               $gettext(
-                'Configure Alertmanager notification channels (email, webhook, Slack, etc). To enable alert rules, uncomment the rule_files section in the main configuration and create rule files in the rules directory.'
+                'Configure Alertmanager notification channels (email, webhook, Slack, etc). To enable alert rules, uncomment the rule_files section in the main configuration and create rule files in the rules directory.',
               )
             }}
           </n-alert>
           <common-editor v-model:value="alertmanagerConfig" height="50vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveAlertmanagerLoading" :disabled="saveAlertmanagerLoading" @click="handleSaveAlertmanagerConfig">
+            <n-button
+              type="primary"
+              :loading="saveAlertmanagerLoading"
+              :disabled="saveAlertmanagerLoading"
+              @click="handleSaveAlertmanagerConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
@@ -140,5 +158,5 @@ const handleSaveAlertmanagerConfig = () => {
         <realtime-log service="prometheus" />
       </n-tab-pane>
     </n-tabs>
-  </common-page>
+  </PageContainer>
 </template>

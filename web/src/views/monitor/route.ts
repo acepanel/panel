@@ -7,7 +7,7 @@ export default {
   path: '/monitor',
   component: Layout,
   meta: {
-    order: 30
+    order: 30,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Monitoring',
         icon: 'mdi:chart-line',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { NButton, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import systemctl from '@/api/panel/systemctl'
+import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 
 const { $gettext } = useGettext()
 const props = defineProps({
   service: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: false
+    required: false,
   },
   showReload: {
     type: Boolean,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const fetchingStatus = ref(true)
@@ -44,7 +44,7 @@ const fetchIsEnabled = async () => {
 
 const handleStart = () => {
   const messageReactive = window.$message.loading($gettext('Starting...'), {
-    duration: 0
+    duration: 0,
   })
   fetchingStatus.value = true
   useRequest(systemctl.start(props.service))
@@ -59,7 +59,7 @@ const handleStart = () => {
 
 const handleStop = () => {
   const messageReactive = window.$message.loading($gettext('Stopping...'), {
-    duration: 0
+    duration: 0,
   })
   fetchingStatus.value = true
   useRequest(systemctl.stop(props.service))
@@ -74,7 +74,7 @@ const handleStop = () => {
 
 const handleRestart = () => {
   const messageReactive = window.$message.loading($gettext('Restarting...'), {
-    duration: 0
+    duration: 0,
   })
   fetchingStatus.value = true
   useRequest(systemctl.restart(props.service))
@@ -89,7 +89,7 @@ const handleRestart = () => {
 
 const handleReload = () => {
   const messageReactive = window.$message.loading($gettext('Reloading...'), {
-    duration: 0
+    duration: 0,
   })
   fetchingStatus.value = true
   useRequest(systemctl.reload(props.service))
@@ -104,7 +104,7 @@ const handleReload = () => {
 
 const handleIsEnabled = async () => {
   const messageReactive = window.$message.loading($gettext('Setting autostart...'), {
-    duration: 0
+    duration: 0,
   })
   fetchingIsEnabled.value = true
   if (isEnabled.value) {
@@ -151,18 +151,33 @@ onMounted(() => {
         {{ statusStr }}
       </n-alert>
       <n-flex>
-        <n-button type="success" :loading="fetchingStatus" :disabled="fetchingStatus || status" @click="handleStart">
+        <n-button
+          type="success"
+          :loading="fetchingStatus"
+          :disabled="fetchingStatus || status"
+          @click="handleStart"
+        >
           {{ $gettext('Start') }}
         </n-button>
-        <n-popconfirm @positive-click="handleStop">
+        <ConfirmDialog
+          type="danger"
+          :content="
+            $gettext('Are you sure you want to stop %{ service }?', { service: props.service })
+          "
+          @confirm="handleStop"
+        >
           <template #trigger>
             <n-button type="error" :loading="fetchingStatus" :disabled="fetchingStatus || !status">
               {{ $gettext('Stop') }}
             </n-button>
           </template>
-          {{ $gettext('Are you sure you want to stop %{ service }?', { service: props.service }) }}
-        </n-popconfirm>
-        <n-button type="warning" :loading="fetchingStatus" :disabled="fetchingStatus || !status" @click="handleRestart">
+        </ConfirmDialog>
+        <n-button
+          type="warning"
+          :loading="fetchingStatus"
+          :disabled="fetchingStatus || !status"
+          @click="handleRestart"
+        >
           {{ $gettext('Restart') }}
         </n-button>
         <n-button

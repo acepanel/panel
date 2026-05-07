@@ -12,5 +12,5 @@ export default {
   uninstall: (type: string, slug: string): any =>
     http.Post('/environment/uninstall', { type, slug }),
   // 更新环境
-  update: (type: string, slug: string): any => http.Post('/environment/update', { type, slug })
+  update: (type: string, slug: string): any => http.Post('/environment/update', { type, slug }),
 }

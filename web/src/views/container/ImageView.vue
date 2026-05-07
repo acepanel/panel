@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import ws from '@/api/ws'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const pullModel = ref({
   name: '',
   auth: false,
   username: '',
-  password: ''
+  password: '',
 })
 const pullModal = ref(false)
 const pruneLoading = ref(false)
@@ -31,7 +33,7 @@ const totalProgress = computed(() => {
   if (layers.length === 0) return 0
 
   const completed = layers.filter(
-    (p) => p.status === 'Pull complete' || p.status === 'Already exists'
+    (p) => p.status === 'Pull complete' || p.status === 'Already exists',
   ).length
   const total = layers.filter((p) => p.id && p.id.length === 12).length
 
@@ -45,14 +47,14 @@ const columns: any = [
     key: 'id',
     minWidth: 400,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Container Count'),
     key: 'containers',
     width: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Image'),
@@ -62,14 +64,14 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any): string {
       return row.repo_tags.join(', ')
-    }
+    },
   },
   {
     title: $gettext('Size'),
     key: 'size',
     width: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Creation Time'),
@@ -78,7 +80,7 @@ const columns: any = [
     resizable: true,
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -86,35 +88,22 @@ const columns: any = [
     width: 120,
     hideInExcel: true,
     render(row: any) {
-      return [
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: async () => {
-              await handleDelete(row)
-            }
+      return h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete?'),
+            })
+            if (ok) await handleDelete(row)
           },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete?')
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+        },
+        { default: () => $gettext('Delete') },
+      )
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -123,8 +112,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleDelete = async (row: any) => {
@@ -265,19 +254,31 @@ onUnmounted(() => {
   <n-flex vertical :size="20">
     <n-flex>
       <n-button type="primary" @click="pullModal = true">{{ $gettext('Pull Image') }}</n-button>
-      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>
+      <n-button
+        type="primary"
+        ghost
+        :loading="pruneLoading"
+        :disabled="pruneLoading"
+        @click="handlePrune"
+      >
         {{ $gettext('Cleanup Images') }}
       </n-button>
-      <n-popconfirm @positive-click="handleBulkDelete">
+      <ConfirmDialog
+        type="danger"
+        :content="$gettext('Are you sure you want to delete the selected images?')"
+        @confirm="handleBulkDelete"
+      >
         <template #trigger>
           <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{ $gettext('Are you sure you want to delete the selected images?') }}
-      </n-popconfirm>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :loading="loading"
@@ -285,17 +286,13 @@ onUnmounted(() => {
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.id"
-      v-model:checked-row-keys="selectedRowKeys"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-flex>
@@ -320,18 +317,18 @@ onUnmounted(() => {
           processing
         />
 
-        <n-card size="small" :bordered="true" class="max-h-300 overflow-y-auto">
+        <n-card size="small" :bordered="true" class="max-h-75 overflow-y-auto">
           <n-flex vertical :size="8">
             <div
               v-for="[id, progress] in pullProgress"
               :key="id"
-              class="p-1 px-2 rounded bg-gray-100 dark:bg-gray-800"
+              class="p-1 px-2 rounded bg-bg-subtle"
             >
               <n-flex justify="space-between" align="center">
-                <n-text depth="3" class="text-12 font-mono">
+                <n-text depth="3" class="text-xs font-mono">
                   {{ id.substring(0, 12) }}
                 </n-text>
-                <n-text depth="2" class="text-12">
+                <n-text depth="2" class="text-xs">
                   {{ progress.status }}
                   <template v-if="progress.progress">
                     {{ progress.progress }}

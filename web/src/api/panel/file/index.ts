@@ -5,6 +5,9 @@ export default {
   create: (path: string, dir: boolean): any => http.Post('/file/create', { path, dir }),
   // 获取文件内容
   content: (path: string): any => http.Get('/file/content', { params: { path } }),
+  // 反向分页读取文件或 systemd 服务日志(从末尾起跳过 offset 行,读 limit 行)
+  tail: (params: { path?: string; service?: string; offset: number; limit: number }): any =>
+    http.Get('/file/tail', { params }),
   // 保存文件
   save: (path: string, content: string): any => http.Post('/file/save', { path, content }),
   // 截断文件至 0 长度
@@ -41,7 +44,7 @@ export default {
     sub: boolean,
     sort: string,
     page: number,
-    limit: number
+    limit: number,
   ): any => http.Get('/file/list', { params: { path, keyword, sub, sort, page, limit } }),
   // 分块上传开始
   chunkStart: (data: {
@@ -60,5 +63,5 @@ export default {
     file_hash: string
     chunk_count: number
     force?: boolean
-  }): any => http.Post('/file/chunk/finish', data)
+  }): any => http.Post('/file/chunk/finish', data),
 }

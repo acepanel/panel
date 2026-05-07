@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'clickhouse-config-tune'
+  name: 'clickhouse-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -26,7 +26,7 @@ const logLevelOptions = [
   { label: 'debug', value: 'debug' },
   { label: 'information', value: 'information' },
   { label: 'warning', value: 'warning' },
-  { label: 'error', value: 'error' }
+  { label: 'error', value: 'error' },
 ]
 
 useRequest(clickhouse.configTune()).onSuccess(({ data }: any) => {
@@ -48,7 +48,7 @@ const getConfigData = () => ({
   max_threads: maxThreads.value,
   path: path.value,
   tmp_path: tmpPath.value,
-  log_level: logLevel.value
+  log_level: logLevel.value,
 })
 
 const handleSave = () => {
@@ -82,7 +82,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -102,7 +107,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -119,7 +129,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -133,7 +148,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

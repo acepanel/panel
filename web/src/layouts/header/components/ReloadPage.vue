@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { useTabStore } from '@/stores'
 import { useGettext } from 'vue3-gettext'
+
+import { useTabStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const tabStore = useTabStore()
@@ -13,7 +14,7 @@ const handleReloadPage = () => {
 <template>
   <n-tooltip trigger="hover">
     <template #trigger>
-      <n-icon mr-20 cursor-pointer size="20" @click="handleReloadPage">
+      <n-icon mr-5 cursor-pointer size="20" @click="handleReloadPage">
         <i-mdi-refresh />
       </n-icon>
     </template>

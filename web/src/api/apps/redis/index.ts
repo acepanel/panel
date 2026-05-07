@@ -10,5 +10,5 @@ export default {
   // 获取配置调整参数
   configTune: (): any => http.Get('/apps/redis/config_tune'),
   // 保存配置调整参数
-  saveConfigTune: (data: any): any => http.Post('/apps/redis/config_tune', data)
+  saveConfigTune: (data: any): any => http.Post('/apps/redis/config_tune', data),
 }

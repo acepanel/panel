@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import ObtainModal from '@/views/cert/ObtainModal.vue'
 
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 
 const props = defineProps({
   algorithms: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   websites: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   accounts: {
     type: Array<any>,
-    required: true
+    required: true,
   },
   dns: {
     type: Array<any>,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const { algorithms, websites, accounts, dns } = toRefs(props)
@@ -39,7 +41,7 @@ const updateModel = ref<any>({
   auto_renewal: true,
   cert: '',
   key: '',
-  script: ''
+  script: '',
 })
 const updateAliasList = ref<{ key: string; value: string }[]>([])
 
@@ -54,7 +56,7 @@ watch(
     }
     updateModel.value.alias = map
   },
-  { deep: true }
+  { deep: true },
 )
 
 const updateModal = ref(false)
@@ -63,13 +65,13 @@ const updateCert = ref<any>()
 const showModal = ref(false)
 const showModel = ref<any>({
   cert: '',
-  key: ''
+  key: '',
 })
 const deployModal = ref(false)
 const deployModel = ref<any>({
   id: null,
   websites: [],
-  enable_https: true
+  enable_https: true,
 })
 const obtain = ref(false)
 const obtainCert = ref(0)
@@ -92,12 +94,12 @@ const columns: any = [
               NTag,
               { type: 'primary' },
               {
-                default: () => domain
-              }
-            )
-          )
+                default: () => domain,
+              },
+            ),
+          ),
       })
-    }
+    },
   },
   {
     title: $gettext('Type'),
@@ -108,7 +110,7 @@ const columns: any = [
         NTag,
         {
           type: 'info',
-          bordered: false
+          bordered: false,
         },
         {
           default: () => {
@@ -124,10 +126,10 @@ const columns: any = [
               default:
                 return $gettext('Upload')
             }
-          }
-        }
+          },
+        },
       )
-    }
+    },
   },
   {
     title: $gettext('Associated Account'),
@@ -140,7 +142,7 @@ const columns: any = [
         return $gettext('None')
       }
       return accounts.value?.find((item: any) => item.value === row.account_id)?.label
-    }
+    },
   },
   {
     title: $gettext('Issuer'),
@@ -149,7 +151,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.issuer == '' ? $gettext('None') : row.issuer
-    }
+    },
   },
   {
     title: $gettext('Expiration Time'),
@@ -158,7 +160,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.not_after)
-    }
+    },
   },
   {
     title: $gettext('Next Renewal Time'),
@@ -167,7 +169,7 @@ const columns: any = [
     resizable: true,
     render(row: any) {
       return row.next_renewal == 0 ? $gettext('None') : formatDateTime(row.next_renewal)
-    }
+    },
   },
   {
     title: $gettext('Auto Renewal'),
@@ -179,9 +181,9 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.auto_renewal,
-        onUpdateValue: () => handleAutoRenewalUpdate(row)
+        onUpdateValue: () => handleAutoRenewalUpdate(row),
       })
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -189,86 +191,83 @@ const columns: any = [
     width: 400,
     hideInExcel: true,
     render(row: any) {
-      return [
-        row.type != 'upload' && row.cert == '' && row.key == ''
-          ? h(
-              NButton,
-              {
-                size: 'small',
-                type: 'info',
-                style: 'margin-left: 15px;',
-                onClick: async () => {
-                  obtainMode.value = 'obtain'
-                  obtainCert.value = row.id
-                  obtain.value = true
-                }
+      const items: any[] = []
+      if (row.type != 'upload' && row.cert == '' && row.key == '') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'info',
+              onClick: () => {
+                obtainMode.value = 'obtain'
+                obtainCert.value = row.id
+                obtain.value = true
               },
-              {
-                default: () => $gettext('Issue')
-              }
-            )
-          : null,
-        row.cert != '' && row.key != ''
-          ? h(
-              NButton,
-              {
-                size: 'small',
-                type: 'info',
-                onClick: () => {
-                  deployModel.value.id = row.id
-                  if (row.website_id != 0) {
-                    deployModel.value.websites = [row.website_id]
-                  }
-                  deployModal.value = true
+            },
+            { default: () => $gettext('Issue') },
+          ),
+        )
+      }
+      if (row.cert != '' && row.key != '') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'info',
+              onClick: () => {
+                deployModel.value.id = row.id
+                if (row.website_id != 0) {
+                  deployModel.value.websites = [row.website_id]
                 }
+                deployModal.value = true
               },
-              {
-                default: () => $gettext('Deploy')
-              }
-            )
-          : null,
-        row.cert_url != '' && row.type != 'upload'
-          ? h(
-              NButton,
-              {
-                size: 'small',
-                type: 'success',
-                style: 'margin-left: 15px;',
-                onClick: async () => {
-                  obtainMode.value = 'renew'
-                  obtainCert.value = row.id
-                  obtain.value = true
-                }
+            },
+            { default: () => $gettext('Deploy') },
+          ),
+        )
+      }
+      if (row.cert_url != '' && row.type != 'upload') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'success',
+              onClick: () => {
+                obtainMode.value = 'renew'
+                obtainCert.value = row.id
+                obtain.value = true
               },
-              {
-                default: () => $gettext('Renewal')
-              }
-            )
-          : null,
-        row.cert != '' && row.key != ''
-          ? h(
-              NButton,
-              {
-                size: 'small',
-                type: 'tertiary',
-                style: 'margin-left: 15px;',
-                onClick: () => {
-                  showModel.value.cert = row.cert
-                  showModel.value.key = row.key
-                  showModal.value = true
-                }
+            },
+            { default: () => $gettext('Renewal') },
+          ),
+        )
+      }
+      if (row.cert != '' && row.key != '') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'tertiary',
+              onClick: () => {
+                showModel.value.cert = row.cert
+                showModel.value.key = row.key
+                showModal.value = true
               },
-              {
-                default: () => $gettext('View')
-              }
-            )
-          : null,
+            },
+            { default: () => $gettext('View') },
+          ),
+        )
+      }
+      items.push(
         h(
           NButton,
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 15px;',
             onClick: () => {
               updateCert.value = row.id
               updateModel.value.domains = row.domains
@@ -281,48 +280,37 @@ const columns: any = [
               updateModel.value.cert = row.cert
               updateModel.value.key = row.key
               updateModel.value.script = row.script
-              updateAliasList.value = Object.entries(row.alias || {}).map(
-                ([key, value]) => ({ key, value: value as string })
-              )
+              updateAliasList.value = Object.entries(row.alias || {}).map(([key, value]) => ({
+                key,
+                value: value as string,
+              }))
               updateModal.value = true
-            }
+            },
           },
-          {
-            default: () => $gettext('Modify')
-          }
+          { default: () => $gettext('Modify') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick: async () => {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete the certificate?'),
+              })
+              if (!ok) return
               useRequest(cert.certDelete(row.id)).onSuccess(() => {
                 refresh()
                 window.$message.success($gettext('Deletion successful'))
               })
-            }
-          },
-          {
-            default: () => {
-              return $gettext('Are you sure you want to delete the certificate?')
             },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Delete')
-                }
-              )
-            }
-          }
-        )
-      ]
-    }
-  }
+          },
+          { default: () => $gettext('Delete') },
+        ),
+      )
+      return h(NFlex, { size: 'small', align: 'center' }, () => items)
+    },
+  },
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -331,8 +319,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
-  }
+    data: (res: any) => res.items,
+  },
 )
 
 const handleUpdateCert = () => {
@@ -392,7 +380,7 @@ const handleAutoRenewalUpdate = (row: any) => {
 
 const handleDeployCert = async () => {
   const promises = deployModel.value.websites.map((website: any) =>
-    cert.deploy(deployModel.value.id, website, deployModel.value.enable_https)
+    cert.deploy(deployModel.value.id, website, deployModel.value.enable_https),
   )
   await Promise.all(promises)
 
@@ -423,6 +411,8 @@ onUnmounted(() => {
 <template>
   <n-space vertical size="large">
     <n-data-table
+      v-model:page="page"
+      v-model:pageSize="pageSize"
       striped
       remote
       :scroll-x="1800"
@@ -430,16 +420,13 @@ onUnmounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       :pagination="{
         page: page,
-        pageCount: pageCount,
         pageSize: pageSize,
         itemCount: total,
         showQuickJumper: true,
         showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
+        pageSizes: [20, 50, 100, 200],
       }"
     />
   </n-space>
@@ -456,7 +443,7 @@ onUnmounted(() => {
       <n-alert v-if="updateModel.type != 'upload'" type="info">
         {{
           $gettext(
-            'You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates.'
+            'You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates.',
           )
         }}
       </n-alert>
@@ -514,17 +501,17 @@ onUnmounted(() => {
             :on-create="() => ({ key: '', value: '' })"
           >
             <template #default="{ value }">
-              <div style="display: flex; align-items: center; gap: 8px; width: 100%">
+              <div class="flex gap-2 w-full items-center">
                 <n-input
                   v-model:value="value.key"
                   :placeholder="$gettext('Original domain, e.g. example.com')"
-                  style="flex: 1"
+                  class="flex-1"
                 />
                 <span>→</span>
                 <n-input
                   v-model:value="value.value"
                   :placeholder="$gettext('Alias record, e.g. _acme-challenge.delegated.com')"
-                  style="flex: 1"
+                  class="flex-1"
                 />
               </div>
             </template>
@@ -564,14 +551,22 @@ onUnmounted(() => {
             type="textarea"
             :placeholder="
               $gettext(
-                'The {cert} and {key} in the script will be replaced with the certificate and private key content'
+                'The {cert} and {key} in the script will be replaced with the certificate and private key content',
               )
             "
             :autosize="{ minRows: 5, maxRows: 10 }"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="updateCertLoading" :disabled="updateCertLoading" @click="handleUpdateCert">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="updateCertLoading"
+        :disabled="updateCertLoading"
+        @click="handleUpdateCert"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-space>
   </n-modal>
   <n-modal

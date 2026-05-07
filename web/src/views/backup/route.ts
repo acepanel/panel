@@ -7,7 +7,7 @@ export default {
   path: '/backup',
   component: Layout,
   meta: {
-    order: 60
+    order: 60,
   },
   children: [
     {
@@ -18,8 +18,8 @@ export default {
         title: 'Backup',
         icon: 'mdi:backup-outline',
         role: ['admin'],
-        requireAuth: true
-      }
-    }
-  ]
+        requireAuth: true,
+      },
+    },
+  ],
 } as RouteType

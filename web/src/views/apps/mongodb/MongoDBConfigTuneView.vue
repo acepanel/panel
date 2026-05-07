@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'mongodb-config-tune'
+  name: 'mongodb-config-tune',
 })
 
 import { useGettext } from 'vue3-gettext'
@@ -21,7 +21,7 @@ const saveLoading = ref(false)
 
 const authorizationOptions = [
   { label: 'enabled', value: 'enabled' },
-  { label: 'disabled', value: 'disabled' }
+  { label: 'disabled', value: 'disabled' },
 ]
 
 useRequest(mongodb.configTune()).onSuccess(({ data }: any) => {
@@ -39,7 +39,7 @@ const getConfigData = () => ({
   port: port.value,
   bind_ip: bindIp.value,
   system_log_path: systemLogPath.value,
-  authorization: authorization.value
+  authorization: authorization.value,
 })
 
 const handleSave = () => {
@@ -65,12 +65,21 @@ const handleSave = () => {
           <n-form-item :label="$gettext('Data Path (storage.dbPath)')">
             <n-input v-model:value="dbPath" placeholder="/data/db" />
           </n-form-item>
-          <n-form-item :label="$gettext('WiredTiger Cache Size GB (storage.wiredTiger.engineConfig.cacheSizeGB)')">
+          <n-form-item
+            :label="
+              $gettext('WiredTiger Cache Size GB (storage.wiredTiger.engineConfig.cacheSizeGB)')
+            "
+          >
             <n-input v-model:value="cacheSizeGB" placeholder="0.5" />
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -93,7 +102,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -107,7 +121,12 @@ const handleSave = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+          <n-button
+            type="primary"
+            :loading="saveLoading"
+            :disabled="saveLoading"
+            @click="handleSave"
+          >
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>

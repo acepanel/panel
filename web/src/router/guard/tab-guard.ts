@@ -1,5 +1,6 @@
-import { useTabStore } from '@/stores'
 import type { Router } from 'vue-router'
+
+import { useTabStore } from '@/stores'
 
 export const EXCLUDE_TAB = ['/404', '/403', '/login']
 
@@ -13,7 +14,7 @@ export function createTabGuard(router: Router) {
       name: String(name),
       path,
       title,
-      keepAlive: false
+      keepAlive: false,
     })
   })
 }

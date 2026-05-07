@@ -9,5 +9,5 @@ export default {
   // 获取存储配置
   storageConfig: (): any => http.Get('/apps/podman/storage_config'),
   // 保存存储配置
-  saveStorageConfig: (config: string): any => http.Post('/apps/podman/storage_config', { config })
+  saveStorageConfig: (config: string): any => http.Post('/apps/podman/storage_config', { config }),
 }

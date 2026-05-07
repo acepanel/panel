@@ -20,7 +20,7 @@ export const useTabStore = defineStore('tab', {
     return {
       active: '',
       reloading: false,
-      tabs: []
+      tabs: [],
     }
   },
   actions: {
@@ -90,9 +90,9 @@ export const useTabStore = defineStore('tab', {
     resetTabs() {
       this.setTabs([])
       this.setActiveTab('')
-    }
+    },
   },
   persist: {
-    storage: sessionStorage
-  }
+    storage: sessionStorage,
+  },
 })

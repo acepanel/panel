@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'http-log'
+  name: 'http-log',
 })
 
 import { NTag } from 'naive-ui'
@@ -36,10 +36,11 @@ const dateOptions = computed(() => {
   return options
 })
 
-const { loading, data, send: refresh } = useRequest(
-  () => log.list('http', limit.value, selectedDate.value || ''),
-  { initialData: [] }
-)
+const {
+  loading,
+  data,
+  send: refresh,
+} = useRequest(() => log.list('http', limit.value, selectedDate.value || ''), { initialData: [] })
 
 // 获取状态码颜色
 const getStatusType = (code: number): 'success' | 'warning' | 'error' | 'info' => {
@@ -58,7 +59,7 @@ const columns = [
     render: (row: LogEntry) => {
       const date = new Date(row.time)
       return date.toLocaleString()
-    }
+    },
   },
   {
     title: $gettext('Method'),
@@ -71,20 +72,24 @@ const columns = [
         POST: '#1890ff',
         PUT: '#faad14',
         DELETE: '#ff4d4f',
-        PATCH: '#722ed1'
+        PATCH: '#722ed1',
       }
-      return h('span', { style: { color: colorMap[method] || 'inherit', fontWeight: 'bold' } }, method)
-    }
+      return h(
+        'span',
+        { style: { color: colorMap[method] || 'inherit', fontWeight: 'bold' } },
+        method,
+      )
+    },
   },
   {
     title: $gettext('Path'),
     key: 'path',
     ellipsis: {
-      tooltip: true
+      tooltip: true,
     },
     render: (row: LogEntry) => {
       return row.extra?.['url.path'] || '-'
-    }
+    },
   },
   {
     title: $gettext('Status'),
@@ -96,7 +101,7 @@ const columns = [
         return h(NTag, { type: getStatusType(status), size: 'small' }, () => status)
       }
       return '-'
-    }
+    },
   },
   {
     title: $gettext('Duration'),
@@ -110,7 +115,7 @@ const columns = [
         return `${ms.toFixed(2)} ms`
       }
       return '-'
-    }
+    },
   },
   {
     title: $gettext('Client IP'),
@@ -120,8 +125,8 @@ const columns = [
       const ip = row.extra?.['client.ip'] || '-'
       // 移除端口号
       return typeof ip === 'string' && ip.includes(':') ? ip.split(':')[0] : ip
-    }
-  }
+    },
+  },
 ]
 
 // 刷新
@@ -131,13 +136,13 @@ const handleRefresh = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
-    <div class="mb-4 flex gap-4 items-center">
+  <n-flex vertical class="h-full">
+    <n-flex align="center">
       <span>{{ $gettext('Date') }}:</span>
       <n-select
         v-model:value="selectedDate"
         :options="dateOptions"
-        class="w-150px"
+        class="w-37"
         @update:value="handleRefresh"
       />
       <span>{{ $gettext('Show entries') }}:</span>
@@ -147,15 +152,15 @@ const handleRefresh = () => {
           { label: '100', value: 100 },
           { label: '200', value: 200 },
           { label: '500', value: 500 },
-          { label: '1000', value: 1000 }
+          { label: '1000', value: 1000 },
         ]"
-        class="w-100px"
+        class="w-25"
         @update:value="handleRefresh"
       />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>
-    </div>
+    </n-flex>
     <n-data-table
       class="flex-1 min-h-0"
       :columns="columns"
@@ -166,5 +171,5 @@ const handleRefresh = () => {
       :scroll-x="800"
       virtual-scroll
     />
-  </div>
+  </n-flex>
 </template>

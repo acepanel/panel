@@ -56,7 +56,7 @@ export default {
     sites?: string,
     group_by?: string,
     country?: string,
-    limit?: number
+    limit?: number,
   ): any =>
     http.Get('/website/stat/geos', { params: { start, end, sites, group_by, country, limit } }),
   // URI 统计
@@ -69,7 +69,7 @@ export default {
     sites?: string,
     threshold?: number,
     page?: number,
-    limit?: number
+    limit?: number,
   ): any =>
     http.Get('/website/stat/slow_uris', { params: { start, end, sites, threshold, page, limit } }),
   // 错误统计
@@ -79,12 +79,13 @@ export default {
     sites?: string,
     status?: number,
     page?: number,
-    limit?: number
-  ): any => http.Get('/website/stat/errors', { params: { start, end, sites, status, page, limit } }),
+    limit?: number,
+  ): any =>
+    http.Get('/website/stat/errors', { params: { start, end, sites, status, page, limit } }),
   // 清空统计
   statClear: (): any => http.Post('/website/stat/clear'),
   // 统计设置
   statSetting: (): any => http.Get('/website/stat/setting'),
   // 保存统计设置
-  saveStatSetting: (data: any): any => http.Post('/website/stat/setting', data)
+  saveStatSetting: (data: any): any => http.Post('/website/stat/setting', data),
 }

@@ -1,11 +1,24 @@
 <script lang="ts" setup>
+import { useThemeStore } from '@/stores'
+
 import AppMain from './AppMain.vue'
 import AppHeader from './header/IndexView.vue'
 import SideBar from './sidebar/IndexView.vue'
 
-import { useThemeStore } from '@/stores'
-
 const themeStore = useThemeStore()
+
+// 平板自动 collapsed
+const handleResize = () => {
+  const w = window.innerWidth
+  if (w < 1024 && w >= 768 && !themeStore.sider.collapsed) {
+    themeStore.setCollapsed(true)
+  }
+}
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+onBeforeUnmount(() => window.removeEventListener('resize', handleResize))
 </script>
 
 <template>
@@ -35,20 +48,14 @@ const themeStore = useThemeStore()
       </n-scrollbar>
     </n-drawer>
 
-    <article flex flex-col flex-1 overflow-hidden>
+    <article class="flex flex-col flex-1 overflow-hidden">
       <header
         :style="`height: ${themeStore.header.height}px`"
-        dark="bg-dark border-0"
-        px-15
-        border-b
-        bg-white
-        flex
-        items-center
-        bc-eee
+        class="px-4 border-b border-border-default bg-bg-elevated flex items-center lg:px-6"
       >
         <app-header />
       </header>
-      <section bg="#f5f6fb" flex flex-col flex-1 overflow-hidden dark:bg-hex-101014>
+      <section class="bg-bg-base flex flex-col flex-1 overflow-hidden">
         <app-main />
       </section>
     </article>

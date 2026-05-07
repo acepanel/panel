@@ -4,8 +4,13 @@ export default {
   // 获取分类列表
   categories: (): any => http.Get('/app/categories'),
   // 获取应用列表
-  list: (page: number, limit: number, category?: string, query?: string, installed?: boolean): any =>
-    http.Get('/app/list', { params: { page, limit, category, query, installed } }),
+  list: (
+    page: number,
+    limit: number,
+    category?: string,
+    query?: string,
+    installed?: boolean,
+  ): any => http.Get('/app/list', { params: { page, limit, category, query, installed } }),
   // 安装应用
   install: (slug: string, channel: string | null): any =>
     http.Post('/app/install', { slug, channel }),
@@ -20,5 +25,5 @@ export default {
   // 应用是否已安装
   isInstalled: (slugs: string): any => http.Get('/app/is_installed', { params: { slugs } }),
   // 更新缓存
-  updateCache: (): any => http.Get('/app/update_cache')
+  updateCache: (): any => http.Get('/app/update_cache'),
 }

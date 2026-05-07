@@ -25,7 +25,7 @@ const statusOptions = [
   { label: '500', value: 500 },
   { label: '502', value: 502 },
   { label: '503', value: 503 },
-  { label: '504', value: 504 }
+  { label: '504', value: 504 },
 ]
 
 const loadData = () => {
@@ -37,8 +37,8 @@ const loadData = () => {
       ctx.sitesParam.value,
       statusFilter.value || undefined,
       page.value,
-      limit.value
-    )
+      limit.value,
+    ),
   )
     .onSuccess(({ data }: any) => {
       items.value = data.items || []
@@ -77,24 +77,24 @@ const columns = computed<any[]>(() => [
         'pre',
         {
           style:
-            'margin:0;padding:8px 12px;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:300px;overflow:auto'
+            'margin:0;padding:8px 12px;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:300px;overflow:auto',
         },
-        row.body || $gettext('No request body')
+        row.body || $gettext('No request body'),
       )
-    }
+    },
   },
   {
     title: $gettext('Time'),
     key: 'created_at',
     width: 170,
-    render: (row: any) => formatTime(row.created_at)
+    render: (row: any) => formatTime(row.created_at),
   },
   { title: $gettext('Site'), key: 'site', width: 140, ellipsis: { tooltip: true } },
   { title: 'URI', key: 'uri', ellipsis: { tooltip: true } },
   { title: $gettext('Method'), key: 'method', width: 80 },
   { title: $gettext('Status'), key: 'status', width: 80 },
   { title: 'IP', key: 'ip', width: 140 },
-  { title: 'User-Agent', key: 'ua', ellipsis: { tooltip: true } }
+  { title: 'User-Agent', key: 'ua', ellipsis: { tooltip: true } },
 ])
 
 const handlePageChange = (p: number) => {
@@ -113,12 +113,7 @@ const handlePageSizeChange = (s: number) => {
   <n-flex vertical :size="12">
     <n-flex align="center">
       <span class="text-14px">{{ $gettext('Status Code') }}:</span>
-      <n-select
-        v-model:value="statusFilter"
-        :options="statusOptions"
-        style="width: 120px"
-        size="small"
-      />
+      <n-select v-model:value="statusFilter" :options="statusOptions" class="w-30" size="small" />
     </n-flex>
 
     <n-spin :show="loading">
@@ -129,7 +124,7 @@ const handlePageSizeChange = (s: number) => {
         size="small"
         :row-key="(row: any) => row.id"
       />
-      <n-flex justify="end" class="mt-12" v-if="total > 0">
+      <n-flex justify="end" class="mt-3" v-if="total > 0">
         <n-pagination
           v-model:page="page"
           :page-size="limit"

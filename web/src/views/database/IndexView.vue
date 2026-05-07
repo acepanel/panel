@@ -1,7 +1,10 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'database-index'
+  name: 'database-index',
 })
+
+import { NButton } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import CreateDatabaseModal from '@/views/database/CreateDatabaseModal.vue'
 import CreateServerModal from '@/views/database/CreateServerModal.vue'
@@ -11,8 +14,6 @@ import ElasticsearchDataView from '@/views/database/ElasticsearchDataView.vue'
 import RedisDataView from '@/views/database/RedisDataView.vue'
 import ServerList from '@/views/database/ServerList.vue'
 import UserList from '@/views/database/UserList.vue'
-import { NButton } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const currentTab = ref('mysql')
@@ -23,8 +24,8 @@ const createServerModalShow = ref(false)
 </script>
 
 <template>
-  <common-page show-header show-footer>
-    <template #tabbar>
+  <PageContainer :show-footer="true">
+    <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="mysql" tab="MySQL" />
         <n-tab name="postgresql" tab="PostgreSQL" />
@@ -67,7 +68,7 @@ const createServerModalShow = ref(false)
       <user-list v-if="currentTab === 'user'" />
       <server-list v-if="currentTab === 'server'" />
     </n-flex>
-  </common-page>
+  </PageContainer>
   <create-database-modal v-model:show="createDatabaseModalShow" :type="currentTab" />
   <create-user-modal v-model:show="createUserModalShow" />
   <create-server-modal v-model:show="createServerModalShow" />

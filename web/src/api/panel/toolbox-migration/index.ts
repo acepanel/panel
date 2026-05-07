@@ -14,5 +14,5 @@ export default {
   // 获取迁移结果
   results: (): any => http.Get('/toolbox_migration/results'),
   // 下载迁移日志
-  logUrl: '/api/toolbox_migration/log'
+  logUrl: '/api/toolbox_migration/log',
 }

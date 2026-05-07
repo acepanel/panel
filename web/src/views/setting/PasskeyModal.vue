@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import user from '@/api/panel/user'
-import { useUserStore } from '@/stores'
-import { formatDateTime } from '@/utils'
 import { startRegistration } from '@simplewebauthn/browser'
-import { NAlert, NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import user from '@/api/panel/user'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { useUserStore } from '@/stores'
+import { formatDateTime } from '@/utils'
+
 const { $gettext } = useGettext()
+const { confirmDelete } = useConfirm()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
 const userStore = useUserStore()
@@ -24,7 +27,7 @@ const columns: any = [
     key: 'name',
     minWidth: 150,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
   },
   {
     title: $gettext('Creation Time'),
@@ -33,7 +36,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return formatDateTime(row.created_at)
-    }
+    },
   },
   {
     title: $gettext('Last Used'),
@@ -42,7 +45,7 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.last_used_at ? formatDateTime(row.last_used_at) : $gettext('Never')
-    }
+    },
   },
   {
     title: $gettext('Actions'),
@@ -51,30 +54,21 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NPopconfirm,
+        NButton,
         {
-          onPositiveClick: () => handleDelete(row.id)
-        },
-        {
-          default: () => {
-            return $gettext('Are you sure you want to delete this passkey?')
+          size: 'small',
+          type: 'error',
+          onClick: async () => {
+            const ok = await confirmDelete({
+              content: $gettext('Are you sure you want to delete this passkey?'),
+            })
+            if (ok) handleDelete(row.id)
           },
-          trigger: () => {
-            return h(
-              NButton,
-              {
-                size: 'small',
-                type: 'error'
-              },
-              {
-                default: () => $gettext('Delete')
-              }
-            )
-          }
-        }
+        },
+        { default: () => $gettext('Delete') },
       )
-    }
-  }
+    },
+  },
 ]
 
 const loading = ref(false)
@@ -147,7 +141,7 @@ watch(
       refresh()
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -166,7 +160,7 @@ watch(
       <n-alert v-if="!passkeySupported" type="info" :bordered="false">
         {{
           $gettext(
-            'Passkeys are only available when using a bound domain with a trusted HTTPS certificate.'
+            'Passkeys are only available when using a bound domain with a trusted HTTPS certificate.',
           )
         }}
       </n-alert>
@@ -175,7 +169,7 @@ watch(
           <n-input
             v-model:value="passkeyName"
             :placeholder="$gettext('Passkey name')"
-            style="max-width: 300px"
+            :style="{ maxWidth: '300px' }"
             @keydown.enter="handleRegister"
           />
           <n-button

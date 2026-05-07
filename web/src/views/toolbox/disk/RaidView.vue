@@ -82,7 +82,7 @@ const raidTypeLabel = computed(() => {
     mdadm: 'Linux Software RAID (mdadm)',
     megaraid: 'MegaRAID (LSI/Broadcom)',
     hpsa: 'HP Smart Array',
-    adaptec: 'Adaptec'
+    adaptec: 'Adaptec',
   }
   return labels[raidType.value] || raidType.value
 })
@@ -101,10 +101,10 @@ const deviceColumns = computed<DataTableColumns<RaidDevice>>(() => {
         return h(
           NTag,
           { type: getStateType(row.state), size: 'small' },
-          { default: () => row.state || '-' }
+          { default: () => row.state || '-' },
         )
-      }
-    }
+      },
+    },
   ]
   // MegaRAID / HPSA / Adaptec 有 model 和 serial
   if (raidType.value !== 'mdadm') {
@@ -118,11 +118,9 @@ const deviceColumns = computed<DataTableColumns<RaidDevice>>(() => {
 <template>
   <n-spin :show="loading">
     <!-- 不可用时 -->
-    <n-result
+    <n-empty
       v-if="!loading && !available"
-      status="info"
-      :title="$gettext('No RAID Detected')"
-      :description="unavailableMessage"
+      :description="unavailableMessage || $gettext('No RAID Detected')"
     />
 
     <!-- 可用时 -->
