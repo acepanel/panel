@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-05-06 21:07\n"
+"PO-Revision-Date: 2026-05-08 06:51\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -441,7 +441,7 @@ msgstr "下載失敗：%v"
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
-#: internal/service/file.go:331
+#: internal/service/file.go:436
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
@@ -591,7 +591,7 @@ msgstr "無法保存設置：%v"
 msgid "Failed to save user info: %v"
 msgstr "無法保存用戶信息：%v"
 
-#: internal/service/ws.go:114
+#: internal/service/ws.go:177
 msgid "Failed to start command: %v"
 msgstr "啟動命令失敗：%v"
 
@@ -1751,7 +1751,7 @@ msgstr "備份傳輸失敗：%v"
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/file.go:314
+#: internal/service/file.go:419
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -1772,7 +1772,7 @@ msgstr "無法初始化系統磁碟"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:683
+#: internal/service/file.go:788
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
@@ -1780,7 +1780,7 @@ msgstr "分塊哈希不匹配"
 msgid "client ip changed, please login again"
 msgstr "客戶端 IP 已更改，請重新登入"
 
-#: internal/service/ws.go:107
+#: internal/service/ws.go:170
 msgid "command is empty"
 msgstr "命令為空"
 
@@ -1796,12 +1796,12 @@ msgstr "正在壓縮目錄：%s"
 msgid "could not find .sql backup file"
 msgstr "找不到 .sql 備份檔案"
 
-#: internal/service/file.go:193
-#: internal/service/file.go:606
+#: internal/service/file.go:298
+#: internal/service/file.go:711
 msgid "create directory error: %v"
 msgstr "創建目錄錯誤：%v"
 
-#: internal/service/file.go:726
+#: internal/service/file.go:831
 msgid "create target file error: %v"
 msgstr "創建目標文件錯誤：%v"
 
@@ -1953,7 +1953,7 @@ msgstr "創建 .ssh 目錄失敗：%v"
 msgid "failed to create database user on remote: %v"
 msgstr "在遠端建立資料庫使用者失敗：%v"
 
-#: internal/service/ws.go:231
+#: internal/service/ws.go:294
 msgid "failed to create docker client: %v"
 msgstr "創建 docker 客戶端失敗：%v"
 
@@ -2017,7 +2017,7 @@ msgstr "禁用 %s 服務失敗：%v"
 msgid "failed to enable %s service: %v"
 msgstr "啟用 %s 服務失敗：%v"
 
-#: internal/service/ws.go:245
+#: internal/service/ws.go:308
 msgid "failed to encode auth: %v"
 msgstr "編碼認證信息失敗：%v"
 
@@ -2164,7 +2164,7 @@ msgstr "無法獲取磁盤空間：%v"
 msgid "failed to get elasticsearch status: %v"
 msgstr "取得 elasticsearch 狀態失敗：%v"
 
-#: internal/service/file.go:358
+#: internal/service/file.go:463
 msgid "failed to get file system info"
 msgstr "獲取檔案系統信息失敗"
 
@@ -2372,16 +2372,16 @@ msgstr "無法解析 fail2ban 的 ignoreip"
 msgid "failed to parse version: %v"
 msgstr "解析版本失敗：%v"
 
-#: internal/service/ws.go:254
+#: internal/service/ws.go:317
 msgid "failed to pull image: %v"
 msgstr "拉取鏡像失敗：%v"
 
-#: internal/service/ws.go:79
+#: internal/service/ws.go:80
 msgid "failed to read command output: %v"
 msgstr "讀取命令輸出失敗：%v"
 
-#: internal/service/ws.go:102
-#: internal/service/ws.go:62
+#: internal/service/ws.go:165
+#: internal/service/ws.go:63
 msgid "failed to read command: %v"
 msgstr "讀取命令失敗：%v"
 
@@ -2397,8 +2397,8 @@ msgstr "讀取 fstab 失敗：%v"
 msgid "failed to read generated key: %v"
 msgstr "讀取生成的密鑰失敗：%v"
 
-#: internal/service/ws.go:219
-#: internal/service/ws.go:330
+#: internal/service/ws.go:282
+#: internal/service/ws.go:393
 msgid "failed to read params: %v"
 msgstr "讀取參數失敗：%v"
 
@@ -2476,7 +2476,7 @@ msgstr "重新啟動 %s 失敗：%v"
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
-#: internal/service/ws.go:68
+#: internal/service/ws.go:69
 msgid "failed to run command: %v"
 msgstr "運行命令失敗：%v"
 
@@ -2530,7 +2530,7 @@ msgstr "設置 postgres 密碼失敗：%v"
 msgid "failed to start %s service: %v"
 msgstr "啟動 %s 服務失敗：%v"
 
-#: internal/service/ws.go:193
+#: internal/service/ws.go:256
 msgid "failed to start container terminal: %v"
 msgstr "啟動容器終端失敗：%v"
 
@@ -2625,7 +2625,7 @@ msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "獲取服務端口失敗，請檢查是否安裝"
 
-#: internal/service/file.go:660
+#: internal/service/file.go:765
 msgid "get upload file error: %v"
 msgstr "獲取上傳文件錯誤：%v"
 
@@ -2659,8 +2659,8 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid logical volume size"
 msgstr "無效的邏輯卷大小"
 
-#: internal/service/ws.go:224
-#: internal/service/ws.go:337
+#: internal/service/ws.go:287
+#: internal/service/ws.go:400
 msgid "invalid params: %v"
 msgstr "無效的參數：%v"
 
@@ -2788,11 +2788,11 @@ msgstr "暫無遷移日誌"
 msgid "obtaining and saving certificate"
 msgstr "獲取並保存證書"
 
-#: internal/service/file.go:201
+#: internal/service/file.go:306
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:666
+#: internal/service/file.go:771
 msgid "open upload file error: %v"
 msgstr "打開上傳文件錯誤：%v"
 
@@ -2832,7 +2832,12 @@ msgstr "路徑不存在：%s"
 msgid "path is not a directory: %s"
 msgstr "路徑不是目錄：%s"
 
-#: internal/service/file.go:653
+#: internal/service/file.go:131
+#: internal/service/ws.go:96
+msgid "path or service is required"
+msgstr "需要路徑或服務"
+
+#: internal/service/file.go:758
 msgid "path, file_name and file_hash are required"
 msgstr "path，file_name 和 file_hash 是必需的"
 
@@ -2862,9 +2867,9 @@ msgid "please complete pre-check first"
 msgstr "請先完成預檢"
 
 #: internal/data/user.go:134
-#: internal/service/file.go:156
-#: internal/service/file.go:254
-#: internal/service/file.go:288
+#: internal/service/file.go:261
+#: internal/service/file.go:359
+#: internal/service/file.go:393
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -2900,15 +2905,15 @@ msgstr "protobuf 是一個用於序列化和反序列化數據的庫"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
-#: internal/service/file.go:743
+#: internal/service/file.go:848
 msgid "read chunk %d error: %v"
 msgstr "讀取分塊 %d 錯誤：%v"
 
-#: internal/service/file.go:674
+#: internal/service/file.go:779
 msgid "read chunk data error: %v"
 msgstr "讀取分塊數據錯誤：%v"
 
-#: internal/service/file.go:615
+#: internal/service/file.go:720
 msgid "read directory error: %v"
 msgstr "讀取目錄錯誤：%v"
 
@@ -2944,7 +2949,7 @@ msgstr "運行目錄不存在"
 msgid "s3 configuration error: %v"
 msgstr "S3 配置錯誤：%v"
 
-#: internal/service/file.go:693
+#: internal/service/file.go:798
 msgid "save chunk error: %v"
 msgstr "保存分塊錯誤：%v"
 
@@ -3046,9 +3051,9 @@ msgstr "目標備份 %s 已存在"
 msgid "target is a directory"
 msgstr "目標是一個目錄"
 
-#: internal/service/file.go:182
-#: internal/service/file.go:599
-#: internal/service/file.go:714
+#: internal/service/file.go:287
+#: internal/service/file.go:704
+#: internal/service/file.go:819
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -3157,7 +3162,7 @@ msgstr "上傳的證書無法設置為自動續簽"
 msgid "upload failed: %v"
 msgstr "上傳失敗：%v"
 
-#: internal/service/file.go:178
+#: internal/service/file.go:283
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
@@ -3249,11 +3254,11 @@ msgstr "萬用字元網域無法使用 HTTP 驗證"
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
-#: internal/service/file.go:749
+#: internal/service/file.go:854
 msgid "write chunk %d error: %v"
 msgstr "寫入分塊 %d 錯誤：%v"
 
-#: internal/service/file.go:206
+#: internal/service/file.go:311
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
