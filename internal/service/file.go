@@ -142,7 +142,7 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	defer f.Close()
+	defer func(f *stdos.File) { _ = f.Close() }(f)
 
 	stat, err := f.Stat()
 	if err != nil {
