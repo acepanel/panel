@@ -80,7 +80,7 @@
     "eslint-plugin-vue": "^10.5.1",
     "naive-ui": "^2.43.1",
     "npm-run-all2": "^8.0.4",
-    "oxfmt": "^0.47.0",
+    "oxfmt": "^0.48.0",
     "oxlint": "^1.58.0",
     "sass": "^1.93.2",
     "tsx": "^4.20.6",
@@ -96,5 +96,5 @@
     "vite-plugin-vue-devtools": "^8.1.1",
     "vue-tsc": "^3.2.6"
   },
-  "packageManager": "pnpm@11.0.5+sha512.94fa09e72016402aefce788e46994e18eb1922998b16b6fd5aa6bafd8ae4dea05d0852f60247fdb7d5ab8199a7b0beda830398f3f80cb9f822398522a1535481"
+  "packageManager": "pnpm@11.0.6+sha512.97f906e1da2bedac3df83cadae04b4753a130092dd49d55cd36825ad3e623e9df3f97754f8f259e699172a360fac569acf2f908e7732bdae3eddb2dcf7e121fd"
 }
