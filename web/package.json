@@ -96,5 +96,5 @@
     "vite-plugin-vue-devtools": "^8.1.1",
     "vue-tsc": "^3.2.6"
   },
-  "packageManager": "pnpm@11.0.6+sha512.97f906e1da2bedac3df83cadae04b4753a130092dd49d55cd36825ad3e623e9df3f97754f8f259e699172a360fac569acf2f908e7732bdae3eddb2dcf7e121fd"
+  "packageManager": "pnpm@11.0.7+sha512.724a7b5d2319cdd7009d65e15a2c29aae9d3902b50585ca163d38a7737eb85bc4e72196879ff59768a71e81fe32aa71e8b70f088b2e24b9e4a2850d87e4607b5"
 }
