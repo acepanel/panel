@@ -39,7 +39,7 @@ require (
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/cache v1.2.0
 	github.com/libtnb/chix v1.3.2
-	github.com/libtnb/cron v0.2.0
+	github.com/libtnb/cron v0.2.1
 	github.com/libtnb/gormstore v1.2.0
 	github.com/libtnb/sessions v1.4.0
 	github.com/libtnb/sqlite v1.1.1
