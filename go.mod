@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/DeRuina/timberjack v1.4.2
 	github.com/andybalholm/brotli v1.2.1
-	github.com/bddjr/hlfhr v1.5.1
+	github.com/bddjr/hlfhr v1.6.0
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.21.0
 	github.com/coder/websocket v1.8.14
@@ -73,6 +73,7 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.3.3 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/bddjr/shuttingdown v0.1.0 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/boyter/go-string v1.0.5 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
