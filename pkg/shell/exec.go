@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"slices"
 	"strings"
 	"time"
 
@@ -239,9 +238,9 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 }
 
 func preCheckArg(args []any) bool {
-	illegals := []any{`&`, `|`, `;`, `$`, `'`, `"`, "`", `(`, `)`, "\n", "\r", `>`, `<`}
-	for arg := range slices.Values(args) {
-		if slices.Contains(illegals, arg) {
+	const illegals = "&|;$'\"`()\n\r><"
+	for _, arg := range args {
+		if strings.ContainsAny(fmt.Sprint(arg), illegals) {
 			return false
 		}
 	}
