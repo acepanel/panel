@@ -19,7 +19,7 @@ require (
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-sql-driver/mysql v1.10.0
-	github.com/go-webauthn/webauthn v0.17.3
+	github.com/go-webauthn/webauthn v0.17.4
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.1
@@ -86,7 +86,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/go-webauthn/x v0.2.5 // indirect
+	github.com/go-webauthn/x v0.2.6 // indirect
 	github.com/gofiber/schema v1.7.1 // indirect
 	github.com/gofiber/utils/v2 v2.0.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
