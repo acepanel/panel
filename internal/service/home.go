@@ -31,34 +31,36 @@ import (
 )
 
 type HomeService struct {
-	t               *gotext.Locale
-	api             *api.API
-	conf            *config.Config
-	taskRepo        biz.TaskRepo
-	websiteRepo     biz.WebsiteRepo
-	projectRepo     biz.ProjectRepo
-	appRepo         biz.AppRepo
-	environmentRepo biz.EnvironmentRepo
-	settingRepo     biz.SettingRepo
-	cronRepo        biz.CronRepo
-	backupRepo      biz.BackupRepo
-	containerRepo   biz.ContainerRepo
+	t                  *gotext.Locale
+	api                *api.API
+	conf               *config.Config
+	taskRepo           biz.TaskRepo
+	websiteRepo        biz.WebsiteRepo
+	projectRepo        biz.ProjectRepo
+	appRepo            biz.AppRepo
+	environmentRepo    biz.EnvironmentRepo
+	settingRepo        biz.SettingRepo
+	databaseServerRepo biz.DatabaseServerRepo
+	cronRepo           biz.CronRepo
+	backupRepo         biz.BackupRepo
+	containerRepo      biz.ContainerRepo
 }
 
-func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo, container biz.ContainerRepo) *HomeService {
+func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, databaseServer biz.DatabaseServerRepo, cron biz.CronRepo, backupRepo biz.BackupRepo, container biz.ContainerRepo) *HomeService {
 	return &HomeService{
-		t:               t,
-		api:             api.NewAPI(app.Version, app.Locale),
-		conf:            conf,
-		taskRepo:        task,
-		websiteRepo:     website,
-		projectRepo:     project,
-		appRepo:         appRepo,
-		environmentRepo: environment,
-		settingRepo:     setting,
-		cronRepo:        cron,
-		backupRepo:      backupRepo,
-		containerRepo:   container,
+		t:                  t,
+		api:                api.NewAPI(app.Version, app.Locale),
+		conf:               conf,
+		taskRepo:           task,
+		websiteRepo:        website,
+		projectRepo:        project,
+		appRepo:            appRepo,
+		environmentRepo:    environment,
+		settingRepo:        setting,
+		databaseServerRepo: databaseServer,
+		cronRepo:           cron,
+		backupRepo:         backupRepo,
+		containerRepo:      container,
 	}
 }
 
@@ -187,13 +189,15 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if postgresqlInstalled {
-		postgresPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
-		postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
+		server, err := s.databaseServerRepo.GetByName("local_postgresql")
 		if err == nil {
-			defer postgres.Close()
-			databases, err := postgres.Databases()
+			postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 			if err == nil {
-				databaseCount += len(databases)
+				defer postgres.Close()
+				databases, err := postgres.Databases()
+				if err == nil {
+					databaseCount += len(databases)
+				}
 			}
 		}
 	}

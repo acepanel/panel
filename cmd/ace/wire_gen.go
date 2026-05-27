@@ -95,7 +95,7 @@ func initAce() (*app.Ace, error) {
 	cronRepo := data.NewCronRepo(locale, db, logger)
 	backupRepo := data.NewBackupRepo(locale, config, db, logger, settingRepo, websiteRepo)
 	containerRepo := data.NewContainerRepo(settingRepo)
-	homeService := service.NewHomeService(locale, config, taskRepo, websiteRepo, projectRepo, appRepo, environmentRepo, settingRepo, cronRepo, backupRepo, containerRepo)
+	homeService := service.NewHomeService(locale, config, taskRepo, websiteRepo, projectRepo, appRepo, environmentRepo, settingRepo, databaseServerRepo, cronRepo, backupRepo, containerRepo)
 	taskService := service.NewTaskService(taskRepo)
 	websiteService := service.NewWebsiteService(websiteRepo, settingRepo)
 	projectService := service.NewProjectService(projectRepo, settingRepo)
