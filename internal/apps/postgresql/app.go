@@ -13,7 +13,6 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	httprequest "github.com/acepanel/panel/v3/internal/http/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/db"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -142,12 +141,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = os.Unsetenv("PGPASSWORD") }()
 
 	port := s.getPort()
-	start, err := shell.Execf(`psql -h 127.0.0.1 -p %s -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
+	start, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
 		return
 	}
-	pid, err := shell.Execf(`psql -h 127.0.0.1 -p %s -U postgres -t -c "select pg_backend_pid();"`, port)
+	pid, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL backend pid: %v", err))
 		return
@@ -157,12 +156,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL process: %v", err))
 		return
 	}
-	connections, err := shell.Execf(`psql -h 127.0.0.1 -p %s -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
+	connections, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL connections: %v", err))
 		return
 	}
-	storage, err := shell.Execf(`psql -h 127.0.0.1 -p %s -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
+	storage, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL database size: %v", err))
 		return
@@ -211,10 +210,10 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
 	port := s.getPort()
-	postgres, err := db.NewPostgres("postgres", oldPassword, "127.0.0.1", cast.ToUint(port))
+	postgres, err := db.NewPostgres("postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
 		// 直接修改密码
-		if _, err = shell.Execf(`su - postgres -c "psql -p %s -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
+		if _, err = shell.Execf(`su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
@@ -338,47 +337,34 @@ func (s *App) configPath() string {
 	return fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root)
 }
 
-func (s *App) getPort() string {
+// getPort 读取 PostgreSQL 端口
+func (s *App) getPort() uint {
 	config, err := io.Read(s.configPath())
 	if err != nil {
-		return "5432"
+		return 5432
 	}
+	return s.parsePort(config)
+}
 
-	port := s.getPGValue(config, "port")
-	if port == "" {
-		return "5432"
+// parsePort 从 config 内容解析端口，未配置时返回默认值
+func (s *App) parsePort(config string) uint {
+	port := cast.ToUint(s.getPGValue(config, "port"))
+	if port == 0 {
+		return 5432
 	}
-
 	return port
 }
 
-func (s *App) applyConfig(config string, oldPort string) error {
-	newPort := s.getPGValue(config, "port")
-	if newPort == "" {
-		newPort = "5432"
+// applyConfig 让 PostgreSQL 配置生效
+func (s *App) applyConfig(newConfig string, oldPort uint) error {
+	newPort := s.parsePort(newConfig)
+	if oldPort == newPort {
+		return systemctl.Reload("postgresql")
 	}
-	if oldPort != newPort {
-		if err := systemctl.Restart("postgresql"); err != nil {
-			return err
-		}
-
-		server, err := s.databaseServerRepo.GetByName("local_postgresql")
-		if err != nil {
-			return nil
-		}
-
-		return s.databaseServerRepo.Update(&httprequest.DatabaseServerUpdate{
-			ID:       server.ID,
-			Name:     server.Name,
-			Host:     server.Host,
-			Port:     cast.ToUint(newPort),
-			Username: server.Username,
-			Password: server.Password,
-			Remark:   server.Remark,
-		})
+	if err := systemctl.Restart("postgresql"); err != nil {
+		return err
 	}
-
-	return systemctl.Reload("postgresql")
+	return s.databaseServerRepo.UpdatePort("local_postgresql", newPort)
 }
 
 // getPGValue 从 PostgreSQL 配置内容中获取指定键的值

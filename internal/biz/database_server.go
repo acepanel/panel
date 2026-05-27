@@ -69,6 +69,7 @@ type DatabaseServerRepo interface {
 	Update(req *request.DatabaseServerUpdate) error
 	UpdateRemark(req *request.DatabaseServerUpdateRemark) error
 	UpdatePassword(name string, password string) error
+	UpdatePort(name string, port uint) error
 	Delete(id uint) error
 	ClearUsers(id uint) error
 	Sync(id uint) error

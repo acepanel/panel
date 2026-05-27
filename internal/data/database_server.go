@@ -121,6 +121,10 @@ func (r *databaseServerRepo) UpdatePassword(name string, password string) error 
 	return r.db.Model(&biz.DatabaseServer{}).Where("name = ?", name).Update("password", password).Error
 }
 
+func (r *databaseServerRepo) UpdatePort(name string, port uint) error {
+	return r.db.Model(&biz.DatabaseServer{}).Where("name = ?", name).Update("port", port).Error
+}
+
 func (r *databaseServerRepo) Delete(id uint) error {
 	if err := r.ClearUsers(id); err != nil {
 		return err

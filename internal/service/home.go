@@ -189,13 +189,10 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if postgresqlInstalled {
-		server, err := s.databaseServerRepo.GetByName("local_postgresql")
-		if err == nil {
-			postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
-			if err == nil {
+		if server, err := s.databaseServerRepo.GetByName("local_postgresql"); err == nil {
+			if postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port); err == nil {
 				defer postgres.Close()
-				databases, err := postgres.Databases()
-				if err == nil {
+				if databases, err := postgres.Databases(); err == nil {
 					databaseCount += len(databases)
 				}
 			}
