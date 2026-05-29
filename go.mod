@@ -16,7 +16,7 @@ require (
 	github.com/expr-lang/expr v1.17.8
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.0
-	github.com/go-chi/httplog/v3 v3.3.0
+	github.com/go-chi/httplog/v3 v3.4.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.6
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/go-webauthn/webauthn v0.17.4
