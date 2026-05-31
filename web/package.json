@@ -83,7 +83,7 @@
     "oxfmt": "0.52.0",
     "oxlint": "1.67.0",
     "sass": "1.100.0",
-    "tsx": "4.22.3",
+    "tsx": "4.22.4",
     "typescript": "6.0.3",
     "unocss": "66.7.0",
     "unplugin-auto-import": "21.0.0",
@@ -94,7 +94,7 @@
     "vite-plugin-html": "3.2.2",
     "vite-plugin-mock": "3.0.2",
     "vite-plugin-vue-devtools": "8.1.2",
-    "vue-tsc": "3.3.2"
+    "vue-tsc": "3.3.3"
   },
   "packageManager": "pnpm@11.5.0+sha512.dbfcc4f81cf48597afd4bc391ffdf12c11f1a9fb83a395bfa6b0a2d9cc2fd8ffebafdb1ccbd529632153f793904c2615b7f09fe1a345473fd1c35845172a8eb1"
 }
