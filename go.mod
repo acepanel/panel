@@ -23,7 +23,7 @@ require (
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.1
-	github.com/gookit/validate v1.5.7
+	github.com/gookit/validate v1.6.0
 	github.com/hashicorp/go-version v1.9.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.3
@@ -93,7 +93,7 @@ require (
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gookit/filter v1.2.3 // indirect
-	github.com/gookit/goutil v0.7.4 // indirect
+	github.com/gookit/goutil v0.7.6 // indirect
 	github.com/imega/luaformatter v0.0.0-20211025140405-86b0a68d6bef // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
