@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-06-07 17:32\n"
+"PO-Revision-Date: 2026-06-07 18:29\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -153,6 +153,10 @@ msgstr "應用程序池"
 msgid "Application management"
 msgstr "應用管理"
 
+#: internal/service/backup.go:71
+msgid "Backup %s: %s"
+msgstr "備份 %s： %s"
+
 #: internal/route/cli.go:323
 msgid "Backup database"
 msgstr "備份數據庫"
@@ -250,7 +254,7 @@ msgstr "更改用戶密碼"
 
 #: internal/route/cli.go:75
 msgid "Change a user's username"
-msgstr "更改用戶用戶名"
+msgstr "更改用戶使用者名稱"
 
 #: internal/route/cli.go:167
 msgid "Change the AcePanel listening port"
@@ -472,7 +476,7 @@ msgstr "入口已啟用"
 #: internal/service/cli.go:196
 #: internal/service/cli.go:468
 msgid "Entrance: %s"
-msgstr "入口：%s"
+msgstr "入口： %s"
 
 #: internal/service/environment_php.go:439
 msgid "Event is a library for handling events"
@@ -492,7 +496,7 @@ msgstr "修改密碼失敗：%v"
 
 #: internal/service/cli.go:256
 msgid "Failed to change username: %v"
-msgstr "修改用戶名失敗：%v"
+msgstr "修改使用者名稱失敗：%v"
 
 #: internal/service/cli.go:351
 msgid "Failed to clear passkeys: %v"
@@ -693,7 +697,7 @@ msgstr "華為雲"
 
 #: internal/service/cli.go:230
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
-msgstr "ID: %d, 用戶名: %s, 電子郵件: %s, 創建時間: %s"
+msgstr "ID: %d, 使用者名稱: %s, 電子郵件: %s, 創建時間: %s"
 
 #: internal/service/environment_php.go:419
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
@@ -831,11 +835,11 @@ msgstr "監聽器"
 
 #: internal/service/cli.go:200
 msgid "Local IPv4: %s://%s:%d%s"
-msgstr "本地 IPv4：%s://%s:%d%s"
+msgstr "本地 IPv4： %s://%s:%d%s"
 
 #: internal/service/cli.go:204
 msgid "Local IPv6: %s://[%s]:%d%s"
-msgstr "本地 IPv6：%s://[%s]:%d%s"
+msgstr "本地 IPv6： %s://[%s]:%d%s"
 
 #: internal/data/backup.go:96
 #: internal/data/backup_storage.go:62
@@ -936,7 +940,7 @@ msgstr "NameSilo"
 
 #: internal/service/cli.go:244
 msgid "New username cannot be empty"
-msgstr "新用戶名不能為空"
+msgstr "新使用者名稱不能為空"
 
 #: internal/apps/prometheus/app.go:404
 msgid "Nginx metrics"
@@ -1001,7 +1005,7 @@ msgstr "獲取免費證書或生成自簽名證書"
 
 #: internal/service/cli.go:241
 msgid "Old username cannot be empty"
-msgstr "舊用戶名不能為空"
+msgstr "舊使用者名稱不能為空"
 
 #: internal/apps/mysql/app.go:132
 msgid "Open Tables"
@@ -1082,7 +1086,7 @@ msgstr "密碼長度不能少於6位"
 
 #: internal/service/cli.go:194
 msgid "Password: %s"
-msgstr "密碼：%s"
+msgstr "密碼： %s"
 
 #: internal/route/cli.go:199
 msgid "Path where the website is hosted (default path if not filled)"
@@ -1163,11 +1167,11 @@ msgstr "Pspell 是一個拼寫檢查庫"
 
 #: internal/service/cli.go:208
 msgid "Public IPv4: %s://%s:%d%s"
-msgstr "公網 IPv4：%s://%s:%d%s"
+msgstr "公網 IPv4： %s://%s:%d%s"
 
 #: internal/service/cli.go:212
 msgid "Public IPv6: %s://[%s]:%d%s"
-msgstr "公網 IPv6：%s://[%s]:%d%s"
+msgstr "公網 IPv6： %s://[%s]:%d%s"
 
 #: internal/service/environment_python.go:36
 #: internal/service/environment_python.go:56
@@ -1595,11 +1599,11 @@ msgstr "使用者名稱和密碼不能為空"
 #: internal/service/cli.go:298
 #: internal/service/cli.go:340
 msgid "Username cannot be empty"
-msgstr "用戶名不能為空"
+msgstr "使用者名稱不能為空"
 
 #: internal/service/cli.go:193
 msgid "Username: %s"
-msgstr "使用者名稱：%s"
+msgstr "使用者名稱： %s"
 
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
@@ -3052,7 +3056,7 @@ msgstr "未找到 Stream 上游：%s"
 msgid "sync from server %s"
 msgstr "從伺服器 %s 同步"
 
-#: internal/service/backup.go:88
+#: internal/service/backup.go:105
 msgid "target backup %s already exists"
 msgstr "目標備份 %s 已存在"
 
@@ -3139,7 +3143,7 @@ msgstr "不支援的 CA"
 msgid "unsupported database type: %s"
 msgstr "不支援的資料庫類型：%s"
 
-#: internal/service/backup.go:82
+#: internal/service/backup.go:99
 msgid "unsupported file type"
 msgstr "不支援的檔案類型"
 

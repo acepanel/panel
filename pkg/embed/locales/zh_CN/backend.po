@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-06-07 17:32\n"
+"PO-Revision-Date: 2026-06-07 18:29\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -152,6 +152,10 @@ msgstr "应用程序池"
 #: internal/route/cli.go:475
 msgid "Application management"
 msgstr "应用管理"
+
+#: internal/service/backup.go:71
+msgid "Backup %s: %s"
+msgstr "备份 %s： %s"
 
 #: internal/route/cli.go:323
 msgid "Backup database"
@@ -472,7 +476,7 @@ msgstr "入口已启用"
 #: internal/service/cli.go:196
 #: internal/service/cli.go:468
 msgid "Entrance: %s"
-msgstr "入口：%s"
+msgstr "入口： %s"
 
 #: internal/service/environment_php.go:439
 msgid "Event is a library for handling events"
@@ -831,11 +835,11 @@ msgstr "监听器"
 
 #: internal/service/cli.go:200
 msgid "Local IPv4: %s://%s:%d%s"
-msgstr "本地 IPv4：%s://%s:%d%s"
+msgstr "本地 IPv4： %s://%s:%d%s"
 
 #: internal/service/cli.go:204
 msgid "Local IPv6: %s://[%s]:%d%s"
-msgstr "本地 IPv6：%s://[%s]:%d%s"
+msgstr "本地 IPv6： %s://[%s]:%d%s"
 
 #: internal/data/backup.go:96
 #: internal/data/backup_storage.go:62
@@ -1082,7 +1086,7 @@ msgstr "密码长度不能少于6位"
 
 #: internal/service/cli.go:194
 msgid "Password: %s"
-msgstr "密码：%s"
+msgstr "密码： %s"
 
 #: internal/route/cli.go:199
 msgid "Path where the website is hosted (default path if not filled)"
@@ -1163,11 +1167,11 @@ msgstr "Pspell 是一个拼写检查库"
 
 #: internal/service/cli.go:208
 msgid "Public IPv4: %s://%s:%d%s"
-msgstr "公网 IPv4：%s://%s:%d%s"
+msgstr "公网 IPv4： %s://%s:%d%s"
 
 #: internal/service/cli.go:212
 msgid "Public IPv6: %s://[%s]:%d%s"
-msgstr "公网 IPv6：%s://[%s]:%d%s"
+msgstr "公网 IPv6： %s://[%s]:%d%s"
 
 #: internal/service/environment_python.go:36
 #: internal/service/environment_python.go:56
@@ -1599,7 +1603,7 @@ msgstr "用户名不能为空"
 
 #: internal/service/cli.go:193
 msgid "Username: %s"
-msgstr "用户名：%s"
+msgstr "用户名： %s"
 
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
@@ -3052,7 +3056,7 @@ msgstr "未找到 Stream 上游：%s"
 msgid "sync from server %s"
 msgstr "从服务器 %s 同步"
 
-#: internal/service/backup.go:88
+#: internal/service/backup.go:105
 msgid "target backup %s already exists"
 msgstr "目标备份 %s 已存在"
 
@@ -3139,7 +3143,7 @@ msgstr "不支持的 CA"
 msgid "unsupported database type: %s"
 msgstr "不支持的数据库类型：%s"
 
-#: internal/service/backup.go:82
+#: internal/service/backup.go:99
 msgid "unsupported file type"
 msgstr "不支持的文件类型"
 
