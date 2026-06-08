@@ -197,13 +197,13 @@ func IsChina() bool {
 	client := resty.New()
 	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
-	client.SetDisableWarn(true)
+	client.SetLoggerWarnLevel(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
 	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		return false
 	}
 
@@ -219,7 +219,7 @@ func GetPublicIPv4() (string, error) {
 	client := resty.New()
 	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
-	client.SetDisableWarn(true)
+	client.SetLoggerWarnLevel(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
 	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
@@ -230,7 +230,7 @@ func GetPublicIPv4() (string, error) {
 	})
 
 	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		return "", errors.New("failed to get public ipv4 address")
 	}
 
@@ -242,7 +242,7 @@ func GetPublicIPv6() (string, error) {
 	client := resty.New()
 	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
-	client.SetDisableWarn(true)
+	client.SetLoggerWarnLevel(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
 	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
@@ -253,7 +253,7 @@ func GetPublicIPv6() (string, error) {
 	})
 
 	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		return "", errors.New("failed to get public ipv6 address")
 	}
 

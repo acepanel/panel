@@ -31,7 +31,7 @@ func (r *API) LatestVersion(channel string) (*Version, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get latest version: %s", resp.String())
 	}
 
@@ -60,7 +60,7 @@ func (r *API) IntermediateVersions(channel string) (*Versions, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get intermediate versions: %s", resp.String())
 	}
 

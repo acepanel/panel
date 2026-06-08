@@ -73,7 +73,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	client := resty.New().SetTimeout(10 * time.Second)
 	defer func(client *resty.Client) { _ = client.Close() }(client)
 	resp, err := client.R().Get("http://127.0.0.1:9090/api/v1/status/runtimeinfo")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		service.Success(w, []types.NV{})
 		return
 	}

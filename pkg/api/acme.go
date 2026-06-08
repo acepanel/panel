@@ -12,7 +12,7 @@ func (r *API) GoogleEAB() (*EAB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get google eab: %s", resp.String())
 	}
 

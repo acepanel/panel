@@ -779,7 +779,7 @@ func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConne
 	defer func(client *resty.Client) { _ = client.Close() }(client)
 
 	resp, err := client.R().
-		SetDoNotParseResponse(true).
+		SetResponseDoNotParse(true).
 		SetBody(map[string]string{"command": command}).
 		Post("/api/toolbox_migration/exec")
 	if err != nil {
@@ -1110,7 +1110,7 @@ func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationC
 		client.SetTimeout(timeout)
 	}
 
-	// 签名中间件放在 PrepareRequestMiddleware 之后，此时 RawRequest 已构建完毕
+	// 签名中间件放在 MiddlewareRequestCreate 之后，此时 RawRequest 已构建完毕
 	signMiddleware := resty.RequestMiddleware(func(_ *resty.Client, req *resty.Request) error {
 		rawReq := req.RawRequest
 
@@ -1143,7 +1143,7 @@ func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationC
 	})
 
 	client.SetRequestMiddlewares(
-		resty.PrepareRequestMiddleware,
+		resty.MiddlewareRequestCreate,
 		signMiddleware,
 	)
 

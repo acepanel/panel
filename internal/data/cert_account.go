@@ -212,7 +212,7 @@ func (r certAccountRepo) getGoogleEAB() (*acme.EAB, error) {
 	client.SetRetryCount(3)
 
 	resp, err := client.R().SetResult(&data{}).Get("https://gts.rat.dev/eab")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %v", err))
 	}
 	eab := resp.Result().(*data)
@@ -238,7 +238,7 @@ func (r certAccountRepo) getZeroSSLEAB(email string) (*acme.EAB, error) {
 	resp, err := client.R().SetFormData(map[string]string{
 		"email": email,
 	}).SetResult(&data{}).Post("https://api.zerossl.com/acme/eab-credentials-email")
-	if err != nil || !resp.IsSuccess() {
+	if err != nil || !resp.IsStatusSuccess() {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get ZeroSSL EAB: %v", err))
 	}
 	eab := resp.Result().(*data)

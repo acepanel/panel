@@ -741,7 +741,7 @@ defineExpose({
         size="tiny"
         :placeholder="$gettext('Enter path')"
         @keyup.enter="confirmEditPath"
-        @keyup.escape="cancelEditPath"
+        @keydown.escape="cancelEditPath"
         @blur="confirmEditPath"
       >
         <template #prefix>

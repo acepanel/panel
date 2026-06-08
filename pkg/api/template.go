@@ -61,7 +61,7 @@ func (r *API) Templates() (*Templates, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get templates: %s", resp.String())
 	}
 
@@ -79,7 +79,7 @@ func (r *API) TemplateBySlug(slug string) (*Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get template: %s", resp.String())
 	}
 
@@ -97,7 +97,7 @@ func (r *API) TemplateCallback(slug string) error {
 	if err != nil {
 		return err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return fmt.Errorf("failed to callback template: %s", resp.String())
 	}
 

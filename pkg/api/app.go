@@ -34,7 +34,7 @@ func (r *API) Apps() (*Apps, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get apps: %s", resp.String())
 	}
 
@@ -52,7 +52,7 @@ func (r *API) AppBySlug(slug string) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get app: %s", resp.String())
 	}
 
@@ -72,7 +72,7 @@ func (r *API) AppCallback(slug string) error {
 	if err != nil {
 		return err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return fmt.Errorf("failed to callback app: %s", resp.String())
 	}
 

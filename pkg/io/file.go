@@ -127,13 +127,13 @@ func DownloadFile(url, destPath string) error {
 	defer func() { _ = os.Remove(tmpPath) }()
 
 	resp, err := client.R().
-		SetSaveResponse(true).
-		SetOutputFileName(tmpPath).
+		SetResponseSaveToFile(true).
+		SetResponseSaveFileName(tmpPath).
 		Get(url)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
-	if resp.IsError() {
+	if resp.IsStatusFailure() {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode())
 	}
 

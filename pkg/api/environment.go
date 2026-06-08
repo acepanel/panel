@@ -18,7 +18,7 @@ func (r *API) Environments() (*Environments, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get environments: %s", resp.String())
 	}
 
@@ -38,7 +38,7 @@ func (r *API) EnvironmentCallback(typ, slug string) error {
 	if err != nil {
 		return err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return fmt.Errorf("failed to callback environment: %s", resp.String())
 	}
 

@@ -16,7 +16,7 @@ func (r *API) Categories() (*Categories, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
+	if !resp.IsStatusSuccess() {
 		return nil, fmt.Errorf("failed to get categories: %s", resp.String())
 	}
 
