@@ -60,7 +60,7 @@ require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.9.0
 	github.com/valyala/fastjson v1.6.10
-	go.yaml.in/yaml/v4 v4.0.0-rc.4
+	go.yaml.in/yaml/v4 v4.0.0-rc.5
 	golang.org/x/crypto v0.53.0
 	golang.org/x/net v0.55.0
 	golang.org/x/sync v0.21.0
