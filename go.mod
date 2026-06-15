@@ -8,7 +8,7 @@ require (
 	github.com/bddjr/hlfhr v1.6.0
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.21.0
-	github.com/coder/websocket v1.8.14
+	github.com/coder/websocket v1.8.15
 	github.com/containerd/errdefs v1.0.0
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/creack/pty v1.1.24
@@ -66,7 +66,7 @@ require (
 	golang.org/x/sync v0.21.0
 	gorm.io/gorm v1.31.1
 	modernc.org/sqlite v1.52.0
-	resty.dev/v3 v3.0.0-rc.1
+	resty.dev/v3 v3.0.0-rc.2
 )
 
 require (
