@@ -50,6 +50,7 @@ const (
 	SettingKeyIPDBType                  SettingKey = "ipdb_type" // "" / "custom" / "subscribe"
 	SettingKeyIPDBURL                   SettingKey = "ipdb_url"  // 订阅链接
 	SettingKeyIPDBPath                  SettingKey = "ipdb_path"
+	SettingKeyInfoRan                   SettingKey = "info_ran" // info 命令是否已运行过
 )
 
 type Setting struct {

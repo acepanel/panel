@@ -164,16 +164,29 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Failed to get user info: %v", err))
 	}
 
-	password := str.Random(16)
-	hashed, err := s.hash.Make(password)
-	if err != nil {
-		return errors.New(s.t.Get("Failed to generate password: %v", err))
-	}
-	user.Username = str.Random(8)
-	user.Password = hashed
+	// 判断是否首次运行或使用了 -f 参数
+	force := cmd.Bool("force")
+	infoRan, _ := s.settingRepo.Get(biz.SettingKeyInfoRan)
+	isFirstRun := infoRan == ""
 
-	if err = s.db.Save(user).Error; err != nil {
-		return errors.New(s.t.Get("Failed to save user info: %v", err))
+	var password string
+	if isFirstRun || force {
+		password = str.Random(16)
+		hashed, err := s.hash.Make(password)
+		if err != nil {
+			return errors.New(s.t.Get("Failed to generate password: %v", err))
+		}
+		user.Username = str.Random(8)
+		user.Password = hashed
+
+		if err = s.db.Save(user).Error; err != nil {
+			return errors.New(s.t.Get("Failed to save user info: %v", err))
+		}
+
+		// 标记 info 命令已运行过
+		if err = s.settingRepo.Set(biz.SettingKeyInfoRan, "1"); err != nil {
+			return errors.New(s.t.Get("Failed to save setting: %v", err))
+		}
 	}
 
 	protocol := "http"
@@ -191,7 +204,11 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("Username: %s", user.Username))
-	fmt.Println(s.t.Get("Password: %s", password))
+	if isFirstRun || force {
+		fmt.Println(s.t.Get("Password: %s", password))
+	} else {
+		fmt.Println(s.t.Get("Password: ******* (use -f to force reset)"))
+	}
 	fmt.Println(s.t.Get("Port: %d", port))
 	fmt.Println(s.t.Get("Entrance: %s", entrance))
 

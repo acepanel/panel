@@ -58,8 +58,15 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:   "info",
-			Usage:  route.t.Get("Output AcePanel basic information and generate new password"),
+			Usage:  route.t.Get("Output AcePanel basic information"),
 			Action: route.cli.Info,
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:    "force",
+					Aliases: []string{"f"},
+					Usage:   route.t.Get("Force reset password"),
+				},
+			},
 		},
 		{
 			Name:  "user",
