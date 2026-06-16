@@ -89,7 +89,7 @@
     "unplugin-auto-import": "21.0.0",
     "unplugin-icons": "23.0.1",
     "unplugin-vue-components": "32.1.0",
-    "vite": "8.0.13",
+    "vite": "8.0.16",
     "vite-plugin-compression2": "2.5.3",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-mock": "3.0.2",
