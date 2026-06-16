@@ -99,8 +99,8 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@vue/compiler-sfc@3.5.38)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.38(typescript@6.0.3)))(vite@8.0.13(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
       vue3-gettext:
-        specifier: 4.0.0
-        version: 4.0.0(vue@3.5.38(typescript@6.0.3))
+        specifier: 4.0.1
+        version: 4.0.1(vue@3.5.38(typescript@6.0.3))
       vuedraggable:
         specifier: 4.1.0
         version: 4.1.0(vue@3.5.38(typescript@6.0.3))
@@ -3183,8 +3183,8 @@ packages:
     peerDependencies:
       typescript: '>=5.0.0'
 
-  vue3-gettext@4.0.0:
-    resolution: {integrity: sha512-CNqZnrNgly3kAj4H8pZKuGYF1pjDWphrmAG8XlZo2YQFxJO3HzhiwwUb7HbRYamZHqd0Y2TddAXmMkKBdmzrTg==}
+  vue3-gettext@4.0.1:
+    resolution: {integrity: sha512-dbqBv0X7L8EOnEjL78sNfAelig96lOBVnVN7zIJs8kekXaOQ+xUlYCyc4epFBFyXoFtYGzMCLS5uCJn9KozmWg==}
     engines: {node: '>= 20.19.0'}
     hasBin: true
     peerDependencies:
@@ -6090,7 +6090,7 @@ snapshots:
       '@vue/language-core': 3.3.5
       typescript: 6.0.3
 
-  vue3-gettext@4.0.0(vue@3.5.38(typescript@6.0.3)):
+  vue3-gettext@4.0.1(vue@3.5.38(typescript@6.0.3)):
     dependencies:
       command-line-args: 6.0.2
       glob: 13.0.6

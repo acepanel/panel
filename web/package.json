@@ -57,7 +57,7 @@
     "vue": "3.5.38",
     "vue-echarts": "8.0.1",
     "vue-router": "5.1.0",
-    "vue3-gettext": "4.0.0",
+    "vue3-gettext": "4.0.1",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
