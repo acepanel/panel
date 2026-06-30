@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/DeRuina/timberjack v1.4.5
-	github.com/andybalholm/brotli v1.2.1
+	github.com/andybalholm/brotli v1.2.2
 	github.com/bddjr/hlfhr v1.6.0
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.22.0
