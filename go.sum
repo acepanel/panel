@@ -31,8 +31,8 @@ github.com/andybalholm/brotli v1.2.2/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUS
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/bddjr/hlfhr v1.6.0 h1:0ZuSYc2X/YAVyvEVIfrORonWjC0ZY3x6gZAfe+ugBPM=
-github.com/bddjr/hlfhr v1.6.0/go.mod h1:cHRve//dit7d8ZCPUUFZAYW5WCm3LdMoiqX9i9GJdms=
+github.com/bddjr/hlfhr v1.6.1 h1:bzl0zsL2pl7Gvlbx6l8jZjjv9GbBTeOaX4/+RaXyNXc=
+github.com/bddjr/hlfhr v1.6.1/go.mod h1:cHRve//dit7d8ZCPUUFZAYW5WCm3LdMoiqX9i9GJdms=
 github.com/bddjr/shuttingdown v0.1.0 h1:1thUjnzTXNbzexEFkh638ebjln8F4KlqXfLIlBXfdbs=
 github.com/bddjr/shuttingdown v0.1.0/go.mod h1:+vG4Zp8uhFLT40DBABiA/XxJDHbzybe8RR72i29DFI4=
 github.com/beevik/ntp v1.5.0 h1:y+uj/JjNwlY2JahivxYvtmv4ehfi3h74fAuABB9ZSM4=
