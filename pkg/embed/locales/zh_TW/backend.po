@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-07-02 18:30\n"
+"PO-Revision-Date: 2026-07-02 20:23\n"
 
 #: internal/service/toolbox_log.go:257
 msgid "%d images"
@@ -153,15 +153,15 @@ msgstr "應用程序池"
 msgid "Application management"
 msgstr "應用管理"
 
-#: internal/data/backup.go:1432
+#: internal/data/backup.go:1436
 msgid "Applying update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
-#: internal/data/backup.go:1430
+#: internal/data/backup.go:1434
 msgid "Applying update..."
 msgstr "應用程式更新中……"
 
-#: internal/data/backup.go:1394
+#: internal/data/backup.go:1398
 msgid "Backing up panel data..."
 msgstr "備份面板數據……"
 
@@ -277,7 +277,7 @@ msgstr "更改 AcePanel 監聽端口"
 msgid "Cleaning failed: %v"
 msgstr "清理失敗：%v"
 
-#: internal/data/backup.go:1296
+#: internal/data/backup.go:1300
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理臨時目錄失敗：%v"
 
@@ -448,12 +448,12 @@ msgstr "Docker 容器日誌：%d 個文件"
 msgid "Download URL is empty"
 msgstr "下載 URL 為空"
 
-#: internal/data/backup.go:1405
-#: internal/data/backup.go:1408
+#: internal/data/backup.go:1409
+#: internal/data/backup.go:1412
 msgid "Download failed: %v"
 msgstr "下載失敗：%v"
 
-#: internal/data/backup.go:1411
+#: internal/data/backup.go:1415
 msgid "Download file check failed"
 msgstr "下載文件檢查失敗"
 
@@ -461,7 +461,7 @@ msgstr "下載文件檢查失敗"
 msgid "Download remote file %v"
 msgstr "下載遠程文件 %v"
 
-#: internal/data/backup.go:1403
+#: internal/data/backup.go:1407
 msgid "Downloading new version..."
 msgstr "正在下載新版本……"
 
@@ -502,7 +502,7 @@ msgstr "Event 是一個用於處理事件的庫"
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一個用於讀取和寫入圖像元數據的庫"
 
-#: internal/data/backup.go:1421
+#: internal/data/backup.go:1425
 msgid "Extracting new version..."
 msgstr "正在提取新版本……"
 
@@ -518,7 +518,7 @@ msgstr "修改密碼失敗：%v"
 msgid "Failed to change username: %v"
 msgstr "修改使用者名稱失敗：%v"
 
-#: internal/data/backup.go:1387
+#: internal/data/backup.go:1391
 msgid "Failed to clean up temporary directory: %v"
 msgstr "清理臨時目錄失敗：%v"
 
@@ -530,7 +530,7 @@ msgstr "清除通行金鑰失敗：%v"
 msgid "Failed to clear tasks: %v"
 msgstr "清除任務失敗：%v"
 
-#: internal/data/backup.go:1401
+#: internal/data/backup.go:1405
 msgid "Failed to create temporary directory: %v"
 msgstr "創建臨時目錄失敗：%v"
 
@@ -603,7 +603,7 @@ msgstr "無法獲取用戶：%v"
 msgid "Failed to obtain panel certificate via ACME, using self-signed certificate"
 msgstr "無法通過 ACME 獲取面板證書，使用自簽名證書"
 
-#: internal/data/backup.go:1390
+#: internal/data/backup.go:1394
 msgid "Failed to optimize database: %v"
 msgstr "優化資料庫失敗：%v"
 
@@ -611,7 +611,7 @@ msgstr "優化資料庫失敗：%v"
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
-#: internal/data/backup.go:1247
+#: internal/data/backup.go:1251
 msgid "Failed to remove %s.db: %v"
 msgstr "無法刪除 %s.db：%v"
 
@@ -650,15 +650,15 @@ msgstr "更新兩步驗證失敗： %v"
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別文件類型的庫"
 
-#: internal/data/backup.go:1237
+#: internal/data/backup.go:1241
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "文件正常，無需修復，請運行 acepanel update 更新面板"
 
-#: internal/data/backup.go:1436
+#: internal/data/backup.go:1440
 msgid "Finishing up..."
 msgstr "正在結束更新……"
 
-#: internal/data/backup.go:1438
+#: internal/data/backup.go:1442
 msgid "Finishing update failed: %v"
 msgstr "結束更新失敗：%v"
 
@@ -953,11 +953,11 @@ msgstr "遷移已開始"
 msgid "MongoDB metrics"
 msgstr "MongoDB 指標"
 
-#: internal/data/backup.go:1316
+#: internal/data/backup.go:1320
 msgid "Move acepanel file failed: %v"
 msgstr "移動 acepanel 文件失敗：%v"
 
-#: internal/data/backup.go:1311
+#: internal/data/backup.go:1315
 msgid "Move panel file failed: %v"
 msgstr "移動面板檔案失敗：%v"
 
@@ -991,7 +991,7 @@ msgstr "新使用者名稱不能為空"
 msgid "Nginx metrics"
 msgstr "Nginx 指標"
 
-#: internal/data/backup.go:1283
+#: internal/data/backup.go:1287
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到備份檔案，無法自動修復"
 
@@ -1194,7 +1194,7 @@ msgstr "端口：%d"
 msgid "PostgreSQL database metrics"
 msgstr "PostgreSQL 資料庫指標"
 
-#: internal/data/backup.go:1385
+#: internal/data/backup.go:1389
 msgid "Preparing to update to %s..."
 msgstr "正在準備更新至 %s……"
 
@@ -1277,7 +1277,7 @@ msgstr "遷移中的分片"
 msgid "Remove panel application mark (use only under guidance)"
 msgstr "移除面板應用標記（僅在指導下使用）"
 
-#: internal/data/backup.go:1308
+#: internal/data/backup.go:1312
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
@@ -1592,15 +1592,15 @@ msgstr "不支援的輪轉類型：%s"
 msgid "Unused container images: %d"
 msgstr "未使用的容器鏡像：%d"
 
-#: internal/data/backup.go:1299
+#: internal/data/backup.go:1303
 msgid "Unzip backup file failed: %v"
 msgstr "解壓備份檔案失敗：%v"
 
-#: internal/data/backup.go:1426
+#: internal/data/backup.go:1430
 msgid "Unzip new version failed, missing file"
 msgstr "解壓新版本失敗，缺少檔案"
 
-#: internal/data/backup.go:1423
+#: internal/data/backup.go:1427
 msgid "Unzip new version failed: %v"
 msgstr "解壓新版本失敗：%v"
 
@@ -1620,7 +1620,7 @@ msgstr "更新應用 %s"
 msgid "Update application"
 msgstr "更新應用"
 
-#: internal/data/backup.go:1443
+#: internal/data/backup.go:1447
 msgid "Update completed"
 msgstr "更新完成"
 
@@ -1670,11 +1670,11 @@ msgstr "使用者名稱： %s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/data/backup.go:1417
+#: internal/data/backup.go:1421
 msgid "Verify download file failed: %v"
 msgstr "驗證下載文件失敗：%v"
 
-#: internal/data/backup.go:1415
+#: internal/data/backup.go:1419
 msgid "Verifying download file..."
 msgstr "驗證下載檔案……"
 
@@ -2873,11 +2873,11 @@ msgstr "開啟檔案錯誤：%v"
 msgid "open upload file error: %v"
 msgstr "打開上傳文件錯誤：%v"
 
-#: internal/data/backup.go:1503
+#: internal/data/backup.go:1507
 msgid "panel binary is missing after update"
 msgstr "更新後缺少面板二進位檔"
 
-#: internal/data/backup.go:1367
+#: internal/data/backup.go:1371
 msgid "panel is already updating, please try again later"
 msgstr "面板正在更新，請稍後再試"
 
@@ -2897,7 +2897,7 @@ msgstr "面板正在升級，請稍後刷新"
 msgid "panel run error, please check or contact support"
 msgstr "面板運行錯誤，請檢查或聯繫技術支持"
 
-#: internal/data/backup.go:1499
+#: internal/data/backup.go:1503
 msgid "panel service file is missing"
 msgstr "面板服務檔案遺失"
 
@@ -3376,7 +3376,7 @@ msgstr "yaml 是一個用於處理 YAML 的庫"
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個壓縮和解壓文件的庫"
 
-#: internal/data/backup.go:1288
+#: internal/data/backup.go:1292
 msgid "|-Backup file used: %s"
 msgstr "|-使用的備份檔案：%s"
 
@@ -3426,12 +3426,12 @@ msgstr "|-清理目標：%s"
 msgid "|-Cleaning type: %s"
 msgstr "|-清理類型：%s"
 
-#: internal/data/backup.go:1257
-#: internal/data/backup.go:1352
+#: internal/data/backup.go:1261
+#: internal/data/backup.go:1356
 msgid "|-Fix completed"
 msgstr "|-修復完成"
 
-#: internal/data/backup.go:1250
+#: internal/data/backup.go:1254
 msgid "|-Found %s.db is abnormal, removed it"
 msgstr "|-發現 %s.db 異常，已刪除"
 
@@ -3440,7 +3440,7 @@ msgstr "|-發現 %s.db 異常，已刪除"
 msgid "|-Keep count: %d"
 msgstr "|-保留數量：%d"
 
-#: internal/data/backup.go:1304
+#: internal/data/backup.go:1308
 msgid "|-Move backup file..."
 msgstr "|-移動備份檔案……"
 
@@ -3457,7 +3457,7 @@ msgstr "|-輪轉類型：container"
 msgid "|-Rotation type: website"
 msgstr "|-旋轉類型：website"
 
-#: internal/data/backup.go:1329
+#: internal/data/backup.go:1333
 msgid "|-Set key file permissions..."
 msgstr "|-設定關鍵檔案權限……"
 
@@ -3474,7 +3474,7 @@ msgstr "|-開始修復面板……"
 msgid "|-Temporary directory: %s"
 msgstr "|-臨時目錄：%s"
 
-#: internal/data/backup.go:1293
+#: internal/data/backup.go:1297
 msgid "|-Unzip backup file..."
 msgstr "|-解壓備份檔案……"
 
