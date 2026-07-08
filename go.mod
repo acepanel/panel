@@ -28,7 +28,7 @@ require (
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7
 	github.com/libdns/cloudflare v0.2.2
-	github.com/libdns/cloudns v1.1.0
+	github.com/libdns/cloudns v1.2.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/huaweicloud v1.0.1
 	github.com/libdns/libdns v1.1.1
@@ -36,14 +36,14 @@ require (
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
-	github.com/libtnb/cache v1.2.0
+	github.com/libtnb/cache v1.3.0
 	github.com/libtnb/chix v1.3.2
-	github.com/libtnb/cron v0.2.2
-	github.com/libtnb/gormstore v1.2.1
-	github.com/libtnb/sessions v1.4.2
-	github.com/libtnb/sqlite v1.1.2
+	github.com/libtnb/cron v0.5.2
+	github.com/libtnb/gormstore v1.3.0
+	github.com/libtnb/sessions v1.5.0
+	github.com/libtnb/sqlite v1.2.0
 	github.com/libtnb/utils v1.2.2
-	github.com/libtnb/validator v0.2.1
+	github.com/libtnb/validator v0.4.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.55.0
@@ -101,7 +101,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/libtnb/securecookie v1.2.0 // indirect
+	github.com/libtnb/securecookie v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
 	github.com/mattn/go-isatty v0.0.21 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
