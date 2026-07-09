@@ -56,7 +56,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.6
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
-	github.com/studio-b12/gowebdav v0.12.0
+	github.com/studio-b12/gowebdav v0.13.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/valyala/fastjson v1.6.10
@@ -66,7 +66,7 @@ require (
 	golang.org/x/sync v0.22.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.53.0
-	resty.dev/v3 v3.0.0-rc.2
+	resty.dev/v3 v3.0.0-rc.3
 )
 
 require (
