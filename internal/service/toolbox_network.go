@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"

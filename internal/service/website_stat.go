@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 

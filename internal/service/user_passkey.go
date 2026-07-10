@@ -13,7 +13,7 @@ import (
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"

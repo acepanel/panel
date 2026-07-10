@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 )
 
 func Abort(w http.ResponseWriter, code int, format string, args ...any) {

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"

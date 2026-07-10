@@ -35,7 +35,7 @@ require (
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/cache v1.3.0
-	github.com/libtnb/chix v1.3.2
+	github.com/libtnb/chix/v2 v2.1.0
 	github.com/libtnb/cron v0.5.2
 	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.2
@@ -91,8 +91,8 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.2.6 // indirect
-	github.com/gofiber/schema v1.7.2 // indirect
-	github.com/gofiber/utils/v2 v2.1.0 // indirect
+	github.com/gofiber/schema v1.8.1 // indirect
+	github.com/gofiber/utils/v2 v2.1.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect

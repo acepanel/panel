@@ -15,7 +15,7 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
 	"github.com/samber/do/v2"

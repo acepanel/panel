@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
 
 	"github.com/acepanel/panel/v3/pkg/config"

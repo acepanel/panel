@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/validator"
 
 	"github.com/acepanel/panel/v3/internal/request"

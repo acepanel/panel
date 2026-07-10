@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/collect"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"

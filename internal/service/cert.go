@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/chix"
+	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"

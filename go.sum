@@ -125,10 +125,10 @@ github.com/go-webauthn/webauthn v0.17.4 h1:KFTSz3R2RYDiUn/0cDi3XTJgFenSG74eKTTHl
 github.com/go-webauthn/webauthn v0.17.4/go.mod h1:pZk63EE/BdztlmyS4Yc+9H5g4a8blNlbtGmdHQHbZX8=
 github.com/go-webauthn/x v0.2.6 h1:TEyDuQAIiEgYpx60nKiBJIX/5nSUC8LxNbH+uf5U9uk=
 github.com/go-webauthn/x v0.2.6/go.mod h1:45bA7YEqyQhRcQJ/TiBb46Ww8yqHBGvgEhQ3WWF0aDo=
-github.com/gofiber/schema v1.7.2 h1:/0+siRIDYfMTh/edbdSNDXYZESBAFAu0CjKDUjo3g9Q=
-github.com/gofiber/schema v1.7.2/go.mod h1:lmbXPQ8hvzXSLkdS2DS7pb4kpunC2Roh7Sj3HMjGfzA=
-github.com/gofiber/utils/v2 v2.1.0 h1:WSu4COJhJw9moNfJu2nQvaM9AFvAQ/nZbigjhHqKgOQ=
-github.com/gofiber/utils/v2 v2.1.0/go.mod h1:DdOgEVwQTi8cou/AKWPqhXOR4fHGRVhA/rEWL3IXG7Q=
+github.com/gofiber/schema v1.8.1 h1:fAPMnviGRWoqE9S+to8knMScYBpxm2MaMMikpUKfTlM=
+github.com/gofiber/schema v1.8.1/go.mod h1:00NZJS+RpaFt6PYQZ3MqH6ybQHZmz9hDcvU3C8jSmP0=
+github.com/gofiber/utils/v2 v2.1.1 h1:kGnoGjwEnFW6w0x45W+kLlmMJvqBGkuUA4oMWKn/T/I=
+github.com/gofiber/utils/v2 v2.1.1/go.mod h1:DdOgEVwQTi8cou/AKWPqhXOR4fHGRVhA/rEWL3IXG7Q=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
 github.com/golang-jwt/jwt/v5 v5.3.1 h1:kYf81DTWFe7t+1VvL7eS+jKFVWaUnK9cB1qbwn63YCY=
@@ -262,8 +262,8 @@ github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292 h1:FF1ZlwFFjpwT6Ct
 github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292/go.mod h1:5nTPosTGosLxF3+LU4ygbgMRFDhbAVpqMI4+a4aHLBY=
 github.com/libtnb/cache v1.3.0 h1:hrsbC79gdByKeiiH119WUypXnhWg6U+LiP7WCOisgjU=
 github.com/libtnb/cache v1.3.0/go.mod h1:kArfr9kzJdtryO5FzLVirY5bxFKXf4rok32MK5/F1Ts=
-github.com/libtnb/chix v1.3.2 h1:LkA/+OaHeMyTiQoWEcCQKAMSKDZ0LxBXSENQO5d+OKk=
-github.com/libtnb/chix v1.3.2/go.mod h1:ItssStBa/ov7v4qujyYzORqIf7Z6DO7Q4carOM7pyAQ=
+github.com/libtnb/chix/v2 v2.1.0 h1:M6IQwbRryFhBwg6gDCaxZfCiCjKw1xdDhCWiA18DGAA=
+github.com/libtnb/chix/v2 v2.1.0/go.mod h1:jIFmnENp+Hbws11ydTfXViMmtTDz2urc1KwZYc5up4o=
 github.com/libtnb/cron v0.5.2 h1:Yy9a/S82bAS4KzE1SSMjNLtigPkejgMPUp9BHGeb1pw=
 github.com/libtnb/cron v0.5.2/go.mod h1:nrOHxS4Ernkn1E//vs64xzC58hGfoL0+lYSW2zsROGI=
 github.com/libtnb/gormstore v1.3.0 h1:OvVTYHZ9MCHI3Anf2ITtJLunAefyBQWG96EmHCE0eLM=
