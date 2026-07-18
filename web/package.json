@@ -52,7 +52,7 @@
     "monaco-editor-nginx": "2.0.2",
     "node-forge": "1.4.0",
     "p-limit": "7.3.0",
-    "pinia": "3.0.4",
+    "pinia": "4.0.2",
     "pinia-plugin-persistedstate": "4.7.1",
     "vue": "3.5.39",
     "vue-echarts": "8.0.1",
