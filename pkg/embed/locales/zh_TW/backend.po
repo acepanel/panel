@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-07-20 15:54\n"
+"PO-Revision-Date: 2026-07-20 22:15\n"
 
 #: internal/service/toolbox_log.go:258
 msgid "%d images"
@@ -2008,8 +2008,8 @@ msgstr "失敗"
 msgid "failed to apply PostgreSQL config: %v"
 msgstr "無法應用 PostgreSQL 配置：%v"
 
-#: internal/data/ssh.go:104
-#: internal/data/ssh.go:74
+#: internal/data/ssh.go:106
+#: internal/data/ssh.go:76
 msgid "failed to check ssh connection: %v"
 msgstr "檢查 ssh 連接失敗：%v"
 
@@ -2021,7 +2021,7 @@ msgstr "無法清除 %s 服務的日誌：%v"
 msgid "failed to connect remote server: %v"
 msgstr "連線遠端伺服器失敗：%v"
 
-#: internal/data/ssh.go:140
+#: internal/data/ssh.go:142
 msgid "failed to connect to %s: %v"
 msgstr "連線 %s 失敗：%v"
 
@@ -2057,6 +2057,10 @@ msgstr "建立掛載路徑失敗：%v"
 msgid "failed to create mount point: %v"
 msgstr "建立掛載點失敗：%v"
 
+#: internal/apps/pgadmin/app.go:478
+msgid "failed to create new account: %v"
+msgstr "創建新帳戶失敗：%v"
+
 #: internal/service/toolbox_disk.go:241
 msgid "failed to create partition: %v"
 msgstr "建立分割區失敗：%v"
@@ -2084,6 +2088,10 @@ msgstr "建立 webhook 目錄失敗：%v"
 #: internal/service/toolbox_disk.go:559
 msgid "failed to delete fstab entry: %v"
 msgstr "刪除 fstab 條目失敗：%v"
+
+#: internal/apps/pgadmin/app.go:492
+msgid "failed to delete old account: %v"
+msgstr "刪除舊帳戶失敗：%v"
 
 #: internal/apps/nginx/stream.go:120
 msgid "failed to delete stream server config: %v"
@@ -2418,11 +2426,11 @@ msgstr "無法載入 MySQL root 密碼：%v"
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "無法載入 PostgreSQL postgres 密碼：%v"
 
-#: internal/apps/pgadmin/app.go:373
+#: internal/apps/pgadmin/app.go:441
 msgid "failed to login pgAdmin, please check the credential of pgAdmin"
 msgstr "登入 pgAdmin 失敗，請檢查 pgAdmin 的憑證"
 
-#: internal/apps/phpmyadmin/app.go:218
+#: internal/apps/phpmyadmin/app.go:228
 msgid "failed to login phpMyAdmin, please check the credentials and status of server %s"
 msgstr "登入 phpMyAdmin 失敗，請檢查伺服器 %s 的憑證與狀態"
 
@@ -2430,7 +2438,7 @@ msgstr "登入 phpMyAdmin 失敗，請檢查伺服器 %s 的憑證與狀態"
 msgid "failed to mount partition: %v"
 msgstr "無法掛載分區：%v"
 
-#: internal/data/ssh.go:145
+#: internal/data/ssh.go:147
 msgid "failed to open sftp session on %s: %v"
 msgstr "在 %s 上開啟 SFTP 工作階段失敗：%v"
 
@@ -2450,11 +2458,11 @@ msgstr "無法解析證書：%v"
 msgid "failed to parse disk list: %v"
 msgstr "無法解析磁碟列表：%v"
 
-#: internal/apps/pgadmin/app.go:341
+#: internal/apps/pgadmin/app.go:405
 msgid "failed to parse pgAdmin login page"
 msgstr "解析 pgAdmin 登入頁面失敗"
 
-#: internal/apps/phpmyadmin/app.go:174
+#: internal/apps/phpmyadmin/app.go:179
 msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登入頁面失敗"
 
@@ -2550,8 +2558,8 @@ msgstr "重載 apache 失敗：%v"
 #: internal/apps/nginx/stream.go:236
 #: internal/apps/nginx/stream.go:52
 #: internal/apps/nginx/stream.go:98
-#: internal/apps/phpmyadmin/app.go:268
-#: internal/apps/phpmyadmin/app.go:299
+#: internal/apps/phpmyadmin/app.go:278
+#: internal/apps/phpmyadmin/app.go:309
 #: internal/service/website.go:256
 msgid "failed to reload nginx: %v"
 msgstr "重新載入 nginx 失敗：%v"
@@ -2576,19 +2584,19 @@ msgstr "刪除卷組失敗：%v"
 msgid "failed to rename systemd config"
 msgstr "重命名 systemd 配置失敗"
 
-#: internal/apps/pgadmin/app.go:325
-#: internal/apps/pgadmin/app.go:331
-#: internal/apps/pgadmin/app.go:364
+#: internal/apps/pgadmin/app.go:389
+#: internal/apps/pgadmin/app.go:395
+#: internal/apps/pgadmin/app.go:432
 msgid "failed to request pgAdmin: %v"
 msgstr "請求 pgAdmin 失敗：%v"
 
-#: internal/apps/phpmyadmin/app.go:161
-#: internal/apps/phpmyadmin/app.go:167
-#: internal/apps/phpmyadmin/app.go:210
+#: internal/apps/phpmyadmin/app.go:166
+#: internal/apps/phpmyadmin/app.go:172
+#: internal/apps/phpmyadmin/app.go:220
 msgid "failed to request phpMyAdmin: %v"
 msgstr "請求 phpMyAdmin 失敗：%v"
 
-#: internal/apps/pgadmin/app.go:405
+#: internal/apps/pgadmin/app.go:533
 msgid "failed to reset password: %v"
 msgstr "重設密碼失敗：%v"
 
@@ -2610,7 +2618,7 @@ msgstr "重新啟動 %s 失敗：%v"
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
-#: internal/apps/pgadmin/app.go:152
+#: internal/apps/pgadmin/app.go:168
 msgid "failed to restart pgAdmin: %v"
 msgstr "重啟 pgAdmin 失敗：%v"
 
@@ -2676,7 +2684,7 @@ msgstr "啟動容器終端失敗：%v"
 msgid "failed to stop %s service: %v"
 msgstr "停止 %s 服務失敗：%v"
 
-#: internal/apps/pgadmin/app.go:298
+#: internal/apps/pgadmin/app.go:362
 msgid "failed to sync servers to pgAdmin: %v"
 msgstr "同步伺服器到 pgAdmin 失敗：%v"
 
@@ -3012,12 +3020,13 @@ msgstr "pdo_pgsql 是一個用於連接 PostgreSQL 的 PDO 驅動程序（需先
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr "pdo_sqlsrv 是一個用於連接 SQL Server 的 PDO 驅動程序"
 
-#: internal/apps/pgadmin/app.go:293
-#: internal/apps/pgadmin/app.go:399
+#: internal/apps/pgadmin/app.go:357
+#: internal/apps/pgadmin/app.go:468
+#: internal/apps/pgadmin/app.go:527
 msgid "pgAdmin credential file not found"
 msgstr "未找到 pgAdmin 憑證檔案"
 
-#: internal/apps/pgadmin/app.go:84
+#: internal/apps/pgadmin/app.go:100
 msgid "pgAdmin port not found"
 msgstr "未找到 pgAdmin 連接埠"
 
@@ -3025,12 +3034,12 @@ msgstr "未找到 pgAdmin 連接埠"
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pgsql 是一個用於連接 PostgreSQL 的驅動程序（需先安裝 PostgreSQL）"
 
-#: internal/apps/phpmyadmin/app.go:62
-#: internal/apps/phpmyadmin/app.go:72
+#: internal/apps/phpmyadmin/app.go:65
+#: internal/apps/phpmyadmin/app.go:75
 msgid "phpMyAdmin directory not found"
 msgstr "未找到 phpMyAdmin 目錄"
 
-#: internal/apps/phpmyadmin/app.go:81
+#: internal/apps/phpmyadmin/app.go:84
 msgid "phpMyAdmin port not found"
 msgstr "未找到 phpMyAdmin 連接埠"
 
@@ -3133,7 +3142,7 @@ msgstr "儲存分塊錯誤：%v"
 msgid "sending backup to remote server"
 msgstr "正在傳送備份到遠端伺服器"
 
-#: internal/apps/phpmyadmin/app.go:130
+#: internal/apps/phpmyadmin/app.go:133
 msgid "server %s is not a MySQL server"
 msgstr "伺服器 %s 不是 MySQL 伺服器"
 
@@ -3299,10 +3308,6 @@ msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 #: internal/data/user_token.go:117
 msgid "token expired"
 msgstr "令牌已過期"
-
-#: internal/data/ssh.go:311
-msgid "transferring a directory is not supported"
-msgstr "不支援傳輸目錄"
 
 #: internal/service/home.go:293
 #: internal/service/home.go:329
