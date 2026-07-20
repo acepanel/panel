@@ -365,8 +365,8 @@ github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0t
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
-github.com/samber/do/v2 v2.0.0 h1:tnunwWaoqSfJ9hxVIaJawIo7JXHQlqT9d9YBXlE9Keg=
-github.com/samber/do/v2 v2.0.0/go.mod h1:ZSBCE7Xr6nTNIOVo4DBrkl2+ydUbIOzJjjdV8En5XO4=
+github.com/samber/do/v2 v2.1.0 h1:lqCHn05XvY3VqwxvZDQPSkH+jIGWSVHUrSVLEbPOopo=
+github.com/samber/do/v2 v2.1.0/go.mod h1:wJBoiaZcUZyGuraOhfz15b517ZMogGs+U03DvnqvT6Q=
 github.com/samber/go-type-to-string v1.8.0 h1:5z6tDTjtXxkIAoAuHAZYMYR8mkBZjVgeSH7jcSLqc8w=
 github.com/samber/go-type-to-string v1.8.0/go.mod h1:jpU77vIDoIxkahknKDoEx9C8bQ1ADnh2sotZ8I4QqBU=
 github.com/samber/lo v1.53.0 h1:t975lj2py4kJPQ6haz1QMgtId2gtmfktACxIXArw3HM=

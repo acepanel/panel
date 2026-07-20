@@ -51,7 +51,7 @@ require (
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.11
 	github.com/pquerna/otp v1.5.0
-	github.com/samber/do/v2 v2.0.0
+	github.com/samber/do/v2 v2.1.0
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.2.0
 	github.com/shirou/gopsutil/v4 v4.26.6
