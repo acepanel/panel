@@ -35,7 +35,7 @@ require (
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/cache v1.3.0
-	github.com/libtnb/chix/v2 v2.1.0
+	github.com/libtnb/chix/v2 v2.1.1
 	github.com/libtnb/cron v0.5.2
 	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.2
@@ -44,7 +44,7 @@ require (
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.4.1
 	github.com/libtnb/validator/contrib/openapi v0.2.0
-	github.com/medama-io/go-useragent v1.2.3
+	github.com/medama-io/go-useragent v1.2.4
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.55.0
 	github.com/moby/moby/client v0.5.0
@@ -53,7 +53,7 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/samber/do/v2 v2.0.0
 	github.com/samber/lo v1.53.0
-	github.com/sethvargo/go-limiter v1.1.0
+	github.com/sethvargo/go-limiter v1.2.0
 	github.com/shirou/gopsutil/v4 v4.26.6
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
@@ -61,13 +61,14 @@ require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/valyala/fastjson v1.6.10
+	github.com/xuri/excelize/v2 v2.11.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
 	golang.org/x/crypto v0.54.0
 	golang.org/x/net v0.57.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/sys v0.47.0
 	gorm.io/gorm v1.31.2
-	modernc.org/sqlite v1.53.0
+	modernc.org/sqlite v1.54.0
 	resty.dev/v3 v3.0.0-rc.3
 )
 
@@ -92,8 +93,8 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.2.6 // indirect
-	github.com/gofiber/schema v1.8.1 // indirect
-	github.com/gofiber/utils/v2 v2.1.1 // indirect
+	github.com/gofiber/schema v1.8.2 // indirect
+	github.com/gofiber/utils/v2 v2.2.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -125,7 +126,6 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xuri/efp v0.0.1 // indirect
-	github.com/xuri/excelize/v2 v2.11.0 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -135,7 +135,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
 	golang.org/x/text v0.40.0 // indirect
-	modernc.org/libc v1.73.4 // indirect
+	modernc.org/libc v1.74.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 )
