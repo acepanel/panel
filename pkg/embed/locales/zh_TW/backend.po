@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-07-20 22:15\n"
+"PO-Revision-Date: 2026-07-21 10:57\n"
 
 #: internal/service/toolbox_log.go:258
 msgid "%d images"
@@ -1820,7 +1820,7 @@ msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/biz/website.go:135
+#: internal/biz/website.go:140
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 資料庫伺服器，請先新增"
 
@@ -3457,7 +3457,7 @@ msgstr "未找到 Web 掛鉤"
 msgid "webhook script not found"
 msgstr "未找到 Web 掛鉤腳本"
 
-#: internal/biz/website.go:171
+#: internal/biz/website.go:176
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr "網站 %s 已綁定證書，請先刪除證書"
 
@@ -3478,7 +3478,7 @@ msgstr "網站不存在"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/biz/website.go:227
+#: internal/biz/website.go:247
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
