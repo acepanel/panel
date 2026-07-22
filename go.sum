@@ -274,8 +274,8 @@ github.com/libtnb/securecookie v1.4.0 h1:SkKHO7T5I4aRGV7/6fnYYsleQDnnDzeAmTDA0GM
 github.com/libtnb/securecookie v1.4.0/go.mod h1:mg1i9HfstsYBGwCfQdU+3Z1GuieyZRAxbkFUnrzchJU=
 github.com/libtnb/sessions v1.5.0 h1:gvTRkSR8lpp1PB0Nms/kc+gh1BwJ411fxLjnZLYItLs=
 github.com/libtnb/sessions v1.5.0/go.mod h1:/Q/+lO7DcnJJEU1nL59ScPV/V8ct34F8BjoEMwwxjRw=
-github.com/libtnb/sqlite v1.2.0 h1:XsA7jsXHH2qmFkTWoy5YCKJybzHzWQ0flqDFP5Y9Yto=
-github.com/libtnb/sqlite v1.2.0/go.mod h1:O6vURH5fa5IgSmXd/qLAL2zSnYFUd7xSIumsmX3BrSI=
+github.com/libtnb/sqlite v1.2.1 h1:lrhN3yG49pj1gmtMMP6Es0lhKIkzDeqBul2EWOLyjpY=
+github.com/libtnb/sqlite v1.2.1/go.mod h1:pGq13BirCjkM6ihkWWxs0PGFhBiwUyA0PqdSmgDWfmM=
 github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7 h1:ZzONsNhw69uC/wJQlMj66n1zfsRgKAElfJ//E9G380U=
 github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7/go.mod h1:HeQeTfKU6tj2Lx1z79UacwYeDioo6M4ZD7BDDI6+rrg=
 github.com/libtnb/utils v1.2.2 h1:HUqgAIb+TIrZPXRytYB5XqzkEXG2U4a4/ZGpprNtL5A=

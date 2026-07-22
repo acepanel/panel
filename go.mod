@@ -40,7 +40,7 @@ require (
 	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.2
 	github.com/libtnb/sessions v1.5.0
-	github.com/libtnb/sqlite v1.2.0
+	github.com/libtnb/sqlite v1.2.1
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.4.1
 	github.com/libtnb/validator/contrib/openapi v0.2.0
