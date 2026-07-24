@@ -256,6 +256,16 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 		return errors.New(r.t.Get("backup file not exists"))
 	}
 
+	start := time.Now()
+	if app.IsCli {
+		fmt.Println(r.hr)
+		fmt.Println(r.t.Get("★ Start restore [%s]", start.Format(time.DateTime)))
+		fmt.Println(r.hr)
+		fmt.Println(r.t.Get("|-Restore type: %s", string(typ)))
+		fmt.Println(r.t.Get("|-Restore target: %s", target))
+		fmt.Println(r.t.Get("|-Backup file: %s", filepath.Base(backup)))
+	}
+
 	var err error
 	switch typ {
 	case biz.BackupTypeWebsite:
@@ -271,14 +281,24 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 	case biz.BackupTypeValkey:
 		err = r.restoreRedisLike(backup, "valkey")
 	default:
+		if app.IsCli {
+			fmt.Println(r.hr)
+		}
 		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	if err != nil {
-		return err
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Restore time: %s", time.Since(start).String()))
+		fmt.Println(r.hr)
+		if err != nil {
+			fmt.Println(r.t.Get("☆ Restore failed: %v [%s]", err, time.Now().Format(time.DateTime)))
+		} else {
+			fmt.Println(r.t.Get("☆ Restore completed [%s]", time.Now().Format(time.DateTime)))
+		}
+		fmt.Println(r.hr)
 	}
 
-	return nil
+	return err
 }
 
 // GetDefaultPath 获取默认备份路径
@@ -825,11 +845,48 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 		return err
 	}
 
+	// 先解压到同级暂存目录，确认产物有效后再替换，避免解压失败把原站点清空
+	// 放同级目录保证与网站目录同分区，rename 才是原子的
+	stage, err := os.MkdirTemp(filepath.Dir(website.Path), ".ace-restore-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(stage)
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Website path: %s", website.Path))
+		fmt.Println(r.t.Get("|-Uncompressing backup..."))
+	}
+	cmd, err := io.UnCompressShell(backup, stage)
+	if err != nil {
+		return err
+	}
+	if _, err = shell.Execf("%s", cmd); err != nil {
+		return err
+	}
+
+	// 解压命令容忍单条目失败（如 .user.ini 带 chattr +i），这里用产物非空兜底，
+	// 避免归档损坏或磁盘写满时清空网站却报告成功
+	entries, err := os.ReadDir(stage)
+	if err != nil {
+		return err
+	}
+	if len(entries) == 0 {
+		return errors.New(r.t.Get("uncompressed backup is empty, restore aborted"))
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Replacing website files..."))
+	}
 	if err = io.Remove(website.Path); err != nil {
 		return err
 	}
-	if err = io.UnCompress(backup, website.Path); err != nil {
+	if err = os.Rename(stage, website.Path); err != nil {
 		return err
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Fixing file permissions..."))
 	}
 	if err = io.Chmod(website.Path, 0755); err != nil {
 		return err
@@ -839,6 +896,39 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 	}
 
 	return nil
+}
+
+// importFile 把备份文件喂给数据库客户端 stdin，并按秒级周期打印大致进度
+// pipe 有背压，已写入字节数 ≈ 客户端已消费字节数，足以作为进度参考
+func (r *backupRepo) importFile(path, name string, args []string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer func(f *os.File) { _ = f.Close() }(f)
+
+	var total int64
+	if stat, err := f.Stat(); err == nil {
+		total = stat.Size()
+	}
+
+	var progress func(written, total int64, rate float64)
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-File size: %s", tools.FormatBytes(float64(total))))
+		progress = func(written, total int64, rate float64) {
+			if total > 0 {
+				fmt.Println(r.t.Get("|-Importing: %s / %s (%.1f%%, %s/s)",
+					tools.FormatBytes(float64(written)), tools.FormatBytes(float64(total)),
+					float64(written)*100/float64(total), tools.FormatBytes(rate)))
+			} else {
+				fmt.Println(r.t.Get("|-Importing: %s (%s/s)",
+					tools.FormatBytes(float64(written)), tools.FormatBytes(rate)))
+			}
+		}
+	}
+
+	_, err = shell.ExecWithStdinProgress(context.Background(), name, args, f, total, 5*time.Second, progress)
+	return err
 }
 
 // restoreMySQL 恢复 MySQL 备份
@@ -858,6 +948,9 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 
 	clean := false
 	if !strings.HasSuffix(backup, ".sql") {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Uncompressing backup..."))
+		}
 		backup, err = r.autoUnCompressSQL(backup)
 		if err != nil {
 			return err
@@ -865,11 +958,15 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 		clean = true
 	}
 
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Importing SQL into database..."))
+	}
 	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysql -u root '%s' < '%s'`, target, backup); err != nil {
+	err = r.importFile(backup, "mysql", []string{"-u", "root", target})
+	_ = os.Unsetenv("MYSQL_PWD")
+	if err != nil {
 		return err
 	}
-	_ = os.Unsetenv("MYSQL_PWD")
 	if clean {
 		_ = io.Remove(filepath.Dir(backup))
 	}
@@ -894,6 +991,9 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 
 	clean := false
 	if !strings.HasSuffix(backup, ".sql") {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Uncompressing backup..."))
+		}
 		backup, err = r.autoUnCompressSQL(backup)
 		if err != nil {
 			return err
@@ -901,11 +1001,15 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 		clean = true
 	}
 
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Importing SQL into database..."))
+	}
 	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	if _, err = shell.Execf(`psql -h 127.0.0.1 -U postgres '%s' < '%s'`, target, backup); err != nil {
+	err = r.importFile(backup, "psql", []string{"-h", "127.0.0.1", "-U", "postgres", target})
+	_ = os.Unsetenv("PGPASSWORD")
+	if err != nil {
 		return err
 	}
-	_ = os.Unsetenv("PGPASSWORD")
 	if clean {
 		_ = io.Remove(filepath.Dir(backup))
 	}
@@ -920,6 +1024,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 		return err
 	}
 	conn := fmt.Sprintf("--host 127.0.0.1 --port 9000 --user default --password '%s'", password)
+	connArgs := []string{"--host", "127.0.0.1", "--port", "9000", "--user", "default", "--password", password}
 
 	// 校验目标数据库是否存在
 	exist, err := shell.Execf("clickhouse-client %s --query \"SELECT count() FROM system.databases WHERE name = '%s'\"", conn, target)
@@ -932,8 +1037,10 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 
 	// 纯 SQL 文件直接执行
 	if strings.HasSuffix(backup, ".sql") {
-		_, err = shell.Execf("clickhouse-client %s --database '%s' --multiquery < '%s'", conn, target, backup)
-		return err
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Importing SQL into database..."))
+		}
+		return r.importFile(backup, "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--multiquery"))
 	}
 
 	// 解压到临时目录
@@ -943,6 +1050,10 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 	}
 	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
 
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
+		fmt.Println(r.t.Get("|-Uncompressing backup..."))
+	}
 	if err = io.UnCompress(backup, tmpDir); err != nil {
 		return err
 	}
@@ -950,7 +1061,10 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 	// 先恢复结构（视图已排在末尾，源表先建好，规避物化视图依赖顺序问题）
 	schemaPath := filepath.Join(tmpDir, "schema.sql")
 	if io.Exists(schemaPath) {
-		if _, err = shell.Execf("clickhouse-client %s --database '%s' --multiquery < '%s'", conn, target, schemaPath); err != nil {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Restoring schema..."))
+		}
+		if err = r.importFile(schemaPath, "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--multiquery")); err != nil {
 			return err
 		}
 	}
@@ -965,7 +1079,11 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 			continue
 		}
 		tbl := strings.TrimSuffix(entry.Name(), ".native")
-		if _, err = shell.Execf("clickhouse-client %s --database '%s' --query 'INSERT INTO `%s` FORMAT Native' < '%s'", conn, target, tbl, filepath.Join(tmpDir, entry.Name())); err != nil {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Importing table: %s", tbl))
+		}
+		query := fmt.Sprintf("INSERT INTO `%s` FORMAT Native", tbl)
+		if err = r.importFile(filepath.Join(tmpDir, entry.Name()), "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--query", query)); err != nil {
 			return err
 		}
 	}
@@ -1103,6 +1221,10 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 			return err
 		}
 		defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
+			fmt.Println(r.t.Get("|-Uncompressing backup..."))
+		}
 		if err = io.UnCompress(backup, tmpDir); err != nil {
 			return err
 		}
@@ -1112,7 +1234,9 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 		}
 	}
 
-	// 停止服务
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Stopping %s service...", conf.kind))
+	}
 	if err = systemctl.Stop(conf.kind); err != nil {
 		return err
 	}
@@ -1121,6 +1245,9 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 	_ = io.Remove(filepath.Join(conf.dataDir, "appendonlydir"))
 	_ = io.Remove(filepath.Join(conf.dataDir, "appendonly.aof"))
 
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Replacing dump.rdb..."))
+	}
 	// 覆盖 dump.rdb
 	target := filepath.Join(conf.dataDir, "dump.rdb")
 	if err = io.Cp(rdb, target); err != nil {
@@ -1138,6 +1265,9 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 		}
 	}
 
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Starting %s service (loading RDB)...", conf.kind))
+	}
 	// 启动服务（Type=notify，返回即已加载 RDB）
 	if err = systemctl.Start(conf.kind); err != nil {
 		return err
@@ -1145,6 +1275,9 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 
 	// 原本开启 AOF 的，在线转回并持久化配置
 	if conf.appendonly {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Re-enabling AOF..."))
+		}
 		if conf.password != "" {
 			_ = os.Setenv(conf.authEnv, conf.password)
 			defer func() { _ = os.Unsetenv(conf.authEnv) }()

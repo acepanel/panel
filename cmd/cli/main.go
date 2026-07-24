@@ -2,10 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	_ "time/tzdata"
 
+	"github.com/gookit/color"
 	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
+		color.Errorf("|-%v\n", err)
 		os.Exit(1)
 	}
 }

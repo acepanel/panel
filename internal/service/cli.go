@@ -694,18 +694,23 @@ func (s *CliService) DatabaseDeleteServer(ctx context.Context, cmd *cli.Command)
 }
 
 func (s *CliService) BackupWebsite(ctx context.Context, cmd *cli.Command) error {
-	_ = s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.Uint("storage"))
-	return nil
+	return s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.Uint("storage"))
 }
 
 func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error {
-	_ = s.backupRepo.Create(ctx, biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.Uint("storage"))
-	return nil
+	return s.backupRepo.Create(ctx, biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.Uint("storage"))
 }
 
 func (s *CliService) BackupPath(ctx context.Context, cmd *cli.Command) error {
-	_ = s.backupRepo.Create(ctx, biz.BackupTypePath, cmd.String("path"), cmd.Uint("storage"))
-	return nil
+	return s.backupRepo.Create(ctx, biz.BackupTypePath, cmd.String("path"), cmd.Uint("storage"))
+}
+
+func (s *CliService) RestoreWebsite(ctx context.Context, cmd *cli.Command) error {
+	return s.backupRepo.Restore(ctx, biz.BackupTypeWebsite, cmd.String("file"), cmd.String("name"))
+}
+
+func (s *CliService) RestoreDatabase(ctx context.Context, cmd *cli.Command) error {
+	return s.backupRepo.Restore(ctx, biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.String("name"))
 }
 
 func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {

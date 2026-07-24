@@ -20,7 +20,8 @@ var Package = do.Package(
 	do.LazyNamed(Prefix+"entrance", EntranceCommand), do.LazyNamed(Prefix+"bind-domain", BindDomainCommand),
 	do.LazyNamed(Prefix+"bind-ip", BindIPCommand), do.LazyNamed(Prefix+"bind-ua", BindUACommand),
 	do.LazyNamed(Prefix+"website", WebsiteCommand), do.LazyNamed(Prefix+"database", DatabaseCommand),
-	do.LazyNamed(Prefix+"backup", BackupCommand), do.LazyNamed(Prefix+"cutoff", CutoffCommand),
+	do.LazyNamed(Prefix+"backup", BackupCommand), do.LazyNamed(Prefix+"restore", RestoreCommand),
+	do.LazyNamed(Prefix+"cutoff", CutoffCommand),
 	do.LazyNamed(Prefix+"app", AppCommand), do.LazyNamed(Prefix+"setting", SettingCommand),
 )
 

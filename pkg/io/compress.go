@@ -200,7 +200,8 @@ func UnCompressShell(src, dst string) (string, error) {
 		return "", errors.New("unsupported format")
 	}
 
-	return fmt.Sprintf("mkdir -p '%s' && %s", dst, cmd), nil
+	// 部分归档条目失败不应阻断整个任务
+	return fmt.Sprintf("mkdir -p '%s' && (%s || true)", dst, cmd), nil
 }
 
 // ListCompress 获取压缩包内文件列表
