@@ -28,6 +28,7 @@ type FileTail struct {
 	Container string `json:"container" form:"container"`
 	Offset    int    `json:"offset" form:"offset"`
 	Limit     int    `json:"limit" form:"limit"`
+	Cursor    string `json:"cursor" form:"cursor"`
 }
 
 type FileFollow struct {

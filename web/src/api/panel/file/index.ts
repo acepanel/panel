@@ -5,13 +5,16 @@ export default {
   create: (path: string, dir: boolean): any => http.Post('/file/create', { path, dir }),
   // 获取文件内容
   content: (path: string): any => http.Get('/file/content', { params: { path } }),
-  // 反向分页读取文件或 systemd 服务日志(从末尾起跳过 offset 行,读 limit 行)
+  // 反向分页读取文件/容器/systemd 日志
+  // 文件/容器: 用 offset 从末尾跳过 offset 行，读 limit 行
+  // systemd 服务: 首次不传 cursor，翻页传上一页返回的 next_cursor，每次读 limit 行
   tail: (params: {
     path?: string
     service?: string
     container?: string
-    offset: number
+    offset?: number
     limit: number
+    cursor?: string
   }): any => http.Get('/file/tail', { params }),
   // 保存文件
   save: (path: string, content: string): any => http.Post('/file/save', { path, content }),

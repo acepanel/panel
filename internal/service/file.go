@@ -3,9 +3,11 @@
 package service
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	stdio "io"
 	"mime/multipart"
@@ -172,10 +174,7 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	needLines := req.Offset + req.Limit + 1
 	newlineCount := 0
 	for pos > 0 && newlineCount < needLines {
-		readSize := chunkSize
-		if pos < chunkSize {
-			readSize = pos
-		}
+		readSize := min(chunkSize, pos)
 		pos -= readSize
 		buf := make([]byte, readSize)
 		if _, rerr := f.ReadAt(buf, pos); rerr != nil && rerr != stdio.EOF {
@@ -197,10 +196,7 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	endIdx := totalLoaded - req.Offset
-	startIdx := endIdx - req.Limit
-	if startIdx < startBoundary {
-		startIdx = startBoundary
-	}
+	startIdx := max(endIdx-req.Limit, startBoundary)
 	if endIdx < startIdx {
 		endIdx = startIdx
 	}
@@ -978,38 +974,84 @@ func (s *FileService) getChunkTempFilePrefix(fileName, fileHash string) string {
 	return fmt.Sprintf(".%s.%s.chunk.", fileName, hashPrefix)
 }
 
-// tailService 用 journalctl 反向读取 systemd 服务日志
+// tailService 用 journalctl cursor 反向分页读取 systemd 服务日志
 func (s *FileService) tailService(w http.ResponseWriter, req *request.FileTail) {
-	total := req.Offset + req.Limit
-	out, err := shell.Execf("journalctl --no-pager -n %d -u %s", total, req.Service)
+	cmd := fmt.Sprintf("journalctl --no-pager -o json -u %s -n %d", req.Service, req.Limit)
+	if req.Cursor != "" {
+		cmd += fmt.Sprintf(" --before-cursor %q", req.Cursor)
+	}
+	out, err := shell.Execf(cmd)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	all := strings.Split(strings.TrimRight(out, "\n"), "\n")
-	totalLoaded := len(all)
-	endIdx := totalLoaded - req.Offset
-	startIdx := endIdx - req.Limit
-	if startIdx < 0 {
-		startIdx = 0
+
+	type entry struct {
+		Cursor    string `json:"__CURSOR"`
+		Timestamp string `json:"__REALTIME_TIMESTAMP"`
+		Hostname  string `json:"_HOSTNAME"`
+		Ident     string `json:"SYSLOG_IDENTIFIER"`
+		Comm      string `json:"_COMM"`
+		PID       string `json:"_PID"`
+		Message   string `json:"MESSAGE"`
 	}
-	if endIdx < startIdx {
-		endIdx = startIdx
+
+	entries := make([]entry, 0, req.Limit)
+	scanner := bufio.NewScanner(strings.NewReader(out))
+	scanner.Buffer(make([]byte, 0, 64*1024), 4*1024*1024)
+	for scanner.Scan() {
+		var e entry
+		if json.Unmarshal(scanner.Bytes(), &e) != nil {
+			continue
+		}
+		entries = append(entries, e)
 	}
-	if endIdx > totalLoaded {
-		endIdx = totalLoaded
+
+	lines := make([]string, 0, len(entries))
+	for _, e := range entries {
+		lines = append(lines, formatJournalLine(e.Timestamp, e.Hostname, e.Ident, e.Comm, e.PID, e.Message))
 	}
-	result := []string{}
-	if startIdx < endIdx {
-		result = all[startIdx:endIdx]
+
+	// next_cursor 是本次结果中最早那条的 cursor，供下一页 --after-cursor + --reverse 使用
+	nextCursor := ""
+	if len(entries) > 0 {
+		nextCursor = entries[0].Cursor
 	}
-	// journalctl -n 拿到的就是末尾,如果 totalLoaded == total 说明可能还有更早
-	hasMore := totalLoaded >= total
+	hasMore := len(lines) >= req.Limit
+
 	Success(w, chix.M{
-		"lines":    result,
-		"has_more": hasMore,
-		"size":     0,
+		"lines":       lines,
+		"has_more":    hasMore,
+		"next_cursor": nextCursor,
+		"size":        0,
 	})
+}
+
+// formatJournalLine 按 syslog 风格拼装单行日志
+func formatJournalLine(ts, hostname, ident, comm, pid, message string) string {
+	var sb strings.Builder
+	if us, err := strconv.ParseInt(ts, 10, 64); err == nil {
+		sb.WriteString(time.Unix(0, us*int64(time.Microsecond)).Format("Jan 02 15:04:05"))
+		sb.WriteByte(' ')
+	}
+	if hostname != "" {
+		sb.WriteString(hostname)
+		sb.WriteByte(' ')
+	}
+	if ident == "" {
+		ident = comm
+	}
+	if ident != "" {
+		sb.WriteString(ident)
+		if pid != "" {
+			sb.WriteByte('[')
+			sb.WriteString(pid)
+			sb.WriteByte(']')
+		}
+		sb.WriteString(": ")
+	}
+	sb.WriteString(message)
+	return sb.String()
 }
 
 // tailContainer 反向读取容器末尾日志
@@ -1023,10 +1065,7 @@ func (s *FileService) tailContainer(w http.ResponseWriter, req *request.FileTail
 	all := strings.Split(strings.TrimRight(out, "\n"), "\n")
 	totalLoaded := len(all)
 	endIdx := totalLoaded - req.Offset
-	startIdx := endIdx - req.Limit
-	if startIdx < 0 {
-		startIdx = 0
-	}
+	startIdx := max(endIdx-req.Limit, 0)
 	if endIdx < startIdx {
 		endIdx = startIdx
 	}

@@ -29,18 +29,21 @@ interface LogLine {
   raw: string
 }
 
+type ConnStatus = 'connecting' | 'connected' | 'error'
+
 const lines = ref<LogLine[]>([])
 const followMode = ref(true)
 const isLoadingMore = ref(false)
 const hasMore = ref(false)
 const fontSize = ref(13)
-const connected = ref(false)
+const status = ref<ConnStatus>('connecting')
 const searchKeyword = ref('')
 const scrollEl = ref<HTMLElement | null>(null)
 
 let nextId = 0
 let pendingTail = ''
 let loadedFromEnd = 0
+let nextCursor = ''
 let followWs: WebSocket | null = null
 let suppressScrollHandler = false
 let isManuallyClosed = false
@@ -94,11 +97,12 @@ const scheduleReconnect = () => {
 const startFollow = () => {
   if (!sourceParams.value) return
   isManuallyClosed = false
+  status.value = 'connecting'
   ws.follow(sourceParams.value)
     .then((socket) => {
       followWs = socket
       socket.binaryType = 'arraybuffer'
-      connected.value = true
+      status.value = 'connected'
 
       socket.onmessage = (ev) => {
         const data: string =
@@ -115,48 +119,63 @@ const startFollow = () => {
       }
 
       socket.onclose = () => {
-        connected.value = false
+        if (!isManuallyClosed) {
+          status.value = 'connecting'
+        }
         scheduleReconnect()
       }
 
       socket.onerror = () => {
-        connected.value = false
+        status.value = 'error'
         socket.close()
       }
     })
     .catch(() => {
-      connected.value = false
+      status.value = 'error'
       scheduleReconnect()
     })
 }
 
 const PAGE_SIZE = 100
 
+const buildTailParams = (initial: boolean) => {
+  const base = { ...sourceParams.value, limit: PAGE_SIZE } as Record<string, unknown>
+  if (props.service) {
+    if (!initial) base.cursor = nextCursor
+  } else {
+    base.offset = initial ? 0 : loadedFromEnd
+  }
+  return base as any
+}
+
 const loadInitial = () => {
   if (!sourceParams.value) return
-  useRequest(file.tail({ ...sourceParams.value, offset: 0, limit: PAGE_SIZE })).onSuccess(
-    ({ data }: any) => {
-      const newLines: string[] = data?.lines ?? []
-      lines.value = newLines.map(parseLine)
-      loadedFromEnd = newLines.length
-      hasMore.value = data?.has_more ?? false
-      nextTick(() => {
-        scrollToBottom()
-        followMode.value = true
-        startFollow()
-      })
-    },
-  )
+  useRequest(file.tail(buildTailParams(true))).onSuccess(({ data }: any) => {
+    const newLines: string[] = data?.lines ?? []
+    lines.value = newLines.map(parseLine)
+    loadedFromEnd = newLines.length
+    nextCursor = data?.next_cursor ?? ''
+    hasMore.value = data?.has_more ?? false
+    nextTick(() => {
+      scrollToBottom()
+      followMode.value = true
+      startFollow()
+    })
+  })
 }
 
 const loadOlder = () => {
   if (!sourceParams.value || isLoadingMore.value || !hasMore.value) return
+  if (props.service && !nextCursor) {
+    hasMore.value = false
+    return
+  }
   isLoadingMore.value = true
   const el = scrollEl.value
   const oldScrollTop = el?.scrollTop ?? 0
   const oldScrollHeight = el?.scrollHeight ?? 0
 
-  useRequest(file.tail({ ...sourceParams.value, offset: loadedFromEnd, limit: PAGE_SIZE }))
+  useRequest(file.tail(buildTailParams(false)))
     .onSuccess(({ data }: any) => {
       const newOldLines: string[] = data?.lines ?? []
       if (newOldLines.length === 0) {
@@ -165,6 +184,7 @@ const loadOlder = () => {
       }
       lines.value.unshift(...newOldLines.map(parseLine))
       loadedFromEnd += newOldLines.length
+      nextCursor = data?.next_cursor ?? ''
       hasMore.value = data?.has_more ?? false
       // 保持视觉位置:scrollTop = 新 scrollHeight - 旧 scrollHeight + 旧 scrollTop
       nextTick(() => {
@@ -248,9 +268,10 @@ const cleanup = () => {
   followWs = null
   lines.value = []
   loadedFromEnd = 0
+  nextCursor = ''
   pendingTail = ''
   hasMore.value = false
-  connected.value = false
+  status.value = 'connecting'
   lastSearchIndex = -1
 }
 
@@ -282,7 +303,7 @@ defineExpose({ clear })
   <div v-if="supported" class="log-shell">
     <header class="log-titlebar">
       <div class="log-title">
-        <span class="status-dot" :class="connected ? 'ok' : 'err'"></span>
+        <span class="status-dot" :class="status"></span>
         <span class="log-title-text">{{ titleLabel }}</span>
       </div>
       <div class="titlebar-actions">
@@ -480,13 +501,28 @@ defineExpose({ clear })
   border-radius: 50%;
   flex-shrink: 0;
 
-  &.ok {
+  &.connected {
     background: #22c55e;
     box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
   }
 
-  &.err {
+  &.connecting {
+    background: #9ca3af;
+    animation: status-dot-pulse 1.4s ease-in-out infinite;
+  }
+
+  &.error {
     background: #ef4444;
+  }
+}
+
+@keyframes status-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
