@@ -2,8 +2,10 @@ package service
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
@@ -18,6 +20,12 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/types"
+)
+
+// SSH 日志反向分块读取参数：首块 512 KB 起，每次翻倍，单块上限 64 MB
+const (
+	sshLogChunkInitial int64 = 512 * 1024
+	sshLogChunkMax     int64 = 64 * 1024 * 1024
 )
 
 // SSH 日志正则
@@ -156,33 +164,73 @@ func (s *LogService) sshFromLogFile(limit int) ([]types.SSHLoginLog, error) {
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	// 读取所有匹配行后取最后 limit 条（日志文件按时间正序）
+	stat, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	// 从末尾反向分块读取，直到收集满 limit 条或读到文件头
 	var logs []types.SSHLoginLog
-	scanner := bufio.NewScanner(file)
+	offset := stat.Size()
+	window := sshLogChunkInitial
+	for offset > 0 && len(logs) < limit {
+		if window > sshLogChunkMax {
+			window = sshLogChunkMax
+		}
+		readSize := min(window, offset)
+		offset -= readSize
+
+		buf := make([]byte, readSize)
+		if _, err = file.ReadAt(buf, offset); err != nil && !errors.Is(err, io.EOF) {
+			return nil, err
+		}
+
+		// 若块开头是残行（前一字节不是换行），丢到本块第一个换行为止
+		if offset > 0 {
+			var prev [1]byte
+			if _, err = file.ReadAt(prev[:], offset-1); err == nil && prev[0] != '\n' {
+				if idx := bytes.IndexByte(buf, '\n'); idx >= 0 {
+					buf = buf[idx+1:]
+				} else {
+					buf = nil
+				}
+			}
+		}
+
+		// 新读的块时间上更早，前置到已收集 logs 之前
+		logs = append(parseSSHChunk(buf), logs...)
+		window *= 2
+	}
+
+	if len(logs) > limit {
+		logs = logs[len(logs)-limit:]
+	}
+
+	return logs, nil
+}
+
+// parseSSHChunk 从连续日志字节中解析 SSH 登录记录
+func parseSSHChunk(data []byte) []types.SSHLoginLog {
+	if len(data) == 0 {
+		return nil
+	}
+	var logs []types.SSHLoginLog
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.Contains(line, "sshd[") {
 			continue
 		}
-
 		record := parseSSHMessage(line)
 		if record == nil {
 			continue
 		}
-
 		// 从行首解析 syslog 时间戳（如 "Feb 11 08:30:01"）
 		record.Time = parseSSHLogTime(line)
-
 		logs = append(logs, *record)
 	}
-
-	// 取最后 limit 条
-	if len(logs) > limit {
-		logs = logs[len(logs)-limit:]
-	}
-
-	return logs, nil
+	return logs
 }
 
 // parseSSHMessage 从日志消息中提取 SSH 登录信息
