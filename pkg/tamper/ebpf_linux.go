@@ -205,11 +205,8 @@ func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Ins
 		asm.Mov.Imm(asm.R2, 16),
 		asm.FnGetCurrentComm.Call(),
 	)
-	// ringbuf 复用旧数据须完整清 name
-	insns = append(insns, asm.Mov.Imm(asm.R2, 0))
-	for off := int16(eventNameOff); off < eventStructSize; off += 8 {
-		insns = append(insns, asm.StoreMem(asm.R6, off, asm.R2, asm.DWord))
-	}
+	// ringbuf 复用旧数据
+	insns = append(insns, asm.StoreImm(asm.R6, eventNameOff, 0, asm.Byte))
 	if namePtrOff == 0 {
 		return insns
 	}

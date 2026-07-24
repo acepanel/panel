@@ -101,6 +101,34 @@ type mountDev struct {
 
 var mountUnescape = strings.NewReplacer(`\040`, " ", `\011`, "\t", `\012`, "\n", `\134`, `\`)
 
+// 短 TTL 缓存，handleCreate 突发时避免每 event 都读整个 mountinfo
+var (
+	mountsMu sync.Mutex
+	mounts   []mountDev
+	mountsAt time.Time
+)
+
+const mountsTTL = time.Second
+
+func cachedMountDevs() []mountDev {
+	mountsMu.Lock()
+	if time.Since(mountsAt) > mountsTTL {
+		mounts = loadMountDevs()
+		mountsAt = time.Now()
+	}
+	m := mounts
+	mountsMu.Unlock()
+	return m
+}
+
+// refreshMountDevs 强制刷新缓存
+func refreshMountDevs() {
+	mountsMu.Lock()
+	mounts = loadMountDevs()
+	mountsAt = time.Now()
+	mountsMu.Unlock()
+}
+
 // loadMountDevs 从 mountinfo 第三列取内核 s_dev
 // btrfs 等文件系统的 st_dev 是每子卷匿名设备,与 eBPF 侧 i_sb->s_dev 不一致会静默漏保护
 func loadMountDevs() []mountDev {
@@ -177,7 +205,7 @@ func walkRule(mounts []mountDev, root string, rule *Rule, emit func(fileEntry)) 
 
 // 多规则覆盖同一目录时合并扩展名:整树优先,否则并集
 func (m *Manager) scan() []fileEntry {
-	mounts := loadMountDevs()
+	mounts := cachedMountDevs()
 	var entries []fileEntry
 	seen := make(map[string]bool)
 	dirIdx := make(map[string]int)
@@ -219,6 +247,7 @@ func (m *Manager) scan() []fileEntry {
 }
 
 func (m *Manager) Start() error {
+	refreshMountDevs() // 显式登记入口强制取最新 mountinfo
 	entries := m.scan()
 
 	m.mu.Lock()
@@ -347,7 +376,7 @@ func (m *Manager) onCreate(path string) {
 		return
 	}
 
-	dev, ino := statOf(loadMountDevs(), path)
+	dev, ino := statOf(cachedMountDevs(), path)
 	ev := Event{
 		Path:  path,
 		Dev:   dev,
@@ -439,7 +468,7 @@ func (m *Manager) handleCreate(ev Event) {
 	}
 	if entries[0].isDir {
 		entries = entries[:0]
-		walkRule(loadMountDevs(), ev.Path, rule, func(e fileEntry) { entries = append(entries, e) })
+		walkRule(cachedMountDevs(), ev.Path, rule, func(e fileEntry) { entries = append(entries, e) })
 	} else if !MatchExt(ev.Path, rule.Exts) {
 		return
 	}
@@ -471,7 +500,7 @@ func (m *Manager) Stats() Stats {
 
 // 现场 stat,移动/替换后 inode 可能变化
 func statEntries(paths []string) []fileEntry {
-	mounts := loadMountDevs()
+	mounts := cachedMountDevs()
 	entries := make([]fileEntry, 0, len(paths))
 	for _, p := range paths {
 		info, err := os.Lstat(p)
@@ -533,6 +562,7 @@ func (m *Manager) Unlock(paths []string) {
 
 // Relock 移动/替换后需重新登记新路径与新 inode
 func (m *Manager) Relock(paths []string) {
+	refreshMountDevs()
 	entries := statEntries(paths)
 	for i := range entries {
 		if entries[i].isDir {
