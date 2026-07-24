@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -49,8 +50,8 @@ type Manager struct {
 	watcher *fsnotify.Watcher
 
 	mu         sync.RWMutex
-	entries    []fileEntry
-	inodePath  map[fileKey]string // eBPF 事件回填路径
+	entries    map[string]fileEntry // key=path
+	inodePath  map[fileKey]string   // eBPF 事件回填路径
 	nFiles     int
 	nWatchDirs int
 	running    bool
@@ -64,6 +65,7 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	m := &Manager{
 		cfg:       cfg,
 		log:       log,
+		entries:   make(map[string]fileEntry),
 		inodePath: make(map[fileKey]string),
 		out:       make(chan Event, 256),
 		closed:    make(chan struct{}),
@@ -251,8 +253,9 @@ func (m *Manager) Start() error {
 	entries := m.scan()
 
 	m.mu.Lock()
-	m.entries = entries
+	clear(m.entries)
 	for _, e := range entries {
+		m.entries[e.path] = e
 		m.inodePath[fileKey{e.dev, e.inode}] = e.path
 	}
 	m.recount()
@@ -518,11 +521,8 @@ func (m *Manager) remember(entries []fileEntry) {
 	defer m.mu.Unlock()
 	for _, e := range entries {
 		m.inodePath[fileKey{e.dev, e.inode}] = e.path
+		m.entries[e.path] = e
 	}
-	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
-		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
-	})
-	m.entries = append(m.entries, entries...)
 	m.recount()
 }
 
@@ -531,10 +531,8 @@ func (m *Manager) forget(entries []fileEntry) {
 	defer m.mu.Unlock()
 	for _, e := range entries {
 		delete(m.inodePath, fileKey{e.dev, e.inode})
+		delete(m.entries, e.path)
 	}
-	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
-		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
-	})
 	m.recount()
 }
 
@@ -582,11 +580,11 @@ func (m *Manager) Stop() error {
 		_ = m.watcher.Close()
 	}
 
-	m.mu.RLock()
-	entries := m.entries
-	m.mu.RUnlock()
 	// eBPF 保护随引擎关闭销毁
 	if !m.isEBPF {
+		m.mu.RLock()
+		entries := slices.Collect(maps.Values(m.entries))
+		m.mu.RUnlock()
 		_ = m.eng.remove(entries)
 	}
 
