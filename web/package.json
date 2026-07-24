@@ -74,7 +74,7 @@
     "@vue/tsconfig": "0.9.1",
     "colord": "2.9.3",
     "cpx2": "9.0.0",
-    "eslint": "10.7.0",
+    "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-oxlint": "1.75.0",
     "eslint-plugin-vue": "10.10.0",
