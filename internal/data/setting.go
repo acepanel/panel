@@ -3,11 +3,8 @@ package data
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
-	"time"
 
-	"github.com/libtnb/cache"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -20,19 +17,15 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 )
 
-const settingCacheTTL = 5 * time.Minute
-
 type settingRepo struct {
-	db    *gorm.DB
-	conf  *config.Config
-	cache cache.Cache
+	db   *gorm.DB
+	conf *config.Config
 }
 
 func NewSettingRepo(i do.Injector) (biz.SettingRepo, error) {
 	return &settingRepo{
-		db:    do.MustInvoke[*gorm.DB](i),
-		conf:  do.MustInvoke[*config.Config](i),
-		cache: cache.NewCache(),
+		db:   do.MustInvoke[*gorm.DB](i),
+		conf: do.MustInvoke[*config.Config](i),
 	}, nil
 }
 
@@ -101,15 +94,10 @@ func (r *settingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]
 }
 
 func (r *settingRepo) Set(key biz.SettingKey, value string) error {
-	if err := r.db.Clauses(clause.OnConflict{
+	return r.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "key"}},
 		DoUpdates: clause.AssignmentColumns([]string{"value"}),
-	}).Create(&biz.Setting{Key: key, Value: value}).Error; err != nil {
-		return err
-	}
-
-	r.cache.Forget(r.cacheKey(key))
-	return nil
+	}).Create(&biz.Setting{Key: key, Value: value}).Error
 }
 
 func (r *settingRepo) SetSlice(key biz.SettingKey, value []string) error {
@@ -126,13 +114,7 @@ func (r *settingRepo) SetSlice(key biz.SettingKey, value []string) error {
 }
 
 func (r *settingRepo) Delete(key biz.SettingKey) error {
-	setting := new(biz.Setting)
-	if err := r.db.Where("key = ?", key).Delete(setting).Error; err != nil {
-		return err
-	}
-
-	r.cache.Forget(r.cacheKey(key))
-	return nil
+	return r.db.Where("key = ?", key).Delete(new(biz.Setting)).Error
 }
 
 func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
@@ -236,25 +218,13 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	}, nil
 }
 
-// cacheKey 生成设置项的缓存 key
-func (r *settingRepo) cacheKey(key biz.SettingKey) string {
-	return fmt.Sprintf("setting:%s", key)
-}
-
-// getRaw 从缓存或数据库获取设置项的原始字符串值
+// getRaw 从数据库获取设置项的原始字符串值
 func (r *settingRepo) getRaw(key biz.SettingKey) (string, error) {
-	cacheKey := r.cacheKey(key)
-	if r.cache.Has(cacheKey) {
-		return r.cache.GetString(cacheKey), nil
-	}
-
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", err
 		}
 	}
-
-	_ = r.cache.Put(cacheKey, setting.Value, settingCacheTTL)
 	return setting.Value, nil
 }
