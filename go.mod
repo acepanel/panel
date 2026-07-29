@@ -68,7 +68,7 @@ require (
 	golang.org/x/sync v0.22.0
 	golang.org/x/sys v0.47.0
 	gorm.io/gorm v1.31.2
-	modernc.org/sqlite v1.54.0
+	modernc.org/sqlite v1.55.0
 	resty.dev/v3 v3.0.0-rc.3
 )
 
