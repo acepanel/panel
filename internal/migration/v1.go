@@ -123,6 +123,15 @@ func init() {
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260610-add-waf",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.WafBinding{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.WafBinding{})
+		},
+	})
+	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260720-add-tamper-rules",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.TamperRule{})

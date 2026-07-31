@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/acewaf"
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
@@ -56,6 +57,10 @@ import (
 // Injectors from wire.go:
 
 func initAce() (*app.Ace, func(), error) {
+	acewafApp, err := acewaf.NewApp()
+	if err != nil {
+		return nil, nil, err
+	}
 	config, err := bootstrap.NewConf()
 	if err != nil {
 		return nil, nil, err
@@ -237,7 +242,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	loader, err := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader, err := bootstrap.NewLoader(acewafApp, apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -807,6 +812,17 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	wafRepo, err := data.NewWafRepo(locale, db, slogLogger, settingRepo)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	wafUsecase := biz.NewWafUsecase(wafRepo)
+	wafService, err := service.NewWafService(wafUsecase, locale)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	wsService, err := service.NewWsService(backupUsecase, certUsecase, sshUsecase, settingUsecase, taskUsecase, config, locale, slogLogger)
 	if err != nil {
 		cleanup()
@@ -868,6 +884,7 @@ func initAce() (*app.Ace, func(), error) {
 		WebHook:               webHookService,
 		Website:               websiteService,
 		WebsiteStat:           websiteStatService,
+		Waf:                   wafService,
 		Ws:                    wsService,
 	}
 	v := route.NewEndpoints(services)

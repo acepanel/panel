@@ -803,7 +803,12 @@ func (r *websiteRepo) RemoveFiles(name string, removePath bool) error {
 }
 
 func (r *websiteRepo) Delete(website *biz.Website) error {
-	return r.db.Delete(website).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("website_id = ?", website.ID).Delete(&biz.WafBinding{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(website).Error
+	})
 }
 
 func (r *websiteRepo) UpdateRemark(id uint, remark string) error {

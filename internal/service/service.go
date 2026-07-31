@@ -21,4 +21,5 @@ var ProviderSet = wire.NewSet(
 	NewToolboxNetworkService, NewToolboxSystemService, NewToolboxBenchmarkService,
 	NewToolboxSSHService, NewToolboxDiskService, NewToolboxLogService,
 	NewToolboxMigrationService, NewWsService,
+	NewWafService,
 )

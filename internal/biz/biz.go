@@ -14,5 +14,5 @@ var ProviderSet = wire.NewSet(
 	NewSettingUsecase, NewSSHUsecase, NewTamperUsecase, NewTaskUsecase,
 	NewTemplateUsecase, NewUserUsecase, NewUserPasskeyUsecase,
 	NewUserTokenUsecase, NewWebHookUsecase, NewWebsiteUsecase,
-	NewWebsiteStatUsecase,
+	NewWebsiteStatUsecase, NewWafUsecase,
 )

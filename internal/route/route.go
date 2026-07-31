@@ -73,6 +73,7 @@ type Services struct {
 	WebHook               *service.WebHookService
 	Website               *service.WebsiteService
 	WebsiteStat           *service.WebsiteStatService
+	Waf                   *service.WafService
 	Ws                    *service.WsService
 }
 
@@ -120,6 +121,7 @@ func NewEndpoints(s *Services) []Endpoints {
 		ToolboxLogRoutes(s.ToolboxLog),
 		ToolboxMigrationRoutes(s.ToolboxMigration),
 		TamperRoutes(s.Tamper),
+		WafRoutes(s.Waf),
 		WsRoutes(s.ToolboxMigration, s.Ws),
 	}
 }

@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/google/wire"
 
+	"github.com/acepanel/panel/v3/internal/apps/acewaf"
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
@@ -47,4 +48,5 @@ var ProviderSet = wire.NewSet(
 	postgresql.NewApp, prometheus.NewApp, pureftpd.NewApp,
 	redis.NewApp, rocketmq.NewApp, rsync.NewApp,
 	s3fs.NewApp, supervisor.NewApp, valkey.NewApp,
+	acewaf.NewApp,
 )

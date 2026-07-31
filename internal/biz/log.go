@@ -31,6 +31,7 @@ const (
 	OperationTypeMonitor        = "monitor"
 	OperationTypeWebhook        = "webhook"
 	OperationTypeUser           = "user"
+	OperationTypeWaf            = "waf"
 )
 
 // LogEntry 日志条目
