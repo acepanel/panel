@@ -76,12 +76,12 @@
     "cpx2": "9.0.0",
     "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-oxlint": "1.76.0",
+    "eslint-plugin-oxlint": "1.77.0",
     "eslint-plugin-vue": "10.10.0",
     "naive-ui": "2.44.1",
     "npm-run-all2": "9.0.3",
-    "oxfmt": "0.61.0",
-    "oxlint": "1.76.0",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
     "sass": "1.102.0",
     "tsx": "4.23.5",
     "typescript": "6.0.3",
@@ -96,5 +96,5 @@
     "vite-plugin-vue-devtools": "8.2.1",
     "vue-tsc": "3.3.9"
   },
-  "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
+  "packageManager": "pnpm@11.20.0+sha512.9a6f330a95b66446ea088faf1521405a8a01f07fde7124cc9958dfed52d4bb436737e65b08f85f37b46fcba375092558ac51262b816844b22f63406ed166bfee"
 }
