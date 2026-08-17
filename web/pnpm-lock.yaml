@@ -76,7 +76,7 @@ importers:
         version: 0.56.0
       monaco-editor-nginx:
         specifier: 2.0.2
-        version: 2.0.2(@babel/runtime@8.0.0)(@nginx/reference-lib@1.1.38)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 2.0.2(@babel/runtime@8.0.0)(@nginx/reference-lib@1.1.39)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       node-forge:
         specifier: 1.4.0
         version: 1.4.0
@@ -656,15 +656,15 @@ packages:
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
 
-  '@napi-rs/wasm-runtime@1.2.2':
-    resolution: {integrity: sha512-JfB4kuJQjaoHuCTseIINHtHWeJnvgEcxjwA5t/Y00ZgaOO1Crz3fjT/p8kT28zA/Caz7oiUMn3d6H2yOVCVwuw==}
+  '@napi-rs/wasm-runtime@1.2.3':
+    resolution: {integrity: sha512-UMduMbqO5s5zF2NkNacMT/yK5Y5QiKvWr2+50bzIIxFDwVJ2h49b+oyjaCGPhJxd2/gC2x39EHv/gHVuu36x2Q==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
     peerDependencies:
-      '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.3
-      '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.3
+      '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
+      '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.4
 
-  '@nginx/reference-lib@1.1.38':
-    resolution: {integrity: sha512-soN9SKdAkBZFd0e/qinoDhjfabXGRkJqYpRmHayTcJGks3RSJJKWgvvUI0tzklGYv6ySmzLU9VVnUjEWpdUrCA==}
+  '@nginx/reference-lib@1.1.39':
+    resolution: {integrity: sha512-Gmf8Ce7aOHKpK+KFvwDu87kXmcqCCOkTECT6055ZlPUgS+bL64kSZE/Y0ljO9oJcjKs2raHNV7YCByjcjVPmTw==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1838,8 +1838,8 @@ packages:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
     engines: {node: '>=18'}
 
-  default-browser@5.5.0:
-    resolution: {integrity: sha512-H9LMLr5zwIbSxrmvikGuI/5KGhZ8E2zH3stkMgM5LpOWDutGM2JZaj460Udnf1a+946zc7YBgrqEWwbk7zHvGw==}
+  default-browser@5.5.1:
+    resolution: {integrity: sha512-m1pAzaJgZ/gssEqlOhJkPJp8Xly7QyW6xcrkUa2KKcDeDSEMP7X8xipU3snUcfisTQx0w1AGae+9UtJSfVnXGw==}
     engines: {node: '>=18'}
 
   define-lazy-prop@3.0.0:
@@ -2212,8 +2212,8 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  js-base64@3.9.2:
-    resolution: {integrity: sha512-6zayE8QlUdiweYI6cETD/XBSqFcoCUlufn/29PJR99r82x1yDnIprRca0YvAYpAW+ez0GuQkVBC6xG5QkD7OjA==}
+  js-base64@3.9.3:
+    resolution: {integrity: sha512-uwYQp+VJ38FVvtim6qNbit6e9uT6dwWQ4Y1+H9TxhW5hcHjpHwoxlR0nMpqUmIFOmu4VqMxwdJA88gIVuZJQ/g==}
 
   js-sha256@1.0.0:
     resolution: {integrity: sha512-Bqxf6ENUzYIMzuELCmRNrJOVbjKH1oMgbfYJBKVr/W1Xf9fazpahqCbb24v1pR7XV1isuqhM+w9KWpK7zCyUQw==}
@@ -3701,14 +3701,14 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
-  '@napi-rs/wasm-runtime@1.2.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@nginx/reference-lib@1.1.38': {}
+  '@nginx/reference-lib@1.1.39': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3774,7 +3774,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
-      '@napi-rs/wasm-runtime': 1.2.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.131.0':
@@ -4482,7 +4482,7 @@ snapshots:
 
   '@xterm/addon-clipboard@0.2.0':
     dependencies:
-      js-base64: 3.9.2
+      js-base64: 3.9.3
 
   '@xterm/addon-fit@0.11.0': {}
 
@@ -4728,7 +4728,7 @@ snapshots:
 
   default-browser-id@5.0.1: {}
 
-  default-browser@5.5.0:
+  default-browser@5.5.1:
     dependencies:
       bundle-name: 4.1.0
       default-browser-id: 5.0.1
@@ -5104,7 +5104,7 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  js-base64@3.9.2: {}
+  js-base64@3.9.3: {}
 
   js-sha256@1.0.0: {}
 
@@ -5292,10 +5292,10 @@ snapshots:
     dependencies:
       commander: 15.0.0
 
-  monaco-editor-nginx@2.0.2(@babel/runtime@8.0.0)(@nginx/reference-lib@1.1.38)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+  monaco-editor-nginx@2.0.2(@babel/runtime@8.0.0)(@nginx/reference-lib@1.1.39)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       '@babel/runtime': 8.0.0
-      '@nginx/reference-lib': 1.1.38
+      '@nginx/reference-lib': 1.1.39
       monaco-editor: 0.56.0
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
@@ -5395,7 +5395,7 @@ snapshots:
 
   open@11.0.1:
     dependencies:
-      default-browser: 5.5.0
+      default-browser: 5.5.1
       define-lazy-prop: 3.0.0
       is-in-ssh: 1.0.0
       is-inside-container: 1.0.0
