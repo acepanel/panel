@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-08-19 11:22\n"
+"PO-Revision-Date: 2026-08-19 15:09\n"
 
 #: internal/service/cli.go:1107
 msgid "%d certificate(s) failed to renew"
@@ -55,7 +55,7 @@ msgstr "兩步驗證 URL： %s"
 msgid "5 minutes load"
 msgstr "5 分鐘負載"
 
-#: internal/service/environment_php.go:388
+#: internal/service/environment_php.go:751
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲存"
 
@@ -63,7 +63,7 @@ msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲�
 msgid "AUTHOR"
 msgstr "作者"
 
-#: internal/service/environment_php.go:186
+#: internal/service/environment_php.go:191
 msgid "Accepted Connections"
 msgstr "已接受連接"
 
@@ -91,7 +91,7 @@ msgstr "AcePanel 服務狀態：%s"
 msgid "AcePanel service stopped"
 msgstr "AcePanel 服務已停止"
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:105
 msgid "Active Connections"
 msgstr "活動連接"
 
@@ -100,7 +100,7 @@ msgstr "活動連接"
 msgid "Active Primary Shards"
 msgstr "活躍主分片"
 
-#: internal/service/environment_php.go:191
+#: internal/service/environment_php.go:196
 msgid "Active Processes"
 msgstr "活躍處理程序"
 
@@ -117,7 +117,7 @@ msgstr "活躍分片"
 msgid "Active connections"
 msgstr "活動連接"
 
-#: internal/apps/postgresql/app.go:419
+#: internal/apps/postgresql/app.go:854
 msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
 msgstr "進階查詢效能監控，安裝後需要重啟 PostgreSQL"
 
@@ -128,6 +128,10 @@ msgstr "阿里雲"
 #: internal/service/cli.go:456
 msgid "All passkeys cleared for user %s"
 msgstr "已清除使用者 %s 的所有通行金鑰"
+
+#: internal/apps/redis/app.go:392
+msgid "Allocator Fragmentation Ratio"
+msgstr "配置器碎片率"
 
 #: internal/service/cli.go:1496
 msgid "Already initialized"
@@ -161,7 +165,7 @@ msgstr "應用程式解除安裝失敗：%v"
 msgid "App update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
-#: internal/service/environment_php.go:183
+#: internal/service/environment_php.go:188
 msgid "Application Pool"
 msgstr "應用程序池"
 
@@ -173,7 +177,7 @@ msgstr "應用程式更新失敗：%v"
 msgid "Applying update..."
 msgstr "應用程式更新中……"
 
-#: internal/apps/postgresql/app.go:416
+#: internal/apps/postgresql/app.go:851
 msgid "Automated partition management"
 msgstr "自動化分割區管理"
 
@@ -225,25 +229,29 @@ msgstr "Broker 角色"
 msgid "Broker Status"
 msgstr "Broker 狀態"
 
-#: internal/apps/apache/app.go:135
+#: internal/apps/apache/app.go:140
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/mysql/app.go:117
-#: internal/apps/mysql/app.go:136
+#: internal/apps/redis/app.go:391
+msgid "Bytes Per Key"
+msgstr "每個鍵的位元組數"
+
+#: internal/apps/mysql/app.go:104
+#: internal/apps/mysql/app.go:123
 msgid "Bytes Received"
 msgstr "已接收字節"
 
-#: internal/apps/mysql/app.go:116
-#: internal/apps/mysql/app.go:136
+#: internal/apps/mysql/app.go:103
+#: internal/apps/mysql/app.go:123
 msgid "Bytes Sent"
 msgstr "已發送字節"
 
-#: internal/apps/apache/app.go:156
+#: internal/apps/apache/app.go:161
 msgid "Bytes/sec"
 msgstr "每秒字節"
 
-#: internal/service/environment_php.go:433
+#: internal/service/environment_php.go:796
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr "Bzip2 是一個用於壓縮與解壓縮檔案的函式庫"
 
@@ -264,7 +272,7 @@ msgstr "版權"
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
-#: internal/service/environment_php.go:473
+#: internal/service/environment_php.go:836
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一個用於處理日期的庫"
 
@@ -280,7 +288,7 @@ msgstr "網站 %s 的證書更新成功"
 msgid "Channel"
 msgstr "渠道"
 
-#: internal/apps/postgresql/app.go:413
+#: internal/apps/postgresql/app.go:848
 msgid "Chinese full-text search parser based on SCWS"
 msgstr "基於 SCWS 的中文全文檢索解析器"
 
@@ -316,9 +324,13 @@ msgstr "叢集名稱"
 msgid "Cluster Status"
 msgstr "叢集狀態"
 
-#: internal/apps/redis/app.go:105
+#: internal/apps/redis/app.go:121
 msgid "Commands Per Second"
 msgstr "每秒執行命令數"
+
+#: internal/service/environment_php.go:696
+msgid "Composer is not installed"
+msgstr "未安裝 Composer"
 
 #: internal/service/file.go:598
 msgid "Compress %v"
@@ -328,7 +340,7 @@ msgstr "壓縮 %v"
 msgid "Config Reload Success"
 msgstr "設定重載成功"
 
-#: internal/apps/redis/app.go:98
+#: internal/apps/redis/app.go:114
 msgid "Connected Clients"
 msgstr "已連接客戶端數"
 
@@ -336,7 +348,7 @@ msgstr "已連接客戶端數"
 msgid "Container %s has no log file"
 msgstr "容器 %s 沒有日誌檔案"
 
-#: internal/apps/postgresql/app.go:418
+#: internal/apps/postgresql/app.go:853
 msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
 msgstr "使用 SQL 註解中的提示控制執行計劃，安裝後需要重啟 PostgreSQL"
 
@@ -405,6 +417,14 @@ msgstr "資料庫：%s，使用者名稱：%s，密碼：%s"
 msgid "Databases"
 msgstr "資料庫"
 
+#: internal/apps/redis/app.go:389
+msgid "Dataset Percentage"
+msgstr "資料集占比"
+
+#: internal/apps/redis/app.go:388
+msgid "Dataset Size"
+msgstr "資料集大小"
+
 #: internal/apps/mongodb/app.go:100
 msgid "Delete Operations"
 msgstr "刪除操作"
@@ -442,7 +462,7 @@ msgstr "正在下載新版本……"
 msgid "Elasticsearch metrics"
 msgstr "Elasticsearch 指標"
 
-#: internal/service/environment_php.go:463
+#: internal/service/environment_php.go:826
 msgid "Enchant is a spell-checking library"
 msgstr "Enchant 是一個拼寫檢查庫"
 
@@ -465,11 +485,11 @@ msgstr "入口： %s"
 msgid "Error"
 msgstr "錯誤"
 
-#: internal/service/environment_php.go:443
+#: internal/service/environment_php.go:806
 msgid "Event is a library for handling events"
 msgstr "Event 是一個用於處理事件的庫"
 
-#: internal/service/environment_php.go:398
+#: internal/service/environment_php.go:761
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一個用於讀寫影像中繼資料的函式庫"
 
@@ -660,7 +680,7 @@ msgstr "同步分類資料失敗：%v"
 msgid "Failed to update 2FA: %v"
 msgstr "更新兩步驗證失敗： %v"
 
-#: internal/service/environment_php.go:363
+#: internal/service/environment_php.go:726
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別檔案類型的函式庫"
 
@@ -700,11 +720,15 @@ msgstr "刷盤類型"
 msgid "Forum：https://tom.moe"
 msgstr "論壇：https://tom.moe"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/redis/app.go:393
+msgid "Fragmentation Ratio"
+msgstr "碎片率"
+
+#: internal/apps/mysql/app.go:111
 msgid "Full Joins without Index"
 msgstr "沒有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:112
 msgid "Full Range Joins without Index"
 msgstr "沒有使用索引的範圍 Join"
 
@@ -712,7 +736,7 @@ msgstr "沒有使用索引的範圍 Join"
 msgid "GLOBAL OPTIONS"
 msgstr "全局選項"
 
-#: internal/service/environment_php.go:478
+#: internal/service/environment_php.go:841
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一個用於處理大整數的庫"
 
@@ -720,7 +744,7 @@ msgstr "GMP 是一個用於處理大整數的庫"
 msgid "Gcore"
 msgstr "Gcore"
 
-#: internal/service/environment_php.go:498
+#: internal/service/environment_php.go:861
 msgid "Gettext is a library for handling multilingual support"
 msgstr "Gettext 是一個處理多語言支援的函式庫"
 
@@ -734,7 +758,7 @@ msgstr "Go-%s 未安裝"
 msgid "Goroutine Count"
 msgstr "Goroutine 數量"
 
-#: internal/apps/postgresql/app.go:424
+#: internal/apps/postgresql/app.go:859
 msgid "HTTP client for SQL, send requests from the database"
 msgstr "用於 SQL 的 HTTP 用戶端，可從資料庫傳送請求"
 
@@ -758,7 +782,7 @@ msgstr "硬體和作業系統指標"
 msgid "Huawei Cloud"
 msgstr "華為雲"
 
-#: internal/apps/postgresql/app.go:421
+#: internal/apps/postgresql/app.go:856
 msgid "Hypothetical indexes for query plan testing"
 msgstr "用於查詢計劃測試的假想索引"
 
@@ -782,7 +806,7 @@ msgstr "ID：%d，名稱：%s，類型：%s，狀態：%s，路徑：%s"
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 使用者名稱: %s, 電子郵件: %s, 建立時間: %s"
 
-#: internal/service/environment_php.go:423
+#: internal/service/environment_php.go:786
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr "IMAP 模組允許 PHP 讀取、搜尋、刪除、下載和管理郵件"
 
@@ -794,11 +818,11 @@ msgstr "IMAP 模組允許 PHP 讀取、搜尋、刪除、下載和管理郵件"
 msgid "IP"
 msgstr "IP"
 
-#: internal/service/environment_php.go:190
+#: internal/service/environment_php.go:195
 msgid "Idle Processes"
 msgstr "閒置處理程序"
 
-#: internal/apps/apache/app.go:142
+#: internal/apps/apache/app.go:147
 msgid "Idle Workers"
 msgstr "空閒的 Worker"
 
@@ -810,19 +834,19 @@ msgstr "如果您無法存取，請檢查伺服器的安全群組和防火牆是
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr "如果您仍然無法存取，請嘗試執行 `acepanel https off` 關閉面板 HTTPS"
 
-#: internal/service/environment_php.go:373
+#: internal/service/environment_php.go:736
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr "Igbinary 是一個用於序列化與反序列化資料的函式庫"
 
-#: internal/service/environment_php.go:393
+#: internal/service/environment_php.go:756
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一套用於建立、編輯與合成影像的免費軟體"
 
-#: internal/apps/postgresql/app.go:420
+#: internal/apps/postgresql/app.go:855
 msgid "Incremental view maintenance for materialized views"
 msgstr "實體化檢視的增量維護"
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:107
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
@@ -833,7 +857,7 @@ msgstr "索引命中率"
 msgid "Initialization failed: %v"
 msgstr "初始化失敗：%v"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:108
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
@@ -841,11 +865,15 @@ msgstr "Innodb 索引命中率"
 msgid "Insert Operations"
 msgstr "插入操作"
 
-#: internal/service/environment_php.go:312
+#: internal/service/environment_php.go:677
+msgid "Install Composer"
+msgstr "安裝 Composer"
+
+#: internal/service/environment_php.go:317
 msgid "Install PHP-%d %s module"
 msgstr "安裝 PHP-%d %s 模組"
 
-#: internal/apps/postgresql/app.go:368
+#: internal/apps/postgresql/app.go:394
 msgid "Install PostgreSQL extension %s"
 msgstr "安裝 PostgreSQL 擴展 %s"
 
@@ -861,7 +889,7 @@ msgstr "安裝應用 %s"
 msgid "Install environment %s"
 msgstr "安裝環境 %s"
 
-#: internal/service/environment_php.go:493
+#: internal/service/environment_php.go:856
 msgid "Intl is a library for handling internationalization and localization"
 msgstr "Intl 是一個處理國際化和本地化的庫"
 
@@ -881,19 +909,23 @@ msgstr "Journal 日誌"
 msgid "Kafka metrics"
 msgstr "Kafka 指標"
 
-#: internal/apps/redis/app.go:106
+#: internal/apps/redis/app.go:390
+msgid "Keys Count"
+msgstr "鍵數量"
+
+#: internal/apps/redis/app.go:122
 msgid "Keyspace Hits"
 msgstr "資料庫鍵查詢命中次數"
 
-#: internal/apps/redis/app.go:107
+#: internal/apps/redis/app.go:123
 msgid "Keyspace Misses"
 msgstr "資料庫鍵查詢未命中次數"
 
-#: internal/service/environment_php.go:458
+#: internal/service/environment_php.go:821
 msgid "LDAP is a protocol for accessing directory services"
 msgstr "LDAP 是一種用於存取目錄服務的協定"
 
-#: internal/apps/redis/app.go:108
+#: internal/apps/redis/app.go:124
 msgid "Latest Fork Time (ms)"
 msgstr "最近一次 fork() 操作耗費的毫秒數"
 
@@ -901,7 +933,7 @@ msgstr "最近一次 fork() 操作耗費的毫秒數"
 msgid "Level"
 msgstr "級別"
 
-#: internal/apps/postgresql/app.go:422
+#: internal/apps/postgresql/app.go:857
 msgid "Lightweight message queue"
 msgstr "輕量級訊息佇列"
 
@@ -909,11 +941,11 @@ msgstr "輕量級訊息佇列"
 msgid "Listen Port"
 msgstr "監聽連接埠"
 
-#: internal/service/environment_php.go:187
+#: internal/service/environment_php.go:192
 msgid "Listen Queue"
 msgstr "監聽佇列"
 
-#: internal/service/environment_php.go:189
+#: internal/service/environment_php.go:194
 msgid "Listen Queue Length"
 msgstr "監聽佇列長度"
 
@@ -951,19 +983,19 @@ msgstr "日誌保留小時數"
 msgid "Log Segment Bytes"
 msgstr "日誌段位元組數"
 
-#: internal/service/environment_php.go:193
+#: internal/service/environment_php.go:198
 msgid "Max Active Processes"
 msgstr "最大活躍處理程序數"
 
-#: internal/service/environment_php.go:194
+#: internal/service/environment_php.go:199
 msgid "Max Children Reached"
 msgstr "達到處理程序上限次數"
 
-#: internal/service/environment_php.go:188
+#: internal/service/environment_php.go:193
 msgid "Max Listen Queue"
 msgstr "最大監聽佇列"
 
-#: internal/service/environment_php.go:383
+#: internal/service/environment_php.go:746
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr "Memcached 是一個用於連接 Memcached 伺服器的驅動程式"
 
@@ -971,12 +1003,12 @@ msgstr "Memcached 是一個用於連接 Memcached 伺服器的驅動程式"
 msgid "Memcached metrics"
 msgstr "Memcached 指標"
 
-#: internal/apps/apache/app.go:114
+#: internal/apps/apache/app.go:119
 #: internal/apps/nginx/app.go:132
 msgid "Memory"
 msgstr "記憶體"
 
-#: internal/apps/redis/app.go:102
+#: internal/apps/redis/app.go:118
 msgid "Memory Fragmentation Ratio"
 msgstr "記憶體碎片比率"
 
@@ -1092,7 +1124,7 @@ msgstr "節點數量"
 msgid "OPTIONS"
 msgstr "選項"
 
-#: internal/service/environment_php.go:368
+#: internal/service/environment_php.go:731
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體中來提升 PHP 的效能"
 
@@ -1100,7 +1132,7 @@ msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體�
 msgid "Old username cannot be empty"
 msgstr "舊使用者名稱不能為空"
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:110
 msgid "Open Tables"
 msgstr "已開啟的表"
 
@@ -1108,7 +1140,7 @@ msgstr "已開啟的表"
 msgid "Operation"
 msgstr "操作"
 
-#: internal/apps/postgresql/app.go:423
+#: internal/apps/postgresql/app.go:858
 msgid "Oracle compatibility functions"
 msgstr "Oracle 相容函數"
 
@@ -1120,21 +1152,24 @@ msgstr "輸出"
 msgid "Output in JSON format (list commands only)"
 msgstr "以 JSON 格式輸出（僅適用於列表命令）"
 
-#: internal/service/environment_php.go:111
-#: internal/service/environment_php.go:130
-#: internal/service/environment_php.go:150
-#: internal/service/environment_php.go:169
-#: internal/service/environment_php.go:234
-#: internal/service/environment_php.go:248
-#: internal/service/environment_php.go:262
-#: internal/service/environment_php.go:295
-#: internal/service/environment_php.go:330
-#: internal/service/environment_php.go:50
-#: internal/service/environment_php.go:613
-#: internal/service/environment_php.go:672
-#: internal/service/environment_php.go:70
-#: internal/service/environment_php.go:735
-#: internal/service/environment_php.go:91
+#: internal/service/environment_php.go:116
+#: internal/service/environment_php.go:135
+#: internal/service/environment_php.go:155
+#: internal/service/environment_php.go:174
+#: internal/service/environment_php.go:239
+#: internal/service/environment_php.go:253
+#: internal/service/environment_php.go:267
+#: internal/service/environment_php.go:300
+#: internal/service/environment_php.go:335
+#: internal/service/environment_php.go:371
+#: internal/service/environment_php.go:430
+#: internal/service/environment_php.go:493
+#: internal/service/environment_php.go:531
+#: internal/service/environment_php.go:55
+#: internal/service/environment_php.go:583
+#: internal/service/environment_php.go:631
+#: internal/service/environment_php.go:75
+#: internal/service/environment_php.go:96
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安裝"
 
@@ -1182,15 +1217,19 @@ msgstr "路徑"
 msgid "Path: %s"
 msgstr "路徑：%s"
 
-#: internal/apps/mysql/app.go:119
+#: internal/apps/redis/app.go:385
+msgid "Peak Allocated"
+msgstr "配置峰值"
+
+#: internal/apps/mysql/app.go:106
 msgid "Peak Connections"
 msgstr "峰值連接數"
 
-#: internal/apps/redis/app.go:101
+#: internal/apps/redis/app.go:117
 msgid "Peak Memory Usage"
 msgstr "佔用記憶體峰值"
 
-#: internal/service/environment_php.go:378
+#: internal/service/environment_php.go:741
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr "PhpRedis 連接並操作 Redis 資料庫上的資料（需先安裝上面 igbinary 模組）"
 
@@ -1287,19 +1326,19 @@ msgstr "正在準備更新至 %s……"
 msgid "Process"
 msgstr "處理程序"
 
-#: internal/apps/postgresql/app.go:178
+#: internal/apps/postgresql/app.go:197
 msgid "Process Count"
 msgstr "處理程序數"
 
-#: internal/service/environment_php.go:184
+#: internal/service/environment_php.go:189
 msgid "Process Manager"
 msgstr "處理程序管理方式"
 
-#: internal/apps/postgresql/app.go:177
+#: internal/apps/postgresql/app.go:196
 msgid "Process PID"
 msgstr "處理程序 PID"
 
-#: internal/service/environment_php.go:468
+#: internal/service/environment_php.go:831
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一個拼寫檢查庫"
 
@@ -1325,19 +1364,19 @@ msgstr "Python-%s 未安裝"
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
-#: internal/apps/mysql/app.go:183
+#: internal/apps/mysql/app.go:170
 msgid "Query Cache Hit Rate"
 msgstr "查詢快取命中率"
 
-#: internal/apps/mysql/app.go:171
+#: internal/apps/mysql/app.go:158
 msgid "Query Cache Hits"
 msgstr "查詢快取命中次數"
 
-#: internal/apps/mysql/app.go:175
+#: internal/apps/mysql/app.go:162
 msgid "Query Cache Inserts"
 msgstr "查詢快取插入次數"
 
-#: internal/apps/mysql/app.go:179
+#: internal/apps/mysql/app.go:166
 msgid "Query Cache Not Cached"
 msgstr "查詢快取未快取次數"
 
@@ -1349,7 +1388,7 @@ msgstr "查詢操作"
 msgid "Reading"
 msgstr "正在讀取"
 
-#: internal/service/environment_php.go:448
+#: internal/service/environment_php.go:811
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一個處理文本的庫"
 
@@ -1366,11 +1405,11 @@ msgstr "遷移中的分片"
 msgid "Remove panel file failed: %v"
 msgstr "刪除面板檔案失敗：%v"
 
-#: internal/apps/postgresql/app.go:414
+#: internal/apps/postgresql/app.go:849
 msgid "Reorganize tables online to remove bloat"
 msgstr "線上重組資料表以消除膨脹"
 
-#: internal/apps/apache/app.go:149
+#: internal/apps/apache/app.go:154
 msgid "Requests/sec"
 msgstr "每秒請求"
 
@@ -1382,7 +1421,7 @@ msgstr "常駐記憶體（MB）"
 msgid "Restore %s: %s"
 msgstr "恢復 %s：%s"
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:102
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
 
@@ -1390,11 +1429,19 @@ msgstr "每秒回滾"
 msgid "Rule"
 msgstr "規則"
 
-#: internal/apps/postgresql/app.go:415
+#: internal/apps/mysql/app.go:649
+msgid "Run %s on table %s.%s"
+msgstr "在表 %s.%s 上執行 %s"
+
+#: internal/apps/postgresql/app.go:745
+msgid "Run %s on table %s.%s of database %s"
+msgstr "在資料庫 %s 的表 %s.%s 上執行 %s"
+
+#: internal/apps/postgresql/app.go:850
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr "在資料庫內執行定期工作，安裝後需要重啟 PostgreSQL"
 
-#: internal/service/environment_php.go:453
+#: internal/service/environment_php.go:816
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一種用於網路管理的協定"
 
@@ -1406,19 +1453,23 @@ msgstr "未找到 SSH 日誌檔案"
 msgid "SSH login succeeded"
 msgstr "SSH 登入成功"
 
-#: internal/service/environment_php.go:438
+#: internal/service/environment_php.go:801
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
+
+#: internal/apps/redis/app.go:423
+msgid "Scan %s big keys"
+msgstr "掃描 %s 大型鍵"
 
 #: internal/service/cli.go:1670
 msgid "Schedule"
 msgstr "執行週期"
 
-#: internal/apps/postgresql/app.go:417
+#: internal/apps/postgresql/app.go:852
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr "工作階段與物件稽核日誌記錄，安裝後需要重啟 PostgreSQL"
 
-#: internal/service/environment_php.go:748
+#: internal/service/environment_php.go:506
 msgid "Session save handler is not files, cannot clean"
 msgstr "Session 儲存處理器不是 files，無法清理"
 
@@ -1426,7 +1477,7 @@ msgstr "Session 儲存處理器不是 files，無法清理"
 msgid "Setting not exists"
 msgstr "設定不存在"
 
-#: internal/service/environment_php.go:195
+#: internal/service/environment_php.go:200
 msgid "Slow Requests"
 msgstr "慢請求"
 
@@ -1434,19 +1485,23 @@ msgstr "慢請求"
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr "Slug：%s，渠道：%s，版本：%s"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:114
 msgid "Sort Merge Passes"
 msgstr "排序後的合併次數"
 
-#: internal/apps/postgresql/app.go:411
+#: internal/apps/postgresql/app.go:846
 msgid "Spatial and geographic objects support"
 msgstr "支援空間與地理物件"
 
-#: internal/apps/postgresql/app.go:176
+#: internal/apps/postgresql/app.go:195
 #: internal/apps/prometheus/app.go:98
-#: internal/service/environment_php.go:185
+#: internal/service/environment_php.go:190
 msgid "Start Time"
 msgstr "啟動時間"
+
+#: internal/apps/redis/app.go:387
+msgid "Startup Allocated"
+msgstr "啟動時已配置"
 
 #: internal/apps/mongodb/app.go:102
 msgid "Storage Engine"
@@ -1456,11 +1511,11 @@ msgstr "儲存引擎"
 msgid "Storage Retention"
 msgstr "儲存保留"
 
-#: internal/apps/postgresql/app.go:180
+#: internal/apps/postgresql/app.go:199
 msgid "Storage Usage"
 msgstr "儲存空間使用量"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:113
 msgid "Subqueries without Index"
 msgstr "沒有索引的子查詢"
 
@@ -1468,31 +1523,31 @@ msgstr "沒有索引的子查詢"
 msgid "Successfully obtained panel certificate via ACME"
 msgstr "已成功透過 ACME 取得面板憑證"
 
-#: internal/service/environment_php.go:558
+#: internal/service/environment_php.go:921
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swoole 是用於構建高效能非同步並行伺服器的 PHP 模組"
 
-#: internal/service/environment_php.go:567
+#: internal/service/environment_php.go:930
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swow 是用於構建高效能非同步並行伺服器的 PHP 模組"
 
-#: internal/service/environment_php.go:538
+#: internal/service/environment_php.go:901
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr "Sysvmsg 是一個處理系統 V 訊息佇列的庫"
 
-#: internal/service/environment_php.go:543
+#: internal/service/environment_php.go:906
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr "Sysvsem 是一個處理系統 V 信號的庫"
 
-#: internal/service/environment_php.go:548
+#: internal/service/environment_php.go:911
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一個處理系統 V 共享記憶體的庫"
 
-#: internal/apps/redis/app.go:96
+#: internal/apps/redis/app.go:112
 msgid "TCP Port"
 msgstr "TCP 連接埠"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:115
 msgid "Table Locks Waited"
 msgstr "等待表鎖定"
 
@@ -1513,7 +1568,7 @@ msgstr "任務"
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:109
 msgid "Temporary Tables Created on Disk"
 msgstr "在磁碟上建立的臨時資料表"
 
@@ -1549,7 +1604,7 @@ msgstr "時間"
 msgid "Time synchronized successfully"
 msgstr "時間同步成功"
 
-#: internal/apps/postgresql/app.go:412
+#: internal/apps/postgresql/app.go:847
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr "時間序列資料庫引擎，安裝後需要重啟 PostgreSQL"
 
@@ -1557,20 +1612,24 @@ msgstr "時間序列資料庫引擎，安裝後需要重啟 PostgreSQL"
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr "不支援自動遷移 Tomcat 項目"
 
-#: internal/apps/apache/app.go:121
+#: internal/apps/apache/app.go:126
 msgid "Total Accesses"
 msgstr "總存取量"
 
-#: internal/apps/redis/app.go:99
+#: internal/apps/redis/app.go:386
+msgid "Total Allocated"
+msgstr "已配置總量"
+
+#: internal/apps/redis/app.go:115
 msgid "Total Allocated Memory"
 msgstr "已分配記憶體總量"
 
-#: internal/apps/redis/app.go:104
+#: internal/apps/redis/app.go:120
 msgid "Total Commands Processed"
 msgstr "已處理的命令總數"
 
-#: internal/apps/mysql/app.go:113
-#: internal/apps/postgresql/app.go:179
+#: internal/apps/mysql/app.go:100
+#: internal/apps/postgresql/app.go:198
 msgid "Total Connections"
 msgstr "總連接數"
 
@@ -1578,23 +1637,23 @@ msgstr "總連接數"
 msgid "Total Connections Created"
 msgstr "建立的連線總數"
 
-#: internal/apps/redis/app.go:103
+#: internal/apps/redis/app.go:119
 msgid "Total Connections Received"
 msgstr "已接收的連接總數"
 
-#: internal/apps/redis/app.go:100
+#: internal/apps/redis/app.go:116
 msgid "Total Memory Usage"
 msgstr "記憶體使用總量"
 
-#: internal/service/environment_php.go:192
+#: internal/service/environment_php.go:197
 msgid "Total Processes"
 msgstr "處理程序總數"
 
-#: internal/apps/mysql/app.go:112
+#: internal/apps/mysql/app.go:99
 msgid "Total Queries"
 msgstr "查詢總數"
 
-#: internal/apps/apache/app.go:128
+#: internal/apps/apache/app.go:133
 msgid "Total Traffic"
 msgstr "總流量"
 
@@ -1610,7 +1669,7 @@ msgstr "總握手數"
 msgid "Total requests"
 msgstr "總請求數"
 
-#: internal/apps/mysql/app.go:114
+#: internal/apps/mysql/app.go:101
 msgid "Transactions per Second"
 msgstr "每秒事務"
 
@@ -1638,11 +1697,11 @@ msgstr "未分配的分片"
 msgid "Uncompress %v"
 msgstr "解壓 %v"
 
-#: internal/service/environment_php.go:347
+#: internal/service/environment_php.go:352
 msgid "Uninstall PHP-%d %s module"
 msgstr "卸載 PHP-%d %s 模組"
 
-#: internal/apps/postgresql/app.go:396
+#: internal/apps/postgresql/app.go:422
 msgid "Uninstall PostgreSQL extension %s"
 msgstr "解除安裝 PostgreSQL 擴展 %s"
 
@@ -1706,7 +1765,7 @@ msgstr "更新容器 %s"
 msgid "Update environment %s"
 msgstr "更新環境 %s"
 
-#: internal/apps/mysql/app.go:111
+#: internal/apps/mysql/app.go:98
 msgid "Uptime"
 msgstr "運作時間"
 
@@ -1715,7 +1774,7 @@ msgstr "運作時間"
 msgid "Uptime (seconds)"
 msgstr "執行時間（秒）"
 
-#: internal/apps/redis/app.go:97
+#: internal/apps/redis/app.go:113
 msgid "Uptime in Days"
 msgstr "已運作天數"
 
@@ -1769,7 +1828,7 @@ msgstr "使用者名稱： %s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/apps/postgresql/app.go:410
+#: internal/apps/postgresql/app.go:845
 msgid "Vector similarity search"
 msgstr "向量相似度搜尋"
 
@@ -1827,7 +1886,7 @@ msgstr "網站：https://acepanel.net"
 msgid "West.cn"
 msgstr "西部數碼"
 
-#: internal/apps/apache/app.go:103
+#: internal/apps/apache/app.go:108
 #: internal/apps/nginx/app.go:121
 msgid "Workers"
 msgstr "工作處理程序"
@@ -1836,15 +1895,15 @@ msgstr "工作處理程序"
 msgid "Writing"
 msgstr "正在寫入"
 
-#: internal/service/environment_php.go:483
+#: internal/service/environment_php.go:846
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr "XLSWriter 是一個高效能讀寫 Excel 檔案的函式庫"
 
-#: internal/service/environment_php.go:488
+#: internal/service/environment_php.go:851
 msgid "XSL is a library for processing XML documents"
 msgstr "XSL 是用於處理 XML 文檔的庫"
 
-#: internal/service/environment_php.go:428
+#: internal/service/environment_php.go:791
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 檔案的函式庫"
 
@@ -2010,6 +2069,10 @@ msgstr "備份任務執行失敗"
 msgid "backup transfer failed: %v"
 msgstr "備份傳輸失敗：%v"
 
+#: internal/apps/mysql/app.go:730
+msgid "binlog file %s does not exist"
+msgstr "二進位日誌檔案 %s 不存在"
+
 #: internal/service/toolbox_disk.go:467
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
@@ -2055,6 +2118,10 @@ msgstr "檢查伺服器連接失敗"
 #: internal/service/file.go:820
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
+
+#: internal/apps/redis/app.go:326
+msgid "client %d not found"
+msgstr "找不到客戶端 %d"
 
 #: internal/middleware/must_login.go:71
 msgid "client ip changed, please login again"
@@ -2230,13 +2297,14 @@ msgstr "exporter %s 不存在"
 msgid "exporter %s has no configuration file"
 msgstr "exporter %s 沒有設定檔"
 
-#: internal/apps/postgresql/app.go:360
-#: internal/apps/postgresql/app.go:388
+#: internal/apps/postgresql/app.go:386
+#: internal/apps/postgresql/app.go:414
+#: internal/apps/postgresql/app.go:445
 msgid "extension %s does not exist"
 msgstr "擴展 %s 不存在"
 
-#: internal/apps/postgresql/app.go:334
-#: internal/apps/postgresql/app.go:93
+#: internal/apps/postgresql/app.go:112
+#: internal/apps/postgresql/app.go:353
 msgid "failed to apply PostgreSQL config: %v"
 msgstr "無法應用 PostgreSQL 配置：%v"
 
@@ -2367,6 +2435,10 @@ msgstr "下載源備份失敗：%v"
 msgid "failed to enable %s service: %v"
 msgstr "啟用 %s 服務失敗：%v"
 
+#: internal/apps/postgresql/app.go:457
+msgid "failed to enable extension: %v"
+msgstr "啟用擴展失敗：%v"
+
 #: internal/service/ws.go:412
 msgid "failed to encode auth: %v"
 msgstr "編碼驗證資訊失敗：%v"
@@ -2396,7 +2468,7 @@ msgstr "生成自簽名證書失敗：%v"
 msgid "failed to generate systemd config"
 msgstr "生成 systemd 配置失敗"
 
-#: internal/apps/redis/app.go:83
+#: internal/apps/redis/app.go:99
 msgid "failed to get %s info: %v"
 msgstr "獲取 %s 資訊失敗：%v"
 
@@ -2408,7 +2480,7 @@ msgstr "無法取得 %s 服務啟用狀態：%v"
 msgid "failed to get %s service running status: %v"
 msgstr "無法取得 %s 服務執行狀態：%v"
 
-#: internal/apps/redis/app.go:60
+#: internal/apps/redis/app.go:76
 msgid "failed to get %s status: %v"
 msgstr "獲取 %s 狀態失敗：%v"
 
@@ -2432,7 +2504,7 @@ msgstr "取得 Memcached 狀態失敗：%v"
 msgid "failed to get MongoDB admin password: %v"
 msgstr "取得 MongoDB 管理員密碼失敗：%v"
 
-#: internal/apps/mysql/app.go:102
+#: internal/apps/mysql/app.go:89
 msgid "failed to get MySQL status: %v"
 msgstr "取得 MySQL 狀態失敗：%v"
 
@@ -2440,23 +2512,27 @@ msgstr "取得 MySQL 狀態失敗：%v"
 msgid "failed to get NTP configuration: %v"
 msgstr "取得 NTP 設定失敗：%v"
 
-#: internal/apps/postgresql/app.go:156
+#: internal/service/environment_php.go:589
+msgid "failed to get OPcache status: %v"
+msgstr "取得 OPcache 狀態失敗：%v"
+
+#: internal/apps/postgresql/app.go:175
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "無法取得 PostgreSQL 後端 pid：%v"
 
-#: internal/apps/postgresql/app.go:166
+#: internal/apps/postgresql/app.go:185
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "無法取得 PostgreSQL 連線：%v"
 
-#: internal/apps/postgresql/app.go:171
+#: internal/apps/postgresql/app.go:190
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "無法取得 PostgreSQL 資料庫大小：%v"
 
-#: internal/apps/postgresql/app.go:161
+#: internal/apps/postgresql/app.go:180
 msgid "failed to get PostgreSQL process: %v"
 msgstr "無法取得 PostgreSQL 處理程序：%v"
 
-#: internal/apps/postgresql/app.go:151
+#: internal/apps/postgresql/app.go:170
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "無法取得 PostgreSQL 啟動時間：%v"
 
@@ -2476,8 +2552,8 @@ msgstr "無法取得 ZeroSSL EAB"
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法取得 ZeroSSL EAB：%v"
 
-#: internal/apps/apache/app.go:109
-#: internal/apps/apache/app.go:99
+#: internal/apps/apache/app.go:104
+#: internal/apps/apache/app.go:114
 msgid "failed to get apache workers: %v"
 msgstr "取得 apache 工作處理程序失敗：%v"
 
@@ -2551,7 +2627,7 @@ msgstr "取得分割區失敗：%v"
 msgid "failed to get port: %v"
 msgstr "無法取得連接埠：%v"
 
-#: internal/apps/postgresql/app.go:201
+#: internal/apps/postgresql/app.go:220
 msgid "failed to get postgres password: %v"
 msgstr "無法取得 postgres 密碼：%v"
 
@@ -2613,12 +2689,12 @@ msgstr "列出 Stream 伺服器失敗：%v"
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失敗：%v"
 
-#: internal/apps/mysql/app.go:200
-#: internal/apps/mysql/app.go:96
+#: internal/apps/mysql/app.go:219
+#: internal/apps/mysql/app.go:83
 msgid "failed to load MySQL root password: %v"
 msgstr "無法載入 MySQL root 密碼：%v"
 
-#: internal/apps/postgresql/app.go:143
+#: internal/apps/postgresql/app.go:162
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "無法載入 PostgreSQL postgres 密碼：%v"
 
@@ -2772,13 +2848,17 @@ msgstr "註冊帳戶失敗：%v"
 msgid "failed to reload %s service: %v"
 msgstr "重新載入 %s 服務失敗：%v"
 
-#: internal/apps/postgresql/app.go:126
+#: internal/apps/postgresql/app.go:145
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重新載入 PostgreSQL 失敗：%v"
 
-#: internal/apps/apache/app.go:68
+#: internal/apps/apache/app.go:73
 msgid "failed to reload apache: %v"
 msgstr "重載 apache 失敗：%v"
+
+#: internal/apps/apache/app.go:242
+msgid "failed to reload apache: %v %s"
+msgstr "重新載入 Apache 失敗：%v %s"
 
 #: internal/apps/nginx/app.go:272
 #: internal/apps/nginx/app.go:83
@@ -2826,6 +2906,14 @@ msgstr "請求 pgAdmin 失敗：%v"
 msgid "failed to request phpMyAdmin: %v"
 msgstr "請求 phpMyAdmin 失敗：%v"
 
+#: internal/service/environment_php.go:643
+msgid "failed to reset OPcache, it may not be enabled"
+msgstr "重設 OPcache 失敗，可能尚未啟用"
+
+#: internal/service/environment_php.go:637
+msgid "failed to reset OPcache: %v"
+msgstr "重設 OPcache 失敗：%v"
+
 #: internal/apps/pgadmin/app.go:533
 msgid "failed to reset password: %v"
 msgstr "重設密碼失敗：%v"
@@ -2840,7 +2928,7 @@ msgstr "調整檔案系統大小失敗：%v"
 msgid "failed to restart %s service: %v"
 msgstr "重新啟動 %s 服務失敗：%v"
 
-#: internal/apps/mysql/app.go:79
+#: internal/apps/mysql/app.go:203
 msgid "failed to restart MySQL: %v"
 msgstr "重新啟動 MySQL 失敗：%v"
 
@@ -2888,9 +2976,9 @@ msgstr "設定主機名稱失敗：%v"
 msgid "failed to set hosts: %v"
 msgstr "設定 hosts 失敗：%v"
 
-#: internal/apps/postgresql/app.go:222
-#: internal/apps/postgresql/app.go:228
-#: internal/apps/postgresql/app.go:234
+#: internal/apps/postgresql/app.go:241
+#: internal/apps/postgresql/app.go:247
+#: internal/apps/postgresql/app.go:253
 msgid "failed to set postgres password: %v"
 msgstr "設定 postgres 密碼失敗：%v"
 
@@ -2985,7 +3073,7 @@ msgstr "寫入 Web 掛鉤腳本失敗：%v"
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
-#: internal/service/environment_php.go:503
+#: internal/service/environment_php.go:866
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 
@@ -3043,11 +3131,28 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid logical volume size"
 msgstr "無效的邏輯卷大小"
 
+#: internal/service/environment_php.go:710
+msgid "invalid mirror url"
+msgstr "鏡像源 URL 無效"
+
+#: internal/apps/mysql/app.go:634
+#: internal/apps/postgresql/app.go:725
+msgid "invalid operation"
+msgstr "操作無效"
+
 #: internal/service/ws.go:285
 #: internal/service/ws.go:391
 #: internal/service/ws.go:558
 msgid "invalid params: %v"
 msgstr "無效的參數：%v"
+
+#: internal/apps/postgresql/app.go:511
+msgid "invalid pid"
+msgstr "PID 無效"
+
+#: internal/apps/mysql/app.go:398
+msgid "invalid process id"
+msgstr "處理程序 ID 無效"
 
 #: internal/data/user_token.go:176
 msgid "invalid request ip: %s"
@@ -3068,6 +3173,10 @@ msgstr "無效的簽名"
 msgid "invalid size"
 msgstr "無效的大小"
 
+#: internal/apps/postgresql/app.go:823
+msgid "invalid slot name"
+msgstr "槽名稱無效"
+
 #: internal/service/home.go:439
 msgid "invalid type"
 msgstr "無效的類型"
@@ -3076,7 +3185,7 @@ msgstr "無效的類型"
 msgid "invalid user id, please login again"
 msgstr "無效的使用者 ID，請重新登入"
 
-#: internal/service/environment_php.go:553
+#: internal/service/environment_php.go:916
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache 之後安裝）"
 
@@ -3122,8 +3231,8 @@ msgid "module %s already exists"
 msgstr "模組 %s 已存在"
 
 #: internal/apps/rsync/app.go:80
-#: internal/service/environment_php.go:300
-#: internal/service/environment_php.go:335
+#: internal/service/environment_php.go:305
+#: internal/service/environment_php.go:340
 msgid "module %s does not exist"
 msgstr "模組 %s 不存在"
 
@@ -3290,13 +3399,17 @@ msgstr "path，file_name 和 file_hash 是必需的"
 msgid "path, service or container is required"
 msgstr "路徑、服務或容器是必填項"
 
-#: internal/service/environment_php.go:408
+#: internal/service/environment_php.go:771
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pdo_pgsql 是一個用於連接 PostgreSQL 的 PDO 驅動程序（需先安裝 PostgreSQL）"
 
-#: internal/service/environment_php.go:418
+#: internal/service/environment_php.go:781
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr "pdo_sqlsrv 是一個用於連接 SQL Server 的 PDO 驅動程序"
+
+#: internal/apps/mysql/app.go:543
+msgid "performance_schema is not supported by this instance"
+msgstr "此執行個體不支援 performance_schema"
 
 #: internal/apps/pgadmin/app.go:357
 #: internal/apps/pgadmin/app.go:468
@@ -3308,7 +3421,11 @@ msgstr "未找到 pgAdmin 憑證檔案"
 msgid "pgAdmin port not found"
 msgstr "未找到 pgAdmin 連接埠"
 
-#: internal/service/environment_php.go:403
+#: internal/apps/postgresql/app.go:737
+msgid "pg_repack is not installed, please install it in the extensions tab first"
+msgstr "未安裝 pg_repack，請先在擴展分頁中安裝"
+
+#: internal/service/environment_php.go:766
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pgsql 是一個用於連接 PostgreSQL 的驅動程序（需先安裝 PostgreSQL）"
 
@@ -3376,7 +3493,7 @@ msgstr "項目名已存在"
 msgid "project status"
 msgstr "項目狀態"
 
-#: internal/service/environment_php.go:508
+#: internal/service/environment_php.go:871
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr "protobuf 是一個用於序列化與反序列化資料的函式庫"
 
@@ -3389,7 +3506,7 @@ msgstr "代理 %s 已存在"
 msgid "proxy %s does not exist"
 msgstr "代理 %s 不存在"
 
-#: internal/service/environment_php.go:513
+#: internal/service/environment_php.go:876
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
@@ -3517,7 +3634,7 @@ msgstr "來源路徑與目標路徑不能為空"
 msgid "sqlite does not support dropping tables from here"
 msgstr "sqlite 不支援從此處刪除表"
 
-#: internal/service/environment_php.go:413
+#: internal/service/environment_php.go:776
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一個用於連接 SQL Server 的驅動程序"
 
@@ -3940,7 +4057,7 @@ msgstr "寫入檔案錯誤：%v"
 msgid "ws not allowed"
 msgstr "不允許 ws"
 
-#: internal/service/environment_php.go:523
+#: internal/service/environment_php.go:886
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr "xdebug 是一個用於偵錯與分析 PHP 程式碼的函式庫"
 
@@ -3948,15 +4065,15 @@ msgstr "xdebug 是一個用於偵錯與分析 PHP 程式碼的函式庫"
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "xfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/environment_php.go:518
+#: internal/service/environment_php.go:881
 msgid "xhprof is a library for performance profiling"
 msgstr "xhprof 是一個用於性能分析的庫"
 
-#: internal/service/environment_php.go:528
+#: internal/service/environment_php.go:891
 msgid "yaml is a library for handling YAML"
 msgstr "yaml 是一個用於處理 YAML 的庫"
 
-#: internal/service/environment_php.go:533
+#: internal/service/environment_php.go:896
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個用於壓縮與解壓縮檔案的函式庫"
 

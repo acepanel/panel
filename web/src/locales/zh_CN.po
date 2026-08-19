@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-08-19 11:22\n"
+"PO-Revision-Date: 2026-08-19 15:09\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -277,7 +277,8 @@ msgstr "当前状态无法保存"
 #: src/components/common/FileEditor.vue:94
 #: src/components/file-editor/EditorPane.vue:190
 #: src/components/file-editor/EditorToolbar.vue:38
-#: src/views/apps/apache/IndexView.vue:46
+#: src/views/apps/apache/ApacheConfigTuneView.vue:68
+#: src/views/apps/apache/IndexView.vue:48
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:58
 #: src/views/apps/clickhouse/IndexView.vue:57
 #: src/views/apps/codeserver/IndexView.vue:26
@@ -306,7 +307,7 @@ msgstr "当前状态无法保存"
 #: src/views/apps/mongodb/IndexView.vue:57
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:49
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:200
-#: src/views/apps/mysql/MysqlIndex.vue:66
+#: src/views/apps/mysql/MysqlIndex.vue:68
 #: src/views/apps/nginx/NginxConfigTuneView.vue:165
 #: src/views/apps/nginx/NginxIndex.vue:309
 #: src/views/apps/nginx/NginxIndex.vue:394
@@ -319,8 +320,8 @@ msgstr "当前状态无法保存"
 #: src/views/apps/phpmyadmin/IndexView.vue:52
 #: src/views/apps/podman/IndexView.vue:29
 #: src/views/apps/podman/IndexView.vue:40
-#: src/views/apps/postgresql/IndexView.vue:89
-#: src/views/apps/postgresql/IndexView.vue:100
+#: src/views/apps/postgresql/IndexView.vue:91
+#: src/views/apps/postgresql/IndexView.vue:102
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:164
 #: src/views/apps/prometheus/IndexView.vue:62
 #: src/views/apps/prometheus/IndexView.vue:73
@@ -328,7 +329,7 @@ msgstr "当前状态无法保存"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:191
 #: src/views/apps/pureftpd/IndexView.vue:112
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:54
-#: src/views/apps/redis/IndexView.vue:51
+#: src/views/apps/redis/IndexView.vue:53
 #: src/views/apps/redis/RedisConfigTuneView.vue:109
 #: src/views/apps/rocketmq/IndexView.vue:51
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:73
@@ -337,15 +338,16 @@ msgstr "当前状态无法保存"
 #: src/views/apps/supervisor/IndexView.vue:234
 #: src/views/apps/supervisor/IndexView.vue:328
 #: src/views/apps/supervisor/IndexView.vue:343
-#: src/views/apps/valkey/IndexView.vue:51
+#: src/views/apps/valkey/IndexView.vue:53
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:103
 #: src/views/database/ElasticsearchDocModal.vue:61
 #: src/views/database/RedisKeyModal.vue:77
 #: src/views/environment/GoView.vue:52
 #: src/views/environment/NodejsView.vue:55
 #: src/views/environment/PhpConfigTuneView.vue:183
-#: src/views/environment/PHPView.vue:149
-#: src/views/environment/PHPView.vue:155
+#: src/views/environment/PHPView.vue:204
+#: src/views/environment/PHPView.vue:210
+#: src/views/environment/PHPView.vue:263
 #: src/views/environment/PythonView.vue:59
 #: src/views/monitor/AlertRuleModal.vue:116
 #: src/views/monitor/ChannelModal.vue:70
@@ -393,8 +395,9 @@ msgstr "选择文件"
 #: src/views/apps/nginx/NginxIndex.vue:226
 #: src/views/apps/nginx/NginxIndex.vue:619
 #: src/views/apps/nginx/NginxIndex.vue:705
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:21
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:35
 #: src/views/apps/prometheus/PrometheusExportersView.vue:26
+#: src/views/apps/redis/RedisPerformanceView.vue:41
 #: src/views/apps/rsync/IndexView.vue:45
 #: src/views/apps/rsync/IndexView.vue:275
 #: src/views/apps/supervisor/IndexView.vue:89
@@ -446,6 +449,9 @@ msgid "Owner / Group"
 msgstr "所有者 / 组"
 
 #: src/components/common/PathSelector.vue:114
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:58
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:94
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:76
 #: src/views/backup/ListView.vue:48
 #: src/views/container/ImageView.vue:81
 #: src/views/database/ElasticsearchDataView.vue:112
@@ -512,6 +518,7 @@ msgid "Created successfully"
 msgstr "创建成功"
 
 #: src/components/common/PathSelector.vue:319
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:93
 #: src/views/file/PropertyModal.vue:34
 #: src/views/file/ToolBar.vue:147
 msgid "File"
@@ -738,8 +745,8 @@ msgstr "连接失败，正在重试..."
 #: src/components/common/RealtimeLog.vue:328
 #: src/views/apps/clickhouse/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:77
-#: src/views/apps/mysql/MysqlIndex.vue:110
-#: src/views/apps/postgresql/IndexView.vue:145
+#: src/views/apps/mysql/MysqlIndex.vue:112
+#: src/views/apps/postgresql/IndexView.vue:147
 #: src/views/database/ServerList.vue:102
 #: src/views/database/UserList.vue:52
 #: src/views/file/composables/usePaste.ts:29
@@ -863,14 +870,14 @@ msgid "Are you sure you want to clear the log?"
 msgstr "您确定要清除日志吗？"
 
 #: src/components/common/RealtimeLogModal.vue:65
-#: src/views/apps/apache/IndexView.vue:119
-#: src/views/apps/mysql/MysqlIndex.vue:195
+#: src/views/apps/apache/IndexView.vue:124
+#: src/views/apps/mysql/MysqlIndex.vue:203
 #: src/views/apps/nginx/NginxIndex.vue:584
 #: src/views/apps/nginx/NginxIndex.vue:599
-#: src/views/apps/postgresql/IndexView.vue:258
-#: src/views/apps/postgresql/IndexView.vue:274
+#: src/views/apps/postgresql/IndexView.vue:266
+#: src/views/apps/postgresql/IndexView.vue:282
 #: src/views/apps/supervisor/IndexView.vue:425
-#: src/views/environment/PHPView.vue:276
+#: src/views/environment/PHPView.vue:489
 msgid "Clear Log"
 msgstr "清除日志"
 
@@ -886,6 +893,7 @@ msgstr "加载中……"
 
 #: src/components/common/ServiceStatus.vue:30
 #: src/views/app/InstalledView.vue:16
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:133
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
 #: src/views/project/ListView.vue:70
 #: src/views/task/TaskView.vue:47
@@ -899,6 +907,7 @@ msgstr "运行中"
 
 #: src/components/common/ServiceStatus.vue:30
 #: src/views/app/InstalledView.vue:17
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:134
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
 #: src/views/project/ListView.vue:72
 #: src/views/tamper/TamperView.vue:234
@@ -966,7 +975,7 @@ msgid "Autostart disabled successfully"
 msgstr "自启动已成功禁用"
 
 #: src/components/common/ServiceStatus.vue:138
-#: src/views/apps/apache/IndexView.vue:71
+#: src/views/apps/apache/IndexView.vue:73
 #: src/views/apps/clickhouse/IndexView.vue:85
 #: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:191
@@ -980,20 +989,20 @@ msgstr "自启动已成功禁用"
 #: src/views/apps/memcached/IndexView.vue:65
 #: src/views/apps/minio/IndexView.vue:35
 #: src/views/apps/mongodb/IndexView.vue:85
-#: src/views/apps/mysql/MysqlIndex.vue:118
+#: src/views/apps/mysql/MysqlIndex.vue:120
 #: src/views/apps/nginx/NginxIndex.vue:498
 #: src/views/apps/opensearch/IndexView.vue:62
 #: src/views/apps/podman/IndexView.vue:51
-#: src/views/apps/postgresql/IndexView.vue:153
+#: src/views/apps/postgresql/IndexView.vue:155
 #: src/views/apps/prometheus/IndexView.vue:84
 #: src/views/apps/pureftpd/IndexView.vue:168
-#: src/views/apps/redis/IndexView.vue:62
+#: src/views/apps/redis/IndexView.vue:64
 #: src/views/apps/rocketmq/IndexView.vue:62
 #: src/views/apps/rsync/IndexView.vue:206
 #: src/views/apps/supervisor/IndexView.vue:360
-#: src/views/apps/valkey/IndexView.vue:62
+#: src/views/apps/valkey/IndexView.vue:64
 #: src/views/container/ContainerView.vue:106
-#: src/views/environment/PHPView.vue:189
+#: src/views/environment/PHPView.vue:272
 #: src/views/tamper/TamperView.vue:230
 msgid "Running Status"
 msgstr "运行状态"
@@ -1068,7 +1077,9 @@ msgstr "放弃"
 
 #: src/components/file-editor/EditorPane.vue:198
 #: src/components/file-editor/EditorToolbar.vue:153
-#: src/views/apps/apache/IndexView.vue:92
+#: src/views/apps/apache/ApacheConfigTuneView.vue:140
+#: src/views/apps/apache/ApacheConfigTuneView.vue:186
+#: src/views/apps/apache/IndexView.vue:94
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:91
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:116
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:138
@@ -1121,8 +1132,8 @@ msgstr "放弃"
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:447
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:540
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:570
-#: src/views/apps/mysql/MysqlIndex.vue:143
-#: src/views/apps/mysql/MysqlIndex.vue:168
+#: src/views/apps/mysql/MysqlIndex.vue:145
+#: src/views/apps/mysql/MysqlIndex.vue:170
 #: src/views/apps/nginx/NginxConfigTuneView.vue:272
 #: src/views/apps/nginx/NginxConfigTuneView.vue:322
 #: src/views/apps/nginx/NginxConfigTuneView.vue:373
@@ -1137,9 +1148,9 @@ msgstr "放弃"
 #: src/views/apps/phpmyadmin/IndexView.vue:107
 #: src/views/apps/podman/IndexView.vue:80
 #: src/views/apps/podman/IndexView.vue:102
-#: src/views/apps/postgresql/IndexView.vue:182
-#: src/views/apps/postgresql/IndexView.vue:206
-#: src/views/apps/postgresql/IndexView.vue:234
+#: src/views/apps/postgresql/IndexView.vue:184
+#: src/views/apps/postgresql/IndexView.vue:208
+#: src/views/apps/postgresql/IndexView.vue:242
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:221
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:299
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:365
@@ -1152,7 +1163,7 @@ msgstr "放弃"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:226
 #: src/views/apps/pureftpd/IndexView.vue:180
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:121
-#: src/views/apps/redis/IndexView.vue:82
+#: src/views/apps/redis/IndexView.vue:84
 #: src/views/apps/redis/RedisConfigTuneView.vue:177
 #: src/views/apps/redis/RedisConfigTuneView.vue:211
 #: src/views/apps/redis/RedisConfigTuneView.vue:236
@@ -1165,7 +1176,7 @@ msgstr "放弃"
 #: src/views/apps/supervisor/IndexView.vue:408
 #: src/views/apps/supervisor/IndexView.vue:583
 #: src/views/apps/supervisor/IndexView.vue:597
-#: src/views/apps/valkey/IndexView.vue:82
+#: src/views/apps/valkey/IndexView.vue:84
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:171
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:205
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:230
@@ -1178,8 +1189,9 @@ msgstr "放弃"
 #: src/views/environment/PhpConfigTuneView.vue:421
 #: src/views/environment/PhpConfigTuneView.vue:486
 #: src/views/environment/PhpConfigTuneView.vue:561
-#: src/views/environment/PHPView.vue:236
-#: src/views/environment/PHPView.vue:254
+#: src/views/environment/PHPView.vue:319
+#: src/views/environment/PHPView.vue:337
+#: src/views/environment/PHPView.vue:474
 #: src/views/environment/PythonView.vue:97
 #: src/views/file/EditModal.vue:89
 #: src/views/firewall/SettingView.vue:136
@@ -1274,6 +1286,21 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/components/file-editor/EditorToolbar.vue:169
 #: src/components/file-editor/EditorToolbar.vue:174
 #: src/components/file-editor/FileTree.vue:680
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:144
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:164
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:187
+#: src/views/apps/mysql/MysqlPerformanceView.vue:182
+#: src/views/apps/mysql/MysqlPerformanceView.vue:198
+#: src/views/apps/mysql/MysqlPerformanceView.vue:254
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:215
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:231
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:158
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:199
+#: src/views/apps/redis/RedisPerformanceView.vue:119
+#: src/views/apps/redis/RedisPerformanceView.vue:138
+#: src/views/apps/redis/RedisPerformanceView.vue:154
+#: src/views/environment/PHPView.vue:355
+#: src/views/environment/PHPView.vue:380
 #: src/views/file/PathInput.vue:133
 #: src/views/home/UpdateView.vue:178
 #: src/views/log/DatabaseLog.vue:132
@@ -1588,6 +1615,8 @@ msgstr "重命名"
 #: src/views/apps/nginx/NginxIndex.vue:216
 #: src/views/apps/nginx/NginxIndex.vue:280
 #: src/views/apps/nginx/NginxIndex.vue:764
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:176
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:182
 #: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:87
 #: src/views/apps/rsync/IndexView.vue:111
@@ -1613,7 +1642,7 @@ msgstr "重命名"
 #: src/views/database/RedisDataView.vue:182
 #: src/views/database/ServerList.vue:247
 #: src/views/database/UserList.vue:165
-#: src/views/environment/PHPView.vue:107
+#: src/views/environment/PHPView.vue:162
 #: src/views/file/ListView.vue:378
 #: src/views/file/ListView.vue:434
 #: src/views/file/ListView.vue:1685
@@ -1679,6 +1708,7 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:185
 #: src/views/apps/nginx/NginxIndex.vue:405
 #: src/views/apps/nginx/NginxIndex.vue:489
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:197
 #: src/views/apps/pureftpd/IndexView.vue:155
 #: src/views/apps/rsync/IndexView.vue:171
 #: src/views/apps/s3fs/IndexView.vue:87
@@ -1897,6 +1927,12 @@ msgstr "容器"
 #: src/locales/menu.ts:11
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:189
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:222
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:54
+#: src/views/apps/mysql/MysqlPerformanceView.vue:58
+#: src/views/apps/mysql/MysqlPerformanceView.vue:133
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:33
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:97
+#: src/views/apps/redis/RedisPerformanceView.vue:42
 #: src/views/backup/ListView.vue:334
 #: src/views/home/IndexView.vue:546
 #: src/views/toolbox/MigrationView.vue:76
@@ -1950,6 +1986,7 @@ msgstr "工具箱"
 #: src/views/app/InstalledView.vue:103
 #: src/views/app/InstalledView.vue:202
 #: src/views/app/TemplateDeployModal.vue:652
+#: src/views/environment/PHPView.vue:449
 #: src/views/home/IndexView.vue:575
 #: src/views/setting/TokenModal.vue:308
 msgid "Update"
@@ -1990,9 +2027,10 @@ msgstr "登录"
 #: src/views/app/EnvironmentView.vue:147
 #: src/views/app/EnvironmentView.vue:292
 #: src/views/app/EnvironmentView.vue:312
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:70
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:88
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
-#: src/views/environment/PHPView.vue:107
+#: src/views/environment/PHPView.vue:162
+#: src/views/environment/PHPView.vue:441
 msgid "Install"
 msgstr "安装"
 
@@ -2005,9 +2043,9 @@ msgstr "应用名称"
 #: src/views/app/EnvironmentView.vue:44
 #: src/views/app/InstalledView.vue:39
 #: src/views/app/InstalledView.vue:164
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:33
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
-#: src/views/environment/PHPView.vue:64
+#: src/views/environment/PHPView.vue:119
 #: src/views/project/EditModal.vue:193
 #: src/views/project/ListView.vue:44
 msgid "Description"
@@ -2034,12 +2072,21 @@ msgstr "在主页显示"
 #: src/views/apps/frp/FrpProxyView.vue:73
 #: src/views/apps/frp/FrpVisitorView.vue:62
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:70
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:96
+#: src/views/apps/mysql/MysqlPerformanceView.vue:64
+#: src/views/apps/mysql/MysqlPerformanceView.vue:88
+#: src/views/apps/mysql/MysqlPerformanceView.vue:106
 #: src/views/apps/nginx/NginxIndex.vue:190
 #: src/views/apps/nginx/NginxIndex.vue:254
 #: src/views/apps/nginx/NginxIndex.vue:751
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:49
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:67
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:101
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:159
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:70
 #: src/views/apps/prometheus/PrometheusExportersView.vue:55
 #: src/views/apps/pureftpd/IndexView.vue:53
+#: src/views/apps/redis/RedisPerformanceView.vue:47
 #: src/views/apps/rsync/IndexView.vue:82
 #: src/views/apps/s3fs/IndexView.vue:35
 #: src/views/apps/supervisor/IndexView.vue:117
@@ -2059,7 +2106,7 @@ msgstr "在主页显示"
 #: src/views/database/RedisDataView.vue:124
 #: src/views/database/ServerList.vue:161
 #: src/views/database/UserList.vue:134
-#: src/views/environment/PHPView.vue:71
+#: src/views/environment/PHPView.vue:126
 #: src/views/file/ListView.vue:1463
 #: src/views/file/ShareModal.vue:102
 #: src/views/firewall/ForwardView.vue:81
@@ -2107,9 +2154,9 @@ msgstr "管理"
 #: src/views/app/EnvironmentView.vue:110
 #: src/views/app/InstalledView.vue:124
 #: src/views/app/InstalledView.vue:223
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:80
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:127
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
-#: src/views/environment/PHPView.vue:85
+#: src/views/environment/PHPView.vue:140
 msgid "Confirm Uninstall"
 msgstr "确认卸载"
 
@@ -2131,8 +2178,8 @@ msgstr "您确定要卸载应用 %{ app } 吗？"
 #: src/views/app/InstalledView.vue:136
 #: src/views/app/InstalledView.vue:227
 #: src/views/app/InstalledView.vue:233
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:85
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:91
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:132
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:138
 #: src/views/apps/prometheus/PrometheusExportersView.vue:128
 msgid "Uninstall"
 msgstr "卸载"
@@ -2191,9 +2238,9 @@ msgid "Are you sure to uninstall environment %{ environment }?"
 msgstr "您确定要卸载环境 %{ environment } 吗？"
 
 #: src/views/app/EnvironmentView.vue:139
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:62
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:80
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
-#: src/views/environment/PHPView.vue:99
+#: src/views/environment/PHPView.vue:154
 msgid "Confirm Install"
 msgstr "确认安装"
 
@@ -2206,7 +2253,8 @@ msgid "Cache updated successfully"
 msgstr "缓存更新成功"
 
 #: src/views/app/IndexView.vue:40
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:44
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:61
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:62
 msgid "Installed"
 msgstr "已安装"
 
@@ -2237,7 +2285,7 @@ msgstr "部分运行"
 #: src/views/apps/frp/FrpProxyView.vue:37
 #: src/views/apps/frp/FrpVisitorView.vue:37
 #: src/views/apps/phpmyadmin/IndexView.vue:67
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:39
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:53
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
 #: src/views/apps/supervisor/IndexView.vue:96
 #: src/views/container/ComposeView.vue:86
@@ -2418,6 +2466,7 @@ msgstr "更新现有"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:94
 #: src/views/apps/nginx/NginxIndex.vue:186
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:153
 #: src/views/apps/supervisor/IndexView.vue:75
 #: src/views/container/ContainerInfoModal.vue:130
 #: src/views/file/ListView.vue:269
@@ -2432,6 +2481,7 @@ msgstr "是"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:95
 #: src/views/apps/nginx/NginxIndex.vue:186
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:154
 #: src/views/apps/supervisor/IndexView.vue:76
 #: src/views/container/ContainerInfoModal.vue:130
 #: src/views/file/ListView.vue:270
@@ -2473,6 +2523,7 @@ msgid "Channel"
 msgstr "渠道"
 
 #: src/views/app/VersionModal.vue:99
+#: src/views/environment/PHPView.vue:453
 msgid "Version"
 msgstr "版本"
 
@@ -2488,56 +2539,155 @@ msgstr "发行日志"
 msgid "Custom Compile Params"
 msgstr "自定义编译参数"
 
-#: src/views/apps/apache/IndexView.vue:28
+#: src/views/apps/apache/ApacheConfigTuneView.vue:78
+msgid "MPM Event"
+msgstr "MPM Event"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:81
+msgid "Worker thread pool settings for the event MPM."
+msgstr "event MPM 的工作线程池设置。"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:84
+msgid "Start Servers (StartServers)"
+msgstr "启动服务器数量（StartServers）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:88
+#: src/views/apps/frp/FrpProxyModal.vue:446
+#: src/views/apps/frp/FrpProxyModal.vue:454
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:209
+#: src/views/environment/PhpConfigTuneView.vue:463
+msgid "e.g. 3"
+msgstr "例如 3"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:92
+msgid "Min Spare Threads (MinSpareThreads)"
+msgstr "最小空闲线程数（MinSpareThreads）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:96
+msgid "e.g. 75"
+msgstr "例如 75"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:100
+msgid "Max Spare Threads (MaxSpareThreads)"
+msgstr "最大空闲线程数（MaxSpareThreads）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:104
+msgid "e.g. 250"
+msgstr "例如 250"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:108
+msgid "Threads Per Child (ThreadsPerChild)"
+msgstr "每个子进程的线程数（ThreadsPerChild）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:112
+msgid "e.g. 25"
+msgstr "例如 25"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:116
+msgid "Max Request Workers (MaxRequestWorkers)"
+msgstr "最大请求工作线程数（MaxRequestWorkers）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:120
+msgid "e.g. 400"
+msgstr "例如 400"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:124
+msgid "Max Connections Per Child (MaxConnectionsPerChild)"
+msgstr "每个子进程的最大连接数（MaxConnectionsPerChild）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:128
+#: src/views/apps/apache/ApacheConfigTuneView.vue:166
+msgid "0 means unlimited"
+msgstr "0 表示不限制"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:145
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:174
+msgid "Connection"
+msgstr "连接"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:148
+msgid "Connection and keep-alive settings."
+msgstr "连接和 KeepAlive 设置。"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:151
+msgid "Timeout (Timeout)"
+msgstr "超时（Timeout）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:155
+#: src/views/apps/nginx/NginxConfigTuneView.vue:199
+#: src/views/environment/PhpConfigTuneView.vue:401
+msgid "e.g. 60"
+msgstr "例如 60"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:159
+msgid "Keep Alive (KeepAlive)"
+msgstr "KeepAlive（KeepAlive）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:162
+msgid "Max Keep Alive Requests (MaxKeepAliveRequests)"
+msgstr "最大 KeepAlive 请求数（MaxKeepAliveRequests）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:170
+msgid "Keep Alive Timeout (KeepAliveTimeout)"
+msgstr "KeepAlive 超时（KeepAliveTimeout）"
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:174
+#: src/views/environment/PhpConfigTuneView.vue:452
+msgid "e.g. 5"
+msgstr "例如 5"
+
+#: src/views/apps/apache/IndexView.vue:30
 #: src/views/apps/clickhouse/IndexView.vue:39
 #: src/views/apps/elasticsearch/IndexView.vue:33
 #: src/views/apps/grafana/IndexView.vue:34
 #: src/views/apps/kafka/IndexView.vue:33
 #: src/views/apps/memcached/IndexView.vue:20
 #: src/views/apps/mongodb/IndexView.vue:39
-#: src/views/apps/mysql/MysqlIndex.vue:48
+#: src/views/apps/mysql/MysqlIndex.vue:50
 #: src/views/apps/nginx/NginxIndex.vue:136
 #: src/views/apps/opensearch/IndexView.vue:33
-#: src/views/apps/postgresql/IndexView.vue:71
+#: src/views/apps/postgresql/IndexView.vue:73
 #: src/views/apps/prometheus/IndexView.vue:44
-#: src/views/apps/redis/IndexView.vue:33
+#: src/views/apps/redis/IndexView.vue:35
+#: src/views/apps/redis/RedisPerformanceView.vue:74
 #: src/views/apps/rocketmq/IndexView.vue:33
-#: src/views/apps/valkey/IndexView.vue:33
-#: src/views/environment/PHPView.vue:115
+#: src/views/apps/valkey/IndexView.vue:35
+#: src/views/environment/PHPView.vue:170
 msgid "Property"
 msgstr "属性"
 
-#: src/views/apps/apache/IndexView.vue:35
+#: src/views/apps/apache/IndexView.vue:37
 #: src/views/apps/clickhouse/IndexView.vue:46
 #: src/views/apps/elasticsearch/IndexView.vue:40
 #: src/views/apps/grafana/IndexView.vue:41
 #: src/views/apps/kafka/IndexView.vue:40
 #: src/views/apps/memcached/IndexView.vue:27
 #: src/views/apps/mongodb/IndexView.vue:46
-#: src/views/apps/mysql/MysqlIndex.vue:55
+#: src/views/apps/mysql/MysqlIndex.vue:57
 #: src/views/apps/nginx/NginxIndex.vue:143
 #: src/views/apps/opensearch/IndexView.vue:40
-#: src/views/apps/postgresql/IndexView.vue:78
+#: src/views/apps/postgresql/IndexView.vue:80
 #: src/views/apps/prometheus/IndexView.vue:51
-#: src/views/apps/redis/IndexView.vue:40
+#: src/views/apps/redis/IndexView.vue:42
+#: src/views/apps/redis/RedisPerformanceView.vue:75
 #: src/views/apps/rocketmq/IndexView.vue:40
-#: src/views/apps/valkey/IndexView.vue:40
-#: src/views/environment/PHPView.vue:122
+#: src/views/apps/valkey/IndexView.vue:42
+#: src/views/environment/PHPView.vue:177
 msgid "Current Value"
 msgstr "当前值"
 
-#: src/views/apps/apache/IndexView.vue:60
-#: src/views/apps/mysql/MysqlIndex.vue:78
-#: src/views/apps/mysql/MysqlIndex.vue:90
+#: src/views/apps/apache/IndexView.vue:62
+#: src/views/apps/mysql/MysqlIndex.vue:80
+#: src/views/apps/mysql/MysqlIndex.vue:92
 #: src/views/apps/nginx/NginxIndex.vue:324
 #: src/views/apps/nginx/NginxIndex.vue:336
-#: src/views/apps/postgresql/IndexView.vue:112
-#: src/views/apps/postgresql/IndexView.vue:125
+#: src/views/apps/postgresql/IndexView.vue:114
+#: src/views/apps/postgresql/IndexView.vue:127
 #: src/views/apps/supervisor/IndexView.vue:246
 #: src/views/apps/supervisor/IndexView.vue:302
 #: src/views/database/RedisDataView.vue:252
-#: src/views/environment/PHPView.vue:162
-#: src/views/environment/PHPView.vue:169
+#: src/views/environment/PHPView.vue:217
+#: src/views/environment/PHPView.vue:224
 #: src/views/firewall/ScanView.vue:336
 #: src/views/monitor/AlertView.vue:180
 #: src/views/monitor/SettingView.vue:49
@@ -2549,41 +2699,63 @@ msgstr "当前值"
 msgid "Cleared successfully"
 msgstr "清除成功"
 
-#: src/views/apps/apache/IndexView.vue:74
+#: src/views/apps/apache/IndexView.vue:76
 #: src/views/apps/codeserver/IndexView.vue:40
 #: src/views/apps/gitea/IndexView.vue:38
-#: src/views/apps/mysql/MysqlIndex.vue:150
+#: src/views/apps/mysql/MysqlIndex.vue:152
 #: src/views/apps/nginx/NginxIndex.vue:501
 #: src/views/apps/phpmyadmin/IndexView.vue:90
 msgid "Modify Configuration"
 msgstr "修改配置"
 
-#: src/views/apps/apache/IndexView.vue:78
+#: src/views/apps/apache/IndexView.vue:80
 #: src/views/apps/nginx/NginxIndex.vue:505
 msgid "This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 %{name} 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/apps/apache/IndexView.vue:97
+#: src/views/apps/apache/IndexView.vue:99
+#: src/views/apps/clickhouse/IndexView.vue:143
+#: src/views/apps/elasticsearch/IndexView.vue:87
+#: src/views/apps/frp/IndexView.vue:80
+#: src/views/apps/frp/IndexView.vue:132
+#: src/views/apps/grafana/IndexView.vue:114
+#: src/views/apps/kafka/IndexView.vue:87
+#: src/views/apps/memcached/IndexView.vue:83
+#: src/views/apps/mongodb/IndexView.vue:139
+#: src/views/apps/mysql/MysqlIndex.vue:175
+#: src/views/apps/nginx/NginxIndex.vue:524
+#: src/views/apps/opensearch/IndexView.vue:87
+#: src/views/apps/postgresql/IndexView.vue:213
+#: src/views/apps/prometheus/IndexView.vue:118
+#: src/views/apps/pureftpd/IndexView.vue:215
+#: src/views/apps/redis/IndexView.vue:89
+#: src/views/apps/rocketmq/IndexView.vue:90
+#: src/views/apps/valkey/IndexView.vue:89
+#: src/views/environment/PHPView.vue:303
+msgid "Parameter Tuning"
+msgstr "参数调优"
+
+#: src/views/apps/apache/IndexView.vue:102
 #: src/views/apps/clickhouse/IndexView.vue:146
 #: src/views/apps/elasticsearch/IndexView.vue:90
 #: src/views/apps/grafana/IndexView.vue:120
 #: src/views/apps/kafka/IndexView.vue:90
 #: src/views/apps/memcached/IndexView.vue:86
 #: src/views/apps/mongodb/IndexView.vue:142
-#: src/views/apps/mysql/MysqlIndex.vue:176
+#: src/views/apps/mysql/MysqlIndex.vue:184
 #: src/views/apps/nginx/NginxIndex.vue:565
 #: src/views/apps/opensearch/IndexView.vue:90
-#: src/views/apps/postgresql/IndexView.vue:239
+#: src/views/apps/postgresql/IndexView.vue:247
 #: src/views/apps/prometheus/IndexView.vue:147
-#: src/views/apps/redis/IndexView.vue:90
+#: src/views/apps/redis/IndexView.vue:95
 #: src/views/apps/rocketmq/IndexView.vue:93
-#: src/views/apps/valkey/IndexView.vue:90
-#: src/views/environment/PHPView.vue:259
+#: src/views/apps/valkey/IndexView.vue:95
+#: src/views/environment/PHPView.vue:342
 #: src/views/home/IndexView.vue:587
 msgid "Load Status"
 msgstr "负载状态"
 
-#: src/views/apps/apache/IndexView.vue:107
+#: src/views/apps/apache/IndexView.vue:112
 #: src/views/apps/clickhouse/IndexView.vue:156
 #: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:477
@@ -2597,24 +2769,24 @@ msgstr "负载状态"
 #: src/views/apps/memcached/IndexView.vue:96
 #: src/views/apps/minio/IndexView.vue:60
 #: src/views/apps/mongodb/IndexView.vue:152
-#: src/views/apps/mysql/MysqlIndex.vue:186
+#: src/views/apps/mysql/MysqlIndex.vue:194
 #: src/views/apps/nginx/NginxIndex.vue:575
 #: src/views/apps/opensearch/IndexView.vue:100
 #: src/views/apps/podman/IndexView.vue:107
-#: src/views/apps/postgresql/IndexView.vue:249
+#: src/views/apps/postgresql/IndexView.vue:257
 #: src/views/apps/prometheus/IndexView.vue:157
-#: src/views/apps/redis/IndexView.vue:100
+#: src/views/apps/redis/IndexView.vue:105
 #: src/views/apps/rocketmq/IndexView.vue:103
 #: src/views/apps/rsync/IndexView.vue:259
 #: src/views/apps/supervisor/IndexView.vue:413
-#: src/views/apps/valkey/IndexView.vue:100
-#: src/views/environment/PHPView.vue:269
+#: src/views/apps/valkey/IndexView.vue:105
+#: src/views/environment/PHPView.vue:482
 msgid "Runtime Logs"
 msgstr "运行日志"
 
-#: src/views/apps/apache/IndexView.vue:110
+#: src/views/apps/apache/IndexView.vue:115
 #: src/views/apps/nginx/NginxIndex.vue:590
-#: src/views/environment/PHPView.vue:272
+#: src/views/environment/PHPView.vue:485
 msgid "Error Logs"
 msgstr "错误日志"
 
@@ -2646,6 +2818,10 @@ msgid "TCP Port"
 msgstr "TCP 端口"
 
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:96
+#: src/views/apps/mysql/MysqlIndex.vue:178
+#: src/views/apps/postgresql/IndexView.vue:219
+#: src/views/apps/redis/IndexView.vue:92
+#: src/views/apps/valkey/IndexView.vue:92
 #: src/views/website/stats/OverviewTab.vue:516
 msgid "Performance"
 msgstr "性能"
@@ -2687,8 +2863,8 @@ msgstr "日志级别（logger.level）"
 
 #: src/views/apps/clickhouse/IndexView.vue:68
 #: src/views/apps/mongodb/IndexView.vue:68
-#: src/views/apps/mysql/MysqlIndex.vue:101
-#: src/views/apps/postgresql/IndexView.vue:136
+#: src/views/apps/mysql/MysqlIndex.vue:103
+#: src/views/apps/postgresql/IndexView.vue:138
 #: src/views/apps/pureftpd/IndexView.vue:145
 #: src/views/database/DatabaseList.vue:113
 #: src/views/database/RedisDataView.vue:222
@@ -2723,8 +2899,8 @@ msgstr "ClickHouse 默认用户密码用于访问数据库。请妥善保管！"
 
 #: src/views/apps/clickhouse/IndexView.vue:105
 #: src/views/apps/mongodb/IndexView.vue:101
-#: src/views/apps/mysql/MysqlIndex.vue:134
-#: src/views/apps/postgresql/IndexView.vue:173
+#: src/views/apps/mysql/MysqlIndex.vue:136
+#: src/views/apps/postgresql/IndexView.vue:175
 #: src/views/database/ServerList.vue:106
 #: src/views/database/UserList.vue:56
 #: src/views/file/ListView.vue:374
@@ -2742,41 +2918,20 @@ msgstr "复制"
 #: src/views/apps/kafka/IndexView.vue:65
 #: src/views/apps/mongodb/IndexView.vue:117
 #: src/views/apps/opensearch/IndexView.vue:65
-#: src/views/apps/postgresql/IndexView.vue:189
+#: src/views/apps/postgresql/IndexView.vue:191
 #: src/views/apps/prometheus/IndexView.vue:96
-#: src/views/apps/redis/IndexView.vue:65
+#: src/views/apps/redis/IndexView.vue:67
 #: src/views/apps/rocketmq/IndexView.vue:68
 #: src/views/apps/rsync/IndexView.vue:237
 #: src/views/apps/supervisor/IndexView.vue:391
-#: src/views/apps/valkey/IndexView.vue:65
-#: src/views/environment/PHPView.vue:223
+#: src/views/apps/valkey/IndexView.vue:67
+#: src/views/environment/PHPView.vue:306
 msgid "Main Configuration"
 msgstr "主配置"
 
 #: src/views/apps/clickhouse/IndexView.vue:125
 msgid "This modifies the ClickHouse configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 ClickHouse 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
-
-#: src/views/apps/clickhouse/IndexView.vue:143
-#: src/views/apps/elasticsearch/IndexView.vue:87
-#: src/views/apps/frp/IndexView.vue:80
-#: src/views/apps/frp/IndexView.vue:132
-#: src/views/apps/grafana/IndexView.vue:114
-#: src/views/apps/kafka/IndexView.vue:87
-#: src/views/apps/memcached/IndexView.vue:83
-#: src/views/apps/mongodb/IndexView.vue:139
-#: src/views/apps/mysql/MysqlIndex.vue:173
-#: src/views/apps/nginx/NginxIndex.vue:524
-#: src/views/apps/opensearch/IndexView.vue:87
-#: src/views/apps/postgresql/IndexView.vue:211
-#: src/views/apps/prometheus/IndexView.vue:118
-#: src/views/apps/pureftpd/IndexView.vue:215
-#: src/views/apps/redis/IndexView.vue:87
-#: src/views/apps/rocketmq/IndexView.vue:90
-#: src/views/apps/valkey/IndexView.vue:87
-#: src/views/environment/PHPView.vue:220
-msgid "Parameter Tuning"
-msgstr "参数调优"
 
 #: src/views/apps/codeserver/IndexView.vue:44
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
@@ -3173,6 +3328,7 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 #: src/views/apps/frp/FrpVisitorView.vue:29
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:78
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:209
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:146
 #: src/views/backup/StorageView.vue:73
 #: src/views/backup/StorageView.vue:233
 #: src/views/backup/StorageView.vue:395
@@ -3485,6 +3641,9 @@ msgid "Disable Colors (log.disablePrintColor)"
 msgstr "禁用颜色（log.disablePrintColor）"
 
 #: src/views/apps/frp/FrpProxyModal.vue:90
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:189
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:35
+#: src/views/apps/redis/RedisPerformanceView.vue:35
 msgid "Client"
 msgstr "客户端"
 
@@ -3654,13 +3813,6 @@ msgstr "类型（healthCheck.type）"
 #: src/views/apps/frp/FrpProxyModal.vue:441
 msgid "Timeout Seconds (healthCheck.timeoutSeconds)"
 msgstr "超时秒数（healthCheck.timeoutSeconds）"
-
-#: src/views/apps/frp/FrpProxyModal.vue:446
-#: src/views/apps/frp/FrpProxyModal.vue:454
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:209
-#: src/views/environment/PhpConfigTuneView.vue:463
-msgid "e.g. 3"
-msgstr "例如 3"
 
 #: src/views/apps/frp/FrpProxyModal.vue:449
 msgid "Max Failed (healthCheck.maxFailed)"
@@ -4011,6 +4163,8 @@ msgstr "运行用户"
 #: src/views/apps/frp/IndexView.vue:161
 #: src/views/apps/frp/IndexView.vue:162
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:225
+#: src/views/apps/mysql/MysqlPerformanceView.vue:56
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:34
 #: src/views/apps/rsync/IndexView.vue:59
 #: src/views/apps/rsync/IndexView.vue:291
 #: src/views/apps/rsync/IndexView.vue:355
@@ -4632,26 +4786,347 @@ msgstr "长查询时间（long_query_time）"
 msgid "e.g. 3 (seconds)"
 msgstr "例如 3（秒）"
 
-#: src/views/apps/mysql/MysqlIndex.vue:121
+#: src/views/apps/mysql/MysqlIndex.vue:123
 msgid "Root Password"
 msgstr "Root 密码"
 
-#: src/views/apps/mysql/MysqlIndex.vue:125
+#: src/views/apps/mysql/MysqlIndex.vue:127
 msgid "The \"root\" user password is used to manage the database system. Keep it safe!"
 msgstr "\"root\" 用户密码用于管理数据库系统。请妥善保管！"
 
-#: src/views/apps/mysql/MysqlIndex.vue:154
+#: src/views/apps/mysql/MysqlIndex.vue:156
 msgid "This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 %{ name } 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/apps/mysql/MysqlIndex.vue:201
+#: src/views/apps/mysql/MysqlIndex.vue:181
+#: src/views/apps/postgresql/IndexView.vue:222
+msgid "Maintenance"
+msgstr "维护"
+
+#: src/views/apps/mysql/MysqlIndex.vue:209
 msgid "Slow Query Log"
 msgstr "慢查询日志"
 
-#: src/views/apps/mysql/MysqlIndex.vue:210
-#: src/views/environment/PHPView.vue:286
+#: src/views/apps/mysql/MysqlIndex.vue:218
+#: src/views/environment/PHPView.vue:499
 msgid "Clear Slow Log"
 msgstr "清除慢日志"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:28
+msgid "OPTIMIZE will rebuild the InnoDB table, which may take a long time for large tables. Are you sure you want to run it on %{ table }?"
+msgstr "OPTIMIZE 会重建 InnoDB 表，大表可能需要很长时间。确定要在 %{ table } 上执行吗？"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:32
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:55
+msgid "Are you sure you want to run %{ op } on %{ table }?"
+msgstr "确定要在 %{ table } 上执行 %{ op } 吗？"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:38
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:54
+msgid "Confirm Operation"
+msgstr "确认操作"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:49
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:169
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:176
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:69
+#: src/views/apps/prometheus/PrometheusExportersView.vue:146
+#: src/views/apps/prometheus/PrometheusExportersView.vue:153
+#: src/views/apps/redis/RedisPerformanceView.vue:108
+#: src/views/container/ContainerCreate.vue:120
+#: src/views/container/ImageView.vue:186
+#: src/views/environment/PHPView.vue:230
+#: src/views/environment/PHPView.vue:236
+#: src/views/environment/PHPView.vue:257
+msgid "Task submitted, please check progress in background tasks"
+msgstr "任务已提交，请在后台任务中查看进度"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:55
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:75
+msgid "Table"
+msgstr "表"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:56
+msgid "Engine"
+msgstr "引擎"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:57
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:101
+#: src/views/log/DatabaseLog.vue:94
+msgid "Rows"
+msgstr "行"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:60
+msgid "Fragment Rate"
+msgstr "碎片率"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:107
+msgid "Confirm Purge"
+msgstr "确认清理"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:108
+msgid "This will delete all binlogs before %{ file }. If a replica has not applied them yet, replication will break. Are you sure?"
+msgstr "这会删除 %{ file } 之前的所有二进制日志。如果副本尚未应用这些日志，复制将会中断。确定吗？"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:112
+msgid "Purge"
+msgstr "清理"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:118
+msgid "Purge to Here"
+msgstr "清理至此处"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:126
+msgid "Purged successfully"
+msgstr "清理成功"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:140
+msgid "Table Maintenance"
+msgstr "表维护"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:159
+msgid "Binary log is not enabled."
+msgstr "未启用二进制日志。"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:169
+msgid "File Count"
+msgstr "文件数量"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:170
+msgid "Total Size"
+msgstr "总大小"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:183
+msgid "Replication"
+msgstr "复制"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:191
+msgid "This instance is not a replica."
+msgstr "此实例不是副本。"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:193
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:252
+msgid "Replication Status"
+msgstr "复制状态"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:195
+msgid "Source Host"
+msgstr "源主机"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:198
+msgid "Delay (s)"
+msgstr "延迟（秒）"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:201
+msgid "IO Thread"
+msgstr "IO 线程"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:204
+msgid "SQL Thread"
+msgstr "SQL 线程"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:207
+msgid "Last Error"
+msgstr "最后错误"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:29
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:113
+msgid "Terminated successfully"
+msgstr "终止成功"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:42
+#: src/views/apps/mysql/MysqlPerformanceView.vue:117
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:81
+msgid "Confirm Terminate"
+msgstr "确认终止"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:43
+msgid "Are you sure you want to terminate connection %{ id }?"
+msgstr "确定要终止连接 %{ id } 吗？"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:46
+#: src/views/apps/mysql/MysqlPerformanceView.vue:51
+#: src/views/apps/mysql/MysqlPerformanceView.vue:122
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:85
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:90
+msgid "Terminate"
+msgstr "终止"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:57
+#: src/views/apps/rsync/IndexView.vue:66
+#: src/views/apps/rsync/IndexView.vue:307
+#: src/views/apps/rsync/IndexView.vue:372
+#: src/views/backup/StorageView.vue:287
+#: src/views/backup/StorageView.vue:443
+#: src/views/database/CreateDatabaseModal.vue:142
+#: src/views/database/CreateServerModal.vue:143
+#: src/views/database/CreateUserModal.vue:137
+#: src/views/database/ServerList.vue:113
+#: src/views/database/UpdateServerModal.vue:76
+#: src/views/database/UserList.vue:63
+#: src/views/ssh/CreateModal.vue:65
+#: src/views/ssh/UpdateModal.vue:71
+#: src/views/toolbox/SystemView.vue:176
+msgid "Host"
+msgstr "主机"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:59
+#: src/views/apps/redis/RedisPerformanceView.vue:34
+#: src/views/apps/redis/RedisPerformanceView.vue:45
+#: src/views/container/ContainerCreate.vue:594
+#: src/views/container/ContainerInfoModal.vue:146
+#: src/views/home/IndexView.vue:674
+#: src/views/home/IndexView.vue:775
+#: src/views/monitor/SystemView.vue:323
+#: src/views/monitor/SystemView.vue:335
+msgid "Command"
+msgstr "命令"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:60
+#: src/views/apps/mysql/MysqlPerformanceView.vue:83
+msgid "Duration (s)"
+msgstr "持续时间（秒）"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:61
+#: src/views/apps/mysql/MysqlPerformanceView.vue:75
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:190
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:36
+#: src/views/environment/PHPView.vue:91
+msgid "State"
+msgstr "状态"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:72
+msgid "Transaction ID"
+msgstr "事务 ID"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:73
+msgid "Thread ID"
+msgstr "线程 ID"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:84
+msgid "Rows Locked"
+msgstr "锁定行数"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:85
+msgid "Rows Modified"
+msgstr "修改行数"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:96
+msgid "Waiting Thread"
+msgstr "等待线程"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:97
+msgid "Waiting SQL"
+msgstr "等待 SQL"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:98
+msgid "Blocking Thread"
+msgstr "阻塞线程"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:100
+msgid "Blocking SQL"
+msgstr "阻塞 SQL"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:118
+msgid "Are you sure you want to terminate the blocking connection %{ id }?"
+msgstr "确定要终止阻塞连接 %{ id } 吗？"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:127
+msgid "Terminate Blocker"
+msgstr "终止阻塞连接"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:134
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:98
+msgid "Calls"
+msgstr "调用次数"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:135
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:99
+msgid "Total Time (ms)"
+msgstr "总时间（毫秒）"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:136
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:100
+msgid "Mean Time (ms)"
+msgstr "平均时间（毫秒）"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:137
+msgid "Rows Sent"
+msgstr "发送行数"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:138
+msgid "Rows Examined"
+msgstr "扫描行数"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:145
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:121
+msgid "Confirm Enable"
+msgstr "确认启用"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:146
+msgid "This will enable performance_schema, which increases memory usage (use with caution on low-memory servers). A restart is required to take effect."
+msgstr "这会启用 performance_schema，并增加内存占用（低内存服务器请谨慎使用）。需要重启才能生效。"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:154
+msgid "Enabled, please restart the service to take effect"
+msgstr "已启用，请重启服务以生效"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:165
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:141
+#: src/views/apps/redis/RedisPerformanceView.vue:81
+#: src/views/environment/PHPView.vue:243
+msgid "Confirm Reset"
+msgstr "确认重置"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:166
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:142
+msgid "Are you sure you want to reset all SQL statistics?"
+msgstr "确定要重置所有 SQL 统计信息吗？"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:170
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:146
+#: src/views/apps/redis/RedisPerformanceView.vue:86
+#: src/views/environment/PHPView.vue:250
+#: src/views/website/EditModal.vue:243
+msgid "Reset successfully"
+msgstr "重置成功"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:178
+msgid "Processes"
+msgstr "进程"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:194
+msgid "Transactions & Locks"
+msgstr "事务与锁"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:202
+msgid "Lock waits detected, check the blocking connections below."
+msgstr "检测到锁等待，请检查下方的阻塞连接。"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:224
+msgid "This instance was built without performance_schema support, SQL statistics are not available."
+msgstr "此实例构建时未包含 performance_schema 支持，无法使用 SQL 统计功能。"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:230
+msgid "performance_schema is configured, restart the service to take effect."
+msgstr "已配置 performance_schema，请重启服务以生效。"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:235
+msgid "performance_schema is not enabled. After enabling, SQL performance statistics will be collected, which increases memory usage and requires a restart."
+msgstr "未启用 performance_schema。启用后将收集 SQL 性能统计信息，这会增加内存占用并且需要重启。"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:247
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:100
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:219
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:192
+#: src/views/website/EditModal.vue:2055
+msgid "Enable"
+msgstr "启用"
+
+#: src/views/apps/mysql/MysqlPerformanceView.vue:257
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:202
+msgid "Reset Statistics"
+msgstr "重置统计信息"
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:178
 msgid "Common Nginx general settings."
@@ -4672,11 +5147,6 @@ msgstr "工作连接数（worker_connections）"
 #: src/views/apps/nginx/NginxConfigTuneView.vue:195
 msgid "Keepalive Timeout (keepalive_timeout)"
 msgstr "保持连接超时（keepalive_timeout）"
-
-#: src/views/apps/nginx/NginxConfigTuneView.vue:199
-#: src/views/environment/PhpConfigTuneView.vue:401
-msgid "e.g. 60"
-msgstr "例如 60"
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:203
 msgid "Client Max Body Size (client_max_body_size)"
@@ -4947,6 +5417,7 @@ msgid "Options (optional), e.g. weight=5 backup"
 msgstr "选项（可选），例如 weight=5 backup"
 
 #: src/views/apps/nginx/NginxIndex.vue:749
+#: src/views/apps/redis/RedisPerformanceView.vue:40
 msgid "Address"
 msgstr "地址"
 
@@ -5076,38 +5547,34 @@ msgstr "存储配置"
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
 msgstr "这会修改 Podman 存储配置文件 (/etc/containers/storage.conf)"
 
-#: src/views/apps/postgresql/IndexView.vue:156
+#: src/views/apps/postgresql/IndexView.vue:158
 msgid "Super Password"
 msgstr "超级密码"
 
-#: src/views/apps/postgresql/IndexView.vue:160
+#: src/views/apps/postgresql/IndexView.vue:162
 msgid "The \"postgres\" superuser password is used to manage the database system. Keep it safe!"
 msgstr "\"postgres\" 超级用户密码用于管理数据库系统。请妥善保管！"
 
-#: src/views/apps/postgresql/IndexView.vue:193
+#: src/views/apps/postgresql/IndexView.vue:195
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/apps/postgresql/IndexView.vue:214
-#: src/views/tamper/TamperView.vue:121
+#: src/views/apps/postgresql/IndexView.vue:216
+msgctxt "postgresql"
 msgid "Extensions"
-msgstr "扩展名"
+msgstr "扩展"
 
-#: src/views/apps/postgresql/IndexView.vue:217
+#: src/views/apps/postgresql/IndexView.vue:225
 msgid "User Configuration"
 msgstr "用户配置"
 
-#: src/views/apps/postgresql/IndexView.vue:221
+#: src/views/apps/postgresql/IndexView.vue:229
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/apps/postgresql/IndexView.vue:264
+#: src/views/apps/postgresql/IndexView.vue:272
 msgid "Application Logs"
 msgstr "应用日志"
-
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:174
-msgid "Connection"
-msgstr "连接"
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:177
 msgid "PostgreSQL connection and authentication settings."
@@ -5131,8 +5598,11 @@ msgstr "超级用户保留连接数（superuser_reserved_connections）"
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:226
 #: src/views/apps/redis/RedisConfigTuneView.vue:182
+#: src/views/apps/redis/RedisPerformanceView.vue:150
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
 #: src/views/container/ContainerCreate.vue:542
+#: src/views/environment/PHPView.vue:102
+#: src/views/environment/PHPView.vue:408
 #: src/views/home/IndexView.vue:700
 #: src/views/home/IndexView.vue:773
 #: src/views/monitor/SystemView.vue:520
@@ -5270,39 +5740,183 @@ msgstr "IO 方法设置。需要重启 PostgreSQL 才能生效。"
 msgid "IO Method (io_method)"
 msgstr "IO 方法（io_method）"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:27
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:41
 msgid "Extension Name"
-msgstr "扩展名"
+msgstr "扩展名称"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:45
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:58
 #: src/views/apps/prometheus/PrometheusExportersView.vue:46
 msgid "Not Installed"
 msgstr "未安装"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:63
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:81
 #: src/views/apps/prometheus/PrometheusExportersView.vue:72
-#: src/views/environment/PHPView.vue:100
+#: src/views/environment/PHPView.vue:155
 msgid "Are you sure you want to install %{ name }?"
 msgstr "您确定要安装 %{ name } 吗？"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:81
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:109
+msgid "Confirm Reinstall"
+msgstr "确认重新安装"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:110
+msgid "Reinstalling will recompile %{ name } to the latest version provided by the panel. Are you sure?"
+msgstr "重新安装会将 %{ name } 重新编译为面板提供的最新版本。确定吗？"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:118
+msgid "Reinstall"
+msgstr "重新安装"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:128
 msgid "Please make sure the extension %{ ext_name } has been dropped (DROP EXTENSION) in all databases that use it, otherwise those databases will fail to load it. Are you sure you want to uninstall %{ name }?"
 msgstr "请确保已在所有使用扩展 %{ ext_name } 的数据库中将其删除（DROP EXTENSION），否则这些数据库将无法加载该扩展。确定要卸载 %{ name } 吗？"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:99
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:106
-#: src/views/apps/prometheus/PrometheusExportersView.vue:146
-#: src/views/apps/prometheus/PrometheusExportersView.vue:153
-#: src/views/container/ContainerCreate.vue:120
-#: src/views/container/ImageView.vue:186
-#: src/views/environment/PHPView.vue:175
-#: src/views/environment/PHPView.vue:181
-msgid "Task submitted, please check progress in background tasks"
-msgstr "任务已提交，请在后台任务中查看进度"
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:159
+msgid "Enabled successfully"
+msgstr "启用成功"
 
-#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:116
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:186
 msgid "Extensions need to be enabled in the database with CREATE EXTENSION, and some may require restarting PostgreSQL."
 msgstr "需要在数据库中使用 CREATE EXTENSION 启用扩展，部分扩展可能还需要重启 PostgreSQL。"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:195
+msgid "Enable Extension"
+msgstr "启用扩展"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:201
+msgid "CREATE EXTENSION %{ ext_name } will be executed in the selected database. Enabling in template1 makes new databases inherit it."
+msgstr "将在所选数据库中执行 CREATE EXTENSION %{ ext_name }。在 template1 中启用后，新建数据库将自动继承该扩展。"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:210
+#: src/views/backup/ListView.vue:292
+#: src/views/backup/ListView.vue:340
+msgid "Select database"
+msgstr "选择数据库"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:74
+msgid "Schema"
+msgstr "模式"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:77
+msgid "Live Tuples"
+msgstr "活元组数"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:78
+msgid "Dead Tuples"
+msgstr "死元组数"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:80
+msgid "Dead Rate"
+msgstr "死元组比例"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:89
+msgid "Last Vacuum"
+msgstr "上次 VACUUM"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:95
+msgid "Last Analyze"
+msgstr "上次 ANALYZE"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:134
+msgid "pg_repack is not installed, please install it in the extensions tab"
+msgstr "未安装 pg_repack，请在扩展标签页中安装"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:145
+msgid "Slot Name"
+msgstr "槽名称"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:148
+#: src/views/home/IndexView.vue:724
+msgid "Active"
+msgstr "活跃"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:157
+msgid "Retained WAL"
+msgstr "保留的 WAL"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:171
+msgid "Confirm Delete"
+msgstr "确认删除"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:172
+msgid "After deleting slot %{ name }, the corresponding subscription or standby will not be able to continue syncing. Are you sure?"
+msgstr "删除槽 %{ name } 后，对应的订阅或备用服务器将无法继续同步。确定吗？"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:191
+msgid "Sync State"
+msgstr "同步状态"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:192
+msgid "Lag"
+msgstr "延迟"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:205
+msgid "Table Bloat"
+msgstr "表膨胀"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:234
+msgid "WAL Status"
+msgstr "WAL 状态"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:236
+msgid "WAL Size"
+msgstr "WAL 大小"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:239
+msgid "Archived Count"
+msgstr "已归档数量"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:244
+msgid "Archive Failed Count"
+msgstr "归档失败次数"
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:249
+msgid "Replication Slots"
+msgstr "复制槽"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:38
+msgid "Wait Event"
+msgstr "等待事件"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:48
+msgid "Blocked By"
+msgstr "阻塞来源"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:57
+msgid "Transaction Duration"
+msgstr "事务持续时间"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:63
+msgid "Query Duration"
+msgstr "查询持续时间"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:82
+msgid "Are you sure you want to terminate session %{ pid }?"
+msgstr "确定要终止会话 %{ pid } 吗？"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:103
+msgid "Cache Hit Rate"
+msgstr "缓存命中率"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:122
+msgid "This will add pg_stat_statements to shared_preload_libraries, a restart of PostgreSQL is required to take effect."
+msgstr "这会将 pg_stat_statements 添加到 shared_preload_libraries，需要重启 PostgreSQL 才能生效。"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:130
+msgid "Enabled, please restart PostgreSQL to take effect"
+msgstr "已启用，请重启 PostgreSQL 以生效"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:154
+msgid "Sessions"
+msgstr "会话"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:174
+msgid "pg_stat_statements is configured, restart PostgreSQL to take effect."
+msgstr "已配置 pg_stat_statements，请重启 PostgreSQL 以生效。"
+
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:180
+msgid "pg_stat_statements is not enabled. After enabling, SQL performance statistics will be collected, a restart of PostgreSQL is required."
+msgstr "未启用 pg_stat_statements。启用后将收集 SQL 性能统计信息，并且需要重启 PostgreSQL。"
 
 #: src/views/apps/prometheus/IndexView.vue:89
 msgid "By default, the firewall does not allow access to the Prometheus port (9090). If you need external access, please manually open the port in the firewall settings."
@@ -5355,7 +5969,7 @@ msgid "Config"
 msgstr "配置"
 
 #: src/views/apps/prometheus/PrometheusExportersView.vue:125
-#: src/views/environment/PHPView.vue:86
+#: src/views/environment/PHPView.vue:141
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr "您确定要卸载 %{ name } 吗？"
 
@@ -5510,7 +6124,7 @@ msgstr "最大磁盘使用量（%）"
 msgid "e.g. 99"
 msgstr "例如 99"
 
-#: src/views/apps/redis/IndexView.vue:69
+#: src/views/apps/redis/IndexView.vue:71
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 Redis 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
@@ -5596,6 +6210,77 @@ msgstr "仅追加（appendonly）"
 msgid "Append Fsync (appendfsync)"
 msgstr "追加同步（appendfsync）"
 
+#: src/views/apps/redis/RedisPerformanceView.vue:27
+#: src/views/log/DatabaseLog.vue:48
+#: src/views/log/HttpLog.vue:56
+#: src/views/log/OperationLog.vue:51
+#: src/views/log/SSHLog.vue:58
+#: src/views/monitor/AlertView.vue:145
+#: src/views/tamper/TamperView.vue:191
+#: src/views/toolbox/SystemView.vue:197
+#: src/views/website/stats/ErrorsTab.vue:87
+msgid "Time"
+msgstr "时间"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:29
+#: src/views/environment/PHPView.vue:96
+msgid "Duration (ms)"
+msgstr "持续时间（毫秒）"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:43
+msgid "Age (s)"
+msgstr "存活时间（秒）"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:44
+msgid "Idle (s)"
+msgstr "空闲时间（秒）"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:58
+msgid "Confirm Kill"
+msgstr "确认终止"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:59
+msgid "Are you sure you want to kill connection %{ addr }?"
+msgstr "确定要终止连接 %{ addr } 吗？"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:62
+#: src/views/apps/redis/RedisPerformanceView.vue:67
+msgid "Kill"
+msgstr "终止"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:82
+msgid "Are you sure you want to reset the slow log?"
+msgstr "确定要重置慢日志吗？"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:93
+msgid "Killed successfully"
+msgstr "终止成功"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:101
+msgid "Confirm Scan"
+msgstr "确认扫描"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:102
+msgid "Scanning traverses all keys and may take a while on large datasets. The result will be in the task log."
+msgstr "扫描会遍历所有键，在大型数据集上可能需要较长时间。结果将写入任务日志。"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:115
+msgid "Slow Log"
+msgstr "慢日志"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:122
+msgid "Reset Slow Log"
+msgstr "重置慢日志"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:134
+#: src/views/website/StatsView.vue:203
+msgid "Clients"
+msgstr "客户端"
+
+#: src/views/apps/redis/RedisPerformanceView.vue:157
+msgid "Scan Big Keys"
+msgstr "扫描大键"
+
 #: src/views/apps/rocketmq/IndexView.vue:72
 msgid "This modifies the RocketMQ broker configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 RocketMQ broker 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
@@ -5648,23 +6333,6 @@ msgstr "JVM"
 msgid "JVM heap memory settings for NameServer and Broker."
 msgstr "NameServer 和 Broker 的 JVM 堆内存设置。"
 
-#: src/views/apps/rsync/IndexView.vue:66
-#: src/views/apps/rsync/IndexView.vue:307
-#: src/views/apps/rsync/IndexView.vue:372
-#: src/views/backup/StorageView.vue:287
-#: src/views/backup/StorageView.vue:443
-#: src/views/database/CreateDatabaseModal.vue:142
-#: src/views/database/CreateServerModal.vue:143
-#: src/views/database/CreateUserModal.vue:137
-#: src/views/database/ServerList.vue:113
-#: src/views/database/UpdateServerModal.vue:76
-#: src/views/database/UserList.vue:63
-#: src/views/ssh/CreateModal.vue:65
-#: src/views/ssh/UpdateModal.vue:71
-#: src/views/toolbox/SystemView.vue:176
-msgid "Host"
-msgstr "主机"
-
 #: src/views/apps/rsync/IndexView.vue:73
 #: src/views/apps/rsync/IndexView.vue:315
 #: src/views/apps/rsync/IndexView.vue:380
@@ -5689,7 +6357,7 @@ msgid "Are you sure you want to delete module %{ name }?"
 msgstr "确定要删除模块 %{ name } 吗？"
 
 #: src/views/apps/rsync/IndexView.vue:209
-#: src/views/environment/PHPView.vue:207
+#: src/views/environment/PHPView.vue:290
 msgid "Module Management"
 msgstr "模块管理"
 
@@ -5954,7 +6622,7 @@ msgstr "例如 KEY=&quot;value&quot;,FOO=&quot;bar&quot;"
 msgid "Raw Configuration"
 msgstr "原始配置"
 
-#: src/views/apps/valkey/IndexView.vue:69
+#: src/views/apps/valkey/IndexView.vue:71
 msgid "This modifies the Valkey main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 Valkey 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
@@ -6018,11 +6686,6 @@ msgstr "选择网站"
 #: src/views/website/CreateModal.vue:274
 msgid "Database Name"
 msgstr "数据库名称"
-
-#: src/views/backup/ListView.vue:292
-#: src/views/backup/ListView.vue:340
-msgid "Select database"
-msgstr "选择数据库"
 
 #: src/views/backup/ListView.vue:295
 msgid "Backup Storage"
@@ -6956,15 +7619,6 @@ msgstr "变量值"
 msgid "Startup Commands"
 msgstr "启动命令"
 
-#: src/views/container/ContainerCreate.vue:594
-#: src/views/container/ContainerInfoModal.vue:146
-#: src/views/home/IndexView.vue:674
-#: src/views/home/IndexView.vue:775
-#: src/views/monitor/SystemView.vue:323
-#: src/views/monitor/SystemView.vue:335
-msgid "Command"
-msgstr "命令"
-
 #: src/views/container/ContainerCreate.vue:597
 msgid "Command argument"
 msgstr "命令参数"
@@ -7681,7 +8335,7 @@ msgstr "您确定要删除该用户吗？"
 #: src/views/environment/GoView.vue:46
 #: src/views/environment/JavaView.vue:13
 #: src/views/environment/NodejsView.vue:49
-#: src/views/environment/PHPView.vue:131
+#: src/views/environment/PHPView.vue:186
 #: src/views/environment/PythonView.vue:53
 msgid "Set successfully"
 msgstr "设置成功"
@@ -7690,7 +8344,7 @@ msgstr "设置成功"
 #: src/views/environment/GoView.vue:64
 #: src/views/environment/JavaView.vue:25
 #: src/views/environment/NodejsView.vue:67
-#: src/views/environment/PHPView.vue:196
+#: src/views/environment/PHPView.vue:279
 #: src/views/environment/PythonView.vue:71
 msgid "Set as CLI Default Version"
 msgstr "设置为 CLI 默认版本"
@@ -7880,10 +8534,6 @@ msgstr "最大子进程数（pm.max_children）"
 msgid "Start Servers (pm.start_servers)"
 msgstr "启动服务器数（pm.start_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:452
-msgid "e.g. 5"
-msgstr "例如 5"
-
 #: src/views/environment/PhpConfigTuneView.vue:458
 msgid "Min Spare Servers (pm.min_spare_servers)"
 msgstr "最小空闲服务器数（pm.min_spare_servers）"
@@ -7956,31 +8606,158 @@ msgstr "您确定要清理所有会话文件吗？"
 msgid "Clean Session Files"
 msgstr "清理会话文件"
 
-#: src/views/environment/PHPView.vue:57
+#: src/views/environment/PHPView.vue:73
+msgid "Official"
+msgstr "官方源"
+
+#: src/views/environment/PHPView.vue:74
+msgid "Aliyun Mirror"
+msgstr "阿里云镜像"
+
+#: src/views/environment/PHPView.vue:75
+msgid "Tencent Mirror"
+msgstr "腾讯镜像"
+
+#: src/views/environment/PHPView.vue:92
+#: src/views/website/stats/ClientsTab.vue:95
+#: src/views/website/stats/GeoTab.vue:108
+#: src/views/website/stats/GeoTab.vue:165
+#: src/views/website/stats/GeoTab.vue:218
+#: src/views/website/stats/IPsTab.vue:91
+#: src/views/website/stats/IPsTab.vue:134
+#: src/views/website/stats/OverviewTab.vue:141
+#: src/views/website/stats/SitesTab.vue:53
+#: src/views/website/stats/SlowURIsTab.vue:61
+#: src/views/website/stats/SpidersTab.vue:54
+#: src/views/website/stats/SpidersTab.vue:77
+#: src/views/website/stats/URIsTab.vue:49
+msgid "Requests"
+msgstr "请求"
+
+#: src/views/environment/PHPView.vue:93
+#: src/views/log/HttpLog.vue:65
+#: src/views/website/stats/ErrorsTab.vue:94
+msgid "Method"
+msgstr "方法"
+
+#: src/views/environment/PHPView.vue:107
+#: src/views/toolbox/WebHookView.vue:345
+#: src/views/toolbox/WebHookView.vue:389
+msgid "Script"
+msgstr "脚本"
+
+#: src/views/environment/PHPView.vue:112
 msgid "Module Name"
 msgstr "模块名"
 
-#: src/views/environment/PHPView.vue:199
+#: src/views/environment/PHPView.vue:244
+msgid "Resetting will clear all cached scripts, performance may fluctuate briefly. Are you sure?"
+msgstr "重置将清除所有已缓存脚本，性能可能会短暂波动。确定吗？"
+
+#: src/views/environment/PHPView.vue:282
 msgid "View PHPInfo"
 msgstr "查看 PHPInfo"
 
-#: src/views/environment/PHPView.vue:227
+#: src/views/environment/PHPView.vue:310
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PHP %{ version } 的主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/environment/PHPView.vue:241
+#: src/views/environment/PHPView.vue:324
 msgid "FPM Configuration"
 msgstr "FPM 配置"
 
-#: src/views/environment/PHPView.vue:245
+#: src/views/environment/PHPView.vue:328
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PHP %{ version } 的 FPM 配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/environment/PHPView.vue:282
+#: src/views/environment/PHPView.vue:352
+msgid "FPM Processes"
+msgstr "FPM 进程"
+
+#: src/views/environment/PHPView.vue:372
+msgid "OPcache is not enabled. Install the Zend OPcache module in Module Management to significantly improve PHP performance."
+msgstr "未启用 OPcache。请在模块管理中安装 Zend OPcache 模块，可显著提升 PHP 性能。"
+
+#: src/views/environment/PHPView.vue:383
+msgid "Reset OPcache"
+msgstr "重置 OPcache"
+
+#: src/views/environment/PHPView.vue:386
+msgid "Cache Statistics"
+msgstr "缓存统计"
+
+#: src/views/environment/PHPView.vue:388
+msgid "Hit Rate"
+msgstr "命中率"
+
+#: src/views/environment/PHPView.vue:389
+msgid "Hits"
+msgstr "命中次数"
+
+#: src/views/environment/PHPView.vue:390
+msgid "Misses"
+msgstr "未命中次数"
+
+#: src/views/environment/PHPView.vue:393
+msgid "Cached Scripts"
+msgstr "已缓存脚本数"
+
+#: src/views/environment/PHPView.vue:398
+msgid "Cached Keys"
+msgstr "已缓存键数"
+
+#: src/views/environment/PHPView.vue:403
+msgid "OOM Restarts"
+msgstr "OOM 重启次数"
+
+#: src/views/environment/PHPView.vue:410
+#: src/views/toolbox/DiskView.vue:241
+msgid "Used"
+msgstr "已用"
+
+#: src/views/environment/PHPView.vue:411
+#: src/views/home/IndexView.vue:721
+#: src/views/toolbox/DiskView.vue:218
+msgid "Free"
+msgstr "空闲"
+
+#: src/views/environment/PHPView.vue:414
+msgid "Wasted"
+msgstr "浪费空间"
+
+#: src/views/environment/PHPView.vue:421
+msgid "Buffer Size"
+msgstr "缓冲区大小"
+
+#: src/views/environment/PHPView.vue:424
+msgid "Buffer Free"
+msgstr "缓冲区空闲"
+
+#: src/views/environment/PHPView.vue:428
+msgid "JIT is not enabled"
+msgstr "未启用 JIT"
+
+#: src/views/environment/PHPView.vue:437
+msgid "Composer is not installed."
+msgstr "未安装 Composer。"
+
+#: src/views/environment/PHPView.vue:446
+msgid "Composer"
+msgstr "Composer"
+
+#: src/views/environment/PHPView.vue:458
+msgid "Mirror"
+msgstr "镜像源"
+
+#: src/views/environment/PHPView.vue:462
+msgid "The mirror is a global setting shared by all PHP versions. Use a mirror to speed up package downloads in mainland China."
+msgstr "镜像源是一项由所有 PHP 版本共享的全局设置。在中国大陆使用镜像源可加快软件包下载速度。"
+
+#: src/views/environment/PHPView.vue:495
 msgid "Slow Logs"
 msgstr "慢日志"
 
-#: src/views/environment/PHPView.vue:298
+#: src/views/environment/PHPView.vue:511
 msgid "PHPInfo"
 msgstr "PHPInfo"
 
@@ -9061,15 +9838,6 @@ msgstr "已用物理内存"
 msgid "Physical Memory Available"
 msgstr "可用物理内存"
 
-#: src/views/home/IndexView.vue:721
-#: src/views/toolbox/DiskView.vue:218
-msgid "Free"
-msgstr "空闲"
-
-#: src/views/home/IndexView.vue:724
-msgid "Active"
-msgstr "活跃"
-
 #: src/views/home/IndexView.vue:727
 #: src/views/project/ListView.vue:76
 msgid "Inactive"
@@ -9261,17 +10029,6 @@ msgstr "更新日志"
 msgid "Today"
 msgstr "今天"
 
-#: src/views/log/DatabaseLog.vue:48
-#: src/views/log/HttpLog.vue:56
-#: src/views/log/OperationLog.vue:51
-#: src/views/log/SSHLog.vue:58
-#: src/views/monitor/AlertView.vue:145
-#: src/views/tamper/TamperView.vue:191
-#: src/views/toolbox/SystemView.vue:197
-#: src/views/website/stats/ErrorsTab.vue:87
-msgid "Time"
-msgstr "时间"
-
 #: src/views/log/DatabaseLog.vue:57
 #: src/views/log/OperationLog.vue:60
 msgid "Level"
@@ -9287,10 +10044,6 @@ msgstr "查询"
 msgid "Duration"
 msgstr "持续时间"
 
-#: src/views/log/DatabaseLog.vue:94
-msgid "Rows"
-msgstr "行"
-
 #: src/views/log/DatabaseLog.vue:112
 #: src/views/log/HttpLog.vue:141
 #: src/views/log/OperationLog.vue:164
@@ -9303,11 +10056,6 @@ msgstr "日期"
 #: src/views/log/SSHLog.vue:102
 msgid "Show entries"
 msgstr "显示条目"
-
-#: src/views/log/HttpLog.vue:65
-#: src/views/website/stats/ErrorsTab.vue:94
-msgid "Method"
-msgstr "方法"
 
 #: src/views/log/HttpLog.vue:121
 msgid "Client IP"
@@ -10972,6 +11720,10 @@ msgstr "面板将修改内核启动参数（向 LSM 列表追加 bpf）并立即
 msgid "The server is rebooting, please reconnect later"
 msgstr "服务器正在重启，请稍后重新连接"
 
+#: src/views/tamper/TamperView.vue:121
+msgid "Extensions"
+msgstr "扩展名"
+
 #: src/views/tamper/TamperView.vue:126
 msgid "All files"
 msgstr "全部文件"
@@ -11636,10 +12388,6 @@ msgstr "无法解析磁盘数据，请刷新并重试"
 #: src/views/toolbox/DiskView.vue:726
 msgid "Partition"
 msgstr "分区"
-
-#: src/views/toolbox/DiskView.vue:241
-msgid "Used"
-msgstr "已用"
 
 #: src/views/toolbox/DiskView.vue:267
 msgid "Not Mounted"
@@ -13012,11 +13760,6 @@ msgstr "运行脚本用户（默认：root）"
 msgid "Return script output as raw text instead of JSON"
 msgstr "将脚本输出作为原始文本而非 JSON 返回"
 
-#: src/views/toolbox/WebHookView.vue:345
-#: src/views/toolbox/WebHookView.vue:389
-msgid "Script"
-msgstr "脚本"
-
 #: src/views/toolbox/WebHookView.vue:364
 msgid "Edit WebHook"
 msgstr "编辑 Web 钩子"
@@ -13186,10 +13929,6 @@ msgstr "确认切换"
 #: src/views/website/EditModal.vue:228
 msgid "Website type switched successfully"
 msgstr "网站类型切换成功"
-
-#: src/views/website/EditModal.vue:243
-msgid "Reset successfully"
-msgstr "重置成功"
 
 #: src/views/website/EditModal.vue:271
 msgid "Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first."
@@ -13766,10 +14505,6 @@ msgstr "配置可信的代理 IP（例如 CDN 或 Frp）以识别真实的访客
 msgid "If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) or ::/0 (ipv6) [insecure]."
 msgstr "如果使用 Frp，请填写 Frp IP 地址（例如 127.0.0.1）。如果使用 CDN，请填写 CDN IP 范围。如果不确定，可以填写 0.0.0.0/0（ipv4）或 ::/0（ipv6）[不安全]。"
 
-#: src/views/website/EditModal.vue:2055
-msgid "Enable"
-msgstr "启用"
-
 #: src/views/website/EditModal.vue:2059
 msgid "IP Sources"
 msgstr "IP 来源"
@@ -14002,21 +14737,6 @@ msgstr "浏览器"
 msgid "OS"
 msgstr "操作系统"
 
-#: src/views/website/stats/ClientsTab.vue:95
-#: src/views/website/stats/GeoTab.vue:108
-#: src/views/website/stats/GeoTab.vue:165
-#: src/views/website/stats/GeoTab.vue:218
-#: src/views/website/stats/IPsTab.vue:91
-#: src/views/website/stats/IPsTab.vue:134
-#: src/views/website/stats/OverviewTab.vue:141
-#: src/views/website/stats/SitesTab.vue:53
-#: src/views/website/stats/SlowURIsTab.vue:61
-#: src/views/website/stats/SpidersTab.vue:54
-#: src/views/website/stats/SpidersTab.vue:77
-#: src/views/website/stats/URIsTab.vue:49
-msgid "Requests"
-msgstr "请求"
-
 #: src/views/website/stats/ClientsTab.vue:106
 msgid "Browsers"
 msgstr "浏览器"
@@ -14124,10 +14844,6 @@ msgstr "您确定要清除所有统计数据吗？"
 #: src/views/website/StatsView.vue:197
 msgid "Sites"
 msgstr "站点"
-
-#: src/views/website/StatsView.vue:203
-msgid "Clients"
-msgstr "客户端"
 
 #: src/views/website/StatsView.vue:206
 msgid "IPs"
