@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-08-15 15:27\n"
+"PO-Revision-Date: 2026-08-19 11:14\n"
 
 #: internal/service/cli.go:1107
 msgid "%d certificate(s) failed to renew"
@@ -117,6 +117,10 @@ msgstr "活跃分片"
 msgid "Active connections"
 msgstr "活动连接"
 
+#: internal/apps/postgresql/app.go:419
+msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
+msgstr "高级查询性能监控，安装后需要重启 PostgreSQL"
+
 #: internal/service/cert.go:60
 msgid "Aliyun"
 msgstr "阿里云"
@@ -168,6 +172,10 @@ msgstr "应用更新失败：%v"
 #: internal/data/backup.go:1846
 msgid "Applying update..."
 msgstr "应用更新……"
+
+#: internal/apps/postgresql/app.go:416
+msgid "Automated partition management"
+msgstr "自动化分区管理"
 
 #: internal/data/backup.go:1810
 msgid "Backing up panel data..."
@@ -272,6 +280,10 @@ msgstr "网站 %s 的证书更新成功"
 msgid "Channel"
 msgstr "渠道"
 
+#: internal/apps/postgresql/app.go:413
+msgid "Chinese full-text search parser based on SCWS"
+msgstr "基于 SCWS 的中文全文检索解析器"
+
 #: internal/service/cli.go:1162
 #: internal/service/cli.go:1167
 msgid "Cleaning failed: %v"
@@ -308,7 +320,7 @@ msgstr "集群状态"
 msgid "Commands Per Second"
 msgstr "每秒执行命令数"
 
-#: internal/service/file.go:591
+#: internal/service/file.go:598
 msgid "Compress %v"
 msgstr "压缩 %v"
 
@@ -323,6 +335,10 @@ msgstr "已连接客户端数"
 #: internal/service/cli.go:1238
 msgid "Container %s has no log file"
 msgstr "容器 %s 没有日志文件"
+
+#: internal/apps/postgresql/app.go:418
+msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
+msgstr "使用 SQL 注释中的提示控制执行计划，安装后需要重启 PostgreSQL"
 
 #: internal/biz/tamper.go:307
 msgid "Count"
@@ -414,7 +430,7 @@ msgstr "下载失败：%v"
 msgid "Download file check failed"
 msgstr "下载文件检查失败"
 
-#: internal/service/file.go:461
+#: internal/service/file.go:468
 msgid "Download remote file %v"
 msgstr "下载远程文件 %v"
 
@@ -626,7 +642,7 @@ msgstr "保存用户信息失败：%v"
 msgid "Failed to save website: %v"
 msgstr "保存网站失败：%v"
 
-#: internal/service/ws.go:203
+#: internal/service/ws.go:206
 msgid "Failed to start command: %v"
 msgstr "启动命令失败：%v"
 
@@ -718,6 +734,10 @@ msgstr "Go-%s 未安装"
 msgid "Goroutine Count"
 msgstr "Goroutine 数量"
 
+#: internal/apps/postgresql/app.go:424
+msgid "HTTP client for SQL, send requests from the database"
+msgstr "用于 SQL 的 HTTP 客户端，可从数据库发送请求"
+
 #: internal/service/cli.go:544
 msgid "HTTPS certificate generated"
 msgstr "HTTPS 证书已生成"
@@ -737,6 +757,10 @@ msgstr "硬件和操作系统指标"
 #: internal/service/cert.go:68
 msgid "Huawei Cloud"
 msgstr "华为云"
+
+#: internal/apps/postgresql/app.go:421
+msgid "Hypothetical indexes for query plan testing"
+msgstr "用于查询计划测试的假想索引"
 
 #: internal/service/cli.go:1069
 msgid "ID: %d, Domains: %s, Auto Renewal: %t, Expires At: %s"
@@ -794,6 +818,10 @@ msgstr "Igbinary 是一个用于序列化和反序列化数据的库"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
+#: internal/apps/postgresql/app.go:420
+msgid "Incremental view maintenance for materialized views"
+msgstr "物化视图的增量维护"
+
 #: internal/apps/mysql/app.go:120
 msgid "Index Hit Rate"
 msgstr "索引命中率"
@@ -816,6 +844,10 @@ msgstr "插入操作"
 #: internal/service/environment_php.go:312
 msgid "Install PHP-%d %s module"
 msgstr "安装 PHP-%d %s 模块"
+
+#: internal/apps/postgresql/app.go:368
+msgid "Install PostgreSQL extension %s"
+msgstr "安装 PostgreSQL 扩展 %s"
 
 #: internal/apps/prometheus/app.go:248
 msgid "Install Prometheus exporter %s"
@@ -868,6 +900,10 @@ msgstr "最近一次 fork() 操作耗费的毫秒数"
 #: internal/biz/alert.go:646
 msgid "Level"
 msgstr "级别"
+
+#: internal/apps/postgresql/app.go:422
+msgid "Lightweight message queue"
+msgstr "轻量级消息队列"
 
 #: internal/apps/rocketmq/app.go:66
 msgid "Listen Port"
@@ -1072,6 +1108,10 @@ msgstr "已打开的表"
 msgid "Operation"
 msgstr "操作"
 
+#: internal/apps/postgresql/app.go:423
+msgid "Oracle compatibility functions"
+msgstr "Oracle 兼容函数"
+
 #: internal/service/cli.go:1673
 msgid "Output"
 msgstr "输出"
@@ -1247,7 +1287,7 @@ msgstr "正在准备更新到 %s……"
 msgid "Process"
 msgstr "进程"
 
-#: internal/apps/postgresql/app.go:169
+#: internal/apps/postgresql/app.go:178
 msgid "Process Count"
 msgstr "进程数"
 
@@ -1255,7 +1295,7 @@ msgstr "进程数"
 msgid "Process Manager"
 msgstr "进程管理方式"
 
-#: internal/apps/postgresql/app.go:168
+#: internal/apps/postgresql/app.go:177
 msgid "Process PID"
 msgstr "进程 PID"
 
@@ -1326,6 +1366,10 @@ msgstr "迁移中的分片"
 msgid "Remove panel file failed: %v"
 msgstr "删除面板文件失败：%v"
 
+#: internal/apps/postgresql/app.go:414
+msgid "Reorganize tables online to remove bloat"
+msgstr "在线重组表以消除膨胀"
+
 #: internal/apps/apache/app.go:149
 msgid "Requests/sec"
 msgstr "每秒请求"
@@ -1345,6 +1389,10 @@ msgstr "每秒回滚"
 #: internal/biz/alert.go:385
 msgid "Rule"
 msgstr "规则"
+
+#: internal/apps/postgresql/app.go:415
+msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
+msgstr "在数据库内运行定时任务，安装后需要重启 PostgreSQL"
 
 #: internal/service/environment_php.go:453
 msgid "SNMP is a protocol for network management"
@@ -1366,6 +1414,10 @@ msgstr "SSH2 是一个用于连接 SSH 服务器的库"
 msgid "Schedule"
 msgstr "执行周期"
 
+#: internal/apps/postgresql/app.go:417
+msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
+msgstr "会话和对象审计日志记录，安装后需要重启 PostgreSQL"
+
 #: internal/service/environment_php.go:748
 msgid "Session save handler is not files, cannot clean"
 msgstr "Session 保存处理程序不是 files，无法清理"
@@ -1386,7 +1438,11 @@ msgstr "Slug：%s，渠道：%s，版本：%s"
 msgid "Sort Merge Passes"
 msgstr "排序后的合并次数"
 
-#: internal/apps/postgresql/app.go:167
+#: internal/apps/postgresql/app.go:411
+msgid "Spatial and geographic objects support"
+msgstr "支持空间和地理对象"
+
+#: internal/apps/postgresql/app.go:176
 #: internal/apps/prometheus/app.go:98
 #: internal/service/environment_php.go:185
 msgid "Start Time"
@@ -1400,7 +1456,7 @@ msgstr "存储引擎"
 msgid "Storage Retention"
 msgstr "存储保留"
 
-#: internal/apps/postgresql/app.go:171
+#: internal/apps/postgresql/app.go:180
 msgid "Storage Usage"
 msgstr "存储使用"
 
@@ -1493,6 +1549,10 @@ msgstr "时间"
 msgid "Time synchronized successfully"
 msgstr "时间同步成功"
 
+#: internal/apps/postgresql/app.go:412
+msgid "Time-series database engine, requires restarting PostgreSQL after installation"
+msgstr "时序数据库引擎，安装后需要重启 PostgreSQL"
+
 #: internal/data/toolbox_migration_baota.go:248
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr "不支持自动迁移 Tomcat 项目"
@@ -1510,7 +1570,7 @@ msgid "Total Commands Processed"
 msgstr "执行的命令总数"
 
 #: internal/apps/mysql/app.go:113
-#: internal/apps/postgresql/app.go:170
+#: internal/apps/postgresql/app.go:179
 msgid "Total Connections"
 msgstr "总连接数"
 
@@ -1574,13 +1634,17 @@ msgstr "无法在离线模式下更新应用列表缓存"
 msgid "Unassigned Shards"
 msgstr "未分配的分片"
 
-#: internal/service/file.go:619
+#: internal/service/file.go:626
 msgid "Uncompress %v"
 msgstr "解压 %v"
 
 #: internal/service/environment_php.go:347
 msgid "Uninstall PHP-%d %s module"
 msgstr "卸载 PHP-%d %s 模块"
+
+#: internal/apps/postgresql/app.go:396
+msgid "Uninstall PostgreSQL extension %s"
+msgstr "卸载 PostgreSQL 扩展 %s"
 
 #: internal/apps/prometheus/app.go:276
 msgid "Uninstall Prometheus exporter %s"
@@ -1704,6 +1768,10 @@ msgstr "用户名： %s"
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
 msgstr "版本"
+
+#: internal/apps/postgresql/app.go:410
+msgid "Vector similarity search"
+msgstr "向量相似度搜索"
 
 #: internal/data/backup.go:1833
 msgid "Verify download file failed: %v"
@@ -1919,7 +1987,7 @@ msgid "background task is running, restart is prohibited, please try again later
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
 #: internal/service/home.go:373
-#: internal/service/ws.go:485
+#: internal/service/ws.go:488
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
@@ -1947,7 +2015,7 @@ msgid "btrfs filesystem is not mounted, logical volume has been extended but fil
 msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整大小"
 
 #: internal/service/backup.go:168
-#: internal/service/file.go:443
+#: internal/service/file.go:450
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
@@ -1984,7 +2052,7 @@ msgstr "证书续签失败"
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/service/file.go:813
+#: internal/service/file.go:820
 msgid "chunk hash mismatch"
 msgstr "分块哈希不匹配"
 
@@ -1992,7 +2060,7 @@ msgstr "分块哈希不匹配"
 msgid "client ip changed, please login again"
 msgstr "客户端 IP 已更改，请重新登录"
 
-#: internal/service/ws.go:196
+#: internal/service/ws.go:199
 msgid "command is empty"
 msgstr "命令为空"
 
@@ -2012,12 +2080,12 @@ msgstr "容器状态"
 msgid "could not find database backup file"
 msgstr "找不到数据库备份文件"
 
-#: internal/service/file.go:317
-#: internal/service/file.go:736
+#: internal/service/file.go:324
+#: internal/service/file.go:743
 msgid "create directory error: %v"
 msgstr "创建目录错误：%v"
 
-#: internal/service/file.go:856
+#: internal/service/file.go:863
 msgid "create target file error: %v"
 msgstr "创建目标文件错误：%v"
 
@@ -2162,8 +2230,13 @@ msgstr "exporter %s 不存在"
 msgid "exporter %s has no configuration file"
 msgstr "exporter %s 没有配置文件"
 
-#: internal/apps/postgresql/app.go:325
-#: internal/apps/postgresql/app.go:84
+#: internal/apps/postgresql/app.go:360
+#: internal/apps/postgresql/app.go:388
+msgid "extension %s does not exist"
+msgstr "扩展 %s 不存在"
+
+#: internal/apps/postgresql/app.go:334
+#: internal/apps/postgresql/app.go:93
 msgid "failed to apply PostgreSQL config: %v"
 msgstr "应用 PostgreSQL 配置失败：%v"
 
@@ -2206,7 +2279,7 @@ msgstr "在目标端创建数据库失败：%v"
 msgid "failed to create database user on target: %v"
 msgstr "在目标端创建数据库用户失败：%v"
 
-#: internal/service/ws.go:395
+#: internal/service/ws.go:398
 msgid "failed to create docker client: %v"
 msgstr "创建 docker 客户端失败：%v"
 
@@ -2294,7 +2367,7 @@ msgstr "下载源备份失败：%v"
 msgid "failed to enable %s service: %v"
 msgstr "启用 %s 服务失败：%v"
 
-#: internal/service/ws.go:409
+#: internal/service/ws.go:412
 msgid "failed to encode auth: %v"
 msgstr "编码认证信息失败：%v"
 
@@ -2367,23 +2440,23 @@ msgstr "获取 MySQL 状态失败： %v"
 msgid "failed to get NTP configuration: %v"
 msgstr "获取 NTP 配置失败：%v"
 
-#: internal/apps/postgresql/app.go:147
+#: internal/apps/postgresql/app.go:156
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr "获取 PostgreSQL 后端 pid 失败： %v"
 
-#: internal/apps/postgresql/app.go:157
+#: internal/apps/postgresql/app.go:166
 msgid "failed to get PostgreSQL connections: %v"
 msgstr "获取 PostgreSQL 连接数失败： %v"
 
-#: internal/apps/postgresql/app.go:162
+#: internal/apps/postgresql/app.go:171
 msgid "failed to get PostgreSQL database size: %v"
 msgstr "获取 PostgreSQL 数据库大小失败： %v"
 
-#: internal/apps/postgresql/app.go:152
+#: internal/apps/postgresql/app.go:161
 msgid "failed to get PostgreSQL process: %v"
 msgstr "获取 PostgreSQL 进程数失败： %v"
 
-#: internal/apps/postgresql/app.go:142
+#: internal/apps/postgresql/app.go:151
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "获取 PostgreSQL 启动时间失败： %v"
 
@@ -2424,7 +2497,7 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get elasticsearch status: %v"
 msgstr "获取 elasticsearch 状态失败：%v"
 
-#: internal/service/file.go:489
+#: internal/service/file.go:496
 msgid "failed to get file system info"
 msgstr "获取文件系统信息失败"
 
@@ -2440,7 +2513,7 @@ msgstr "获取 grafana 状态失败：%v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:489
+#: internal/data/website.go:487
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -2478,7 +2551,7 @@ msgstr "获取分区失败：%v"
 msgid "failed to get port: %v"
 msgstr "获取端口失败： %v"
 
-#: internal/apps/postgresql/app.go:192
+#: internal/apps/postgresql/app.go:201
 msgid "failed to get postgres password: %v"
 msgstr "获取 postgres 密码失败： %v"
 
@@ -2505,14 +2578,14 @@ msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
 #: internal/service/home.go:386
-#: internal/service/ws.go:496
+#: internal/service/ws.go:499
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
 #: internal/service/home.go:302
 #: internal/service/home.go:338
 #: internal/service/home.go:380
-#: internal/service/ws.go:491
+#: internal/service/ws.go:494
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
@@ -2545,7 +2618,7 @@ msgstr "列出 Stream 上游失败：%v"
 msgid "failed to load MySQL root password: %v"
 msgstr "加载 MySQL root 密码失败： %v"
 
-#: internal/apps/postgresql/app.go:134
+#: internal/apps/postgresql/app.go:143
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "加载 PostgreSQL postgres 密码失败：%v"
 
@@ -2572,8 +2645,8 @@ msgstr "解析 SMART 信息失败：%v"
 #: internal/biz/cert.go:103
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:315
-#: internal/data/website.go:1250
-#: internal/data/website.go:862
+#: internal/data/website.go:1248
+#: internal/data/website.go:860
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -2592,8 +2665,8 @@ msgstr "解析 phpMyAdmin 登录页面失败"
 #: internal/biz/cert.go:106
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:318
-#: internal/data/website.go:1253
-#: internal/data/website.go:865
+#: internal/data/website.go:1251
+#: internal/data/website.go:863
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -2616,7 +2689,7 @@ msgstr "解析版本失败： %v"
 msgid "failed to parse xlsx: %v"
 msgstr "解析 xlsx 失败：%v"
 
-#: internal/service/ws.go:418
+#: internal/service/ws.go:421
 msgid "failed to pull image: %v"
 msgstr "拉取镜像失败：%v"
 
@@ -2624,7 +2697,7 @@ msgstr "拉取镜像失败：%v"
 msgid "failed to read command output: %v"
 msgstr "读取命令输出失败： %v"
 
-#: internal/service/ws.go:191
+#: internal/service/ws.go:194
 #: internal/service/ws.go:73
 msgid "failed to read command: %v"
 msgstr "读取命令失败： %v"
@@ -2645,9 +2718,9 @@ msgstr "读取 fstab 失败：%v"
 msgid "failed to read generated key: %v"
 msgstr "读取生成的密钥失败：%v"
 
-#: internal/service/ws.go:277
-#: internal/service/ws.go:383
-#: internal/service/ws.go:548
+#: internal/service/ws.go:280
+#: internal/service/ws.go:386
+#: internal/service/ws.go:551
 msgid "failed to read params: %v"
 msgstr "读取参数失败：%v"
 
@@ -2699,7 +2772,7 @@ msgstr "注册账户失败： %v"
 msgid "failed to reload %s service: %v"
 msgstr "重载 %s 服务失败： %v"
 
-#: internal/apps/postgresql/app.go:117
+#: internal/apps/postgresql/app.go:126
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重载 PostgreSQL 失败： %v"
 
@@ -2815,9 +2888,9 @@ msgstr "设置主机名失败： %v"
 msgid "failed to set hosts: %v"
 msgstr "设置 hosts 失败： %v"
 
-#: internal/apps/postgresql/app.go:213
-#: internal/apps/postgresql/app.go:219
-#: internal/apps/postgresql/app.go:225
+#: internal/apps/postgresql/app.go:222
+#: internal/apps/postgresql/app.go:228
+#: internal/apps/postgresql/app.go:234
 msgid "failed to set postgres password: %v"
 msgstr "设置 postgres 密码失败： %v"
 
@@ -2825,7 +2898,7 @@ msgstr "设置 postgres 密码失败： %v"
 msgid "failed to start %s service: %v"
 msgstr "启动 %s 服务失败： %v"
 
-#: internal/service/ws.go:357
+#: internal/service/ws.go:360
 msgid "failed to start container terminal: %v"
 msgstr "启动容器终端失败：%v"
 
@@ -2908,7 +2981,7 @@ msgstr "写入 Memcache 失败： %v"
 msgid "failed to write webhook script: %v"
 msgstr "写入 Web 钩子脚本失败：%v"
 
-#: internal/service/file.go:96
+#: internal/service/file.go:95
 msgid "file is too large, please download it to view"
 msgstr "文件太大，请下载后查看"
 
@@ -2920,7 +2993,7 @@ msgstr "gRPC 是一个高性能、开源和通用的 RPC 框架"
 msgid "get service port failed, please check if it is installed"
 msgstr "获取服务端口失败，请检查是否安装"
 
-#: internal/service/file.go:790
+#: internal/service/file.go:797
 msgid "get upload file error: %v"
 msgstr "获取上传文件错误：%v"
 
@@ -2970,9 +3043,9 @@ msgstr "无效的密钥，请刷新页面"
 msgid "invalid logical volume size"
 msgstr "无效的逻辑卷大小"
 
-#: internal/service/ws.go:282
-#: internal/service/ws.go:388
-#: internal/service/ws.go:555
+#: internal/service/ws.go:285
+#: internal/service/ws.go:391
+#: internal/service/ws.go:558
 msgid "invalid params: %v"
 msgstr "无效的参数：%v"
 
@@ -3027,7 +3100,7 @@ msgstr "小于等于"
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1354
+#: internal/data/website.go:1352
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -3131,11 +3204,11 @@ msgstr "获取并保存证书"
 msgid "only PHP runtime websites can be migrated: %s"
 msgstr "只能迁移 PHP 运行环境网站：%s"
 
-#: internal/service/file.go:325
+#: internal/service/file.go:332
 msgid "open file error: %v"
 msgstr "打开文件错误： %v"
 
-#: internal/service/file.go:796
+#: internal/service/file.go:803
 msgid "open upload file error: %v"
 msgstr "打开上传文件错误：%v"
 
@@ -3208,11 +3281,11 @@ msgstr "路径不存在：%s"
 msgid "path is not a directory: %s"
 msgstr "路径不是目录：%s"
 
-#: internal/service/file.go:783
+#: internal/service/file.go:790
 msgid "path, file_name and file_hash are required"
 msgstr "path，file_name 和 file_hash 是必需的"
 
-#: internal/service/file.go:138
+#: internal/service/file.go:136
 #: internal/service/ws.go:106
 msgid "path, service or container is required"
 msgstr "路径、服务或容器是必填项"
@@ -3257,9 +3330,9 @@ msgid "please connect to the source server first"
 msgstr "请先连接源服务器"
 
 #: internal/biz/user.go:115
-#: internal/service/file.go:272
-#: internal/service/file.go:378
-#: internal/service/file.go:417
+#: internal/service/file.go:279
+#: internal/service/file.go:385
+#: internal/service/file.go:424
 msgid "please don't do this"
 msgstr "请不要花样作死"
 
@@ -3320,15 +3393,15 @@ msgstr "代理 %s 不存在"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一个用于连接 Apache Kafka 的库"
 
-#: internal/service/file.go:873
+#: internal/service/file.go:880
 msgid "read chunk %d error: %v"
 msgstr "读取分块 %d 错误：%v"
 
-#: internal/service/file.go:804
+#: internal/service/file.go:811
 msgid "read chunk data error: %v"
 msgstr "读取分块数据错误：%v"
 
-#: internal/service/file.go:745
+#: internal/service/file.go:752
 msgid "read directory error: %v"
 msgstr "读取目录错误：%v"
 
@@ -3365,11 +3438,11 @@ msgstr "找不到规则"
 msgid "running"
 msgstr "运行中"
 
-#: internal/data/website.go:840
+#: internal/data/website.go:838
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
-#: internal/service/file.go:823
+#: internal/service/file.go:830
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
@@ -3432,11 +3505,11 @@ msgstr "未安装 smartmontools，请先安装它（例如：apt install smartmo
 msgid "some of the selected websites do not exist"
 msgstr "所选网站中有部分不存在"
 
-#: internal/service/ws.go:290
+#: internal/service/ws.go:293
 msgid "source and destination are the same file"
 msgstr "源文件与目标文件相同"
 
-#: internal/service/ws.go:286
+#: internal/service/ws.go:289
 msgid "source and destination path are required"
 msgstr "源路径与目标路径不能为空"
 
@@ -3511,13 +3584,13 @@ msgstr "目标端命令执行失败"
 msgid "target import failed: %v"
 msgstr "目标端导入失败：%v"
 
-#: internal/service/file.go:92
+#: internal/service/file.go:91
 msgid "target is a directory"
 msgstr "目标是一个目录"
 
-#: internal/service/file.go:303
-#: internal/service/file.go:729
-#: internal/service/file.go:844
+#: internal/service/file.go:310
+#: internal/service/file.go:736
+#: internal/service/file.go:851
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
@@ -3676,7 +3749,7 @@ msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
 #: internal/service/home.go:368
-#: internal/service/ws.go:481
+#: internal/service/ws.go:484
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
@@ -3747,13 +3820,13 @@ msgstr "不支持的源面板：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1443
-#: internal/data/website.go:1507
+#: internal/data/website.go:1441
+#: internal/data/website.go:1508
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
 #: internal/data/cert.go:331
-#: internal/data/website.go:1418
+#: internal/data/website.go:1416
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -3761,7 +3834,7 @@ msgstr "不支持的网站类型：%s"
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上传的证书无法设置为自动续签"
 
-#: internal/service/file.go:299
+#: internal/service/file.go:306
 msgid "upload file error: %v"
 msgstr "上传文件错误：%v"
 
@@ -3818,7 +3891,7 @@ msgstr "网站备份失败：%v"
 msgid "website configuration import failed: %v"
 msgstr "网站配置导入失败：%v"
 
-#: internal/data/website.go:847
+#: internal/data/website.go:845
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
@@ -3842,7 +3915,7 @@ msgstr "网站文件导入失败：%v"
 msgid "website not found"
 msgstr "网站不存在"
 
-#: internal/data/website.go:605
+#: internal/data/website.go:603
 msgid "website type is unchanged"
 msgstr "网站类型未更改"
 
@@ -3855,11 +3928,11 @@ msgstr "通配符域名不能使用 HTTP 验证"
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "通配符域名需要 DNS 验证，请选择一个 DNS 提供商"
 
-#: internal/service/file.go:879
+#: internal/service/file.go:886
 msgid "write chunk %d error: %v"
 msgstr "写入分块 %d 错误：%v"
 
-#: internal/service/file.go:330
+#: internal/service/file.go:337
 msgid "write file error: %v"
 msgstr "写入文件错误：%v"
 
