@@ -1,6 +1,6 @@
 module github.com/acepanel/panel/v3
 
-go 1.27
+go 1.27.0
 
 require (
 	github.com/andybalholm/brotli v1.2.2
@@ -15,7 +15,7 @@ require (
 	github.com/distribution/reference v0.6.0
 	github.com/expr-lang/expr v1.17.8
 	github.com/fsnotify/fsnotify v1.10.1
-	github.com/go-chi/chi/v5 v5.3.1
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/go-chi/httplog/v3 v3.4.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.6
 	github.com/go-sql-driver/mysql v1.10.0
@@ -33,19 +33,19 @@ require (
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/huaweicloud v1.0.1
 	github.com/libdns/libdns v1.1.1
-	github.com/libdns/namesilo v1.0.0
+	github.com/libdns/namesilo v1.1.0
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix/v2 v2.1.1
-	github.com/libtnb/cron v0.5.2
+	github.com/libtnb/cron v0.5.4
 	github.com/libtnb/gormstore v1.3.0
-	github.com/libtnb/logrotate v0.1.2
+	github.com/libtnb/logrotate v0.1.4
 	github.com/libtnb/sessions v1.5.0
 	github.com/libtnb/sqlite v1.2.2
 	github.com/libtnb/utils v1.2.2
-	github.com/libtnb/validator v0.4.1
-	github.com/libtnb/validator/contrib/openapi v0.2.0
+	github.com/libtnb/validator v0.4.3
+	github.com/libtnb/validator/contrib/openapi v0.2.2
 	github.com/medama-io/go-useragent v1.2.4
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.55.0
@@ -58,10 +58,10 @@ require (
 	github.com/sethvargo/go-limiter v1.2.0
 	github.com/shirou/gopsutil/v4 v4.26.7
 	github.com/spf13/cast v1.10.0
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.1
 	github.com/studio-b12/gowebdav v0.13.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
-	github.com/urfave/cli/v3 v3.10.1
+	github.com/urfave/cli/v3 v3.11.0
 	github.com/valyala/fastjson v1.6.10
 	github.com/wneessen/go-mail v0.8.1
 	github.com/xuri/excelize/v2 v2.11.0
@@ -72,7 +72,7 @@ require (
 	golang.org/x/sys v0.47.0
 	golang.org/x/term v0.45.0
 	gorm.io/gorm v1.31.2
-	modernc.org/sqlite v1.56.0
+	modernc.org/sqlite v1.57.0
 	resty.dev/v3 v3.0.0-rc.3
 )
 
