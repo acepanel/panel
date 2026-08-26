@@ -18,11 +18,11 @@ func (r *IPCIDR) Signature() string { return "ipcidr" }
 
 func (r *IPCIDR) Message() string { return "{field} must be a valid IP address or CIDR notation" }
 
-func (r *IPCIDR) Passes(f validator.Field) bool {
-	if validator.IsEmptyValue(f.Val()) {
+func (r *IPCIDR) Passes(f *validator.Field) bool {
+	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}
-	str := cast.ToString(f.Val().Interface())
+	str := cast.ToString(f.Reflect().Interface())
 	if net.ParseIP(str) != nil {
 		return true
 	}

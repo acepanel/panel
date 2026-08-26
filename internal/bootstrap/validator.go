@@ -12,7 +12,11 @@ import (
 // NewValidator 构建校验器
 func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
 
-	opts := []validator.Option{validator.WithStrictRequired()}
+	opts := []validator.Option{
+		validator.WithStrictRequired(),
+		validator.WithRules(rule.Rules()...),
+		validator.WithFallibleRules(rule.FallibleRules(db)...),
+	}
 	switch conf.App.Locale {
 	case "zh_CN":
 		opts = append(opts, validator.WithTranslation(translations.ZhHans()))
@@ -20,8 +24,5 @@ func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
 		opts = append(opts, validator.WithTranslation(translations.ZhHant()))
 	}
 
-	v := validator.NewValidator(opts...)
-	rule.RegisterRules(v, db)
-
-	return v
+	return validator.MustNew(opts...)
 }

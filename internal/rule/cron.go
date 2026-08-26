@@ -22,9 +22,9 @@ func (s *Cron) Signature() string { return "cron" }
 
 func (s *Cron) Message() string { return "{field} must be a valid cron expression" }
 
-func (s *Cron) Passes(f validator.Field) bool {
-	if validator.IsEmptyValue(f.Val()) {
+func (s *Cron) Passes(f *validator.Field) bool {
+	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}
-	return s.re.MatchString(cast.ToString(f.Val().Interface()))
+	return s.re.MatchString(cast.ToString(f.Reflect().Interface()))
 }

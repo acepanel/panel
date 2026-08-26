@@ -21,6 +21,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/route"
+	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/apploader"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/embed"
@@ -30,8 +31,8 @@ import (
 func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, middlewares *middleware.Middlewares, v *validator.Validator, endpoints []route.Endpoints) (*chi.Mux, error) {
 	mws := middlewares
 
-	// 供 service.Bind / route.SpecJSON 使用
-	validator.SetDefault(v)
+	// 供 service.Bind 使用
+	service.SetValidator(v)
 
 	// 数据驱动的登录白名单
 	public := route.PublicPaths(endpoints)
@@ -49,7 +50,7 @@ func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, 
 
 	// 仅调试模式挂载 OpenAPI 文档
 	if conf.App.Debug {
-		spec, err := route.SpecJSON(endpoints, "AcePanel")
+		spec, err := route.SpecJSON(endpoints, "AcePanel", v)
 		if err != nil {
 			return nil, err
 		}

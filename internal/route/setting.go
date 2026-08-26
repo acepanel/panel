@@ -13,10 +13,10 @@ func SettingRoutes(settingService *service.SettingService) Endpoints {
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/setting", Handler: svc.Get, Summary: "获取面板设置", Tags: []string{"设置"}},
-		{Method: http.MethodPost, Path: "/api/setting", Handler: svc.Update, Summary: "更新面板设置", Tags: []string{"设置"}, Request: request.SettingPanel{}},
-		{Method: http.MethodPost, Path: "/api/setting/cert", Handler: svc.UpdateCert, Summary: "更新面板证书", Tags: []string{"设置"}, Request: request.SettingCert{}},
+		{Method: http.MethodPost, Path: "/api/setting", Handler: svc.Update, Summary: "更新面板设置", Tags: []string{"设置"}, Document: DescribeReq[request.SettingPanel]()},
+		{Method: http.MethodPost, Path: "/api/setting/cert", Handler: svc.UpdateCert, Summary: "更新面板证书", Tags: []string{"设置"}, Document: DescribeReq[request.SettingCert]()},
 		{Method: http.MethodPost, Path: "/api/setting/obtain_cert", Handler: svc.ObtainCert, Summary: "签发面板证书", Tags: []string{"设置"}},
 		{Method: http.MethodGet, Path: "/api/setting/memo", Handler: svc.GetMemo, Summary: "获取便签", Tags: []string{"设置"}},
-		{Method: http.MethodPost, Path: "/api/setting/memo", Handler: svc.UpdateMemo, Summary: "更新便签", Tags: []string{"设置"}, Request: request.SettingMemo{}},
+		{Method: http.MethodPost, Path: "/api/setting/memo", Handler: svc.UpdateMemo, Summary: "更新便签", Tags: []string{"设置"}, Document: DescribeReq[request.SettingMemo]()},
 	}
 }

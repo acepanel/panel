@@ -13,6 +13,6 @@ func SafeRoutes(safeService *service.SafeService) Endpoints {
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/safe/ping", Handler: svc.GetPingStatus, Summary: "获取 Ping 状态", Tags: []string{"安全"}},
-		{Method: http.MethodPost, Path: "/api/safe/ping", Handler: svc.UpdatePingStatus, Summary: "更新 Ping 状态", Tags: []string{"安全"}, Request: request.SafeUpdatePingStatus{}},
+		{Method: http.MethodPost, Path: "/api/safe/ping", Handler: svc.UpdatePingStatus, Summary: "更新 Ping 状态", Tags: []string{"安全"}, Document: DescribeReq[request.SafeUpdatePingStatus]()},
 	}
 }

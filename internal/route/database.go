@@ -15,15 +15,15 @@ func DatabaseRoutes(databaseService *service.DatabaseService) Endpoints {
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database", Handler: svc.List,
 			Summary: "获取数据库列表", Tags: []string{"数据库"},
-			Request: request.DatabaseList{}, Response: service.Envelope[service.Page[*biz.Database]]{}},
+			Document: Describe[request.DatabaseList, service.Envelope[service.Page[*biz.Database]]]()},
 		{Method: http.MethodPost, Path: "/api/database", Handler: svc.Create,
 			Summary: "创建数据库", Tags: []string{"数据库"},
-			Request: request.DatabaseCreate{}},
+			Document: DescribeReq[request.DatabaseCreate]()},
 		{Method: http.MethodDelete, Path: "/api/database", Handler: svc.Delete,
 			Summary: "删除数据库", Tags: []string{"数据库"},
-			Request: request.DatabaseDelete{}},
+			Document: DescribeReq[request.DatabaseDelete]()},
 		{Method: http.MethodPost, Path: "/api/database/comment", Handler: svc.Comment,
 			Summary: "设置数据库注释", Tags: []string{"数据库"},
-			Request: request.DatabaseComment{}},
+			Document: DescribeReq[request.DatabaseComment]()},
 	}
 }

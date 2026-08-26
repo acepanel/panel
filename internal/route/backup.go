@@ -14,15 +14,15 @@ func BackupRoutes(backupService *service.BackupService) Endpoints {
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/backup/{type}", Handler: backup.List, Summary: "备份列表", Tags: []string{"备份"},
-			Request: request.BackupList{}, Response: service.Envelope[service.Page[*types.BackupFile]]{}},
+			Document: Describe[request.BackupList, service.Envelope[service.Page[*types.BackupFile]]]()},
 		{Method: http.MethodPost, Path: "/api/backup/{type}", Handler: backup.Create, Summary: "创建备份", Tags: []string{"备份"},
-			Request: request.BackupCreate{}},
+			Document: DescribeReq[request.BackupCreate]()},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/upload", Handler: backup.Upload, Summary: "上传备份", Tags: []string{"备份"}},
 		{Method: http.MethodGet, Path: "/api/backup/{type}/download", Handler: backup.Download, Summary: "下载备份", Tags: []string{"备份"},
-			Request: request.BackupFile{}},
+			Document: DescribeReq[request.BackupFile]()},
 		{Method: http.MethodDelete, Path: "/api/backup/{type}/delete", Handler: backup.Delete, Summary: "删除备份", Tags: []string{"备份"},
-			Request: request.BackupFile{}},
+			Document: DescribeReq[request.BackupFile]()},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/restore", Handler: backup.Restore, Summary: "恢复备份", Tags: []string{"备份"},
-			Request: request.BackupRestore{}},
+			Document: DescribeReq[request.BackupRestore]()},
 	}
 }

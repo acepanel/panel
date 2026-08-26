@@ -22,9 +22,9 @@ func (r *UnixPath) Signature() string { return "unix_path" }
 
 func (r *UnixPath) Message() string { return "{field} must be a valid Unix absolute path" }
 
-func (r *UnixPath) Passes(f validator.Field) bool {
-	if validator.IsEmptyValue(f.Val()) {
+func (r *UnixPath) Passes(f *validator.Field) bool {
+	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}
-	return r.re.MatchString(cast.ToString(f.Val().Interface()))
+	return r.re.MatchString(cast.ToString(f.Reflect().Interface()))
 }

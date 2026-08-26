@@ -14,14 +14,14 @@ func BackupStorageRoutes(backupStorageService *service.BackupStorageService) End
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/backup_storage", Handler: backupStorage.List, Summary: "备份存储列表", Tags: []string{"备份存储"},
-			Request: request.Paginate{}, Response: service.Envelope[service.Page[*biz.BackupStorage]]{}},
+			Document: Describe[request.Paginate, service.Envelope[service.Page[*biz.BackupStorage]]]()},
 		{Method: http.MethodPost, Path: "/api/backup_storage", Handler: backupStorage.Create, Summary: "创建备份存储", Tags: []string{"备份存储"},
-			Request: request.BackupStorageCreate{}, Response: service.Envelope[biz.BackupStorage]{}},
+			Document: Describe[request.BackupStorageCreate, service.Envelope[biz.BackupStorage]]()},
 		{Method: http.MethodPut, Path: "/api/backup_storage/{id}", Handler: backupStorage.Update, Summary: "更新备份存储", Tags: []string{"备份存储"},
-			Request: request.BackupStorageUpdate{}},
+			Document: DescribeReq[request.BackupStorageUpdate]()},
 		{Method: http.MethodGet, Path: "/api/backup_storage/{id}", Handler: backupStorage.Get, Summary: "获取备份存储", Tags: []string{"备份存储"},
-			Request: request.ID{}, Response: service.Envelope[biz.BackupStorage]{}},
+			Document: Describe[request.ID, service.Envelope[biz.BackupStorage]]()},
 		{Method: http.MethodDelete, Path: "/api/backup_storage/{id}", Handler: backupStorage.Delete, Summary: "删除备份存储", Tags: []string{"备份存储"},
-			Request: request.ID{}},
+			Document: DescribeReq[request.ID]()},
 	}
 }

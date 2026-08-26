@@ -1677,8 +1677,13 @@ func (s *CliService) CronFailed(ctx context.Context, cmd *cli.Command) error {
 
 // validate 校验请求结构体，CLI 不走 HTTP 绑定，需要单独调用
 func (s *CliService) validate(ctx context.Context, req any) error {
-	vd := s.validator.Struct(req)
-	vd.Validate(ctx)
+	vd, err := s.validator.Struct(req)
+	if err != nil {
+		return err
+	}
+	if err = vd.Validate(ctx); err != nil {
+		return err
+	}
 	if vd.Fails() {
 		return errors.New(vd.Errors().One())
 	}

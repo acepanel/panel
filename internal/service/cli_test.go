@@ -37,8 +37,11 @@ func (s *CliTestSuite) SetupTest() {
 	s.Require().NoError(db.Create(&biz.Website{Name: "taken", Type: biz.WebsiteTypeStatic, Path: "/www/taken"}).Error)
 
 	// 与 bootstrap.NewValidator 等价的构建方式，此处不能导入 bootstrap（会与 apps 形成循环）
-	v := validator.NewValidator(validator.WithStrictRequired())
-	rule.RegisterRules(v, db)
+	v := validator.MustNew(
+		validator.WithStrictRequired(),
+		validator.WithRules(rule.Rules()...),
+		validator.WithFallibleRules(rule.FallibleRules(db)...),
+	)
 
 	s.cli = &CliService{
 		t:         gotext.NewLocale("", ""),

@@ -20,14 +20,14 @@ func (r *Exists) Signature() string { return "exists" }
 
 func (r *Exists) Message() string { return "{field} is not exists" }
 
-func (r *Exists) Passes(f validator.Field) bool {
-	rv := f.Val()
+func (r *Exists) Validate(f *validator.Field) (bool, error) {
+	rv := f.Reflect()
 	if validator.IsEmptyValue(rv) {
-		return true
+		return true, nil
 	}
 	args := f.Attrs()
 	if len(args) < 2 {
-		return false
+		return false, nil
 	}
 
 	val := rv.Interface()
@@ -41,8 +41,8 @@ func (r *Exists) Passes(f validator.Field) bool {
 
 	var count int64
 	if err := query.Count(&count).Error; err != nil {
-		return false
+		return false, err
 	}
 
-	return count != 0
+	return count != 0, nil
 }

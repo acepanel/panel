@@ -13,10 +13,13 @@ import (
 
 func NewCron(log *slog.Logger, jobs []job.Job) (*cron.Cron, error) {
 	// 面板任务均为 5 段表达式，不启用 WithSecondsField
-	c := cron.New(
+	c, err := cron.New(
 		cron.WithLogger(log),
 		cron.WithChain(wrap.Recover(), wrap.SkipIfRunning()),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, j := range jobs {
 		id, err := c.Add(j.Spec, j.Task)

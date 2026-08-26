@@ -14,13 +14,15 @@ import (
 	"github.com/acepanel/panel/v3/internal/rule"
 )
 
-// tagValidator mirrors service.NewValidator's rule set. db is nil: CheckRules and
-// AddRules only compile expressions, they never invoke a rule's Passes or touch
+// tagValidator mirrors bootstrap.NewValidator's rule set. db is nil: CheckType and
+// AddRules only compile expressions, they never invoke a rule's Validate or touch
 // the database.
 func tagValidator() *validator.Validator {
-	v := validator.NewValidator(validator.WithStrictRequired())
-	rule.RegisterRules(v, nil)
-	return v
+	return validator.MustNew(
+		validator.WithStrictRequired(),
+		validator.WithRules(rule.Rules()...),
+		validator.WithFallibleRules(rule.FallibleRules(nil)...),
+	)
 }
 
 // TestCheckRulesKeyRequests runs the validator's own tag checker over the
@@ -35,7 +37,7 @@ func TestCheckRulesKeyRequests(t *testing.T) {
 		&SettingPanel{}, &UserTokenCreate{}, &FirewallScanSetting{},
 		&WebsiteStatDateRange{}, &BackupCreate{},
 	} {
-		if err := v.CheckRules(req); err != nil {
+		if err := v.CheckType(reflect.TypeOf(req)); err != nil {
 			t.Errorf("%T: %v", req, err)
 		}
 	}
@@ -77,7 +79,11 @@ func TestValidateTagsCompile(t *testing.T) {
 				name = field.Names[0].Name
 			}
 			seen++
-			if err := v.Map(map[string]any{}, nil).AddRules(name, expr); err != nil {
+			vd, err := v.Map(map[string]any{}, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = vd.AddRules(name, expr); err != nil {
 				t.Errorf("%s: %s `validate:%q`: %v", file, name, expr, err)
 			}
 			return true

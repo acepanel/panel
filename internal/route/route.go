@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
+	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/contrib/openapi"
 
 	"github.com/acepanel/panel/v3/internal/middleware"
@@ -130,17 +131,39 @@ type ThrottleRule struct {
 	Interval time.Duration
 }
 
-// Endpoint 声明一个 HTTP 端点：如何服务，以及（经 Request/Response 样本）如何生成文档。
-// 无 Request/Response 的端点（探针、WebSocket）不进 OpenAPI 文档。
+// Documentation 将端点登记到 OpenAPI 生成器。
+type Documentation func(g *openapi.Generator, method, path, summary string, tags []string) error
+
+// Describe 以请求与响应样本类型登记文档，响应固定 200。
+func Describe[Request, Response any]() Documentation {
+	return func(g *openapi.Generator, method, path, summary string, tags []string) error {
+		return g.Add[Request](method, path,
+			openapi.WithSummary(summary),
+			openapi.WithTags(tags...),
+			openapi.WithResponse[Response](http.StatusOK),
+		)
+	}
+}
+
+// DescribeReq 登记只有请求体的端点。
+func DescribeReq[Request any]() Documentation {
+	return Describe[Request, openapi.NoBody]()
+}
+
+// DescribeResp 登记只有响应体的端点。
+func DescribeResp[Response any]() Documentation {
+	return Describe[openapi.NoBody, Response]()
+}
+
+// Endpoint 声明一个 HTTP 端点：如何服务，以及（经 Document）如何生成文档。
+// 无 Document 的端点（探针、WebSocket）不进 OpenAPI 文档。
 type Endpoint struct {
 	Method   string
 	Path     string // 绝对路径，如 "/api/users"
 	Handler  http.HandlerFunc
 	Summary  string
 	Tags     []string
-	Request  any // request.* 样本
-	Response any // service.Envelope[...] 样本
-	Status   int
+	Document Documentation
 	Public   bool          // 登录白名单（MustLogin 放行）
 	Throttle *ThrottleRule // 非 nil 时端点级限流
 }
@@ -181,24 +204,22 @@ func PublicPaths(groups []Endpoints) []string {
 	return paths
 }
 
-// SpecJSON 从每个带文档样本的端点组装 OpenAPI 3 文档。
-func SpecJSON(groups []Endpoints, title string) ([]byte, error) {
-	g := openapi.New(title, buildVersion(),
-		openapi.WithType(time.Time{}, &openapi.Schema{Type: "string", Format: "date-time"}),
+// SpecJSON 从每个带文档的端点组装 OpenAPI 3 文档。
+func SpecJSON(groups []Endpoints, title string, v *validator.Validator) ([]byte, error) {
+	g, err := openapi.New(title, buildVersion(),
+		openapi.WithValidator(v),
+		openapi.WithSchema[time.Time](&openapi.Schema{Type: "string", Format: "date-time"}),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, endpoints := range groups {
 		for _, e := range endpoints {
-			if e.Request == nil && e.Response == nil {
+			if e.Document == nil {
 				continue
 			}
-			if err := g.Add(e.Method, e.Path, openapi.Op{
-				Summary:  e.Summary,
-				Tags:     e.Tags,
-				Request:  e.Request,
-				Response: e.Response,
-				Status:   e.Status,
-			}); err != nil {
+			if err = e.Document(g, e.Method, e.Path, e.Summary, e.Tags); err != nil {
 				return nil, err
 			}
 		}

@@ -5,12 +5,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterRules 注册面板自定义规则到验证器实例
-func RegisterRules(v *validator.Validator, db *gorm.DB) {
-	v.RegisterRule(NewExists(db))
-	v.RegisterRule(NewNotExists(db))
-	v.RegisterRule(NewPassword())
-	v.RegisterRule(NewCron())
-	v.RegisterRule(NewIPCIDR())
-	v.RegisterRule(NewUnixPath())
+// Rules 面板自定义校验规则
+func Rules() []validator.Rule {
+	return []validator.Rule{
+		NewPassword(),
+		NewCron(),
+		NewIPCIDR(),
+		NewUnixPath(),
+	}
+}
+
+// FallibleRules 依赖数据库查询的校验规则
+func FallibleRules(db *gorm.DB) []validator.FallibleRule {
+	return []validator.FallibleRule{
+		NewExists(db),
+		NewNotExists(db),
+	}
 }

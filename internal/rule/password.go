@@ -20,11 +20,11 @@ func (r *Password) Message() string {
 	return "{field} must be 8-20 characters long and contain at least two types of characters: uppercase letters, lowercase letters, numbers, and special characters"
 }
 
-func (r *Password) Passes(f validator.Field) bool {
-	if validator.IsEmptyValue(f.Val()) {
+func (r *Password) Passes(f *validator.Field) bool {
+	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}
-	password := cast.ToString(f.Val().Interface())
+	password := cast.ToString(f.Reflect().Interface())
 	if len(password) < 8 || len(password) > 20 {
 		return false
 	}

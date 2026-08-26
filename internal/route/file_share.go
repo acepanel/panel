@@ -15,13 +15,13 @@ func FileShareRoutes(fileShareService *service.FileShareService) Endpoints {
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/file_share", Handler: svc.List,
 			Summary: "文件分享列表", Tags: []string{"文件"},
-			Response: service.Envelope[[]*biz.FileShare]{}},
+			Document: DescribeResp[service.Envelope[[]*biz.FileShare]]()},
 		{Method: http.MethodPost, Path: "/api/file_share", Handler: svc.Create,
 			Summary: "创建文件分享", Tags: []string{"文件"},
-			Request: request.FileShareCreate{}, Response: service.Envelope[biz.FileShare]{}},
+			Document: Describe[request.FileShareCreate, service.Envelope[biz.FileShare]]()},
 		{Method: http.MethodDelete, Path: "/api/file_share/{id}", Handler: svc.Delete,
 			Summary: "取消文件分享", Tags: []string{"文件"},
-			Request: request.ID{}},
+			Document: DescribeReq[request.ID]()},
 		// 顶层免登录下载
 		{Method: http.MethodGet, Path: "/download/{token}", Handler: svc.Download},
 	}
