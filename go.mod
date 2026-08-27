@@ -3,7 +3,7 @@ module github.com/acepanel/panel/v3
 go 1.27.0
 
 require (
-	github.com/andybalholm/brotli v1.2.2
+	github.com/andybalholm/brotli v1.2.3
 	github.com/bddjr/hlfhr v1.6.1
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.22.0
