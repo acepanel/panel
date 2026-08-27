@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-08-19 15:09\n"
+"PO-Revision-Date: 2026-08-27 09:12\n"
 
 #: internal/service/cli.go:1107
 msgid "%d certificate(s) failed to renew"
@@ -117,7 +117,7 @@ msgstr "活跃分片"
 msgid "Active connections"
 msgstr "活动连接"
 
-#: internal/apps/postgresql/app.go:854
+#: internal/apps/postgresql/app.go:864
 msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
 msgstr "高级查询性能监控，安装后需要重启 PostgreSQL"
 
@@ -129,7 +129,7 @@ msgstr "阿里云"
 msgid "All passkeys cleared for user %s"
 msgstr "已清除用户 %s 的所有通行密钥"
 
-#: internal/apps/redis/app.go:392
+#: internal/apps/redis/app.go:397
 msgid "Allocator Fragmentation Ratio"
 msgstr "分配器碎片率"
 
@@ -177,7 +177,7 @@ msgstr "应用更新失败：%v"
 msgid "Applying update..."
 msgstr "应用更新……"
 
-#: internal/apps/postgresql/app.go:851
+#: internal/apps/postgresql/app.go:861
 msgid "Automated partition management"
 msgstr "自动化分区管理"
 
@@ -233,7 +233,7 @@ msgstr "Broker 状态"
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
-#: internal/apps/redis/app.go:391
+#: internal/apps/redis/app.go:396
 msgid "Bytes Per Key"
 msgstr "每个键的字节数"
 
@@ -288,7 +288,7 @@ msgstr "网站 %s 的证书更新成功"
 msgid "Channel"
 msgstr "渠道"
 
-#: internal/apps/postgresql/app.go:848
+#: internal/apps/postgresql/app.go:858
 msgid "Chinese full-text search parser based on SCWS"
 msgstr "基于 SCWS 的中文全文搜索解析器"
 
@@ -348,7 +348,7 @@ msgstr "已连接客户端数"
 msgid "Container %s has no log file"
 msgstr "容器 %s 没有日志文件"
 
-#: internal/apps/postgresql/app.go:853
+#: internal/apps/postgresql/app.go:863
 msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
 msgstr "使用 SQL 注释中的提示控制执行计划，安装后需要重启 PostgreSQL"
 
@@ -417,11 +417,11 @@ msgstr "数据库：%s，用户名：%s，密码：%s"
 msgid "Databases"
 msgstr "数据库"
 
-#: internal/apps/redis/app.go:389
+#: internal/apps/redis/app.go:394
 msgid "Dataset Percentage"
 msgstr "数据集占比"
 
-#: internal/apps/redis/app.go:388
+#: internal/apps/redis/app.go:393
 msgid "Dataset Size"
 msgstr "数据集大小"
 
@@ -632,7 +632,7 @@ msgstr "优化数据库失败：%v"
 msgid "Failed to read certificate file: %v"
 msgstr "读取证书文件失败：%v"
 
-#: internal/service/cli.go:1724
+#: internal/service/cli.go:1729
 #: internal/service/cli.go:429
 msgid "Failed to read input: %v"
 msgstr "读取输入失败： %v"
@@ -720,7 +720,7 @@ msgstr "刷盘类型"
 msgid "Forum：https://tom.moe"
 msgstr "论坛：https://tom.moe"
 
-#: internal/apps/redis/app.go:393
+#: internal/apps/redis/app.go:398
 msgid "Fragmentation Ratio"
 msgstr "碎片率"
 
@@ -758,7 +758,7 @@ msgstr "Go-%s 未安装"
 msgid "Goroutine Count"
 msgstr "Goroutine 数量"
 
-#: internal/apps/postgresql/app.go:859
+#: internal/apps/postgresql/app.go:869
 msgid "HTTP client for SQL, send requests from the database"
 msgstr "用于 SQL 的 HTTP 客户端，可从数据库发送请求"
 
@@ -782,7 +782,7 @@ msgstr "硬件和操作系统指标"
 msgid "Huawei Cloud"
 msgstr "华为云"
 
-#: internal/apps/postgresql/app.go:856
+#: internal/apps/postgresql/app.go:866
 msgid "Hypothetical indexes for query plan testing"
 msgstr "用于查询计划测试的假想索引"
 
@@ -842,7 +842,7 @@ msgstr "Igbinary 是一个用于序列化和反序列化数据的库"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
-#: internal/apps/postgresql/app.go:855
+#: internal/apps/postgresql/app.go:865
 msgid "Incremental view maintenance for materialized views"
 msgstr "物化视图的增量维护"
 
@@ -909,7 +909,7 @@ msgstr "Journal 日志"
 msgid "Kafka metrics"
 msgstr "Kafka 指标"
 
-#: internal/apps/redis/app.go:390
+#: internal/apps/redis/app.go:395
 msgid "Keys Count"
 msgstr "键数量"
 
@@ -933,7 +933,7 @@ msgstr "最近一次 fork() 操作耗费的毫秒数"
 msgid "Level"
 msgstr "级别"
 
-#: internal/apps/postgresql/app.go:857
+#: internal/apps/postgresql/app.go:867
 msgid "Lightweight message queue"
 msgstr "轻量级消息队列"
 
@@ -1140,7 +1140,7 @@ msgstr "已打开的表"
 msgid "Operation"
 msgstr "操作"
 
-#: internal/apps/postgresql/app.go:858
+#: internal/apps/postgresql/app.go:868
 msgid "Oracle compatibility functions"
 msgstr "Oracle 兼容函数"
 
@@ -1197,7 +1197,7 @@ msgstr "用户 %s 的密码已成功更改"
 msgid "Password length cannot be less than 6"
 msgstr "密码长度不能少于6位"
 
-#: internal/service/cli.go:1717
+#: internal/service/cli.go:1722
 msgid "Password not provided, pass it as an argument or set the %s environment variable"
 msgstr "未提供密码，请将其作为参数传入或设置 %s 环境变量"
 
@@ -1217,7 +1217,7 @@ msgstr "路径"
 msgid "Path: %s"
 msgstr "路径：%s"
 
-#: internal/apps/redis/app.go:385
+#: internal/apps/redis/app.go:390
 msgid "Peak Allocated"
 msgstr "分配峰值"
 
@@ -1405,7 +1405,7 @@ msgstr "迁移中的分片"
 msgid "Remove panel file failed: %v"
 msgstr "删除面板文件失败：%v"
 
-#: internal/apps/postgresql/app.go:849
+#: internal/apps/postgresql/app.go:859
 msgid "Reorganize tables online to remove bloat"
 msgstr "在线重组表以消除膨胀"
 
@@ -1429,15 +1429,15 @@ msgstr "每秒回滚"
 msgid "Rule"
 msgstr "规则"
 
-#: internal/apps/mysql/app.go:649
-msgid "Run %s on table %s.%s"
-msgstr "在表 %s.%s 上执行 %s"
+#: internal/apps/mysql/app.go:658
+msgid "Run %s on %d tables"
+msgstr "在 %d 个表上执行 %s"
 
-#: internal/apps/postgresql/app.go:745
-msgid "Run %s on table %s.%s of database %s"
-msgstr "在数据库 %s 的表 %s.%s 上执行 %s"
+#: internal/apps/postgresql/app.go:755
+msgid "Run %s on %d tables in database %s"
+msgstr "在数据库 %s 的 %d 个表上执行 %s"
 
-#: internal/apps/postgresql/app.go:850
+#: internal/apps/postgresql/app.go:860
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr "在数据库内运行定时任务，安装后需要重启 PostgreSQL"
 
@@ -1457,7 +1457,7 @@ msgstr "SSH 登录成功"
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一个用于连接 SSH 服务器的库"
 
-#: internal/apps/redis/app.go:423
+#: internal/apps/redis/app.go:428
 msgid "Scan %s big keys"
 msgstr "扫描 %s 大键"
 
@@ -1465,7 +1465,7 @@ msgstr "扫描 %s 大键"
 msgid "Schedule"
 msgstr "执行周期"
 
-#: internal/apps/postgresql/app.go:852
+#: internal/apps/postgresql/app.go:862
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr "会话和对象审计日志记录，安装后需要重启 PostgreSQL"
 
@@ -1489,7 +1489,7 @@ msgstr "Slug：%s，渠道：%s，版本：%s"
 msgid "Sort Merge Passes"
 msgstr "排序后的合并次数"
 
-#: internal/apps/postgresql/app.go:846
+#: internal/apps/postgresql/app.go:856
 msgid "Spatial and geographic objects support"
 msgstr "支持空间和地理对象"
 
@@ -1499,7 +1499,7 @@ msgstr "支持空间和地理对象"
 msgid "Start Time"
 msgstr "启动时间"
 
-#: internal/apps/redis/app.go:387
+#: internal/apps/redis/app.go:392
 msgid "Startup Allocated"
 msgstr "启动时已分配"
 
@@ -1604,7 +1604,7 @@ msgstr "时间"
 msgid "Time synchronized successfully"
 msgstr "时间同步成功"
 
-#: internal/apps/postgresql/app.go:847
+#: internal/apps/postgresql/app.go:857
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr "时序数据库引擎，安装后需要重启 PostgreSQL"
 
@@ -1616,7 +1616,7 @@ msgstr "不支持自动迁移 Tomcat 项目"
 msgid "Total Accesses"
 msgstr "总访问量"
 
-#: internal/apps/redis/app.go:386
+#: internal/apps/redis/app.go:391
 msgid "Total Allocated"
 msgstr "已分配总量"
 
@@ -1828,7 +1828,7 @@ msgstr "用户名： %s"
 msgid "VERSION"
 msgstr "版本"
 
-#: internal/apps/postgresql/app.go:845
+#: internal/apps/postgresql/app.go:855
 msgid "Vector similarity search"
 msgstr "向量相似度搜索"
 
@@ -2069,7 +2069,7 @@ msgstr "备份任务执行失败"
 msgid "backup transfer failed: %v"
 msgstr "备份传输失败：%v"
 
-#: internal/apps/mysql/app.go:730
+#: internal/apps/mysql/app.go:739
 msgid "binlog file %s does not exist"
 msgstr "二进制日志文件 %s 不存在"
 
@@ -2589,7 +2589,7 @@ msgstr "获取 grafana 状态失败：%v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:487
+#: internal/data/website.go:493
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -2721,8 +2721,8 @@ msgstr "解析 SMART 信息失败：%v"
 #: internal/biz/cert.go:103
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:315
-#: internal/data/website.go:1248
-#: internal/data/website.go:860
+#: internal/data/website.go:1251
+#: internal/data/website.go:866
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -2741,8 +2741,8 @@ msgstr "解析 phpMyAdmin 登录页面失败"
 #: internal/biz/cert.go:106
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:318
-#: internal/data/website.go:1251
-#: internal/data/website.go:863
+#: internal/data/website.go:1254
+#: internal/data/website.go:869
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -3135,8 +3135,8 @@ msgstr "无效的逻辑卷大小"
 msgid "invalid mirror url"
 msgstr "镜像源 URL 无效"
 
-#: internal/apps/mysql/app.go:634
-#: internal/apps/postgresql/app.go:725
+#: internal/apps/mysql/app.go:639
+#: internal/apps/postgresql/app.go:729
 msgid "invalid operation"
 msgstr "操作无效"
 
@@ -3173,7 +3173,7 @@ msgstr "无效的签名"
 msgid "invalid size"
 msgstr "无效的大小"
 
-#: internal/apps/postgresql/app.go:823
+#: internal/apps/postgresql/app.go:833
 msgid "invalid slot name"
 msgstr "槽名称无效"
 
@@ -3209,7 +3209,7 @@ msgstr "小于等于"
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1352
+#: internal/data/website.go:1355
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -3299,6 +3299,11 @@ msgstr "暂无迁移日志"
 #: internal/service/firewall.go:257
 msgid "no rules found in file"
 msgstr "文件中未找到规则"
+
+#: internal/apps/mysql/app.go:635
+#: internal/apps/postgresql/app.go:725
+msgid "no tables selected"
+msgstr "未选择表"
 
 #: internal/biz/alert.go:952
 msgid "not running"
@@ -3421,7 +3426,7 @@ msgstr "未找到 pgAdmin 凭据文件"
 msgid "pgAdmin port not found"
 msgstr "未找到 pgAdmin 端口"
 
-#: internal/apps/postgresql/app.go:737
+#: internal/apps/postgresql/app.go:736
 msgid "pg_repack is not installed, please install it in the extensions tab first"
 msgstr "未安装 pg_repack，请先在扩展标签页中安装"
 
@@ -3555,7 +3560,7 @@ msgstr "找不到规则"
 msgid "running"
 msgstr "运行中"
 
-#: internal/data/website.go:838
+#: internal/data/website.go:844
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -3937,13 +3942,13 @@ msgstr "不支持的源面板：%s"
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1441
-#: internal/data/website.go:1508
+#: internal/data/website.go:1444
+#: internal/data/website.go:1513
 msgid "unsupported web server: %s"
 msgstr "不支持的 Web 服务器：%s"
 
 #: internal/data/cert.go:331
-#: internal/data/website.go:1416
+#: internal/data/website.go:1419
 msgid "unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -4008,7 +4013,7 @@ msgstr "网站备份失败：%v"
 msgid "website configuration import failed: %v"
 msgstr "网站配置导入失败：%v"
 
-#: internal/data/website.go:845
+#: internal/data/website.go:851
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
@@ -4032,7 +4037,7 @@ msgstr "网站文件导入失败：%v"
 msgid "website not found"
 msgstr "网站不存在"
 
-#: internal/data/website.go:603
+#: internal/data/website.go:609
 msgid "website type is unchanged"
 msgstr "网站类型未更改"
 
