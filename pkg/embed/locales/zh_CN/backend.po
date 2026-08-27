@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-08-27 09:12\n"
+"PO-Revision-Date: 2026-08-27 14:27\n"
 
 #: internal/service/cli.go:1107
 msgid "%d certificate(s) failed to renew"
