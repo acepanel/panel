@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-08-27 14:27\n"
+"PO-Revision-Date: 2026-08-27 16:21\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -1056,13 +1056,34 @@ msgid "Reload"
 msgstr "重載"
 
 #: src/components/common/TunePresetModal.vue:84
-#: src/views/apps/apache/ApacheConfigTuneView.vue:98
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:251
-#: src/views/apps/nginx/NginxConfigTuneView.vue:196
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:212
-#: src/views/apps/redis/RedisConfigTuneView.vue:140
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:134
-#: src/views/environment/PhpConfigTuneView.vue:270
+#: src/views/apps/apache/ApacheConfigTuneView.vue:162
+#: src/views/apps/apache/ApacheConfigTuneView.vue:211
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:331
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:493
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:589
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:622
+#: src/views/apps/nginx/NginxConfigTuneView.vue:295
+#: src/views/apps/nginx/NginxConfigTuneView.vue:348
+#: src/views/apps/nginx/NginxConfigTuneView.vue:402
+#: src/views/apps/nginx/NginxConfigTuneView.vue:450
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:261
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:342
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:411
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:452
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:488
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:513
+#: src/views/apps/redis/RedisConfigTuneView.vue:200
+#: src/views/apps/redis/RedisConfigTuneView.vue:237
+#: src/views/apps/redis/RedisConfigTuneView.vue:265
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:194
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:231
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:259
+#: src/views/environment/PhpConfigTuneView.vue:298
+#: src/views/environment/PhpConfigTuneView.vue:332
+#: src/views/environment/PhpConfigTuneView.vue:406
+#: src/views/environment/PhpConfigTuneView.vue:454
+#: src/views/environment/PhpConfigTuneView.vue:522
+#: src/views/environment/PhpConfigTuneView.vue:600
 msgid "Generate Recommended Configuration"
 msgstr "產生建議配置"
 
@@ -1071,8 +1092,9 @@ msgid "Generates recommended values based on the server profile and fills them i
 msgstr "根據伺服器配置產生建議值並填入表單。請檢查數值並手動儲存。"
 
 #: src/components/common/TunePresetModal.vue:96
-msgid "Allocated Memory (MB)"
-msgstr "已分配記憶體（MB）"
+#: src/views/container/ContainerCreate.vue:506
+msgid "Memory (MB)"
+msgstr "記憶體（MB）"
 
 #: src/components/common/TunePresetModal.vue:101
 msgid "Memory allocated to this service"
@@ -1125,8 +1147,8 @@ msgstr "放棄"
 
 #: src/components/file-editor/EditorPane.vue:198
 #: src/components/file-editor/EditorToolbar.vue:153
-#: src/views/apps/apache/ApacheConfigTuneView.vue:164
-#: src/views/apps/apache/ApacheConfigTuneView.vue:210
+#: src/views/apps/apache/ApacheConfigTuneView.vue:159
+#: src/views/apps/apache/ApacheConfigTuneView.vue:208
 #: src/views/apps/apache/IndexView.vue:94
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:91
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:116
@@ -1176,16 +1198,16 @@ msgstr "放棄"
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:83
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:111
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:130
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:333
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:492
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:585
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:615
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:328
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:490
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:586
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:619
 #: src/views/apps/mysql/MysqlIndex.vue:145
 #: src/views/apps/mysql/MysqlIndex.vue:170
-#: src/views/apps/nginx/NginxConfigTuneView.vue:297
-#: src/views/apps/nginx/NginxConfigTuneView.vue:347
-#: src/views/apps/nginx/NginxConfigTuneView.vue:398
-#: src/views/apps/nginx/NginxConfigTuneView.vue:443
+#: src/views/apps/nginx/NginxConfigTuneView.vue:292
+#: src/views/apps/nginx/NginxConfigTuneView.vue:345
+#: src/views/apps/nginx/NginxConfigTuneView.vue:399
+#: src/views/apps/nginx/NginxConfigTuneView.vue:447
 #: src/views/apps/nginx/NginxIndex.vue:519
 #: src/views/apps/opensearch/IndexView.vue:82
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:97
@@ -1199,12 +1221,12 @@ msgstr "放棄"
 #: src/views/apps/postgresql/IndexView.vue:184
 #: src/views/apps/postgresql/IndexView.vue:208
 #: src/views/apps/postgresql/IndexView.vue:242
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:263
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:341
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:407
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:445
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:478
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:500
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:258
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:339
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:408
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:449
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:485
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:510
 #: src/views/apps/prometheus/IndexView.vue:113
 #: src/views/apps/prometheus/IndexView.vue:139
 #: src/views/apps/prometheus/PrometheusConfigTuneView.vue:60
@@ -1212,9 +1234,9 @@ msgstr "放棄"
 #: src/views/apps/pureftpd/IndexView.vue:180
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:121
 #: src/views/apps/redis/IndexView.vue:84
-#: src/views/apps/redis/RedisConfigTuneView.vue:202
-#: src/views/apps/redis/RedisConfigTuneView.vue:236
-#: src/views/apps/redis/RedisConfigTuneView.vue:261
+#: src/views/apps/redis/RedisConfigTuneView.vue:197
+#: src/views/apps/redis/RedisConfigTuneView.vue:234
+#: src/views/apps/redis/RedisConfigTuneView.vue:262
 #: src/views/apps/rocketmq/IndexView.vue:85
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:112
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:143
@@ -1225,18 +1247,18 @@ msgstr "放棄"
 #: src/views/apps/supervisor/IndexView.vue:583
 #: src/views/apps/supervisor/IndexView.vue:597
 #: src/views/apps/valkey/IndexView.vue:84
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:196
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:230
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:255
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:191
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:228
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:256
 #: src/views/container/ContainerCreate.vue:653
 #: src/views/environment/GoView.vue:90
 #: src/views/environment/NodejsView.vue:93
-#: src/views/environment/PhpConfigTuneView.vue:300
-#: src/views/environment/PhpConfigTuneView.vue:331
-#: src/views/environment/PhpConfigTuneView.vue:402
-#: src/views/environment/PhpConfigTuneView.vue:447
-#: src/views/environment/PhpConfigTuneView.vue:512
-#: src/views/environment/PhpConfigTuneView.vue:587
+#: src/views/environment/PhpConfigTuneView.vue:295
+#: src/views/environment/PhpConfigTuneView.vue:329
+#: src/views/environment/PhpConfigTuneView.vue:403
+#: src/views/environment/PhpConfigTuneView.vue:451
+#: src/views/environment/PhpConfigTuneView.vue:519
+#: src/views/environment/PhpConfigTuneView.vue:597
 #: src/views/environment/PHPView.vue:321
 #: src/views/environment/PHPView.vue:339
 #: src/views/environment/PHPView.vue:476
@@ -2597,100 +2619,100 @@ msgstr "自訂編譯參數"
 msgid "Generated, review the values and save"
 msgstr "已產生，請檢查數值並儲存"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:102
+#: src/views/apps/apache/ApacheConfigTuneView.vue:97
 msgid "MPM Event"
 msgstr "MPM Event"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:105
+#: src/views/apps/apache/ApacheConfigTuneView.vue:100
 msgid "Worker thread pool settings for the event MPM."
 msgstr "event MPM 的工作執行緒池設定。"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:108
+#: src/views/apps/apache/ApacheConfigTuneView.vue:103
 msgid "Start Servers (StartServers)"
 msgstr "啟動伺服器數量（StartServers）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:112
+#: src/views/apps/apache/ApacheConfigTuneView.vue:107
 #: src/views/apps/frp/FrpProxyModal.vue:446
 #: src/views/apps/frp/FrpProxyModal.vue:454
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:251
-#: src/views/environment/PhpConfigTuneView.vue:489
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:246
+#: src/views/environment/PhpConfigTuneView.vue:496
 msgid "e.g. 3"
 msgstr "例如 3"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:116
+#: src/views/apps/apache/ApacheConfigTuneView.vue:111
 msgid "Min Spare Threads (MinSpareThreads)"
 msgstr "最小閒置執行緒數（MinSpareThreads）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:120
+#: src/views/apps/apache/ApacheConfigTuneView.vue:115
 msgid "e.g. 75"
 msgstr "例如 75"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:124
+#: src/views/apps/apache/ApacheConfigTuneView.vue:119
 msgid "Max Spare Threads (MaxSpareThreads)"
 msgstr "最大閒置執行緒數（MaxSpareThreads）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:128
+#: src/views/apps/apache/ApacheConfigTuneView.vue:123
 msgid "e.g. 250"
 msgstr "例如 250"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:132
+#: src/views/apps/apache/ApacheConfigTuneView.vue:127
 msgid "Threads Per Child (ThreadsPerChild)"
 msgstr "每個子處理程序的執行緒數（ThreadsPerChild）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:136
+#: src/views/apps/apache/ApacheConfigTuneView.vue:131
 msgid "e.g. 25"
 msgstr "例如 25"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:140
+#: src/views/apps/apache/ApacheConfigTuneView.vue:135
 msgid "Max Request Workers (MaxRequestWorkers)"
 msgstr "最大請求工作執行緒數（MaxRequestWorkers）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:144
+#: src/views/apps/apache/ApacheConfigTuneView.vue:139
 msgid "e.g. 400"
 msgstr "例如 400"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:148
+#: src/views/apps/apache/ApacheConfigTuneView.vue:143
 msgid "Max Connections Per Child (MaxConnectionsPerChild)"
 msgstr "每個子處理程序的最大連接數（MaxConnectionsPerChild）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:152
-#: src/views/apps/apache/ApacheConfigTuneView.vue:190
+#: src/views/apps/apache/ApacheConfigTuneView.vue:147
+#: src/views/apps/apache/ApacheConfigTuneView.vue:188
 msgid "0 means unlimited"
 msgstr "0 表示不限制"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:169
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:216
+#: src/views/apps/apache/ApacheConfigTuneView.vue:167
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:211
 msgid "Connection"
 msgstr "連接"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:172
+#: src/views/apps/apache/ApacheConfigTuneView.vue:170
 msgid "Connection and keep-alive settings."
 msgstr "連接與 KeepAlive 設定。"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:175
+#: src/views/apps/apache/ApacheConfigTuneView.vue:173
 msgid "Timeout (Timeout)"
 msgstr "逾時（Timeout）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:179
-#: src/views/apps/nginx/NginxConfigTuneView.vue:224
-#: src/views/environment/PhpConfigTuneView.vue:427
+#: src/views/apps/apache/ApacheConfigTuneView.vue:177
+#: src/views/apps/nginx/NginxConfigTuneView.vue:219
+#: src/views/environment/PhpConfigTuneView.vue:431
 msgid "e.g. 60"
 msgstr "例如 60"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:183
+#: src/views/apps/apache/ApacheConfigTuneView.vue:181
 msgid "Keep Alive (KeepAlive)"
 msgstr "KeepAlive（KeepAlive）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:186
+#: src/views/apps/apache/ApacheConfigTuneView.vue:184
 msgid "Max Keep Alive Requests (MaxKeepAliveRequests)"
 msgstr "最大 KeepAlive 請求數（MaxKeepAliveRequests）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:194
+#: src/views/apps/apache/ApacheConfigTuneView.vue:192
 msgid "Keep Alive Timeout (KeepAliveTimeout)"
 msgstr "KeepAlive 逾時（KeepAliveTimeout）"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:198
-#: src/views/environment/PhpConfigTuneView.vue:478
+#: src/views/apps/apache/ApacheConfigTuneView.vue:196
+#: src/views/environment/PhpConfigTuneView.vue:485
 msgid "e.g. 5"
 msgstr "例如 5"
 
@@ -2910,8 +2932,8 @@ msgstr "臨時路徑"
 
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:143
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:116
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:590
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:450
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:594
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:457
 msgid "Logging"
 msgstr "日誌"
 
@@ -3493,11 +3515,11 @@ msgstr "封禁列表"
 
 #: src/views/apps/frp/FrpcConfigTuneView.vue:74
 #: src/views/apps/frp/FrpsConfigTuneView.vue:74
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:255
-#: src/views/apps/nginx/NginxConfigTuneView.vue:200
-#: src/views/apps/redis/RedisConfigTuneView.vue:144
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:138
-#: src/views/environment/PhpConfigTuneView.vue:274
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:250
+#: src/views/apps/nginx/NginxConfigTuneView.vue:195
+#: src/views/apps/redis/RedisConfigTuneView.vue:139
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:133
+#: src/views/environment/PhpConfigTuneView.vue:269
 #: src/views/project/IndexView.vue:22
 #: src/views/project/ListView.vue:25
 msgid "General"
@@ -3882,8 +3904,8 @@ msgid "Interval Seconds (healthCheck.intervalSeconds)"
 msgstr "間隔秒數（healthCheck.intervalSeconds）"
 
 #: src/views/apps/frp/FrpProxyModal.vue:462
-#: src/views/apps/nginx/NginxConfigTuneView.vue:249
-#: src/views/environment/PhpConfigTuneView.vue:500
+#: src/views/apps/nginx/NginxConfigTuneView.vue:244
+#: src/views/environment/PhpConfigTuneView.vue:507
 msgid "e.g. 10"
 msgstr "例如 10"
 
@@ -4159,8 +4181,8 @@ msgid "Max Retries Per Hour (maxRetriesAnHour)"
 msgstr "每小時最大重試次數（maxRetriesAnHour）"
 
 #: src/views/apps/frp/FrpVisitorModal.vue:187
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:349
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:473
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:347
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:471
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:80
 msgid "e.g. 8"
 msgstr "例如 8"
@@ -4170,7 +4192,7 @@ msgid "Min Retry Interval (minRetryInterval)"
 msgstr "最小重試間隔（minRetryInterval）"
 
 #: src/views/apps/frp/FrpVisitorModal.vue:198
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:556
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:557
 msgid "e.g. 90"
 msgstr "例如 90"
 
@@ -4564,8 +4586,8 @@ msgid "Listen Address (-l)"
 msgstr "監聽地址（-l）"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:76
-#: src/views/apps/redis/RedisConfigTuneView.vue:151
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:145
+#: src/views/apps/redis/RedisConfigTuneView.vue:146
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:140
 msgid "e.g. 127.0.0.1"
 msgstr "例如 127.0.0.1"
 
@@ -4574,9 +4596,9 @@ msgid "Memory (-m, MB)"
 msgstr "記憶體（-m, MB）"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:82
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:297
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:508
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:303
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:292
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:509
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:301
 msgid "e.g. 64"
 msgstr "例如 64"
 
@@ -4593,7 +4615,7 @@ msgid "Threads (-t)"
 msgstr "執行緒（-t）"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:98
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:372
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:373
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:96
 msgid "e.g. 4"
 msgstr "例如 4"
@@ -4653,195 +4675,195 @@ msgstr "授權（security.authorization）"
 msgid "System Log Path (systemLog.path)"
 msgstr "系統日誌路徑（systemLog.path）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:258
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:253
 msgid "Common MySQL general settings."
 msgstr "MySQL 通用設定。"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:261
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:228
-#: src/views/apps/redis/RedisConfigTuneView.vue:153
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:147
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:256
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:223
+#: src/views/apps/redis/RedisConfigTuneView.vue:148
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:142
 msgid "Port (port)"
 msgstr "連接埠（port）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:265
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:260
 msgid "e.g. 3306"
 msgstr "例如 3306"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:270
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:237
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:265
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:232
 msgid "Max Connections (max_connections)"
 msgstr "最大連接數（max_connections）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:274
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:548
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:269
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:549
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:72
-#: src/views/environment/PhpConfigTuneView.vue:351
-#: src/views/environment/PhpConfigTuneView.vue:367
+#: src/views/environment/PhpConfigTuneView.vue:352
+#: src/views/environment/PhpConfigTuneView.vue:368
 msgid "e.g. 50"
 msgstr "例如 50"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:278
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:273
 msgid "Max Connect Errors (max_connect_errors)"
 msgstr "最大連接錯誤（max_connect_errors）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:282
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:422
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:277
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:426
 msgid "e.g. 100"
 msgstr "例如 100"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:286
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:281
 msgid "Default Storage Engine (default_storage_engine)"
 msgstr "預設儲存引擎（default_storage_engine）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:293
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:288
 msgid "Table Open Cache (table_open_cache)"
 msgstr "資料表開啟快取（table_open_cache）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:301
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:296
 msgid "Max Allowed Packet (max_allowed_packet)"
 msgstr "最大允許封包（max_allowed_packet）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:306
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:565
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:573
-#: src/views/apps/nginx/NginxConfigTuneView.vue:320
-#: src/views/apps/nginx/NginxConfigTuneView.vue:370
-#: src/views/apps/nginx/NginxConfigTuneView.vue:419
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:384
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:301
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:566
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:574
+#: src/views/apps/nginx/NginxConfigTuneView.vue:318
+#: src/views/apps/nginx/NginxConfigTuneView.vue:371
+#: src/views/apps/nginx/NginxConfigTuneView.vue:423
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:385
 msgid "e.g. 1"
 msgstr "例如 1"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:317
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:312
 msgid "Open Files Limit (open_files_limit)"
 msgstr "開啟檔案數限制（open_files_limit）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:321
-#: src/views/apps/nginx/NginxConfigTuneView.vue:216
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:316
+#: src/views/apps/nginx/NginxConfigTuneView.vue:211
 msgid "e.g. 65535"
 msgstr "例如 65535"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:338
-#: src/views/environment/PhpConfigTuneView.vue:452
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:336
+#: src/views/environment/PhpConfigTuneView.vue:459
 msgid "Performance Tuning"
 msgstr "性能調優"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:341
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:339
 msgid "MySQL performance buffer and cache settings."
 msgstr "MySQL 效能緩衝區與快取設定。"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:344
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:342
 msgid "Key Buffer Size (key_buffer_size)"
 msgstr "鍵緩衝區大小（key_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:356
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:354
 msgid "Sort Buffer Size (sort_buffer_size)"
 msgstr "排序緩衝區大小（sort_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:361
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:377
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:393
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:279
-#: src/views/apps/redis/RedisConfigTuneView.vue:218
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:212
-#: src/views/environment/PhpConfigTuneView.vue:387
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:359
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:375
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:391
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:277
+#: src/views/apps/redis/RedisConfigTuneView.vue:216
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:210
+#: src/views/environment/PhpConfigTuneView.vue:388
 msgid "e.g. 256"
 msgstr "例如 256"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:372
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:370
 msgid "Read Buffer Size (read_buffer_size)"
 msgstr "讀取緩衝區大小（read_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:388
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:386
 msgid "Read Rnd Buffer Size (read_rnd_buffer_size)"
 msgstr "隨機讀取緩衝區大小（read_rnd_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:404
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:402
 msgid "Join Buffer Size (join_buffer_size)"
 msgstr "連接緩衝區大小（join_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:409
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:407
 msgid "e.g. 128"
 msgstr "例如 128"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:420
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:418
 msgid "Thread Cache Size (thread_cache_size)"
 msgstr "執行緒快取大小（thread_cache_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:424
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:445
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:457
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:524
-#: src/views/apps/redis/RedisConfigTuneView.vue:166
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:160
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:422
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:443
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:455
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:525
+#: src/views/apps/redis/RedisConfigTuneView.vue:161
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:155
 msgid "e.g. 16"
 msgstr "例如 16"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:428
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:426
 msgid "Thread Stack (thread_stack)"
 msgstr "執行緒堆疊（thread_stack）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:433
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:431
 msgid "e.g. 192"
 msgstr "例如 192"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:440
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:438
 msgid "Tmp Table Size (tmp_table_size)"
 msgstr "臨時表大小（tmp_table_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:452
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:450
 msgid "Max Heap Table Size (max_heap_table_size)"
 msgstr "最大堆表大小（max_heap_table_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:468
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:466
 msgid "MyISAM Sort Buffer Size (myisam_sort_buffer_size)"
 msgstr "MyISAM 排序緩衝區大小（myisam_sort_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:500
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:501
 msgid "InnoDB storage engine settings."
 msgstr "InnoDB 儲存引擎設定。"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:503
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:504
 msgid "Buffer Pool Size (innodb_buffer_pool_size)"
 msgstr "緩衝池大小（innodb_buffer_pool_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:519
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:520
 msgid "Log Buffer Size (innodb_log_buffer_size)"
 msgstr "日誌緩衝區大小（innodb_log_buffer_size）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:536
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:537
 msgid "Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)"
 msgstr "交易提交時寫入日誌（innodb_flush_log_at_trx_commit）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:544
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:545
 msgid "Lock Wait Timeout (innodb_lock_wait_timeout)"
 msgstr "鎖等待超時（innodb_lock_wait_timeout）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:552
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:553
 msgid "Max Dirty Pages Pct (innodb_max_dirty_pages_pct)"
 msgstr "最大髒頁百分比（innodb_max_dirty_pages_pct）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:561
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:562
 msgid "Read IO Threads (innodb_read_io_threads)"
 msgstr "讀取 IO 執行緒（innodb_read_io_threads）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:569
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:570
 msgid "Write IO Threads (innodb_write_io_threads)"
 msgstr "寫入 IO 執行緒（innodb_write_io_threads）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:593
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:597
 msgid "MySQL logging settings."
 msgstr "MySQL 日誌設定。"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:596
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:600
 msgid "Slow Query Log (slow_query_log)"
 msgstr "慢查詢日誌（slow_query_log）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:599
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:603
 msgid "Long Query Time (long_query_time)"
 msgstr "長查詢時間（long_query_time）"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:603
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:607
 msgid "e.g. 3 (seconds)"
 msgstr "例如 3（秒）"
 
@@ -5192,143 +5214,143 @@ msgstr "啟用"
 msgid "Reset Statistics"
 msgstr "重設統計資訊"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:203
+#: src/views/apps/nginx/NginxConfigTuneView.vue:198
 msgid "Common Nginx general settings."
 msgstr "Nginx 通用設定。"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:206
+#: src/views/apps/nginx/NginxConfigTuneView.vue:201
 msgid "Worker Processes (worker_processes)"
 msgstr "工作處理程序數（worker_processes）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:209
+#: src/views/apps/nginx/NginxConfigTuneView.vue:204
 msgid "e.g. auto or number"
 msgstr "例如 auto 或數字"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:212
+#: src/views/apps/nginx/NginxConfigTuneView.vue:207
 msgid "Worker Connections (worker_connections)"
 msgstr "工作連接數（worker_connections）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:220
+#: src/views/apps/nginx/NginxConfigTuneView.vue:215
 msgid "Keepalive Timeout (keepalive_timeout)"
 msgstr "保持連接超時（keepalive_timeout）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:228
+#: src/views/apps/nginx/NginxConfigTuneView.vue:223
 msgid "Client Max Body Size (client_max_body_size)"
 msgstr "客戶端最大請求體大小（client_max_body_size）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:233
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:241
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:433
+#: src/views/apps/nginx/NginxConfigTuneView.vue:228
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:236
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:437
 msgid "e.g. 200"
 msgstr "例如 200"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:244
+#: src/views/apps/nginx/NginxConfigTuneView.vue:239
 msgid "Client Body Buffer Size (client_body_buffer_size)"
 msgstr "客戶端請求體緩衝區大小（client_body_buffer_size）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:260
+#: src/views/apps/nginx/NginxConfigTuneView.vue:255
 msgid "Client Header Buffer Size (client_header_buffer_size)"
 msgstr "客戶端請求頭緩衝區大小（client_header_buffer_size）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:265
+#: src/views/apps/nginx/NginxConfigTuneView.vue:260
 msgid "e.g. 32"
 msgstr "例如 32"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:277
+#: src/views/apps/nginx/NginxConfigTuneView.vue:272
 msgid "Server Names Hash Bucket Size (server_names_hash_bucket_size)"
 msgstr "伺服器名稱雜湊桶大小（server_names_hash_bucket_size）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:282
+#: src/views/apps/nginx/NginxConfigTuneView.vue:277
 msgid "e.g. 512"
 msgstr "例如 512"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:286
+#: src/views/apps/nginx/NginxConfigTuneView.vue:281
 msgid "Server Tokens (server_tokens)"
 msgstr "伺服器識別（server_tokens）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:306
+#: src/views/apps/nginx/NginxConfigTuneView.vue:304
 msgid "Gzip compression settings. Gzip is the most widely supported compression method."
 msgstr "Gzip 壓縮設定。Gzip 是支援最廣泛的壓縮方式。"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:312
+#: src/views/apps/nginx/NginxConfigTuneView.vue:310
 msgid "Gzip (gzip)"
 msgstr "Gzip（gzip）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:315
+#: src/views/apps/nginx/NginxConfigTuneView.vue:313
 msgid "Min Length (gzip_min_length)"
 msgstr "最小長度（gzip_min_length）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:327
+#: src/views/apps/nginx/NginxConfigTuneView.vue:325
 msgid "Compression Level (gzip_comp_level)"
 msgstr "壓縮級別（gzip_comp_level）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:330
+#: src/views/apps/nginx/NginxConfigTuneView.vue:328
 msgid "Types (gzip_types)"
 msgstr "類型（gzip_types）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:331
-#: src/views/apps/nginx/NginxConfigTuneView.vue:385
-#: src/views/apps/nginx/NginxConfigTuneView.vue:430
+#: src/views/apps/nginx/NginxConfigTuneView.vue:329
+#: src/views/apps/nginx/NginxConfigTuneView.vue:386
+#: src/views/apps/nginx/NginxConfigTuneView.vue:434
 msgid "e.g. *"
 msgstr "例如 *"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:333
+#: src/views/apps/nginx/NginxConfigTuneView.vue:331
 msgid "Vary (gzip_vary)"
 msgstr "Vary（gzip_vary）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:336
+#: src/views/apps/nginx/NginxConfigTuneView.vue:334
 msgid "Proxied (gzip_proxied)"
 msgstr "代理（gzip_proxied）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:337
+#: src/views/apps/nginx/NginxConfigTuneView.vue:335
 msgid "e.g. any"
 msgstr "例如 any"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:356
+#: src/views/apps/nginx/NginxConfigTuneView.vue:357
 msgid "Brotli compression settings. Brotli provides better compression ratio than Gzip."
 msgstr "Brotli 壓縮設定。Brotli 提供比 Gzip 更好的壓縮率。"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:362
+#: src/views/apps/nginx/NginxConfigTuneView.vue:363
 msgid "Brotli (brotli)"
 msgstr "Brotli（brotli）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:365
+#: src/views/apps/nginx/NginxConfigTuneView.vue:366
 msgid "Min Length (brotli_min_length)"
 msgstr "最小長度（brotli_min_length）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:381
+#: src/views/apps/nginx/NginxConfigTuneView.vue:382
 msgid "Compression Level (brotli_comp_level)"
 msgstr "壓縮級別（brotli_comp_level）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:384
+#: src/views/apps/nginx/NginxConfigTuneView.vue:385
 msgid "Types (brotli_types)"
 msgstr "類型（brotli_types）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:387
+#: src/views/apps/nginx/NginxConfigTuneView.vue:388
 msgid "Static (brotli_static)"
 msgstr "靜態（brotli_static）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:407
+#: src/views/apps/nginx/NginxConfigTuneView.vue:411
 msgid "Zstd compression settings. Zstd provides fast compression with high ratio."
 msgstr "Zstd 壓縮設定。Zstd 提供快速壓縮與高壓縮率。"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:411
+#: src/views/apps/nginx/NginxConfigTuneView.vue:415
 msgid "Zstd (zstd)"
 msgstr "Zstd（zstd）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:414
+#: src/views/apps/nginx/NginxConfigTuneView.vue:418
 msgid "Min Length (zstd_min_length)"
 msgstr "最小長度（zstd_min_length）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:426
+#: src/views/apps/nginx/NginxConfigTuneView.vue:430
 msgid "Compression Level (zstd_comp_level)"
 msgstr "壓縮級別（zstd_comp_level）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:429
+#: src/views/apps/nginx/NginxConfigTuneView.vue:433
 msgid "Types (zstd_types)"
 msgstr "類型（zstd_types）"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:432
+#: src/views/apps/nginx/NginxConfigTuneView.vue:436
 msgid "Static (zstd_static)"
 msgstr "靜態（zstd_static）"
 
@@ -5652,30 +5674,30 @@ msgstr "資料倉儲"
 msgid "Mixed"
 msgstr "混合"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:219
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:214
 msgid "PostgreSQL connection and authentication settings."
 msgstr "PostgreSQL 連線與驗證設定。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:222
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:217
 msgid "Listen Addresses (listen_addresses)"
 msgstr "監聽地址（listen_addresses）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:225
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:220
 msgid "e.g. localhost or *"
 msgstr "例如 localhost 或 *"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:232
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:227
 msgid "e.g. 5432"
 msgstr "例如 5432"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:246
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:241
 msgid "Superuser Reserved Connections (superuser_reserved_connections)"
 msgstr "超級使用者保留連線數（superuser_reserved_connections）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:268
-#: src/views/apps/redis/RedisConfigTuneView.vue:207
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:266
+#: src/views/apps/redis/RedisConfigTuneView.vue:205
 #: src/views/apps/redis/RedisPerformanceView.vue:151
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:201
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:199
 #: src/views/container/ContainerCreate.vue:542
 #: src/views/environment/PHPView.vue:103
 #: src/views/environment/PHPView.vue:410
@@ -5691,128 +5713,128 @@ msgstr "超級使用者保留連線數（superuser_reserved_connections）"
 msgid "Memory"
 msgstr "記憶體"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:271
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:269
 msgid "PostgreSQL memory allocation settings."
 msgstr "PostgreSQL 記憶體配置設定。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:274
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:272
 msgid "Shared Buffers (shared_buffers)"
 msgstr "共享緩衝區（shared_buffers）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:286
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:284
 msgid "Work Mem (work_mem)"
 msgstr "工作記憶體（work_mem）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:291
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:289
 msgid "e.g. 1260"
 msgstr "例如 1260"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:298
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:296
 msgid "Maintenance Work Mem (maintenance_work_mem)"
 msgstr "維護工作記憶體（maintenance_work_mem）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:314
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:312
 msgid "Effective Cache Size (effective_cache_size)"
 msgstr "有效快取大小（effective_cache_size）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:319
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:317
 msgid "e.g. 768"
 msgstr "例如 768"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:330
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:328
 msgid "Huge Pages (huge_pages)"
 msgstr "大頁（huge_pages）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:349
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:350
 msgid "Write-Ahead Logging (WAL) settings."
 msgstr "預寫式日誌（WAL）設定。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:352
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:353
 msgid "WAL Level (wal_level)"
 msgstr "WAL 級別（wal_level）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:355
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:356
 msgid "WAL Buffers (wal_buffers)"
 msgstr "WAL 緩衝區（wal_buffers）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:360
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:361
 msgid "e.g. 7864"
 msgstr "例如 7864"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:367
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:368
 msgid "Max WAL Size (max_wal_size)"
 msgstr "最大 WAL 大小（max_wal_size）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:379
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:380
 msgid "Min WAL Size (min_wal_size)"
 msgstr "最小 WAL 大小（min_wal_size）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:392
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:393
 msgid "Checkpoint Completion Target (checkpoint_completion_target)"
 msgstr "檢查點完成目標（checkpoint_completion_target）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:396
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:397
 msgid "e.g. 0.9"
 msgstr "例如 0.9"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:412
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:416
 msgid "Query Optimization"
 msgstr "查詢優化"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:415
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:419
 msgid "Query planner and optimization settings."
 msgstr "查詢規劃器與最佳化設定。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:418
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:422
 msgid "Default Statistics Target (default_statistics_target)"
 msgstr "預設統計目標（default_statistics_target）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:426
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:430
 msgid "Random Page Cost (random_page_cost)"
 msgstr "隨機頁成本（random_page_cost）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:427
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:431
 msgid "e.g. 1.1"
 msgstr "例如 1.1"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:429
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:433
 msgid "Effective IO Concurrency (effective_io_concurrency)"
 msgstr "有效 IO 並發（effective_io_concurrency）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:453
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:460
 msgid "PostgreSQL logging settings."
 msgstr "PostgreSQL 日誌設定。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:456
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:463
 msgid "Log Destination (log_destination)"
 msgstr "日誌目標（log_destination）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:457
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:464
 msgid "e.g. stderr"
 msgstr "例如 stderr"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:459
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:466
 msgid "Log Min Duration Statement (log_min_duration_statement)"
 msgstr "日誌最小持續時間語句（log_min_duration_statement）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:463
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:470
 msgid "e.g. -1 (disabled) or milliseconds"
 msgstr "例如 -1（禁用）或毫秒"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:467
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:474
 msgid "Log Timezone (log_timezone)"
 msgstr "日誌時區（log_timezone）"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:468
-#: src/views/environment/PhpConfigTuneView.vue:284
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:475
+#: src/views/environment/PhpConfigTuneView.vue:279
 msgid "e.g. Asia/Shanghai"
 msgstr "例如 Asia/Shanghai"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:486
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:496
 msgid "IO method settings. Requires PostgreSQL restart to take effect."
 msgstr "IO 方法設定。需要重啟 PostgreSQL 才能生效。"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:489
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:499
 msgid "IO Method (io_method)"
 msgstr "IO 方法（io_method）"
 
@@ -6224,85 +6246,85 @@ msgstr "快取與儲存混合"
 msgid "Persistent storage"
 msgstr "持久化儲存"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:147
+#: src/views/apps/redis/RedisConfigTuneView.vue:142
 msgid "Common Redis general settings."
 msgstr "Redis 通用設定。"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:150
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:144
+#: src/views/apps/redis/RedisConfigTuneView.vue:145
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:139
 msgid "Bind (bind)"
 msgstr "綁定（bind）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:157
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:151
+#: src/views/apps/redis/RedisConfigTuneView.vue:152
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:146
 msgid "e.g. 6379"
 msgstr "例如 6379"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:162
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:156
+#: src/views/apps/redis/RedisConfigTuneView.vue:157
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:151
 msgid "Databases (databases)"
 msgstr "資料庫數量（databases）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:170
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:164
+#: src/views/apps/redis/RedisConfigTuneView.vue:165
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:159
 msgid "Password (requirepass)"
 msgstr "密碼（requirepass）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:175
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:169
+#: src/views/apps/redis/RedisConfigTuneView.vue:170
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:164
 msgid "Leave empty for no password"
 msgstr "留空表示無密碼"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:178
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:172
+#: src/views/apps/redis/RedisConfigTuneView.vue:173
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:167
 msgid "Timeout (timeout)"
 msgstr "超時（timeout）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:182
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
+#: src/views/apps/redis/RedisConfigTuneView.vue:177
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:171
 msgid "e.g. 0 (disabled) or seconds"
 msgstr "例如 0（禁用）或秒"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:186
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:180
+#: src/views/apps/redis/RedisConfigTuneView.vue:181
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:175
 msgid "TCP Keepalive (tcp-keepalive)"
 msgstr "TCP 保活（tcp-keepalive）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:190
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:184
+#: src/views/apps/redis/RedisConfigTuneView.vue:185
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:179
 msgid "e.g. 300"
 msgstr "例如 300"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:210
+#: src/views/apps/redis/RedisConfigTuneView.vue:208
 msgid "Redis memory management settings."
 msgstr "Redis 記憶體管理設定。"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:213
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:207
+#: src/views/apps/redis/RedisConfigTuneView.vue:211
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:205
 msgid "Max Memory (maxmemory)"
 msgstr "最大記憶體（maxmemory）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:225
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:219
+#: src/views/apps/redis/RedisConfigTuneView.vue:223
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:217
 msgid "Maxmemory Policy (maxmemory-policy)"
 msgstr "記憶體淘汰策略（maxmemory-policy）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:241
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:235
+#: src/views/apps/redis/RedisConfigTuneView.vue:242
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:236
 msgid "Persistence"
 msgstr "持久化"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:244
+#: src/views/apps/redis/RedisConfigTuneView.vue:245
 msgid "Redis AOF persistence settings."
 msgstr "Redis AOF 持久化設定。"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:247
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:241
+#: src/views/apps/redis/RedisConfigTuneView.vue:248
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:242
 msgid "Append Only (appendonly)"
 msgstr "僅追加（appendonly）"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:250
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:244
+#: src/views/apps/redis/RedisConfigTuneView.vue:251
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:245
 msgid "Append Fsync (appendfsync)"
 msgstr "追加同步（appendfsync）"
 
@@ -6726,15 +6748,15 @@ msgstr "原始配置"
 msgid "This modifies the Valkey main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "這將修改 Valkey 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:141
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:136
 msgid "Common Valkey general settings."
 msgstr "Valkey 通用設定。"
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:204
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:202
 msgid "Valkey memory management settings."
 msgstr "Valkey 記憶體管理設定。"
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:238
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:239
 msgid "Valkey AOF persistence settings."
 msgstr "Valkey AOF 持久化設定。"
 
@@ -7665,10 +7687,6 @@ msgstr "資源限制"
 msgid "Set resource limits to prevent the container from consuming too many system resources. Set to 0 for no limit."
 msgstr "設定資源限制以防止容器消耗過多系統資源。設為 0 表示無限制。"
 
-#: src/views/container/ContainerCreate.vue:506
-msgid "Memory (MB)"
-msgstr "記憶體（MB）"
-
 #: src/views/container/ContainerCreate.vue:511
 #: src/views/container/ContainerCreate.vue:523
 msgid "0 = no limit"
@@ -8526,189 +8544,189 @@ msgstr "大型應用程式（每個處理程序約 128MB）"
 msgid "Cleaned successfully"
 msgstr "清理成功"
 
-#: src/views/environment/PhpConfigTuneView.vue:277
+#: src/views/environment/PhpConfigTuneView.vue:272
 msgid "Common PHP general settings."
 msgstr "PHP 通用設定。"
 
-#: src/views/environment/PhpConfigTuneView.vue:280
+#: src/views/environment/PhpConfigTuneView.vue:275
 msgid "Short Tag (short_open_tag)"
 msgstr "短標籤（short_open_tag）"
 
-#: src/views/environment/PhpConfigTuneView.vue:283
+#: src/views/environment/PhpConfigTuneView.vue:278
 msgid "Timezone (date.timezone)"
 msgstr "時區（date.timezone）"
 
-#: src/views/environment/PhpConfigTuneView.vue:286
+#: src/views/environment/PhpConfigTuneView.vue:281
 msgid "Display Errors (display_errors)"
 msgstr "顯示錯誤（display_errors）"
 
-#: src/views/environment/PhpConfigTuneView.vue:289
+#: src/views/environment/PhpConfigTuneView.vue:284
 msgid "Error Reporting (error_reporting)"
 msgstr "錯誤報告（error_reporting）"
 
-#: src/views/environment/PhpConfigTuneView.vue:290
+#: src/views/environment/PhpConfigTuneView.vue:285
 msgid "e.g. E_ALL"
 msgstr "例如 E_ALL"
 
-#: src/views/environment/PhpConfigTuneView.vue:305
-#: src/views/environment/PhpConfigTuneView.vue:315
+#: src/views/environment/PhpConfigTuneView.vue:303
+#: src/views/environment/PhpConfigTuneView.vue:313
 msgid "Disabled Functions"
 msgstr "停用函式"
 
-#: src/views/environment/PhpConfigTuneView.vue:309
+#: src/views/environment/PhpConfigTuneView.vue:307
 msgid "Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc."
 msgstr "輸入要停用的 PHP 函式，用逗號分隔。常見的危險函式包括：exec、shell_exec、system、passthru、proc_open、popen 等。"
 
-#: src/views/environment/PhpConfigTuneView.vue:320
+#: src/views/environment/PhpConfigTuneView.vue:318
 msgid "e.g. exec,shell_exec,system,passthru"
 msgstr "例如 exec,shell_exec,system,passthru"
 
-#: src/views/environment/PhpConfigTuneView.vue:336
+#: src/views/environment/PhpConfigTuneView.vue:337
 msgid "Upload Limits"
 msgstr "上傳限制"
 
-#: src/views/environment/PhpConfigTuneView.vue:340
+#: src/views/environment/PhpConfigTuneView.vue:341
 msgid "Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize."
 msgstr "調整 PHP 檔案上傳限制。post_max_size 應大於 upload_max_filesize。"
 
-#: src/views/environment/PhpConfigTuneView.vue:346
+#: src/views/environment/PhpConfigTuneView.vue:347
 msgid "Max Upload Size (upload_max_filesize)"
 msgstr "最大上傳大小（upload_max_filesize）"
 
-#: src/views/environment/PhpConfigTuneView.vue:362
+#: src/views/environment/PhpConfigTuneView.vue:363
 msgid "Max POST Size (post_max_size)"
 msgstr "最大 POST 大小（post_max_size）"
 
-#: src/views/environment/PhpConfigTuneView.vue:374
+#: src/views/environment/PhpConfigTuneView.vue:375
 msgid "Max File Uploads (max_file_uploads)"
 msgstr "最大檔案上傳數（max_file_uploads）"
 
-#: src/views/environment/PhpConfigTuneView.vue:378
+#: src/views/environment/PhpConfigTuneView.vue:379
 msgid "e.g. 20"
 msgstr "例如 20"
 
-#: src/views/environment/PhpConfigTuneView.vue:382
+#: src/views/environment/PhpConfigTuneView.vue:383
 msgid "Memory Limit (memory_limit)"
 msgstr "記憶體限制（memory_limit）"
 
-#: src/views/environment/PhpConfigTuneView.vue:407
+#: src/views/environment/PhpConfigTuneView.vue:411
 msgid "Timeout Limits"
 msgstr "超時限制"
 
-#: src/views/environment/PhpConfigTuneView.vue:411
+#: src/views/environment/PhpConfigTuneView.vue:415
 msgid "Adjust PHP script timeout limits. Values are in seconds, -1 means no limit."
 msgstr "調整 PHP 腳本超時限制。值以秒為單位，-1 表示無限制。"
 
-#: src/views/environment/PhpConfigTuneView.vue:415
+#: src/views/environment/PhpConfigTuneView.vue:419
 msgid "Max Execution Time (max_execution_time)"
 msgstr "最大執行時間（max_execution_time）"
 
-#: src/views/environment/PhpConfigTuneView.vue:419
-#: src/views/environment/PhpConfigTuneView.vue:467
+#: src/views/environment/PhpConfigTuneView.vue:423
+#: src/views/environment/PhpConfigTuneView.vue:474
 msgid "e.g. 30"
 msgstr "例如 30"
 
-#: src/views/environment/PhpConfigTuneView.vue:423
+#: src/views/environment/PhpConfigTuneView.vue:427
 msgid "Max Input Time (max_input_time)"
 msgstr "最大輸入時間（max_input_time）"
 
-#: src/views/environment/PhpConfigTuneView.vue:431
+#: src/views/environment/PhpConfigTuneView.vue:435
 msgid "Max Input Vars (max_input_vars)"
 msgstr "最大輸入變數數（max_input_vars）"
 
-#: src/views/environment/PhpConfigTuneView.vue:435
+#: src/views/environment/PhpConfigTuneView.vue:439
 msgid "e.g. 1000"
 msgstr "例如 1000"
 
-#: src/views/environment/PhpConfigTuneView.vue:456
+#: src/views/environment/PhpConfigTuneView.vue:463
 msgid "Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf."
 msgstr "調整 PHP-FPM 處理程序管理設定。這些設定位於 php-fpm.conf 中。"
 
-#: src/views/environment/PhpConfigTuneView.vue:460
+#: src/views/environment/PhpConfigTuneView.vue:467
 msgid "Process Manager (pm)"
 msgstr "處理程序管理方式（pm）"
 
-#: src/views/environment/PhpConfigTuneView.vue:463
+#: src/views/environment/PhpConfigTuneView.vue:470
 msgid "Max Children (pm.max_children)"
 msgstr "最大子處理程序數（pm.max_children）"
 
-#: src/views/environment/PhpConfigTuneView.vue:473
+#: src/views/environment/PhpConfigTuneView.vue:480
 msgid "Start Servers (pm.start_servers)"
 msgstr "啟動處理程序數（pm.start_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:484
+#: src/views/environment/PhpConfigTuneView.vue:491
 msgid "Min Spare Servers (pm.min_spare_servers)"
 msgstr "最小閒置處理程序數（pm.min_spare_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:495
+#: src/views/environment/PhpConfigTuneView.vue:502
 msgid "Max Spare Servers (pm.max_spare_servers)"
 msgstr "最大閒置處理程序數（pm.max_spare_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:521
+#: src/views/environment/PhpConfigTuneView.vue:531
 msgid "Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running."
 msgstr "調整 PHP 工作階段設定。使用 redis 或 memcached 時，請確保已安裝相應擴充功能且服務正在執行。"
 
-#: src/views/environment/PhpConfigTuneView.vue:527
+#: src/views/environment/PhpConfigTuneView.vue:537
 msgid "Save Handler (session.save_handler)"
 msgstr "儲存處理器（session.save_handler）"
 
-#: src/views/environment/PhpConfigTuneView.vue:533
+#: src/views/environment/PhpConfigTuneView.vue:543
 msgid "Save Path (session.save_path)"
 msgstr "儲存路徑（session.save_path）"
 
-#: src/views/environment/PhpConfigTuneView.vue:535
+#: src/views/environment/PhpConfigTuneView.vue:545
 msgid "e.g. /tmp"
 msgstr "例如 /tmp"
 
-#: src/views/environment/PhpConfigTuneView.vue:539
+#: src/views/environment/PhpConfigTuneView.vue:549
 msgid "Redis Host"
 msgstr "Redis 主機"
 
-#: src/views/environment/PhpConfigTuneView.vue:542
+#: src/views/environment/PhpConfigTuneView.vue:552
 msgid "Redis Port"
 msgstr "Redis 連接埠"
 
-#: src/views/environment/PhpConfigTuneView.vue:545
+#: src/views/environment/PhpConfigTuneView.vue:555
 msgid "Redis Password"
 msgstr "Redis 密碼"
 
-#: src/views/environment/PhpConfigTuneView.vue:550
+#: src/views/environment/PhpConfigTuneView.vue:560
 msgid "Leave empty if no password"
 msgstr "無密碼則留空"
 
-#: src/views/environment/PhpConfigTuneView.vue:556
+#: src/views/environment/PhpConfigTuneView.vue:566
 msgid "Memcached Host"
 msgstr "Memcached 主機"
 
-#: src/views/environment/PhpConfigTuneView.vue:559
+#: src/views/environment/PhpConfigTuneView.vue:569
 msgid "Memcached Port"
 msgstr "Memcached 連接埠"
 
-#: src/views/environment/PhpConfigTuneView.vue:563
+#: src/views/environment/PhpConfigTuneView.vue:573
 msgid "GC Max Lifetime (session.gc_maxlifetime)"
 msgstr "GC 最大生命週期（session.gc_maxlifetime）"
 
-#: src/views/environment/PhpConfigTuneView.vue:567
+#: src/views/environment/PhpConfigTuneView.vue:577
 msgid "e.g. 1440 (seconds)"
 msgstr "例如 1440（秒）"
 
-#: src/views/environment/PhpConfigTuneView.vue:571
+#: src/views/environment/PhpConfigTuneView.vue:581
 msgid "Cookie Lifetime (session.cookie_lifetime)"
 msgstr "Cookie 生命週期（session.cookie_lifetime）"
 
-#: src/views/environment/PhpConfigTuneView.vue:575
+#: src/views/environment/PhpConfigTuneView.vue:585
 msgid "e.g. 0 (until browser closes)"
 msgstr "例如 0（直到瀏覽器關閉）"
 
-#: src/views/environment/PhpConfigTuneView.vue:591
+#: src/views/environment/PhpConfigTuneView.vue:604
 msgid "Are you sure you want to clean all session files?"
 msgstr "您確定要清理所有工作階段檔案嗎？"
 
-#: src/views/environment/PhpConfigTuneView.vue:600
+#: src/views/environment/PhpConfigTuneView.vue:613
 msgid "Clean Session Files"
 msgstr "清理工作階段檔案"
 
-#: src/views/environment/PhpConfigTuneView.vue:612
+#: src/views/environment/PhpConfigTuneView.vue:625
 msgid "Application Profile"
 msgstr "應用程式設定"
 
