@@ -157,8 +157,8 @@ importers:
         specifier: 10.10.0
         version: 10.10.0(@typescript-eslint/parser@8.67.0(eslint@10.9.1(jiti@2.7.0))(typescript@6.0.3))(eslint@10.9.1(jiti@2.7.0))(vue-eslint-parser@10.4.1(eslint@10.9.1(jiti@2.7.0)))
       naive-ui:
-        specifier: 2.45.2
-        version: 2.45.2(vue@3.5.42(typescript@6.0.3))
+        specifier: 2.45.3
+        version: 2.45.3(vue@3.5.42(typescript@6.0.3))
       npm-run-all2:
         specifier: 9.0.3
         version: 9.0.3
@@ -2448,8 +2448,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  naive-ui@2.45.2:
-    resolution: {integrity: sha512-KshetbFOX/uZ/Pe+60hJoUAo47x5QO1JpZaUVPQCQkNhFfJ7hKsX55A8oMFQHccEpLuQUMPkJ41cX94R4nWUjg==}
+  naive-ui@2.45.3:
+    resolution: {integrity: sha512-D83gJ+6zUdkQ5DuUbmlfyaM1t8pV5WMPa6KmL9mByqQuiL12qBdA0n/iEIth4dQw1x/duNGpOS2anpt5FKO1kw==}
     engines: {node: '>=20'}
     peerDependencies:
       vue: ^3.0.0
@@ -5274,7 +5274,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  naive-ui@2.45.2(vue@3.5.42(typescript@6.0.3)):
+  naive-ui@2.45.3(vue@3.5.42(typescript@6.0.3)):
     dependencies:
       '@css-render/plugin-bem': 0.15.14(css-render@0.15.14)
       '@css-render/vue3-ssr': 0.15.14(vue@3.5.42(typescript@6.0.3))

@@ -78,7 +78,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-oxlint": "1.80.0",
     "eslint-plugin-vue": "10.10.0",
-    "naive-ui": "2.45.2",
+    "naive-ui": "2.45.3",
     "npm-run-all2": "9.0.3",
     "oxfmt": "0.65.0",
     "oxlint": "1.80.0",
