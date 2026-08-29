@@ -256,8 +256,8 @@ github.com/libdns/huaweicloud v1.0.1 h1:TdfpPY//3/QPhEGCyvR8u2DTlGxzpyaIsqofH5kY
 github.com/libdns/huaweicloud v1.0.1/go.mod h1:lMHNSEqLZeuE4N28ytaqLZia3NPuaaz1ldAH/73bOQE=
 github.com/libdns/libdns v1.1.1 h1:wPrHrXILoSHKWJKGd0EiAVmiJbFShguILTg9leS/P/U=
 github.com/libdns/libdns v1.1.1/go.mod h1:4Bj9+5CQiNMVGf87wjX4CY3HQJypUHRuLvlsfsZqLWQ=
-github.com/libdns/namesilo v1.1.0 h1:cFG3V5SOTk3kpjiJZb1NPFZu2EACXfrOyNSqQ1xH1w4=
-github.com/libdns/namesilo v1.1.0/go.mod h1:ndr1T+DizW+go/96J2cMhO9eFHQQNp70gZZQAK6bcGA=
+github.com/libdns/namesilo v1.1.1 h1:YNVt3LeoqOlU7qhD09t4FhfMsPC9WrRWmCG/hOaUTnM=
+github.com/libdns/namesilo v1.1.1/go.mod h1:ndr1T+DizW+go/96J2cMhO9eFHQQNp70gZZQAK6bcGA=
 github.com/libdns/porkbun v1.1.0 h1:X763NqXjW26VEl7GvBtF/3CGeuGt9JqoQ35mwIlx40E=
 github.com/libdns/porkbun v1.1.0/go.mod h1:JL6NfXkkSlLr24AI5Fv0t3/Oa6PXOSOerVsOmr8+URs=
 github.com/libdns/tencentcloud v1.4.3 h1:xJHYLL1TdPeOtUr6Bu6dHTd1TU6/VFm7BFc2EAzAlvc=

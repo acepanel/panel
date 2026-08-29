@@ -33,7 +33,7 @@ require (
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
 	github.com/libdns/huaweicloud v1.0.1
 	github.com/libdns/libdns v1.1.1
-	github.com/libdns/namesilo v1.1.0
+	github.com/libdns/namesilo v1.1.1
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
