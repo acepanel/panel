@@ -52,7 +52,7 @@ jobs:
           git commit -m "chore(l10n): update pot files"
           git push origin HEAD:main
       - name: Sync with Crowdin
-        uses: crowdin/github-action@v2
+        uses: crowdin/github-action@v3
         with:
           config: crowdin.yml
           upload_sources: true
