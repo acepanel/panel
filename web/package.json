@@ -55,7 +55,7 @@
     "pinia": "4.0.3",
     "pinia-plugin-persistedstate": "4.7.1",
     "vue": "3.5.42",
-    "vue-echarts": "8.1.0",
+    "vue-echarts": "8.2.0",
     "vue-router": "5.3.0",
     "vue3-gettext": "4.0.1",
     "vuedraggable": "4.1.0"
@@ -83,7 +83,7 @@
     "oxfmt": "0.65.0",
     "oxlint": "1.80.0",
     "sass": "1.103.1",
-    "tsx": "4.23.12",
+    "tsx": "4.23.13",
     "typescript": "6.0.3",
     "unocss": "66.8.1",
     "unplugin-auto-import": "21.1.0",
