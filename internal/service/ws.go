@@ -354,8 +354,8 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 
 	sock := s.getContainerSock()
 
-	// 通过 /bin/sh 启动，自动尝试切换到 bash，不存在则留在 sh
-	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh", "-c", "exec bash 2>/dev/null || exec sh"}, sock)
+	// 通过 /bin/sh 启动，优先切换到 bash 并强制交互模式；只对存在性探测静默 stderr，不影响实际运行的 Shell
+	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh", "-c", "if command -v bash >/dev/null 2>&1; then exec bash -i; else exec sh -i; fi"}, sock)
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
 		return
