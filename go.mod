@@ -18,13 +18,13 @@ require (
 	github.com/go-chi/chi/v5 v5.3.2
 	github.com/go-chi/httplog/v3 v3.4.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.6
-	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-webauthn/webauthn v0.18.0
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.1
 	github.com/hashicorp/go-version v1.9.0
-	github.com/klauspost/compress v1.19.2
+	github.com/klauspost/compress v1.20.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7
@@ -38,25 +38,25 @@ require (
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix/v2 v2.1.1
-	github.com/libtnb/cron v0.5.4
+	github.com/libtnb/cron v0.6.0
 	github.com/libtnb/gormstore v1.3.0
-	github.com/libtnb/logrotate v0.1.4
+	github.com/libtnb/logrotate v0.1.5
 	github.com/libtnb/sessions v1.5.0
 	github.com/libtnb/sqlite v1.2.2
 	github.com/libtnb/utils v1.2.2
-	github.com/libtnb/validator v0.4.3
-	github.com/libtnb/validator/contrib/openapi v0.2.2
+	github.com/libtnb/validator v0.5.0
+	github.com/libtnb/validator/contrib/openapi v0.2.3
 	github.com/medama-io/go-useragent v1.2.4
 	github.com/mholt/acmez/v3 v3.1.6
-	github.com/moby/moby/api v1.55.0
-	github.com/moby/moby/client v0.5.1
+	github.com/moby/moby/api v1.56.0
+	github.com/moby/moby/client v0.6.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/sftp v1.13.11
 	github.com/pquerna/otp v1.5.0
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.2.0
-	github.com/shirou/gopsutil/v4 v4.26.7
+	github.com/shirou/gopsutil/v4 v4.26.8
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.12.1
 	github.com/studio-b12/gowebdav v0.13.0
@@ -66,13 +66,13 @@ require (
 	github.com/wneessen/go-mail v0.8.1
 	github.com/xuri/excelize/v2 v2.11.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 	golang.org/x/net v0.58.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/sys v0.47.0
 	golang.org/x/term v0.45.0
 	gorm.io/gorm v1.31.2
-	modernc.org/sqlite v1.57.0
+	modernc.org/sqlite v1.58.0
 	resty.dev/v3 v3.0.0-rc.3
 )
 
@@ -141,9 +141,9 @@ require (
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect
-	modernc.org/libc v1.74.4 // indirect
+	modernc.org/libc v1.75.6 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.11.0 // indirect
+	modernc.org/memory v1.12.1 // indirect
 )
 
 replace (
