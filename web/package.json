@@ -55,7 +55,7 @@
     "pinia": "4.0.3",
     "pinia-plugin-persistedstate": "4.7.1",
     "vue": "3.5.42",
-    "vue-echarts": "8.2.0",
+    "vue-echarts": "8.3.0",
     "vue-router": "5.3.1",
     "vue3-gettext": "4.0.1",
     "vuedraggable": "4.1.0"
@@ -77,7 +77,7 @@
     "eslint": "10.10.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-oxlint": "1.81.0",
-    "eslint-plugin-vue": "10.10.0",
+    "eslint-plugin-vue": "10.11.0",
     "naive-ui": "2.45.3",
     "npm-run-all2": "9.0.3",
     "oxfmt": "0.66.0",
