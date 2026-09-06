@@ -73,7 +73,7 @@ require (
 	golang.org/x/term v0.45.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.58.0
-	resty.dev/v3 v3.0.0-rc.3
+	resty.dev/v3 v3.0.0-rc.4
 )
 
 require (
