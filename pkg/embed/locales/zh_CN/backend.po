@@ -13,45 +13,55 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-09-12 13:43\n"
+"PO-Revision-Date: 2026-09-16 05:38\n"
 
-#: internal/service/cli.go:1112
+#: pkg/tui/tui.go:144
+msgid "#%d, leave empty to finish"
+msgstr "#%d，留空结束"
+
+#: internal/service/cli.go:1144
 msgid "%d certificate(s) failed to renew"
 msgstr "%d 个证书续签失败"
 
-#: internal/service/toolbox_log.go:257
+#: internal/service/toolbox_log.go:258
 msgid "%d images"
 msgstr "%d 个镜像"
 
-#: internal/biz/database.go:254
+#: internal/biz/database.go:167
+#: internal/biz/database.go:270
+#: internal/biz/database.go:274
 msgid "%s does not support database comment"
 msgstr "%s 不支持数据库注释"
 
-#: internal/biz/alert.go:869
+#: internal/biz/alert.go:876
 msgid "%s is %s, %s threshold %s"
 msgstr "%s 为 %s，%s阈值 %s"
+
+#: pkg/tui/tui.go:170
+msgid "(comma separated)"
+msgstr "（用逗号分隔）"
 
 #: internal/service/environment_dotnet.go:34
 msgid ".NET-%s is not installed"
 msgstr ".NET-%s 未安装"
 
-#: internal/biz/alert.go:882
+#: internal/biz/alert.go:889
 msgid "1 minute load"
 msgstr "1 分钟负载"
 
-#: internal/biz/alert.go:886
+#: internal/biz/alert.go:893
 msgid "15 minutes load"
 msgstr "15 分钟负载"
 
-#: internal/service/cli.go:416
+#: internal/service/cli.go:419
 msgid "2FA disabled for user %s"
 msgstr "用户 %s 已禁用两步验证"
 
-#: internal/service/cli.go:424
+#: internal/service/cli.go:427
 msgid "2FA url: %s"
 msgstr "两步验证 URL： %s"
 
-#: internal/biz/alert.go:884
+#: internal/biz/alert.go:891
 msgid "5 minutes load"
 msgstr "5 分钟负载"
 
@@ -59,7 +69,7 @@ msgstr "5 分钟负载"
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr "APCu 是 PHP 的用户级缓存，提供快速的内存键值存储"
 
-#: internal/bootstrap/cli.go:18
+#: internal/bootstrap/cli.go:19
 msgid "AUTHOR"
 msgstr "作者"
 
@@ -79,23 +89,23 @@ msgstr "访问模式"
 msgid "AcePanel"
 msgstr "AcePanel"
 
-#: internal/bootstrap/cli.go:39
+#: internal/bootstrap/cli.go:41
 msgid "AcePanel CLI Tool"
 msgstr "AcePanel 命令行工具"
 
-#: internal/service/cli.go:117
+#: internal/service/cli.go:118
 msgid "AcePanel service restarted"
 msgstr "AcePanel 服务已重启"
 
-#: internal/service/cli.go:133
+#: internal/service/cli.go:134
 msgid "AcePanel service started"
 msgstr "AcePanel 服务已启动"
 
-#: internal/service/cli.go:108
+#: internal/service/cli.go:109
 msgid "AcePanel service status: %s"
 msgstr "AcePanel 服务状态：%s"
 
-#: internal/service/cli.go:125
+#: internal/service/cli.go:126
 msgid "AcePanel service stopped"
 msgstr "AcePanel 服务已停止"
 
@@ -103,7 +113,7 @@ msgstr "AcePanel 服务已停止"
 msgid "Active Connections"
 msgstr "活动连接"
 
-#: internal/apps/elasticsearch/app.go:87
+#: internal/apps/elasticsearch/app.go:88
 #: internal/apps/opensearch/app.go:88
 msgid "Active Primary Shards"
 msgstr "活跃主分片"
@@ -112,24 +122,36 @@ msgstr "活跃主分片"
 msgid "Active Processes"
 msgstr "活动进程"
 
-#: internal/apps/clickhouse/app.go:100
+#: internal/apps/clickhouse/app.go:101
 msgid "Active Queries"
 msgstr "活跃查询"
 
-#: internal/apps/elasticsearch/app.go:86
+#: internal/apps/elasticsearch/app.go:87
 #: internal/apps/opensearch/app.go:87
 msgid "Active Shards"
 msgstr "活跃分片"
 
-#: internal/apps/nginx/app.go:139
+#: internal/apps/nginx/app.go:135
 msgid "Active connections"
 msgstr "活动连接"
+
+#: internal/command/database.go:20
+msgid "Add database server"
+msgstr "添加数据库服务器"
+
+#: internal/command/app.go:51
+msgid "Add panel application mark (use only under guidance)"
+msgstr "添加面板应用标记（仅在指导下使用）"
 
 #: internal/request/attributes.go:9
 msgid "Address"
 msgstr "地址"
 
-#: internal/apps/postgresql/app.go:864
+#: internal/command/website.go:53
+msgid "Address to proxy to (required for proxy type)"
+msgstr "代理目标地址（proxy 类型必填）"
+
+#: internal/apps/postgresql/app.go:866
 msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
 msgstr "高级查询性能监控，安装后需要重启 PostgreSQL"
 
@@ -137,11 +159,11 @@ msgstr "高级查询性能监控，安装后需要重启 PostgreSQL"
 msgid "Alert Days"
 msgstr "告警天数"
 
-#: internal/service/cert.go:60
+#: internal/service/cert.go:59
 msgid "Aliyun"
 msgstr "阿里云"
 
-#: internal/service/cli.go:456
+#: internal/service/cli.go:459
 msgid "All passkeys cleared for user %s"
 msgstr "已清除用户 %s 的所有通行密钥"
 
@@ -149,7 +171,11 @@ msgstr "已清除用户 %s 的所有通行密钥"
 msgid "Allocator Fragmentation Ratio"
 msgstr "分配器碎片率"
 
-#: internal/service/cli.go:1501
+#: internal/command/firewall.go:48
+msgid "Allow or remove a port rule"
+msgstr "放行或移除端口规则"
+
+#: internal/service/cli.go:1547
 msgid "Already initialized"
 msgstr "已经初始化过了"
 
@@ -161,27 +187,27 @@ msgstr "仅匿名"
 msgid "App %s %s"
 msgstr "应用 %s %s"
 
-#: internal/service/cli.go:1350
+#: internal/service/cli.go:1382
 msgid "App %s installed successfully"
 msgstr "应用 %s 安装成功"
 
-#: internal/service/cli.go:1364
+#: internal/service/cli.go:1396
 msgid "App %s uninstalled successfully"
 msgstr "应用 %s 卸载成功"
 
-#: internal/service/cli.go:1378
+#: internal/service/cli.go:1410
 msgid "App %s updated successfully"
 msgstr "应用 %s 更新成功"
 
-#: internal/service/cli.go:1347
+#: internal/service/cli.go:1379
 msgid "App install failed: %v"
 msgstr "应用安装失败：%v"
 
-#: internal/service/cli.go:1361
+#: internal/service/cli.go:1393
 msgid "App uninstall failed: %v"
 msgstr "应用卸载失败：%v"
 
-#: internal/service/cli.go:1375
+#: internal/service/cli.go:1407
 msgid "App update failed: %v"
 msgstr "应用更新失败：%v"
 
@@ -189,11 +215,15 @@ msgstr "应用更新失败：%v"
 msgid "Application Pool"
 msgstr "应用程序池"
 
-#: internal/data/backup.go:1848
+#: internal/command/app.go:16
+msgid "Application management"
+msgstr "应用管理"
+
+#: internal/data/backup.go:1891
 msgid "Applying update failed: %v"
 msgstr "应用更新失败：%v"
 
-#: internal/data/backup.go:1846
+#: internal/data/backup.go:1889
 msgid "Applying update..."
 msgstr "应用更新……"
 
@@ -205,11 +235,11 @@ msgstr "认证方式"
 msgid "Authorization"
 msgstr "授权"
 
-#: internal/apps/postgresql/app.go:861
+#: internal/apps/postgresql/app.go:863
 msgid "Automated partition management"
 msgstr "自动化分区管理"
 
-#: internal/data/backup.go:1810
+#: internal/data/backup.go:1850
 msgid "Backing up panel data..."
 msgstr "备份面板数据……"
 
@@ -225,9 +255,43 @@ msgstr "备份格式"
 msgid "Backup Path"
 msgstr "备份路径"
 
-#: internal/service/cli.go:1149
+#: internal/command/backup.go:55
+msgid "Backup database"
+msgstr "备份数据库"
+
+#: internal/command/backup.go:81
+msgid "Backup directory"
+msgstr "备份目录"
+
+#: internal/service/cli.go:1181
 msgid "Backup failed: %v"
 msgstr "备份失败：%v"
+
+#: internal/command/restore.go:31
+#: internal/command/restore.go:58
+#: internal/command/restore.go:73
+msgid "Backup file (absolute path or filename under default backup path)"
+msgstr "备份文件（绝对路径或默认备份路径下的文件名）"
+
+#: internal/command/backup.go:120
+msgid "Backup file prefix"
+msgstr "备份文件前缀"
+
+#: internal/command/backup.go:101
+msgid "Backup panel"
+msgstr "备份面板"
+
+#: internal/command/backup.go:114
+msgid "Backup type (website, path, mysql, postgresql, clickhouse, redis, valkey)"
+msgstr "备份类型（website、path、mysql、postgresql、clickhouse、redis、valkey）"
+
+#: internal/command/backup.go:25
+msgid "Backup type (website, path, panel, mysql, postgresql, clickhouse, redis, valkey)"
+msgstr "备份类型（website、path、panel、mysql、postgresql、clickhouse、redis、valkey）"
+
+#: internal/command/backup.go:35
+msgid "Backup website"
+msgstr "备份网站"
 
 #: internal/request/attributes.go:17
 msgid "Ban Time"
@@ -237,27 +301,27 @@ msgstr "封禁时间"
 msgid "Bind IP"
 msgstr "绑定 IP"
 
-#: internal/service/cli.go:656
+#: internal/service/cli.go:660
 msgid "Bind IP disabled"
 msgstr "绑定 IP 已禁用"
 
-#: internal/service/cli.go:640
+#: internal/service/cli.go:644
 msgid "Bind IP enabled: %s"
 msgstr "已启用绑定 IP：%s"
 
-#: internal/service/cli.go:693
+#: internal/service/cli.go:697
 msgid "Bind UA disabled"
 msgstr "绑定 UA 已禁用"
 
-#: internal/service/cli.go:677
+#: internal/service/cli.go:681
 msgid "Bind UA enabled: %s"
 msgstr "已启用绑定 UA：%s"
 
-#: internal/service/cli.go:619
+#: internal/service/cli.go:623
 msgid "Bind domain disabled"
 msgstr "绑定域名已禁用"
 
-#: internal/service/cli.go:603
+#: internal/service/cli.go:607
 msgid "Bind domain enabled: %s"
 msgstr "已启用绑定域名：%s"
 
@@ -293,7 +357,7 @@ msgstr "Broker 状态"
 msgid "Bucket"
 msgstr "存储桶"
 
-#: internal/apps/apache/app.go:140
+#: internal/apps/apache/app.go:153
 msgid "Busy Workers"
 msgstr "繁忙的 Worker"
 
@@ -311,7 +375,7 @@ msgstr "已接收字节"
 msgid "Bytes Sent"
 msgstr "已发送字节"
 
-#: internal/apps/apache/app.go:161
+#: internal/apps/apache/app.go:174
 msgid "Bytes/sec"
 msgstr "每秒字节"
 
@@ -323,20 +387,20 @@ msgstr "Bzip2 是一个压缩和解压文件的库"
 msgid "CA"
 msgstr "CA"
 
-#: internal/bootstrap/cli.go:24
+#: internal/bootstrap/cli.go:25
 msgid "CATEGORY"
 msgstr "分类"
 
-#: internal/bootstrap/cli.go:19
-#: internal/bootstrap/cli.go:30
+#: internal/bootstrap/cli.go:20
+#: internal/bootstrap/cli.go:31
 msgid "COMMANDS"
 msgstr "命令"
 
-#: internal/bootstrap/cli.go:21
+#: internal/bootstrap/cli.go:22
 msgid "COPYRIGHT"
 msgstr "版权"
 
-#: internal/biz/alert.go:876
+#: internal/biz/alert.go:883
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
@@ -344,21 +408,47 @@ msgstr "CPU 使用率"
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一个用于处理日期的库"
 
-#: internal/job/cert_renew.go:173
+#: internal/job/cert_renew.go:184
 #: internal/request/attributes.go:25
 msgid "Certificate"
 msgstr "证书"
 
-#: internal/service/cli.go:935
+#: internal/command/cert.go:31
+msgid "Certificate ID"
+msgstr "证书 ID"
+
+#: internal/command/website.go:140
+msgid "Certificate file path (fullchain)"
+msgstr "证书文件路径（fullchain）"
+
+#: internal/service/cli.go:942
 msgid "Certificate for website %s updated successfully"
 msgstr "网站 %s 的证书更新成功"
 
+#: internal/command/cert.go:16
+msgid "Certificate management"
+msgstr "证书管理"
+
+#: internal/command/user.go:64
+msgid "Change a user's password (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"
+msgstr "修改用户密码（密码从 ACEPANEL_PASSWORD 环境变量读取，未提供时交互式输入）"
+
+#: internal/command/user.go:53
+msgid "Change a user's username"
+msgstr "修改用户名"
+
+#: internal/command/panel.go:72
+msgid "Change the AcePanel listening port"
+msgstr "修改 AcePanel 监听端口"
+
 #: internal/biz/notify.go:190
+#: internal/command/app.go:21
+#: internal/command/app.go:52
 #: internal/request/attributes.go:26
 msgid "Channel"
 msgstr "渠道"
 
-#: internal/apps/postgresql/app.go:858
+#: internal/apps/postgresql/app.go:860
 msgid "Chinese full-text search parser based on SCWS"
 msgstr "基于 SCWS 的中文全文搜索解析器"
 
@@ -366,39 +456,56 @@ msgstr "基于 SCWS 的中文全文搜索解析器"
 msgid "Chunk Count"
 msgstr "分块数量"
 
-#: internal/service/cli.go:1167
-#: internal/service/cli.go:1172
+#: internal/service/cli.go:1199
+#: internal/service/cli.go:1204
 msgid "Cleaning failed: %v"
 msgstr "清理失败：%v"
 
-#: internal/data/backup.go:1701
+#: internal/data/backup.go:1741
 msgid "Cleaning temporary directory failed: %v"
 msgstr "清理临时目录失败：%v"
 
-#: internal/data/backup.go:426
-#: internal/data/backup.go:490
+#: internal/data/backup.go:434
+#: internal/data/backup.go:500
 msgid "Cleanup failed: %v"
 msgstr "清理失败：%v"
 
-#: internal/service/cert.go:92
+#: internal/command/user.go:83
+msgid "Clear all passkeys for a user"
+msgstr "清除用户的所有通行密钥"
+
+#: internal/command/panel.go:102
+msgid "Clear all tasks in the task queue if they are stuck (use only under guidance)"
+msgstr "任务队列卡住时清空所有任务（仅在指导下使用）"
+
+#: internal/command/backup.go:109
+msgid "Clear backups"
+msgstr "清理备份"
+
+#: internal/command/cutoff.go:60
+msgid "Clear rotated logs"
+msgstr "清理轮转日志"
+
+#: internal/service/cert.go:91
 msgid "ClouDNS"
 msgstr "ClouDNS"
 
-#: internal/service/cert.go:76
+#: internal/service/cert.go:75
 msgid "CloudFlare"
 msgstr "CloudFlare"
 
-#: internal/apps/elasticsearch/app.go:82
+#: internal/apps/elasticsearch/app.go:83
 #: internal/apps/opensearch/app.go:83
 msgid "Cluster Name"
 msgstr "集群名称"
 
-#: internal/apps/elasticsearch/app.go:83
+#: internal/apps/elasticsearch/app.go:84
 #: internal/apps/opensearch/app.go:84
 msgid "Cluster Status"
 msgstr "集群状态"
 
 #: internal/request/attributes.go:28
+#: pkg/tui/tui.go:64
 msgid "Command"
 msgstr "命令"
 
@@ -414,7 +521,7 @@ msgstr "编排"
 msgid "Composer is not installed"
 msgstr "未安装 Composer"
 
-#: internal/service/file.go:598
+#: internal/service/file.go:623
 msgid "Compress %v"
 msgstr "压缩 %v"
 
@@ -430,43 +537,73 @@ msgstr "配置重载成功"
 msgid "Connected Clients"
 msgstr "已连接客户端数"
 
-#: internal/service/cli.go:1243
+#: internal/command/cutoff.go:40
+msgid "Container"
+msgstr "容器"
+
+#: internal/service/cli.go:1275
 msgid "Container %s has no log file"
 msgstr "容器 %s 没有日志文件"
 
-#: internal/apps/postgresql/app.go:863
+#: internal/command/cutoff.go:45
+msgid "Container name"
+msgstr "容器名称"
+
+#: internal/apps/postgresql/app.go:865
 msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
 msgstr "使用 SQL 注释中的提示控制执行计划，安装后需要重启 PostgreSQL"
 
-#: internal/biz/tamper.go:307
+#: internal/biz/tamper.go:308
 msgid "Count"
 msgstr "次数"
+
+#: internal/command/website.go:61
+msgid "Create a database of the given type (mysql, postgresql), not created if not filled"
+msgstr "创建指定类型的数据库（mysql、postgresql），不填则不创建"
+
+#: internal/command/user.go:27
+msgid "Create a new user (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"
+msgstr "创建新用户（密码从 ACEPANEL_PASSWORD 环境变量读取，未提供时交互式输入）"
 
 #: internal/biz/container.go:91
 msgid "Create container %s"
 msgstr "创建容器 %s"
 
-#: internal/service/cli.go:1653
+#: internal/command/website.go:20
+msgid "Create new website"
+msgstr "创建新网站"
+
+#: internal/command/cron.go:16
+msgid "Cron task"
+msgstr "计划任务"
+
+#: internal/service/cli.go:1701
 msgid "Cron task %d disabled"
 msgstr "计划任务 %d 已禁用"
 
-#: internal/service/cli.go:1655
+#: internal/service/cli.go:1703
 msgid "Cron task %d enabled"
 msgstr "计划任务 %d 已启用"
 
-#: internal/service/cli.go:1643
+#: internal/service/cli.go:1691
 msgid "Cron task %s executed successfully"
 msgstr "计划任务 %s 执行成功"
 
-#: internal/service/cli.go:1640
+#: internal/service/cli.go:1688
 msgid "Cron task %s failed: %v"
 msgstr "计划任务 %s 执行失败：%v"
 
-#: internal/service/cli.go:1631
+#: internal/command/cron.go:32
+#: internal/command/cron.go:47
+#: internal/command/cron.go:66
+msgid "Cron task ID"
+msgstr "计划任务 ID"
+
+#: internal/service/cli.go:1679
 msgid "Cron task script %s not exists"
 msgstr "计划任务脚本 %s 不存在"
 
-#: internal/apps/mongodb/app.go:95
+#: internal/apps/mongodb/app.go:96
 msgid "Current Connections"
 msgstr "当前连接数"
 
@@ -478,8 +615,8 @@ msgstr "当前值"
 msgid "Custom Logo"
 msgstr "自定义 Logo"
 
-#: internal/bootstrap/cli.go:17
-#: internal/bootstrap/cli.go:25
+#: internal/bootstrap/cli.go:18
+#: internal/bootstrap/cli.go:26
 msgid "DESCRIPTION"
 msgstr "描述"
 
@@ -487,11 +624,19 @@ msgstr "描述"
 msgid "Data"
 msgstr "数据"
 
-#: internal/service/cli.go:175
+#: internal/command/backup.go:16
+msgid "Data backup"
+msgstr "数据备份"
+
+#: internal/command/restore.go:16
+msgid "Data restore"
+msgstr "数据恢复"
+
+#: internal/service/cli.go:176
 msgid "Data synchronized successfully"
 msgstr "数据同步成功"
 
-#: internal/apps/grafana/app.go:89
+#: internal/apps/grafana/app.go:90
 #: internal/request/attributes.go:37
 msgid "Database"
 msgstr "数据库"
@@ -516,19 +661,45 @@ msgstr "数据库类型"
 msgid "Database User"
 msgstr "数据库用户"
 
-#: internal/service/cli.go:1048
+#: internal/command/database.go:16
+msgid "Database management"
+msgstr "数据库管理"
+
+#: internal/command/backup.go:66
+#: internal/command/restore.go:52
+msgid "Database name"
+msgstr "数据库名称"
+
+#: internal/command/website.go:65
+msgid "Database name (website name if not filled)"
+msgstr "数据库名称（不填则使用网站名称）"
+
+#: internal/command/website.go:73
+msgid "Database password (randomly generated if not filled)"
+msgstr "数据库密码（不填则随机生成）"
+
+#: internal/service/cli.go:1080
 msgid "Database server %s added successfully"
 msgstr "数据库服务器 %s 添加成功"
 
-#: internal/service/cli.go:1062
+#: internal/service/cli.go:1094
 msgid "Database server %s deleted successfully"
 msgstr "数据库服务器 %s 删除成功"
 
-#: internal/service/cli.go:906
+#: internal/command/backup.go:60
+#: internal/command/restore.go:46
+msgid "Database type (mysql, postgresql, clickhouse, redis, valkey)"
+msgstr "数据库类型（mysql、postgresql、clickhouse、redis、valkey）"
+
+#: internal/command/website.go:69
+msgid "Database username (website name if not filled)"
+msgstr "数据库用户名（不填则使用网站名称）"
+
+#: internal/service/cli.go:913
 msgid "Database: %s, username: %s, password: %s"
 msgstr "数据库：%s，用户名：%s，密码：%s"
 
-#: internal/apps/clickhouse/app.go:102
+#: internal/apps/clickhouse/app.go:103
 #: internal/request/attributes.go:38
 msgid "Databases"
 msgstr "数据库"
@@ -549,11 +720,23 @@ msgstr "日期"
 msgid "Days"
 msgstr "天数"
 
-#: internal/apps/mongodb/app.go:100
+#: internal/apps/mongodb/app.go:101
 msgid "Delete Operations"
 msgstr "删除操作"
 
-#: internal/biz/alert.go:647
+#: internal/command/user.go:45
+msgid "Delete a user"
+msgstr "删除用户"
+
+#: internal/command/database.go:63
+msgid "Delete database server"
+msgstr "删除数据库服务器"
+
+#: internal/command/website.go:108
+msgid "Delete website (including website directory, database with the same name)"
+msgstr "删除网站（包括网站目录和同名数据库）"
+
+#: internal/biz/alert.go:654
 msgid "Detail"
 msgstr "详情"
 
@@ -577,32 +760,72 @@ msgstr "方向"
 msgid "Directory"
 msgstr "目录"
 
-#: internal/service/toolbox_log.go:268
+#: internal/command/backup.go:86
+msgid "Directory path"
+msgstr "目录路径"
+
+#: internal/command/https.go:27
+msgid "Disable HTTPS"
+msgstr "禁用 HTTPS"
+
+#: internal/command/entrance.go:78
+msgid "Disable IP binding"
+msgstr "禁用 IP 绑定"
+
+#: internal/command/entrance.go:103
+msgid "Disable UA binding"
+msgstr "禁用 UA 绑定"
+
+#: internal/command/entrance.go:28
+msgid "Disable access entrance"
+msgstr "禁用访问入口"
+
+#: internal/command/entrance.go:53
+msgid "Disable domain binding"
+msgstr "禁用域名绑定"
+
+#: internal/command/firewall.go:34
+msgid "Disable firewall"
+msgstr "禁用防火墙"
+
+#: internal/command/cron.go:52
+msgid "Disable the task instead of enabling it"
+msgstr "禁用任务而非启用"
+
+#: internal/service/toolbox_log.go:269
 msgid "Docker container logs: %d files"
 msgstr "Docker 容器日志：%d 个文件"
+
+#: internal/command/entrance.go:46
+msgid "Domain"
+msgstr "域名"
 
 #: internal/request/attributes.go:47
 msgid "Domains"
 msgstr "域名"
 
-#: internal/service/cli.go:146
+#: pkg/tui/tui.go:46
+msgid "Done"
+msgstr "完成"
+
+#: internal/service/cli.go:147
 msgid "Download URL is empty"
 msgstr "下载 URL 为空"
 
-#: internal/data/backup.go:1821
-#: internal/data/backup.go:1824
+#: internal/data/backup.go:1861
+#: internal/data/backup.go:1864
 msgid "Download failed: %v"
 msgstr "下载失败：%v"
 
-#: internal/data/backup.go:1827
+#: internal/data/backup.go:1867
 msgid "Download file check failed"
 msgstr "下载文件检查失败"
 
-#: internal/service/file.go:468
+#: internal/service/file.go:493
 msgid "Download remote file %v"
 msgstr "下载远程文件 %v"
 
-#: internal/data/backup.go:1819
+#: internal/data/backup.go:1859
 msgid "Downloading new version..."
 msgstr "正在下载新版本……"
 
@@ -621,6 +844,34 @@ msgstr "Elasticsearch 指标"
 #: internal/request/attributes.go:50
 msgid "Email"
 msgstr "邮箱"
+
+#: internal/command/https.go:20
+msgid "Enable HTTPS"
+msgstr "启用 HTTPS"
+
+#: internal/command/entrance.go:70
+msgid "Enable IP binding"
+msgstr "启用 IP 绑定"
+
+#: internal/command/entrance.go:95
+msgid "Enable UA binding"
+msgstr "启用 UA 绑定"
+
+#: internal/command/entrance.go:20
+msgid "Enable access entrance"
+msgstr "启用访问入口"
+
+#: internal/command/entrance.go:45
+msgid "Enable domain binding"
+msgstr "启用域名绑定"
+
+#: internal/command/firewall.go:27
+msgid "Enable firewall"
+msgstr "启用防火墙"
+
+#: internal/command/cron.go:42
+msgid "Enable or disable a cron task"
+msgstr "启用或禁用计划任务"
 
 #: internal/service/environment_php.go:826
 msgid "Enchant is a spell-checking library"
@@ -642,16 +893,20 @@ msgstr "入口"
 msgid "Entrance Error"
 msgstr "安全入口错误"
 
-#: internal/service/cli.go:582
+#: internal/service/cli.go:586
 msgid "Entrance disabled"
 msgstr "入口已禁用"
 
-#: internal/service/cli.go:565
+#: internal/service/cli.go:569
 msgid "Entrance enabled"
 msgstr "入口已启用"
 
-#: internal/service/cli.go:243
-#: internal/service/cli.go:566
+#: internal/command/entrance.go:21
+msgid "Entrance, e.g. /mypanel, random if omitted"
+msgstr "入口，如 /mypanel，不填则随机生成"
+
+#: internal/service/cli.go:244
+#: internal/service/cli.go:570
 msgid "Entrance: %s"
 msgstr "入口： %s"
 
@@ -660,8 +915,8 @@ msgid "Environment"
 msgstr "环境"
 
 #: internal/biz/backup.go:72
-#: internal/job/cert_renew.go:174
-#: internal/taskqueue/runner.go:172
+#: internal/job/cert_renew.go:185
+#: internal/taskqueue/runner.go:194
 msgid "Error"
 msgstr "错误"
 
@@ -677,8 +932,12 @@ msgstr "Event 是一个用于处理事件的库"
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一个用于读取和写入图像元数据的库"
 
-#: internal/service/cli.go:1676
+#: internal/service/cli.go:1724
 msgid "Exit Code"
+msgstr "退出码"
+
+#: internal/command/cron.go:72
+msgid "Exit code"
 msgstr "退出码"
 
 #: internal/request/attributes.go:57
@@ -693,184 +952,188 @@ msgstr "过期小时数"
 msgid "Expire Time"
 msgstr "过期时间"
 
-#: internal/data/backup.go:1837
+#: internal/data/backup.go:1877
 msgid "Extracting new version..."
 msgstr "正在提取新版本……"
 
-#: internal/biz/alert.go:711
+#: internal/biz/alert.go:718
 #: internal/service/user.go:200
 msgid "Failed Attempts"
 msgstr "失败次数"
 
-#: internal/service/cli.go:414
+#: internal/service/cli.go:417
 msgid "Failed to change 2FA status: %v"
 msgstr "修改两步验证失败：%v"
 
-#: internal/service/cli.go:389
+#: internal/service/cli.go:392
 msgid "Failed to change password: %v"
 msgstr "修改密码失败：%v"
 
-#: internal/service/cli.go:354
+#: internal/service/cli.go:357
 msgid "Failed to change username: %v"
 msgstr "修改用户名失败：%v"
 
-#: internal/data/backup.go:1803
+#: internal/data/backup.go:1843
 msgid "Failed to clean up temporary directory: %v"
 msgstr "清理临时目录失败：%v"
 
-#: internal/service/cli.go:453
+#: internal/service/cli.go:456
 msgid "Failed to clear passkeys: %v"
 msgstr "清除通行密钥失败：%v"
 
-#: internal/service/cli.go:1438
+#: internal/service/cli.go:1470
 msgid "Failed to clear tasks: %v"
 msgstr "清除任务失败：%v"
 
-#: internal/data/backup.go:1817
+#: internal/data/backup.go:1857
 msgid "Failed to create temporary directory: %v"
 msgstr "创建临时目录失败：%v"
 
-#: internal/service/cli.go:305
+#: internal/service/cli.go:308
 msgid "Failed to create user: %v"
 msgstr "创建用户失败：%v"
 
-#: internal/service/cli.go:1413
+#: internal/service/cli.go:1445
 msgid "Failed to delete app: %v"
 msgstr "删除应用失败：%v"
 
-#: internal/service/cli.go:1492
+#: internal/service/cli.go:1538
 msgid "Failed to delete setting: %v"
 msgstr "删除设置失败：%v"
 
-#: internal/service/cli.go:327
+#: internal/service/cli.go:330
 msgid "Failed to delete user: %v"
 msgstr "删除用户失败：%v"
 
-#: internal/service/cli.go:422
+#: internal/service/cli.go:425
 msgid "Failed to generate 2FA: %v"
 msgstr "生成两步验证失败：%v"
 
-#: internal/service/cli.go:207
-#: internal/service/cli.go:385
+#: internal/service/cli.go:208
+#: internal/service/cli.go:388
 msgid "Failed to generate password: %v"
 msgstr "生成密码失败：%v"
 
-#: internal/service/cli.go:519
+#: internal/service/cli.go:523
 msgid "Failed to get ACME account: %v"
 msgstr "获取 ACME 帐户失败：%v"
 
-#: internal/service/cli.go:515
+#: internal/service/cli.go:519
 msgid "Failed to get a panel user: %v"
 msgstr "获取面板用户失败：%v"
 
-#: internal/service/cli.go:1324
+#: internal/service/cli.go:1356
 msgid "Failed to get app list: %v"
 msgstr "获取应用列表失败：%v"
 
-#: internal/service/cli.go:1393
+#: internal/service/cli.go:1425
 msgid "Failed to get app: %v"
 msgstr "获取应用失败：%v"
 
-#: internal/service/cli.go:1239
+#: internal/service/cli.go:1271
 msgid "Failed to get container log path: %v"
 msgstr "无法获取容器日志路径：%v"
 
-#: internal/service/cli.go:233
+#: internal/service/cli.go:234
 msgid "Failed to get entrance"
 msgstr "获取入口失败"
 
-#: internal/service/cli.go:141
+#: internal/service/cli.go:142
 msgid "Failed to get latest version: %v"
 msgstr "获取最新版本失败：%v"
 
-#: internal/service/cli.go:229
+#: internal/service/cli.go:230
 msgid "Failed to get port"
 msgstr "获取端口失败"
 
-#: internal/service/cli.go:1456
-#: internal/service/cli.go:1473
+#: internal/service/cli.go:1488
+#: internal/service/cli.go:1505
 msgid "Failed to get setting: %v"
 msgstr "获取设置失败：%v"
 
-#: internal/service/cli.go:194
+#: internal/service/cli.go:195
 msgid "Failed to get user info: %v"
 msgstr "获取用户信息失败：%v"
 
-#: internal/service/cli.go:273
+#: internal/service/cli.go:276
 msgid "Failed to get user list: %v"
 msgstr "获取用户列表失败：%v"
 
-#: internal/service/cli.go:323
-#: internal/service/cli.go:349
-#: internal/service/cli.go:380
-#: internal/service/cli.go:407
-#: internal/service/cli.go:449
+#: internal/service/cli.go:326
+#: internal/service/cli.go:352
+#: internal/service/cli.go:383
+#: internal/service/cli.go:410
+#: internal/service/cli.go:452
 msgid "Failed to get user: %v"
 msgstr "获取用户失败：%v"
 
-#: internal/service/cli.go:999
+#: internal/service/cli.go:1031
 msgid "Failed to get website: %v"
 msgstr "获取网站失败：%v"
 
-#: internal/service/cli.go:525
+#: internal/service/cli.go:529
 msgid "Failed to obtain panel certificate via ACME, using self-signed certificate"
 msgstr "无法通过 ACME 获取面板证书，使用自签名证书"
 
-#: internal/data/backup.go:1806
+#: internal/data/backup.go:1846
 msgid "Failed to optimize database: %v"
 msgstr "优化数据库失败：%v"
 
-#: internal/service/cli.go:915
+#: internal/service/cli.go:922
 msgid "Failed to read certificate file: %v"
 msgstr "读取证书文件失败：%v"
 
-#: internal/service/cli.go:1734
-#: internal/service/cli.go:429
+#: internal/service/cli.go:1782
+#: internal/service/cli.go:432
 msgid "Failed to read input: %v"
 msgstr "读取输入失败： %v"
 
-#: internal/service/cli.go:919
+#: internal/service/cli.go:926
 msgid "Failed to read private key file: %v"
 msgstr "读取私钥文件失败：%v"
 
-#: internal/data/backup.go:1647
+#: internal/data/backup.go:1685
 msgid "Failed to remove %s.db: %v"
 msgstr "删除 %s.db 失败：%v"
 
-#: internal/service/cli.go:1400
+#: internal/service/cli.go:1432
 msgid "Failed to save app: %v"
 msgstr "保存应用失败：%v"
 
-#: internal/service/cli.go:1479
-#: internal/service/cli.go:218
+#: internal/service/cli.go:1511
+#: internal/service/cli.go:219
 msgid "Failed to save setting: %v"
 msgstr "保存设置失败：%v"
 
-#: internal/service/cli.go:213
+#: internal/service/cli.go:214
 msgid "Failed to save user info: %v"
 msgstr "保存用户信息失败：%v"
 
-#: internal/service/cli.go:1009
+#: internal/service/cli.go:1041
 msgid "Failed to save website: %v"
 msgstr "保存网站失败：%v"
 
-#: internal/service/ws.go:206
+#: internal/service/ws.go:215
 msgid "Failed to start command: %v"
 msgstr "启动命令失败：%v"
 
-#: internal/service/cli.go:166
-#: internal/service/cli.go:169
-#: internal/service/cli.go:172
+#: internal/service/cli.go:167
+#: internal/service/cli.go:170
+#: internal/service/cli.go:173
 msgid "Failed to synchronize app data: %v"
 msgstr "同步应用数据失败：%v"
 
-#: internal/service/cli.go:163
+#: internal/service/cli.go:164
 msgid "Failed to synchronize categories data: %v"
 msgstr "同步分类数据失败：%v"
 
-#: internal/service/cli.go:432
+#: internal/service/cli.go:435
 msgid "Failed to update 2FA: %v"
 msgstr "更新两步验证失败： %v"
+
+#: pkg/tui/tui.go:44
+msgid "Failed: %v"
+msgstr "失败：%v"
 
 #: internal/request/attributes.go:58
 msgid "Family"
@@ -892,7 +1155,7 @@ msgstr "文件名"
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一个用于识别文件类型的库"
 
-#: internal/data/backup.go:1637
+#: internal/data/backup.go:1673
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "文件正常，无需修复，请运行 acepanel update 更新面板"
 
@@ -904,35 +1167,47 @@ msgstr "文件系统类型"
 msgid "Find Time"
 msgstr "查找时间"
 
-#: internal/data/backup.go:1852
+#: internal/data/backup.go:1895
 msgid "Finishing up..."
 msgstr "正在结束更新……"
 
-#: internal/data/backup.go:1854
+#: internal/data/backup.go:1897
 msgid "Finishing update failed: %v"
 msgstr "结束更新失败：%v"
 
-#: internal/service/cli.go:778
+#: internal/service/cli.go:785
 msgid "Firewall disabled"
 msgstr "防火墙已禁用"
 
-#: internal/service/cli.go:769
+#: internal/service/cli.go:776
 msgid "Firewall enabled"
 msgstr "防火墙已启用"
 
-#: internal/service/cli.go:817
+#: internal/service/cli.go:824
 msgid "Firewall is not running"
 msgstr "防火墙未运行"
 
-#: internal/service/cli.go:755
+#: internal/command/firewall.go:16
+msgid "Firewall management"
+msgstr "防火墙管理"
+
+#: internal/service/cli.go:762
 msgid "Firewall status: %s"
 msgstr "防火墙状态：%s"
+
+#: internal/command/panel.go:38
+msgid "Fix AcePanel upgrade issues"
+msgstr "修复 AcePanel 升级问题"
 
 #: internal/apps/rocketmq/app.go:69
 msgid "Flush Disk Type"
 msgstr "刷盘类型"
 
-#: internal/bootstrap/cli.go:34
+#: internal/command/panel.go:54
+msgid "Force reset password"
+msgstr "强制重置密码"
+
+#: internal/bootstrap/cli.go:35
 msgid "Forum：https://tom.moe"
 msgstr "论坛：https://tom.moe"
 
@@ -948,7 +1223,7 @@ msgstr "没有使用索引的 Join"
 msgid "Full Range Joins without Index"
 msgstr "没有使用索引的范围 Join"
 
-#: internal/bootstrap/cli.go:20
+#: internal/bootstrap/cli.go:21
 msgid "GLOBAL OPTIONS"
 msgstr "全局选项"
 
@@ -956,9 +1231,21 @@ msgstr "全局选项"
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一个用于处理大整数的库"
 
-#: internal/service/cert.go:80
+#: internal/service/cert.go:79
 msgid "Gcore"
 msgstr "Gcore"
+
+#: internal/command/service.go:16
+msgid "Get AcePanel service status"
+msgstr "查看 AcePanel 服务状态"
+
+#: internal/command/firewall.go:20
+msgid "Get firewall status"
+msgstr "查看防火墙状态"
+
+#: internal/command/setting.go:21
+msgid "Get panel setting (use only under guidance)"
+msgstr "读取面板设置（仅在指导下使用）"
 
 #: internal/service/environment_php.go:861
 msgid "Gettext is a library for handling multilingual support"
@@ -982,19 +1269,19 @@ msgstr "组"
 msgid "HTTP Port"
 msgstr "HTTP 端口"
 
-#: internal/apps/postgresql/app.go:869
+#: internal/apps/postgresql/app.go:871
 msgid "HTTP client for SQL, send requests from the database"
 msgstr "用于 SQL 的 HTTP 客户端，可从数据库发送请求"
 
-#: internal/service/cli.go:544
+#: internal/service/cli.go:548
 msgid "HTTPS certificate generated"
 msgstr "HTTPS 证书已生成"
 
-#: internal/service/cli.go:488
+#: internal/service/cli.go:491
 msgid "HTTPS disabled"
 msgstr "HTTPS 已禁用"
 
-#: internal/service/cli.go:472
+#: internal/service/cli.go:475
 msgid "HTTPS enabled"
 msgstr "HTTPS 已启用"
 
@@ -1010,11 +1297,11 @@ msgstr "主机"
 msgid "Hostname"
 msgstr "主机名"
 
-#: internal/service/cert.go:68
+#: internal/service/cert.go:67
 msgid "Huawei Cloud"
 msgstr "华为云"
 
-#: internal/apps/postgresql/app.go:866
+#: internal/apps/postgresql/app.go:868
 msgid "Hypothetical indexes for query plan testing"
 msgstr "用于查询计划测试的假想索引"
 
@@ -1022,23 +1309,23 @@ msgstr "用于查询计划测试的假想索引"
 msgid "ID"
 msgstr "ID"
 
-#: internal/service/cli.go:1074
+#: internal/service/cli.go:1106
 msgid "ID: %d, Domains: %s, Auto Renewal: %t, Expires At: %s"
 msgstr "ID：%d，域名：%s，自动续签：%t，到期时间：%s"
 
-#: internal/service/cli.go:1024
+#: internal/service/cli.go:1056
 msgid "ID: %d, Name: %s, Type: %s, Address: %s:%d, Username: %s"
 msgstr "ID：%d，名称：%s，类型：%s，地址：%s:%d，用户名：%s"
 
-#: internal/service/cli.go:1619
+#: internal/service/cli.go:1667
 msgid "ID: %d, Name: %s, Type: %s, Schedule: %s, Status: %s"
 msgstr "ID：%d，名称：%s，类型：%s，执行周期：%s，状态：%s"
 
-#: internal/service/cli.go:857
+#: internal/service/cli.go:864
 msgid "ID: %d, Name: %s, Type: %s, Status: %s, Path: %s"
 msgstr "ID：%d，名称：%s，类型：%s，状态：%s，路径：%s"
 
-#: internal/service/cli.go:278
+#: internal/service/cli.go:281
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 用户名: %s, 邮箱: %s, 创建时间: %s"
 
@@ -1046,12 +1333,13 @@ msgstr "ID: %d, 用户名: %s, 邮箱: %s, 创建时间: %s"
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr "IMAP 模块允许 PHP 读取、搜索、删除、下载和管理邮件"
 
-#: internal/biz/alert.go:696
-#: internal/biz/alert.go:710
+#: internal/biz/alert.go:703
+#: internal/biz/alert.go:717
+#: internal/command/entrance.go:71
 #: internal/request/attributes.go:69
 #: internal/service/user.go:180
 #: internal/service/user.go:198
-#: internal/service/user_passkey.go:303
+#: internal/service/user_passkey.go:307
 msgid "IP"
 msgstr "IP"
 
@@ -1071,15 +1359,15 @@ msgstr "IP 键最大值"
 msgid "Idle Processes"
 msgstr "空闲进程"
 
-#: internal/apps/apache/app.go:147
+#: internal/apps/apache/app.go:160
 msgid "Idle Workers"
 msgstr "空闲的 Worker"
 
-#: internal/service/cli.go:263
+#: internal/service/cli.go:266
 msgid "If you cannot access, please check whether the server's security group and firewall allow port %d"
 msgstr "如果您无法访问，请检查服务器的安全组和防火墙是否放行端口 %d"
 
-#: internal/service/cli.go:264
+#: internal/service/cli.go:267
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr "如果您仍然无法访问，请尝试运行 `acepanel https off` 关闭面板 HTTPS"
 
@@ -1095,7 +1383,7 @@ msgstr "镜像"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
-#: internal/apps/postgresql/app.go:865
+#: internal/apps/postgresql/app.go:867
 msgid "Incremental view maintenance for materialized views"
 msgstr "物化视图的增量维护"
 
@@ -1107,18 +1395,22 @@ msgstr "索引"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1549
-#: internal/service/cli.go:1554
-#: internal/service/cli.go:1559
-#: internal/service/cli.go:1601
+#: internal/service/cli.go:1595
+#: internal/service/cli.go:1600
+#: internal/service/cli.go:1605
+#: internal/service/cli.go:1649
 msgid "Initialization failed: %v"
 msgstr "初始化失败：%v"
+
+#: internal/command/panel.go:114
+msgid "Initialize AcePanel (use only under guidance)"
+msgstr "初始化 AcePanel（仅在指导下使用）"
 
 #: internal/apps/mysql/app.go:109
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
-#: internal/apps/mongodb/app.go:98
+#: internal/apps/mongodb/app.go:99
 msgid "Insert Operations"
 msgstr "插入操作"
 
@@ -1130,7 +1422,7 @@ msgstr "安装 Composer"
 msgid "Install PHP-%d %s module"
 msgstr "安装 PHP-%d %s 模块"
 
-#: internal/apps/postgresql/app.go:394
+#: internal/apps/postgresql/app.go:396
 msgid "Install PostgreSQL extension %s"
 msgstr "安装 PostgreSQL 扩展 %s"
 
@@ -1138,11 +1430,15 @@ msgstr "安装 PostgreSQL 扩展 %s"
 msgid "Install Prometheus exporter %s"
 msgstr "安装 Prometheus exporter %s"
 
-#: internal/biz/app.go:219
+#: internal/biz/app.go:220
 msgid "Install app %s"
 msgstr "安装应用 %s"
 
-#: internal/biz/environment.go:151
+#: internal/command/app.go:20
+msgid "Install application"
+msgstr "安装应用"
+
+#: internal/biz/environment.go:152
 msgid "Install environment %s"
 msgstr "安装环境 %s"
 
@@ -1158,7 +1454,7 @@ msgstr "间隔"
 msgid "Intl is a library for handling internationalization and localization"
 msgstr "Intl 是一个处理国际化和本地化的库"
 
-#: internal/biz/alert.go:645
+#: internal/biz/alert.go:652
 msgid "Item"
 msgstr "项目"
 
@@ -1170,7 +1466,7 @@ msgstr "项目"
 msgid "Java-%s is not installed"
 msgstr "Java-%s 未安装"
 
-#: internal/service/toolbox_log.go:391
+#: internal/service/toolbox_log.go:392
 msgid "Journal logs"
 msgstr "Journal 日志"
 
@@ -1182,6 +1478,9 @@ msgstr "Kafka 指标"
 msgid "Keep"
 msgstr "保留数量"
 
+#: internal/command/setting.go:22
+#: internal/command/setting.go:31
+#: internal/command/setting.go:40
 #: internal/request/attributes.go:79
 msgid "Key"
 msgstr "键"
@@ -1210,7 +1509,7 @@ msgstr "LDAP 是一种用于访问目录服务的协议"
 msgid "Latest Fork Time (ms)"
 msgstr "最近一次 fork() 操作耗费的毫秒数"
 
-#: internal/biz/alert.go:646
+#: internal/biz/alert.go:653
 msgid "Level"
 msgstr "级别"
 
@@ -1218,13 +1517,53 @@ msgstr "级别"
 msgid "Lifetime"
 msgstr "生命周期"
 
-#: internal/apps/postgresql/app.go:867
+#: internal/apps/postgresql/app.go:869
 msgid "Lightweight message queue"
 msgstr "轻量级消息队列"
 
 #: internal/request/attributes.go:82
 msgid "Limit"
 msgstr "数量限制"
+
+#: internal/command/cert.go:20
+msgid "List all certificates"
+msgstr "列出所有证书"
+
+#: internal/command/cron.go:20
+msgid "List all cron tasks"
+msgstr "列出所有计划任务"
+
+#: internal/command/database.go:78
+msgid "List all database servers"
+msgstr "列出所有数据库服务器"
+
+#: internal/command/firewall.go:41
+msgid "List all firewall rules"
+msgstr "列出所有防火墙规则"
+
+#: internal/command/user.go:20
+msgid "List all users"
+msgstr "列出所有用户"
+
+#: internal/command/website.go:123
+msgid "List all websites"
+msgstr "列出所有网站"
+
+#: internal/command/backup.go:20
+msgid "List backup files"
+msgstr "列出备份文件"
+
+#: internal/command/app.go:44
+msgid "List installed applications"
+msgstr "列出已安装的应用"
+
+#: internal/command/website.go:36
+msgid "List of domains associated with the website"
+msgstr "网站关联的域名列表"
+
+#: internal/command/website.go:42
+msgid "List of listening addresses associated with the website"
+msgstr "网站关联的监听地址列表"
 
 #: internal/request/attributes.go:83
 msgid "Listen Address"
@@ -1247,19 +1586,23 @@ msgstr "监听队列"
 msgid "Listen Queue Length"
 msgstr "监听队列长度"
 
-#: internal/apps/kafka/app.go:56
+#: internal/apps/kafka/app.go:57
 msgid "Listeners"
 msgstr "监听器"
 
-#: internal/service/cli.go:247
+#: internal/command/panel.go:77
+msgid "Listening port"
+msgstr "监听端口"
+
+#: internal/service/cli.go:249
 msgid "Local IPv4: %s://%s:%d%s"
 msgstr "本地 IPv4： %s://%s:%d%s"
 
-#: internal/service/cli.go:251
+#: internal/service/cli.go:254
 msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr "本地 IPv6： %s://[%s]:%d%s"
 
-#: internal/biz/backup_storage.go:187
+#: internal/biz/backup_storage.go:189
 #: internal/data/backup.go:113
 msgid "Local Storage"
 msgstr "本地存储"
@@ -1268,12 +1611,12 @@ msgstr "本地存储"
 msgid "Locale"
 msgstr "语言"
 
-#: internal/service/cli.go:1677
-#: internal/taskqueue/runner.go:171
+#: internal/service/cli.go:1725
+#: internal/taskqueue/runner.go:193
 msgid "Log"
 msgstr "日志"
 
-#: internal/apps/kafka/app.go:57
+#: internal/apps/kafka/app.go:58
 msgid "Log Dirs"
 msgstr "日志目录"
 
@@ -1281,13 +1624,17 @@ msgstr "日志目录"
 msgid "Log Level"
 msgstr "日志级别"
 
-#: internal/apps/kafka/app.go:59
+#: internal/apps/kafka/app.go:60
 msgid "Log Retention Hours"
 msgstr "日志保留小时数"
 
-#: internal/apps/kafka/app.go:60
+#: internal/apps/kafka/app.go:61
 msgid "Log Segment Bytes"
 msgstr "日志段字节数"
+
+#: internal/command/cutoff.go:16
+msgid "Log rotation"
+msgstr "日志轮转"
 
 #: internal/service/environment_php.go:198
 msgid "Max Active Processes"
@@ -1365,8 +1712,8 @@ msgstr "Memcached 是一个用于连接 Memcached 服务器的驱动程序"
 msgid "Memcached metrics"
 msgstr "Memcached 指标"
 
-#: internal/apps/apache/app.go:119
-#: internal/apps/nginx/app.go:132
+#: internal/apps/apache/app.go:132
+#: internal/apps/nginx/app.go:128
 #: internal/request/attributes.go:99
 msgid "Memory"
 msgstr "内存"
@@ -1379,12 +1726,12 @@ msgstr "内存碎片比率"
 msgid "Memory Limit"
 msgstr "内存限制"
 
-#: internal/apps/clickhouse/app.go:101
+#: internal/apps/clickhouse/app.go:102
 msgid "Memory Usage (bytes)"
 msgstr "内存使用（字节）"
 
-#: internal/biz/alert.go:697
-#: internal/service/user_passkey.go:302
+#: internal/biz/alert.go:704
+#: internal/service/user_passkey.go:306
 msgid "Method"
 msgstr "方式"
 
@@ -1424,11 +1771,11 @@ msgstr "MongoDB 指标"
 msgid "Mount Point"
 msgstr "挂载点"
 
-#: internal/data/backup.go:1732
+#: internal/data/backup.go:1772
 msgid "Move acepanel file failed: %v"
 msgstr "移动 acepanel 文件失败：%v"
 
-#: internal/data/backup.go:1723
+#: internal/data/backup.go:1763
 msgid "Move panel file failed: %v"
 msgstr "移动面板文件失败：%v"
 
@@ -1436,9 +1783,9 @@ msgstr "移动面板文件失败：%v"
 msgid "MySQL database metrics"
 msgstr "MySQL 数据库指标"
 
-#: internal/bootstrap/cli.go:14
-#: internal/bootstrap/cli.go:22
-#: internal/bootstrap/cli.go:27
+#: internal/bootstrap/cli.go:15
+#: internal/bootstrap/cli.go:23
+#: internal/bootstrap/cli.go:28
 msgid "NAME"
 msgstr "名称"
 
@@ -1446,7 +1793,7 @@ msgstr "名称"
 msgid "Name"
 msgstr "名称"
 
-#: internal/service/cli.go:1126
+#: internal/service/cli.go:1158
 msgid "Name: %s, Size: %s, Time: %s"
 msgstr "名称：%s，大小：%s，时间：%s"
 
@@ -1458,7 +1805,7 @@ msgstr "NameServer 地址"
 msgid "NameServer Status"
 msgstr "NameServer 状态"
 
-#: internal/service/cert.go:88
+#: internal/service/cert.go:87
 msgid "NameSilo"
 msgstr "NameSilo"
 
@@ -1470,7 +1817,11 @@ msgstr "新键名"
 msgid "New Strategy"
 msgstr "新策略"
 
-#: internal/service/cli.go:342
+#: internal/command/user.go:56
+msgid "New username"
+msgstr "新用户名"
+
+#: internal/service/cli.go:345
 msgid "New username cannot be empty"
 msgstr "新用户名不能为空"
 
@@ -1478,15 +1829,23 @@ msgstr "新用户名不能为空"
 msgid "Nginx metrics"
 msgstr "Nginx 指标"
 
+#: pkg/tui/tui.go:160
+msgid "No"
+msgstr "否"
+
 #: internal/request/attributes.go:107
 msgid "No Anonymous"
 msgstr "无匿名"
 
-#: internal/data/backup.go:1683
+#: internal/data/backup.go:1721
 msgid "No backup file found, unable to automatically repair"
 msgstr "未找到备份文件，无法自动修复"
 
-#: internal/apps/kafka/app.go:55
+#: pkg/tui/select.go:121
+msgid "No matches"
+msgstr "无匹配项"
+
+#: internal/apps/kafka/app.go:56
 msgid "Node ID"
 msgstr "节点 ID"
 
@@ -1500,11 +1859,11 @@ msgstr "未安装 Node.js 依赖；请安装依赖并手动启动项目"
 msgid "Node.js-%s is not installed"
 msgstr "Node.js-%s 未安装"
 
-#: internal/service/home.go:267
+#: internal/service/home.go:268
 msgid "Not used"
 msgstr "不使用"
 
-#: internal/apps/kafka/app.go:58
+#: internal/apps/kafka/app.go:59
 msgid "Num Partitions"
 msgstr "分区数量"
 
@@ -1512,18 +1871,26 @@ msgstr "分区数量"
 msgid "Number"
 msgstr "数量"
 
-#: internal/apps/elasticsearch/app.go:85
+#: internal/apps/elasticsearch/app.go:86
 #: internal/apps/opensearch/app.go:86
 msgid "Number of Data Nodes"
 msgstr "数据节点数量"
 
-#: internal/apps/elasticsearch/app.go:84
+#: internal/apps/elasticsearch/app.go:85
 #: internal/apps/opensearch/app.go:85
 msgid "Number of Nodes"
 msgstr "节点数量"
 
-#: internal/bootstrap/cli.go:26
-#: internal/bootstrap/cli.go:31
+#: internal/command/backup.go:126
+msgid "Number of backups to keep"
+msgstr "保留的备份数量"
+
+#: internal/command/cutoff.go:77
+msgid "Number of logs to keep"
+msgstr "保留的日志数量"
+
+#: internal/bootstrap/cli.go:27
+#: internal/bootstrap/cli.go:32
 msgid "OPTIONS"
 msgstr "选项"
 
@@ -1531,11 +1898,19 @@ msgstr "选项"
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr "OPcache 将 PHP 脚本预编译的字节码存储到共享内存中来提升 PHP 的性能"
 
+#: internal/command/https.go:34
+msgid "Obtain a free certificate or generate a self-signed certificate"
+msgstr "签发免费证书或生成自签名证书"
+
 #: internal/request/attributes.go:109
 msgid "Old Key"
 msgstr "旧键名"
 
-#: internal/service/cli.go:339
+#: internal/command/user.go:55
+msgid "Old username"
+msgstr "原用户名"
+
+#: internal/service/cli.go:342
 msgid "Old username cannot be empty"
 msgstr "旧用户名不能为空"
 
@@ -1543,7 +1918,31 @@ msgstr "旧用户名不能为空"
 msgid "Open Tables"
 msgstr "已打开的表"
 
-#: internal/biz/tamper.go:309
+#: internal/command/https.go:16
+msgid "Operate AcePanel HTTPS"
+msgstr "操作 AcePanel HTTPS"
+
+#: internal/command/entrance.go:66
+msgid "Operate AcePanel IP binding"
+msgstr "操作 AcePanel IP 绑定"
+
+#: internal/command/entrance.go:91
+msgid "Operate AcePanel UA binding"
+msgstr "操作 AcePanel UA 绑定"
+
+#: internal/command/entrance.go:16
+msgid "Operate AcePanel access entrance"
+msgstr "操作 AcePanel 访问入口"
+
+#: internal/command/entrance.go:41
+msgid "Operate AcePanel domain binding"
+msgstr "操作 AcePanel 域名绑定"
+
+#: internal/command/user.go:16
+msgid "Operate AcePanel users"
+msgstr "操作 AcePanel 用户"
+
+#: internal/biz/tamper.go:310
 #: internal/request/attributes.go:110
 msgid "Operation"
 msgstr "操作"
@@ -1552,7 +1951,7 @@ msgstr "操作"
 msgid "Operator"
 msgstr "操作员"
 
-#: internal/apps/postgresql/app.go:868
+#: internal/apps/postgresql/app.go:870
 msgid "Oracle compatibility functions"
 msgstr "Oracle 兼容函数"
 
@@ -1560,17 +1959,25 @@ msgstr "Oracle 兼容函数"
 msgid "Order"
 msgstr "排序方向"
 
-#: internal/service/cli.go:1678
+#: internal/service/cli.go:1726
 msgid "Output"
 msgstr "输出"
 
-#: internal/bootstrap/cli.go:44
+#: internal/command/panel.go:49
+msgid "Output AcePanel basic information"
+msgstr "输出 AcePanel 基本信息"
+
+#: internal/bootstrap/cli.go:46
 msgid "Output in JSON format (list commands only)"
 msgstr "以 JSON 格式输出（仅适用于列表命令）"
 
 #: internal/request/attributes.go:113
 msgid "Owner"
 msgstr "所有者"
+
+#: internal/command/website.go:57
+msgid "PHP version used by the website (not used if not filled, php type only)"
+msgstr "网站使用的 PHP 版本（不填则不使用，仅 php 类型）"
 
 #: internal/service/environment_php.go:116
 #: internal/service/environment_php.go:135
@@ -1601,14 +2008,14 @@ msgstr "PID"
 msgid "Page"
 msgstr "页码"
 
-#: internal/service/cli.go:1337
-#: internal/service/cli.go:1357
-#: internal/service/cli.go:1371
-#: internal/service/cli.go:1387
-#: internal/service/cli.go:1409
-#: internal/service/cli.go:1448
-#: internal/service/cli.go:1467
-#: internal/service/cli.go:1488
+#: internal/service/cli.go:1369
+#: internal/service/cli.go:1389
+#: internal/service/cli.go:1403
+#: internal/service/cli.go:1419
+#: internal/service/cli.go:1441
+#: internal/service/cli.go:1480
+#: internal/service/cli.go:1499
+#: internal/service/cli.go:1534
 msgid "Parameters cannot be empty"
 msgstr "参数不能为空"
 
@@ -1616,37 +2023,44 @@ msgstr "参数不能为空"
 msgid "Passkey"
 msgstr "通行密钥"
 
+#: internal/command/user.go:30
+#: internal/command/user.go:67
 #: internal/request/attributes.go:116
 msgid "Password"
 msgstr "密码"
 
-#: internal/service/cli.go:392
+#: internal/service/cli.go:395
 msgid "Password for user %s changed successfully"
 msgstr "用户 %s 的密码已成功更改"
 
-#: internal/service/cli.go:294
-#: internal/service/cli.go:373
+#: internal/service/cli.go:297
+#: internal/service/cli.go:376
 msgid "Password length cannot be less than 6"
 msgstr "密码长度不能少于6位"
 
-#: internal/service/cli.go:1727
+#: internal/service/cli.go:1775
 msgid "Password not provided, pass it as an argument or set the %s environment variable"
 msgstr "未提供密码，请将其作为参数传入或设置 %s 环境变量"
 
-#: internal/service/cli.go:238
+#: internal/service/cli.go:239
 msgid "Password: %s"
 msgstr "密码： %s"
 
-#: internal/service/cli.go:240
+#: internal/service/cli.go:241
 msgid "Password: ******* (use -f to force reset)"
 msgstr "密码：*******（使用 -f 强制重置）"
 
-#: internal/biz/tamper.go:308
+#: internal/biz/tamper.go:309
 #: internal/request/attributes.go:117
 msgid "Path"
 msgstr "路径"
 
-#: internal/service/cli.go:904
+#: internal/command/website.go:174
+#: internal/command/website.go:48
+msgid "Path where the website is hosted (default path if not filled)"
+msgstr "网站的存放路径（不填则使用默认路径）"
+
+#: internal/service/cli.go:911
 msgid "Path: %s"
 msgstr "路径：%s"
 
@@ -1670,55 +2084,59 @@ msgstr "占用内存峰值"
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr "PhpRedis 连接并操作 Redis 数据库上的数据（需先安装上面 igbinary 模块）"
 
-#: internal/service/cli.go:758
+#: internal/service/cli.go:765
 msgid "Ping allowed: %t"
 msgstr "允许 Ping：%t"
 
-#: internal/service/cli.go:262
+#: internal/service/cli.go:265
 msgid "Please choose the appropriate address to access the panel based on your network situation"
 msgstr "请根据您的网络情况选择合适的地址访问面板"
 
-#: internal/service/cli.go:426
+#: pkg/tui/tui.go:235
+msgid "Please enter an integer"
+msgstr "请输入整数"
+
+#: internal/service/cli.go:429
 msgid "Please enter the 2FA code: "
 msgstr "请输入两步验证代码： "
 
-#: internal/service/cli.go:368
+#: internal/service/cli.go:371
 msgid "Please enter the new password: "
 msgstr "请输入新密码： "
 
-#: internal/service/cli.go:289
+#: internal/service/cli.go:292
 msgid "Please enter the password: "
 msgstr "请输入密码： "
 
-#: internal/biz/cert.go:260
+#: internal/biz/cert.go:265
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr "请先在设置中设置面板 IP 以生成 ACME 证书"
 
-#: internal/service/cli.go:626
+#: internal/service/cli.go:630
 msgid "Please specify at least one IP"
 msgstr "请至少指定一个 IP"
 
-#: internal/service/cli.go:663
+#: internal/service/cli.go:667
 msgid "Please specify at least one User-Agent"
 msgstr "请至少指定一个 User-Agent"
 
-#: internal/service/cli.go:589
+#: internal/service/cli.go:593
 msgid "Please specify at least one domain"
 msgstr "请至少指定一个域名"
 
-#: internal/service/cli.go:1095
+#: internal/service/cli.go:1127
 msgid "Please specify the certificate ID or use --all"
 msgstr "请指定证书 ID 或使用 --all"
 
-#: internal/service/cli.go:701
+#: internal/service/cli.go:704
 msgid "Please specify the port"
 msgstr "请指定端口"
 
-#: internal/service/toolbox_log.go:285
+#: internal/service/toolbox_log.go:286
 msgid "Podman container logs: %d files"
 msgstr "Podman 容器日志：%d 个文件"
 
-#: internal/service/cert.go:84
+#: internal/service/cert.go:83
 msgid "Porkbun"
 msgstr "Porkbun"
 
@@ -1726,32 +2144,36 @@ msgstr "Porkbun"
 msgid "Port"
 msgstr "端口"
 
-#: internal/service/cli.go:836
+#: internal/service/cli.go:843
 msgid "Port %s allowed successfully"
 msgstr "端口 %s 放行成功"
 
-#: internal/service/cli.go:838
+#: internal/service/cli.go:845
 msgid "Port %s removed successfully"
 msgstr "端口 %s 移除成功"
 
-#: internal/service/cli.go:714
+#: internal/service/cli.go:718
 msgid "Port already in use"
 msgstr "端口已被占用"
 
-#: internal/service/cli.go:740
+#: internal/service/cli.go:747
 msgid "Port changed to %d"
 msgstr "端口已更改为 %d"
 
-#: internal/service/cli.go:704
-#: internal/service/cli.go:807
+#: internal/command/firewall.go:49
+msgid "Port or port range, e.g. 8888 or 8000-9000"
+msgstr "端口或端口范围，如 8888 或 8000-9000"
+
+#: internal/service/cli.go:707
+#: internal/service/cli.go:814
 msgid "Port range error"
 msgstr "端口范围错误"
 
-#: internal/service/cli.go:242
+#: internal/service/cli.go:243
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/service/cli.go:790
+#: internal/service/cli.go:797
 msgid "Port: %d-%d, Protocol: %s, Strategy: %s, Direction: %s, Address: %s"
 msgstr "端口：%d-%d，协议：%s，策略：%s，方向：%s，地址：%s"
 
@@ -1759,11 +2181,15 @@ msgstr "端口：%d-%d，协议：%s，策略：%s，方向：%s，地址：%s"
 msgid "PostgreSQL database metrics"
 msgstr "PostgreSQL 数据库指标"
 
-#: internal/data/backup.go:1801
+#: internal/data/backup.go:1841
 msgid "Preparing to update to %s..."
 msgstr "正在准备更新到 %s……"
 
-#: internal/biz/tamper.go:310
+#: internal/command/website.go:146
+msgid "Private key file path"
+msgstr "私钥文件路径"
+
+#: internal/biz/tamper.go:311
 #: internal/request/attributes.go:127
 msgid "Process"
 msgstr "进程"
@@ -1789,6 +2215,10 @@ msgstr "项目路径"
 msgid "Protocol"
 msgstr "协议"
 
+#: internal/command/firewall.go:53
+msgid "Protocol (tcp, udp, tcp/udp)"
+msgstr "协议（tcp、udp、tcp/udp）"
+
 #: internal/request/attributes.go:130
 msgid "Proxy"
 msgstr "代理"
@@ -1801,15 +2231,15 @@ msgstr "代理目标"
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一个拼写检查库"
 
-#: internal/service/cli.go:255
+#: internal/service/cli.go:258
 msgid "Public IPv4: %s://%s:%d%s"
 msgstr "公网 IPv4： %s://%s:%d%s"
 
-#: internal/service/cli.go:259
+#: internal/service/cli.go:262
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr "公网 IPv6： %s://[%s]:%d%s"
 
-#: internal/biz/container_image.go:58
+#: internal/biz/container_image.go:60
 msgid "Pull image %s"
 msgstr "拉取镜像 %s"
 
@@ -1819,7 +2249,7 @@ msgstr "拉取镜像 %s"
 msgid "Python-%s is not installed"
 msgstr "Python-%s 未安装"
 
-#: internal/bootstrap/cli.go:35
+#: internal/bootstrap/cli.go:36
 msgid "QQ Group：12370907"
 msgstr "QQ 群：12370907"
 
@@ -1839,17 +2269,21 @@ msgstr "查询缓存插入次数"
 msgid "Query Cache Not Cached"
 msgstr "查询缓存未缓存次数"
 
-#: internal/apps/mongodb/app.go:97
+#: internal/apps/mongodb/app.go:98
 msgid "Query Operations"
 msgstr "查询操作"
 
-#: internal/apps/nginx/app.go:163
+#: internal/apps/nginx/app.go:159
 msgid "Reading"
 msgstr "正在读取请求"
 
 #: internal/service/environment_php.go:811
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一个处理文本的库"
+
+#: internal/command/website.go:86
+msgid "Rebuild all website configs for the current web server"
+msgstr "重建当前 Web 服务器的所有网站配置"
 
 #: internal/apps/prometheus/app.go:396
 msgid "Redis metrics"
@@ -1859,26 +2293,62 @@ msgstr "Redis 指标"
 msgid "Registry"
 msgstr "仓库源"
 
-#: internal/apps/elasticsearch/app.go:88
+#: internal/command/webserver.go:21
+msgid "Reload the web server (use only under guidance)"
+msgstr "重载 Web 服务器（仅在指导下使用）"
+
+#: internal/apps/elasticsearch/app.go:89
 #: internal/apps/opensearch/app.go:89
 msgid "Relocating Shards"
 msgstr "迁移中的分片"
 
-#: internal/data/backup.go:1720
+#: internal/command/app.go:60
+msgid "Remove panel application mark (use only under guidance)"
+msgstr "移除面板应用标记（仅在指导下使用）"
+
+#: internal/data/backup.go:1760
 msgid "Remove panel file failed: %v"
 msgstr "删除面板文件失败：%v"
 
-#: internal/apps/postgresql/app.go:859
+#: internal/command/setting.go:39
+msgid "Remove panel setting (use only under guidance)"
+msgstr "删除面板设置（仅在指导下使用）"
+
+#: internal/command/firewall.go:59
+msgid "Remove the rule instead of adding it"
+msgstr "移除规则而非添加"
+
+#: internal/command/website.go:93
+msgid "Remove website (keep website directory and database)"
+msgstr "移除网站（保留网站目录和数据库）"
+
+#: internal/command/cert.go:36
+msgid "Renew all certificates with auto renewal enabled"
+msgstr "续签所有已开启自动续签的证书"
+
+#: internal/command/cert.go:27
+msgid "Renew certificate"
+msgstr "续签证书"
+
+#: internal/apps/postgresql/app.go:861
 msgid "Reorganize tables online to remove bloat"
 msgstr "在线重组表以消除膨胀"
 
-#: internal/apps/apache/app.go:154
+#: internal/command/cron.go:61
+msgid "Report a failed cron task, called by the task wrapper script"
+msgstr "上报失败的计划任务，由任务包装脚本调用"
+
+#: internal/apps/apache/app.go:167
 msgid "Requests/sec"
 msgstr "每秒请求"
 
-#: internal/apps/mongodb/app.go:101
+#: internal/apps/mongodb/app.go:102
 msgid "Resident Memory (MB)"
 msgstr "常驻内存（MB）"
+
+#: internal/command/service.go:27
+msgid "Restart AcePanel service"
+msgstr "重启 AcePanel 服务"
 
 #: internal/request/attributes.go:134
 msgid "Restart Policy"
@@ -1887,6 +2357,18 @@ msgstr "重启策略"
 #: internal/service/backup.go:205
 msgid "Restore %s: %s"
 msgstr "恢复 %s：%s"
+
+#: internal/command/restore.go:41
+msgid "Restore database backup"
+msgstr "恢复数据库备份"
+
+#: internal/command/restore.go:68
+msgid "Restore panel backup (the panel restarts automatically after restoring)"
+msgstr "恢复面板备份（恢复后面板自动重启）"
+
+#: internal/command/restore.go:20
+msgid "Restore website backup"
+msgstr "恢复网站备份"
 
 #: internal/apps/mysql/app.go:103
 msgid "Rollbacks per Second"
@@ -1900,19 +2382,27 @@ msgstr "运行目录"
 msgid "Root Directory"
 msgstr "根目录"
 
+#: internal/command/cutoff.go:65
+msgid "Rotation type (website, container)"
+msgstr "轮转类型（website、container）"
+
 #: internal/biz/alert.go:385
 msgid "Rule"
 msgstr "规则"
 
-#: internal/apps/mysql/app.go:707
+#: internal/apps/mysql/app.go:713
 msgid "Run %[1]s on %[2]d tables"
 msgstr "对 %[2]d 张表执行 %[1]s"
 
-#: internal/apps/postgresql/app.go:755
+#: internal/apps/postgresql/app.go:757
 msgid "Run %[1]s on %[2]d tables in database %[3]s"
 msgstr "对数据库 %[3]s 中的 %[2]d 张表执行 %[1]s"
 
-#: internal/apps/postgresql/app.go:860
+#: internal/command/cron.go:27
+msgid "Run a cron task immediately"
+msgstr "立即运行计划任务"
+
+#: internal/apps/postgresql/app.go:862
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr "在数据库内运行定时任务，安装后需要重启 PostgreSQL"
 
@@ -1920,11 +2410,11 @@ msgstr "在数据库内运行定时任务，安装后需要重启 PostgreSQL"
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一种用于网络管理的协议"
 
-#: internal/service/log.go:154
+#: internal/service/log.go:155
 msgid "SSH log file not found"
 msgstr "未找到 SSH 日志文件"
 
-#: internal/biz/alert.go:694
+#: internal/biz/alert.go:701
 msgid "SSH login succeeded"
 msgstr "SSH 登录成功"
 
@@ -1944,7 +2434,7 @@ msgstr "SSL 私钥"
 msgid "Scan %s big keys"
 msgstr "扫描 %s 大键"
 
-#: internal/service/cli.go:1675
+#: internal/service/cli.go:1723
 msgid "Schedule"
 msgstr "执行周期"
 
@@ -1968,6 +2458,35 @@ msgstr "Secret Key"
 msgid "Server"
 msgstr "服务器"
 
+#: internal/command/database.go:36
+msgid "Server address"
+msgstr "服务器地址"
+
+#: internal/command/database.go:31
+#: internal/command/database.go:67
+msgid "Server name"
+msgstr "服务器名称"
+
+#: internal/command/database.go:50
+msgid "Server password"
+msgstr "服务器密码"
+
+#: internal/command/database.go:41
+msgid "Server port"
+msgstr "服务器端口"
+
+#: internal/command/database.go:54
+msgid "Server remark"
+msgstr "服务器备注"
+
+#: internal/command/database.go:25
+msgid "Server type (mysql, postgresql, mongodb, clickhouse, redis, elasticsearch)"
+msgstr "服务器类型（mysql、postgresql、mongodb、clickhouse、redis、elasticsearch）"
+
+#: internal/command/database.go:46
+msgid "Server username"
+msgstr "服务器用户名"
+
 #: internal/request/attributes.go:143
 msgid "Servers"
 msgstr "服务器"
@@ -1984,7 +2503,7 @@ msgstr "Cookie 生命周期"
 msgid "Session GC Max Lifetime"
 msgstr "GC 最大生命周期"
 
-#: internal/apps/postgresql/app.go:862
+#: internal/apps/postgresql/app.go:864
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr "会话和对象审计日志记录，安装后需要重启 PostgreSQL"
 
@@ -1992,7 +2511,11 @@ msgstr "会话和对象审计日志记录，安装后需要重启 PostgreSQL"
 msgid "Session save handler is not files, cannot clean"
 msgstr "Session 保存处理程序不是 files，无法清理"
 
-#: internal/service/cli.go:1454
+#: internal/command/setting.go:16
+msgid "Setting management"
+msgstr "设置管理"
+
+#: internal/service/cli.go:1486
 msgid "Setting not exists"
 msgstr "设置不存在"
 
@@ -2016,11 +2539,16 @@ msgstr "大小"
 msgid "Slow Requests"
 msgstr "慢请求"
 
+#: internal/command/app.go:21
+#: internal/command/app.go:29
+#: internal/command/app.go:37
+#: internal/command/app.go:52
+#: internal/command/app.go:61
 #: internal/request/attributes.go:152
 msgid "Slug"
 msgstr "标识"
 
-#: internal/service/cli.go:1329
+#: internal/service/cli.go:1361
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr "Slug：%s，渠道：%s，版本：%s"
 
@@ -2044,13 +2572,17 @@ msgstr "来源"
 msgid "Source Panel"
 msgstr "源面板"
 
-#: internal/apps/postgresql/app.go:856
+#: internal/apps/postgresql/app.go:858
 msgid "Spatial and geographic objects support"
 msgstr "支持空间和地理对象"
 
 #: internal/request/attributes.go:157
 msgid "Start"
 msgstr "开始"
+
+#: internal/command/service.go:49
+msgid "Start AcePanel service"
+msgstr "启动 AcePanel 服务"
 
 #: internal/request/attributes.go:126
 msgid "Start Port"
@@ -2082,13 +2614,27 @@ msgstr "状态"
 msgid "Stop"
 msgstr "停止页面"
 
+#: internal/command/service.go:38
+msgid "Stop AcePanel service"
+msgstr "停止 AcePanel 服务"
+
 #: internal/request/attributes.go:175
 msgid "Stop Timeout"
 msgstr "停止超时"
 
-#: internal/apps/mongodb/app.go:102
+#: internal/apps/mongodb/app.go:103
 msgid "Storage Engine"
 msgstr "存储引擎"
+
+#: internal/command/backup.go:132
+#: internal/command/backup.go:46
+#: internal/command/backup.go:72
+#: internal/command/backup.go:92
+#: internal/command/cutoff.go:31
+#: internal/command/cutoff.go:51
+#: internal/command/cutoff.go:83
+msgid "Storage ID (local storage if not filled)"
+msgstr "存储 ID（不填则使用本地存储）"
 
 #: internal/apps/prometheus/app.go:99
 msgid "Storage Retention"
@@ -2110,7 +2656,7 @@ msgstr "子类型"
 msgid "Subqueries without Index"
 msgstr "没有索引的子查询"
 
-#: internal/service/cli.go:523
+#: internal/service/cli.go:527
 msgid "Successfully obtained panel certificate via ACME"
 msgstr "成功通过 ACME 获取面板证书"
 
@@ -2121,6 +2667,14 @@ msgstr "Swoole 是构建高性能异步并发服务器的 PHP 模块"
 #: internal/service/environment_php.go:930
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swow 是构建高性能异步并发服务器的 PHP 模块"
+
+#: internal/command/panel.go:27
+msgid "Sync AcePanel cached data with cloud"
+msgstr "同步 AcePanel 云端缓存数据"
+
+#: internal/command/panel.go:91
+msgid "Sync server time with NTP"
+msgstr "通过 NTP 同步服务器时间"
 
 #: internal/request/attributes.go:162
 msgid "System Log Path"
@@ -2159,7 +2713,7 @@ msgstr "表"
 msgid "Table Locks Waited"
 msgstr "锁表次数"
 
-#: internal/apps/clickhouse/app.go:103
+#: internal/apps/clickhouse/app.go:104
 msgid "Tables"
 msgstr "表"
 
@@ -2176,16 +2730,24 @@ msgstr "目标 IP"
 msgid "Target Port"
 msgstr "目标端口"
 
+#: internal/command/cutoff.go:71
+msgid "Target name"
+msgstr "目标名称"
+
+#: internal/command/panel.go:59
+msgid "Target username (the first user if not filled)"
+msgstr "目标用户名（不填则使用第一个用户）"
+
 #: internal/request/attributes.go:170
 msgid "Targets"
 msgstr "目标"
 
-#: internal/service/cli.go:1674
-#: internal/taskqueue/runner.go:170
+#: internal/service/cli.go:1722
+#: internal/taskqueue/runner.go:192
 msgid "Task"
 msgstr "任务"
 
-#: internal/service/cli.go:1441
+#: internal/service/cli.go:1473
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
@@ -2197,9 +2759,13 @@ msgstr "临时路径"
 msgid "Temporary Tables Created on Disk"
 msgstr "创建临时表到磁盘"
 
-#: internal/service/cert.go:64
+#: internal/service/cert.go:63
 msgid "Tencent Cloud"
 msgstr "腾讯云"
+
+#: pkg/tui/tui.go:216
+msgid "This field is required"
+msgstr "此字段必填"
 
 #: internal/biz/notify.go:189
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
@@ -2214,27 +2780,27 @@ msgid "Threshold"
 msgstr "阈值"
 
 #: internal/biz/alert.go:389
-#: internal/biz/alert.go:648
-#: internal/biz/alert.go:698
-#: internal/biz/alert.go:712
+#: internal/biz/alert.go:655
+#: internal/biz/alert.go:705
+#: internal/biz/alert.go:719
 #: internal/biz/backup.go:73
 #: internal/biz/notify.go:191
-#: internal/biz/tamper.go:311
-#: internal/job/cert_renew.go:175
+#: internal/biz/tamper.go:312
+#: internal/job/cert_renew.go:186
 #: internal/request/attributes.go:172
-#: internal/service/cli.go:1679
+#: internal/service/cli.go:1727
 #: internal/service/user.go:182
 #: internal/service/user.go:202
-#: internal/service/user_passkey.go:305
-#: internal/taskqueue/runner.go:173
+#: internal/service/user_passkey.go:309
+#: internal/taskqueue/runner.go:195
 msgid "Time"
 msgstr "时间"
 
-#: internal/service/cli.go:1429
+#: internal/service/cli.go:1461
 msgid "Time synchronized successfully"
 msgstr "时间同步成功"
 
-#: internal/apps/postgresql/app.go:857
+#: internal/apps/postgresql/app.go:859
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr "时序数据库引擎，安装后需要重启 PostgreSQL"
 
@@ -2246,6 +2812,10 @@ msgstr "超时"
 msgid "Timezone"
 msgstr "时区"
 
+#: internal/command/user.go:75
+msgid "Toggle two-factor authentication for a user"
+msgstr "切换用户的两步验证"
+
 #: internal/request/attributes.go:178
 msgid "Token"
 msgstr "令牌"
@@ -2254,7 +2824,7 @@ msgstr "令牌"
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr "不支持自动迁移 Tomcat 项目"
 
-#: internal/apps/apache/app.go:126
+#: internal/apps/apache/app.go:139
 msgid "Total Accesses"
 msgstr "总访问量"
 
@@ -2275,7 +2845,7 @@ msgstr "执行的命令总数"
 msgid "Total Connections"
 msgstr "总连接数"
 
-#: internal/apps/mongodb/app.go:96
+#: internal/apps/mongodb/app.go:97
 msgid "Total Connections Created"
 msgstr "创建的连接总数"
 
@@ -2295,19 +2865,19 @@ msgstr "总进程数"
 msgid "Total Queries"
 msgstr "查询总数"
 
-#: internal/apps/apache/app.go:133
+#: internal/apps/apache/app.go:146
 msgid "Total Traffic"
 msgstr "总流量"
 
-#: internal/apps/nginx/app.go:147
+#: internal/apps/nginx/app.go:143
 msgid "Total connections"
 msgstr "总连接数"
 
-#: internal/apps/nginx/app.go:151
+#: internal/apps/nginx/app.go:147
 msgid "Total handshakes"
 msgstr "总握手数"
 
-#: internal/apps/nginx/app.go:155
+#: internal/apps/nginx/app.go:151
 msgid "Total requests"
 msgstr "总请求数"
 
@@ -2328,10 +2898,10 @@ msgstr "UDP 端口"
 msgid "URL"
 msgstr "URL"
 
-#: internal/bootstrap/cli.go:15
-#: internal/bootstrap/cli.go:23
-#: internal/bootstrap/cli.go:28
+#: internal/bootstrap/cli.go:16
+#: internal/bootstrap/cli.go:24
 #: internal/bootstrap/cli.go:29
+#: internal/bootstrap/cli.go:30
 msgid "USAGE"
 msgstr "使用"
 
@@ -2339,16 +2909,16 @@ msgstr "使用"
 msgid "UV Max Keys"
 msgstr "UV 键最大值"
 
-#: internal/service/app.go:266
+#: internal/service/app.go:267
 msgid "Unable to update app list cache in offline mode"
 msgstr "无法在离线模式下更新应用列表缓存"
 
-#: internal/apps/elasticsearch/app.go:89
+#: internal/apps/elasticsearch/app.go:90
 #: internal/apps/opensearch/app.go:90
 msgid "Unassigned Shards"
 msgstr "未分配的分片"
 
-#: internal/service/file.go:626
+#: internal/service/file.go:651
 msgid "Uncompress %v"
 msgstr "解压 %v"
 
@@ -2356,7 +2926,7 @@ msgstr "解压 %v"
 msgid "Uninstall PHP-%d %s module"
 msgstr "卸载 PHP-%d %s 模块"
 
-#: internal/apps/postgresql/app.go:422
+#: internal/apps/postgresql/app.go:424
 msgid "Uninstall PostgreSQL extension %s"
 msgstr "卸载 PostgreSQL 扩展 %s"
 
@@ -2364,51 +2934,63 @@ msgstr "卸载 PostgreSQL 扩展 %s"
 msgid "Uninstall Prometheus exporter %s"
 msgstr "卸载 Prometheus exporter %s"
 
-#: internal/biz/app.go:260
+#: internal/biz/app.go:261
 msgid "Uninstall app %s"
 msgstr "卸载应用 %s"
 
-#: internal/biz/environment.go:153
+#: internal/command/app.go:28
+msgid "Uninstall application"
+msgstr "卸载应用"
+
+#: internal/biz/environment.go:154
 msgid "Uninstall environment %s"
 msgstr "卸载环境 %s"
 
-#: internal/service/cli.go:812
+#: internal/service/cli.go:819
 msgid "Unsupported protocol: %s"
 msgstr "不支持的协议：%s"
 
-#: internal/service/cli.go:1300
+#: internal/service/cli.go:1332
 msgid "Unsupported rotation type: %s"
 msgstr "不支持的轮转类型：%s"
 
-#: internal/service/cli.go:980
+#: internal/service/cli.go:1012
 msgid "Unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
-#: internal/service/toolbox_log.go:255
+#: internal/service/toolbox_log.go:256
 msgid "Unused container images: %d"
 msgstr "未使用的容器镜像： %d"
 
-#: internal/data/backup.go:1704
+#: internal/data/backup.go:1744
 msgid "Unzip backup file failed: %v"
 msgstr "解压备份文件失败：%v"
 
-#: internal/data/backup.go:1842
+#: internal/data/backup.go:1882
 msgid "Unzip new version failed, missing file"
 msgstr "解压新版本失败，缺少文件"
 
-#: internal/data/backup.go:1839
+#: internal/data/backup.go:1879
 msgid "Unzip new version failed: %v"
 msgstr "解压新版本失败：%v"
 
-#: internal/apps/mongodb/app.go:99
+#: internal/command/panel.go:16
+msgid "Update AcePanel to the latest version"
+msgstr "将 AcePanel 更新到最新版本"
+
+#: internal/apps/mongodb/app.go:100
 msgid "Update Operations"
 msgstr "更新操作"
 
-#: internal/biz/app.go:303
+#: internal/biz/app.go:304
 msgid "Update app %s"
 msgstr "更新应用 %s"
 
-#: internal/data/backup.go:1859
+#: internal/command/app.go:36
+msgid "Update application"
+msgstr "更新应用"
+
+#: internal/data/backup.go:1902
 msgid "Update completed"
 msgstr "更新完成"
 
@@ -2416,16 +2998,20 @@ msgstr "更新完成"
 msgid "Update container %s"
 msgstr "更新容器 %s"
 
-#: internal/biz/environment.go:155
+#: internal/biz/environment.go:156
 msgid "Update environment %s"
 msgstr "更新环境 %s"
+
+#: internal/command/website.go:130
+msgid "Update website certificate from files"
+msgstr "从文件更新网站证书"
 
 #: internal/apps/mysql/app.go:99
 msgid "Uptime"
 msgstr "运行时间"
 
-#: internal/apps/clickhouse/app.go:99
-#: internal/apps/mongodb/app.go:94
+#: internal/apps/clickhouse/app.go:100
+#: internal/apps/mongodb/app.go:95
 msgid "Uptime (seconds)"
 msgstr "运行时间（秒）"
 
@@ -2438,76 +3024,91 @@ msgstr "已运行天数"
 msgid "User"
 msgstr "用户"
 
-#: internal/service/cli.go:308
+#: internal/service/cli.go:311
 msgid "User %s created successfully"
 msgstr "用户 %s 创建成功"
 
-#: internal/service/cli.go:330
+#: internal/service/cli.go:333
 msgid "User %s deleted successfully"
 msgstr "用户 %s 删除成功"
 
 #: internal/service/user.go:181
 #: internal/service/user.go:201
-#: internal/service/user_passkey.go:304
+#: internal/service/user_passkey.go:308
 msgid "User Agent"
 msgstr "User Agent"
 
-#: internal/service/cli.go:192
-#: internal/service/cli.go:321
-#: internal/service/cli.go:347
-#: internal/service/cli.go:378
-#: internal/service/cli.go:405
-#: internal/service/cli.go:447
+#: internal/command/user.go:35
+msgid "User email (generated from the username if not filled)"
+msgstr "用户邮箱（不填则根据用户名生成）"
+
+#: internal/service/cli.go:193
+#: internal/service/cli.go:324
+#: internal/service/cli.go:350
+#: internal/service/cli.go:381
+#: internal/service/cli.go:408
+#: internal/service/cli.go:450
 msgid "User not exists"
 msgstr "用户不存在"
 
-#: internal/biz/alert.go:695
+#: internal/command/entrance.go:96
+msgid "User-Agent"
+msgstr "User-Agent"
+
+#: internal/biz/alert.go:702
+#: internal/command/user.go:29
+#: internal/command/user.go:46
+#: internal/command/user.go:66
+#: internal/command/user.go:76
+#: internal/command/user.go:84
 #: internal/request/attributes.go:185
 #: internal/service/user.go:179
 #: internal/service/user.go:199
-#: internal/service/user_passkey.go:301
+#: internal/service/user_passkey.go:305
 msgid "Username"
 msgstr "用户名"
 
-#: internal/service/cli.go:357
+#: internal/service/cli.go:360
 msgid "Username %s changed to %s successfully"
 msgstr "用户名 %s 已成功更改为 %s"
 
-#: internal/service/cli.go:286
-#: internal/service/cli.go:315
-#: internal/service/cli.go:365
-#: internal/service/cli.go:400
-#: internal/service/cli.go:442
+#: internal/service/cli.go:289
+#: internal/service/cli.go:318
+#: internal/service/cli.go:368
+#: internal/service/cli.go:403
+#: internal/service/cli.go:445
 msgid "Username cannot be empty"
 msgstr "用户名不能为空"
 
-#: internal/service/cli.go:236
+#: internal/service/cli.go:237
 msgid "Username: %s"
 msgstr "用户名： %s"
 
-#: internal/bootstrap/cli.go:16
+#: internal/bootstrap/cli.go:17
 msgid "VERSION"
 msgstr "版本"
 
+#: internal/command/setting.go:31
 #: internal/request/attributes.go:187
 msgid "Value"
 msgstr "值"
 
-#: internal/apps/postgresql/app.go:855
+#: internal/apps/postgresql/app.go:857
 msgid "Vector similarity search"
 msgstr "向量相似度搜索"
 
-#: internal/data/backup.go:1833
+#: internal/data/backup.go:1873
 msgid "Verify download file failed: %v"
 msgstr "验证下载文件失败：%v"
 
-#: internal/data/backup.go:1831
+#: internal/data/backup.go:1871
 msgid "Verifying download file..."
 msgstr "验证下载文件……"
 
-#: internal/apps/clickhouse/app.go:98
-#: internal/apps/grafana/app.go:87
-#: internal/apps/mongodb/app.go:93
+#: internal/apps/clickhouse/app.go:99
+#: internal/apps/grafana/app.go:88
+#: internal/apps/mongodb/app.go:94
+#: internal/command/app.go:52
 msgid "Version"
 msgstr "版本"
 
@@ -2515,31 +3116,36 @@ msgstr "版本"
 msgid "Volume Group"
 msgstr "卷组"
 
-#: internal/apps/nginx/app.go:171
+#: internal/apps/nginx/app.go:167
 msgid "Waiting"
 msgstr "正在驻留等待"
 
-#: internal/service/cli.go:265
+#: internal/service/cli.go:268
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr "警告：关闭面板 HTTPS 后，面板的安全性将大大降低，请谨慎操作"
 
+#: internal/command/webserver.go:16
+msgid "Web server management"
+msgstr "Web 服务器管理"
+
+#: internal/command/cutoff.go:20
 #: internal/job/website_expire.go:58
 msgid "Website"
 msgstr "网站"
 
-#: internal/service/cli.go:903
+#: internal/service/cli.go:910
 msgid "Website %s created successfully"
 msgstr "网站 %s 创建成功"
 
-#: internal/service/cli.go:971
+#: internal/service/cli.go:1003
 msgid "Website %s deleted successfully"
 msgstr "网站 %s 删除成功"
 
-#: internal/service/cli.go:952
+#: internal/service/cli.go:984
 msgid "Website %s removed successfully"
 msgstr "网站 %s 移除成功"
 
-#: internal/service/cli.go:1012
+#: internal/service/cli.go:1044
 msgid "Website %s written successfully"
 msgstr "网站 %s 写入成功"
 
@@ -2555,32 +3161,73 @@ msgstr "网站名称"
 msgid "Website Path"
 msgstr "网站路径"
 
-#: internal/service/cli.go:992
+#: internal/command/website.go:16
+msgid "Website management"
+msgstr "网站管理"
+
+#: internal/command/backup.go:40
+#: internal/command/cutoff.go:25
+#: internal/command/restore.go:25
+#: internal/command/website.go:112
+#: internal/command/website.go:134
+#: internal/command/website.go:162
+#: internal/command/website.go:30
+#: internal/command/website.go:97
+msgid "Website name"
+msgstr "网站名称"
+
+#: internal/service/cli.go:1024
 msgid "Website path must be an absolute path"
 msgstr "网站路径必须是绝对路径"
+
+#: internal/command/website.go:188
+#: internal/command/website.go:77
+msgid "Website remark"
+msgstr "网站备注"
+
+#: internal/command/website.go:179
+msgid "Website status"
+msgstr "网站状态"
+
+#: internal/command/website.go:168
+#: internal/command/website.go:24
+msgid "Website type (proxy, static, php)"
+msgstr "网站类型（proxy、static、php）"
 
 #: internal/request/attributes.go:188
 msgid "Websites"
 msgstr "网站"
 
-#: internal/bootstrap/cli.go:33
+#: internal/bootstrap/cli.go:34
 msgid "Website：https://acepanel.net"
 msgstr "网站：https://acepanel.net"
 
-#: internal/service/cert.go:72
+#: internal/service/cert.go:71
 msgid "West.cn"
 msgstr "西部数码"
+
+#: internal/command/website.go:184
+msgid "Whether the website has SSL enabled"
+msgstr "网站是否启用 SSL"
 
 #: internal/request/attributes.go:192
 msgid "Whitelist"
 msgstr "白名单"
 
-#: internal/apps/apache/app.go:108
-#: internal/apps/nginx/app.go:121
+#: internal/apps/apache/app.go:121
+#: internal/apps/nginx/app.go:117
 msgid "Workers"
 msgstr "工作进程"
 
-#: internal/apps/nginx/app.go:167
+#: internal/command/setting.go:30
+msgid "Write panel setting (use only under guidance)"
+msgstr "写入面板设置（仅在指导下使用）"
+
+#: internal/command/website.go:157
+msgid "Write website data to the panel database only, without creating directories and config files (use only under guidance)"
+msgstr "仅将网站数据写入面板数据库，不创建目录和配置文件（仅在指导下使用）"
+
+#: internal/apps/nginx/app.go:163
 msgid "Writing"
 msgstr "正在写入响应"
 
@@ -2591,6 +3238,10 @@ msgstr "XLSWriter 是一个高性能读写 Excel 文件的库"
 #: internal/service/environment_php.go:851
 msgid "XSL is a library for processing XML documents"
 msgstr "XSL 是用于处理 XML 文档的库"
+
+#: pkg/tui/tui.go:160
+msgid "Yes"
+msgstr "是"
 
 #: internal/service/environment_php.go:791
 msgid "Zip is a library for handling ZIP files"
@@ -2616,7 +3267,7 @@ msgstr "[%s] 开始迁移"
 msgid "[AcePanel] Alert: %s"
 msgstr "[AcePanel] 告警：%s"
 
-#: internal/taskqueue/runner.go:169
+#: internal/taskqueue/runner.go:191
 msgid "[AcePanel] Background Task Failed"
 msgstr "[AcePanel] 后台任务失败"
 
@@ -2624,28 +3275,28 @@ msgstr "[AcePanel] 后台任务失败"
 msgid "[AcePanel] Backup Failed"
 msgstr "[AcePanel] 备份失败"
 
-#: internal/job/cert_renew.go:172
+#: internal/job/cert_renew.go:183
 msgid "[AcePanel] Certificate Renewal Failed"
 msgstr "[AcePanel] 证书续签失败"
 
-#: internal/service/cli.go:1672
+#: internal/service/cli.go:1720
 msgid "[AcePanel] Cron Task Failed"
 msgstr "[AcePanel] 计划任务失败"
 
-#: internal/biz/alert.go:644
+#: internal/biz/alert.go:651
 msgid "[AcePanel] Panel Health Issue"
 msgstr "[AcePanel] 面板健康问题"
 
 #: internal/service/user.go:178
-#: internal/service/user_passkey.go:300
+#: internal/service/user_passkey.go:304
 msgid "[AcePanel] Panel Login"
 msgstr "[AcePanel] 面板登录"
 
-#: internal/biz/alert.go:709
+#: internal/biz/alert.go:716
 msgid "[AcePanel] SSH Brute-force Attempts"
 msgstr "[AcePanel] SSH 暴力破解尝试"
 
-#: internal/biz/alert.go:694
+#: internal/biz/alert.go:701
 msgid "[AcePanel] SSH Login"
 msgstr "[AcePanel] SSH 登录"
 
@@ -2653,7 +3304,7 @@ msgstr "[AcePanel] SSH 登录"
 msgid "[AcePanel] Suspicious Login Attempts"
 msgstr "[AcePanel] 可疑登录尝试"
 
-#: internal/biz/tamper.go:306
+#: internal/biz/tamper.go:307
 msgid "[AcePanel] Tamper Protection Alert"
 msgstr "[AcePanel] 防篡改告警"
 
@@ -2685,20 +3336,20 @@ msgstr "未选择必需的依赖项"
 msgid "a website with the same name already exists on the target server"
 msgstr "目标服务器上已存在同名网站"
 
-#: internal/biz/app.go:199
+#: internal/biz/app.go:200
 msgid "app %s already installed"
 msgstr "应用 %s 已安装"
 
-#: internal/biz/alert.go:860
+#: internal/biz/alert.go:867
 msgid "app %s is not running"
 msgstr "应用 %s 未运行"
 
-#: internal/biz/app.go:121
+#: internal/biz/app.go:122
 msgid "app %s not found"
 msgstr "找不到应用 %s"
 
-#: internal/biz/app.go:238
-#: internal/biz/app.go:279
+#: internal/biz/app.go:239
+#: internal/biz/app.go:280
 #: internal/middleware/must_install.go:37
 msgid "app %s not installed"
 msgstr "应用 %s 未安装"
@@ -2715,32 +3366,32 @@ msgstr "应用 %s 需要面板版本 %s，当前版本 %s"
 msgid "app not found"
 msgstr "应用未找到"
 
-#: internal/biz/alert.go:910
+#: internal/biz/alert.go:917
 msgid "app status"
 msgstr "应用状态"
 
-#: internal/taskqueue/runner.go:169
+#: internal/taskqueue/runner.go:191
 msgid "background task failed"
 msgstr "后台任务执行失败"
 
 #: internal/biz/setting.go:234
-#: internal/biz/setting.go:296
-#: internal/biz/setting.go:312
+#: internal/biz/setting.go:300
+#: internal/biz/setting.go:316
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
-#: internal/service/home.go:405
-#: internal/service/home.go:415
+#: internal/service/home.go:406
+#: internal/service/home.go:416
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止重启，请稍后再试"
 
-#: internal/service/home.go:373
-#: internal/service/ws.go:488
+#: internal/service/home.go:374
+#: internal/service/ws.go:495
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止更新，请稍后再试"
 
-#: internal/biz/toolbox_migration_push.go:343
-#: internal/data/backup.go:259
+#: internal/biz/toolbox_migration_push.go:345
+#: internal/data/backup.go:267
 msgid "backup file not exists"
 msgstr "备份文件不存在"
 
@@ -2753,25 +3404,25 @@ msgid "backup task failed"
 msgstr "备份任务执行失败"
 
 #: internal/biz/toolbox_migration_push.go:154
-#: internal/biz/toolbox_migration_push.go:238
-#: internal/biz/toolbox_migration_push.go:319
+#: internal/biz/toolbox_migration_push.go:240
+#: internal/biz/toolbox_migration_push.go:321
 msgid "backup transfer failed: %v"
 msgstr "备份传输失败：%v"
 
-#: internal/apps/mysql/app.go:788
+#: internal/apps/mysql/app.go:794
 msgid "binlog file %s does not exist"
 msgstr "二进制日志文件 %s 不存在"
 
-#: internal/service/toolbox_disk.go:467
+#: internal/service/toolbox_disk.go:478
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "btrfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整大小"
 
 #: internal/service/backup.go:168
-#: internal/service/file.go:450
+#: internal/service/file.go:475
 msgid "can't download a directory"
 msgstr "无法下载目录"
 
-#: internal/biz/website.go:141
+#: internal/biz/website.go:142
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
@@ -2779,34 +3430,54 @@ msgstr "找不到 %s 数据库服务器，请先添加"
 msgid "can't share a directory"
 msgstr "无法分享目录"
 
-#: internal/service/toolbox_disk.go:553
+#: internal/service/toolbox_disk.go:564
 msgid "cannot delete root mount point"
 msgstr "无法删除根挂载点"
 
-#: internal/service/toolbox_disk.go:225
+#: internal/service/toolbox_disk.go:233
 msgid "cannot initialize system disk"
 msgstr "无法初始化系统磁盘"
 
-#: internal/biz/alert.go:864
+#: internal/biz/alert.go:871
 msgid "certificate %s expires in %s days"
 msgstr "证书 %s 将在 %s 天后到期"
 
-#: internal/biz/alert.go:914
+#: internal/biz/alert.go:921
 msgid "certificate expiry"
 msgstr "证书到期"
 
-#: internal/job/cert_renew.go:172
+#: internal/job/cert_renew.go:183
 msgid "certificate renewal failed"
 msgstr "证书续签失败"
 
-#: internal/biz/database_server.go:131
-#: internal/biz/database_server.go:151
+#: internal/biz/database_server.go:130
+#: internal/biz/database_server.go:150
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/service/file.go:820
+#: internal/service/file.go:888
+msgid "chunk %d is missing"
+msgstr "缺少分块 %d"
+
+#: internal/service/file.go:851
 msgid "chunk hash mismatch"
 msgstr "分块哈希不匹配"
+
+#: internal/service/file.go:817
+msgid "chunk index out of range"
+msgstr "分块索引超出范围"
+
+#: internal/service/file.go:847
+msgid "chunk size mismatch"
+msgstr "分块大小不匹配"
+
+#: internal/service/file.go:811
+msgid "chunk upload not started"
+msgstr "分块上传未开始"
+
+#: internal/service/file.go:883
+msgid "chunk upload not started or chunk count mismatch"
+msgstr "分块上传未开始或分块数量不匹配"
 
 #: internal/apps/redis/app.go:326
 msgid "client %d not found"
@@ -2816,7 +3487,7 @@ msgstr "未找到客户端 %d"
 msgid "client ip changed, please login again"
 msgstr "客户端 IP 已更改，请重新登录"
 
-#: internal/service/ws.go:199
+#: internal/service/ws.go:208
 msgid "command is empty"
 msgstr "命令为空"
 
@@ -2824,45 +3495,45 @@ msgstr "命令为空"
 msgid "compose %s already exists"
 msgstr "编排 %s 已存在"
 
-#: internal/biz/alert.go:858
+#: internal/service/website.go:219
+msgid "config test failed: %v %s"
+msgstr "配置测试失败：%v %s"
+
+#: internal/biz/alert.go:865
 msgid "container %s is not running"
 msgstr "容器 %s 未运行"
 
-#: internal/biz/alert.go:908
+#: internal/biz/alert.go:915
 msgid "container status"
 msgstr "容器状态"
 
-#: internal/data/backup.go:1474
+#: internal/data/backup.go:1510
 msgid "could not find database backup file"
 msgstr "找不到数据库备份文件"
 
-#: internal/service/file.go:324
-#: internal/service/file.go:743
+#: internal/service/file.go:310
+#: internal/service/file.go:768
 msgid "create directory error: %v"
 msgstr "创建目录错误：%v"
 
-#: internal/service/file.go:863
-msgid "create target file error: %v"
-msgstr "创建目标文件错误：%v"
-
-#: internal/service/cli.go:1673
+#: internal/service/cli.go:1721
 msgid "cron task exited abnormally"
 msgstr "计划任务异常退出"
 
-#: internal/data/backup.go:1496
+#: internal/data/backup.go:1532
 msgid "database backup archive contains multiple dump files"
 msgstr "数据库备份压缩包包含多个转储文件"
 
-#: internal/data/backup.go:1432
+#: internal/data/backup.go:1468
 msgid "database backup contains too many nested archives"
 msgstr "数据库备份包含过多层嵌套压缩包"
 
-#: internal/data/backup.go:1006
-#: internal/data/backup.go:1055
-#: internal/data/backup.go:588
-#: internal/data/backup.go:656
-#: internal/data/backup.go:721
-#: internal/data/backup.go:973
+#: internal/data/backup.go:1007
+#: internal/data/backup.go:1040
+#: internal/data/backup.go:1089
+#: internal/data/backup.go:620
+#: internal/data/backup.go:688
+#: internal/data/backup.go:753
 msgid "database does not exist: %s"
 msgstr "数据库不存在：%s"
 
@@ -2874,37 +3545,37 @@ msgstr "数据库导出失败：%v"
 msgid "database import failed: %v"
 msgstr "数据库导入失败：%v"
 
-#: internal/biz/alert.go:862
+#: internal/biz/alert.go:869
 msgid "database server %s is unreachable"
 msgstr "数据库服务器 %s 无法连接"
 
-#: internal/biz/alert.go:912
+#: internal/biz/alert.go:919
 msgid "database server status"
 msgstr "数据库服务器状态"
 
-#: internal/biz/database.go:129
+#: internal/biz/database.go:137
 msgid "database user %s does not exist"
 msgstr "数据库用户 %s 不存在"
 
-#: internal/apps/grafana/app.go:212
+#: internal/apps/grafana/app.go:213
 msgid "datasource %s already exists"
 msgstr "数据源 %s 已存在"
 
-#: internal/apps/grafana/app.go:249
-#: internal/apps/grafana/app.go:297
+#: internal/apps/grafana/app.go:250
+#: internal/apps/grafana/app.go:298
 msgid "datasource %s not found"
 msgstr "数据源 %s 不存在"
 
-#: internal/service/website.go:182
-msgid "default site is only supported with nginx"
-msgstr "默认站点仅支持 nginx"
+#: internal/service/website.go:148
+msgid "default site is not supported by the current web server"
+msgstr "当前 Web 服务器不支持默认网站"
 
-#: internal/biz/cert.go:240
-#: internal/biz/cert.go:367
+#: internal/biz/cert.go:242
+#: internal/biz/cert.go:377
 msgid "deploying certificate to website"
 msgstr "部署证书到网站"
 
-#: internal/service/toolbox_disk.go:218
+#: internal/service/toolbox_disk.go:226
 msgid "device not found: %s"
 msgstr "未找到设备：%s"
 
@@ -2912,31 +3583,35 @@ msgstr "未找到设备：%s"
 msgid "directory %s does not exist"
 msgstr "目录 %s 不存在"
 
-#: internal/biz/alert.go:890
+#: internal/biz/alert.go:897
 msgid "disk inode usage"
 msgstr "磁盘 inode 使用率"
 
-#: internal/biz/alert.go:892
+#: internal/biz/alert.go:899
 msgid "disk read speed"
 msgstr "磁盘读取速率"
 
-#: internal/service/toolbox_system.go:99
+#: internal/service/toolbox_system.go:103
 msgid "disk space is insufficient, current free %s"
 msgstr "磁盘空间不足，当前可用 %s"
 
-#: internal/biz/alert.go:888
+#: internal/biz/alert.go:895
 msgid "disk usage"
 msgstr "磁盘使用率"
 
-#: internal/biz/alert.go:894
+#: internal/biz/alert.go:901
 msgid "disk write speed"
 msgstr "磁盘写入速率"
+
+#: internal/data/website.go:1517
+msgid "domain %s is already used by website %s"
+msgstr "域名 %s 已被网站 %s 使用"
 
 #: internal/biz/toolbox_migration.go:401
 msgid "downloading"
 msgstr "正在下载"
 
-#: internal/data/backup.go:1253
+#: internal/data/backup.go:1287
 msgid "dump.rdb not found in backup file"
 msgstr "备份文件中找不到 dump.rdb"
 
@@ -2944,7 +3619,7 @@ msgstr "备份文件中找不到 dump.rdb"
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr "重复提交，请等待前一个任务结束"
 
-#: internal/service/tamper.go:67
+#: internal/service/tamper.go:69
 msgid "eBPF mode unavailable: %s"
 msgstr "eBPF 模式不可用：%s"
 
@@ -2952,12 +3627,12 @@ msgstr "eBPF 模式不可用：%s"
 msgid "endpoint should not contain bucket"
 msgstr "端点不应包含 bucket"
 
-#: internal/biz/environment.go:117
+#: internal/biz/environment.go:118
 msgid "environment %s-%s already installed"
 msgstr "环境 %s-%s 已安装"
 
-#: internal/biz/environment.go:124
-#: internal/biz/environment.go:131
+#: internal/biz/environment.go:125
+#: internal/biz/environment.go:132
 msgid "environment %s-%s not installed"
 msgstr "环境 %s-%s 未安装"
 
@@ -2986,14 +3661,14 @@ msgstr "exporter %s 不存在"
 msgid "exporter %s has no configuration file"
 msgstr "exporter %s 没有配置文件"
 
-#: internal/apps/postgresql/app.go:386
-#: internal/apps/postgresql/app.go:414
-#: internal/apps/postgresql/app.go:445
+#: internal/apps/postgresql/app.go:388
+#: internal/apps/postgresql/app.go:416
+#: internal/apps/postgresql/app.go:447
 msgid "extension %s does not exist"
 msgstr "扩展 %s 不存在"
 
 #: internal/apps/postgresql/app.go:112
-#: internal/apps/postgresql/app.go:353
+#: internal/apps/postgresql/app.go:355
 msgid "failed to apply PostgreSQL config: %v"
 msgstr "应用 PostgreSQL 配置失败：%v"
 
@@ -3023,7 +3698,7 @@ msgstr "连接 Elasticsearch 失败：%v"
 msgid "failed to connect to Redis: %v"
 msgstr "连接 Redis 失败：%v"
 
-#: internal/service/toolbox_ssh.go:211
+#: internal/service/toolbox_ssh.go:191
 msgid "failed to create .ssh directory: %v"
 msgstr "创建 .ssh 目录失败：%v"
 
@@ -3036,11 +3711,11 @@ msgstr "在目标端创建数据库失败：%v"
 msgid "failed to create database user on target: %v"
 msgstr "在目标端创建数据库用户失败：%v"
 
-#: internal/service/ws.go:398
+#: internal/service/ws.go:408
 msgid "failed to create docker client: %v"
 msgstr "创建 docker 客户端失败：%v"
 
-#: internal/service/toolbox_disk.go:354
+#: internal/service/toolbox_disk.go:362
 msgid "failed to create logical volume: %v"
 msgstr "创建逻辑卷失败：%v"
 
@@ -3048,15 +3723,15 @@ msgstr "创建逻辑卷失败：%v"
 msgid "failed to create mount path: %v"
 msgstr "创建挂载路径失败： %v"
 
-#: internal/service/toolbox_disk.go:101
+#: internal/service/toolbox_disk.go:105
 msgid "failed to create mount point: %v"
 msgstr "创建挂载点失败：%v"
 
-#: internal/apps/pgadmin/app.go:478
+#: internal/apps/pgadmin/app.go:484
 msgid "failed to create new account: %v"
 msgstr "创建新账户失败：%v"
 
-#: internal/service/toolbox_disk.go:240
+#: internal/service/toolbox_disk.go:248
 msgid "failed to create partition: %v"
 msgstr "创建分区失败：%v"
 
@@ -3064,15 +3739,15 @@ msgstr "创建分区失败：%v"
 msgid "failed to create passwd file: %v"
 msgstr "创建 passwd 文件失败： %v"
 
-#: internal/service/toolbox_disk.go:309
+#: internal/service/toolbox_disk.go:317
 msgid "failed to create physical volume: %v"
 msgstr "创建物理卷失败：%v"
 
-#: internal/data/project.go:91
+#: internal/data/project.go:95
 msgid "failed to create project directory"
 msgstr "创建项目目录失败"
 
-#: internal/biz/toolbox_migration_push.go:315
+#: internal/biz/toolbox_migration_push.go:317
 msgid "failed to create project on target: %v"
 msgstr "在目标端创建项目失败：%v"
 
@@ -3080,7 +3755,7 @@ msgstr "在目标端创建项目失败：%v"
 msgid "failed to create source backup: %v"
 msgstr "创建源备份失败：%v"
 
-#: internal/service/toolbox_disk.go:331
+#: internal/service/toolbox_disk.go:339
 msgid "failed to create volume group: %v"
 msgstr "创建卷组失败：%v"
 
@@ -3088,27 +3763,27 @@ msgstr "创建卷组失败：%v"
 msgid "failed to create webhook directory: %v"
 msgstr "创建 webhook 目录失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:234
+#: internal/biz/toolbox_migration_push.go:236
 msgid "failed to create website on target: %v"
 msgstr "在目标端创建网站失败：%v"
 
-#: internal/service/toolbox_disk.go:558
+#: internal/service/toolbox_disk.go:572
 msgid "failed to delete fstab entry: %v"
 msgstr "删除 fstab 条目失败：%v"
 
-#: internal/apps/pgadmin/app.go:492
+#: internal/apps/pgadmin/app.go:498
 msgid "failed to delete old account: %v"
 msgstr "删除旧帐户失败：%v"
 
-#: internal/apps/nginx/stream.go:121
+#: internal/apps/nginx/stream.go:110
 msgid "failed to delete stream server config: %v"
 msgstr "删除 Stream 服务器配置失败：%v"
 
-#: internal/apps/nginx/stream.go:232
+#: internal/apps/nginx/stream.go:205
 msgid "failed to delete stream upstream config: %v"
 msgstr "删除 Stream 上游配置失败：%v"
 
-#: internal/data/project.go:121
+#: internal/data/project.go:125
 msgid "failed to delete systemd config"
 msgstr "删除 systemd 配置失败"
 
@@ -3124,28 +3799,28 @@ msgstr "下载源备份失败：%v"
 msgid "failed to enable %s service: %v"
 msgstr "启用 %s 服务失败：%v"
 
-#: internal/apps/postgresql/app.go:457
+#: internal/apps/postgresql/app.go:459
 msgid "failed to enable extension: %v"
 msgstr "启用扩展失败：%v"
 
-#: internal/service/ws.go:412
+#: internal/service/ws.go:423
 msgid "failed to encode auth: %v"
 msgstr "编码认证信息失败：%v"
 
-#: internal/data/backup.go:1201
+#: internal/data/backup.go:1235
 msgid "failed to export RDB snapshot"
 msgstr "导出 RDB 快照失败"
 
-#: internal/service/toolbox_disk.go:425
+#: internal/service/toolbox_disk.go:436
 msgid "failed to extend logical volume: %v"
 msgstr "扩展逻辑卷失败：%v"
 
-#: internal/service/toolbox_disk.go:199
-#: internal/service/toolbox_disk.go:273
+#: internal/service/toolbox_disk.go:204
+#: internal/service/toolbox_disk.go:281
 msgid "failed to format partition: %v"
 msgstr "格式化分区失败：%v"
 
-#: internal/service/toolbox_ssh.go:221
+#: internal/service/toolbox_ssh.go:201
 msgid "failed to generate SSH key: %v"
 msgstr "生成 SSH 密钥失败：%v"
 
@@ -3153,7 +3828,7 @@ msgstr "生成 SSH 密钥失败：%v"
 msgid "failed to generate self-signed certificate: %v"
 msgstr "生成自签名证书失败：%v"
 
-#: internal/data/project.go:96
+#: internal/data/project.go:100
 msgid "failed to generate systemd config"
 msgstr "生成 systemd 配置失败"
 
@@ -3173,11 +3848,12 @@ msgstr "获取 %s 服务运行状态失败：%v"
 msgid "failed to get %s status: %v"
 msgstr "获取 %s 状态失败：%v"
 
-#: internal/apps/clickhouse/app.go:189
+#: internal/apps/clickhouse/app.go:190
 msgid "failed to get ClickHouse default password: %v"
 msgstr "获取 ClickHouse 默认密码失败：%v"
 
 #: internal/data/cert_account.go:87
+#: internal/data/cert_account.go:90
 msgid "failed to get Google EAB: %s"
 msgstr "获取 Google EAB 失败： %s"
 
@@ -3185,11 +3861,11 @@ msgstr "获取 Google EAB 失败： %s"
 msgid "failed to get Google EAB: %v"
 msgstr "获取 Google EAB 失败： %v"
 
-#: internal/apps/memcached/app.go:46
+#: internal/apps/memcached/app.go:47
 msgid "failed to get Memcached status: %v"
 msgstr "获取 Memcached 状态失败： %v"
 
-#: internal/apps/mongodb/app.go:182
+#: internal/apps/mongodb/app.go:183
 msgid "failed to get MongoDB admin password: %v"
 msgstr "获取 MongoDB 管理员密码失败：%v"
 
@@ -3197,7 +3873,7 @@ msgstr "获取 MongoDB 管理员密码失败：%v"
 msgid "failed to get MySQL status: %v"
 msgstr "获取 MySQL 状态失败： %v"
 
-#: internal/service/toolbox_system.go:228
+#: internal/service/toolbox_system.go:232
 msgid "failed to get NTP configuration: %v"
 msgstr "获取 NTP 配置失败：%v"
 
@@ -3225,52 +3901,53 @@ msgstr "获取 PostgreSQL 进程数失败： %v"
 msgid "failed to get PostgreSQL start time: %v"
 msgstr "获取 PostgreSQL 启动时间失败： %v"
 
-#: internal/service/toolbox_disk.go:643
+#: internal/service/toolbox_disk.go:657
 msgid "failed to get SMART info for device %s"
 msgstr "获取设备 %s 的 SMART 信息失败"
 
-#: internal/service/toolbox_system.go:49
+#: internal/service/toolbox_system.go:50
 msgid "failed to get SWAP: %v"
 msgstr "获取 SWAP 失败： %v"
 
-#: internal/data/cert_account.go:113
+#: internal/data/cert_account.go:116
+#: internal/data/cert_account.go:119
 msgid "failed to get ZeroSSL EAB"
 msgstr "获取 ZeroSSL EAB 失败"
 
-#: internal/data/cert_account.go:109
+#: internal/data/cert_account.go:112
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "获取 ZeroSSL EAB 失败： %v"
 
-#: internal/apps/apache/app.go:104
-#: internal/apps/apache/app.go:114
+#: internal/apps/apache/app.go:117
+#: internal/apps/apache/app.go:127
 msgid "failed to get apache workers: %v"
 msgstr "获取 apache 工作进程失败： %v"
 
-#: internal/service/toolbox_system.go:151
+#: internal/service/toolbox_system.go:156
 msgid "failed to get available timezones: %v"
 msgstr "获取可用时区失败： %v"
 
-#: internal/service/toolbox_disk.go:33
+#: internal/service/toolbox_disk.go:34
 msgid "failed to get disk list: %v"
 msgstr "获取磁盘列表失败：%v"
 
-#: internal/service/toolbox_system.go:95
+#: internal/service/toolbox_system.go:99
 msgid "failed to get disk space: %v"
 msgstr "获取磁盘空间失败： %v"
 
-#: internal/apps/elasticsearch/app.go:49
+#: internal/apps/elasticsearch/app.go:50
 msgid "failed to get elasticsearch status: %v"
 msgstr "获取 elasticsearch 状态失败：%v"
 
-#: internal/service/file.go:496
+#: internal/service/file.go:521
 msgid "failed to get file system info"
 msgstr "获取文件系统信息失败"
 
-#: internal/service/toolbox_disk.go:127
+#: internal/service/toolbox_disk.go:131
 msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
-#: internal/apps/grafana/app.go:53
+#: internal/apps/grafana/app.go:54
 msgid "failed to get grafana status: %v"
 msgstr "获取 grafana 状态失败：%v"
 
@@ -3278,16 +3955,16 @@ msgstr "获取 grafana 状态失败：%v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:493
+#: internal/data/website.go:403
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
-#: internal/apps/kafka/app.go:44
+#: internal/apps/kafka/app.go:45
 msgid "failed to get kafka status: %v"
 msgstr "获取 kafka 状态失败：%v"
 
-#: internal/apps/supervisor/app.go:173
-#: internal/apps/supervisor/app.go:314
+#: internal/apps/supervisor/app.go:158
+#: internal/apps/supervisor/app.go:303
 msgid "failed to get log path for process %s: %v"
 msgstr "获取进程 %s 的日志路径失败： %v"
 
@@ -3295,8 +3972,8 @@ msgstr "获取进程 %s 的日志路径失败： %v"
 msgid "failed to get network interfaces: %v"
 msgstr "获取网络接口失败：%v"
 
-#: internal/apps/nginx/app.go:117
-#: internal/apps/nginx/app.go:127
+#: internal/apps/nginx/app.go:113
+#: internal/apps/nginx/app.go:123
 msgid "failed to get nginx workers: %v"
 msgstr "获取 nginx 工作进程失败： %v"
 
@@ -3304,15 +3981,15 @@ msgstr "获取 nginx 工作进程失败： %v"
 msgid "failed to get opensearch status: %v"
 msgstr "获取 opensearch 状态失败：%v"
 
-#: internal/service/toolbox_disk.go:115
+#: internal/service/toolbox_disk.go:119
 msgid "failed to get partition UUID: %v"
 msgstr "获取分区 UUID 失败：%v"
 
-#: internal/service/toolbox_disk.go:85
+#: internal/service/toolbox_disk.go:86
 msgid "failed to get partitions: %v"
 msgstr "获取分区失败：%v"
 
-#: internal/apps/pureftpd/app.go:154
+#: internal/apps/pureftpd/app.go:160
 msgid "failed to get port: %v"
 msgstr "获取端口失败： %v"
 
@@ -3332,7 +4009,7 @@ msgstr "获取私钥失败： %v"
 msgid "failed to get prometheus status: %v"
 msgstr "获取 prometheus 状态失败：%v"
 
-#: internal/apps/s3fs/app.go:132
+#: internal/apps/s3fs/app.go:134
 #: internal/apps/s3fs/app.go:47
 #: internal/apps/s3fs/app.go:87
 msgid "failed to get s3fs list: %v"
@@ -3342,27 +4019,27 @@ msgstr "获取 s3fs 列表失败： %v"
 msgid "failed to get system info: %v"
 msgstr "获取系统信息失败： %v"
 
-#: internal/service/home.go:386
-#: internal/service/ws.go:499
+#: internal/service/home.go:387
+#: internal/service/ws.go:506
 msgid "failed to get the latest version download link"
 msgstr "获取最新版本下载链接失败"
 
-#: internal/service/home.go:302
-#: internal/service/home.go:338
-#: internal/service/home.go:380
-#: internal/service/ws.go:494
+#: internal/service/home.go:303
+#: internal/service/home.go:339
+#: internal/service/home.go:381
+#: internal/service/ws.go:501
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
-#: internal/apps/fail2ban/app.go:221
+#: internal/apps/fail2ban/app.go:224
 msgid "failed to get the status of rule %s: %v"
 msgstr "获取规则 %s 的状态失败：%v"
 
-#: internal/service/home.go:359
+#: internal/service/home.go:360
 msgid "failed to get the update information: %v"
 msgstr "获取更新信息失败： %v"
 
-#: internal/service/toolbox_system.go:140
+#: internal/service/toolbox_system.go:145
 msgid "failed to get timezone: %v"
 msgstr "获取时区失败： %v"
 
@@ -3374,7 +4051,7 @@ msgstr "获取应用 %s 的卸载脚本失败"
 msgid "failed to list stream servers: %v"
 msgstr "列出 Stream 服务器失败：%v"
 
-#: internal/apps/nginx/stream.go:137
+#: internal/apps/nginx/stream.go:121
 msgid "failed to list stream upstreams: %v"
 msgstr "列出 Stream 上游失败：%v"
 
@@ -3387,15 +4064,15 @@ msgstr "加载 MySQL root 密码失败： %v"
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr "加载 PostgreSQL postgres 密码失败：%v"
 
-#: internal/apps/pgadmin/app.go:441
+#: internal/apps/pgadmin/app.go:444
 msgid "failed to login pgAdmin, please check the credential of pgAdmin"
 msgstr "登录 pgAdmin 失败，请检查 pgAdmin 的凭据"
 
-#: internal/apps/phpmyadmin/app.go:227
+#: internal/apps/phpmyadmin/app.go:253
 msgid "failed to login phpMyAdmin, please check the credentials and status of server %s"
 msgstr "登录 phpMyAdmin 失败，请检查服务器 %s 的凭据与状态"
 
-#: internal/service/toolbox_disk.go:106
+#: internal/service/toolbox_disk.go:110
 msgid "failed to mount partition: %v"
 msgstr "无法挂载分区：%v"
 
@@ -3403,66 +4080,66 @@ msgstr "无法挂载分区：%v"
 msgid "failed to open sftp session on %s: %v"
 msgstr "在 %s 上打开 SFTP 会话失败：%v"
 
-#: internal/service/toolbox_disk.go:650
+#: internal/service/toolbox_disk.go:664
 msgid "failed to parse SMART info: %v"
 msgstr "解析 SMART 信息失败：%v"
 
-#: internal/biz/cert.go:103
+#: internal/biz/cert.go:104
 #: internal/biz/setting.go:241
-#: internal/biz/setting.go:315
-#: internal/data/website.go:1251
-#: internal/data/website.go:866
+#: internal/biz/setting.go:319
+#: internal/data/website.go:1224
+#: internal/data/website.go:850
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
-#: internal/service/toolbox_disk.go:42
+#: internal/service/toolbox_disk.go:43
 msgid "failed to parse disk list: %v"
 msgstr "无法解析磁盘列表：%v"
 
-#: internal/apps/pgadmin/app.go:405
+#: internal/apps/pgadmin/app.go:408
 msgid "failed to parse pgAdmin login page"
 msgstr "解析 pgAdmin 登录页面失败"
 
-#: internal/apps/phpmyadmin/app.go:178
+#: internal/apps/phpmyadmin/app.go:204
 msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登录页面失败"
 
-#: internal/biz/cert.go:106
+#: internal/biz/cert.go:107
 #: internal/biz/setting.go:244
-#: internal/biz/setting.go:318
-#: internal/data/website.go:1254
-#: internal/data/website.go:869
+#: internal/biz/setting.go:322
+#: internal/data/website.go:1227
+#: internal/data/website.go:853
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
-#: internal/service/toolbox_disk.go:602
+#: internal/service/toolbox_disk.go:616
 msgid "failed to parse smartctl output: %v"
 msgstr "解析 smartctl 输出失败：%v"
 
-#: internal/data/project.go:157
+#: internal/data/project.go:161
 msgid "failed to parse systemd config"
 msgstr "解析 systemd 配置失败"
 
-#: internal/service/home.go:308
-#: internal/service/home.go:313
-#: internal/service/home.go:344
-#: internal/service/home.go:349
+#: internal/service/home.go:309
+#: internal/service/home.go:314
+#: internal/service/home.go:345
+#: internal/service/home.go:350
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
-#: internal/service/firewall.go:246
+#: internal/service/firewall.go:256
 msgid "failed to parse xlsx: %v"
 msgstr "解析 xlsx 失败：%v"
 
-#: internal/service/ws.go:421
+#: internal/service/ws.go:432
 msgid "failed to pull image: %v"
 msgstr "拉取镜像失败：%v"
 
-#: internal/service/ws.go:90
+#: internal/service/ws.go:94
 msgid "failed to read command output: %v"
 msgstr "读取命令输出失败： %v"
 
-#: internal/service/ws.go:194
+#: internal/service/ws.go:203
 #: internal/service/ws.go:73
 msgid "failed to read command: %v"
 msgstr "读取命令失败： %v"
@@ -3471,25 +4148,25 @@ msgstr "读取命令失败： %v"
 msgid "failed to read database user detail: %v"
 msgstr "读取数据库用户详情失败：%v"
 
-#: internal/apps/memcached/app.go:86
+#: internal/apps/memcached/app.go:88
 msgid "failed to read from Memcached: %v"
 msgstr "从 Memcached 读取失败： %v"
 
-#: internal/service/toolbox_disk.go:509
+#: internal/service/toolbox_disk.go:520
 msgid "failed to read fstab: %v"
 msgstr "读取 fstab 失败：%v"
 
-#: internal/service/toolbox_ssh.go:242
+#: internal/service/toolbox_ssh.go:222
 msgid "failed to read generated key: %v"
 msgstr "读取生成的密钥失败：%v"
 
-#: internal/service/ws.go:280
-#: internal/service/ws.go:386
-#: internal/service/ws.go:551
+#: internal/service/ws.go:291
+#: internal/service/ws.go:396
+#: internal/service/ws.go:558
 msgid "failed to read params: %v"
 msgstr "读取参数失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:279
+#: internal/biz/toolbox_migration_push.go:281
 msgid "failed to read project detail: %v"
 msgstr "读取项目详情失败：%v"
 
@@ -3501,18 +4178,18 @@ msgstr "读取源资源详情失败：%v"
 msgid "failed to read sshd_config: %v"
 msgstr "读取 sshd_config 失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:379
-#: internal/biz/toolbox_migration_push.go:391
+#: internal/biz/toolbox_migration_push.go:381
+#: internal/biz/toolbox_migration_push.go:393
 msgid "failed to read target database servers: %v"
 msgstr "读取目标端数据库服务器失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:353
-#: internal/biz/toolbox_migration_push.go:359
+#: internal/biz/toolbox_migration_push.go:355
+#: internal/biz/toolbox_migration_push.go:361
 msgid "failed to read target settings: %v"
 msgstr "读取目标端设置失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:410
-#: internal/biz/toolbox_migration_push.go:421
+#: internal/biz/toolbox_migration_push.go:412
+#: internal/biz/toolbox_migration_push.go:423
 msgid "failed to read the created website on target: %v"
 msgstr "在目标端读取已创建的网站失败：%v"
 
@@ -3520,7 +4197,7 @@ msgstr "在目标端读取已创建的网站失败：%v"
 msgid "failed to read website detail: %v"
 msgstr "读取网站详情失败：%v"
 
-#: internal/biz/toolbox_migration_push.go:261
+#: internal/biz/toolbox_migration_push.go:263
 msgid "failed to rebuild website configuration on target: %v"
 msgstr "在目标端重新生成网站配置失败：%v"
 
@@ -3541,57 +4218,43 @@ msgstr "重载 %s 服务失败： %v"
 msgid "failed to reload PostgreSQL: %v"
 msgstr "重载 PostgreSQL 失败： %v"
 
-#: internal/apps/apache/app.go:73
+#: internal/apps/apache/app.go:86
 msgid "failed to reload apache: %v"
 msgstr "重载 apache 失败：%v"
 
-#: internal/apps/apache/app.go:242
-msgid "failed to reload apache: %v %s"
-msgstr "重新加载 Apache 失败：%v %s"
-
-#: internal/apps/nginx/app.go:272
-#: internal/apps/nginx/app.go:83
-#: internal/apps/nginx/stream.go:126
-#: internal/apps/nginx/stream.go:164
-#: internal/apps/nginx/stream.go:210
-#: internal/apps/nginx/stream.go:237
-#: internal/apps/nginx/stream.go:53
-#: internal/apps/nginx/stream.go:99
-#: internal/apps/phpmyadmin/app.go:277
-#: internal/apps/phpmyadmin/app.go:308
-#: internal/service/website.go:257
+#: internal/apps/nginx/app.go:282
 msgid "failed to reload nginx: %v"
 msgstr "重载 nginx 失败：%v"
 
-#: internal/service/toolbox_disk.go:563
+#: internal/service/toolbox_disk.go:577
 msgid "failed to remount filesystems: %v"
 msgstr "重新挂载文件系统失败：%v"
 
-#: internal/service/toolbox_disk.go:402
+#: internal/service/toolbox_disk.go:410
 msgid "failed to remove logical volume: %v"
 msgstr "删除逻辑卷失败：%v"
 
-#: internal/service/toolbox_disk.go:370
+#: internal/service/toolbox_disk.go:378
 msgid "failed to remove physical volume: %v"
 msgstr "删除物理卷失败：%v"
 
-#: internal/service/toolbox_disk.go:386
+#: internal/service/toolbox_disk.go:394
 msgid "failed to remove volume group: %v"
 msgstr "删除卷组失败：%v"
 
-#: internal/data/project.go:112
+#: internal/data/project.go:116
 msgid "failed to rename systemd config"
 msgstr "重命名 systemd 配置失败"
 
-#: internal/apps/pgadmin/app.go:389
-#: internal/apps/pgadmin/app.go:395
-#: internal/apps/pgadmin/app.go:432
+#: internal/apps/pgadmin/app.go:392
+#: internal/apps/pgadmin/app.go:398
+#: internal/apps/pgadmin/app.go:435
 msgid "failed to request pgAdmin: %v"
 msgstr "请求 pgAdmin 失败：%v"
 
-#: internal/apps/phpmyadmin/app.go:165
-#: internal/apps/phpmyadmin/app.go:171
-#: internal/apps/phpmyadmin/app.go:219
+#: internal/apps/phpmyadmin/app.go:191
+#: internal/apps/phpmyadmin/app.go:197
+#: internal/apps/phpmyadmin/app.go:245
 msgid "failed to request phpMyAdmin: %v"
 msgstr "请求 phpMyAdmin 失败：%v"
 
@@ -3603,13 +4266,13 @@ msgstr "重置 OPcache 失败，可能尚未启用"
 msgid "failed to reset OPcache: %v"
 msgstr "重置 OPcache 失败：%v"
 
-#: internal/apps/pgadmin/app.go:533
+#: internal/apps/pgadmin/app.go:542
 msgid "failed to reset password: %v"
 msgstr "重置密码失败：%v"
 
-#: internal/service/toolbox_disk.go:438
-#: internal/service/toolbox_disk.go:447
-#: internal/service/toolbox_disk.go:462
+#: internal/service/toolbox_disk.go:449
+#: internal/service/toolbox_disk.go:458
+#: internal/service/toolbox_disk.go:473
 msgid "failed to resize filesystem: %v"
 msgstr "调整文件系统大小失败：%v"
 
@@ -3621,7 +4284,7 @@ msgstr "重启 %s 服务失败： %v"
 msgid "failed to restart MySQL: %v"
 msgstr "重启 MySQL 失败： %v"
 
-#: internal/apps/pgadmin/app.go:168
+#: internal/apps/pgadmin/app.go:170
 msgid "failed to restart pgAdmin: %v"
 msgstr "重启 pgAdmin 失败：%v"
 
@@ -3637,7 +4300,7 @@ msgstr "运行命令失败： %v"
 msgid "failed to save ClickHouse default password: %v"
 msgstr "保存 ClickHouse 默认密码失败：%v"
 
-#: internal/apps/mongodb/app.go:215
+#: internal/apps/mongodb/app.go:219
 msgid "failed to save MongoDB admin password: %v"
 msgstr "保存 MongoDB 管理员密码失败：%v"
 
@@ -3645,29 +4308,29 @@ msgstr "保存 MongoDB 管理员密码失败：%v"
 msgid "failed to select database: %v"
 msgstr "选择数据库失败：%v"
 
-#: internal/apps/mongodb/app.go:209
+#: internal/apps/mongodb/app.go:213
 msgid "failed to set MongoDB admin password: %v"
 msgstr "设置 MongoDB 管理员密码失败：%v"
 
-#: internal/service/toolbox_system.go:249
+#: internal/service/toolbox_system.go:252
 msgid "failed to set NTP servers: %v"
 msgstr "设置 NTP 服务器失败：%v"
 
-#: internal/service/toolbox_system.go:119
+#: internal/service/toolbox_system.go:123
 msgid "failed to set SWAP permission: %v"
 msgstr "设置 SWAP 权限失败： %v"
 
-#: internal/service/toolbox_system.go:276
+#: internal/service/toolbox_system.go:279
 msgid "failed to set hostname: %v"
 msgstr "设置主机名失败： %v"
 
-#: internal/service/toolbox_system.go:299
+#: internal/service/toolbox_system.go:302
 msgid "failed to set hosts: %v"
 msgstr "设置 hosts 失败： %v"
 
-#: internal/apps/postgresql/app.go:241
-#: internal/apps/postgresql/app.go:247
-#: internal/apps/postgresql/app.go:253
+#: internal/apps/postgresql/app.go:243
+#: internal/apps/postgresql/app.go:249
+#: internal/apps/postgresql/app.go:255
 msgid "failed to set postgres password: %v"
 msgstr "设置 postgres 密码失败： %v"
 
@@ -3675,7 +4338,7 @@ msgstr "设置 postgres 密码失败： %v"
 msgid "failed to start %s service: %v"
 msgstr "启动 %s 服务失败： %v"
 
-#: internal/service/ws.go:360
+#: internal/service/ws.go:368
 msgid "failed to start container terminal: %v"
 msgstr "启动容器终端失败：%v"
 
@@ -3683,15 +4346,15 @@ msgstr "启动容器终端失败：%v"
 msgid "failed to stop %s service: %v"
 msgstr "停止 %s 服务失败： %v"
 
-#: internal/apps/pgadmin/app.go:362
+#: internal/apps/pgadmin/app.go:365
 msgid "failed to sync servers to pgAdmin: %v"
 msgstr "同步服务器到 pgAdmin 失败：%v"
 
-#: internal/service/toolbox_disk.go:168
+#: internal/service/toolbox_disk.go:172
 msgid "failed to umount partition: %v"
 msgstr "卸载分区失败：%v"
 
-#: internal/apps/s3fs/app.go:146
+#: internal/apps/s3fs/app.go:150
 msgid "failed to unmount: %v"
 msgstr "卸载失败： %v"
 
@@ -3699,11 +4362,11 @@ msgstr "卸载失败： %v"
 msgid "failed to update SSH port: %v"
 msgstr "更新 SSH 端口失败：%v"
 
-#: internal/service/toolbox_ssh.go:259
+#: internal/service/toolbox_ssh.go:239
 msgid "failed to update authorized_keys: %v"
 msgstr "更新 authorized_keys 失败：%v"
 
-#: internal/service/firewall.go:160
+#: internal/service/firewall.go:162
 msgid "failed to update firewall rule: %v"
 msgstr "更新防火墙规则失败：%v"
 
@@ -3711,45 +4374,45 @@ msgstr "更新防火墙规则失败：%v"
 msgid "failed to update network interface: %v"
 msgstr "更新网络接口失败：%v"
 
-#: internal/service/toolbox_ssh.go:117
+#: internal/service/toolbox_ssh.go:112
 msgid "failed to update password authentication: %v"
 msgstr "更新密码验证失败：%v"
 
-#: internal/service/toolbox_ssh.go:143
+#: internal/service/toolbox_ssh.go:133
 msgid "failed to update pubkey authentication: %v"
 msgstr "更新 pubkey 验证失败：%v"
 
-#: internal/service/toolbox_ssh.go:164
+#: internal/service/toolbox_ssh.go:149
 msgid "failed to update root login setting: %v"
 msgstr "更新 root 登录设置失败：%v"
 
-#: internal/service/toolbox_ssh.go:186
+#: internal/service/toolbox_ssh.go:166
 msgid "failed to update root password: %v"
 msgstr "更新 root 密码失败：%v"
 
-#: internal/service/toolbox_disk.go:234
+#: internal/service/toolbox_disk.go:242
 msgid "failed to wipe disk: %v"
 msgstr "擦除磁盘失败：%v"
 
-#: internal/apps/clickhouse/app.go:227
+#: internal/apps/clickhouse/app.go:228
 msgid "failed to write ClickHouse user config: %v"
 msgstr "写入 ClickHouse 用户配置失败：%v"
 
-#: internal/service/toolbox_disk.go:151
+#: internal/service/toolbox_disk.go:155
 msgid "failed to write fstab: %v"
 msgstr "写入 fstab 失败：%v"
 
 #: internal/apps/nginx/stream.go:47
-#: internal/apps/nginx/stream.go:90
+#: internal/apps/nginx/stream.go:84
 msgid "failed to write stream server config: %v"
 msgstr "写入 Stream 服务器配置失败：%v"
 
-#: internal/apps/nginx/stream.go:158
-#: internal/apps/nginx/stream.go:201
+#: internal/apps/nginx/stream.go:142
+#: internal/apps/nginx/stream.go:179
 msgid "failed to write stream upstream config: %v"
 msgstr "写入 Stream 上游配置失败：%v"
 
-#: internal/apps/memcached/app.go:65
+#: internal/apps/memcached/app.go:67
 msgid "failed to write to Memcached: %v"
 msgstr "写入 Memcache 失败： %v"
 
@@ -3758,7 +4421,7 @@ msgstr "写入 Memcache 失败： %v"
 msgid "failed to write webhook script: %v"
 msgstr "写入 Web 钩子脚本失败：%v"
 
-#: internal/service/file.go:95
+#: internal/service/file.go:96
 msgid "file is too large, please download it to view"
 msgstr "文件太大，请下载后查看"
 
@@ -3766,19 +4429,15 @@ msgstr "文件太大，请下载后查看"
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr "gRPC 是一个高性能、开源和通用的 RPC 框架"
 
-#: internal/apps/fail2ban/app.go:120
+#: internal/apps/fail2ban/app.go:121
 msgid "get service port failed, please check if it is installed"
 msgstr "获取服务端口失败，请检查是否安装"
 
-#: internal/service/file.go:797
-msgid "get upload file error: %v"
-msgstr "获取上传文件错误：%v"
-
-#: internal/biz/alert.go:937
+#: internal/biz/alert.go:944
 msgid "greater than"
 msgstr "大于"
 
-#: internal/biz/alert.go:931
+#: internal/biz/alert.go:938
 msgid "greater than or equal to"
 msgstr "大于等于"
 
@@ -3786,7 +4445,7 @@ msgstr "大于等于"
 msgid "if the site connects to a database, change the host in its config from the 1Panel container name to localhost"
 msgstr "如果网站连接数据库，请在其配置中将主机地址从 1Panel 容器名称改为 localhost"
 
-#: internal/biz/cert.go:188
+#: internal/biz/cert.go:185
 msgid "initializing ACME client"
 msgstr "初始化 ACME 客户端"
 
@@ -3804,7 +4463,7 @@ msgstr "验证码无效"
 msgid "invalid channel config: %v"
 msgstr "渠道配置无效：%v"
 
-#: internal/service/firewall.go:267
+#: internal/service/firewall.go:277
 msgid "invalid file: missing port_start column"
 msgstr "无效文件：缺少 port_start 列"
 
@@ -3816,7 +4475,7 @@ msgstr "无效的请求头： %v"
 msgid "invalid key, please refresh the page"
 msgstr "无效的密钥，请刷新页面"
 
-#: internal/service/toolbox_disk.go:348
+#: internal/service/toolbox_disk.go:356
 msgid "invalid logical volume size"
 msgstr "无效的逻辑卷大小"
 
@@ -3824,28 +4483,32 @@ msgstr "无效的逻辑卷大小"
 msgid "invalid mirror url"
 msgstr "镜像源 URL 无效"
 
-#: internal/apps/mysql/app.go:688
-#: internal/apps/postgresql/app.go:729
+#: internal/apps/mysql/app.go:694
+#: internal/apps/postgresql/app.go:731
 msgid "invalid operation"
 msgstr "操作无效"
 
-#: internal/service/ws.go:285
-#: internal/service/ws.go:391
-#: internal/service/ws.go:558
+#: internal/service/ws.go:296
+#: internal/service/ws.go:401
+#: internal/service/ws.go:565
 msgid "invalid params: %v"
 msgstr "无效的参数：%v"
 
-#: internal/apps/postgresql/app.go:511
+#: internal/apps/postgresql/app.go:513
 msgid "invalid pid"
 msgstr "PID 无效"
 
-#: internal/apps/mysql/app.go:399
+#: internal/apps/mysql/app.go:401
 msgid "invalid process id"
 msgstr "进程 ID 无效"
 
 #: internal/data/user_token.go:176
 msgid "invalid request ip: %s"
 msgstr "无效的请求 IP：%s"
+
+#: internal/data/cert_account.go:87
+msgid "invalid response"
+msgstr "无效的响应"
 
 #: internal/service/user_passkey.go:148
 #: internal/service/user_passkey.go:247
@@ -3858,19 +4521,19 @@ msgstr "无效的会话，请重试"
 msgid "invalid signature"
 msgstr "无效的签名"
 
-#: internal/service/toolbox_disk.go:419
+#: internal/service/toolbox_disk.go:427
 msgid "invalid size"
 msgstr "无效的大小"
 
-#: internal/apps/postgresql/app.go:833
+#: internal/apps/postgresql/app.go:835
 msgid "invalid slot name"
 msgstr "槽名称无效"
 
-#: internal/service/home.go:439
+#: internal/service/home.go:440
 msgid "invalid type"
 msgstr "无效的类型"
 
-#: internal/middleware/must_login.go:95
+#: internal/middleware/must_login.go:96
 msgid "invalid user id, please login again"
 msgstr "无效的用户ID，请重新登录"
 
@@ -3878,31 +4541,31 @@ msgstr "无效的用户ID，请重新登录"
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）"
 
-#: internal/biz/cert.go:222
+#: internal/biz/cert.go:223
 msgid "issuing certificate, domains: %s"
 msgstr "签发证书，域名：%s"
 
-#: internal/service/log.go:106
+#: internal/service/log.go:107
 msgid "journalctl is not available"
 msgstr "journalctl 不可用"
 
-#: internal/biz/alert.go:933
+#: internal/biz/alert.go:940
 msgid "less than"
 msgstr "小于"
 
-#: internal/biz/alert.go:935
+#: internal/biz/alert.go:942
 msgid "less than or equal to"
 msgstr "小于等于"
 
-#: internal/data/backup.go:338
+#: internal/data/backup.go:346
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1355
+#: internal/data/website.go:1328
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
-#: internal/biz/alert.go:878
+#: internal/biz/alert.go:885
 msgid "memory usage"
 msgstr "内存使用率"
 
@@ -3925,11 +4588,11 @@ msgstr "模块 %s 已存在"
 msgid "module %s does not exist"
 msgstr "模块 %s 不存在"
 
-#: internal/apps/s3fs/app.go:115
+#: internal/apps/s3fs/app.go:117
 msgid "mount failed: %v"
 msgstr "挂载失败： %v"
 
-#: internal/apps/s3fs/app.go:138
+#: internal/apps/s3fs/app.go:140
 msgid "mount not found"
 msgstr "找不到挂载"
 
@@ -3941,34 +4604,30 @@ msgstr "挂载路径已存在"
 msgid "mount path is not empty"
 msgstr "挂载路径不为空"
 
-#: internal/service/toolbox_disk.go:144
+#: internal/service/toolbox_disk.go:148
 msgid "mount point %s already exists in fstab"
 msgstr "挂载点 %s 已存在于 fstab 中"
 
-#: internal/apps/nginx/stream.go:110
-#: internal/apps/nginx/stream.go:175
-#: internal/apps/nginx/stream.go:221
-#: internal/apps/nginx/stream.go:64
+#: internal/apps/nginx/stream.go:153
+#: internal/apps/nginx/stream.go:194
+#: internal/apps/nginx/stream.go:58
+#: internal/apps/nginx/stream.go:99
 msgid "name is required"
 msgstr "名称是必填项"
 
-#: internal/biz/alert.go:896
+#: internal/biz/alert.go:903
 msgid "network download speed"
 msgstr "网络下行速率"
 
-#: internal/biz/alert.go:898
+#: internal/biz/alert.go:905
 msgid "network upload speed"
 msgstr "网络上行速率"
 
-#: internal/service/website.go:253
-msgid "nginx config test failed: %v"
-msgstr "nginx 配置测试失败：%v"
-
-#: internal/service/toolbox_disk.go:684
+#: internal/service/toolbox_disk.go:698
 msgid "no RAID configuration detected"
 msgstr "未检测到 RAID 配置"
 
-#: internal/service/log.go:137
+#: internal/service/log.go:138
 msgid "no SSH log entries found"
 msgstr "未找到 SSH 日志条目"
 
@@ -3977,29 +4636,29 @@ msgstr "未找到 SSH 日志条目"
 msgid "no compatible database server is installed on the target"
 msgstr "目标端未安装兼容的数据库服务器"
 
-#: internal/biz/toolbox_migration_push.go:401
+#: internal/biz/toolbox_migration_push.go:403
 msgid "no matching database server found on target"
 msgstr "未在目标端找到匹配的数据库服务器"
 
-#: internal/service/toolbox_migration.go:113
+#: internal/service/toolbox_migration.go:114
 msgid "no migration logs available"
 msgstr "暂无迁移日志"
 
-#: internal/service/firewall.go:257
+#: internal/service/firewall.go:267
 msgid "no rules found in file"
 msgstr "文件中未找到规则"
 
-#: internal/apps/mysql/app.go:684
-#: internal/apps/postgresql/app.go:725
+#: internal/apps/mysql/app.go:690
+#: internal/apps/postgresql/app.go:727
 msgid "no tables selected"
 msgstr "未选择表"
 
-#: internal/biz/alert.go:952
+#: internal/biz/alert.go:959
 msgid "not running"
 msgstr "未运行"
 
-#: internal/biz/cert.go:230
-#: internal/biz/cert.go:357
+#: internal/biz/cert.go:232
+#: internal/biz/cert.go:367
 msgid "obtaining and saving certificate"
 msgstr "获取并保存证书"
 
@@ -4007,27 +4666,27 @@ msgstr "获取并保存证书"
 msgid "only PHP runtime websites can be migrated: %s"
 msgstr "只能迁移 PHP 运行环境网站：%s"
 
-#: internal/service/file.go:332
+#: internal/service/file.go:317
 msgid "open file error: %v"
 msgstr "打开文件错误： %v"
 
-#: internal/service/file.go:803
+#: internal/service/file.go:823
 msgid "open upload file error: %v"
 msgstr "打开上传文件错误：%v"
 
-#: internal/data/backup.go:1919
+#: internal/data/backup.go:1962
 msgid "panel binary is missing after update"
 msgstr "更新后面板二进制文件丢失"
 
-#: internal/job/cert_renew.go:104
-#: internal/job/cert_renew.go:112
-#: internal/job/cert_renew.go:145
-#: internal/job/cert_renew.go:151
-#: internal/job/cert_renew.go:160
+#: internal/job/cert_renew.go:115
+#: internal/job/cert_renew.go:123
+#: internal/job/cert_renew.go:156
+#: internal/job/cert_renew.go:162
+#: internal/job/cert_renew.go:171
 msgid "panel certificate"
 msgstr "面板证书"
 
-#: internal/data/backup.go:1783
+#: internal/data/backup.go:1823
 msgid "panel is already updating, please try again later"
 msgstr "面板正在更新，请稍后再试"
 
@@ -4044,11 +4703,11 @@ msgid "panel is upgrading, please refresh later"
 msgstr "面板正在升级，请稍后刷新"
 
 #: internal/service/user.go:178
-#: internal/service/user_passkey.go:300
+#: internal/service/user_passkey.go:304
 msgid "panel login detected"
 msgstr "检测到面板登录"
 
-#: internal/biz/alert.go:644
+#: internal/biz/alert.go:651
 msgid "panel reported a health issue"
 msgstr "面板上报了健康问题"
 
@@ -4056,15 +4715,15 @@ msgstr "面板上报了健康问题"
 msgid "panel run error, please check or contact support"
 msgstr "面板运行错误，请检查或联系技术支持"
 
-#: internal/data/backup.go:1915
+#: internal/data/backup.go:1958
 msgid "panel service file is missing"
 msgstr "面板服务文件丢失"
 
-#: internal/service/toolbox_disk.go:120
+#: internal/service/toolbox_disk.go:124
 msgid "partition has no UUID"
 msgstr "分区没有 UUID"
 
-#: internal/service/user_passkey.go:302
+#: internal/service/user_passkey.go:306
 msgid "passkey"
 msgstr "通行密钥"
 
@@ -4076,20 +4735,16 @@ msgstr "密钥登录失败：%v"
 msgid "passkey registration failed: %v"
 msgstr "通行密钥注册失败：%v"
 
-#: internal/data/backup.go:822
+#: internal/data/backup.go:854
 msgid "path does not exist: %s"
 msgstr "路径不存在：%s"
 
-#: internal/data/backup.go:825
+#: internal/data/backup.go:857
 msgid "path is not a directory: %s"
 msgstr "路径不是目录：%s"
 
-#: internal/service/file.go:790
-msgid "path, file_name and file_hash are required"
-msgstr "path，file_name 和 file_hash 是必需的"
-
-#: internal/service/file.go:136
-#: internal/service/ws.go:106
+#: internal/service/file.go:137
+#: internal/service/ws.go:113
 msgid "path, service or container is required"
 msgstr "路径、服务或容器是必填项"
 
@@ -4101,13 +4756,13 @@ msgstr "pdo_pgsql 是一个用于连接 PostgreSQL 的 PDO 驱动程序（需先
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr "pdo_sqlsrv 是一个用于连接 SQL Server 的 PDO 驱动程序"
 
-#: internal/apps/mysql/app.go:544
+#: internal/apps/mysql/app.go:550
 msgid "performance_schema is not supported by this instance"
 msgstr "此实例不支持 performance_schema"
 
-#: internal/apps/pgadmin/app.go:357
-#: internal/apps/pgadmin/app.go:468
-#: internal/apps/pgadmin/app.go:527
+#: internal/apps/pgadmin/app.go:360
+#: internal/apps/pgadmin/app.go:471
+#: internal/apps/pgadmin/app.go:533
 msgid "pgAdmin credential file not found"
 msgstr "未找到 pgAdmin 凭据文件"
 
@@ -4115,7 +4770,7 @@ msgstr "未找到 pgAdmin 凭据文件"
 msgid "pgAdmin port not found"
 msgstr "未找到 pgAdmin 端口"
 
-#: internal/apps/postgresql/app.go:736
+#: internal/apps/postgresql/app.go:738
 msgid "pg_repack is not installed, please install it in the extensions tab first"
 msgstr "未安装 pg_repack，请先在扩展标签页中安装"
 
@@ -4123,12 +4778,12 @@ msgstr "未安装 pg_repack，请先在扩展标签页中安装"
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pgsql 是一个用于连接 PostgreSQL 的驱动程序（需先安装 PostgreSQL）"
 
-#: internal/apps/phpmyadmin/app.go:64
-#: internal/apps/phpmyadmin/app.go:74
+#: internal/apps/phpmyadmin/app.go:86
+#: internal/apps/phpmyadmin/app.go:96
 msgid "phpMyAdmin directory not found"
 msgstr "没有找到 phpMyAdmin 目录"
 
-#: internal/apps/phpmyadmin/app.go:83
+#: internal/apps/phpmyadmin/app.go:109
 msgid "phpMyAdmin port not found"
 msgstr "没有找到 phpMyAdmin 端口"
 
@@ -4141,9 +4796,9 @@ msgid "please connect to the source server first"
 msgstr "请先连接源服务器"
 
 #: internal/biz/user.go:115
-#: internal/service/file.go:279
-#: internal/service/file.go:385
-#: internal/service/file.go:424
+#: internal/service/file.go:280
+#: internal/service/file.go:398
+#: internal/service/file.go:449
 msgid "please don't do this"
 msgstr "请不要花样作死"
 
@@ -4163,19 +4818,19 @@ msgstr "请至少选择一个迁移资源"
 msgid "port is already in use"
 msgstr "端口已被占用"
 
-#: internal/biz/cert.go:307
+#: internal/biz/cert.go:310
 msgid "preparing renewal"
 msgstr "准备续签"
 
-#: internal/apps/supervisor/app.go:268
+#: internal/apps/supervisor/app.go:253
 msgid "process %s already exists"
 msgstr "进程 %s 已存在"
 
-#: internal/biz/alert.go:856
+#: internal/biz/alert.go:863
 msgid "project %s is not running"
 msgstr "项目 %s 未运行"
 
-#: internal/biz/toolbox_migration_push.go:304
+#: internal/biz/toolbox_migration_push.go:306
 msgid "project backup failed: %v"
 msgstr "项目备份失败：%v"
 
@@ -4183,7 +4838,7 @@ msgstr "项目备份失败：%v"
 msgid "project name already exists"
 msgstr "项目名已存在"
 
-#: internal/biz/alert.go:906
+#: internal/biz/alert.go:913
 msgid "project status"
 msgstr "项目状态"
 
@@ -4191,12 +4846,12 @@ msgstr "项目状态"
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr "protobuf 是一个用于序列化和反序列化数据的库"
 
-#: internal/apps/frp/app.go:279
+#: internal/apps/frp/app.go:280
 msgid "proxy %s already exists"
 msgstr "代理 %s 已存在"
 
-#: internal/apps/frp/app.go:296
-#: internal/apps/frp/app.go:312
+#: internal/apps/frp/app.go:297
+#: internal/apps/frp/app.go:313
 msgid "proxy %s does not exist"
 msgstr "代理 %s 不存在"
 
@@ -4204,23 +4859,11 @@ msgstr "代理 %s 不存在"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一个用于连接 Apache Kafka 的库"
 
-#: internal/service/file.go:880
-msgid "read chunk %d error: %v"
-msgstr "读取分块 %d 错误：%v"
-
-#: internal/service/file.go:811
-msgid "read chunk data error: %v"
-msgstr "读取分块数据错误：%v"
-
-#: internal/service/file.go:752
-msgid "read directory error: %v"
-msgstr "读取目录错误：%v"
-
-#: internal/biz/cert.go:350
+#: internal/biz/cert.go:358
 msgid "renewal failed, attempting re-issuance"
 msgstr "续签失败，尝试重新签发"
 
-#: internal/biz/cert.go:344
+#: internal/biz/cert.go:351
 msgid "renewing certificate, domains: %s"
 msgstr "续签证书，域名：%s"
 
@@ -4233,31 +4876,39 @@ msgstr "续签证书，域名：%s"
 msgid "resource no longer exists on the source server"
 msgstr "源服务器上已不存在该资源"
 
-#: internal/apps/fail2ban/app.go:130
+#: internal/data/website.go:723
+msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
+msgstr "伪静态规则、自定义配置、速率限制和真实 IP 设置不会迁移"
+
+#: internal/apps/fail2ban/app.go:131
 msgid "rule already exists"
 msgstr "规则已存在"
 
-#: internal/apps/fail2ban/app.go:165
-#: internal/apps/fail2ban/app.go:192
+#: internal/apps/fail2ban/app.go:166
+#: internal/apps/fail2ban/app.go:193
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/service/cli.go:103
-#: internal/service/cli.go:1617
-#: internal/service/cli.go:753
-#: internal/service/cli.go:855
+#: internal/service/cli.go:104
+#: internal/service/cli.go:1665
+#: internal/service/cli.go:760
+#: internal/service/cli.go:862
 msgid "running"
 msgstr "运行中"
 
-#: internal/data/website.go:844
+#: internal/data/website.go:828
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
+#: internal/service/file.go:781
 #: internal/service/file.go:830
+#: internal/service/file.go:840
+#: internal/service/file.go:858
+#: internal/service/file.go:863
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
-#: internal/apps/phpmyadmin/app.go:132
+#: internal/apps/phpmyadmin/app.go:158
 msgid "server %s is not a MySQL server"
 msgstr "服务器 %s 不是 MySQL 服务器"
 
@@ -4274,11 +4925,11 @@ msgstr "服务器不是 Redis 类型"
 msgid "server not found"
 msgstr "未找到服务器"
 
-#: internal/biz/alert.go:854
+#: internal/biz/alert.go:861
 msgid "service %s is not running"
 msgstr "服务 %s 未运行"
 
-#: internal/biz/alert.go:904
+#: internal/biz/alert.go:911
 msgid "service status"
 msgstr "服务状态"
 
@@ -4286,7 +4937,7 @@ msgstr "服务状态"
 msgid "session expired, please login again"
 msgstr "会话已过期，请重新登录"
 
-#: internal/service/backup_storage.go:146
+#: internal/service/backup_storage.go:147
 msgid "sftp configuration error: %v"
 msgstr "SFTP 配置错误：%v"
 
@@ -4308,23 +4959,23 @@ msgstr "分享链接不存在"
 msgid "signature expired"
 msgstr "签名已过期"
 
-#: internal/service/toolbox_disk.go:576
+#: internal/service/toolbox_disk.go:590
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr "未安装 smartmontools，请先安装它（例如：apt install smartmontools 或 dnf install smartmontools）"
 
-#: internal/data/cert.go:205
+#: internal/data/cert.go:203
 msgid "some of the selected websites do not exist"
 msgstr "所选网站中有部分不存在"
 
-#: internal/service/ws.go:293
+#: internal/service/ws.go:304
 msgid "source and destination are the same file"
 msgstr "源文件与目标文件相同"
 
-#: internal/service/ws.go:289
+#: internal/service/ws.go:300
 msgid "source and destination path are required"
 msgstr "源路径与目标路径不能为空"
 
-#: internal/biz/database.go:221
+#: internal/biz/database.go:237
 msgid "sqlite does not support dropping tables from here"
 msgstr "sqlite 不支持从此处删除表"
 
@@ -4332,38 +4983,38 @@ msgstr "sqlite 不支持从此处删除表"
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一个用于连接 SQL Server 的驱动程序"
 
-#: internal/service/cli.go:105
-#: internal/service/cli.go:1615
-#: internal/service/cli.go:751
-#: internal/service/cli.go:853
+#: internal/service/cli.go:106
+#: internal/service/cli.go:1663
+#: internal/service/cli.go:758
+#: internal/service/cli.go:860
 msgid "stopped"
 msgstr "已停止"
 
-#: internal/service/backup_storage.go:163
+#: internal/service/backup_storage.go:164
 msgid "storage connection error: %v"
 msgstr "存储连接错误：%v"
 
 #: internal/apps/nginx/stream.go:42
-#: internal/apps/nginx/stream.go:84
+#: internal/apps/nginx/stream.go:78
 msgid "stream server config already exists: %s"
 msgstr "Stream 服务器配置已存在：%s"
 
-#: internal/apps/nginx/stream.go:116
-#: internal/apps/nginx/stream.go:76
+#: internal/apps/nginx/stream.go:105
+#: internal/apps/nginx/stream.go:70
 msgid "stream server not found: %s"
 msgstr "未找到 Stream 服务器：%s"
 
-#: internal/apps/nginx/stream.go:153
-#: internal/apps/nginx/stream.go:195
+#: internal/apps/nginx/stream.go:137
+#: internal/apps/nginx/stream.go:173
 msgid "stream upstream config already exists: %s"
 msgstr "Stream 上游配置已存在：%s"
 
-#: internal/apps/nginx/stream.go:187
-#: internal/apps/nginx/stream.go:227
+#: internal/apps/nginx/stream.go:165
+#: internal/apps/nginx/stream.go:200
 msgid "stream upstream not found: %s"
 msgstr "未找到 Stream 上游：%s"
 
-#: internal/biz/alert.go:880
+#: internal/biz/alert.go:887
 msgid "swap usage"
 msgstr "Swap 使用率"
 
@@ -4373,11 +5024,11 @@ msgstr "Swap 使用率"
 msgid "sync from server %s"
 msgstr "从服务器 %s 同步"
 
-#: internal/biz/tamper.go:306
+#: internal/biz/tamper.go:307
 msgid "tamper protection blocked file operations"
 msgstr "防篡改拦截了文件操作"
 
-#: internal/service/tamper.go:61
+#: internal/service/tamper.go:63
 msgid "tamper protection is only supported on Linux"
 msgstr "防篡改仅支持 Linux"
 
@@ -4390,18 +5041,18 @@ msgid "target command failed"
 msgstr "目标端命令执行失败"
 
 #: internal/biz/toolbox_migration_push.go:161
-#: internal/biz/toolbox_migration_push.go:244
-#: internal/biz/toolbox_migration_push.go:326
+#: internal/biz/toolbox_migration_push.go:246
+#: internal/biz/toolbox_migration_push.go:328
 msgid "target import failed: %v"
 msgstr "目标端导入失败：%v"
 
-#: internal/service/file.go:91
+#: internal/service/file.go:92
 msgid "target is a directory"
 msgstr "目标是一个目录"
 
-#: internal/service/file.go:310
-#: internal/service/file.go:736
-#: internal/service/file.go:851
+#: internal/service/file.go:304
+#: internal/service/file.go:764
+#: internal/service/file.go:895
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
@@ -4421,11 +5072,11 @@ msgstr "模板 %s 未找到"
 msgid "the connection to the target server was interrupted"
 msgstr "与目标服务器的连接已中断"
 
-#: internal/biz/toolbox_migration_push.go:428
+#: internal/biz/toolbox_migration_push.go:430
 msgid "the created website could not be found on target"
 msgstr "在目标端找不到已创建的网站"
 
-#: internal/service/home.go:353
+#: internal/service/home.go:354
 msgid "the current version is the latest version"
 msgstr "当前版本是最新版本"
 
@@ -4444,11 +5095,11 @@ msgstr "名称包含 AcePanel 不允许的字符"
 msgid "the name is reserved by AcePanel"
 msgstr "该名称已被 AcePanel 保留"
 
-#: internal/biz/toolbox_migration_import.go:374
+#: internal/biz/toolbox_migration_import.go:376
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr "项目已迁移，但其反向代理网站已存在于目标端"
 
-#: internal/biz/toolbox_migration_import.go:384
+#: internal/biz/toolbox_migration_import.go:386
 msgid "the project was migrated, but its reverse proxy website could not be created: %v"
 msgstr "项目已迁移，但无法创建其反向代理网站：%v"
 
@@ -4509,7 +5160,7 @@ msgstr "目标服务器上没有兼容的 %s 数据库服务器"
 msgid "the target server does not have a compatible %s runtime for version %s"
 msgstr "目标服务器上没有与 %s 版本 %s 兼容的运行环境"
 
-#: internal/biz/toolbox_migration_import.go:463
+#: internal/biz/toolbox_migration_import.go:467
 msgid "the target server does not have user %s"
 msgstr "目标服务器上不存在用户 %s"
 
@@ -4525,20 +5176,20 @@ msgstr "目标网站目录不为空"
 msgid "this 1Panel website type is not supported for automatic migration: %s"
 msgstr "不支持自动迁移此类 1Panel 网站：%s"
 
-#: internal/biz/cert.go:411
+#: internal/biz/cert.go:427
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr "此证书尚未成功签发，无法部署"
 
-#: internal/biz/cert.go:319
+#: internal/biz/cert.go:322
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr "此证书尚未成功签发，无法续签"
 
-#: internal/biz/cert.go:210
-#: internal/biz/cert.go:333
+#: internal/biz/cert.go:207
+#: internal/biz/cert.go:336
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此证书未与任何网站关联，无法签发。您可以尝试使用手动签发"
 
-#: internal/data/cert.go:368
+#: internal/data/cert.go:320
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此证书未与 ACME 帐户关联，无法签发"
 
@@ -4546,7 +5197,7 @@ msgstr "此证书未与 ACME 帐户关联，无法签发"
 msgid "token expired"
 msgstr "令牌已过期"
 
-#: internal/biz/alert.go:709
+#: internal/biz/alert.go:716
 msgid "too many failed SSH login attempts"
 msgstr "SSH 登录失败次数过多"
 
@@ -4554,45 +5205,45 @@ msgstr "SSH 登录失败次数过多"
 msgid "too many failed panel login attempts"
 msgstr "面板登录失败次数过多"
 
-#: internal/service/home.go:294
-#: internal/service/home.go:330
+#: internal/service/home.go:295
+#: internal/service/home.go:331
 msgid "unable to check for updates in offline mode"
 msgstr "离线模式下无法检查更新"
 
-#: internal/service/home.go:368
-#: internal/service/ws.go:484
+#: internal/service/home.go:369
+#: internal/service/ws.go:491
 msgid "unable to update in offline mode"
 msgstr "离线模式下无法更新"
 
-#: internal/data/backup.go:897
+#: internal/data/backup.go:929
 msgid "uncompressed backup is empty, restore aborted"
 msgstr "解压后的备份为空，已中止恢复"
 
 #: internal/biz/toolbox_migration_import.go:320
 #: internal/biz/toolbox_migration_import.go:89
-#: internal/service/cli.go:100
+#: internal/service/cli.go:101
 msgid "unknown"
 msgstr "未知"
 
 #: internal/data/backup.go:157
-#: internal/data/backup.go:292
+#: internal/data/backup.go:300
 msgid "unknown backup type"
 msgstr "未知备份类型"
 
-#: internal/service/toolbox_log.go:69
-#: internal/service/toolbox_log.go:99
+#: internal/service/toolbox_log.go:100
+#: internal/service/toolbox_log.go:70
 msgid "unknown log type"
 msgstr "未知日志类型"
 
-#: internal/apps/fail2ban/app.go:116
+#: internal/apps/fail2ban/app.go:117
 msgid "unknown service"
 msgstr "未知服务"
 
-#: internal/data/backup.go:530
+#: internal/data/backup.go:562
 msgid "unknown storage type"
 msgstr "未知存储类型"
 
-#: internal/service/toolbox_benchmark.go:78
+#: internal/service/toolbox_benchmark.go:79
 msgid "unknown test type"
 msgstr "未知测试类型"
 
@@ -4609,8 +5260,8 @@ msgstr "不支持的数据库类型：%s"
 msgid "unsupported file type"
 msgstr "不支持的文件类型"
 
-#: internal/service/toolbox_disk.go:194
-#: internal/service/toolbox_disk.go:268
+#: internal/service/toolbox_disk.go:198
+#: internal/service/toolbox_disk.go:276
 msgid "unsupported filesystem type: %s"
 msgstr "不支持的文件系统类型：%s"
 
@@ -4627,31 +5278,21 @@ msgstr "不支持的迁移资源类型：%s"
 msgid "unsupported source panel: %s"
 msgstr "不支持的源面板：%s"
 
-#: internal/data/cron.go:167
+#: internal/data/cron.go:168
 msgid "unsupported system"
 msgstr "不支持的系统"
 
-#: internal/data/website.go:1444
-#: internal/data/website.go:1513
-msgid "unsupported web server: %s"
-msgstr "不支持的 Web 服务器：%s"
-
-#: internal/data/cert.go:331
-#: internal/data/website.go:1419
-msgid "unsupported website type: %s"
-msgstr "不支持的网站类型：%s"
-
-#: internal/biz/cert.go:153
+#: internal/biz/cert.go:154
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上传的证书无法设置为自动续签"
 
-#: internal/service/file.go:306
+#: internal/service/file.go:327
 msgid "upload file error: %v"
 msgstr "上传文件错误：%v"
 
 #: internal/biz/toolbox_migration_push.go:153
-#: internal/biz/toolbox_migration_push.go:237
-#: internal/biz/toolbox_migration_push.go:318
+#: internal/biz/toolbox_migration_push.go:239
+#: internal/biz/toolbox_migration_push.go:320
 msgid "uploading"
 msgstr "正在上传"
 
@@ -4661,16 +5302,16 @@ msgstr "正在上传"
 msgid "username or password error"
 msgstr "用户名或密码错误"
 
-#: internal/apps/frp/app.go:365
+#: internal/apps/frp/app.go:368
 msgid "visitor %s already exists"
 msgstr "访客 %s 已存在"
 
-#: internal/apps/frp/app.go:382
-#: internal/apps/frp/app.go:398
+#: internal/apps/frp/app.go:385
+#: internal/apps/frp/app.go:401
 msgid "visitor %s does not exist"
 msgstr "访客 %s 不存在"
 
-#: internal/service/backup_storage.go:156
+#: internal/service/backup_storage.go:157
 msgid "webdav configuration error: %v"
 msgstr "WebDAV 配置错误：%v"
 
@@ -4686,15 +5327,15 @@ msgstr "未找到 Web 钩子"
 msgid "webhook script not found"
 msgstr "未找到 Web 钩子脚本"
 
-#: internal/biz/alert.go:866
+#: internal/biz/alert.go:873
 msgid "website %s expires in %s days"
 msgstr "网站 %s 将在 %s 天后到期"
 
-#: internal/biz/alert.go:900
+#: internal/biz/alert.go:907
 msgid "website 5xx responses this hour"
 msgstr "网站本小时 5xx 响应数"
 
-#: internal/biz/toolbox_migration_push.go:213
+#: internal/biz/toolbox_migration_push.go:215
 msgid "website backup failed: %v"
 msgstr "网站备份失败：%v"
 
@@ -4702,11 +5343,11 @@ msgstr "网站备份失败：%v"
 msgid "website configuration import failed: %v"
 msgstr "网站配置导入失败：%v"
 
-#: internal/data/website.go:851
+#: internal/data/website.go:835
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
-#: internal/biz/alert.go:902
+#: internal/biz/alert.go:909
 msgid "website error rate this hour"
 msgstr "网站本小时错误率"
 
@@ -4714,7 +5355,7 @@ msgstr "网站本小时错误率"
 msgid "website expired and has been disabled"
 msgstr "网站已到期并被停用"
 
-#: internal/biz/alert.go:916
+#: internal/biz/alert.go:923
 msgid "website expiry"
 msgstr "网站到期"
 
@@ -4722,28 +5363,26 @@ msgstr "网站到期"
 msgid "website file import failed: %v"
 msgstr "网站文件导入失败：%v"
 
-#: internal/service/website.go:196
+#: internal/service/website.go:162
 msgid "website not found"
 msgstr "网站不存在"
 
-#: internal/data/website.go:609
+#: internal/data/website.go:508
 msgid "website type is unchanged"
 msgstr "网站类型未更改"
 
-#: internal/biz/cert.go:216
-#: internal/biz/cert.go:337
+#: internal/biz/cert.go:213
+#: internal/biz/cert.go:340
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "通配符域名不能使用 HTTP 验证"
 
-#: internal/biz/website.go:256
+#: internal/biz/website.go:265
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "通配符域名需要 DNS 验证，请选择一个 DNS 提供商"
 
-#: internal/service/file.go:886
-msgid "write chunk %d error: %v"
-msgstr "写入分块 %d 错误：%v"
-
-#: internal/service/file.go:337
+#: internal/service/file.go:334
+#: internal/service/file.go:338
+#: internal/service/file.go:899
 msgid "write file error: %v"
 msgstr "写入文件错误：%v"
 
@@ -4755,7 +5394,7 @@ msgstr "不允许 ws"
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr "xdebug 是一个用于调试和分析 PHP 代码的库"
 
-#: internal/service/toolbox_disk.go:452
+#: internal/service/toolbox_disk.go:463
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "xfs 文件系统未挂载，逻辑卷已扩展但文件系统未调整大小"
 
@@ -4804,18 +5443,18 @@ msgstr "{field} 必须是有效的 Cron 表达式"
 msgid "{field} must be one of {0+}"
 msgstr "{field} 必须是 {0+} 之一"
 
-#: internal/data/backup.go:1688
+#: internal/data/backup.go:1726
 msgid "|-Backup file used: %s"
 msgstr "|-使用的备份文件：%s"
 
-#: internal/data/backup.go:1222
-#: internal/data/backup.go:232
-#: internal/data/backup.go:269
-#: internal/data/backup.go:570
-#: internal/data/backup.go:637
-#: internal/data/backup.go:700
-#: internal/data/backup.go:793
-#: internal/data/backup.go:857
+#: internal/data/backup.go:1256
+#: internal/data/backup.go:240
+#: internal/data/backup.go:277
+#: internal/data/backup.go:602
+#: internal/data/backup.go:669
+#: internal/data/backup.go:732
+#: internal/data/backup.go:825
+#: internal/data/backup.go:889
 msgid "|-Backup file: %s"
 msgstr "|-备份文件：%s"
 
@@ -4828,7 +5467,7 @@ msgid "|-Backup target: %s"
 msgstr "|-备份目标：%s"
 
 #: internal/data/backup.go:161
-#: internal/data/backup.go:231
+#: internal/data/backup.go:239
 msgid "|-Backup time: %s"
 msgstr "|-备份时间：%s"
 
@@ -4836,191 +5475,195 @@ msgstr "|-备份时间：%s"
 msgid "|-Backup type: %s"
 msgstr "|-备份类型：%s"
 
-#: internal/service/cli.go:1147
+#: internal/service/cli.go:1179
 msgid "|-Backup type: panel"
 msgstr "|-备份类型：面板"
 
-#: internal/service/cli.go:1105
+#: internal/service/cli.go:1137
 msgid "|-Certificate %d renewal failed: %v"
 msgstr "|-证书 %d 续签失败：%v"
 
-#: internal/service/cli.go:1108
+#: internal/service/cli.go:1140
 msgid "|-Certificate %d renewed successfully"
 msgstr "|-证书 %d 续签成功"
 
-#: internal/data/backup.go:423
-#: internal/data/backup.go:487
+#: internal/data/backup.go:431
+#: internal/data/backup.go:497
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理过期文件：%s"
 
-#: internal/service/cli.go:1162
-#: internal/service/cli.go:1282
+#: internal/service/cli.go:1194
+#: internal/service/cli.go:1314
 msgid "|-Cleaning target: %s"
 msgstr "|-清理目标：%s"
 
-#: internal/service/cli.go:1161
-#: internal/service/cli.go:1281
+#: internal/service/cli.go:1193
+#: internal/service/cli.go:1313
 msgid "|-Cleaning type: %s"
 msgstr "|-清理类型：%s"
 
-#: internal/data/backup.go:944
+#: internal/data/backup.go:978
 msgid "|-File size: %s"
 msgstr "|-文件大小：%s"
 
-#: internal/data/backup.go:1657
-#: internal/data/backup.go:1768
+#: internal/data/backup.go:1695
+#: internal/data/backup.go:1808
 msgid "|-Fix completed"
 msgstr "|-修复完成"
 
-#: internal/data/backup.go:916
+#: internal/data/backup.go:950
 msgid "|-Fixing file permissions..."
 msgstr "|-正在修复文件权限……"
 
-#: internal/data/backup.go:1650
+#: internal/data/backup.go:1688
 msgid "|-Found %s.db is abnormal, removed it"
 msgstr "|-发现 %s.db 异常，已删除"
 
-#: internal/data/backup.go:1026
+#: internal/data/backup.go:1060
 msgid "|-Importing PostgreSQL backup..."
 msgstr "|-正在导入 PostgreSQL 备份..."
 
-#: internal/data/backup.go:1061
-#: internal/data/backup.go:988
+#: internal/data/backup.go:1022
+#: internal/data/backup.go:1095
 msgid "|-Importing SQL into database..."
 msgstr "|-正在将 SQL 导入数据库……"
 
-#: internal/data/backup.go:1103
+#: internal/data/backup.go:1137
 msgid "|-Importing table: %s"
 msgstr "|-正在导入表：%s"
 
-#: internal/data/backup.go:951
+#: internal/data/backup.go:985
 msgid "|-Importing: %s (%s/s)"
 msgstr "|-正在导入：%s（%s/s）"
 
-#: internal/data/backup.go:947
+#: internal/data/backup.go:981
 msgid "|-Importing: %s / %s (%.1f%%, %s/s)"
 msgstr "|-正在导入：%s / %s（%.1f%%，%s/s）"
 
-#: internal/service/cli.go:1163
-#: internal/service/cli.go:1283
+#: internal/service/cli.go:1195
+#: internal/service/cli.go:1315
 msgid "|-Keep count: %d"
 msgstr "|-保留数量：%d"
 
-#: internal/data/backup.go:1709
+#: internal/data/backup.go:1749
 msgid "|-Move backup file..."
 msgstr "|-移动备份文件……"
 
-#: internal/data/backup.go:1299
+#: internal/data/backup.go:1335
 msgid "|-Re-enabling AOF..."
 msgstr "|-正在重新启用 AOF……"
 
-#: internal/service/cli.go:1100
+#: internal/service/cli.go:1132
 msgid "|-Renewing certificate %d..."
 msgstr "|-正在续签证书 %d..."
 
-#: internal/data/backup.go:1269
+#: internal/data/backup.go:1305
 msgid "|-Replacing dump.rdb..."
 msgstr "|-正在替换 dump.rdb……"
 
-#: internal/data/backup.go:906
+#: internal/data/backup.go:938
 msgid "|-Replacing website files..."
 msgstr "|-正在替换网站文件……"
 
-#: internal/data/backup.go:268
+#: internal/data/backup.go:276
 msgid "|-Restore target: %s"
 msgstr "|-恢复目标：%s"
 
-#: internal/data/backup.go:296
+#: internal/data/backup.go:304
 msgid "|-Restore time: %s"
 msgstr "|-恢复时间：%s"
 
-#: internal/data/backup.go:267
+#: internal/data/backup.go:275
 msgid "|-Restore type: %s"
 msgstr "|-恢复类型：%s"
 
-#: internal/data/backup.go:1085
+#: internal/data/backup.go:1119
 msgid "|-Restoring schema..."
 msgstr "|-正在恢复表结构……"
 
-#: internal/service/cli.go:1206
-#: internal/service/cli.go:1252
+#: internal/service/cli.go:1238
+#: internal/service/cli.go:1284
 msgid "|-Rotation target: %s"
 msgstr "|-轮转目标：%s"
 
-#: internal/service/cli.go:1251
+#: internal/service/cli.go:1283
 msgid "|-Rotation type: container"
 msgstr "|-轮转类型：container"
 
-#: internal/service/cli.go:1205
+#: internal/service/cli.go:1237
 msgid "|-Rotation type: website"
 msgstr "|-轮转类型：website"
 
-#: internal/service/cli.go:1634
+#: internal/service/cli.go:1682
 msgid "|-Running cron task: %s"
 msgstr "|-正在运行计划任务：%s"
 
-#: internal/data/backup.go:1745
+#: internal/data/backup.go:1785
 msgid "|-Set key file permissions..."
 msgstr "|-设置关键文件权限……"
 
-#: internal/data/backup.go:1603
+#: internal/data/backup.go:1639
 msgid "|-Start fixing the panel..."
 msgstr "|-开始修复面板……"
 
-#: internal/data/backup.go:1289
+#: internal/data/backup.go:1325
 msgid "|-Starting %s service (loading RDB)..."
 msgstr "|-正在启动 %s 服务（加载 RDB）……"
 
-#: internal/data/backup.go:1258
+#: internal/data/backup.go:1292
 msgid "|-Stopping %s service..."
 msgstr "|-正在停止 %s 服务……"
 
-#: internal/data/backup.go:1074
-#: internal/data/backup.go:1192
-#: internal/data/backup.go:1245
-#: internal/data/backup.go:549
-#: internal/data/backup.go:599
-#: internal/data/backup.go:667
-#: internal/data/backup.go:732
-#: internal/data/backup.go:836
+#: internal/data/backup.go:1108
+#: internal/data/backup.go:1226
+#: internal/data/backup.go:1279
+#: internal/data/backup.go:581
+#: internal/data/backup.go:631
+#: internal/data/backup.go:699
+#: internal/data/backup.go:764
+#: internal/data/backup.go:868
 msgid "|-Temporary directory: %s"
 msgstr "|-临时目录：%s"
 
-#: internal/data/backup.go:1021
-#: internal/data/backup.go:1075
-#: internal/data/backup.go:1246
-#: internal/data/backup.go:880
-#: internal/data/backup.go:983
+#: internal/data/backup.go:1017
+#: internal/data/backup.go:1055
+#: internal/data/backup.go:1109
+#: internal/data/backup.go:1280
+#: internal/data/backup.go:912
 msgid "|-Uncompressing backup..."
 msgstr "|-正在解压备份……"
 
-#: internal/data/backup.go:1698
+#: internal/data/backup.go:1738
 msgid "|-Unzip backup file..."
 msgstr "|-解压备份文件……"
 
-#: internal/data/backup.go:879
+#: internal/data/backup.go:911
 msgid "|-Website path: %s"
 msgstr "|-网站路径：%s"
 
+#: pkg/tui/select.go:132
+msgid "↑/↓ select · Enter confirm · type to filter · Esc back · Ctrl+C exit"
+msgstr "↑/↓ 选择 · Enter 确认 · 输入以筛选 · Esc 返回 · Ctrl+C 退出"
+
 #: internal/data/backup.go:134
-#: internal/service/cli.go:1145
+#: internal/service/cli.go:1177
 msgid "★ Start backup [%s]"
 msgstr "★ 开始备份 [%s]"
 
-#: internal/service/cli.go:1159
+#: internal/service/cli.go:1191
 msgid "★ Start cleaning [%s]"
 msgstr "★ 开始清理 [%s]"
 
-#: internal/service/cli.go:1279
+#: internal/service/cli.go:1311
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr "★ 开始清理轮转日志 [%s]"
 
-#: internal/service/cli.go:1203
-#: internal/service/cli.go:1249
+#: internal/service/cli.go:1235
+#: internal/service/cli.go:1281
 msgid "★ Start log rotation [%s]"
 msgstr "★ 开始轮转日志 [%s]"
 
-#: internal/data/backup.go:265
+#: internal/data/backup.go:273
 msgid "★ Start restore [%s]"
 msgstr "★ 开始恢复 [%s]"
 
@@ -5032,25 +5675,25 @@ msgstr "☆ 备份完成 [%s]"
 msgid "☆ Backup failed: %v [%s]"
 msgstr "☆ 备份失败：%v [%s]"
 
-#: internal/service/cli.go:1152
+#: internal/service/cli.go:1184
 msgid "☆ Backup successful [%s]"
 msgstr "☆ 备份成功 [%s]"
 
-#: internal/service/cli.go:1177
-#: internal/service/cli.go:1316
+#: internal/service/cli.go:1209
+#: internal/service/cli.go:1348
 msgid "☆ Cleaning successful [%s]"
 msgstr "☆ 清理成功 [%s]"
 
-#: internal/data/backup.go:301
+#: internal/data/backup.go:309
 msgid "☆ Restore completed [%s]"
 msgstr "☆ 恢复完成 [%s]"
 
-#: internal/data/backup.go:299
+#: internal/data/backup.go:307
 msgid "☆ Restore failed: %v [%s]"
 msgstr "☆ 恢复失败：%v [%s]"
 
-#: internal/service/cli.go:1228
-#: internal/service/cli.go:1267
+#: internal/service/cli.go:1260
+#: internal/service/cli.go:1299
 msgid "☆ Rotation successful [%s]"
 msgstr "☆ 轮转成功 [%s]"
 
