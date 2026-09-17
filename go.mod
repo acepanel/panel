@@ -47,7 +47,7 @@ require (
 	github.com/libtnb/validator v0.5.0
 	github.com/libtnb/validator/contrib/openapi v0.3.0
 	github.com/libtnb/wire v0.3.0
-	github.com/medama-io/go-useragent v1.2.4
+	github.com/medama-io/go-useragent v1.2.5
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.56.0
 	github.com/moby/moby/client v0.6.0
