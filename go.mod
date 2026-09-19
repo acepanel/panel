@@ -18,7 +18,7 @@ require (
 	github.com/go-chi/httplog/v3 v3.5.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.7
 	github.com/go-sql-driver/mysql v1.10.1
-	github.com/go-webauthn/webauthn v0.18.1
+	github.com/go-webauthn/webauthn v0.18.2
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.6.1
@@ -51,7 +51,7 @@ require (
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.56.0
 	github.com/moby/moby/client v0.6.0
-	github.com/molecule-man/go-brrr v1.1.0
+	github.com/molecule-man/go-brrr v1.1.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/sftp v1.13.11
@@ -90,7 +90,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ebitengine/purego v0.10.2 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
