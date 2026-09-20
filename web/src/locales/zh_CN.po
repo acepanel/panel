@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-09-20 16:52\n"
+"PO-Revision-Date: 2026-09-20 18:24\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -349,9 +349,9 @@ msgstr "当前状态无法保存"
 #: src/views/environment/GoView.vue:52
 #: src/views/environment/NodejsView.vue:55
 #: src/views/environment/PhpConfigTuneView.vue:202
-#: src/views/environment/PHPView.vue:211
-#: src/views/environment/PHPView.vue:217
-#: src/views/environment/PHPView.vue:270
+#: src/views/environment/PHPView.vue:221
+#: src/views/environment/PHPView.vue:227
+#: src/views/environment/PHPView.vue:280
 #: src/views/environment/PythonView.vue:59
 #: src/views/monitor/AlertRuleModal.vue:116
 #: src/views/monitor/ChannelModal.vue:70
@@ -891,7 +891,7 @@ msgstr "您确定要清除日志吗？"
 #: src/views/apps/postgresql/IndexView.vue:266
 #: src/views/apps/postgresql/IndexView.vue:282
 #: src/views/apps/supervisor/IndexView.vue:425
-#: src/views/environment/PHPView.vue:496
+#: src/views/environment/PHPView.vue:513
 msgid "Clear Log"
 msgstr "清除日志"
 
@@ -1018,7 +1018,7 @@ msgstr "自启动已成功禁用"
 #: src/views/apps/supervisor/IndexView.vue:360
 #: src/views/apps/valkey/IndexView.vue:63
 #: src/views/container/ContainerView.vue:116
-#: src/views/environment/PHPView.vue:279
+#: src/views/environment/PHPView.vue:289
 #: src/views/tamper/TamperView.vue:230
 msgid "Running Status"
 msgstr "运行状态"
@@ -1281,9 +1281,9 @@ msgstr "放弃"
 #: src/views/environment/PhpConfigTuneView.vue:452
 #: src/views/environment/PhpConfigTuneView.vue:522
 #: src/views/environment/PhpConfigTuneView.vue:600
-#: src/views/environment/PHPView.vue:326
-#: src/views/environment/PHPView.vue:344
-#: src/views/environment/PHPView.vue:481
+#: src/views/environment/PHPView.vue:343
+#: src/views/environment/PHPView.vue:361
+#: src/views/environment/PHPView.vue:498
 #: src/views/environment/PythonView.vue:97
 #: src/views/file/EditModal.vue:89
 #: src/views/firewall/SettingView.vue:137
@@ -1434,8 +1434,8 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/apps/redis/RedisPerformanceView.vue:130
 #: src/views/apps/redis/RedisPerformanceView.vue:149
 #: src/views/apps/redis/RedisPerformanceView.vue:165
-#: src/views/environment/PHPView.vue:362
-#: src/views/environment/PHPView.vue:387
+#: src/views/environment/PHPView.vue:379
+#: src/views/environment/PHPView.vue:404
 #: src/views/file/PathInput.vue:135
 #: src/views/home/UpdateView.vue:178
 #: src/views/log/DatabaseLog.vue:132
@@ -1778,7 +1778,7 @@ msgstr "重命名"
 #: src/views/database/RedisDataView.vue:182
 #: src/views/database/ServerList.vue:247
 #: src/views/database/UserList.vue:165
-#: src/views/environment/PHPView.vue:169
+#: src/views/environment/PHPView.vue:179
 #: src/views/file/ListView.vue:379
 #: src/views/file/ListView.vue:435
 #: src/views/file/ListView.vue:1686
@@ -2122,7 +2122,7 @@ msgstr "工具箱"
 #: src/views/app/InstalledView.vue:103
 #: src/views/app/InstalledView.vue:202
 #: src/views/app/TemplateDeployModal.vue:636
-#: src/views/environment/PHPView.vue:456
+#: src/views/environment/PHPView.vue:473
 #: src/views/home/IndexView.vue:575
 #: src/views/setting/TokenModal.vue:319
 msgid "Update"
@@ -2177,8 +2177,8 @@ msgstr "%{count} 个文件已在队列中"
 #: src/views/app/EnvironmentView.vue:312
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:92
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
-#: src/views/environment/PHPView.vue:169
-#: src/views/environment/PHPView.vue:448
+#: src/views/environment/PHPView.vue:179
+#: src/views/environment/PHPView.vue:465
 msgid "Install"
 msgstr "安装"
 
@@ -2193,7 +2193,7 @@ msgstr "应用名称"
 #: src/views/app/InstalledView.vue:164
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
-#: src/views/environment/PHPView.vue:126
+#: src/views/environment/PHPView.vue:136
 #: src/views/project/EditModal.vue:193
 #: src/views/project/ListView.vue:45
 msgid "Description"
@@ -2254,7 +2254,7 @@ msgstr "在主页显示"
 #: src/views/database/RedisDataView.vue:124
 #: src/views/database/ServerList.vue:161
 #: src/views/database/UserList.vue:134
-#: src/views/environment/PHPView.vue:133
+#: src/views/environment/PHPView.vue:143
 #: src/views/file/ListView.vue:1464
 #: src/views/file/ShareModal.vue:102
 #: src/views/file/UploadModal.vue:208
@@ -2305,7 +2305,7 @@ msgstr "管理"
 #: src/views/app/InstalledView.vue:223
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:134
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
-#: src/views/environment/PHPView.vue:147
+#: src/views/environment/PHPView.vue:157
 msgid "Confirm Uninstall"
 msgstr "确认卸载"
 
@@ -2389,7 +2389,7 @@ msgstr "您确定要卸载环境 %{ environment } 吗？"
 #: src/views/app/EnvironmentView.vue:139
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:84
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
-#: src/views/environment/PHPView.vue:161
+#: src/views/environment/PHPView.vue:171
 msgid "Confirm Install"
 msgstr "确认安装"
 
@@ -2662,7 +2662,7 @@ msgid "Channel"
 msgstr "渠道"
 
 #: src/views/app/VersionModal.vue:99
-#: src/views/environment/PHPView.vue:460
+#: src/views/environment/PHPView.vue:477
 msgid "Version"
 msgstr "版本"
 
@@ -2802,7 +2802,7 @@ msgstr "例如 5"
 #: src/views/apps/redis/RedisPerformanceView.vue:85
 #: src/views/apps/rocketmq/IndexView.vue:33
 #: src/views/apps/valkey/IndexView.vue:34
-#: src/views/environment/PHPView.vue:177
+#: src/views/environment/PHPView.vue:187
 msgid "Property"
 msgstr "属性"
 
@@ -2823,7 +2823,7 @@ msgstr "属性"
 #: src/views/apps/redis/RedisPerformanceView.vue:86
 #: src/views/apps/rocketmq/IndexView.vue:40
 #: src/views/apps/valkey/IndexView.vue:41
-#: src/views/environment/PHPView.vue:184
+#: src/views/environment/PHPView.vue:194
 msgid "Current Value"
 msgstr "当前值"
 
@@ -2839,8 +2839,8 @@ msgstr "当前值"
 #: src/views/apps/supervisor/IndexView.vue:246
 #: src/views/apps/supervisor/IndexView.vue:302
 #: src/views/database/RedisDataView.vue:252
-#: src/views/environment/PHPView.vue:224
-#: src/views/environment/PHPView.vue:231
+#: src/views/environment/PHPView.vue:234
+#: src/views/environment/PHPView.vue:241
 #: src/views/firewall/ScanView.vue:336
 #: src/views/monitor/AlertView.vue:180
 #: src/views/monitor/SettingView.vue:49
@@ -2888,7 +2888,7 @@ msgstr "这将修改 %{name} 主配置文件。如果您不了解每个参数的
 #: src/views/apps/redis/IndexView.vue:88
 #: src/views/apps/rocketmq/IndexView.vue:90
 #: src/views/apps/valkey/IndexView.vue:88
-#: src/views/environment/PHPView.vue:310
+#: src/views/environment/PHPView.vue:327
 msgid "Parameter Tuning"
 msgstr "参数调优"
 
@@ -2908,7 +2908,7 @@ msgstr "参数调优"
 #: src/views/apps/redis/IndexView.vue:94
 #: src/views/apps/rocketmq/IndexView.vue:93
 #: src/views/apps/valkey/IndexView.vue:94
-#: src/views/environment/PHPView.vue:349
+#: src/views/environment/PHPView.vue:366
 #: src/views/home/IndexView.vue:587
 msgid "Load Status"
 msgstr "负载状态"
@@ -2940,7 +2940,7 @@ msgstr "负载状态"
 #: src/views/apps/rsync/IndexView.vue:259
 #: src/views/apps/supervisor/IndexView.vue:413
 #: src/views/apps/valkey/IndexView.vue:104
-#: src/views/environment/PHPView.vue:489
+#: src/views/environment/PHPView.vue:506
 msgid "Runtime Logs"
 msgstr "运行日志"
 
@@ -2948,7 +2948,7 @@ msgstr "运行日志"
 #: src/views/apps/caddy/IndexView.vue:81
 #: src/views/apps/nginx/NginxIndex.vue:590
 #: src/views/apps/openlitespeed/IndexView.vue:237
-#: src/views/environment/PHPView.vue:492
+#: src/views/environment/PHPView.vue:509
 msgid "Error Logs"
 msgstr "错误日志"
 
@@ -3087,7 +3087,7 @@ msgstr "复制"
 #: src/views/apps/rsync/IndexView.vue:237
 #: src/views/apps/supervisor/IndexView.vue:391
 #: src/views/apps/valkey/IndexView.vue:66
-#: src/views/environment/PHPView.vue:313
+#: src/views/environment/PHPView.vue:330
 msgid "Main Configuration"
 msgstr "主配置"
 
@@ -4971,7 +4971,7 @@ msgid "Slow Query Log"
 msgstr "慢查询日志"
 
 #: src/views/apps/mysql/MysqlIndex.vue:218
-#: src/views/environment/PHPView.vue:506
+#: src/views/environment/PHPView.vue:523
 msgid "Clear Slow Log"
 msgstr "清除慢日志"
 
@@ -5007,9 +5007,9 @@ msgstr "确认操作"
 #: src/views/apps/redis/RedisPerformanceView.vue:119
 #: src/views/container/ContainerCreate.vue:120
 #: src/views/container/ImageView.vue:186
-#: src/views/environment/PHPView.vue:237
-#: src/views/environment/PHPView.vue:243
-#: src/views/environment/PHPView.vue:264
+#: src/views/environment/PHPView.vue:247
+#: src/views/environment/PHPView.vue:253
+#: src/views/environment/PHPView.vue:274
 msgid "Task submitted, please check progress in background tasks"
 msgstr "任务已提交，请在后台任务中查看进度"
 
@@ -5163,7 +5163,7 @@ msgstr "持续时间（秒）"
 #: src/views/apps/mysql/MysqlPerformanceView.vue:80
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:253
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:36
-#: src/views/environment/PHPView.vue:91
+#: src/views/environment/PHPView.vue:101
 msgid "State"
 msgstr "状态"
 
@@ -5246,7 +5246,7 @@ msgstr "已启用，请重启服务以生效"
 #: src/views/apps/mysql/MysqlPerformanceView.vue:215
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:159
 #: src/views/apps/redis/RedisPerformanceView.vue:92
-#: src/views/environment/PHPView.vue:250
+#: src/views/environment/PHPView.vue:260
 msgid "Confirm Reset"
 msgstr "确认重置"
 
@@ -5258,7 +5258,7 @@ msgstr "确定要重置所有 SQL 统计信息吗？"
 #: src/views/apps/mysql/MysqlPerformanceView.vue:220
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:164
 #: src/views/apps/redis/RedisPerformanceView.vue:97
-#: src/views/environment/PHPView.vue:257
+#: src/views/environment/PHPView.vue:267
 #: src/views/website/EditModal.vue:260
 msgid "Reset successfully"
 msgstr "重置成功"
@@ -5833,8 +5833,8 @@ msgstr "超级用户保留连接数（superuser_reserved_connections）"
 #: src/views/apps/redis/RedisPerformanceView.vue:161
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:198
 #: src/views/container/ContainerCreate.vue:542
-#: src/views/environment/PHPView.vue:108
-#: src/views/environment/PHPView.vue:415
+#: src/views/environment/PHPView.vue:118
+#: src/views/environment/PHPView.vue:432
 #: src/views/home/IndexView.vue:700
 #: src/views/home/IndexView.vue:773
 #: src/views/monitor/SystemView.vue:520
@@ -5983,7 +5983,7 @@ msgstr "未安装"
 
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:85
 #: src/views/apps/prometheus/PrometheusExportersView.vue:72
-#: src/views/environment/PHPView.vue:162
+#: src/views/environment/PHPView.vue:172
 msgid "Are you sure you want to install %{ name }?"
 msgstr "您确定要安装 %{ name } 吗？"
 
@@ -6205,7 +6205,7 @@ msgid "Config"
 msgstr "配置"
 
 #: src/views/apps/prometheus/PrometheusExportersView.vue:125
-#: src/views/environment/PHPView.vue:148
+#: src/views/environment/PHPView.vue:158
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr "您确定要卸载 %{ name } 吗？"
 
@@ -6475,7 +6475,7 @@ msgid "Time"
 msgstr "时间"
 
 #: src/views/apps/redis/RedisPerformanceView.vue:29
-#: src/views/environment/PHPView.vue:101
+#: src/views/environment/PHPView.vue:111
 msgid "Duration (ms)"
 msgstr "持续时间（毫秒）"
 
@@ -6613,7 +6613,7 @@ msgid "Are you sure you want to delete module %{ name }?"
 msgstr "确定要删除模块 %{ name } 吗？"
 
 #: src/views/apps/rsync/IndexView.vue:209
-#: src/views/environment/PHPView.vue:297
+#: src/views/environment/PHPView.vue:314
 msgid "Module Management"
 msgstr "模块管理"
 
@@ -8571,7 +8571,7 @@ msgstr "您确定要删除该用户吗？"
 #: src/views/environment/GoView.vue:46
 #: src/views/environment/JavaView.vue:13
 #: src/views/environment/NodejsView.vue:49
-#: src/views/environment/PHPView.vue:193
+#: src/views/environment/PHPView.vue:203
 #: src/views/environment/PythonView.vue:53
 msgid "Set successfully"
 msgstr "设置成功"
@@ -8580,7 +8580,7 @@ msgstr "设置成功"
 #: src/views/environment/GoView.vue:64
 #: src/views/environment/JavaView.vue:25
 #: src/views/environment/NodejsView.vue:67
-#: src/views/environment/PHPView.vue:286
+#: src/views/environment/PHPView.vue:296
 #: src/views/environment/PythonView.vue:71
 msgid "Set as CLI Default Version"
 msgstr "设置为 CLI 默认版本"
@@ -8858,19 +8858,19 @@ msgstr "清理会话文件"
 msgid "Application Profile"
 msgstr "应用配置"
 
-#: src/views/environment/PHPView.vue:73
+#: src/views/environment/PHPView.vue:83
 msgid "Official"
 msgstr "官方源"
 
-#: src/views/environment/PHPView.vue:74
+#: src/views/environment/PHPView.vue:84
 msgid "Aliyun Mirror"
 msgstr "阿里云镜像"
 
-#: src/views/environment/PHPView.vue:75
+#: src/views/environment/PHPView.vue:85
 msgid "Tencent Mirror"
 msgstr "腾讯镜像"
 
-#: src/views/environment/PHPView.vue:93
+#: src/views/environment/PHPView.vue:103
 #: src/views/website/stats/ClientsTab.vue:95
 #: src/views/website/stats/GeoTab.vue:108
 #: src/views/website/stats/GeoTab.vue:165
@@ -8886,130 +8886,134 @@ msgstr "腾讯镜像"
 msgid "Requests"
 msgstr "请求"
 
-#: src/views/environment/PHPView.vue:98
+#: src/views/environment/PHPView.vue:108
 #: src/views/log/HttpLog.vue:65
 #: src/views/website/stats/ErrorsTab.vue:94
 msgid "Method"
 msgstr "方法"
 
-#: src/views/environment/PHPView.vue:114
+#: src/views/environment/PHPView.vue:124
 #: src/views/toolbox/WebHookView.vue:345
 #: src/views/toolbox/WebHookView.vue:389
 msgid "Script"
 msgstr "脚本"
 
-#: src/views/environment/PHPView.vue:119
+#: src/views/environment/PHPView.vue:129
 msgid "Module Name"
 msgstr "模块名"
 
-#: src/views/environment/PHPView.vue:251
+#: src/views/environment/PHPView.vue:261
 msgid "Resetting will clear all cached scripts, performance may fluctuate briefly. Are you sure?"
 msgstr "重置将清除所有已缓存脚本，性能可能会短暂波动。确定吗？"
 
-#: src/views/environment/PHPView.vue:289
+#: src/views/environment/PHPView.vue:299
 msgid "View PHPInfo"
 msgstr "查看 PHPInfo"
 
-#: src/views/environment/PHPView.vue:317
+#: src/views/environment/PHPView.vue:306
+msgid "PHP requests are handled by OpenLiteSpeed over LSAPI and do not go through php-fpm, so its stopped state does not affect websites."
+msgstr "PHP 请求由 OpenLiteSpeed 通过 LSAPI 处理，不经过 php-fpm，因此其停止状态不影响网站。"
+
+#: src/views/environment/PHPView.vue:334
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PHP %{ version } 的主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/environment/PHPView.vue:331
+#: src/views/environment/PHPView.vue:348
 msgid "FPM Configuration"
 msgstr "FPM 配置"
 
-#: src/views/environment/PHPView.vue:335
+#: src/views/environment/PHPView.vue:352
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 PHP %{ version } 的 FPM 配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
-#: src/views/environment/PHPView.vue:359
+#: src/views/environment/PHPView.vue:376
 msgid "FPM Processes"
 msgstr "FPM 进程"
 
-#: src/views/environment/PHPView.vue:379
+#: src/views/environment/PHPView.vue:396
 msgid "OPcache is not enabled. Install the Zend OPcache module in Module Management to significantly improve PHP performance."
 msgstr "未启用 OPcache。请在模块管理中安装 Zend OPcache 模块，可显著提升 PHP 性能。"
 
-#: src/views/environment/PHPView.vue:390
+#: src/views/environment/PHPView.vue:407
 msgid "Reset OPcache"
 msgstr "重置 OPcache"
 
-#: src/views/environment/PHPView.vue:393
+#: src/views/environment/PHPView.vue:410
 msgid "Cache Statistics"
 msgstr "缓存统计"
 
-#: src/views/environment/PHPView.vue:395
+#: src/views/environment/PHPView.vue:412
 msgid "Hit Rate"
 msgstr "命中率"
 
-#: src/views/environment/PHPView.vue:396
+#: src/views/environment/PHPView.vue:413
 msgid "Hits"
 msgstr "命中次数"
 
-#: src/views/environment/PHPView.vue:397
+#: src/views/environment/PHPView.vue:414
 msgid "Misses"
 msgstr "未命中次数"
 
-#: src/views/environment/PHPView.vue:400
+#: src/views/environment/PHPView.vue:417
 msgid "Cached Scripts"
 msgstr "已缓存脚本数"
 
-#: src/views/environment/PHPView.vue:405
+#: src/views/environment/PHPView.vue:422
 msgid "Cached Keys"
 msgstr "已缓存键数"
 
-#: src/views/environment/PHPView.vue:410
+#: src/views/environment/PHPView.vue:427
 msgid "OOM Restarts"
 msgstr "OOM 重启次数"
 
-#: src/views/environment/PHPView.vue:417
+#: src/views/environment/PHPView.vue:434
 #: src/views/toolbox/DiskView.vue:241
 msgid "Used"
 msgstr "已用"
 
-#: src/views/environment/PHPView.vue:418
+#: src/views/environment/PHPView.vue:435
 #: src/views/home/IndexView.vue:721
 #: src/views/toolbox/DiskView.vue:218
 msgid "Free"
 msgstr "空闲"
 
-#: src/views/environment/PHPView.vue:421
+#: src/views/environment/PHPView.vue:438
 msgid "Wasted"
 msgstr "浪费空间"
 
-#: src/views/environment/PHPView.vue:428
+#: src/views/environment/PHPView.vue:445
 msgid "Buffer Size"
 msgstr "缓冲区大小"
 
-#: src/views/environment/PHPView.vue:431
+#: src/views/environment/PHPView.vue:448
 msgid "Buffer Free"
 msgstr "缓冲区空闲"
 
-#: src/views/environment/PHPView.vue:435
+#: src/views/environment/PHPView.vue:452
 msgid "JIT is not enabled"
 msgstr "未启用 JIT"
 
-#: src/views/environment/PHPView.vue:444
+#: src/views/environment/PHPView.vue:461
 msgid "Composer is not installed."
 msgstr "未安装 Composer。"
 
-#: src/views/environment/PHPView.vue:453
+#: src/views/environment/PHPView.vue:470
 msgid "Composer"
 msgstr "Composer"
 
-#: src/views/environment/PHPView.vue:465
+#: src/views/environment/PHPView.vue:482
 msgid "Mirror"
 msgstr "镜像源"
 
-#: src/views/environment/PHPView.vue:469
+#: src/views/environment/PHPView.vue:486
 msgid "The mirror is a global setting shared by all PHP versions. Use a mirror to speed up package downloads in mainland China."
 msgstr "镜像源是一项由所有 PHP 版本共享的全局设置。在中国大陆使用镜像源可加快软件包下载速度。"
 
-#: src/views/environment/PHPView.vue:502
+#: src/views/environment/PHPView.vue:519
 msgid "Slow Logs"
 msgstr "慢日志"
 
-#: src/views/environment/PHPView.vue:518
+#: src/views/environment/PHPView.vue:535
 msgid "PHPInfo"
 msgstr "PHPInfo"
 

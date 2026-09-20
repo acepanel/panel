@@ -13,13 +13,13 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-09-20 16:52\n"
+"PO-Revision-Date: 2026-09-20 18:11\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
 msgstr "#%d，留空结束"
 
-#: internal/service/cli.go:1144
+#: internal/service/cli.go:1151
 msgid "%d certificate(s) failed to renew"
 msgstr "%d 个证书续签失败"
 
@@ -53,11 +53,11 @@ msgstr "1 分钟负载"
 msgid "15 minutes load"
 msgstr "15 分钟负载"
 
-#: internal/service/cli.go:419
+#: internal/service/cli.go:420
 msgid "2FA disabled for user %s"
 msgstr "用户 %s 已禁用两步验证"
 
-#: internal/service/cli.go:427
+#: internal/service/cli.go:428
 msgid "2FA url: %s"
 msgstr "两步验证 URL： %s"
 
@@ -93,19 +93,19 @@ msgstr "AcePanel"
 msgid "AcePanel CLI Tool"
 msgstr "AcePanel 命令行工具"
 
-#: internal/service/cli.go:118
+#: internal/service/cli.go:119
 msgid "AcePanel service restarted"
 msgstr "AcePanel 服务已重启"
 
-#: internal/service/cli.go:134
+#: internal/service/cli.go:135
 msgid "AcePanel service started"
 msgstr "AcePanel 服务已启动"
 
-#: internal/service/cli.go:109
+#: internal/service/cli.go:110
 msgid "AcePanel service status: %s"
 msgstr "AcePanel 服务状态：%s"
 
-#: internal/service/cli.go:126
+#: internal/service/cli.go:127
 msgid "AcePanel service stopped"
 msgstr "AcePanel 服务已停止"
 
@@ -163,7 +163,7 @@ msgstr "告警天数"
 msgid "Aliyun"
 msgstr "阿里云"
 
-#: internal/service/cli.go:459
+#: internal/service/cli.go:460
 msgid "All passkeys cleared for user %s"
 msgstr "已清除用户 %s 的所有通行密钥"
 
@@ -175,7 +175,7 @@ msgstr "分配器碎片率"
 msgid "Allow or remove a port rule"
 msgstr "放行或移除端口规则"
 
-#: internal/service/cli.go:1547
+#: internal/service/cli.go:1554
 msgid "Already initialized"
 msgstr "已经初始化过了"
 
@@ -187,27 +187,27 @@ msgstr "仅匿名"
 msgid "App %s %s"
 msgstr "应用 %s %s"
 
-#: internal/service/cli.go:1382
+#: internal/service/cli.go:1389
 msgid "App %s installed successfully"
 msgstr "应用 %s 安装成功"
 
-#: internal/service/cli.go:1396
+#: internal/service/cli.go:1403
 msgid "App %s uninstalled successfully"
 msgstr "应用 %s 卸载成功"
 
-#: internal/service/cli.go:1410
+#: internal/service/cli.go:1417
 msgid "App %s updated successfully"
 msgstr "应用 %s 更新成功"
 
-#: internal/service/cli.go:1379
+#: internal/service/cli.go:1386
 msgid "App install failed: %v"
 msgstr "应用安装失败：%v"
 
-#: internal/service/cli.go:1393
+#: internal/service/cli.go:1400
 msgid "App uninstall failed: %v"
 msgstr "应用卸载失败：%v"
 
-#: internal/service/cli.go:1407
+#: internal/service/cli.go:1414
 msgid "App update failed: %v"
 msgstr "应用更新失败：%v"
 
@@ -263,7 +263,7 @@ msgstr "备份数据库"
 msgid "Backup directory"
 msgstr "备份目录"
 
-#: internal/service/cli.go:1181
+#: internal/service/cli.go:1188
 msgid "Backup failed: %v"
 msgstr "备份失败：%v"
 
@@ -301,27 +301,27 @@ msgstr "封禁时间"
 msgid "Bind IP"
 msgstr "绑定 IP"
 
-#: internal/service/cli.go:660
+#: internal/service/cli.go:661
 msgid "Bind IP disabled"
 msgstr "绑定 IP 已禁用"
 
-#: internal/service/cli.go:644
+#: internal/service/cli.go:645
 msgid "Bind IP enabled: %s"
 msgstr "已启用绑定 IP：%s"
 
-#: internal/service/cli.go:697
+#: internal/service/cli.go:698
 msgid "Bind UA disabled"
 msgstr "绑定 UA 已禁用"
 
-#: internal/service/cli.go:681
+#: internal/service/cli.go:682
 msgid "Bind UA enabled: %s"
 msgstr "已启用绑定 UA：%s"
 
-#: internal/service/cli.go:623
+#: internal/service/cli.go:624
 msgid "Bind domain disabled"
 msgstr "绑定域名已禁用"
 
-#: internal/service/cli.go:607
+#: internal/service/cli.go:608
 msgid "Bind domain enabled: %s"
 msgstr "已启用绑定域名：%s"
 
@@ -421,7 +421,7 @@ msgstr "证书 ID"
 msgid "Certificate file path (fullchain)"
 msgstr "证书文件路径（fullchain）"
 
-#: internal/service/cli.go:942
+#: internal/service/cli.go:943
 msgid "Certificate for website %s updated successfully"
 msgstr "网站 %s 的证书更新成功"
 
@@ -456,8 +456,8 @@ msgstr "基于 SCWS 的中文全文搜索解析器"
 msgid "Chunk Count"
 msgstr "分块数量"
 
-#: internal/service/cli.go:1199
-#: internal/service/cli.go:1204
+#: internal/service/cli.go:1206
+#: internal/service/cli.go:1211
 msgid "Cleaning failed: %v"
 msgstr "清理失败：%v"
 
@@ -541,7 +541,7 @@ msgstr "已连接客户端数"
 msgid "Container"
 msgstr "容器"
 
-#: internal/service/cli.go:1275
+#: internal/service/cli.go:1282
 msgid "Container %s has no log file"
 msgstr "容器 %s 没有日志文件"
 
@@ -577,19 +577,19 @@ msgstr "创建新网站"
 msgid "Cron task"
 msgstr "计划任务"
 
-#: internal/service/cli.go:1701
+#: internal/service/cli.go:1708
 msgid "Cron task %d disabled"
 msgstr "计划任务 %d 已禁用"
 
-#: internal/service/cli.go:1703
+#: internal/service/cli.go:1710
 msgid "Cron task %d enabled"
 msgstr "计划任务 %d 已启用"
 
-#: internal/service/cli.go:1691
+#: internal/service/cli.go:1698
 msgid "Cron task %s executed successfully"
 msgstr "计划任务 %s 执行成功"
 
-#: internal/service/cli.go:1688
+#: internal/service/cli.go:1695
 msgid "Cron task %s failed: %v"
 msgstr "计划任务 %s 执行失败：%v"
 
@@ -599,7 +599,7 @@ msgstr "计划任务 %s 执行失败：%v"
 msgid "Cron task ID"
 msgstr "计划任务 ID"
 
-#: internal/service/cli.go:1679
+#: internal/service/cli.go:1686
 msgid "Cron task script %s not exists"
 msgstr "计划任务脚本 %s 不存在"
 
@@ -632,7 +632,7 @@ msgstr "数据备份"
 msgid "Data restore"
 msgstr "数据恢复"
 
-#: internal/service/cli.go:176
+#: internal/service/cli.go:177
 msgid "Data synchronized successfully"
 msgstr "数据同步成功"
 
@@ -678,11 +678,11 @@ msgstr "数据库名称（不填则使用网站名称）"
 msgid "Database password (randomly generated if not filled)"
 msgstr "数据库密码（不填则随机生成）"
 
-#: internal/service/cli.go:1080
+#: internal/service/cli.go:1087
 msgid "Database server %s added successfully"
 msgstr "数据库服务器 %s 添加成功"
 
-#: internal/service/cli.go:1094
+#: internal/service/cli.go:1101
 msgid "Database server %s deleted successfully"
 msgstr "数据库服务器 %s 删除成功"
 
@@ -695,7 +695,7 @@ msgstr "数据库类型（mysql、postgresql、clickhouse、redis、valkey）"
 msgid "Database username (website name if not filled)"
 msgstr "数据库用户名（不填则使用网站名称）"
 
-#: internal/service/cli.go:913
+#: internal/service/cli.go:914
 msgid "Database: %s, username: %s, password: %s"
 msgstr "数据库：%s，用户名：%s，密码：%s"
 
@@ -808,7 +808,7 @@ msgstr "域名"
 msgid "Done"
 msgstr "完成"
 
-#: internal/service/cli.go:147
+#: internal/service/cli.go:148
 msgid "Download URL is empty"
 msgstr "下载 URL 为空"
 
@@ -893,11 +893,11 @@ msgstr "入口"
 msgid "Entrance Error"
 msgstr "安全入口错误"
 
-#: internal/service/cli.go:586
+#: internal/service/cli.go:587
 msgid "Entrance disabled"
 msgstr "入口已禁用"
 
-#: internal/service/cli.go:569
+#: internal/service/cli.go:570
 msgid "Entrance enabled"
 msgstr "入口已启用"
 
@@ -905,8 +905,8 @@ msgstr "入口已启用"
 msgid "Entrance, e.g. /mypanel, random if omitted"
 msgstr "入口，如 /mypanel，不填则随机生成"
 
-#: internal/service/cli.go:244
-#: internal/service/cli.go:570
+#: internal/service/cli.go:245
+#: internal/service/cli.go:571
 msgid "Entrance: %s"
 msgstr "入口： %s"
 
@@ -932,7 +932,7 @@ msgstr "Event 是一个用于处理事件的库"
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一个用于读取和写入图像元数据的库"
 
-#: internal/service/cli.go:1724
+#: internal/service/cli.go:1731
 msgid "Exit Code"
 msgstr "退出码"
 
@@ -961,15 +961,15 @@ msgstr "正在提取新版本……"
 msgid "Failed Attempts"
 msgstr "失败次数"
 
-#: internal/service/cli.go:417
+#: internal/service/cli.go:418
 msgid "Failed to change 2FA status: %v"
 msgstr "修改两步验证失败：%v"
 
-#: internal/service/cli.go:392
+#: internal/service/cli.go:393
 msgid "Failed to change password: %v"
 msgstr "修改密码失败：%v"
 
-#: internal/service/cli.go:357
+#: internal/service/cli.go:358
 msgid "Failed to change username: %v"
 msgstr "修改用户名失败：%v"
 
@@ -977,11 +977,11 @@ msgstr "修改用户名失败：%v"
 msgid "Failed to clean up temporary directory: %v"
 msgstr "清理临时目录失败：%v"
 
-#: internal/service/cli.go:456
+#: internal/service/cli.go:457
 msgid "Failed to clear passkeys: %v"
 msgstr "清除通行密钥失败：%v"
 
-#: internal/service/cli.go:1470
+#: internal/service/cli.go:1477
 msgid "Failed to clear tasks: %v"
 msgstr "清除任务失败：%v"
 
@@ -989,89 +989,89 @@ msgstr "清除任务失败：%v"
 msgid "Failed to create temporary directory: %v"
 msgstr "创建临时目录失败：%v"
 
-#: internal/service/cli.go:308
+#: internal/service/cli.go:309
 msgid "Failed to create user: %v"
 msgstr "创建用户失败：%v"
 
-#: internal/service/cli.go:1445
+#: internal/service/cli.go:1452
 msgid "Failed to delete app: %v"
 msgstr "删除应用失败：%v"
 
-#: internal/service/cli.go:1538
+#: internal/service/cli.go:1545
 msgid "Failed to delete setting: %v"
 msgstr "删除设置失败：%v"
 
-#: internal/service/cli.go:330
+#: internal/service/cli.go:331
 msgid "Failed to delete user: %v"
 msgstr "删除用户失败：%v"
 
-#: internal/service/cli.go:425
+#: internal/service/cli.go:426
 msgid "Failed to generate 2FA: %v"
 msgstr "生成两步验证失败：%v"
 
-#: internal/service/cli.go:208
-#: internal/service/cli.go:388
+#: internal/service/cli.go:209
+#: internal/service/cli.go:389
 msgid "Failed to generate password: %v"
 msgstr "生成密码失败：%v"
 
-#: internal/service/cli.go:523
+#: internal/service/cli.go:524
 msgid "Failed to get ACME account: %v"
 msgstr "获取 ACME 帐户失败：%v"
 
-#: internal/service/cli.go:519
+#: internal/service/cli.go:520
 msgid "Failed to get a panel user: %v"
 msgstr "获取面板用户失败：%v"
 
-#: internal/service/cli.go:1356
+#: internal/service/cli.go:1363
 msgid "Failed to get app list: %v"
 msgstr "获取应用列表失败：%v"
 
-#: internal/service/cli.go:1425
+#: internal/service/cli.go:1432
 msgid "Failed to get app: %v"
 msgstr "获取应用失败：%v"
 
-#: internal/service/cli.go:1271
+#: internal/service/cli.go:1278
 msgid "Failed to get container log path: %v"
 msgstr "无法获取容器日志路径：%v"
 
-#: internal/service/cli.go:234
+#: internal/service/cli.go:235
 msgid "Failed to get entrance"
 msgstr "获取入口失败"
 
-#: internal/service/cli.go:142
+#: internal/service/cli.go:143
 msgid "Failed to get latest version: %v"
 msgstr "获取最新版本失败：%v"
 
-#: internal/service/cli.go:230
+#: internal/service/cli.go:231
 msgid "Failed to get port"
 msgstr "获取端口失败"
 
-#: internal/service/cli.go:1488
-#: internal/service/cli.go:1505
+#: internal/service/cli.go:1495
+#: internal/service/cli.go:1512
 msgid "Failed to get setting: %v"
 msgstr "获取设置失败：%v"
 
-#: internal/service/cli.go:195
+#: internal/service/cli.go:196
 msgid "Failed to get user info: %v"
 msgstr "获取用户信息失败：%v"
 
-#: internal/service/cli.go:276
+#: internal/service/cli.go:277
 msgid "Failed to get user list: %v"
 msgstr "获取用户列表失败：%v"
 
-#: internal/service/cli.go:326
-#: internal/service/cli.go:352
-#: internal/service/cli.go:383
-#: internal/service/cli.go:410
-#: internal/service/cli.go:452
+#: internal/service/cli.go:327
+#: internal/service/cli.go:353
+#: internal/service/cli.go:384
+#: internal/service/cli.go:411
+#: internal/service/cli.go:453
 msgid "Failed to get user: %v"
 msgstr "获取用户失败：%v"
 
-#: internal/service/cli.go:1031
+#: internal/service/cli.go:1038
 msgid "Failed to get website: %v"
 msgstr "获取网站失败：%v"
 
-#: internal/service/cli.go:529
+#: internal/service/cli.go:530
 msgid "Failed to obtain panel certificate via ACME, using self-signed certificate"
 msgstr "无法通过 ACME 获取面板证书，使用自签名证书"
 
@@ -1079,16 +1079,16 @@ msgstr "无法通过 ACME 获取面板证书，使用自签名证书"
 msgid "Failed to optimize database: %v"
 msgstr "优化数据库失败：%v"
 
-#: internal/service/cli.go:922
+#: internal/service/cli.go:923
 msgid "Failed to read certificate file: %v"
 msgstr "读取证书文件失败：%v"
 
-#: internal/service/cli.go:1782
-#: internal/service/cli.go:432
+#: internal/service/cli.go:1789
+#: internal/service/cli.go:433
 msgid "Failed to read input: %v"
 msgstr "读取输入失败： %v"
 
-#: internal/service/cli.go:926
+#: internal/service/cli.go:927
 msgid "Failed to read private key file: %v"
 msgstr "读取私钥文件失败：%v"
 
@@ -1096,20 +1096,20 @@ msgstr "读取私钥文件失败：%v"
 msgid "Failed to remove %s.db: %v"
 msgstr "删除 %s.db 失败：%v"
 
-#: internal/service/cli.go:1432
+#: internal/service/cli.go:1439
 msgid "Failed to save app: %v"
 msgstr "保存应用失败：%v"
 
-#: internal/service/cli.go:1511
-#: internal/service/cli.go:219
+#: internal/service/cli.go:1518
+#: internal/service/cli.go:220
 msgid "Failed to save setting: %v"
 msgstr "保存设置失败：%v"
 
-#: internal/service/cli.go:214
+#: internal/service/cli.go:215
 msgid "Failed to save user info: %v"
 msgstr "保存用户信息失败：%v"
 
-#: internal/service/cli.go:1041
+#: internal/service/cli.go:1048
 msgid "Failed to save website: %v"
 msgstr "保存网站失败：%v"
 
@@ -1117,17 +1117,17 @@ msgstr "保存网站失败：%v"
 msgid "Failed to start command: %v"
 msgstr "启动命令失败：%v"
 
-#: internal/service/cli.go:167
-#: internal/service/cli.go:170
-#: internal/service/cli.go:173
+#: internal/service/cli.go:168
+#: internal/service/cli.go:171
+#: internal/service/cli.go:174
 msgid "Failed to synchronize app data: %v"
 msgstr "同步应用数据失败：%v"
 
-#: internal/service/cli.go:164
+#: internal/service/cli.go:165
 msgid "Failed to synchronize categories data: %v"
 msgstr "同步分类数据失败：%v"
 
-#: internal/service/cli.go:435
+#: internal/service/cli.go:436
 msgid "Failed to update 2FA: %v"
 msgstr "更新两步验证失败： %v"
 
@@ -1175,15 +1175,15 @@ msgstr "正在结束更新……"
 msgid "Finishing update failed: %v"
 msgstr "结束更新失败：%v"
 
-#: internal/service/cli.go:785
+#: internal/service/cli.go:786
 msgid "Firewall disabled"
 msgstr "防火墙已禁用"
 
-#: internal/service/cli.go:776
+#: internal/service/cli.go:777
 msgid "Firewall enabled"
 msgstr "防火墙已启用"
 
-#: internal/service/cli.go:824
+#: internal/service/cli.go:825
 msgid "Firewall is not running"
 msgstr "防火墙未运行"
 
@@ -1191,7 +1191,7 @@ msgstr "防火墙未运行"
 msgid "Firewall management"
 msgstr "防火墙管理"
 
-#: internal/service/cli.go:762
+#: internal/service/cli.go:763
 msgid "Firewall status: %s"
 msgstr "防火墙状态：%s"
 
@@ -1273,15 +1273,15 @@ msgstr "HTTP 端口"
 msgid "HTTP client for SQL, send requests from the database"
 msgstr "用于 SQL 的 HTTP 客户端，可从数据库发送请求"
 
-#: internal/service/cli.go:548
+#: internal/service/cli.go:549
 msgid "HTTPS certificate generated"
 msgstr "HTTPS 证书已生成"
 
-#: internal/service/cli.go:491
+#: internal/service/cli.go:492
 msgid "HTTPS disabled"
 msgstr "HTTPS 已禁用"
 
-#: internal/service/cli.go:475
+#: internal/service/cli.go:476
 msgid "HTTPS enabled"
 msgstr "HTTPS 已启用"
 
@@ -1309,23 +1309,23 @@ msgstr "用于查询计划测试的假想索引"
 msgid "ID"
 msgstr "ID"
 
-#: internal/service/cli.go:1106
+#: internal/service/cli.go:1113
 msgid "ID: %d, Domains: %s, Auto Renewal: %t, Expires At: %s"
 msgstr "ID：%d，域名：%s，自动续签：%t，到期时间：%s"
 
-#: internal/service/cli.go:1056
+#: internal/service/cli.go:1063
 msgid "ID: %d, Name: %s, Type: %s, Address: %s:%d, Username: %s"
 msgstr "ID：%d，名称：%s，类型：%s，地址：%s:%d，用户名：%s"
 
-#: internal/service/cli.go:1667
+#: internal/service/cli.go:1674
 msgid "ID: %d, Name: %s, Type: %s, Schedule: %s, Status: %s"
 msgstr "ID：%d，名称：%s，类型：%s，执行周期：%s，状态：%s"
 
-#: internal/service/cli.go:864
+#: internal/service/cli.go:865
 msgid "ID: %d, Name: %s, Type: %s, Status: %s, Path: %s"
 msgstr "ID：%d，名称：%s，类型：%s，状态：%s，路径：%s"
 
-#: internal/service/cli.go:281
+#: internal/service/cli.go:282
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 用户名: %s, 邮箱: %s, 创建时间: %s"
 
@@ -1363,11 +1363,11 @@ msgstr "空闲进程"
 msgid "Idle Workers"
 msgstr "空闲的 Worker"
 
-#: internal/service/cli.go:266
+#: internal/service/cli.go:267
 msgid "If you cannot access, please check whether the server's security group and firewall allow port %d"
 msgstr "如果您无法访问，请检查服务器的安全组和防火墙是否放行端口 %d"
 
-#: internal/service/cli.go:267
+#: internal/service/cli.go:268
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr "如果您仍然无法访问，请尝试运行 `acepanel https off` 关闭面板 HTTPS"
 
@@ -1395,10 +1395,10 @@ msgstr "索引"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli.go:1595
-#: internal/service/cli.go:1600
-#: internal/service/cli.go:1605
-#: internal/service/cli.go:1649
+#: internal/service/cli.go:1602
+#: internal/service/cli.go:1607
+#: internal/service/cli.go:1612
+#: internal/service/cli.go:1656
 msgid "Initialization failed: %v"
 msgstr "初始化失败：%v"
 
@@ -1594,11 +1594,11 @@ msgstr "监听器"
 msgid "Listening port"
 msgstr "监听端口"
 
-#: internal/service/cli.go:249
+#: internal/service/cli.go:250
 msgid "Local IPv4: %s://%s:%d%s"
 msgstr "本地 IPv4： %s://%s:%d%s"
 
-#: internal/service/cli.go:254
+#: internal/service/cli.go:255
 msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr "本地 IPv6： %s://[%s]:%d%s"
 
@@ -1611,7 +1611,7 @@ msgstr "本地存储"
 msgid "Locale"
 msgstr "语言"
 
-#: internal/service/cli.go:1725
+#: internal/service/cli.go:1732
 #: internal/taskqueue/runner.go:194
 msgid "Log"
 msgstr "日志"
@@ -1793,7 +1793,7 @@ msgstr "名称"
 msgid "Name"
 msgstr "名称"
 
-#: internal/service/cli.go:1158
+#: internal/service/cli.go:1165
 msgid "Name: %s, Size: %s, Time: %s"
 msgstr "名称：%s，大小：%s，时间：%s"
 
@@ -1821,7 +1821,7 @@ msgstr "新策略"
 msgid "New username"
 msgstr "新用户名"
 
-#: internal/service/cli.go:345
+#: internal/service/cli.go:346
 msgid "New username cannot be empty"
 msgstr "新用户名不能为空"
 
@@ -1910,7 +1910,7 @@ msgstr "旧键名"
 msgid "Old username"
 msgstr "原用户名"
 
-#: internal/service/cli.go:342
+#: internal/service/cli.go:343
 msgid "Old username cannot be empty"
 msgstr "旧用户名不能为空"
 
@@ -1959,7 +1959,7 @@ msgstr "Oracle 兼容函数"
 msgid "Order"
 msgstr "排序方向"
 
-#: internal/service/cli.go:1726
+#: internal/service/cli.go:1733
 msgid "Output"
 msgstr "输出"
 
@@ -2008,14 +2008,14 @@ msgstr "PID"
 msgid "Page"
 msgstr "页码"
 
-#: internal/service/cli.go:1369
-#: internal/service/cli.go:1389
-#: internal/service/cli.go:1403
-#: internal/service/cli.go:1419
-#: internal/service/cli.go:1441
-#: internal/service/cli.go:1480
-#: internal/service/cli.go:1499
-#: internal/service/cli.go:1534
+#: internal/service/cli.go:1376
+#: internal/service/cli.go:1396
+#: internal/service/cli.go:1410
+#: internal/service/cli.go:1426
+#: internal/service/cli.go:1448
+#: internal/service/cli.go:1487
+#: internal/service/cli.go:1506
+#: internal/service/cli.go:1541
 msgid "Parameters cannot be empty"
 msgstr "参数不能为空"
 
@@ -2029,24 +2029,24 @@ msgstr "通行密钥"
 msgid "Password"
 msgstr "密码"
 
-#: internal/service/cli.go:395
+#: internal/service/cli.go:396
 msgid "Password for user %s changed successfully"
 msgstr "用户 %s 的密码已成功更改"
 
-#: internal/service/cli.go:297
-#: internal/service/cli.go:376
+#: internal/service/cli.go:298
+#: internal/service/cli.go:377
 msgid "Password length cannot be less than 6"
 msgstr "密码长度不能少于6位"
 
-#: internal/service/cli.go:1775
+#: internal/service/cli.go:1782
 msgid "Password not provided, pass it as an argument or set the %s environment variable"
 msgstr "未提供密码，请将其作为参数传入或设置 %s 环境变量"
 
-#: internal/service/cli.go:239
+#: internal/service/cli.go:240
 msgid "Password: %s"
 msgstr "密码： %s"
 
-#: internal/service/cli.go:241
+#: internal/service/cli.go:242
 msgid "Password: ******* (use -f to force reset)"
 msgstr "密码：*******（使用 -f 强制重置）"
 
@@ -2060,7 +2060,7 @@ msgstr "路径"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "网站的存放路径（不填则使用默认路径）"
 
-#: internal/service/cli.go:911
+#: internal/service/cli.go:912
 msgid "Path: %s"
 msgstr "路径：%s"
 
@@ -2084,11 +2084,11 @@ msgstr "占用内存峰值"
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr "PhpRedis 连接并操作 Redis 数据库上的数据（需先安装上面 igbinary 模块）"
 
-#: internal/service/cli.go:765
+#: internal/service/cli.go:766
 msgid "Ping allowed: %t"
 msgstr "允许 Ping：%t"
 
-#: internal/service/cli.go:265
+#: internal/service/cli.go:266
 msgid "Please choose the appropriate address to access the panel based on your network situation"
 msgstr "请根据您的网络情况选择合适的地址访问面板"
 
@@ -2096,15 +2096,15 @@ msgstr "请根据您的网络情况选择合适的地址访问面板"
 msgid "Please enter an integer"
 msgstr "请输入整数"
 
-#: internal/service/cli.go:429
+#: internal/service/cli.go:430
 msgid "Please enter the 2FA code: "
 msgstr "请输入两步验证代码： "
 
-#: internal/service/cli.go:371
+#: internal/service/cli.go:372
 msgid "Please enter the new password: "
 msgstr "请输入新密码： "
 
-#: internal/service/cli.go:292
+#: internal/service/cli.go:293
 msgid "Please enter the password: "
 msgstr "请输入密码： "
 
@@ -2112,23 +2112,23 @@ msgstr "请输入密码： "
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr "请先在设置中设置面板 IP 以生成 ACME 证书"
 
-#: internal/service/cli.go:630
+#: internal/service/cli.go:631
 msgid "Please specify at least one IP"
 msgstr "请至少指定一个 IP"
 
-#: internal/service/cli.go:667
+#: internal/service/cli.go:668
 msgid "Please specify at least one User-Agent"
 msgstr "请至少指定一个 User-Agent"
 
-#: internal/service/cli.go:593
+#: internal/service/cli.go:594
 msgid "Please specify at least one domain"
 msgstr "请至少指定一个域名"
 
-#: internal/service/cli.go:1127
+#: internal/service/cli.go:1134
 msgid "Please specify the certificate ID or use --all"
 msgstr "请指定证书 ID 或使用 --all"
 
-#: internal/service/cli.go:704
+#: internal/service/cli.go:705
 msgid "Please specify the port"
 msgstr "请指定端口"
 
@@ -2144,19 +2144,19 @@ msgstr "Porkbun"
 msgid "Port"
 msgstr "端口"
 
-#: internal/service/cli.go:843
+#: internal/service/cli.go:844
 msgid "Port %s allowed successfully"
 msgstr "端口 %s 放行成功"
 
-#: internal/service/cli.go:845
+#: internal/service/cli.go:846
 msgid "Port %s removed successfully"
 msgstr "端口 %s 移除成功"
 
-#: internal/service/cli.go:718
+#: internal/service/cli.go:719
 msgid "Port already in use"
 msgstr "端口已被占用"
 
-#: internal/service/cli.go:747
+#: internal/service/cli.go:748
 msgid "Port changed to %d"
 msgstr "端口已更改为 %d"
 
@@ -2164,16 +2164,16 @@ msgstr "端口已更改为 %d"
 msgid "Port or port range, e.g. 8888 or 8000-9000"
 msgstr "端口或端口范围，如 8888 或 8000-9000"
 
-#: internal/service/cli.go:707
-#: internal/service/cli.go:814
+#: internal/service/cli.go:708
+#: internal/service/cli.go:815
 msgid "Port range error"
 msgstr "端口范围错误"
 
-#: internal/service/cli.go:243
+#: internal/service/cli.go:244
 msgid "Port: %d"
 msgstr "端口：%d"
 
-#: internal/service/cli.go:797
+#: internal/service/cli.go:798
 msgid "Port: %d-%d, Protocol: %s, Strategy: %s, Direction: %s, Address: %s"
 msgstr "端口：%d-%d，协议：%s，策略：%s，方向：%s，地址：%s"
 
@@ -2231,11 +2231,11 @@ msgstr "代理目标"
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一个拼写检查库"
 
-#: internal/service/cli.go:258
+#: internal/service/cli.go:259
 msgid "Public IPv4: %s://%s:%d%s"
 msgstr "公网 IPv4： %s://%s:%d%s"
 
-#: internal/service/cli.go:262
+#: internal/service/cli.go:263
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr "公网 IPv6： %s://[%s]:%d%s"
 
@@ -2434,7 +2434,7 @@ msgstr "SSL 私钥"
 msgid "Scan %s big keys"
 msgstr "扫描 %s 大键"
 
-#: internal/service/cli.go:1723
+#: internal/service/cli.go:1730
 msgid "Schedule"
 msgstr "执行周期"
 
@@ -2515,7 +2515,7 @@ msgstr "Session 保存处理程序不是 files，无法清理"
 msgid "Setting management"
 msgstr "设置管理"
 
-#: internal/service/cli.go:1486
+#: internal/service/cli.go:1493
 msgid "Setting not exists"
 msgstr "设置不存在"
 
@@ -2548,7 +2548,7 @@ msgstr "慢请求"
 msgid "Slug"
 msgstr "标识"
 
-#: internal/service/cli.go:1361
+#: internal/service/cli.go:1368
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr "Slug：%s，渠道：%s，版本：%s"
 
@@ -2656,7 +2656,7 @@ msgstr "子类型"
 msgid "Subqueries without Index"
 msgstr "没有索引的子查询"
 
-#: internal/service/cli.go:527
+#: internal/service/cli.go:528
 msgid "Successfully obtained panel certificate via ACME"
 msgstr "成功通过 ACME 获取面板证书"
 
@@ -2742,12 +2742,12 @@ msgstr "目标用户名（不填则使用第一个用户）"
 msgid "Targets"
 msgstr "目标"
 
-#: internal/service/cli.go:1722
+#: internal/service/cli.go:1729
 #: internal/taskqueue/runner.go:193
 msgid "Task"
 msgstr "任务"
 
-#: internal/service/cli.go:1473
+#: internal/service/cli.go:1480
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
@@ -2788,7 +2788,7 @@ msgstr "阈值"
 #: internal/biz/tamper.go:312
 #: internal/job/cert_renew.go:186
 #: internal/request/attributes.go:172
-#: internal/service/cli.go:1727
+#: internal/service/cli.go:1734
 #: internal/service/user.go:182
 #: internal/service/user.go:202
 #: internal/service/user_passkey.go:309
@@ -2796,7 +2796,7 @@ msgstr "阈值"
 msgid "Time"
 msgstr "时间"
 
-#: internal/service/cli.go:1461
+#: internal/service/cli.go:1468
 msgid "Time synchronized successfully"
 msgstr "时间同步成功"
 
@@ -2946,15 +2946,15 @@ msgstr "卸载应用"
 msgid "Uninstall environment %s"
 msgstr "卸载环境 %s"
 
-#: internal/service/cli.go:819
+#: internal/service/cli.go:820
 msgid "Unsupported protocol: %s"
 msgstr "不支持的协议：%s"
 
-#: internal/service/cli.go:1332
+#: internal/service/cli.go:1339
 msgid "Unsupported rotation type: %s"
 msgstr "不支持的轮转类型：%s"
 
-#: internal/service/cli.go:1012
+#: internal/service/cli.go:1019
 msgid "Unsupported website type: %s"
 msgstr "不支持的网站类型：%s"
 
@@ -3024,11 +3024,11 @@ msgstr "已运行天数"
 msgid "User"
 msgstr "用户"
 
-#: internal/service/cli.go:311
+#: internal/service/cli.go:312
 msgid "User %s created successfully"
 msgstr "用户 %s 创建成功"
 
-#: internal/service/cli.go:333
+#: internal/service/cli.go:334
 msgid "User %s deleted successfully"
 msgstr "用户 %s 删除成功"
 
@@ -3042,12 +3042,12 @@ msgstr "User Agent"
 msgid "User email (generated from the username if not filled)"
 msgstr "用户邮箱（不填则根据用户名生成）"
 
-#: internal/service/cli.go:193
-#: internal/service/cli.go:324
-#: internal/service/cli.go:350
-#: internal/service/cli.go:381
-#: internal/service/cli.go:408
-#: internal/service/cli.go:450
+#: internal/service/cli.go:194
+#: internal/service/cli.go:325
+#: internal/service/cli.go:351
+#: internal/service/cli.go:382
+#: internal/service/cli.go:409
+#: internal/service/cli.go:451
 msgid "User not exists"
 msgstr "用户不存在"
 
@@ -3068,19 +3068,19 @@ msgstr "User-Agent"
 msgid "Username"
 msgstr "用户名"
 
-#: internal/service/cli.go:360
+#: internal/service/cli.go:361
 msgid "Username %s changed to %s successfully"
 msgstr "用户名 %s 已成功更改为 %s"
 
-#: internal/service/cli.go:289
-#: internal/service/cli.go:318
-#: internal/service/cli.go:368
-#: internal/service/cli.go:403
-#: internal/service/cli.go:445
+#: internal/service/cli.go:290
+#: internal/service/cli.go:319
+#: internal/service/cli.go:369
+#: internal/service/cli.go:404
+#: internal/service/cli.go:446
 msgid "Username cannot be empty"
 msgstr "用户名不能为空"
 
-#: internal/service/cli.go:237
+#: internal/service/cli.go:238
 msgid "Username: %s"
 msgstr "用户名： %s"
 
@@ -3120,7 +3120,7 @@ msgstr "卷组"
 msgid "Waiting"
 msgstr "正在驻留等待"
 
-#: internal/service/cli.go:268
+#: internal/service/cli.go:269
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr "警告：关闭面板 HTTPS 后，面板的安全性将大大降低，请谨慎操作"
 
@@ -3133,19 +3133,19 @@ msgstr "Web 服务器管理"
 msgid "Website"
 msgstr "网站"
 
-#: internal/service/cli.go:910
+#: internal/service/cli.go:911
 msgid "Website %s created successfully"
 msgstr "网站 %s 创建成功"
 
-#: internal/service/cli.go:1003
+#: internal/service/cli.go:1010
 msgid "Website %s deleted successfully"
 msgstr "网站 %s 删除成功"
 
-#: internal/service/cli.go:984
+#: internal/service/cli.go:991
 msgid "Website %s removed successfully"
 msgstr "网站 %s 移除成功"
 
-#: internal/service/cli.go:1044
+#: internal/service/cli.go:1051
 msgid "Website %s written successfully"
 msgstr "网站 %s 写入成功"
 
@@ -3176,7 +3176,7 @@ msgstr "网站管理"
 msgid "Website name"
 msgstr "网站名称"
 
-#: internal/service/cli.go:1024
+#: internal/service/cli.go:1031
 msgid "Website path must be an absolute path"
 msgstr "网站路径必须是绝对路径"
 
@@ -3279,7 +3279,7 @@ msgstr "[AcePanel] 备份失败"
 msgid "[AcePanel] Certificate Renewal Failed"
 msgstr "[AcePanel] 证书续签失败"
 
-#: internal/service/cli.go:1720
+#: internal/service/cli.go:1727
 msgid "[AcePanel] Cron Task Failed"
 msgstr "[AcePanel] 计划任务失败"
 
@@ -3520,7 +3520,7 @@ msgstr "找不到数据库备份文件"
 msgid "create directory error: %v"
 msgstr "创建目录错误：%v"
 
-#: internal/service/cli.go:1721
+#: internal/service/cli.go:1728
 msgid "cron task exited abnormally"
 msgstr "计划任务异常退出"
 
@@ -4893,10 +4893,10 @@ msgstr "规则已存在"
 msgid "rule not found"
 msgstr "找不到规则"
 
-#: internal/service/cli.go:104
-#: internal/service/cli.go:1665
-#: internal/service/cli.go:760
-#: internal/service/cli.go:862
+#: internal/service/cli.go:105
+#: internal/service/cli.go:1672
+#: internal/service/cli.go:761
+#: internal/service/cli.go:863
 msgid "running"
 msgstr "运行中"
 
@@ -4987,10 +4987,10 @@ msgstr "sqlite 不支持从此处删除表"
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一个用于连接 SQL Server 的驱动程序"
 
-#: internal/service/cli.go:106
-#: internal/service/cli.go:1663
-#: internal/service/cli.go:758
-#: internal/service/cli.go:860
+#: internal/service/cli.go:107
+#: internal/service/cli.go:1670
+#: internal/service/cli.go:759
+#: internal/service/cli.go:861
 msgid "stopped"
 msgstr "已停止"
 
@@ -5225,7 +5225,7 @@ msgstr "解压后的备份为空，已中止恢复"
 
 #: internal/biz/toolbox_migration_import.go:320
 #: internal/biz/toolbox_migration_import.go:89
-#: internal/service/cli.go:101
+#: internal/service/cli.go:102
 msgid "unknown"
 msgstr "未知"
 
@@ -5483,15 +5483,15 @@ msgstr "|-备份时间：%s"
 msgid "|-Backup type: %s"
 msgstr "|-备份类型：%s"
 
-#: internal/service/cli.go:1179
+#: internal/service/cli.go:1186
 msgid "|-Backup type: panel"
 msgstr "|-备份类型：面板"
 
-#: internal/service/cli.go:1137
+#: internal/service/cli.go:1144
 msgid "|-Certificate %d renewal failed: %v"
 msgstr "|-证书 %d 续签失败：%v"
 
-#: internal/service/cli.go:1140
+#: internal/service/cli.go:1147
 msgid "|-Certificate %d renewed successfully"
 msgstr "|-证书 %d 续签成功"
 
@@ -5500,13 +5500,13 @@ msgstr "|-证书 %d 续签成功"
 msgid "|-Cleaning expired file: %s"
 msgstr "|-清理过期文件：%s"
 
-#: internal/service/cli.go:1194
-#: internal/service/cli.go:1314
+#: internal/service/cli.go:1201
+#: internal/service/cli.go:1321
 msgid "|-Cleaning target: %s"
 msgstr "|-清理目标：%s"
 
-#: internal/service/cli.go:1193
-#: internal/service/cli.go:1313
+#: internal/service/cli.go:1200
+#: internal/service/cli.go:1320
 msgid "|-Cleaning type: %s"
 msgstr "|-清理类型：%s"
 
@@ -5548,8 +5548,8 @@ msgstr "|-正在导入：%s（%s/s）"
 msgid "|-Importing: %s / %s (%.1f%%, %s/s)"
 msgstr "|-正在导入：%s / %s（%.1f%%，%s/s）"
 
-#: internal/service/cli.go:1195
-#: internal/service/cli.go:1315
+#: internal/service/cli.go:1202
+#: internal/service/cli.go:1322
 msgid "|-Keep count: %d"
 msgstr "|-保留数量：%d"
 
@@ -5561,7 +5561,7 @@ msgstr "|-移动备份文件……"
 msgid "|-Re-enabling AOF..."
 msgstr "|-正在重新启用 AOF……"
 
-#: internal/service/cli.go:1132
+#: internal/service/cli.go:1139
 msgid "|-Renewing certificate %d..."
 msgstr "|-正在续签证书 %d..."
 
@@ -5589,20 +5589,20 @@ msgstr "|-恢复类型：%s"
 msgid "|-Restoring schema..."
 msgstr "|-正在恢复表结构……"
 
-#: internal/service/cli.go:1238
-#: internal/service/cli.go:1284
+#: internal/service/cli.go:1245
+#: internal/service/cli.go:1291
 msgid "|-Rotation target: %s"
 msgstr "|-轮转目标：%s"
 
-#: internal/service/cli.go:1283
+#: internal/service/cli.go:1290
 msgid "|-Rotation type: container"
 msgstr "|-轮转类型：container"
 
-#: internal/service/cli.go:1237
+#: internal/service/cli.go:1244
 msgid "|-Rotation type: website"
 msgstr "|-轮转类型：website"
 
-#: internal/service/cli.go:1682
+#: internal/service/cli.go:1689
 msgid "|-Running cron task: %s"
 msgstr "|-正在运行计划任务：%s"
 
@@ -5654,20 +5654,20 @@ msgid "↑/↓ select · Enter confirm · type to filter · Esc back · Ctrl+C e
 msgstr "↑/↓ 选择 · Enter 确认 · 输入以筛选 · Esc 返回 · Ctrl+C 退出"
 
 #: internal/data/backup.go:134
-#: internal/service/cli.go:1177
+#: internal/service/cli.go:1184
 msgid "★ Start backup [%s]"
 msgstr "★ 开始备份 [%s]"
 
-#: internal/service/cli.go:1191
+#: internal/service/cli.go:1198
 msgid "★ Start cleaning [%s]"
 msgstr "★ 开始清理 [%s]"
 
-#: internal/service/cli.go:1311
+#: internal/service/cli.go:1318
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr "★ 开始清理轮转日志 [%s]"
 
-#: internal/service/cli.go:1235
-#: internal/service/cli.go:1281
+#: internal/service/cli.go:1242
+#: internal/service/cli.go:1288
 msgid "★ Start log rotation [%s]"
 msgstr "★ 开始轮转日志 [%s]"
 
@@ -5683,12 +5683,12 @@ msgstr "☆ 备份完成 [%s]"
 msgid "☆ Backup failed: %v [%s]"
 msgstr "☆ 备份失败：%v [%s]"
 
-#: internal/service/cli.go:1184
+#: internal/service/cli.go:1191
 msgid "☆ Backup successful [%s]"
 msgstr "☆ 备份成功 [%s]"
 
-#: internal/service/cli.go:1209
-#: internal/service/cli.go:1348
+#: internal/service/cli.go:1216
+#: internal/service/cli.go:1355
 msgid "☆ Cleaning successful [%s]"
 msgstr "☆ 清理成功 [%s]"
 
@@ -5700,8 +5700,8 @@ msgstr "☆ 恢复完成 [%s]"
 msgid "☆ Restore failed: %v [%s]"
 msgstr "☆ 恢复失败：%v [%s]"
 
-#: internal/service/cli.go:1260
-#: internal/service/cli.go:1299
+#: internal/service/cli.go:1267
+#: internal/service/cli.go:1306
 msgid "☆ Rotation successful [%s]"
 msgstr "☆ 轮转成功 [%s]"
 
