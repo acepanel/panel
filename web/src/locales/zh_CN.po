@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-09-16 05:38\n"
+"PO-Revision-Date: 2026-09-20 14:39\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -27,7 +27,7 @@ msgstr "QQ 群"
 
 #: src/components/common/AppFooter.vue:38
 #: src/locales/menu.ts:24
-#: src/views/apps/fail2ban/IndexView.vue:361
+#: src/views/apps/fail2ban/IndexView.vue:362
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:276
 #: src/views/backup/ListView.vue:324
@@ -35,8 +35,8 @@ msgstr "QQ 群"
 #: src/views/cert/CertView.vue:668
 #: src/views/cert/CreateCertModal.vue:119
 #: src/views/home/IndexView.vue:542
-#: src/views/task/CreateModal.vue:445
-#: src/views/task/CreateModal.vue:467
+#: src/views/task/CreateModal.vue:446
+#: src/views/task/CreateModal.vue:468
 #: src/views/toolbox/MigrationView.vue:76
 msgid "Website"
 msgstr "网站"
@@ -287,9 +287,9 @@ msgstr "当前状态无法保存"
 #: src/views/apps/docker/IndexView.vue:152
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:58
 #: src/views/apps/elasticsearch/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:174
-#: src/views/apps/fail2ban/IndexView.vue:225
-#: src/views/apps/fail2ban/IndexView.vue:235
+#: src/views/apps/fail2ban/IndexView.vue:175
+#: src/views/apps/fail2ban/IndexView.vue:226
+#: src/views/apps/fail2ban/IndexView.vue:236
 #: src/views/apps/frp/FrpcConfigTuneView.vue:64
 #: src/views/apps/frp/FrpProxyModal.vue:236
 #: src/views/apps/frp/FrpsConfigTuneView.vue:64
@@ -376,7 +376,7 @@ msgid "Remove"
 msgstr "移除"
 
 #: src/components/common/PathSelector.vue:28
-#: src/views/task/CreateModal.vue:506
+#: src/views/task/CreateModal.vue:507
 msgid "Select Directory"
 msgstr "选择目录"
 
@@ -388,8 +388,8 @@ msgstr "选择文件"
 #: src/components/common/PathSelector.vue:395
 #: src/views/app/EnvironmentView.vue:38
 #: src/views/app/InstalledView.vue:158
-#: src/views/apps/fail2ban/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:444
+#: src/views/apps/fail2ban/IndexView.vue:52
+#: src/views/apps/fail2ban/IndexView.vue:445
 #: src/views/apps/frp/FrpProxyModal.vue:255
 #: src/views/apps/frp/FrpProxyView.vue:22
 #: src/views/apps/frp/FrpVisitorModal.vue:122
@@ -518,7 +518,7 @@ msgstr "无效的名称"
 #: src/views/setting/CreateModal.vue:22
 #: src/views/setting/TokenModal.vue:128
 #: src/views/ssh/CreateModal.vue:41
-#: src/views/task/CreateModal.vue:120
+#: src/views/task/CreateModal.vue:121
 #: src/views/toolbox/WebHookView.vue:249
 msgid "Created successfully"
 msgstr "创建成功"
@@ -555,7 +555,7 @@ msgid "Root Directory"
 msgstr "根目录"
 
 #: src/components/common/PathSelector.vue:406
-#: src/views/apps/fail2ban/IndexView.vue:421
+#: src/views/apps/fail2ban/IndexView.vue:422
 #: src/views/apps/frp/FrpProxyModal.vue:582
 #: src/views/apps/frp/FrpVisitorModal.vue:241
 #: src/views/apps/nginx/NginxIndex.vue:690
@@ -604,7 +604,7 @@ msgstr "根目录"
 #: src/views/setting/TwoFaModal.vue:95
 #: src/views/ssh/CreateModal.vue:110
 #: src/views/ssh/UpdateModal.vue:116
-#: src/views/task/CreateModal.vue:548
+#: src/views/task/CreateModal.vue:549
 msgid "Submit"
 msgstr "提交"
 
@@ -671,6 +671,7 @@ msgid "Command may still running. Closing the window will terminate the command.
 msgstr "命令可能仍在运行。关闭窗口将终止命令。您确定吗？"
 
 #: src/components/common/PtyTerminalModal.vue:207
+#: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
 #: src/components/system/composables/useConfirm.ts:37
@@ -994,7 +995,7 @@ msgstr "自启动已成功禁用"
 #: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:167
 #: src/views/apps/elasticsearch/IndexView.vue:62
-#: src/views/apps/fail2ban/IndexView.vue:270
+#: src/views/apps/fail2ban/IndexView.vue:271
 #: src/views/apps/frp/IndexView.vue:77
 #: src/views/apps/frp/IndexView.vue:129
 #: src/views/apps/gitea/IndexView.vue:35
@@ -1143,6 +1144,7 @@ msgid "Generate"
 msgstr "生成"
 
 #: src/components/file-editor/EditorPane.vue:158
+#: src/components/file-editor/EditorStatusBar.vue:126
 #: src/components/file-editor/EditorToolbar.vue:74
 #: src/views/file/EditModal.vue:41
 msgid "Unsaved Changes"
@@ -1180,7 +1182,7 @@ msgstr "放弃"
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:97
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:132
 #: src/views/apps/elasticsearch/IndexView.vue:82
-#: src/views/apps/fail2ban/IndexView.vue:482
+#: src/views/apps/fail2ban/IndexView.vue:483
 #: src/views/apps/frp/FrpcConfigTuneView.vue:115
 #: src/views/apps/frp/FrpcConfigTuneView.vue:145
 #: src/views/apps/frp/FrpcConfigTuneView.vue:221
@@ -1292,7 +1294,7 @@ msgstr "放弃"
 #: src/views/project/EditModal.vue:582
 #: src/views/setting/IndexView.vue:169
 #: src/views/tamper/RuleModal.vue:136
-#: src/views/task/CreateModal.vue:548
+#: src/views/task/CreateModal.vue:549
 #: src/views/task/CronView.vue:344
 #: src/views/toolbox/SshView.vue:220
 #: src/views/toolbox/SystemView.vue:171
@@ -1321,32 +1323,75 @@ msgstr "关闭已保存"
 msgid "Select a file to edit"
 msgstr "选择要编辑的文件"
 
-#: src/components/file-editor/EditorStatusBar.vue:41
-#: src/components/file-editor/EditorStatusBar.vue:42
+#: src/components/file-editor/EditorStatusBar.vue:47
+#: src/components/file-editor/EditorStatusBar.vue:48
+msgid "Simplified Chinese"
+msgstr "简体中文"
+
+#: src/components/file-editor/EditorStatusBar.vue:49
+msgid "Traditional Chinese"
+msgstr "繁体中文"
+
 #: src/components/file-editor/EditorStatusBar.vue:50
+#: src/components/file-editor/EditorStatusBar.vue:51
+#: src/components/file-editor/EditorStatusBar.vue:52
+msgid "Japanese"
+msgstr "日语"
+
+#: src/components/file-editor/EditorStatusBar.vue:53
+msgid "Korean"
+msgstr "韩语"
+
+#: src/components/file-editor/EditorStatusBar.vue:54
+msgid "Western European"
+msgstr "西欧"
+
+#: src/components/file-editor/EditorStatusBar.vue:55
+msgid "Cyrillic"
+msgstr "西里尔字母"
+
+#: src/components/file-editor/EditorStatusBar.vue:66
+msgid "Reopen with Encoding"
+msgstr "以编码重新打开"
+
+#: src/components/file-editor/EditorStatusBar.vue:71
+msgid "Convert to Encoding"
+msgstr "转换到编码"
+
+#: src/components/file-editor/EditorStatusBar.vue:86
+#: src/components/file-editor/EditorStatusBar.vue:87
+#: src/components/file-editor/EditorStatusBar.vue:95
 msgid "Spaces"
 msgstr "空格"
 
-#: src/components/file-editor/EditorStatusBar.vue:43
-#: src/components/file-editor/EditorStatusBar.vue:44
-#: src/components/file-editor/EditorStatusBar.vue:50
+#: src/components/file-editor/EditorStatusBar.vue:88
+#: src/components/file-editor/EditorStatusBar.vue:89
+#: src/components/file-editor/EditorStatusBar.vue:95
 msgid "Tabs"
 msgstr "Tabs"
 
-#: src/components/file-editor/EditorStatusBar.vue:104
+#: src/components/file-editor/EditorStatusBar.vue:127
+msgid "This file has unsaved changes. Reopening will discard them. Continue?"
+msgstr "此文件有未保存的更改。重新打开将丢弃它们。是否继续？"
+
+#: src/components/file-editor/EditorStatusBar.vue:128
+msgid "Reopen"
+msgstr "重新打开"
+
+#: src/components/file-editor/EditorStatusBar.vue:176
 msgid "Ln"
 msgstr "行"
 
-#: src/components/file-editor/EditorStatusBar.vue:104
+#: src/components/file-editor/EditorStatusBar.vue:176
 msgid "Col"
 msgstr "列"
 
-#: src/components/file-editor/EditorStatusBar.vue:123
+#: src/components/file-editor/EditorStatusBar.vue:195
 #: src/views/setting/SettingBase.vue:131
 msgid "Language"
 msgstr "语言"
 
-#: src/components/file-editor/EditorStatusBar.vue:128
+#: src/components/file-editor/EditorStatusBar.vue:212
 msgid "No file open"
 msgstr "没有打开的文件"
 
@@ -1699,7 +1744,7 @@ msgstr "重命名"
 #: src/components/file-editor/FileTree.vue:595
 #: src/components/system/composables/useConfirm.ts:32
 #: src/components/system/ConfirmDialog.vue:54
-#: src/views/apps/fail2ban/IndexView.vue:124
+#: src/views/apps/fail2ban/IndexView.vue:125
 #: src/views/apps/frp/FrpProxyView.vue:105
 #: src/views/apps/frp/FrpVisitorView.vue:94
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:127
@@ -1793,7 +1838,7 @@ msgid "Are you sure you want to delete %{ name }?"
 msgstr "您确定要删除 %{ name } 吗？"
 
 #: src/components/file-editor/FileTree.vue:600
-#: src/views/apps/fail2ban/IndexView.vue:218
+#: src/views/apps/fail2ban/IndexView.vue:219
 #: src/views/apps/frp/FrpProxyView.vue:125
 #: src/views/apps/frp/FrpVisitorView.vue:114
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:185
@@ -1995,7 +2040,7 @@ msgid "Apps"
 msgstr "应用"
 
 #: src/locales/menu.ts:8
-#: src/views/task/CreateModal.vue:145
+#: src/views/task/CreateModal.vue:146
 msgid "Backup"
 msgstr "备份"
 
@@ -2011,7 +2056,7 @@ msgstr "证书"
 
 #: src/locales/menu.ts:10
 #: src/views/home/IndexView.vue:537
-#: src/views/task/CreateModal.vue:469
+#: src/views/task/CreateModal.vue:470
 msgid "Container"
 msgstr "容器"
 
@@ -2170,8 +2215,8 @@ msgstr "在主页显示"
 #: src/views/app/EnvironmentView.vue:62
 #: src/views/app/InstalledView.vue:74
 #: src/views/app/InstalledView.vue:176
-#: src/views/apps/fail2ban/IndexView.vue:73
-#: src/views/apps/fail2ban/IndexView.vue:140
+#: src/views/apps/fail2ban/IndexView.vue:74
+#: src/views/apps/fail2ban/IndexView.vue:141
 #: src/views/apps/frp/FrpProxyView.vue:73
 #: src/views/apps/frp/FrpVisitorView.vue:62
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
@@ -2385,7 +2430,7 @@ msgid "Partial"
 msgstr "部分运行"
 
 #: src/views/app/InstalledView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:57
+#: src/views/apps/fail2ban/IndexView.vue:58
 #: src/views/apps/frp/FrpProxyView.vue:37
 #: src/views/apps/frp/FrpVisitorView.vue:37
 #: src/views/apps/phpmyadmin/IndexView.vue:67
@@ -2874,7 +2919,7 @@ msgstr "负载状态"
 #: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:453
 #: src/views/apps/elasticsearch/IndexView.vue:100
-#: src/views/apps/fail2ban/IndexView.vue:328
+#: src/views/apps/fail2ban/IndexView.vue:329
 #: src/views/apps/frp/IndexView.vue:122
 #: src/views/apps/frp/IndexView.vue:180
 #: src/views/apps/gitea/IndexView.vue:60
@@ -2993,7 +3038,7 @@ msgstr "日志级别（logger.level）"
 #: src/views/firewall/RuleView.vue:29
 #: src/views/setting/SettingUser.vue:161
 #: src/views/setting/SettingUser.vue:167
-#: src/views/task/CreateModal.vue:121
+#: src/views/task/CreateModal.vue:122
 #: src/views/task/CronView.vue:189
 #: src/views/task/CronView.vue:259
 #: src/views/toolbox/WebHookView.vue:200
@@ -3339,32 +3384,32 @@ msgstr "最大堆大小（-Xmx）"
 msgid "This modifies the ElasticSearch main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr "这将修改 ElasticSearch 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
-#: src/views/apps/fail2ban/IndexView.vue:69
-#: src/views/apps/fail2ban/IndexView.vue:404
-#: src/views/apps/fail2ban/IndexView.vue:450
+#: src/views/apps/fail2ban/IndexView.vue:70
+#: src/views/apps/fail2ban/IndexView.vue:405
+#: src/views/apps/fail2ban/IndexView.vue:451
 msgid "Max Retries"
 msgstr "最大重试次数"
 
-#: src/views/apps/fail2ban/IndexView.vue:70
-#: src/views/apps/fail2ban/IndexView.vue:410
-#: src/views/apps/fail2ban/IndexView.vue:466
+#: src/views/apps/fail2ban/IndexView.vue:71
+#: src/views/apps/fail2ban/IndexView.vue:411
+#: src/views/apps/fail2ban/IndexView.vue:467
 msgid "Ban Time"
 msgstr "封禁时间"
 
-#: src/views/apps/fail2ban/IndexView.vue:71
-#: src/views/apps/fail2ban/IndexView.vue:407
-#: src/views/apps/fail2ban/IndexView.vue:458
+#: src/views/apps/fail2ban/IndexView.vue:72
+#: src/views/apps/fail2ban/IndexView.vue:408
+#: src/views/apps/fail2ban/IndexView.vue:459
 msgid "Find Time"
 msgstr "查找时间"
 
-#: src/views/apps/fail2ban/IndexView.vue:90
+#: src/views/apps/fail2ban/IndexView.vue:91
 #: src/views/cert/CertView.vue:344
 #: src/views/database/ElasticsearchDataView.vue:186
 #: src/views/database/RedisDataView.vue:141
 msgid "View"
 msgstr "查看"
 
-#: src/views/apps/fail2ban/IndexView.vue:108
+#: src/views/apps/fail2ban/IndexView.vue:109
 #: src/views/apps/frp/FrpProxyView.vue:89
 #: src/views/apps/frp/FrpVisitorView.vue:78
 #: src/views/apps/rsync/IndexView.vue:95
@@ -3373,20 +3418,20 @@ msgstr "查看"
 msgid "Configure"
 msgstr "配置"
 
-#: src/views/apps/fail2ban/IndexView.vue:117
+#: src/views/apps/fail2ban/IndexView.vue:118
 msgid "Are you sure you want to delete rule %{ name }?"
 msgstr "您确定要删除规则 %{ name } 吗？"
 
-#: src/views/apps/fail2ban/IndexView.vue:152
+#: src/views/apps/fail2ban/IndexView.vue:153
 msgid "Are you sure you want to unban %{ ip }?"
 msgstr "您确定要解封 %{ ip } 吗？"
 
-#: src/views/apps/fail2ban/IndexView.vue:153
-#: src/views/apps/fail2ban/IndexView.vue:158
+#: src/views/apps/fail2ban/IndexView.vue:154
+#: src/views/apps/fail2ban/IndexView.vue:159
 msgid "Unban"
 msgstr "解封"
 
-#: src/views/apps/fail2ban/IndexView.vue:207
+#: src/views/apps/fail2ban/IndexView.vue:208
 #: src/views/apps/pureftpd/IndexView.vue:130
 #: src/views/apps/rsync/IndexView.vue:160
 #: src/views/apps/s3fs/IndexView.vue:77
@@ -3395,34 +3440,34 @@ msgstr "解封"
 msgid "Added successfully"
 msgstr "添加成功"
 
-#: src/views/apps/fail2ban/IndexView.vue:251
+#: src/views/apps/fail2ban/IndexView.vue:252
 msgid "Unbanned successfully"
 msgstr "解封成功"
 
-#: src/views/apps/fail2ban/IndexView.vue:273
+#: src/views/apps/fail2ban/IndexView.vue:274
 #: src/views/firewall/SettingView.vue:130
 msgid "IP Whitelist"
 msgstr "IP 白名单"
 
-#: src/views/apps/fail2ban/IndexView.vue:278
+#: src/views/apps/fail2ban/IndexView.vue:279
 msgid "IP whitelist, separated by commas"
 msgstr "IP 白名单，用逗号分隔"
 
-#: src/views/apps/fail2ban/IndexView.vue:288
+#: src/views/apps/fail2ban/IndexView.vue:289
 msgid "Save Whitelist"
 msgstr "保存白名单"
 
-#: src/views/apps/fail2ban/IndexView.vue:293
+#: src/views/apps/fail2ban/IndexView.vue:294
 msgid "Rule Management"
 msgstr "规则管理"
 
-#: src/views/apps/fail2ban/IndexView.vue:295
+#: src/views/apps/fail2ban/IndexView.vue:296
 msgid "Rule List"
 msgstr "规则列表"
 
-#: src/views/apps/fail2ban/IndexView.vue:323
-#: src/views/apps/fail2ban/IndexView.vue:333
-#: src/views/apps/fail2ban/IndexView.vue:337
+#: src/views/apps/fail2ban/IndexView.vue:324
+#: src/views/apps/fail2ban/IndexView.vue:334
+#: src/views/apps/fail2ban/IndexView.vue:338
 #: src/views/monitor/AlertRuleModal.vue:129
 #: src/views/monitor/AlertView.vue:202
 #: src/views/tamper/RuleModal.vue:89
@@ -3431,15 +3476,15 @@ msgstr "规则列表"
 msgid "Add Rule"
 msgstr "添加规则"
 
-#: src/views/apps/fail2ban/IndexView.vue:343
+#: src/views/apps/fail2ban/IndexView.vue:344
 msgid "If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)"
 msgstr "如果一个 IP 在查找时间（秒）内超过最大重试次数，它将被禁止访问指定的禁止时间（秒）"
 
-#: src/views/apps/fail2ban/IndexView.vue:350
+#: src/views/apps/fail2ban/IndexView.vue:351
 msgid "Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective"
 msgstr "受保护的端口会自动获取。如果您修改了某个规则对应的端口，请删除并重新添加该规则，否则保护可能无效"
 
-#: src/views/apps/fail2ban/IndexView.vue:357
+#: src/views/apps/fail2ban/IndexView.vue:358
 #: src/views/apps/frp/FrpProxyModal.vue:263
 #: src/views/apps/frp/FrpProxyView.vue:29
 #: src/views/apps/frp/FrpVisitorModal.vue:130
@@ -3468,24 +3513,24 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 msgid "Type"
 msgstr "类型"
 
-#: src/views/apps/fail2ban/IndexView.vue:362
-#: src/views/apps/fail2ban/IndexView.vue:393
+#: src/views/apps/fail2ban/IndexView.vue:363
+#: src/views/apps/fail2ban/IndexView.vue:394
 msgid "Service"
 msgstr "服务"
 
-#: src/views/apps/fail2ban/IndexView.vue:367
-#: src/views/apps/fail2ban/IndexView.vue:371
-#: src/views/task/CreateModal.vue:479
-#: src/views/task/CreateModal.vue:485
+#: src/views/apps/fail2ban/IndexView.vue:368
+#: src/views/apps/fail2ban/IndexView.vue:372
+#: src/views/task/CreateModal.vue:480
+#: src/views/task/CreateModal.vue:486
 msgid "Select Website"
 msgstr "选择网站"
 
-#: src/views/apps/fail2ban/IndexView.vue:374
+#: src/views/apps/fail2ban/IndexView.vue:375
 #: src/views/tamper/TamperView.vue:251
 msgid "Protection Mode"
 msgstr "保护模式"
 
-#: src/views/apps/fail2ban/IndexView.vue:379
+#: src/views/apps/fail2ban/IndexView.vue:380
 #: src/views/apps/pureftpd/IndexView.vue:46
 #: src/views/backup/StorageView.vue:277
 #: src/views/backup/StorageView.vue:331
@@ -3498,20 +3543,20 @@ msgstr "保护模式"
 msgid "Path"
 msgstr "路径"
 
-#: src/views/apps/fail2ban/IndexView.vue:386
-#: src/views/apps/fail2ban/IndexView.vue:390
+#: src/views/apps/fail2ban/IndexView.vue:387
+#: src/views/apps/fail2ban/IndexView.vue:391
 msgid "Protection Path"
 msgstr "保护路径"
 
-#: src/views/apps/fail2ban/IndexView.vue:429
+#: src/views/apps/fail2ban/IndexView.vue:430
 msgid "Rule Configuration"
 msgstr "规则配置"
 
-#: src/views/apps/fail2ban/IndexView.vue:438
+#: src/views/apps/fail2ban/IndexView.vue:439
 msgid "The protected port, filter and log path are derived when the rule is created and are kept as-is here. To change them, delete and re-add the rule."
 msgstr "受保护端口、过滤条件和日志路径在创建规则时确定，此处保持不变。如需更改，请删除规则后重新添加。"
 
-#: src/views/apps/fail2ban/IndexView.vue:447
+#: src/views/apps/fail2ban/IndexView.vue:448
 #: src/views/apps/frp/FrpProxyModal.vue:266
 #: src/views/apps/frp/FrpProxyView.vue:43
 #: src/views/apps/frp/FrpVisitorModal.vue:133
@@ -3529,24 +3574,24 @@ msgstr "受保护端口、过滤条件和日志路径在创建规则时确定，
 msgid "Enabled"
 msgstr "已启用"
 
-#: src/views/apps/fail2ban/IndexView.vue:486
-#: src/views/apps/fail2ban/IndexView.vue:490
+#: src/views/apps/fail2ban/IndexView.vue:487
+#: src/views/apps/fail2ban/IndexView.vue:491
 msgid "View Rule"
 msgstr "查看规则"
 
-#: src/views/apps/fail2ban/IndexView.vue:494
+#: src/views/apps/fail2ban/IndexView.vue:495
 msgid "Rule Information"
 msgstr "规则信息"
 
-#: src/views/apps/fail2ban/IndexView.vue:497
+#: src/views/apps/fail2ban/IndexView.vue:498
 msgid "Currently Banned"
 msgstr "当前已封禁"
 
-#: src/views/apps/fail2ban/IndexView.vue:501
+#: src/views/apps/fail2ban/IndexView.vue:502
 msgid "Total Bans"
 msgstr "总封禁次数"
 
-#: src/views/apps/fail2ban/IndexView.vue:506
+#: src/views/apps/fail2ban/IndexView.vue:507
 msgid "Ban List"
 msgstr "封禁列表"
 
@@ -4676,7 +4721,7 @@ msgstr "这将修改 MongoDB 配置文件。如果您不理解每个参数的含
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:59
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:117
 #: src/views/backup/IndexView.vue:59
-#: src/views/task/CreateModal.vue:538
+#: src/views/task/CreateModal.vue:539
 msgid "Storage"
 msgstr "存储"
 
@@ -6257,7 +6302,7 @@ msgstr "建议使用生成器生成随机密码"
 #: src/views/container/ComposeView.vue:66
 #: src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:98
-#: src/views/task/CreateModal.vue:461
+#: src/views/task/CreateModal.vue:462
 #: src/views/website/CreateModal.vue:265
 #: src/views/website/EditModal.vue:2173
 #: src/views/website/ListView.vue:149
@@ -8327,7 +8372,7 @@ msgid "Documents"
 msgstr "文档"
 
 #: src/views/database/ElasticsearchDataView.vue:132
-#: src/views/task/CreateModal.vue:517
+#: src/views/task/CreateModal.vue:518
 msgid "Browse"
 msgstr "浏览"
 
@@ -12137,89 +12182,89 @@ msgstr "保护规则"
 msgid "Interception Logs"
 msgstr "拦截日志"
 
-#: src/views/task/CreateModal.vue:36
+#: src/views/task/CreateModal.vue:37
 msgid "# Enter your script content here"
 msgstr "# 在此处输入您的脚本内容"
 
-#: src/views/task/CreateModal.vue:137
+#: src/views/task/CreateModal.vue:138
 msgid "Backup Website"
 msgstr "备份网站"
 
-#: src/views/task/CreateModal.vue:138
+#: src/views/task/CreateModal.vue:139
 msgid "Backup MySQL"
 msgstr "备份 MySQL"
 
-#: src/views/task/CreateModal.vue:139
+#: src/views/task/CreateModal.vue:140
 msgid "Backup PostgreSQL"
 msgstr "备份 PostgreSQL"
 
-#: src/views/task/CreateModal.vue:140
+#: src/views/task/CreateModal.vue:141
 msgid "Backup ClickHouse"
 msgstr "备份 ClickHouse"
 
-#: src/views/task/CreateModal.vue:141
+#: src/views/task/CreateModal.vue:142
 msgid "Backup Redis"
 msgstr "备份 Redis"
 
-#: src/views/task/CreateModal.vue:142
+#: src/views/task/CreateModal.vue:143
 msgid "Backup Valkey"
 msgstr "备份 Valkey"
 
-#: src/views/task/CreateModal.vue:143
+#: src/views/task/CreateModal.vue:144
 msgid "Backup Directory"
 msgstr "备份目录"
 
-#: src/views/task/CreateModal.vue:149
+#: src/views/task/CreateModal.vue:150
 msgid "Log Rotation - Website"
 msgstr "日志轮转 - 网站"
 
-#: src/views/task/CreateModal.vue:150
+#: src/views/task/CreateModal.vue:151
 msgid "Log Rotation - Container"
 msgstr "日志轮转 - 容器"
 
-#: src/views/task/CreateModal.vue:152
-#: src/views/task/CreateModal.vue:335
+#: src/views/task/CreateModal.vue:153
+#: src/views/task/CreateModal.vue:336
 #: src/views/task/CronView.vue:71
 msgid "Log Rotation"
 msgstr "日志轮转"
 
-#: src/views/task/CreateModal.vue:157
-#: src/views/task/CreateModal.vue:336
+#: src/views/task/CreateModal.vue:158
+#: src/views/task/CreateModal.vue:337
 #: src/views/task/CronView.vue:68
 msgid "Access URL"
 msgstr "访问 URL"
 
-#: src/views/task/CreateModal.vue:159
-#: src/views/task/CreateModal.vue:337
+#: src/views/task/CreateModal.vue:160
+#: src/views/task/CreateModal.vue:338
 #: src/views/task/CronView.vue:69
 msgid "Sync Time"
 msgstr "同步时间"
 
-#: src/views/task/CreateModal.vue:322
+#: src/views/task/CreateModal.vue:323
 msgid "Create Scheduled Task"
 msgstr "创建计划任务"
 
-#: src/views/task/CreateModal.vue:322
+#: src/views/task/CreateModal.vue:323
 msgid "Edit Scheduled Task"
 msgstr "编辑计划任务"
 
-#: src/views/task/CreateModal.vue:329
+#: src/views/task/CreateModal.vue:330
 #: src/views/task/CronView.vue:57
 msgid "Task Type"
 msgstr "任务类型"
 
-#: src/views/task/CreateModal.vue:333
+#: src/views/task/CreateModal.vue:334
 #: src/views/task/CronView.vue:66
 msgid "Run Script"
 msgstr "运行脚本"
 
-#: src/views/task/CreateModal.vue:334
+#: src/views/task/CreateModal.vue:335
 #: src/views/task/CronView.vue:67
 msgid "Backup Data"
 msgstr "备份数据"
 
-#: src/views/task/CreateModal.vue:341
 #: src/views/task/CreateModal.vue:342
+#: src/views/task/CreateModal.vue:343
 #: src/views/task/CronView.vue:50
 #: src/views/task/CronView.vue:318
 #: src/views/task/CronView.vue:319
@@ -12227,107 +12272,107 @@ msgstr "备份数据"
 msgid "Task Name"
 msgstr "任务名称"
 
-#: src/views/task/CreateModal.vue:349
+#: src/views/task/CreateModal.vue:350
 #: src/views/task/CronView.vue:90
 #: src/views/task/CronView.vue:321
 msgid "Task Schedule"
 msgstr "任务周期"
 
-#: src/views/task/CreateModal.vue:354
+#: src/views/task/CreateModal.vue:355
 msgid "Retention Count"
 msgstr "保留数量"
 
-#: src/views/task/CreateModal.vue:359
+#: src/views/task/CreateModal.vue:360
 #: src/views/task/CronView.vue:324
 msgid "Process Lock"
 msgstr "进程锁"
 
-#: src/views/task/CreateModal.vue:363
+#: src/views/task/CreateModal.vue:364
 #: src/views/task/CronView.vue:328
 msgid "Prevent duplicate execution: skip this run if the previous one is still running"
 msgstr "防止重复执行：如果上次运行未结束，则跳过本次运行"
 
-#: src/views/task/CreateModal.vue:370
+#: src/views/task/CreateModal.vue:371
 msgid "Script Content"
 msgstr "脚本内容"
 
-#: src/views/task/CreateModal.vue:375
+#: src/views/task/CreateModal.vue:376
 msgid "Request Method"
 msgstr "请求方法"
 
-#: src/views/task/CreateModal.vue:391
+#: src/views/task/CreateModal.vue:392
 msgid "Request Headers"
 msgstr "请求头"
 
-#: src/views/task/CreateModal.vue:397
+#: src/views/task/CreateModal.vue:398
 msgid "Header Name"
 msgstr "头部名称"
 
-#: src/views/task/CreateModal.vue:402
+#: src/views/task/CreateModal.vue:403
 msgid "Header Value"
 msgstr "头部值"
 
-#: src/views/task/CreateModal.vue:415
-#: src/views/task/CreateModal.vue:420
+#: src/views/task/CreateModal.vue:416
+#: src/views/task/CreateModal.vue:421
 msgid "Request Body"
 msgstr "请求体"
 
-#: src/views/task/CreateModal.vue:426
+#: src/views/task/CreateModal.vue:427
 msgid "Timeout (seconds)"
 msgstr "超时（秒）"
 
-#: src/views/task/CreateModal.vue:431
+#: src/views/task/CreateModal.vue:432
 msgid "Retry Count"
 msgstr "重试次数"
 
-#: src/views/task/CreateModal.vue:436
+#: src/views/task/CreateModal.vue:437
 msgid "Ignore Certificate"
 msgstr "忽略证书"
 
-#: src/views/task/CreateModal.vue:443
+#: src/views/task/CreateModal.vue:444
 msgid "Backup Type"
 msgstr "备份类型"
 
-#: src/views/task/CreateModal.vue:447
+#: src/views/task/CreateModal.vue:448
 msgid "MySQL Database"
 msgstr "MySQL 数据库"
 
-#: src/views/task/CreateModal.vue:450
+#: src/views/task/CreateModal.vue:451
 msgid "PostgreSQL Database"
 msgstr "PostgreSQL 数据库"
 
-#: src/views/task/CreateModal.vue:453
+#: src/views/task/CreateModal.vue:454
 msgid "ClickHouse Database"
 msgstr "ClickHouse 数据库"
 
-#: src/views/task/CreateModal.vue:456
+#: src/views/task/CreateModal.vue:457
 msgid "Redis"
 msgstr "Redis"
 
-#: src/views/task/CreateModal.vue:459
+#: src/views/task/CreateModal.vue:460
 msgid "Valkey"
 msgstr "Valkey"
 
-#: src/views/task/CreateModal.vue:465
+#: src/views/task/CreateModal.vue:466
 msgid "Rotation Type"
 msgstr "轮转类型"
 
-#: src/views/task/CreateModal.vue:494
-#: src/views/task/CreateModal.vue:500
+#: src/views/task/CreateModal.vue:495
+#: src/views/task/CreateModal.vue:501
 #: src/views/website/CreateModal.vue:212
 msgid "Select Database"
 msgstr "选择数据库"
 
-#: src/views/task/CreateModal.vue:513
+#: src/views/task/CreateModal.vue:514
 msgid "Enter directory path"
 msgstr "输入目录路径"
 
-#: src/views/task/CreateModal.vue:526
-#: src/views/task/CreateModal.vue:532
+#: src/views/task/CreateModal.vue:527
+#: src/views/task/CreateModal.vue:533
 msgid "Select Container"
 msgstr "选择容器"
 
-#: src/views/task/CreateModal.vue:543
+#: src/views/task/CreateModal.vue:544
 msgid "Select storage"
 msgstr "选择存储"
 

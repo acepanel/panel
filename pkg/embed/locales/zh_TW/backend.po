@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-09-16 05:38\n"
+"PO-Revision-Date: 2026-09-20 14:39\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -521,7 +521,7 @@ msgstr "編排"
 msgid "Composer is not installed"
 msgstr "未安裝 Composer"
 
-#: internal/service/file.go:623
+#: internal/service/file.go:643
 msgid "Compress %v"
 msgstr "壓縮 %v"
 
@@ -821,7 +821,7 @@ msgstr "下載失敗：%v"
 msgid "Download file check failed"
 msgstr "下載檔案檢查失敗"
 
-#: internal/service/file.go:493
+#: internal/service/file.go:513
 msgid "Download remote file %v"
 msgstr "下載遠端檔案 %v"
 
@@ -916,7 +916,7 @@ msgstr "環境"
 
 #: internal/biz/backup.go:72
 #: internal/job/cert_renew.go:185
-#: internal/taskqueue/runner.go:194
+#: internal/taskqueue/runner.go:195
 msgid "Error"
 msgstr "錯誤"
 
@@ -1612,7 +1612,7 @@ msgid "Locale"
 msgstr "語言"
 
 #: internal/service/cli.go:1725
-#: internal/taskqueue/runner.go:193
+#: internal/taskqueue/runner.go:194
 msgid "Log"
 msgstr "日誌"
 
@@ -2743,7 +2743,7 @@ msgid "Targets"
 msgstr "目標"
 
 #: internal/service/cli.go:1722
-#: internal/taskqueue/runner.go:192
+#: internal/taskqueue/runner.go:193
 msgid "Task"
 msgstr "任務"
 
@@ -2792,7 +2792,7 @@ msgstr "閾值"
 #: internal/service/user.go:182
 #: internal/service/user.go:202
 #: internal/service/user_passkey.go:309
-#: internal/taskqueue/runner.go:195
+#: internal/taskqueue/runner.go:196
 msgid "Time"
 msgstr "時間"
 
@@ -2918,7 +2918,7 @@ msgstr "無法在離線模式下更新應用程式列表快取"
 msgid "Unassigned Shards"
 msgstr "未分配的分片"
 
-#: internal/service/file.go:651
+#: internal/service/file.go:671
 msgid "Uncompress %v"
 msgstr "解壓 %v"
 
@@ -3267,7 +3267,7 @@ msgstr "[%s] 開始遷移"
 msgid "[AcePanel] Alert: %s"
 msgstr "[AcePanel] 警示：%s"
 
-#: internal/taskqueue/runner.go:191
+#: internal/taskqueue/runner.go:192
 msgid "[AcePanel] Background Task Failed"
 msgstr "[AcePanel] 背景任務失敗"
 
@@ -3370,7 +3370,7 @@ msgstr "找不到應用"
 msgid "app status"
 msgstr "應用程式狀態"
 
-#: internal/taskqueue/runner.go:191
+#: internal/taskqueue/runner.go:192
 msgid "background task failed"
 msgstr "背景任務執行失敗"
 
@@ -3418,7 +3418,7 @@ msgid "btrfs filesystem is not mounted, logical volume has been extended but fil
 msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
 #: internal/service/backup.go:168
-#: internal/service/file.go:475
+#: internal/service/file.go:495
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
@@ -3450,32 +3450,36 @@ msgstr "證書到期"
 msgid "certificate renewal failed"
 msgstr "證書續簽失敗"
 
+#: internal/service/file.go:272
+msgid "character %s on line %d cannot be saved as %s"
+msgstr "無法將第 %d 行的字符 %s 儲存為 %s"
+
 #: internal/biz/database_server.go:130
 #: internal/biz/database_server.go:150
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:888
+#: internal/service/file.go:908
 msgid "chunk %d is missing"
 msgstr "缺少分塊 %d"
 
-#: internal/service/file.go:851
+#: internal/service/file.go:871
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
-#: internal/service/file.go:817
+#: internal/service/file.go:837
 msgid "chunk index out of range"
 msgstr "分塊索引超出範圍"
 
-#: internal/service/file.go:847
+#: internal/service/file.go:867
 msgid "chunk size mismatch"
 msgstr "分塊大小不匹配"
 
-#: internal/service/file.go:811
+#: internal/service/file.go:831
 msgid "chunk upload not started"
 msgstr "分塊上傳未開始"
 
-#: internal/service/file.go:883
+#: internal/service/file.go:903
 msgid "chunk upload not started or chunk count mismatch"
 msgstr "分塊上傳未開始或分塊數量不匹配"
 
@@ -3495,7 +3499,7 @@ msgstr "命令為空"
 msgid "compose %s already exists"
 msgstr "編排 %s 已存在"
 
-#: internal/service/website.go:219
+#: internal/service/website.go:224
 msgid "config test failed: %v %s"
 msgstr "設定測試失敗：%v %s"
 
@@ -3511,8 +3515,8 @@ msgstr "容器狀態"
 msgid "could not find database backup file"
 msgstr "找不到資料庫備份檔案"
 
-#: internal/service/file.go:310
-#: internal/service/file.go:768
+#: internal/service/file.go:330
+#: internal/service/file.go:788
 msgid "create directory error: %v"
 msgstr "建立目錄錯誤：%v"
 
@@ -3603,7 +3607,7 @@ msgstr "磁碟使用率"
 msgid "disk write speed"
 msgstr "磁碟寫入速率"
 
-#: internal/data/website.go:1517
+#: internal/data/website.go:1529
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被網站 %s 使用"
 
@@ -3939,7 +3943,7 @@ msgstr "無法取得磁碟空間：%v"
 msgid "failed to get elasticsearch status: %v"
 msgstr "取得 elasticsearch 狀態失敗：%v"
 
-#: internal/service/file.go:521
+#: internal/service/file.go:541
 msgid "failed to get file system info"
 msgstr "取得檔案系統資訊失敗"
 
@@ -4087,7 +4091,7 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:319
-#: internal/data/website.go:1224
+#: internal/data/website.go:1225
 #: internal/data/website.go:850
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
@@ -4107,7 +4111,7 @@ msgstr "解析 phpMyAdmin 登入頁面失敗"
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1227
+#: internal/data/website.go:1228
 #: internal/data/website.go:853
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
@@ -4421,7 +4425,7 @@ msgstr "寫入 Memcached 失敗： %v"
 msgid "failed to write webhook script: %v"
 msgstr "寫入 Web 掛鉤腳本失敗：%v"
 
-#: internal/service/file.go:96
+#: internal/service/file.go:98
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
@@ -4561,7 +4565,7 @@ msgstr "小於等於"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1328
+#: internal/data/website.go:1329
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -4666,11 +4670,11 @@ msgstr "取得並儲存憑證"
 msgid "only PHP runtime websites can be migrated: %s"
 msgstr "只能遷移 PHP 執行環境網站：%s"
 
-#: internal/service/file.go:317
+#: internal/service/file.go:337
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:823
+#: internal/service/file.go:843
 msgid "open upload file error: %v"
 msgstr "開啟上傳檔案錯誤：%v"
 
@@ -4743,7 +4747,7 @@ msgstr "路徑不存在：%s"
 msgid "path is not a directory: %s"
 msgstr "路徑不是目錄：%s"
 
-#: internal/service/file.go:137
+#: internal/service/file.go:148
 #: internal/service/ws.go:113
 msgid "path, service or container is required"
 msgstr "路徑、服務或容器是必填項"
@@ -4796,9 +4800,9 @@ msgid "please connect to the source server first"
 msgstr "請先連接源伺服器"
 
 #: internal/biz/user.go:115
-#: internal/service/file.go:280
-#: internal/service/file.go:398
-#: internal/service/file.go:449
+#: internal/service/file.go:300
+#: internal/service/file.go:418
+#: internal/service/file.go:469
 msgid "please don't do this"
 msgstr "請不要這樣做"
 
@@ -4900,11 +4904,11 @@ msgstr "執行中"
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
-#: internal/service/file.go:781
-#: internal/service/file.go:830
-#: internal/service/file.go:840
-#: internal/service/file.go:858
-#: internal/service/file.go:863
+#: internal/service/file.go:801
+#: internal/service/file.go:850
+#: internal/service/file.go:860
+#: internal/service/file.go:878
+#: internal/service/file.go:883
 msgid "save chunk error: %v"
 msgstr "儲存分塊錯誤：%v"
 
@@ -5046,13 +5050,13 @@ msgstr "目標端命令執行失敗"
 msgid "target import failed: %v"
 msgstr "目標端匯入失敗：%v"
 
-#: internal/service/file.go:92
+#: internal/service/file.go:94
 msgid "target is a directory"
 msgstr "目標是一個目錄"
 
-#: internal/service/file.go:304
-#: internal/service/file.go:764
-#: internal/service/file.go:895
+#: internal/service/file.go:324
+#: internal/service/file.go:784
+#: internal/service/file.go:915
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -5286,7 +5290,7 @@ msgstr "不支援的系統"
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上傳的憑證無法設定為自動續期"
 
-#: internal/service/file.go:327
+#: internal/service/file.go:347
 msgid "upload file error: %v"
 msgstr "上傳檔案錯誤：%v"
 
@@ -5330,6 +5334,10 @@ msgstr "未找到 Web 掛鉤腳本"
 #: internal/biz/alert.go:873
 msgid "website %s expires in %s days"
 msgstr "網站 %s 將在 %s 天後到期"
+
+#: internal/service/website.go:168
+msgid "website %s has no config for the current web server, rebuild it first"
+msgstr "網站 %s 沒有當前網絡伺服器的配置，請先重建它"
 
 #: internal/biz/alert.go:907
 msgid "website 5xx responses this hour"
@@ -5380,9 +5388,9 @@ msgstr "萬用字元網域無法使用 HTTP 驗證"
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
-#: internal/service/file.go:334
-#: internal/service/file.go:338
-#: internal/service/file.go:899
+#: internal/service/file.go:354
+#: internal/service/file.go:358
+#: internal/service/file.go:919
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
