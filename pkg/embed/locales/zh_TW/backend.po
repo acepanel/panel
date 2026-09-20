@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-09-20 18:11\n"
+"PO-Revision-Date: 2026-09-20 19:16\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -65,7 +65,7 @@ msgstr "兩步驗證 URL： %s"
 msgid "5 minutes load"
 msgstr "5 分鐘負載"
 
-#: internal/service/environment_php.go:751
+#: internal/service/environment_php.go:769
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲存"
 
@@ -73,7 +73,7 @@ msgstr "APCu 是 PHP 的使用者級快取，提供快速的記憶體鍵值儲�
 msgid "AUTHOR"
 msgstr "作者"
 
-#: internal/service/environment_php.go:191
+#: internal/service/environment_php.go:197
 msgid "Accepted Connections"
 msgstr "已接受連接"
 
@@ -118,7 +118,7 @@ msgstr "活動連接"
 msgid "Active Primary Shards"
 msgstr "活躍主分片"
 
-#: internal/service/environment_php.go:196
+#: internal/service/environment_php.go:202
 msgid "Active Processes"
 msgstr "活躍處理程序"
 
@@ -211,7 +211,7 @@ msgstr "應用程式解除安裝失敗：%v"
 msgid "App update failed: %v"
 msgstr "應用程式更新失敗：%v"
 
-#: internal/service/environment_php.go:188
+#: internal/service/environment_php.go:194
 msgid "Application Pool"
 msgstr "應用程序池"
 
@@ -379,7 +379,7 @@ msgstr "已發送字節"
 msgid "Bytes/sec"
 msgstr "每秒字節"
 
-#: internal/service/environment_php.go:796
+#: internal/service/environment_php.go:814
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr "Bzip2 是一個用於壓縮與解壓縮檔案的函式庫"
 
@@ -404,7 +404,7 @@ msgstr "版權"
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
-#: internal/service/environment_php.go:836
+#: internal/service/environment_php.go:854
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一個用於處理日期的庫"
 
@@ -517,7 +517,7 @@ msgstr "每秒執行命令數"
 msgid "Compose"
 msgstr "編排"
 
-#: internal/service/environment_php.go:696
+#: internal/service/environment_php.go:714
 msgid "Composer is not installed"
 msgstr "未安裝 Composer"
 
@@ -873,7 +873,7 @@ msgstr "啟用防火牆"
 msgid "Enable or disable a cron task"
 msgstr "啟用或禁用計劃任務"
 
-#: internal/service/environment_php.go:826
+#: internal/service/environment_php.go:844
 msgid "Enchant is a spell-checking library"
 msgstr "Enchant 是一個拼寫檢查庫"
 
@@ -924,11 +924,11 @@ msgstr "錯誤"
 msgid "Error Buffer Max"
 msgstr "錯誤緩衝區上限"
 
-#: internal/service/environment_php.go:806
+#: internal/service/environment_php.go:824
 msgid "Event is a library for handling events"
 msgstr "Event 是一個用於處理事件的庫"
 
-#: internal/service/environment_php.go:761
+#: internal/service/environment_php.go:779
 msgid "Exif is a library for reading and writing image metadata"
 msgstr "Exif 是一個用於讀寫影像中繼資料的函式庫"
 
@@ -1151,7 +1151,7 @@ msgstr "檔案哈希"
 msgid "File Name"
 msgstr "檔案名稱"
 
-#: internal/service/environment_php.go:726
+#: internal/service/environment_php.go:744
 msgid "Fileinfo is a library used to identify file types"
 msgstr "Fileinfo 是一個用於識別檔案類型的函式庫"
 
@@ -1227,7 +1227,7 @@ msgstr "沒有使用索引的範圍 Join"
 msgid "GLOBAL OPTIONS"
 msgstr "全局選項"
 
-#: internal/service/environment_php.go:841
+#: internal/service/environment_php.go:859
 msgid "GMP is a library for handling large integers"
 msgstr "GMP 是一個用於處理大整數的庫"
 
@@ -1247,7 +1247,7 @@ msgstr "檢視防火牆狀態"
 msgid "Get panel setting (use only under guidance)"
 msgstr "讀取面板設定（僅在指導下使用）"
 
-#: internal/service/environment_php.go:861
+#: internal/service/environment_php.go:879
 msgid "Gettext is a library for handling multilingual support"
 msgstr "Gettext 是一個處理多語言支援的函式庫"
 
@@ -1329,7 +1329,7 @@ msgstr "ID：%d，名稱：%s，類型：%s，狀態：%s，路徑：%s"
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr "ID: %d, 使用者名稱: %s, 電子郵件: %s, 建立時間: %s"
 
-#: internal/service/environment_php.go:786
+#: internal/service/environment_php.go:804
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr "IMAP 模組允許 PHP 讀取、搜尋、刪除、下載和管理郵件"
 
@@ -1355,7 +1355,7 @@ msgstr "IP 列表"
 msgid "IP Max Keys"
 msgstr "IP 鍵最大值"
 
-#: internal/service/environment_php.go:195
+#: internal/service/environment_php.go:201
 msgid "Idle Processes"
 msgstr "閒置處理程序"
 
@@ -1371,7 +1371,7 @@ msgstr "如果您無法存取，請檢查伺服器的安全群組和防火牆是
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr "如果您仍然無法存取，請嘗試執行 `acepanel https off` 關閉面板 HTTPS"
 
-#: internal/service/environment_php.go:736
+#: internal/service/environment_php.go:754
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr "Igbinary 是一個用於序列化與反序列化資料的函式庫"
 
@@ -1379,7 +1379,7 @@ msgstr "Igbinary 是一個用於序列化與反序列化資料的函式庫"
 msgid "Image"
 msgstr "鏡像"
 
-#: internal/service/environment_php.go:756
+#: internal/service/environment_php.go:774
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一套用於建立、編輯與合成影像的免費軟體"
 
@@ -1414,11 +1414,11 @@ msgstr "Innodb 索引命中率"
 msgid "Insert Operations"
 msgstr "插入操作"
 
-#: internal/service/environment_php.go:677
+#: internal/service/environment_php.go:695
 msgid "Install Composer"
 msgstr "安裝 Composer"
 
-#: internal/service/environment_php.go:317
+#: internal/service/environment_php.go:323
 msgid "Install PHP-%d %s module"
 msgstr "安裝 PHP-%d %s 模組"
 
@@ -1450,7 +1450,7 @@ msgstr "網路介面"
 msgid "Interval"
 msgstr "間隔"
 
-#: internal/service/environment_php.go:856
+#: internal/service/environment_php.go:874
 msgid "Intl is a library for handling internationalization and localization"
 msgstr "Intl 是一個處理國際化和本地化的庫"
 
@@ -1501,7 +1501,7 @@ msgstr "資料庫鍵查詢命中次數"
 msgid "Keyspace Misses"
 msgstr "資料庫鍵查詢未命中次數"
 
-#: internal/service/environment_php.go:821
+#: internal/service/environment_php.go:839
 msgid "LDAP is a protocol for accessing directory services"
 msgstr "LDAP 是一種用於存取目錄服務的協定"
 
@@ -1578,11 +1578,11 @@ msgstr "監聽地址"
 msgid "Listen Port"
 msgstr "監聽連接埠"
 
-#: internal/service/environment_php.go:192
+#: internal/service/environment_php.go:198
 msgid "Listen Queue"
 msgstr "監聽佇列"
 
-#: internal/service/environment_php.go:194
+#: internal/service/environment_php.go:200
 msgid "Listen Queue Length"
 msgstr "監聽佇列長度"
 
@@ -1636,7 +1636,7 @@ msgstr "日誌段位元組數"
 msgid "Log rotation"
 msgstr "日誌輪替"
 
-#: internal/service/environment_php.go:198
+#: internal/service/environment_php.go:204
 msgid "Max Active Processes"
 msgstr "最大活躍處理程序數"
 
@@ -1644,7 +1644,7 @@ msgstr "最大活躍處理程序數"
 msgid "Max Children"
 msgstr "最大子處理程序數"
 
-#: internal/service/environment_php.go:199
+#: internal/service/environment_php.go:205
 msgid "Max Children Reached"
 msgstr "達到處理程序上限次數"
 
@@ -1684,7 +1684,7 @@ msgstr "最大輸入時間"
 msgid "Max Input Vars"
 msgstr "最大輸入變數數"
 
-#: internal/service/environment_php.go:193
+#: internal/service/environment_php.go:199
 msgid "Max Listen Queue"
 msgstr "最大監聽佇列"
 
@@ -1704,7 +1704,7 @@ msgstr "最大重試次數"
 msgid "Max Spare Servers"
 msgstr "最大閒置處理程序數"
 
-#: internal/service/environment_php.go:746
+#: internal/service/environment_php.go:764
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr "Memcached 是一個用於連接 Memcached 伺服器的驅動程式"
 
@@ -1894,7 +1894,7 @@ msgstr "保留的日誌數量"
 msgid "OPTIONS"
 msgstr "選項"
 
-#: internal/service/environment_php.go:731
+#: internal/service/environment_php.go:749
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體中來提升 PHP 的效能"
 
@@ -1979,24 +1979,28 @@ msgstr "擁有者"
 msgid "PHP version used by the website (not used if not filled, php type only)"
 msgstr "網站使用的 PHP 版本（不填則不使用，僅 php 類型）"
 
-#: internal/service/environment_php.go:116
-#: internal/service/environment_php.go:135
-#: internal/service/environment_php.go:155
-#: internal/service/environment_php.go:174
-#: internal/service/environment_php.go:239
-#: internal/service/environment_php.go:253
-#: internal/service/environment_php.go:267
-#: internal/service/environment_php.go:300
-#: internal/service/environment_php.go:335
-#: internal/service/environment_php.go:371
-#: internal/service/environment_php.go:430
-#: internal/service/environment_php.go:493
-#: internal/service/environment_php.go:531
-#: internal/service/environment_php.go:55
-#: internal/service/environment_php.go:583
-#: internal/service/environment_php.go:631
-#: internal/service/environment_php.go:75
-#: internal/service/environment_php.go:96
+#: internal/service/environment_php.go:649
+msgid "PHP-%d backend is not running"
+msgstr "PHP-%d 後端未執行"
+
+#: internal/service/environment_php.go:102
+#: internal/service/environment_php.go:122
+#: internal/service/environment_php.go:141
+#: internal/service/environment_php.go:161
+#: internal/service/environment_php.go:180
+#: internal/service/environment_php.go:245
+#: internal/service/environment_php.go:259
+#: internal/service/environment_php.go:273
+#: internal/service/environment_php.go:306
+#: internal/service/environment_php.go:341
+#: internal/service/environment_php.go:377
+#: internal/service/environment_php.go:436
+#: internal/service/environment_php.go:499
+#: internal/service/environment_php.go:537
+#: internal/service/environment_php.go:589
+#: internal/service/environment_php.go:61
+#: internal/service/environment_php.go:643
+#: internal/service/environment_php.go:81
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安裝"
 
@@ -2080,7 +2084,7 @@ msgstr "峰值連接數"
 msgid "Peak Memory Usage"
 msgstr "佔用記憶體峰值"
 
-#: internal/service/environment_php.go:741
+#: internal/service/environment_php.go:759
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr "PhpRedis 連接並操作 Redis 資料庫上的資料（需先安裝上面 igbinary 模組）"
 
@@ -2199,7 +2203,7 @@ msgid "Process Count"
 msgstr "處理程序數"
 
 #: internal/request/attributes.go:119
-#: internal/service/environment_php.go:189
+#: internal/service/environment_php.go:195
 msgid "Process Manager"
 msgstr "處理程序管理方式"
 
@@ -2227,7 +2231,7 @@ msgstr "代理"
 msgid "Proxy Pass"
 msgstr "代理目標"
 
-#: internal/service/environment_php.go:831
+#: internal/service/environment_php.go:849
 msgid "Pspell is a spell-checking library"
 msgstr "Pspell 是一個拼寫檢查庫"
 
@@ -2277,7 +2281,7 @@ msgstr "查詢操作"
 msgid "Reading"
 msgstr "正在讀取"
 
-#: internal/service/environment_php.go:811
+#: internal/service/environment_php.go:829
 msgid "Readline is a library for processing text"
 msgstr "Readline 是一個處理文本的庫"
 
@@ -2406,7 +2410,7 @@ msgstr "立即執行計劃任務"
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr "在資料庫內執行定期工作，安裝後需要重啟 PostgreSQL"
 
-#: internal/service/environment_php.go:816
+#: internal/service/environment_php.go:834
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一種用於網路管理的協定"
 
@@ -2418,7 +2422,7 @@ msgstr "未找到 SSH 日誌檔案"
 msgid "SSH login succeeded"
 msgstr "SSH 登入成功"
 
-#: internal/service/environment_php.go:801
+#: internal/service/environment_php.go:819
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
 
@@ -2507,7 +2511,7 @@ msgstr "GC 最大生命週期"
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr "工作階段與物件稽核日誌記錄，安裝後需要重啟 PostgreSQL"
 
-#: internal/service/environment_php.go:506
+#: internal/service/environment_php.go:512
 msgid "Session save handler is not files, cannot clean"
 msgstr "Session 儲存處理器不是 files，無法清理"
 
@@ -2535,7 +2539,7 @@ msgstr "靜默期"
 msgid "Size"
 msgstr "大小"
 
-#: internal/service/environment_php.go:200
+#: internal/service/environment_php.go:206
 msgid "Slow Requests"
 msgstr "慢請求"
 
@@ -2594,7 +2598,7 @@ msgstr "啟動處理程序數"
 
 #: internal/apps/postgresql/app.go:195
 #: internal/apps/prometheus/app.go:98
-#: internal/service/environment_php.go:190
+#: internal/service/environment_php.go:196
 msgid "Start Time"
 msgstr "啟動時間"
 
@@ -2660,11 +2664,11 @@ msgstr "沒有索引的子查詢"
 msgid "Successfully obtained panel certificate via ACME"
 msgstr "已成功透過 ACME 取得面板憑證"
 
-#: internal/service/environment_php.go:921
+#: internal/service/environment_php.go:939
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swoole 是用於構建高效能非同步並行伺服器的 PHP 模組"
 
-#: internal/service/environment_php.go:930
+#: internal/service/environment_php.go:948
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr "Swow 是用於構建高效能非同步並行伺服器的 PHP 模組"
 
@@ -2680,15 +2684,15 @@ msgstr "透過 NTP 同步伺服器時間"
 msgid "System Log Path"
 msgstr "系統日誌路徑"
 
-#: internal/service/environment_php.go:901
+#: internal/service/environment_php.go:919
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr "Sysvmsg 是一個處理系統 V 訊息佇列的庫"
 
-#: internal/service/environment_php.go:906
+#: internal/service/environment_php.go:924
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr "Sysvsem 是一個處理系統 V 信號的庫"
 
-#: internal/service/environment_php.go:911
+#: internal/service/environment_php.go:929
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一個處理系統 V 共享記憶體的庫"
 
@@ -2857,7 +2861,7 @@ msgstr "已接收的連接總數"
 msgid "Total Memory Usage"
 msgstr "記憶體使用總量"
 
-#: internal/service/environment_php.go:197
+#: internal/service/environment_php.go:203
 msgid "Total Processes"
 msgstr "處理程序總數"
 
@@ -2922,7 +2926,7 @@ msgstr "未分配的分片"
 msgid "Uncompress %v"
 msgstr "解壓 %v"
 
-#: internal/service/environment_php.go:352
+#: internal/service/environment_php.go:358
 msgid "Uninstall PHP-%d %s module"
 msgstr "卸載 PHP-%d %s 模組"
 
@@ -3231,11 +3235,11 @@ msgstr "僅將網站資料寫入面板資料庫，不建立目錄和設定檔（
 msgid "Writing"
 msgstr "正在寫入"
 
-#: internal/service/environment_php.go:846
+#: internal/service/environment_php.go:864
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr "XLSWriter 是一個高效能讀寫 Excel 檔案的函式庫"
 
-#: internal/service/environment_php.go:851
+#: internal/service/environment_php.go:869
 msgid "XSL is a library for processing XML documents"
 msgstr "XSL 是用於處理 XML 文檔的庫"
 
@@ -3243,7 +3247,7 @@ msgstr "XSL 是用於處理 XML 文檔的庫"
 msgid "Yes"
 msgstr "是"
 
-#: internal/service/environment_php.go:791
+#: internal/service/environment_php.go:809
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一個用於處理 ZIP 檔案的函式庫"
 
@@ -3881,7 +3885,7 @@ msgstr "取得 MySQL 狀態失敗：%v"
 msgid "failed to get NTP configuration: %v"
 msgstr "取得 NTP 設定失敗：%v"
 
-#: internal/service/environment_php.go:589
+#: internal/service/environment_php.go:601
 msgid "failed to get OPcache status: %v"
 msgstr "取得 OPcache 狀態失敗：%v"
 
@@ -4262,11 +4266,11 @@ msgstr "請求 pgAdmin 失敗：%v"
 msgid "failed to request phpMyAdmin: %v"
 msgstr "請求 phpMyAdmin 失敗：%v"
 
-#: internal/service/environment_php.go:643
+#: internal/service/environment_php.go:661
 msgid "failed to reset OPcache, it may not be enabled"
 msgstr "重設 OPcache 失敗，可能尚未啟用"
 
-#: internal/service/environment_php.go:637
+#: internal/service/environment_php.go:655
 msgid "failed to reset OPcache: %v"
 msgstr "重設 OPcache 失敗：%v"
 
@@ -4429,7 +4433,7 @@ msgstr "寫入 Web 掛鉤腳本失敗：%v"
 msgid "file is too large, please download it to view"
 msgstr "檔案太大，請下載後查看"
 
-#: internal/service/environment_php.go:866
+#: internal/service/environment_php.go:884
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr "gRPC 是一個高性能、開源和通用的 RPC 框架"
 
@@ -4483,7 +4487,7 @@ msgstr "無效的密鑰，請重新整理頁面"
 msgid "invalid logical volume size"
 msgstr "無效的邏輯卷大小"
 
-#: internal/service/environment_php.go:710
+#: internal/service/environment_php.go:728
 msgid "invalid mirror url"
 msgstr "鏡像源 URL 無效"
 
@@ -4541,7 +4545,7 @@ msgstr "無效的類型"
 msgid "invalid user id, please login again"
 msgstr "無效的使用者 ID，請重新登入"
 
-#: internal/service/environment_php.go:916
+#: internal/service/environment_php.go:934
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache 之後安裝）"
 
@@ -4587,8 +4591,8 @@ msgid "module %s already exists"
 msgstr "模組 %s 已存在"
 
 #: internal/apps/rsync/app.go:80
-#: internal/service/environment_php.go:305
-#: internal/service/environment_php.go:340
+#: internal/service/environment_php.go:311
+#: internal/service/environment_php.go:346
 msgid "module %s does not exist"
 msgstr "模組 %s 不存在"
 
@@ -4752,11 +4756,11 @@ msgstr "路徑不是目錄：%s"
 msgid "path, service or container is required"
 msgstr "路徑、服務或容器是必填項"
 
-#: internal/service/environment_php.go:771
+#: internal/service/environment_php.go:789
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pdo_pgsql 是一個用於連接 PostgreSQL 的 PDO 驅動程序（需先安裝 PostgreSQL）"
 
-#: internal/service/environment_php.go:781
+#: internal/service/environment_php.go:799
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr "pdo_sqlsrv 是一個用於連接 SQL Server 的 PDO 驅動程序"
 
@@ -4778,7 +4782,7 @@ msgstr "未找到 pgAdmin 連接埠"
 msgid "pg_repack is not installed, please install it in the extensions tab first"
 msgstr "未安裝 pg_repack，請先在擴展分頁中安裝"
 
-#: internal/service/environment_php.go:766
+#: internal/service/environment_php.go:784
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr "pgsql 是一個用於連接 PostgreSQL 的驅動程序（需先安裝 PostgreSQL）"
 
@@ -4846,7 +4850,7 @@ msgstr "項目名已存在"
 msgid "project status"
 msgstr "項目狀態"
 
-#: internal/service/environment_php.go:871
+#: internal/service/environment_php.go:889
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr "protobuf 是一個用於序列化與反序列化資料的函式庫"
 
@@ -4859,7 +4863,7 @@ msgstr "代理 %s 已存在"
 msgid "proxy %s does not exist"
 msgstr "代理 %s 不存在"
 
-#: internal/service/environment_php.go:876
+#: internal/service/environment_php.go:894
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
@@ -4983,7 +4987,7 @@ msgstr "來源路徑與目標路徑不能為空"
 msgid "sqlite does not support dropping tables from here"
 msgstr "sqlite 不支援從此處刪除表"
 
-#: internal/service/environment_php.go:776
+#: internal/service/environment_php.go:794
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr "sqlsrv 是一個用於連接 SQL Server 的驅動程序"
 
@@ -5398,7 +5402,7 @@ msgstr "寫入檔案錯誤：%v"
 msgid "ws not allowed"
 msgstr "不允許 ws"
 
-#: internal/service/environment_php.go:886
+#: internal/service/environment_php.go:904
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr "xdebug 是一個用於偵錯與分析 PHP 程式碼的函式庫"
 
@@ -5406,15 +5410,15 @@ msgstr "xdebug 是一個用於偵錯與分析 PHP 程式碼的函式庫"
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr "xfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整大小"
 
-#: internal/service/environment_php.go:881
+#: internal/service/environment_php.go:899
 msgid "xhprof is a library for performance profiling"
 msgstr "xhprof 是一個用於性能分析的庫"
 
-#: internal/service/environment_php.go:891
+#: internal/service/environment_php.go:909
 msgid "yaml is a library for handling YAML"
 msgstr "yaml 是一個用於處理 YAML 的庫"
 
-#: internal/service/environment_php.go:896
+#: internal/service/environment_php.go:914
 msgid "zstd is a library for compressing and decompressing files"
 msgstr "zstd 是一個用於壓縮與解壓縮檔案的函式庫"
 
