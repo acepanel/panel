@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-09-20 14:39\n"
+"PO-Revision-Date: 2026-09-20 16:52\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -183,7 +183,7 @@ msgstr "已經初始化過了"
 msgid "Anonymous Only"
 msgstr "僅匿名"
 
-#: internal/data/app.go:254
+#: internal/data/app.go:259
 msgid "App %s %s"
 msgstr "應用 %s %s"
 
@@ -3459,27 +3459,27 @@ msgstr "無法將第 %d 行的字符 %s 儲存為 %s"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:908
+#: internal/service/file.go:910
 msgid "chunk %d is missing"
 msgstr "缺少分塊 %d"
 
-#: internal/service/file.go:871
+#: internal/service/file.go:873
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
-#: internal/service/file.go:837
+#: internal/service/file.go:839
 msgid "chunk index out of range"
 msgstr "分塊索引超出範圍"
 
-#: internal/service/file.go:867
+#: internal/service/file.go:869
 msgid "chunk size mismatch"
 msgstr "分塊大小不匹配"
 
-#: internal/service/file.go:831
+#: internal/service/file.go:833
 msgid "chunk upload not started"
 msgstr "分塊上傳未開始"
 
-#: internal/service/file.go:903
+#: internal/service/file.go:905
 msgid "chunk upload not started or chunk count mismatch"
 msgstr "分塊上傳未開始或分塊數量不匹配"
 
@@ -3516,7 +3516,7 @@ msgid "could not find database backup file"
 msgstr "找不到資料庫備份檔案"
 
 #: internal/service/file.go:330
-#: internal/service/file.go:788
+#: internal/service/file.go:790
 msgid "create directory error: %v"
 msgstr "建立目錄錯誤：%v"
 
@@ -4674,7 +4674,7 @@ msgstr "只能遷移 PHP 執行環境網站：%s"
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:843
+#: internal/service/file.go:845
 msgid "open upload file error: %v"
 msgstr "開啟上傳檔案錯誤：%v"
 
@@ -4904,11 +4904,11 @@ msgstr "執行中"
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
-#: internal/service/file.go:801
-#: internal/service/file.go:850
-#: internal/service/file.go:860
-#: internal/service/file.go:878
-#: internal/service/file.go:883
+#: internal/service/file.go:803
+#: internal/service/file.go:852
+#: internal/service/file.go:862
+#: internal/service/file.go:880
+#: internal/service/file.go:885
 msgid "save chunk error: %v"
 msgstr "儲存分塊錯誤：%v"
 
@@ -5055,8 +5055,8 @@ msgid "target is a directory"
 msgstr "目標是一個目錄"
 
 #: internal/service/file.go:324
-#: internal/service/file.go:784
-#: internal/service/file.go:915
+#: internal/service/file.go:786
+#: internal/service/file.go:917
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -5390,7 +5390,7 @@ msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
 #: internal/service/file.go:354
 #: internal/service/file.go:358
-#: internal/service/file.go:919
+#: internal/service/file.go:921
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
