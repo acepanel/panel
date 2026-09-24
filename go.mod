@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/bddjr/hlfhr v1.6.1
-	github.com/beevik/ntp v1.5.0
+	github.com/beevik/ntp v1.6.0
 	github.com/cilium/ebpf v0.22.0
 	github.com/coder/websocket v1.8.15
 	github.com/containerd/errdefs v1.0.0
