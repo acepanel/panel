@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-09-24 13:29\n"
+"PO-Revision-Date: 2026-09-24 14:55\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -632,7 +632,7 @@ msgid "Command may still running. Closing the window will terminate the command.
 msgstr "命令可能仍在執行。關閉視窗將終止命令，您確定嗎？"
 
 #: src/components/common/PtyTerminalModal.vue:208
-#: src/components/common/TaskWindow.vue:102
+#: src/components/common/TaskWindow.vue:106
 #: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
@@ -1037,7 +1037,7 @@ msgid "Reload"
 msgstr "重載"
 
 #: src/components/common/TaskWindow.vue:25
-#: src/components/common/TaskWindow.vue:116
+#: src/components/common/TaskWindow.vue:120
 #: src/views/ssh/SftpPanel.vue:292
 #: src/views/task/TaskView.vue:42
 #: src/views/toolbox/ProcessView.vue:53
@@ -1076,6 +1076,11 @@ msgstr "取消任務"
 #: src/views/task/TaskView.vue:103
 msgid "Are you sure you want to cancel task %{ name }?"
 msgstr "確定要取消任務 %{ name } 嗎？"
+
+#: src/components/common/TaskWindow.vue:53
+#: src/views/task/TaskView.vue:156
+msgid "Canceled successfully"
+msgstr "已成功取消"
 
 #: src/components/common/TunePresetModal.vue:84
 #: src/views/apps/apache/ApacheConfigTuneView.vue:161
@@ -2871,7 +2876,7 @@ msgstr "修改配置"
 #: src/views/apps/nginx/NginxIndex.vue:505
 #: src/views/apps/openlitespeed/IndexView.vue:159
 msgid "This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 %{name} 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 %{name} 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/apache/IndexView.vue:99
 #: src/views/apps/clickhouse/IndexView.vue:143
@@ -3097,11 +3102,11 @@ msgstr "主配置"
 
 #: src/views/apps/clickhouse/IndexView.vue:125
 msgid "This modifies the ClickHouse configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 ClickHouse 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 ClickHouse 設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/codeserver/IndexView.vue:44
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Code Server 的設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Code Server 的設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/docker/IndexView.vue:63
 #: src/views/apps/docker/IndexView.vue:70
@@ -3387,7 +3392,7 @@ msgstr "最大堆大小（-Xmx）"
 
 #: src/views/apps/elasticsearch/IndexView.vue:69
 msgid "This modifies the ElasticSearch main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 ElasticSearch 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 ElasticSearch 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/fail2ban/IndexView.vue:70
 #: src/views/apps/fail2ban/IndexView.vue:405
@@ -4373,7 +4378,7 @@ msgstr "訪客用於訪問 stcp、sudp 和 xtcp 代理，必須在發起訪問�
 
 #: src/views/apps/frp/IndexView.vue:87
 msgid "This modifies the Frps main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 Frps 主配置檔案。如果不瞭解各引數的含義，請勿隨意修改！"
+msgstr "這會修改 Frps 主配置檔案。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/frp/IndexView.vue:100
 #: src/views/apps/frp/IndexView.vue:158
@@ -4427,11 +4432,11 @@ msgstr "訪客管理"
 
 #: src/views/apps/frp/IndexView.vue:145
 msgid "This modifies the Frpc main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這會修改 Frpc 主配置檔案。如果不瞭解各引數的含義，請勿隨意修改！"
+msgstr "這會修改 Frpc 主配置檔案。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/gitea/IndexView.vue:42
 msgid "This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Gitea 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Gitea 設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:152
 msgid "Grafana server settings."
@@ -4650,7 +4655,7 @@ msgstr "前往 Grafana → Dashboards → New → Import，輸入上方 ID 並�
 
 #: src/views/apps/grafana/IndexView.vue:96
 msgid "This modifies the Grafana main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Grafana 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Grafana 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/grafana/IndexView.vue:117
 msgid "Data Sources"
@@ -4658,7 +4663,7 @@ msgstr "資料源"
 
 #: src/views/apps/kafka/IndexView.vue:69
 msgid "This modifies the Kafka main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Kafka 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Kafka 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/kafka/KafkaConfigTuneView.vue:60
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:83
@@ -4766,7 +4771,7 @@ msgstr "例如 4"
 
 #: src/views/apps/minio/IndexView.vue:42
 msgid "This is modifying the MinIO environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr "這將修改 MinIO 環境變數檔案 /etc/default/minio。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 MinIO 環境變數檔案 /etc/default/minio。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/mongodb/IndexView.vue:88
 msgid "Admin Password"
@@ -4778,7 +4783,7 @@ msgstr "MongoDB 管理員密碼用於管理資料庫。請妥善保管！"
 
 #: src/views/apps/mongodb/IndexView.vue:121
 msgid "This modifies the MongoDB configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 MongoDB 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 MongoDB 設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:59
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:117
@@ -5024,7 +5029,7 @@ msgstr "\"root\" 使用者密碼用於管理資料庫系統。請妥善保管！
 
 #: src/views/apps/mysql/MysqlIndex.vue:156
 msgid "This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 %{ name } 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 %{ name } 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/mysql/MysqlIndex.vue:181
 #: src/views/apps/postgresql/IndexView.vue:222
@@ -5740,7 +5745,7 @@ msgstr "每行一個，例如 127.0.0.1 或 10.0.0.0/8"
 
 #: src/views/apps/opensearch/IndexView.vue:69
 msgid "This modifies the OpenSearch main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 OpenSearch 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 OpenSearch 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:71
 msgid "OpenSearch cluster and network settings."
@@ -5812,8 +5817,8 @@ msgid "Modify phpMyAdmin access port"
 msgstr "修改 phpMyAdmin 存取連接埠"
 
 #: src/views/apps/phpmyadmin/IndexView.vue:94
-msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 phpMyAdmin 的 OpenResty 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgid "This modifies the web server configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgstr "這將修改 phpMyAdmin 的 Web 伺服器設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/podman/IndexView.vue:55
 msgid "Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!"
@@ -5845,7 +5850,7 @@ msgstr "\"postgres\" 超級使用者密碼用於管理資料庫系統。請妥�
 
 #: src/views/apps/postgresql/IndexView.vue:195
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 PostgreSQL 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PostgreSQL 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:216
 msgctxt "postgresql"
@@ -5858,7 +5863,7 @@ msgstr "使用者設定"
 
 #: src/views/apps/postgresql/IndexView.vue:229
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 PostgreSQL 使用者設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PostgreSQL 使用者設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:272
 msgid "Application Logs"
@@ -6228,7 +6233,7 @@ msgstr "預設情況下，防火牆不允許存取 Prometheus 連接埠（9090�
 
 #: src/views/apps/prometheus/IndexView.vue:100
 msgid "This modifies the Prometheus main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Prometheus 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Prometheus 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/prometheus/IndexView.vue:121
 msgid "Alertmanager"
@@ -6431,7 +6436,7 @@ msgstr "例如 99"
 
 #: src/views/apps/redis/IndexView.vue:70
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Redis 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Redis 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:34
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:31
@@ -6609,7 +6614,7 @@ msgstr "未配置 maxmemory，記憶體用量可能無限制增加。請在參�
 
 #: src/views/apps/rocketmq/IndexView.vue:72
 msgid "This modifies the RocketMQ broker configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 RocketMQ broker 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 RocketMQ broker 設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:86
 msgid "RocketMQ broker basic settings."
@@ -6694,7 +6699,7 @@ msgstr "新增模組"
 
 #: src/views/apps/rsync/IndexView.vue:241
 msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Rsync 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Rsync 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/rsync/IndexView.vue:280
 #: src/views/apps/supervisor/IndexView.vue:449
@@ -6821,7 +6826,7 @@ msgstr "新增處理程序"
 
 #: src/views/apps/supervisor/IndexView.vue:395
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Supervisor 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Supervisor 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/supervisor/IndexView.vue:416
 msgid "Daemon Logs"
@@ -6951,7 +6956,7 @@ msgstr "原始配置"
 
 #: src/views/apps/valkey/IndexView.vue:70
 msgid "This modifies the Valkey main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 Valkey 主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 Valkey 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:135
 msgid "Common Valkey general settings."
@@ -9174,7 +9179,7 @@ msgstr "PHP 請求由 OpenLiteSpeed 通過 LSAPI 處理，並且不會經過 php
 
 #: src/views/environment/PHPView.vue:334
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 PHP %{ version } 的主設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PHP %{ version } 的主要配置文件。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/environment/PHPView.vue:348
 msgid "FPM Configuration"
@@ -9182,7 +9187,7 @@ msgstr "FPM 配置"
 
 #: src/views/environment/PHPView.vue:352
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "這將修改 PHP %{ version } 的 FPM 設定檔。如果您不了解每個參數的含義，請不要隨意修改！"
+msgstr "這將修改 PHP %{ version } 的 FPM 設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/environment/PHPView.vue:370
 msgid "Processes are managed by OpenLiteSpeed under LSAPI, so php-fpm metrics do not apply here. Live status is on the OpenLiteSpeed app page."
@@ -12672,10 +12677,6 @@ msgstr "您確定要刪除所選任務嗎？"
 #: src/views/task/TaskView.vue:60
 msgid "Completion Time"
 msgstr "完成時間"
-
-#: src/views/task/TaskView.vue:156
-msgid "Canceled successfully"
-msgstr "已成功取消"
 
 #: src/views/task/TaskView.vue:168
 msgid "If logs cannot be loaded, please disable ad blockers!"
