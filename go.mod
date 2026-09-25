@@ -23,7 +23,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.6.1
 	github.com/hashicorp/go-version v1.9.0
-	github.com/klauspost/compress v1.20.0
+	github.com/klauspost/compress v1.20.1
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7
@@ -48,7 +48,7 @@ require (
 	github.com/libtnb/validator/contrib/openapi v0.3.0
 	github.com/libtnb/wire v0.3.0
 	github.com/medama-io/go-useragent v1.2.5
-	github.com/mholt/acmez/v3 v3.1.6
+	github.com/mholt/acmez/v3 v3.1.7
 	github.com/moby/moby/api v1.56.0
 	github.com/moby/moby/client v0.6.0
 	github.com/molecule-man/go-brrr v1.1.1
