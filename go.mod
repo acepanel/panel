@@ -51,7 +51,7 @@ require (
 	github.com/mholt/acmez/v3 v3.1.7
 	github.com/moby/moby/api v1.56.1
 	github.com/moby/moby/client v0.6.1
-	github.com/molecule-man/go-brrr v1.1.1
+	github.com/molecule-man/go-brrr v1.2.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/sftp v1.13.11
