@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-09-24 13:23\n"
+"PO-Revision-Date: 2026-10-05 09:40\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -4051,7 +4051,7 @@ msgstr "获取最新版本下载链接失败"
 msgid "failed to get the latest version: %v"
 msgstr "获取最新版本失败： %v"
 
-#: internal/apps/fail2ban/app.go:224
+#: internal/apps/fail2ban/app.go:229
 msgid "failed to get the status of rule %s: %v"
 msgstr "获取规则 %s 的状态失败：%v"
 
@@ -4905,6 +4905,10 @@ msgstr "源服务器上已不存在该资源"
 #: internal/data/website.go:723
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr "伪静态规则、自定义配置、速率限制和真实 IP 设置不会迁移"
+
+#: internal/apps/fail2ban/app.go:226
+msgid "rule %s is not running, please try restarting Fail2ban"
+msgstr "规则 %s 未运行，请尝试重启 Fail2ban"
 
 #: internal/apps/fail2ban/app.go:131
 msgid "rule already exists"

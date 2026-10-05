@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-09-24 14:55\n"
+"PO-Revision-Date: 2026-10-05 09:38\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:560
@@ -27,7 +27,7 @@ msgstr "QQ 群"
 
 #: src/components/common/AppFooter.vue:38
 #: src/locales/menu.ts:24
-#: src/views/apps/fail2ban/IndexView.vue:362
+#: src/views/apps/fail2ban/IndexView.vue:364
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:356
 #: src/views/backup/ListView.vue:407
@@ -287,9 +287,9 @@ msgstr "目前狀態無法儲存"
 #: src/views/apps/docker/IndexView.vue:152
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:58
 #: src/views/apps/elasticsearch/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:175
-#: src/views/apps/fail2ban/IndexView.vue:226
-#: src/views/apps/fail2ban/IndexView.vue:236
+#: src/views/apps/fail2ban/IndexView.vue:177
+#: src/views/apps/fail2ban/IndexView.vue:228
+#: src/views/apps/fail2ban/IndexView.vue:238
 #: src/views/apps/frp/FrpcConfigTuneView.vue:64
 #: src/views/apps/frp/FrpProxyModal.vue:236
 #: src/views/apps/frp/FrpsConfigTuneView.vue:64
@@ -390,7 +390,7 @@ msgstr "選擇檔案"
 #: src/views/app/EnvironmentView.vue:38
 #: src/views/app/InstalledView.vue:158
 #: src/views/apps/fail2ban/IndexView.vue:52
-#: src/views/apps/fail2ban/IndexView.vue:445
+#: src/views/apps/fail2ban/IndexView.vue:447
 #: src/views/apps/frp/FrpProxyModal.vue:255
 #: src/views/apps/frp/FrpProxyView.vue:22
 #: src/views/apps/frp/FrpVisitorModal.vue:122
@@ -712,7 +712,7 @@ msgstr "連接中……"
 msgid "Connection failed, retrying..."
 msgstr "連接失敗，正在重試..."
 
-#: src/components/common/RealtimeLog.vue:448
+#: src/components/common/RealtimeLog.vue:492
 #: src/views/apps/clickhouse/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:77
 #: src/views/apps/mysql/MysqlIndex.vue:112
@@ -724,27 +724,27 @@ msgstr "連接失敗，正在重試..."
 msgid "Copied successfully"
 msgstr "複製成功"
 
-#: src/components/common/RealtimeLog.vue:487
+#: src/components/common/RealtimeLog.vue:531
 msgid "Not found"
 msgstr "未找到"
 
-#: src/components/common/RealtimeLog.vue:570
+#: src/components/common/RealtimeLog.vue:614
 msgid "Pause Auto-scroll"
 msgstr "暫停自動捲動"
 
-#: src/components/common/RealtimeLog.vue:570
+#: src/components/common/RealtimeLog.vue:614
 msgid "Resume Auto-scroll"
 msgstr "恢復自動捲動"
 
-#: src/components/common/RealtimeLog.vue:576
+#: src/components/common/RealtimeLog.vue:620
 msgid "Jump to Top"
 msgstr "跳至頂部"
 
-#: src/components/common/RealtimeLog.vue:579
+#: src/components/common/RealtimeLog.vue:623
 msgid "Jump to Bottom"
 msgstr "跳至底部"
 
-#: src/components/common/RealtimeLog.vue:584
+#: src/components/common/RealtimeLog.vue:628
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:710
 #: src/views/app/AppView.vue:237
@@ -759,65 +759,65 @@ msgstr "跳至底部"
 msgid "Search"
 msgstr "搜尋"
 
-#: src/components/common/RealtimeLog.vue:593
+#: src/components/common/RealtimeLog.vue:637
 msgid "Enter keyword and press Enter"
 msgstr "輸入關鍵字並按 Enter"
 
-#: src/components/common/RealtimeLog.vue:596
+#: src/components/common/RealtimeLog.vue:640
 #: src/views/app/TemplateDeployModal.vue:615
 msgid "Previous"
 msgstr "返回"
 
-#: src/components/common/RealtimeLog.vue:599
+#: src/components/common/RealtimeLog.vue:643
 #: src/views/app/TemplateDeployModal.vue:624
 #: src/views/app/TemplateDeployModal.vue:627
 msgid "Next"
 msgstr "下一步"
 
-#: src/components/common/RealtimeLog.vue:604
+#: src/components/common/RealtimeLog.vue:648
 msgid "Only loaded logs are searched"
 msgstr "僅搜尋已載入的日誌"
 
-#: src/components/common/RealtimeLog.vue:613
+#: src/components/common/RealtimeLog.vue:657
 msgid "Disable Line Wrap"
 msgstr "禁用自動換行"
 
-#: src/components/common/RealtimeLog.vue:613
+#: src/components/common/RealtimeLog.vue:657
 msgid "Enable Line Wrap"
 msgstr "啟用自動換行"
 
-#: src/components/common/RealtimeLog.vue:618
+#: src/components/common/RealtimeLog.vue:662
 msgid "Copy All"
 msgstr "全部複製"
 
-#: src/components/common/RealtimeLog.vue:622
+#: src/components/common/RealtimeLog.vue:666
 msgid "Decrease Font Size"
 msgstr "縮小字體"
 
-#: src/components/common/RealtimeLog.vue:625
+#: src/components/common/RealtimeLog.vue:669
 msgid "Increase Font Size"
 msgstr "放大字體"
 
-#: src/components/common/RealtimeLog.vue:631
+#: src/components/common/RealtimeLog.vue:675
 #: src/views/ssh/IndexView.vue:550
 msgid "Exit Fullscreen"
 msgstr "結束全螢幕"
 
-#: src/components/common/RealtimeLog.vue:631
+#: src/components/common/RealtimeLog.vue:675
 #: src/views/ssh/IndexView.vue:550
 msgid "Fullscreen"
 msgstr "全螢幕"
 
-#: src/components/common/RealtimeLog.vue:641
+#: src/components/common/RealtimeLog.vue:685
 msgid "No more logs"
 msgstr "沒有更多日誌"
 
-#: src/components/common/RealtimeLog.vue:655
-#: src/components/common/RealtimeLog.vue:682
+#: src/components/common/RealtimeLog.vue:699
+#: src/components/common/RealtimeLog.vue:726
 msgid "No logs available"
 msgstr "暫無日誌資料"
 
-#: src/components/common/RealtimeLog.vue:675
+#: src/components/common/RealtimeLog.vue:719
 msgid "%{ count } new line"
 msgid_plural "%{ count } new lines"
 msgstr[0] "%{ count } 行新日誌"
@@ -958,7 +958,7 @@ msgstr "自啟動已成功禁用"
 #: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:167
 #: src/views/apps/elasticsearch/IndexView.vue:62
-#: src/views/apps/fail2ban/IndexView.vue:271
+#: src/views/apps/fail2ban/IndexView.vue:273
 #: src/views/apps/frp/IndexView.vue:77
 #: src/views/apps/frp/IndexView.vue:129
 #: src/views/apps/gitea/IndexView.vue:35
@@ -1192,7 +1192,7 @@ msgstr "放棄"
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:97
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:132
 #: src/views/apps/elasticsearch/IndexView.vue:82
-#: src/views/apps/fail2ban/IndexView.vue:483
+#: src/views/apps/fail2ban/IndexView.vue:485
 #: src/views/apps/frp/FrpcConfigTuneView.vue:115
 #: src/views/apps/frp/FrpcConfigTuneView.vue:145
 #: src/views/apps/frp/FrpcConfigTuneView.vue:221
@@ -1743,7 +1743,7 @@ msgstr "重新命名"
 #: src/components/file-editor/FileTree.vue:595
 #: src/components/system/composables/useConfirm.ts:32
 #: src/components/system/ConfirmDialog.vue:54
-#: src/views/apps/fail2ban/IndexView.vue:125
+#: src/views/apps/fail2ban/IndexView.vue:127
 #: src/views/apps/frp/FrpProxyView.vue:105
 #: src/views/apps/frp/FrpVisitorView.vue:94
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:127
@@ -1838,7 +1838,7 @@ msgid "Are you sure you want to delete %{ name }?"
 msgstr "您確定要刪除 %{ name } 嗎？"
 
 #: src/components/file-editor/FileTree.vue:600
-#: src/views/apps/fail2ban/IndexView.vue:219
+#: src/views/apps/fail2ban/IndexView.vue:221
 #: src/views/apps/frp/FrpProxyView.vue:125
 #: src/views/apps/frp/FrpVisitorView.vue:114
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:185
@@ -2224,7 +2224,7 @@ msgstr "在主頁顯示"
 #: src/views/app/InstalledView.vue:74
 #: src/views/app/InstalledView.vue:176
 #: src/views/apps/fail2ban/IndexView.vue:74
-#: src/views/apps/fail2ban/IndexView.vue:141
+#: src/views/apps/fail2ban/IndexView.vue:143
 #: src/views/apps/frp/FrpProxyView.vue:73
 #: src/views/apps/frp/FrpVisitorView.vue:62
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
@@ -2927,7 +2927,7 @@ msgstr "負載狀態"
 #: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:453
 #: src/views/apps/elasticsearch/IndexView.vue:100
-#: src/views/apps/fail2ban/IndexView.vue:329
+#: src/views/apps/fail2ban/IndexView.vue:331
 #: src/views/apps/frp/IndexView.vue:122
 #: src/views/apps/frp/IndexView.vue:180
 #: src/views/apps/gitea/IndexView.vue:60
@@ -3395,31 +3395,31 @@ msgid "This modifies the ElasticSearch main configuration file. If you do not un
 msgstr "這將修改 ElasticSearch 主設定檔。如果您不了解各項參數的含義，請勿隨意修改！"
 
 #: src/views/apps/fail2ban/IndexView.vue:70
-#: src/views/apps/fail2ban/IndexView.vue:405
-#: src/views/apps/fail2ban/IndexView.vue:451
+#: src/views/apps/fail2ban/IndexView.vue:407
+#: src/views/apps/fail2ban/IndexView.vue:453
 msgid "Max Retries"
 msgstr "最大重試次數"
 
 #: src/views/apps/fail2ban/IndexView.vue:71
-#: src/views/apps/fail2ban/IndexView.vue:411
-#: src/views/apps/fail2ban/IndexView.vue:467
+#: src/views/apps/fail2ban/IndexView.vue:413
+#: src/views/apps/fail2ban/IndexView.vue:469
 msgid "Ban Time"
 msgstr "封禁時間"
 
 #: src/views/apps/fail2ban/IndexView.vue:72
-#: src/views/apps/fail2ban/IndexView.vue:408
-#: src/views/apps/fail2ban/IndexView.vue:459
+#: src/views/apps/fail2ban/IndexView.vue:410
+#: src/views/apps/fail2ban/IndexView.vue:461
 msgid "Find Time"
 msgstr "查找時間"
 
-#: src/views/apps/fail2ban/IndexView.vue:91
+#: src/views/apps/fail2ban/IndexView.vue:93
 #: src/views/cert/CertView.vue:344
 #: src/views/database/ElasticsearchDataView.vue:186
 #: src/views/database/RedisDataView.vue:141
 msgid "View"
 msgstr "查看"
 
-#: src/views/apps/fail2ban/IndexView.vue:109
+#: src/views/apps/fail2ban/IndexView.vue:111
 #: src/views/apps/frp/FrpProxyView.vue:89
 #: src/views/apps/frp/FrpVisitorView.vue:78
 #: src/views/apps/rsync/IndexView.vue:95
@@ -3428,20 +3428,20 @@ msgstr "查看"
 msgid "Configure"
 msgstr "配置"
 
-#: src/views/apps/fail2ban/IndexView.vue:118
+#: src/views/apps/fail2ban/IndexView.vue:120
 msgid "Are you sure you want to delete rule %{ name }?"
 msgstr "您確定要刪除規則 %{ name } 嗎？"
 
-#: src/views/apps/fail2ban/IndexView.vue:153
+#: src/views/apps/fail2ban/IndexView.vue:155
 msgid "Are you sure you want to unban %{ ip }?"
 msgstr "您確定要解封 %{ ip } 嗎？"
 
-#: src/views/apps/fail2ban/IndexView.vue:154
-#: src/views/apps/fail2ban/IndexView.vue:159
+#: src/views/apps/fail2ban/IndexView.vue:156
+#: src/views/apps/fail2ban/IndexView.vue:161
 msgid "Unban"
 msgstr "解封"
 
-#: src/views/apps/fail2ban/IndexView.vue:208
+#: src/views/apps/fail2ban/IndexView.vue:210
 #: src/views/apps/pureftpd/IndexView.vue:130
 #: src/views/apps/rsync/IndexView.vue:160
 #: src/views/apps/s3fs/IndexView.vue:77
@@ -3450,34 +3450,34 @@ msgstr "解封"
 msgid "Added successfully"
 msgstr "新增成功"
 
-#: src/views/apps/fail2ban/IndexView.vue:252
+#: src/views/apps/fail2ban/IndexView.vue:254
 msgid "Unbanned successfully"
 msgstr "解封成功"
 
-#: src/views/apps/fail2ban/IndexView.vue:274
+#: src/views/apps/fail2ban/IndexView.vue:276
 #: src/views/firewall/SettingView.vue:130
 msgid "IP Whitelist"
 msgstr "IP 白名單"
 
-#: src/views/apps/fail2ban/IndexView.vue:279
+#: src/views/apps/fail2ban/IndexView.vue:281
 msgid "IP whitelist, separated by commas"
 msgstr "IP 白名單，以逗號分隔"
 
-#: src/views/apps/fail2ban/IndexView.vue:289
+#: src/views/apps/fail2ban/IndexView.vue:291
 msgid "Save Whitelist"
 msgstr "儲存白名單"
 
-#: src/views/apps/fail2ban/IndexView.vue:294
+#: src/views/apps/fail2ban/IndexView.vue:296
 msgid "Rule Management"
 msgstr "規則管理"
 
-#: src/views/apps/fail2ban/IndexView.vue:296
+#: src/views/apps/fail2ban/IndexView.vue:298
 msgid "Rule List"
 msgstr "規則列表"
 
-#: src/views/apps/fail2ban/IndexView.vue:324
-#: src/views/apps/fail2ban/IndexView.vue:334
-#: src/views/apps/fail2ban/IndexView.vue:338
+#: src/views/apps/fail2ban/IndexView.vue:326
+#: src/views/apps/fail2ban/IndexView.vue:336
+#: src/views/apps/fail2ban/IndexView.vue:340
 #: src/views/monitor/AlertRuleModal.vue:129
 #: src/views/monitor/AlertView.vue:202
 #: src/views/tamper/RuleModal.vue:89
@@ -3486,15 +3486,15 @@ msgstr "規則列表"
 msgid "Add Rule"
 msgstr "新增規則"
 
-#: src/views/apps/fail2ban/IndexView.vue:344
+#: src/views/apps/fail2ban/IndexView.vue:346
 msgid "If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)"
 msgstr "如果一個 IP 在偵測時間（秒）內超過最大重試次數，將被封鎖指定的封鎖時間（秒）"
 
-#: src/views/apps/fail2ban/IndexView.vue:351
+#: src/views/apps/fail2ban/IndexView.vue:353
 msgid "Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective"
 msgstr "受保護的連接埠會自動取得。如果您修改了某個規則對應的連接埠，請刪除並重新新增該規則，否則保護可能無效"
 
-#: src/views/apps/fail2ban/IndexView.vue:358
+#: src/views/apps/fail2ban/IndexView.vue:360
 #: src/views/apps/frp/FrpProxyModal.vue:263
 #: src/views/apps/frp/FrpProxyView.vue:29
 #: src/views/apps/frp/FrpVisitorModal.vue:130
@@ -3523,24 +3523,24 @@ msgstr "受保護的連接埠會自動取得。如果您修改了某個規則對
 msgid "Type"
 msgstr "類型"
 
-#: src/views/apps/fail2ban/IndexView.vue:363
-#: src/views/apps/fail2ban/IndexView.vue:394
+#: src/views/apps/fail2ban/IndexView.vue:365
+#: src/views/apps/fail2ban/IndexView.vue:396
 msgid "Service"
 msgstr "服務"
 
-#: src/views/apps/fail2ban/IndexView.vue:368
-#: src/views/apps/fail2ban/IndexView.vue:372
+#: src/views/apps/fail2ban/IndexView.vue:370
+#: src/views/apps/fail2ban/IndexView.vue:374
 #: src/views/task/CreateModal.vue:480
 #: src/views/task/CreateModal.vue:486
 msgid "Select Website"
 msgstr "選擇網站"
 
-#: src/views/apps/fail2ban/IndexView.vue:375
+#: src/views/apps/fail2ban/IndexView.vue:377
 #: src/views/tamper/TamperView.vue:251
 msgid "Protection Mode"
 msgstr "保護模式"
 
-#: src/views/apps/fail2ban/IndexView.vue:380
+#: src/views/apps/fail2ban/IndexView.vue:382
 #: src/views/apps/pureftpd/IndexView.vue:46
 #: src/views/backup/StorageView.vue:277
 #: src/views/backup/StorageView.vue:331
@@ -3553,12 +3553,12 @@ msgstr "保護模式"
 msgid "Path"
 msgstr "路徑"
 
-#: src/views/apps/fail2ban/IndexView.vue:387
-#: src/views/apps/fail2ban/IndexView.vue:391
+#: src/views/apps/fail2ban/IndexView.vue:389
+#: src/views/apps/fail2ban/IndexView.vue:393
 msgid "Protection Path"
 msgstr "保護路徑"
 
-#: src/views/apps/fail2ban/IndexView.vue:422
+#: src/views/apps/fail2ban/IndexView.vue:424
 #: src/views/apps/frp/FrpProxyModal.vue:582
 #: src/views/apps/frp/FrpVisitorModal.vue:241
 #: src/views/apps/nginx/NginxIndex.vue:690
@@ -3611,15 +3611,15 @@ msgstr "保護路徑"
 msgid "Submit"
 msgstr "提交"
 
-#: src/views/apps/fail2ban/IndexView.vue:430
+#: src/views/apps/fail2ban/IndexView.vue:432
 msgid "Rule Configuration"
 msgstr "規則配置"
 
-#: src/views/apps/fail2ban/IndexView.vue:439
+#: src/views/apps/fail2ban/IndexView.vue:441
 msgid "The protected port, filter and log path are derived when the rule is created and are kept as-is here. To change them, delete and re-add the rule."
 msgstr "受保護連接埠、過濾條件和日誌路徑在建立規則時確定，此處保持不變。如需更改，請刪除規則後重新新增。"
 
-#: src/views/apps/fail2ban/IndexView.vue:448
+#: src/views/apps/fail2ban/IndexView.vue:450
 #: src/views/apps/frp/FrpProxyModal.vue:266
 #: src/views/apps/frp/FrpProxyView.vue:43
 #: src/views/apps/frp/FrpVisitorModal.vue:133
@@ -3637,24 +3637,24 @@ msgstr "受保護連接埠、過濾條件和日誌路徑在建立規則時確定
 msgid "Enabled"
 msgstr "已啟用"
 
-#: src/views/apps/fail2ban/IndexView.vue:487
-#: src/views/apps/fail2ban/IndexView.vue:491
+#: src/views/apps/fail2ban/IndexView.vue:489
+#: src/views/apps/fail2ban/IndexView.vue:493
 msgid "View Rule"
 msgstr "查看規則"
 
-#: src/views/apps/fail2ban/IndexView.vue:495
+#: src/views/apps/fail2ban/IndexView.vue:497
 msgid "Rule Information"
 msgstr "規則資訊"
 
-#: src/views/apps/fail2ban/IndexView.vue:498
+#: src/views/apps/fail2ban/IndexView.vue:500
 msgid "Currently Banned"
 msgstr "當前已封禁"
 
-#: src/views/apps/fail2ban/IndexView.vue:502
+#: src/views/apps/fail2ban/IndexView.vue:504
 msgid "Total Bans"
 msgstr "總封禁次數"
 
-#: src/views/apps/fail2ban/IndexView.vue:507
+#: src/views/apps/fail2ban/IndexView.vue:509
 msgid "Ban List"
 msgstr "封禁列表"
 
