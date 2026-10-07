@@ -26,6 +26,16 @@ interface LogEntry {
 // 数据加载
 const limit = ref(200)
 const selectedDate = ref('')
+const selectedLevel = ref('')
+
+// 日志级别选项
+const levelOptions = [
+  { label: $gettext('All'), value: '' },
+  { label: 'DEBUG', value: 'DEBUG' },
+  { label: 'INFO', value: 'INFO' },
+  { label: 'WARN', value: 'WARN' },
+  { label: 'ERROR', value: 'ERROR' },
+]
 
 // 获取可用的日志日期列表
 const { data: dates, send: refreshDates } = useRequest(() => log.dates('app'), {
@@ -47,7 +57,9 @@ const {
   loading,
   data,
   send: refresh,
-} = useRequest(() => log.list('app', limit.value, selectedDate.value), { initialData: [] })
+} = useRequest(() => log.list('app', limit.value, selectedDate.value, selectedLevel.value), {
+  initialData: [],
+})
 
 // 表格列配置
 const columns = [
@@ -177,6 +189,13 @@ const handleCleaned = () => {
         v-model:value="selectedDate"
         :options="dateOptions"
         class="w-37"
+        @update:value="handleRefresh"
+      />
+      <span>{{ $gettext('Level') }}:</span>
+      <n-select
+        v-model:value="selectedLevel"
+        :options="levelOptions"
+        class="w-25"
         @update:value="handleRefresh"
       />
       <span>{{ $gettext('Show entries') }}:</span>

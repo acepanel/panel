@@ -53,7 +53,7 @@ func (s *LogService) List(w http.ResponseWriter, r *http.Request) {
 		req.Limit = 100
 	}
 
-	entries, err := s.logRepo.List(req.Type, req.Limit, req.Date)
+	entries, err := s.logRepo.List(req.Type, req.Limit, req.Date, req.Level)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

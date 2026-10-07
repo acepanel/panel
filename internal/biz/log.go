@@ -50,7 +50,8 @@ type LogEntry struct {
 type LogRepo interface {
 	// List 获取日志列表
 	// date 格式为 YYYY-MM-DD，空字符串表示当天日志
-	List(logType string, limit int, date string) ([]LogEntry, error)
+	// level 为日志级别（DEBUG/INFO/WARN/ERROR），空字符串表示不过滤
+	List(logType string, limit int, date, level string) ([]LogEntry, error)
 	// ListDates 获取可用的日志日期列表
 	ListDates(logType string) ([]string, error)
 	// Clean 清理指定日期及之前的日志
@@ -66,8 +67,8 @@ func NewLogUsecase(repo LogRepo, log *slog.Logger) *LogUsecase {
 	return &LogUsecase{repo: repo, log: log}
 }
 
-func (uc *LogUsecase) List(logType string, limit int, date string) ([]LogEntry, error) {
-	return uc.repo.List(logType, limit, date)
+func (uc *LogUsecase) List(logType string, limit int, date, level string) ([]LogEntry, error) {
+	return uc.repo.List(logType, limit, date, level)
 }
 
 func (uc *LogUsecase) ListDates(logType string) ([]string, error) {

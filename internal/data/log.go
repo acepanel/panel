@@ -39,7 +39,8 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 
 // List 获取日志列表
 // date 格式为 YYYY-MM-DD，空字符串表示当天日志
-func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
+// level 为日志级别（DEBUG/INFO/WARN/ERROR），空字符串表示不过滤
+func (r *logRepo) List(logType string, limit int, date, level string) ([]biz.LogEntry, error) {
 	if date == "" {
 		date = time.Now().Format(time.DateOnly)
 	}
@@ -48,28 +49,23 @@ func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, 
 		return nil, err
 	}
 
-	// 一天可能因为大小轮转分成多个文件，从最新的往前读，凑够 limit 行为止
-	var lines []string
-	for i := len(files) - 1; i >= 0 && len(lines) < limit; i-- {
+	// 一天可能因为大小轮转分成多个文件，从最新的往前读，先过滤再计数，凑够 limit 条为止，最新的在前面
+	entries := []biz.LogEntry{}
+	for i := len(files) - 1; i >= 0 && len(entries) < limit; i-- {
 		if files[i].date != date {
 			continue
 		}
-		fileLines, err := readLines(files[i].path)
+		lines, err := readLines(files[i].path)
 		if err != nil {
 			return nil, err
 		}
-		lines = append(fileLines, lines...)
-	}
-	lines = lines[max(0, len(lines)-limit):]
-
-	// 倒序处理，最新的在前面
-	entries := make([]biz.LogEntry, 0, len(lines))
-	for i := len(lines) - 1; i >= 0; i-- {
-		entry, err := r.parseLine(lines[i], logType)
-		if err != nil {
-			continue
+		for j := len(lines) - 1; j >= 0 && len(entries) < limit; j-- {
+			entry, err := r.parseLine(lines[j], logType)
+			if err != nil || (level != "" && entry.Level != level) {
+				continue
+			}
+			entries = append(entries, entry)
 		}
-		entries = append(entries, entry)
 	}
 
 	// 如果是app日志，查询用户名

@@ -23,7 +23,7 @@ var _ biz.LogRepo = &LogRepo{}
 //			CleanFunc: func(logType string, date string) error {
 //				panic("mock out the Clean method")
 //			},
-//			ListFunc: func(logType string, limit int, date string) ([]biz.LogEntry, error) {
+//			ListFunc: func(logType string, limit int, date string, level string) ([]biz.LogEntry, error) {
 //				panic("mock out the List method")
 //			},
 //			ListDatesFunc: func(logType string) ([]string, error) {
@@ -40,7 +40,7 @@ type LogRepo struct {
 	CleanFunc func(logType string, date string) error
 
 	// ListFunc mocks the List method.
-	ListFunc func(logType string, limit int, date string) ([]biz.LogEntry, error)
+	ListFunc func(logType string, limit int, date string, level string) ([]biz.LogEntry, error)
 
 	// ListDatesFunc mocks the ListDates method.
 	ListDatesFunc func(logType string) ([]string, error)
@@ -62,6 +62,8 @@ type LogRepo struct {
 			Limit int
 			// Date is the date argument value.
 			Date string
+			// Level is the level argument value.
+			Level string
 		}
 		// ListDates holds details about calls to the ListDates method.
 		ListDates []struct {
@@ -111,7 +113,7 @@ func (mock *LogRepo) CleanCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *LogRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
+func (mock *LogRepo) List(logType string, limit int, date string, level string) ([]biz.LogEntry, error) {
 	if mock.ListFunc == nil {
 		panic("LogRepo.ListFunc: method is nil but LogRepo.List was just called")
 	}
@@ -119,15 +121,17 @@ func (mock *LogRepo) List(logType string, limit int, date string) ([]biz.LogEntr
 		LogType string
 		Limit   int
 		Date    string
+		Level   string
 	}{
 		LogType: logType,
 		Limit:   limit,
 		Date:    date,
+		Level:   level,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(logType, limit, date)
+	return mock.ListFunc(logType, limit, date, level)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -138,11 +142,13 @@ func (mock *LogRepo) ListCalls() []struct {
 	LogType string
 	Limit   int
 	Date    string
+	Level   string
 } {
 	var calls []struct {
 		LogType string
 		Limit   int
 		Date    string
+		Level   string
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
