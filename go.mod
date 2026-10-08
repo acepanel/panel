@@ -50,7 +50,7 @@ require (
 	github.com/medama-io/go-useragent v1.2.5
 	github.com/mholt/acmez/v3 v3.1.7
 	github.com/moby/moby/api v1.56.1
-	github.com/moby/moby/client v0.6.1
+	github.com/moby/moby/client v0.6.2
 	github.com/molecule-man/go-brrr v1.2.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
@@ -67,7 +67,7 @@ require (
 	github.com/xuri/excelize/v2 v2.11.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
 	golang.org/x/crypto v0.57.0
-	golang.org/x/net v0.59.0
+	golang.org/x/net v0.60.0
 	golang.org/x/sync v0.23.0
 	golang.org/x/sys v0.48.0
 	golang.org/x/term v0.46.0
@@ -85,7 +85,7 @@ require (
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/boyter/go-string v1.0.5 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
-	github.com/docker/go-connections v0.8.1 // indirect
+	github.com/docker/go-connections v0.8.2 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
