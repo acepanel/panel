@@ -44,8 +44,8 @@ require (
 	github.com/libtnb/sessions v1.5.0
 	github.com/libtnb/sqlite v1.2.2
 	github.com/libtnb/utils v1.2.2
-	github.com/libtnb/validator v0.5.0
-	github.com/libtnb/validator/contrib/openapi v0.3.0
+	github.com/libtnb/validator v0.6.0
+	github.com/libtnb/validator/contrib/openapi v0.3.1
 	github.com/libtnb/wire v0.3.0
 	github.com/medama-io/go-useragent v1.2.5
 	github.com/mholt/acmez/v3 v3.1.7
