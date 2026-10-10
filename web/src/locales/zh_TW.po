@@ -12283,6 +12283,22 @@ msgstr "連線已關閉"
 msgid "Cancelled"
 msgstr "已取消"
 
+#: src/views/firewall/RuleView.vue:309
+msgid "No unused rules"
+msgstr "沒有未使用的規則"
+
+#: src/views/firewall/RuleView.vue:373
+msgid "Select Unused"
+msgstr "勾選未使用"
+
+#: src/views/firewall/IndexView.vue:59
+msgid "Current firewall: %{ name }"
+msgstr "當前防火牆：%{ name }"
+
+#: src/views/firewall/IndexView.vue:62
+msgid "No supported firewall detected, please install firewalld or ufw"
+msgstr "未偵測到支援的防火牆，請安裝 firewalld 或 ufw"
+
 #: src/views/ssh/SftpPanel.vue:222
 msgid "Transfer to right"
 msgstr "傳輸到右側"

@@ -15441,3 +15441,19 @@ msgstr "URIs"
 msgid "Slow Requests"
 msgstr "慢请求"
 
+#: src/views/firewall/RuleView.vue:309
+msgid "No unused rules"
+msgstr "没有未使用的规则"
+
+#: src/views/firewall/RuleView.vue:373
+msgid "Select Unused"
+msgstr "勾选未使用"
+
+#: src/views/firewall/IndexView.vue:59
+msgid "Current firewall: %{ name }"
+msgstr "当前防火墙：%{ name }"
+
+#: src/views/firewall/IndexView.vue:62
+msgid "No supported firewall detected, please install firewalld or ufw"
+msgstr "未检测到受支持的防火墙，请安装 firewalld 或 ufw"
+

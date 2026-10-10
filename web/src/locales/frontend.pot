@@ -15432,3 +15432,19 @@ msgstr ""
 #: src/views/website/StatsView.vue:218
 msgid "Slow Requests"
 msgstr ""
+
+#: src/views/firewall/RuleView.vue:309
+msgid "No unused rules"
+msgstr ""
+
+#: src/views/firewall/RuleView.vue:373
+msgid "Select Unused"
+msgstr ""
+
+#: src/views/firewall/IndexView.vue:59
+msgid "Current firewall: %{ name }"
+msgstr ""
+
+#: src/views/firewall/IndexView.vue:62
+msgid "No supported firewall detected, please install firewalld or ufw"
+msgstr ""

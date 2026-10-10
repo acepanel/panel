@@ -295,6 +295,29 @@ const { loading, data, page, total, pageSize, refresh } = usePagination(
 
 const selectedRowKeys = ref<any>([])
 const importing = ref(false)
+const selectingUnused = ref(false)
+
+// 勾选所有未使用的端口规则，配合批量删除清理
+// 后端 limit 校验上限 10000，规则总数超限时按 total 循环拉取所有分页
+const selectUnused = async () => {
+  selectingUnused.value = true
+  try {
+    const unused: any[] = []
+    let total = Infinity
+    for (let page = 1; (page - 1) * 10000 < total; page++) {
+      await useRequest(firewall.rules(page, 10000)).onSuccess(({ data }: any) => {
+        total = data.total
+        unused.push(...data.items.filter((row: any) => !row.in_use))
+      })
+    }
+    selectedRowKeys.value = unused.map((row) => JSON.stringify(row))
+    if (selectedRowKeys.value.length === 0) {
+      window.$message.info($gettext('No unused rules'))
+    }
+  } finally {
+    selectingUnused.value = false
+  }
+}
 
 // 从 xlsx 导入规则
 const handleImport = ({ file }: any) => {
@@ -350,6 +373,9 @@ onMounted(() => {
     <n-flex items-center>
       <n-button type="primary" @click="createModalShow = true">
         {{ $gettext('Create Rule') }}
+      </n-button>
+      <n-button :loading="selectingUnused" :disabled="selectingUnused" ghost @click="selectUnused">
+        {{ $gettext('Select Unused') }}
       </n-button>
       <ConfirmDialog
         type="danger"
