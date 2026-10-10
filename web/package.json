@@ -94,7 +94,7 @@
     "vite-plugin-html": "3.2.2",
     "vite-plugin-mock": "3.0.2",
     "vite-plugin-vue-devtools": "8.2.1",
-    "vue-tsc": "3.3.12"
+    "vue-tsc": "3.3.13"
   },
-  "packageManager": "pnpm@12.10.1"
+  "packageManager": "pnpm@12.11.2"
 }
