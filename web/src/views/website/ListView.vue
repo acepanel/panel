@@ -125,7 +125,7 @@ const columns: any = [
     render(row: any) {
       const typeMap: any = {
         proxy: { label: $gettext('Reverse Proxy'), type: 'warning' },
-        php: { label: $gettext('PHP'), type: 'info' },
+        php: { label: row.php > 0 ? $gettext('PHP %{ version }', { version: (row.php / 10).toFixed(1) }) : $gettext('PHP'), type: 'info' },
         static: { label: $gettext('Pure Static'), type: 'success' },
       }
       const config = typeMap[row.type] || { label: row.type, type: 'default' }
