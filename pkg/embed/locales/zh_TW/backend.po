@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-10-29 12:31\n"
+"PO-Revision-Date: 2026-10-29 13:12\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -3663,7 +3663,7 @@ msgstr "磁碟使用率"
 msgid "disk write speed"
 msgstr "磁碟寫入速率"
 
-#: internal/data/website.go:1545
+#: internal/data/website.go:1550
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被網站 %s 使用"
 
@@ -4159,8 +4159,8 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1241
-#: internal/data/website.go:858
+#: internal/data/website.go:1246
+#: internal/data/website.go:863
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -4179,8 +4179,8 @@ msgstr "解析 phpMyAdmin 登入頁面失敗"
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1244
-#: internal/data/website.go:861
+#: internal/data/website.go:1249
+#: internal/data/website.go:866
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -4639,7 +4639,7 @@ msgstr "小於等於"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1345
+#: internal/data/website.go:1350
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -4956,7 +4956,7 @@ msgstr "續簽證書，域名：%s"
 msgid "resource no longer exists on the source server"
 msgstr "源伺服器上已不存在該資源"
 
-#: internal/data/website.go:732
+#: internal/data/website.go:737
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr "偽靜態規則、自訂設定、速率限制和真實 IP 設定不會遷移"
 
@@ -4980,7 +4980,7 @@ msgstr "找不到規則"
 msgid "running"
 msgstr "執行中"
 
-#: internal/data/website.go:836
+#: internal/data/website.go:841
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
@@ -5426,7 +5426,7 @@ msgstr "網站備份失敗：%v"
 msgid "website configuration import failed: %v"
 msgstr "網站配置匯入失敗：%v"
 
-#: internal/data/website.go:843
+#: internal/data/website.go:848
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
