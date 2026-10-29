@@ -119,6 +119,8 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.ClientMaxBodySize, _ = strconv.ParseInt(d.Arg(0), 10, 64)
 	}
 	if blk := cfg.FindOne("IfModule.Location"); blk != nil {
+		blk, custom := blk.SplitCustom()
+		proxy.Custom = strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}}))
 		proxy.AccessControl = parseAccessControl(blk)
 		proxy.ResponseHeaders = parseResponseHeaders(blk)
 		if d := blk.Get("LimitRequestBody"); d != nil {
@@ -208,18 +210,25 @@ func parseSubstitute(rule string) (from, to string, ok bool) {
 }
 
 func writeProxyFiles(siteDir string, proxies []types.Proxy, upstreams []string) error {
+	if len(proxies) > ProxyEndNum-ProxyStartNum+1 {
+		return fmt.Errorf("proxy rules exceed limit (%d)", ProxyEndNum-ProxyStartNum+1)
+	}
+	// 先全部生成，自定义指令有语法错误时不动已有文件
+	contents := make([]string, len(proxies))
+	for i, proxy := range proxies {
+		content, err := generateProxyConfig(proxy, upstreams)
+		if err != nil {
+			return err
+		}
+		contents[i] = content
+	}
 	if err := clearProxyFiles(siteDir); err != nil {
 		return err
 	}
 
-	for i, proxy := range proxies {
-		num := ProxyStartNum + i
-		if num > ProxyEndNum {
-			return fmt.Errorf("proxy rules exceed limit (%d)", ProxyEndNum-ProxyStartNum+1)
-		}
-
-		filePath := filepath.Join(siteDir, fmt.Sprintf("%03d-proxy.conf", num))
-		if err := os.WriteFile(filePath, []byte(generateProxyConfig(proxy, upstreams)), 0600); err != nil {
+	for i, content := range contents {
+		filePath := filepath.Join(siteDir, fmt.Sprintf("%03d-proxy.conf", ProxyStartNum+i))
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
 			return fmt.Errorf("failed to write proxy config: %w", err)
 		}
 	}
@@ -437,7 +446,12 @@ func parseResponseHeaders(blk *conf.Directive) *types.ResponseHeaderConfig {
 	return headers
 }
 
-func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
+func generateProxyConfig(proxy types.Proxy, upstreams []string) (string, error) {
+	// 片段要整体落在 <Location> 里，严格解析，孤立或未闭合的标签会破坏外层结构
+	custom, err := parse(proxy.Custom, ParseOptions{})
+	if err != nil {
+		return "", fmt.Errorf("invalid custom directives of proxy %s: %w", proxy.Location, err)
+	}
 	loc := parseLocation(proxy.Location)
 	pass := balancerPass(proxy.Pass, upstreams)
 	target := proxyTarget(pass, loc)
@@ -495,8 +509,10 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 		inner.Append(substituteNode(proxy.Replaces))
 	}
 	// 这几项是按路径生效的，必须落在容器块里
-	if scoped := scopedNodes(proxy); len(scoped) > 0 {
-		inner.Append(conf.Blk("Location", loc.path).Append(scoped...))
+	scoped := conf.Blk("Location", loc.path).Append(scopedNodes(proxy)...)
+	scoped.AppendCustom(custom.Nodes)
+	if scoped.Len() > 0 {
+		inner.Append(scoped)
 	}
 
 	cfg := &conf.Config{}
@@ -505,7 +521,7 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 		conf.Cmt(fmt.Sprintf("Reverse proxy: %s -> %s", proxy.Location, proxy.Pass)),
 		inner,
 	)
-	return Export(cfg) + "\n"
+	return Export(cfg) + "\n", nil
 }
 
 func sslProxyNodes(proxy types.Proxy, target string) []conf.Node {

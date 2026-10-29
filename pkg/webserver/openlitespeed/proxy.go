@@ -140,6 +140,8 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 				}
 			}
 		}
+		custom, _ := customNodes(p)
+		ctx.AppendCustom(custom)
 
 		// 直连 HTTP 后端时同时代理 WebSocket
 		if address != "" && !strings.HasPrefix(address, "https://") && !strings.HasPrefix(uri, "exp:") {
@@ -148,6 +150,15 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 	}
 
 	return consumed
+}
+
+// customNodes 解析代理的自定义指令，SetProxies 时已校验过语法
+func customNodes(p types.Proxy) ([]conf.Node, error) {
+	cfg, err := Parse(p.Custom)
+	if err != nil {
+		return nil, fmt.Errorf("invalid custom directives of proxy %s: %w", p.Location, err)
+	}
+	return cfg.Nodes, nil
 }
 
 func addProxyApp(ext *conf.Directive, address string, timeout int, buffering bool) {
@@ -226,7 +237,8 @@ func (v *baseVhost) proxyHandler(p types.Proxy, i int) (string, string) {
 var headerOpPattern = regexp.MustCompile(`^(RequestHeader|Header)\s+(set|unset)\s+(\S+)\s*(.*)$`)
 
 func (v *baseVhost) loadProxies(cfg *conf.Config) {
-	for _, ctx := range cfg.Blocks("context") {
+	for _, raw := range cfg.Blocks("context") {
+		ctx, custom := raw.SplitCustom()
 		if !strings.EqualFold(ctx.Value("type"), "proxy") {
 			continue
 		}
@@ -237,6 +249,7 @@ func (v *baseVhost) loadProxies(cfg *conf.Config) {
 			Resolver: []string{},
 			Headers:  make(map[string]string),
 			Replaces: make(map[string]string),
+			Custom:   strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
 		}
 		if p.Location == "" {
 			p.Location = uriToLocation(ctx.Arg(0))

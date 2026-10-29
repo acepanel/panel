@@ -206,6 +206,30 @@ func (b *Block) AddMeta(key, value string) {
 	b.Nodes = append(b.Nodes, &Comment{Text: " ace:" + key + " " + value})
 }
 
+// customMarker 子块内分隔面板生成的指令与用户追加的原生指令
+const customMarker = "ace:custom"
+
+// AppendCustom 在子块末尾写分隔注释与用户原生指令，没有指令时不写注释
+func (d *Directive) AppendCustom(nodes []Node) {
+	if len(nodes) > 0 {
+		d.Append(&Comment{Text: " " + customMarker})
+		d.Append(nodes...)
+	}
+}
+
+// SplitCustom 拆出分隔注释之后的用户原生指令，返回只含面板生成部分的浅拷贝，原指令不变
+func (d *Directive) SplitCustom() (*Directive, []Node) {
+	if d == nil || d.Block == nil {
+		return d, nil
+	}
+	for i, n := range d.Nodes {
+		if c, ok := n.(*Comment); ok && strings.TrimSpace(c.Text) == customMarker {
+			return &Directive{Name: d.Name, Args: d.Args, Block: &Block{Nodes: d.Nodes[:i:i]}, Trailing: d.Trailing}, d.Nodes[i+1:]
+		}
+	}
+	return d, nil
+}
+
 func argsEqual(args []Arg, want []string) bool {
 	if len(args) != len(want) {
 		return false

@@ -42,3 +42,23 @@ func TestProxyCacheToggle(t *testing.T) {
 		})
 	}
 }
+
+func TestProxyCustom(t *testing.T) {
+	v, dir := newProxyVhost(t)
+	custom := "proxy_cache_convert_head off;\n# 注释保留\nproxy_set_header X-Custom value;"
+	must.NoError(t, v.SetProxies([]types.Proxy{{Location: "/", Pass: "http://127.0.0.1:8080", Custom: custom}}))
+	cfg, err := ParseFile(filepath.Join(dir, "site", "200-proxy.conf"))
+	must.NoError(t, err)
+	// 要落在 location 里才只对该规则生效
+	check.Equal(t, cfg.GetBlock("location").Value("proxy_cache_convert_head"), "off")
+
+	got := v.Proxies()
+	must.Len(t, got, 1)
+	check.Equal(t, got[0].Custom, custom)
+	// 自定义指令里的请求头不回读成面板字段
+	check.Empty(t, got[0].Headers)
+
+	// 语法错误时报错，已有文件保持原样
+	check.Error(t, v.SetProxies([]types.Proxy{{Location: "/", Pass: "http://127.0.0.1:8080", Custom: "location /x {"}}))
+	check.Equal(t, v.Proxies()[0].Custom, custom)
+}

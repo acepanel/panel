@@ -369,3 +369,22 @@ func TestHtaccessAtVhostLevel(t *testing.T) {
 	check.Equal(t, cfg.GetBlock("rewrite").Value("autoLoadHtaccess"), "1")
 	check.Empty(t, cfg.GetBlock("context", "/").GetBlock("rewrite").Value("autoLoadHtaccess"))
 }
+
+func TestProxyCustom(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	custom := "addDefaultCharset        off\n# 注释保留\nenableIpGeo              1"
+	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://127.0.0.1:8080", Custom: custom}}))
+	check.NoError(t, vhost.Save())
+	// 要落在该规则的 context 里才只对该规则生效
+	check.Contains(t, readConf(t, configDir), "  # ace:custom\n  addDefaultCharset        off\n")
+
+	reloaded, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	got := reloaded.Proxies()
+	must.Len(t, got, 1)
+	check.Equal(t, got[0].Custom, custom)
+
+	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://127.0.0.1:8080", Custom: "rewrite {"}}))
+}

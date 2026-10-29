@@ -466,6 +466,11 @@ func (v *ProxyVhost) Proxies() []types.Proxy {
 }
 
 func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+	for _, p := range proxies {
+		if _, err := customNodes(p); err != nil {
+			return err
+		}
+	}
 	v.proxies = slices.Clone(proxies)
 	return nil
 }

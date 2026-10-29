@@ -204,7 +204,18 @@ func (v *baseVhost) buildProxies(body *conf.Block) {
 		if rp.Len() == 0 {
 			rp.Block = nil
 		}
+		custom, _ := customNodes(p)
+		h.AppendCustom(custom)
 	}
+}
+
+// customNodes 解析代理的自定义指令，SetProxies 时已校验过语法
+func customNodes(p types.Proxy) ([]conf.Node, error) {
+	cfg, err := Parse(p.Custom)
+	if err != nil {
+		return nil, fmt.Errorf("invalid custom directives of proxy %s: %w", p.Location, err)
+	}
+	return cfg.Nodes, nil
 }
 
 // buildTransport 后端 TLS、SNI、协议版本与超时都在 transport 块，nginx 默认不校验后端证书，这里保持一致
@@ -296,6 +307,7 @@ func (v *baseVhost) loadProxies(body *conf.Block) {
 }
 
 func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
+	h, custom := h.SplitCustom()
 	p := types.Proxy{
 		Location:  h.Meta("location"),
 		Pass:      h.Meta("pass"),
@@ -303,6 +315,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 		Resolver:  []string{},
 		Headers:   make(map[string]string),
 		Replaces:  make(map[string]string),
+		Custom:    strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
 	}
 	if body := h.Get("request_body"); body != nil {
 		p.ClientMaxBodySize, _ = strconv.ParseInt(body.Get("max_size").Arg(0), 10, 64)

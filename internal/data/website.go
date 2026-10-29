@@ -696,6 +696,11 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 	if len(listens) == 0 {
 		listens = []webservertypes.Listen{{Address: "80"}}
 	}
+	customProxy := false
+	for i := range setting.Proxies {
+		customProxy = customProxy || setting.Proxies[i].Custom != ""
+		setting.Proxies[i].Custom = ""
+	}
 	index := setting.Index
 	if len(index) == 0 {
 		index = []string{"index.html"}
@@ -726,9 +731,9 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 		StatEnabled:  d.Features().Stat,
 	}
 
-	// 只迁移各服务器通用的设置，伪静态、自定义配置、限流与真实 IP 是各自的语法或语义，直接丢弃
+	// 只迁移各服务器通用的设置，伪静态、自定义配置（含代理规则的自定义指令）、限流与真实 IP 是各自的语法或语义，直接丢弃
 	var notes []string
-	if setting.Rewrite != "" || len(setting.CustomConfigs) > 0 || setting.RateLimit != nil || setting.RealIP != nil {
+	if setting.Rewrite != "" || len(setting.CustomConfigs) > 0 || customProxy || setting.RateLimit != nil || setting.RealIP != nil {
 		notes = append(notes, r.t.Get("rewrite rules, custom configs, rate limit and real IP settings are not migrated"))
 	}
 

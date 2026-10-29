@@ -507,3 +507,23 @@ func TestDialect(t *testing.T) {
 	check.Equal(t, d.HTPasswdLine("admin", "secret"), "admin:{PLAIN}secret")
 	check.NoError(t, d.BeforeReload())
 }
+
+func TestVhostProxyCustom(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	custom := "header X-Custom value\n# 注释保留\nencode gzip"
+	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://127.0.0.1:8080", Buffering: true, Custom: custom}}))
+	check.NoError(t, vhost.Save())
+	// 要落在该规则的 handle 里才只对该规则生效
+	check.Contains(t, siteConf(t, configDir), "\t\t\t}\n\t\t\t# ace:custom\n\t\t\theader X-Custom value\n")
+
+	reloaded, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	got := reloaded.Proxies()
+	must.Len(t, got, 1)
+	check.Equal(t, got[0].Custom, custom)
+	check.Nil(t, got[0].ResponseHeaders)
+
+	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://127.0.0.1:8080", Custom: "header {"}}))
+}

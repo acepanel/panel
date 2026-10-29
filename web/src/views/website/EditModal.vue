@@ -546,6 +546,7 @@ const addProxy = () => {
     ssl_backend: null,
     response_headers: null,
     access_control: null,
+    custom: '',
   })
 }
 
@@ -1737,6 +1738,24 @@ const removeCustomConfig = (index: number) => {
                             </n-form-item-gi>
                           </n-grid>
                         </template>
+                      </n-collapse-item>
+
+                      <!-- 自定义指令 -->
+                      <n-collapse-item :title="$gettext('Custom Directives')" name="custom">
+                        <n-form-item :show-label="false">
+                          <common-editor
+                            v-model:value="proxy.custom"
+                            height="20vh"
+                            :lang="features.lang"
+                          />
+                          <template #feedback>
+                            {{
+                              $gettext(
+                                'Written in the native syntax of the current web server and appended to the end of this rule; not migrated when switching web servers',
+                              )
+                            }}
+                          </template>
+                        </n-form-item>
                       </n-collapse-item>
                     </n-collapse>
                   </n-form>

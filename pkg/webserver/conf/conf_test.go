@@ -39,6 +39,35 @@ func TestQuery(t *testing.T) {
 	check.Nil(t, cfg.GetBlock("server", "a"))
 }
 
+func TestCustom(t *testing.T) {
+	loc := Blk("location", "/")
+	loc.Add("proxy_pass", "http://x")
+	loc.AppendCustom(nil)
+	check.Len(t, loc.Nodes, 1)
+
+	loc.AppendCustom([]Node{Dir("proxy_cache_convert_head", "off"), Cmt("note")})
+	check.Len(t, loc.Nodes, 4)
+	gen, custom := loc.SplitCustom()
+	check.DeepEqual(t, gen.Values(), []string{"/"})
+	check.Len(t, gen.Nodes, 1)
+	check.Equal(t, gen.Value("proxy_pass"), "http://x")
+	check.False(t, gen.Has("proxy_cache_convert_head"))
+	check.DeepEqual(t, custom, []Node{Dir("proxy_cache_convert_head", "off"), Cmt("note")})
+	// 原指令不受影响，往浅拷贝追加也不会覆盖原节点
+	check.Len(t, loc.Nodes, 4)
+	gen.Add("proxy_buffering", "on")
+	check.DeepEqual(t, loc.Nodes[1], Node(&Comment{Text: " ace:custom"}))
+
+	plain := Blk("location", "/")
+	plain.Add("proxy_pass", "http://x")
+	gen, custom = plain.SplitCustom()
+	check.Equal(t, gen, plain)
+	check.Nil(t, custom)
+	gen, custom = Dir("listen", "80").SplitCustom()
+	check.Nil(t, gen.Block)
+	check.Nil(t, custom)
+}
+
 func TestSort(t *testing.T) {
 	cfg := &Config{}
 	cfg.Append(Cmt("c1"))

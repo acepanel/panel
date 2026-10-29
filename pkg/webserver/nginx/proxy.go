@@ -99,6 +99,7 @@ var standardHeaders = map[string]bool{
 }
 
 func parseProxy(loc *conf.Directive) types.Proxy {
+	loc, custom := loc.SplitCustom()
 	p := types.Proxy{
 		Location:          strings.Join(loc.Values(), " "),
 		Pass:              loc.Value("proxy_pass"),
@@ -110,6 +111,7 @@ func parseProxy(loc *conf.Directive) types.Proxy {
 		Resolver:          []string{},
 		Headers:           make(map[string]string),
 		Replaces:          make(map[string]string),
+		Custom:            strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
 	}
 	if resolver := loc.Get("resolver").Values(); resolver != nil {
 		p.Resolver = resolver
@@ -206,16 +208,24 @@ func parseProxyCache(loc *conf.Directive) *types.CacheConfig {
 }
 
 func writeProxyFiles(siteDir string, proxies []types.Proxy) error {
+	if len(proxies) > ProxyEndNum-ProxyStartNum+1 {
+		return fmt.Errorf("proxy rules exceed limit (%d)", ProxyEndNum-ProxyStartNum+1)
+	}
+	// 先全部生成，自定义指令有语法错误时不动已有文件
+	nodes := make([]*conf.Directive, len(proxies))
+	for i, proxy := range proxies {
+		loc, err := proxyNode(proxy)
+		if err != nil {
+			return err
+		}
+		nodes[i] = loc
+	}
 	if err := clearFiles(siteDir, proxyFilePattern, ProxyStartNum, ProxyEndNum); err != nil {
 		return err
 	}
 	for i, proxy := range proxies {
-		num := ProxyStartNum + i
-		if num > ProxyEndNum {
-			return fmt.Errorf("proxy rules exceed limit (%d)", ProxyEndNum-ProxyStartNum+1)
-		}
-		path := filepath.Join(siteDir, fmt.Sprintf("%03d-proxy.conf", num))
-		if err := writeFragment(path, conf.Cmt(fmt.Sprintf("Reverse proxy: %s -> %s", proxy.Location, proxy.Pass)), proxyNode(proxy)); err != nil {
+		path := filepath.Join(siteDir, fmt.Sprintf("%03d-proxy.conf", ProxyStartNum+i))
+		if err := writeFragment(path, conf.Cmt(fmt.Sprintf("Reverse proxy: %s -> %s", proxy.Location, proxy.Pass)), nodes[i]); err != nil {
 			return err
 		}
 	}
@@ -226,7 +236,11 @@ func clearProxyFiles(siteDir string) error {
 	return clearFiles(siteDir, proxyFilePattern, ProxyStartNum, ProxyEndNum)
 }
 
-func proxyNode(p types.Proxy) *conf.Directive {
+func proxyNode(p types.Proxy) (*conf.Directive, error) {
+	custom, err := Parse(p.Custom)
+	if err != nil {
+		return nil, fmt.Errorf("invalid custom directives of proxy %s: %w", p.Location, err)
+	}
 	loc := conf.Blk("location", strings.Fields(p.Location)...)
 
 	if p.AccessControl != nil {
@@ -330,7 +344,8 @@ func proxyNode(p types.Proxy) *conf.Directive {
 			loc.Add("add_header", name, p.ResponseHeaders.Add[name], "always")
 		}
 	}
-	return loc
+	loc.AppendCustom(custom.Nodes)
+	return loc, nil
 }
 
 func addProxyCache(loc *conf.Directive, cache *types.CacheConfig) {

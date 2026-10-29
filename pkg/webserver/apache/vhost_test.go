@@ -755,3 +755,25 @@ func TestSyncListen(t *testing.T) {
 	must.NoError(t, syncListen(sites, confDir))
 	check.NotContains(t, readFile(t, listenConf), "Listen")
 }
+
+func TestProxyVhostCustom(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
+	custom := "Header always set X-Custom value\n# 注释保留\nRequestHeader unset Accept-Encoding"
+	must.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://backend:8080", Custom: custom}}))
+	cfg, err := ParseFile(filepath.Join(configDir, "site", "200-proxy.conf"))
+	must.NoError(t, err)
+	// 要落在 <Location> 里才只对该规则生效
+	must.NotNil(t, cfg.FindOne("IfModule.Location.RequestHeader"))
+	check.Equal(t, cfg.FindOne("IfModule.Location").Arg(0), "/api")
+
+	got := vhost.Proxies()
+	must.Len(t, got, 1)
+	check.Equal(t, got[0].Custom, custom)
+	// 自定义指令里的响应头不回读成面板字段
+	check.Nil(t, got[0].ResponseHeaders)
+
+	// 未闭合的标签会破坏外层结构，直接报错，已有文件保持原样
+	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://backend:8080", Custom: "<Location /x>"}}))
+	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://backend:8080", Custom: "</Location>"}}))
+	check.Equal(t, vhost.Proxies()[0].Custom, custom)
+}

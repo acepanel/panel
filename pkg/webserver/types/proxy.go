@@ -89,6 +89,7 @@ type Proxy struct {
 	SSLBackend        *SSLBackendConfig     `form:"ssl_backend" json:"ssl_backend"`                           // SSL 后端验证配置
 	ResponseHeaders   *ResponseHeaderConfig `form:"response_headers" json:"response_headers"`                 // 响应头修改配置
 	AccessControl     *AccessControlConfig  `form:"access_control" json:"access_control"`                     // IP 访问控制配置
+	Custom            string                `form:"custom" json:"custom"`                                     // 自定义指令，当前 Web 服务器的原生语法，追加到该规则作用域的末尾，切换服务器时不迁移
 }
 
 // 负载均衡算法的规范值，取 nginx 写法。各方言写入时映射到自己的语法，
