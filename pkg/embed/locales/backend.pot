@@ -3470,7 +3470,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/biz/website.go:149
+#: internal/biz/website.go:152
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -3655,7 +3655,7 @@ msgstr ""
 msgid "disk write speed"
 msgstr ""
 
-#: internal/data/website.go:1533
+#: internal/data/website.go:1545
 msgid "domain %s is already used by website %s"
 msgstr ""
 
@@ -3763,7 +3763,7 @@ msgstr ""
 msgid "failed to create database user on target: %v"
 msgstr ""
 
-#: internal/biz/website.go:138
+#: internal/biz/website.go:141
 msgid "failed to create database: %v"
 msgstr ""
 
@@ -4015,7 +4015,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:403
+#: internal/data/website.go:407
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -4151,8 +4151,8 @@ msgstr ""
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1229
-#: internal/data/website.go:854
+#: internal/data/website.go:1241
+#: internal/data/website.go:858
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -4171,8 +4171,8 @@ msgstr ""
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1232
-#: internal/data/website.go:857
+#: internal/data/website.go:1244
+#: internal/data/website.go:861
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -4290,7 +4290,7 @@ msgstr ""
 msgid "failed to reload nginx: %v"
 msgstr ""
 
-#: internal/biz/website.go:134
+#: internal/biz/website.go:137
 msgid "failed to reload web server: %v"
 msgstr ""
 
@@ -4519,7 +4519,7 @@ msgstr ""
 msgid "initializing ACME client"
 msgstr ""
 
-#: internal/data/user.go:197
+#: internal/data/user.go:199
 #: internal/service/user.go:150
 msgid "invalid 2FA code"
 msgstr ""
@@ -4631,7 +4631,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1333
+#: internal/data/website.go:1345
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -4865,7 +4865,7 @@ msgstr ""
 msgid "please connect to the source server first"
 msgstr ""
 
-#: internal/biz/user.go:115
+#: internal/biz/user.go:111
 #: internal/service/file.go:311
 #: internal/service/file.go:429
 #: internal/service/file.go:480
@@ -4906,7 +4906,7 @@ msgstr ""
 msgid "project backup failed: %v"
 msgstr ""
 
-#: internal/biz/project.go:96
+#: internal/biz/project.go:98
 msgid "project name already exists"
 msgstr ""
 
@@ -4948,7 +4948,7 @@ msgstr ""
 msgid "resource no longer exists on the source server"
 msgstr ""
 
-#: internal/data/website.go:728
+#: internal/data/website.go:732
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr ""
 
@@ -4972,7 +4972,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:832
+#: internal/data/website.go:836
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -5039,7 +5039,7 @@ msgstr ""
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
-#: internal/data/cert.go:203
+#: internal/data/cert.go:205
 msgid "some of the selected websites do not exist"
 msgstr ""
 
@@ -5265,7 +5265,7 @@ msgstr ""
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
-#: internal/data/cert.go:320
+#: internal/data/cert.go:322
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr ""
 
@@ -5367,9 +5367,9 @@ msgstr ""
 msgid "uploading"
 msgstr ""
 
-#: internal/data/user.go:143
-#: internal/data/user.go:150
-#: internal/data/user.go:160
+#: internal/data/user.go:145
+#: internal/data/user.go:152
+#: internal/data/user.go:162
 msgid "username or password error"
 msgstr ""
 
@@ -5418,7 +5418,7 @@ msgstr ""
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/data/website.go:839
+#: internal/data/website.go:843
 msgid "website directory does not exist"
 msgstr ""
 
@@ -5442,7 +5442,7 @@ msgstr ""
 msgid "website not found"
 msgstr ""
 
-#: internal/data/website.go:513
+#: internal/data/website.go:517
 msgid "website type is unchanged"
 msgstr ""
 
@@ -5451,7 +5451,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/biz/website.go:267
+#: internal/biz/website.go:294
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
