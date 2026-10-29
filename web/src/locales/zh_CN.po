@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-10-19 15:42\n"
+"PO-Revision-Date: 2026-10-29 12:31\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:570
@@ -35,6 +35,7 @@ msgstr "QQ 群"
 #: src/views/cert/CertView.vue:649
 #: src/views/cert/CreateCertModal.vue:111
 #: src/views/home/IndexView.vue:552
+#: src/views/project/ProxyModal.vue:302
 #: src/views/task/CreateModal.vue:442
 #: src/views/task/CreateModal.vue:464
 #: src/views/toolbox/MigrationView.vue:84
@@ -191,11 +192,7 @@ msgstr "重启后"
 #: src/components/common/CronSelector.vue:192
 #: src/views/monitor/TimeRangePicker.vue:18
 #: src/views/monitor/TimeRangePicker.vue:78
-#: src/views/project/CreateModal.vue:26
-#: src/views/project/CreateModal.vue:37
-#: src/views/project/CreateModal.vue:50
-#: src/views/project/CreateModal.vue:62
-#: src/views/project/CreateModal.vue:74
+#: src/views/project/CreateModal.vue:30
 #: src/views/website/StatsView.vue:39
 #: src/views/website/StatsView.vue:199
 msgid "Custom"
@@ -346,7 +343,7 @@ msgstr "当前状态无法保存"
 #: src/views/database/RedisKeyModal.vue:77
 #: src/views/environment/GoView.vue:52
 #: src/views/environment/NodejsView.vue:55
-#: src/views/environment/PhpConfigTuneView.vue:230
+#: src/views/environment/PhpConfigTuneView.vue:240
 #: src/views/environment/PHPView.vue:221
 #: src/views/environment/PHPView.vue:227
 #: src/views/environment/PHPView.vue:280
@@ -355,7 +352,8 @@ msgstr "当前状态无法保存"
 #: src/views/monitor/ChannelModal.vue:72
 #: src/views/monitor/SettingView.vue:38
 #: src/views/monitor/SettingView.vue:192
-#: src/views/project/EditModal.vue:240
+#: src/views/project/EditModal.vue:255
+#: src/views/project/ProxyModal.vue:122
 #: src/views/setting/IndexView.vue:82
 #: src/views/tamper/RuleModal.vue:76
 #: src/views/tamper/TamperView.vue:60
@@ -374,8 +372,8 @@ msgid "Remove"
 msgstr "移除"
 
 #: src/components/common/PathSelector.vue:31
-#: src/views/project/EditModal.vue:614
-#: src/views/project/EditModal.vue:632
+#: src/views/project/EditModal.vue:636
+#: src/views/project/EditModal.vue:654
 #: src/views/task/CreateModal.vue:503
 msgid "Select Directory"
 msgstr "选择目录"
@@ -425,7 +423,8 @@ msgstr "选择文件"
 #: src/views/monitor/AlertView.vue:55
 #: src/views/monitor/ChannelModal.vue:89
 #: src/views/monitor/SettingView.vue:111
-#: src/views/project/ListView.vue:52
+#: src/views/project/ListView.vue:57
+#: src/views/project/ProxyModal.vue:289
 #: src/views/setting/PasskeyModal.vue:26
 #: src/views/ssh/CreateModal.vue:52
 #: src/views/ssh/UpdateModal.vue:58
@@ -499,20 +498,20 @@ msgstr "计算"
 msgid "Modification Time"
 msgstr "修改时间"
 
-#: src/components/common/PathSelector.vue:226
+#: src/components/common/PathSelector.vue:228
 #: src/views/file/ListView.vue:1320
 #: src/views/file/PathInput.vue:45
 msgid "Invalid path"
 msgstr "无效路径"
 
-#: src/components/common/PathSelector.vue:294
+#: src/components/common/PathSelector.vue:295
 #: src/views/file/ListView.vue:153
 #: src/views/file/ListView.vue:835
 #: src/views/file/ToolBar.vue:55
 msgid "Invalid name"
 msgstr "无效的名称"
 
-#: src/components/common/PathSelector.vue:303
+#: src/components/common/PathSelector.vue:304
 #: src/components/file-editor/FileTree.vue:279
 #: src/views/app/TemplateDeployModal.vue:247
 #: src/views/backup/StorageView.vue:152
@@ -537,7 +536,7 @@ msgstr "无效的名称"
 msgid "Created successfully"
 msgstr "创建成功"
 
-#: src/components/common/PathSelector.vue:376
+#: src/components/common/PathSelector.vue:381
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:142
 #: src/views/file/PropertyModal.vue:26
 #: src/views/file/ToolBar.vue:176
@@ -545,15 +544,17 @@ msgstr "创建成功"
 msgid "File"
 msgstr "文件"
 
-#: src/components/common/PathSelector.vue:377
+#: src/components/common/PathSelector.vue:382
 #: src/views/file/ToolBar.vue:177
 msgid "Folder"
 msgstr "文件夹"
 
-#: src/components/common/PathSelector.vue:381
+#: src/components/common/PathSelector.vue:386
 #: src/views/app/TemplateDeployModal.vue:639
 #: src/views/container/ContainerCreate.vue:1088
-#: src/views/project/CreateModal.vue:633
+#: src/views/project/CreateModal.vue:371
+#: src/views/project/ProxyModal.vue:252
+#: src/views/project/ProxyModal.vue:295
 #: src/views/setting/TokenModal.vue:258
 #: src/views/ssh/SftpBrowser.vue:156
 #: src/views/toolbox/WebHookView.vue:343
@@ -562,10 +563,14 @@ msgstr "文件夹"
 msgid "Create"
 msgstr "创建"
 
-#: src/components/common/PathSelector.vue:391
+#: src/components/common/PathSelector.vue:396
 #: src/views/file/PathInput.vue:157
 msgid "Root Directory"
 msgstr "根目录"
+
+#: src/components/common/PathSelector.vue:442
+msgid "Select Current Directory"
+msgstr "选择当前目录"
 
 #: src/components/common/PtyTerminalModal.vue:126
 #: src/views/container/ContainerView.vue:528
@@ -659,7 +664,7 @@ msgstr "命令可能仍在运行。关闭窗口将终止命令。您确定吗？
 #: src/views/home/UpdateView.vue:120
 #: src/views/monitor/AlertRuleModal.vue:192
 #: src/views/monitor/ChannelModal.vue:147
-#: src/views/project/EditModal.vue:650
+#: src/views/project/EditModal.vue:672
 #: src/views/ssh/SftpPanel.vue:310
 #: src/views/tamper/RuleModal.vue:131
 #: src/views/task/TaskView.vue:111
@@ -752,7 +757,7 @@ msgstr "跳转到底部"
 #: src/views/database/ElasticsearchDataView.vue:316
 #: src/views/database/IndexView.vue:199
 #: src/views/database/RedisDataView.vue:291
-#: src/views/project/ListView.vue:315
+#: src/views/project/ListView.vue:349
 #: src/views/website/ListView.vue:439
 msgid "Search"
 msgstr "搜索"
@@ -826,8 +831,8 @@ msgstr[0] "%{ count } 行新日志"
 #: src/views/apps/frp/FrpsConfigTuneView.vue:298
 #: src/views/apps/supervisor/IndexView.vue:132
 #: src/views/container/ContainerView.vue:166
-#: src/views/project/ListView.vue:171
-#: src/views/project/ListView.vue:334
+#: src/views/project/ListView.vue:176
+#: src/views/project/ListView.vue:368
 #: src/views/task/CronView.vue:147
 #: src/views/task/TaskView.vue:89
 msgid "Logs"
@@ -870,7 +875,7 @@ msgstr "加载中……"
 #: src/views/app/InstalledView.vue:17
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:187
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
-#: src/views/project/ListView.vue:41
+#: src/views/project/ListView.vue:46
 #: src/views/task/TaskView.vue:48
 #: src/views/toolbox/MigrationView.vue:92
 #: src/views/toolbox/MigrationView.vue:157
@@ -884,7 +889,7 @@ msgstr "运行中"
 #: src/views/app/InstalledView.vue:18
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:188
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
-#: src/views/project/ListView.vue:45
+#: src/views/project/ListView.vue:50
 #: src/views/tamper/TamperView.vue:241
 #: src/views/toolbox/MigrationView.vue:157
 #: src/views/toolbox/ProcessView.vue:53
@@ -899,7 +904,8 @@ msgstr "正在启动……"
 #: src/components/common/ServiceStatus.vue:52
 #: src/views/apps/prometheus/PrometheusExportersView.vue:160
 #: src/views/apps/supervisor/IndexView.vue:271
-#: src/views/project/ListView.vue:228
+#: src/views/project/ListView.vue:255
+#: src/views/project/ProxyModal.vue:68
 #: src/views/website/ListView.vue:347
 msgid "Started successfully"
 msgstr "启动成功"
@@ -912,7 +918,8 @@ msgstr "停止中..."
 #: src/components/common/ServiceStatus.vue:67
 #: src/views/apps/prometheus/PrometheusExportersView.vue:167
 #: src/views/apps/supervisor/IndexView.vue:278
-#: src/views/project/ListView.vue:223
+#: src/views/project/ListView.vue:250
+#: src/views/project/ProxyModal.vue:68
 #: src/views/website/ListView.vue:349
 msgid "Stopped successfully"
 msgstr "停止成功"
@@ -924,7 +931,7 @@ msgstr "重启中..."
 #: src/components/common/ServiceStatus.vue:82
 #: src/views/apps/prometheus/PrometheusExportersView.vue:174
 #: src/views/apps/supervisor/IndexView.vue:285
-#: src/views/project/ListView.vue:236
+#: src/views/project/ListView.vue:263
 msgid "Restarted successfully"
 msgstr "重启成功"
 
@@ -933,7 +940,7 @@ msgid "Reloading..."
 msgstr "重载中..."
 
 #: src/components/common/ServiceStatus.vue:97
-#: src/views/project/ListView.vue:243
+#: src/views/project/ListView.vue:270
 msgid "Reloaded successfully"
 msgstr "重载成功"
 
@@ -1000,7 +1007,7 @@ msgstr "自启动关闭"
 #: src/views/container/ContainerView.vue:435
 #: src/views/file/UploadModal.vue:217
 #: src/views/file/UploadModal.vue:379
-#: src/views/project/ListView.vue:133
+#: src/views/project/ListView.vue:138
 msgid "Start"
 msgstr "启动"
 
@@ -1014,7 +1021,7 @@ msgstr "您确定要停止 %{ service } 吗？"
 #: src/views/container/ComposeView.vue:191
 #: src/views/container/ContainerView.vue:198
 #: src/views/container/ContainerView.vue:436
-#: src/views/project/ListView.vue:133
+#: src/views/project/ListView.vue:138
 msgid "Stop"
 msgstr "停止"
 
@@ -1024,13 +1031,13 @@ msgstr "停止"
 #: src/views/container/ContainerView.vue:203
 #: src/views/container/ContainerView.vue:437
 #: src/views/home/IndexView.vue:577
-#: src/views/project/ListView.vue:148
+#: src/views/project/ListView.vue:153
 msgid "Restart"
 msgstr "重启"
 
 #: src/components/common/ServiceStatus.vue:190
 #: src/layouts/tab/components/ContextMenu.vue:35
-#: src/views/project/ListView.vue:158
+#: src/views/project/ListView.vue:163
 msgid "Reload"
 msgstr "重载"
 
@@ -1052,7 +1059,7 @@ msgstr "已完成"
 #: src/components/common/TaskWindow.vue:30
 #: src/views/file/UploadModal.vue:86
 #: src/views/log/SSHLog.vue:46
-#: src/views/project/ListView.vue:46
+#: src/views/project/ListView.vue:51
 #: src/views/task/TaskView.vue:45
 #: src/views/toolbox/MigrationView.vue:95
 msgid "Failed"
@@ -1103,13 +1110,13 @@ msgstr "取消成功"
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:195
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:236
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:264
-#: src/views/environment/PhpConfigTuneView.vue:345
-#: src/views/environment/PhpConfigTuneView.vue:379
-#: src/views/environment/PhpConfigTuneView.vue:453
-#: src/views/environment/PhpConfigTuneView.vue:503
-#: src/views/environment/PhpConfigTuneView.vue:573
-#: src/views/environment/PhpConfigTuneView.vue:652
-#: src/views/environment/PhpConfigTuneView.vue:730
+#: src/views/environment/PhpConfigTuneView.vue:355
+#: src/views/environment/PhpConfigTuneView.vue:389
+#: src/views/environment/PhpConfigTuneView.vue:463
+#: src/views/environment/PhpConfigTuneView.vue:513
+#: src/views/environment/PhpConfigTuneView.vue:583
+#: src/views/environment/PhpConfigTuneView.vue:662
+#: src/views/environment/PhpConfigTuneView.vue:740
 msgid "Generate Recommended Configuration"
 msgstr "生成推荐配置"
 
@@ -1283,13 +1290,13 @@ msgstr "放弃"
 #: src/views/container/ContainerCreate.vue:1088
 #: src/views/environment/GoView.vue:90
 #: src/views/environment/NodejsView.vue:93
-#: src/views/environment/PhpConfigTuneView.vue:342
-#: src/views/environment/PhpConfigTuneView.vue:376
-#: src/views/environment/PhpConfigTuneView.vue:450
-#: src/views/environment/PhpConfigTuneView.vue:500
-#: src/views/environment/PhpConfigTuneView.vue:570
-#: src/views/environment/PhpConfigTuneView.vue:649
-#: src/views/environment/PhpConfigTuneView.vue:727
+#: src/views/environment/PhpConfigTuneView.vue:352
+#: src/views/environment/PhpConfigTuneView.vue:386
+#: src/views/environment/PhpConfigTuneView.vue:460
+#: src/views/environment/PhpConfigTuneView.vue:510
+#: src/views/environment/PhpConfigTuneView.vue:580
+#: src/views/environment/PhpConfigTuneView.vue:659
+#: src/views/environment/PhpConfigTuneView.vue:737
 #: src/views/environment/PHPView.vue:344
 #: src/views/environment/PHPView.vue:362
 #: src/views/environment/PHPView.vue:506
@@ -1300,7 +1307,8 @@ msgstr "放弃"
 #: src/views/monitor/ChannelModal.vue:149
 #: src/views/monitor/SettingView.vue:245
 #: src/views/monitor/SettingView.vue:306
-#: src/views/project/EditModal.vue:653
+#: src/views/project/EditModal.vue:675
+#: src/views/project/ProxyModal.vue:377
 #: src/views/setting/IndexView.vue:167
 #: src/views/tamper/RuleModal.vue:133
 #: src/views/task/CreateModal.vue:545
@@ -1795,8 +1803,8 @@ msgstr "重命名"
 #: src/views/firewall/RuleView.vue:393
 #: src/views/monitor/AlertView.vue:120
 #: src/views/monitor/SettingView.vue:160
-#: src/views/project/ListView.vue:197
-#: src/views/project/ListView.vue:308
+#: src/views/project/ListView.vue:223
+#: src/views/project/ListView.vue:342
 #: src/views/setting/PasskeyModal.vue:68
 #: src/views/setting/SettingUser.vue:143
 #: src/views/setting/TokenModal.vue:99
@@ -1875,8 +1883,8 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/firewall/RuleView.vue:369
 #: src/views/monitor/AlertView.vue:49
 #: src/views/monitor/SettingView.vue:93
-#: src/views/project/ListView.vue:274
-#: src/views/project/ListView.vue:284
+#: src/views/project/ListView.vue:308
+#: src/views/project/ListView.vue:318
 #: src/views/setting/PasskeyModal.vue:96
 #: src/views/setting/SettingUser.vue:175
 #: src/views/setting/TokenModal.vue:119
@@ -2024,7 +2032,7 @@ msgstr "退出登录成功！"
 #: src/views/firewall/IpRuleView.vue:104
 #: src/views/firewall/RuleView.vue:216
 #: src/views/firewall/RuleView.vue:241
-#: src/views/project/ListView.vue:80
+#: src/views/project/ListView.vue:85
 #: src/views/toolbox/DiskView.vue:161
 #: src/views/website/stats/GeoTab.vue:102
 #: src/views/website/stats/GeoTab.vue:104
@@ -2217,8 +2225,8 @@ msgstr "应用名称"
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
 #: src/views/environment/PHPView.vue:136
-#: src/views/project/EditModal.vue:269
-#: src/views/project/ListView.vue:59
+#: src/views/project/EditModal.vue:284
+#: src/views/project/ListView.vue:64
 msgid "Description"
 msgstr "描述"
 
@@ -2289,7 +2297,7 @@ msgstr "在主页显示"
 #: src/views/firewall/ScanView.vue:258
 #: src/views/monitor/AlertView.vue:105
 #: src/views/monitor/SettingView.vue:135
-#: src/views/project/ListView.vue:120
+#: src/views/project/ListView.vue:125
 #: src/views/setting/PasskeyModal.vue:51
 #: src/views/setting/SettingUser.vue:89
 #: src/views/setting/TokenModal.vue:64
@@ -2473,7 +2481,7 @@ msgstr "部分运行"
 #: src/views/log/SSHLog.vue:63
 #: src/views/monitor/AlertView.vue:95
 #: src/views/monitor/SettingView.vue:125
-#: src/views/project/ListView.vue:74
+#: src/views/project/ListView.vue:79
 #: src/views/tamper/TamperView.vue:137
 #: src/views/tamper/TamperView.vue:239
 #: src/views/task/TaskView.vue:35
@@ -2582,7 +2590,7 @@ msgstr "自动启动"
 #: src/views/container/ComposeView.vue:337
 #: src/views/container/ContainerCreate.vue:827
 #: src/views/container/ContainerInfoModal.vue:186
-#: src/views/project/EditModal.vue:454
+#: src/views/project/EditModal.vue:476
 #: src/views/toolbox/ProcessView.vue:440
 msgid "Environment Variables"
 msgstr "环境变量"
@@ -2709,7 +2717,7 @@ msgstr "自定义编译参数"
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:89
 #: src/views/apps/redis/RedisConfigTuneView.vue:49
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:46
-#: src/views/environment/PhpConfigTuneView.vue:90
+#: src/views/environment/PhpConfigTuneView.vue:100
 msgid "Generated, review the values and save"
 msgstr "已生成，请检查数值并保存"
 
@@ -2729,7 +2737,7 @@ msgstr "启动服务器数量（StartServers）"
 #: src/views/apps/frp/FrpProxyModal.vue:442
 #: src/views/apps/frp/FrpProxyModal.vue:450
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:247
-#: src/views/environment/PhpConfigTuneView.vue:547
+#: src/views/environment/PhpConfigTuneView.vue:557
 msgid "e.g. 3"
 msgstr "例如 3"
 
@@ -2789,7 +2797,7 @@ msgstr "超时（Timeout）"
 
 #: src/views/apps/apache/ApacheConfigTuneView.vue:178
 #: src/views/apps/nginx/NginxConfigTuneView.vue:224
-#: src/views/environment/PhpConfigTuneView.vue:480
+#: src/views/environment/PhpConfigTuneView.vue:490
 msgid "e.g. 60"
 msgstr "例如 60"
 
@@ -2806,7 +2814,7 @@ msgid "Keep Alive Timeout (KeepAliveTimeout)"
 msgstr "KeepAlive 超时（KeepAliveTimeout）"
 
 #: src/views/apps/apache/ApacheConfigTuneView.vue:197
-#: src/views/environment/PhpConfigTuneView.vue:536
+#: src/views/environment/PhpConfigTuneView.vue:546
 msgid "e.g. 5"
 msgstr "例如 5"
 
@@ -3147,7 +3155,7 @@ msgstr "中国 - 腾讯（仅内网）"
 
 #: src/views/apps/docker/IndexView.vue:173
 #: src/views/container/ContainerCreate.vue:451
-#: src/views/project/EditModal.vue:258
+#: src/views/project/EditModal.vue:273
 #: src/views/website/EditModal.vue:1021
 msgid "Basic Settings"
 msgstr "基本设置"
@@ -3531,7 +3539,7 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 #: src/views/log/OperationLog.vue:90
 #: src/views/monitor/ChannelModal.vue:92
 #: src/views/monitor/SettingView.vue:113
-#: src/views/project/ListView.vue:66
+#: src/views/project/ListView.vue:71
 #: src/views/toolbox/MigrationView.vue:136
 #: src/views/toolbox/MigrationView.vue:212
 #: src/views/toolbox/network/InterfaceView.vue:155
@@ -3679,9 +3687,9 @@ msgstr "封禁列表"
 #: src/views/apps/nginx/NginxConfigTuneView.vue:200
 #: src/views/apps/redis/RedisConfigTuneView.vue:140
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:134
-#: src/views/environment/PhpConfigTuneView.vue:316
+#: src/views/environment/PhpConfigTuneView.vue:326
 #: src/views/project/IndexView.vue:22
-#: src/views/project/ListView.vue:27
+#: src/views/project/ListView.vue:32
 msgid "General"
 msgstr "通用"
 
@@ -4067,7 +4075,7 @@ msgstr "间隔秒数（healthCheck.intervalSeconds）"
 
 #: src/views/apps/frp/FrpProxyModal.vue:458
 #: src/views/apps/nginx/NginxConfigTuneView.vue:249
-#: src/views/environment/PhpConfigTuneView.vue:558
+#: src/views/environment/PhpConfigTuneView.vue:568
 msgid "e.g. 10"
 msgstr "例如 10"
 
@@ -4152,10 +4160,10 @@ msgstr "添加注解"
 #: src/views/apps/frp/FrpProxyView.vue:43
 #: src/views/apps/frp/FrpVisitorView.vue:43
 #: src/views/apps/frp/options.ts:14
-#: src/views/environment/PhpConfigTuneView.vue:270
+#: src/views/environment/PhpConfigTuneView.vue:280
 #: src/views/monitor/AlertView.vue:100
 #: src/views/monitor/SettingView.vue:130
-#: src/views/project/EditModal.vue:79
+#: src/views/project/EditModal.vue:82
 #: src/views/setting/SettingBase.vue:187
 #: src/views/setting/SettingSafe.vue:23
 #: src/views/tamper/TamperView.vue:142
@@ -4233,7 +4241,7 @@ msgid "Max Ports Per Client (maxPortsPerClient)"
 msgstr "每个客户端的最大端口数（maxPortsPerClient）"
 
 #: src/views/apps/frp/FrpsConfigTuneView.vue:112
-#: src/views/project/EditModal.vue:534
+#: src/views/project/EditModal.vue:556
 msgid "0 means no limit"
 msgstr "0 表示无限制"
 
@@ -4397,8 +4405,8 @@ msgstr "这会修改 Frps 主配置文件。如果您不了解各项参数的含
 
 #: src/views/apps/frp/IndexView.vue:100
 #: src/views/apps/frp/IndexView.vue:158
-#: src/views/project/CreateModal.vue:566
-#: src/views/project/EditModal.vue:313
+#: src/views/project/CreateModal.vue:332
+#: src/views/project/EditModal.vue:328
 msgid "Run User"
 msgstr "运行用户"
 
@@ -4593,7 +4601,7 @@ msgstr "浏览器（直连）"
 #: src/views/file/ListView.vue:1715
 #: src/views/monitor/AlertView.vue:112
 #: src/views/monitor/SettingView.vue:152
-#: src/views/project/ListView.vue:180
+#: src/views/project/ListView.vue:195
 #: src/views/ssh/IndexView.vue:616
 #: src/views/tamper/TamperView.vue:154
 #: src/views/task/CronView.vue:156
@@ -4863,8 +4871,8 @@ msgstr "最大连接数（max_connections）"
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:271
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:559
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:72
-#: src/views/environment/PhpConfigTuneView.vue:399
-#: src/views/environment/PhpConfigTuneView.vue:415
+#: src/views/environment/PhpConfigTuneView.vue:409
+#: src/views/environment/PhpConfigTuneView.vue:425
 msgid "e.g. 50"
 msgstr "例如 50"
 
@@ -4909,7 +4917,7 @@ msgid "e.g. 65535"
 msgstr "例如 65535"
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:338
-#: src/views/environment/PhpConfigTuneView.vue:508
+#: src/views/environment/PhpConfigTuneView.vue:518
 msgid "Performance Tuning"
 msgstr "性能调优"
 
@@ -4931,8 +4939,8 @@ msgstr "排序缓冲区大小（sort_buffer_size）"
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:278
 #: src/views/apps/redis/RedisConfigTuneView.vue:217
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:211
-#: src/views/environment/PhpConfigTuneView.vue:435
-#: src/views/environment/PhpConfigTuneView.vue:588
+#: src/views/environment/PhpConfigTuneView.vue:445
+#: src/views/environment/PhpConfigTuneView.vue:598
 msgid "e.g. 256"
 msgstr "例如 256"
 
@@ -4949,7 +4957,7 @@ msgid "Join Buffer Size (join_buffer_size)"
 msgstr "连接缓冲区大小（join_buffer_size）"
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:413
-#: src/views/environment/PhpConfigTuneView.vue:630
+#: src/views/environment/PhpConfigTuneView.vue:640
 msgid "e.g. 128"
 msgstr "例如 128"
 
@@ -5031,7 +5039,7 @@ msgid "Long Query Time (long_query_time)"
 msgstr "长查询时间（long_query_time）"
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:617
-#: src/views/environment/PhpConfigTuneView.vue:618
+#: src/views/environment/PhpConfigTuneView.vue:628
 msgid "e.g. 3 (seconds)"
 msgstr "例如 3（秒）"
 
@@ -5427,7 +5435,7 @@ msgid "Client Header Buffer Size (client_header_buffer_size)"
 msgstr "客户端请求头缓冲区大小（client_header_buffer_size）"
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:265
-#: src/views/environment/PhpConfigTuneView.vue:600
+#: src/views/environment/PhpConfigTuneView.vue:610
 msgid "e.g. 32"
 msgstr "例如 32"
 
@@ -5718,7 +5726,7 @@ msgid "Resolver Timeout"
 msgstr "解析超时"
 
 #: src/views/apps/openlitespeed/IndexView.vue:75
-#: src/views/project/CreateModal.vue:503
+#: src/views/project/CreateModal.vue:238
 #: src/views/website/CreateModal.vue:174
 #: src/views/website/EditModal.vue:1054
 #: src/views/website/EditModal.vue:1977
@@ -6053,7 +6061,7 @@ msgid "Log Timezone (log_timezone)"
 msgstr "日志时区（log_timezone）"
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:482
-#: src/views/environment/PhpConfigTuneView.vue:326
+#: src/views/environment/PhpConfigTuneView.vue:336
 msgid "e.g. Asia/Shanghai"
 msgstr "例如 Asia/Shanghai"
 
@@ -6393,7 +6401,7 @@ msgstr "建议使用生成器生成随机密码"
 #: src/views/apps/rsync/IndexView.vue:325
 #: src/views/container/ComposeView.vue:67
 #: src/views/file/PropertyModal.vue:26
-#: src/views/project/ListView.vue:99
+#: src/views/project/ListView.vue:104
 #: src/views/task/CreateModal.vue:458
 #: src/views/website/CreateModal.vue:233
 #: src/views/website/EditModal.vue:2190
@@ -6851,8 +6859,8 @@ msgid "Daemon Logs"
 msgstr "守护进程日志"
 
 #: src/views/apps/supervisor/IndexView.vue:438
-#: src/views/project/CreateModal.vue:585
-#: src/views/project/EditModal.vue:333
+#: src/views/project/CreateModal.vue:307
+#: src/views/project/EditModal.vue:348
 msgid "Start Command"
 msgstr "启动命令"
 
@@ -6862,7 +6870,7 @@ msgstr "请在启动命令中输入文件的绝对路径"
 
 #: src/views/apps/supervisor/IndexView.vue:446
 #: src/views/container/ContainerCreate.vue:877
-#: src/views/project/EditModal.vue:295
+#: src/views/project/EditModal.vue:310
 #: src/views/toolbox/ProcessView.vue:426
 msgid "Working Directory"
 msgstr "工作目录"
@@ -7327,7 +7335,8 @@ msgstr "未找到匹配的网站"
 #: src/views/cert/CertView.vue:150
 #: src/views/cert/CertView.vue:524
 #: src/views/cert/CreateCertModal.vue:95
-#: src/views/project/CreateModal.vue:604
+#: src/views/project/ProxyForm.vue:11
+#: src/views/project/ProxyModal.vue:336
 #: src/views/website/CreateModal.vue:156
 #: src/views/website/EditModal.vue:982
 msgid "Domain"
@@ -7798,7 +7807,7 @@ msgstr "例如 nginx，mysql:8.4，your_username/your_image:tag"
 
 #: src/views/container/ContainerCreate.vue:471
 #: src/views/container/ContainerInfoModal.vue:124
-#: src/views/project/EditModal.vue:374
+#: src/views/project/EditModal.vue:396
 msgid "Restart Policy"
 msgstr "重启策略"
 
@@ -7937,7 +7946,7 @@ msgid "Mount options, e.g., size=64m"
 msgstr "挂载选项，例如 size=64m"
 
 #: src/views/container/ContainerCreate.vue:715
-#: src/views/project/EditModal.vue:517
+#: src/views/project/EditModal.vue:539
 msgid "Resource Limits"
 msgstr "资源限制"
 
@@ -8006,12 +8015,12 @@ msgid "Environment"
 msgstr "环境"
 
 #: src/views/container/ContainerCreate.vue:837
-#: src/views/project/EditModal.vue:465
+#: src/views/project/EditModal.vue:487
 msgid "Variable name"
 msgstr "变量名称"
 
 #: src/views/container/ContainerCreate.vue:843
-#: src/views/project/EditModal.vue:471
+#: src/views/project/EditModal.vue:493
 msgid "Variable value"
 msgstr "变量值"
 
@@ -8075,7 +8084,7 @@ msgid "Stop Signal"
 msgstr "停止信号"
 
 #: src/views/container/ContainerCreate.vue:935
-#: src/views/project/EditModal.vue:417
+#: src/views/project/EditModal.vue:439
 msgid "Stop Timeout (s)"
 msgstr "停止超时（秒）"
 
@@ -8916,226 +8925,226 @@ msgstr "框架应用（每个进程约 80MB）"
 msgid "Heavy application (~128MB per process)"
 msgstr "重型应用（每个进程约 128MB）"
 
-#: src/views/environment/PhpConfigTuneView.vue:242
+#: src/views/environment/PhpConfigTuneView.vue:252
 #: src/views/log/CleanPopover.vue:26
 msgid "Cleaned successfully"
 msgstr "清理成功"
 
-#: src/views/environment/PhpConfigTuneView.vue:319
+#: src/views/environment/PhpConfigTuneView.vue:329
 msgid "Common PHP general settings."
 msgstr "PHP 通用设置。"
 
-#: src/views/environment/PhpConfigTuneView.vue:322
+#: src/views/environment/PhpConfigTuneView.vue:332
 msgid "Short Tag (short_open_tag)"
 msgstr "短标签（short_open_tag）"
 
-#: src/views/environment/PhpConfigTuneView.vue:325
+#: src/views/environment/PhpConfigTuneView.vue:335
 msgid "Timezone (date.timezone)"
 msgstr "时区（date.timezone）"
 
-#: src/views/environment/PhpConfigTuneView.vue:328
+#: src/views/environment/PhpConfigTuneView.vue:338
 msgid "Display Errors (display_errors)"
 msgstr "显示错误（display_errors）"
 
-#: src/views/environment/PhpConfigTuneView.vue:331
+#: src/views/environment/PhpConfigTuneView.vue:341
 msgid "Error Reporting (error_reporting)"
 msgstr "错误报告（error_reporting）"
 
-#: src/views/environment/PhpConfigTuneView.vue:332
+#: src/views/environment/PhpConfigTuneView.vue:342
 msgid "e.g. E_ALL"
 msgstr "例如 E_ALL"
 
-#: src/views/environment/PhpConfigTuneView.vue:350
 #: src/views/environment/PhpConfigTuneView.vue:360
+#: src/views/environment/PhpConfigTuneView.vue:370
 msgid "Disabled Functions"
 msgstr "禁用函数"
 
-#: src/views/environment/PhpConfigTuneView.vue:354
+#: src/views/environment/PhpConfigTuneView.vue:364
 msgid "Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc."
 msgstr "输入要禁用的 PHP 函数，用逗号分隔。常见的危险函数包括：exec、shell_exec、system、passthru、proc_open、popen 等。"
 
-#: src/views/environment/PhpConfigTuneView.vue:365
+#: src/views/environment/PhpConfigTuneView.vue:375
 msgid "e.g. exec,shell_exec,system,passthru"
 msgstr "例如 exec,shell_exec,system,passthru"
 
-#: src/views/environment/PhpConfigTuneView.vue:384
+#: src/views/environment/PhpConfigTuneView.vue:394
 msgid "Upload Limits"
 msgstr "上传限制"
 
-#: src/views/environment/PhpConfigTuneView.vue:388
+#: src/views/environment/PhpConfigTuneView.vue:398
 msgid "Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize."
 msgstr "调整 PHP 文件上传限制。post_max_size 应大于 upload_max_filesize。"
 
-#: src/views/environment/PhpConfigTuneView.vue:394
+#: src/views/environment/PhpConfigTuneView.vue:404
 msgid "Max Upload Size (upload_max_filesize)"
 msgstr "最大上传大小（upload_max_filesize）"
 
-#: src/views/environment/PhpConfigTuneView.vue:410
+#: src/views/environment/PhpConfigTuneView.vue:420
 msgid "Max POST Size (post_max_size)"
 msgstr "最大 POST 大小（post_max_size）"
 
-#: src/views/environment/PhpConfigTuneView.vue:422
+#: src/views/environment/PhpConfigTuneView.vue:432
 msgid "Max File Uploads (max_file_uploads)"
 msgstr "最大文件上传数（max_file_uploads）"
 
-#: src/views/environment/PhpConfigTuneView.vue:426
+#: src/views/environment/PhpConfigTuneView.vue:436
 msgid "e.g. 20"
 msgstr "例如 20"
 
-#: src/views/environment/PhpConfigTuneView.vue:430
+#: src/views/environment/PhpConfigTuneView.vue:440
 msgid "Memory Limit (memory_limit)"
 msgstr "内存限制（memory_limit）"
 
-#: src/views/environment/PhpConfigTuneView.vue:458
+#: src/views/environment/PhpConfigTuneView.vue:468
 msgid "Timeout Limits"
 msgstr "超时限制"
 
-#: src/views/environment/PhpConfigTuneView.vue:462
+#: src/views/environment/PhpConfigTuneView.vue:472
 msgid "Adjust PHP script timeout limits. Values are in seconds, -1 means no limit."
 msgstr "调整 PHP 脚本超时限制。值以秒为单位，-1 表示无限制。"
 
-#: src/views/environment/PhpConfigTuneView.vue:468
+#: src/views/environment/PhpConfigTuneView.vue:478
 msgid "Max Execution Time (max_execution_time)"
 msgstr "最大执行时间（max_execution_time）"
 
-#: src/views/environment/PhpConfigTuneView.vue:472
-#: src/views/environment/PhpConfigTuneView.vue:525
+#: src/views/environment/PhpConfigTuneView.vue:482
+#: src/views/environment/PhpConfigTuneView.vue:535
 msgid "e.g. 30"
 msgstr "例如 30"
 
-#: src/views/environment/PhpConfigTuneView.vue:476
+#: src/views/environment/PhpConfigTuneView.vue:486
 msgid "Max Input Time (max_input_time)"
 msgstr "最大输入时间（max_input_time）"
 
-#: src/views/environment/PhpConfigTuneView.vue:484
+#: src/views/environment/PhpConfigTuneView.vue:494
 msgid "Max Input Vars (max_input_vars)"
 msgstr "最大输入变量数（max_input_vars）"
 
-#: src/views/environment/PhpConfigTuneView.vue:488
+#: src/views/environment/PhpConfigTuneView.vue:498
 msgid "e.g. 1000"
 msgstr "例如 1000"
 
-#: src/views/environment/PhpConfigTuneView.vue:512
+#: src/views/environment/PhpConfigTuneView.vue:522
 msgid "Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf."
 msgstr "调整 PHP-FPM 进程管理器设置。这些设置在 php-fpm.conf 中。"
 
-#: src/views/environment/PhpConfigTuneView.vue:518
+#: src/views/environment/PhpConfigTuneView.vue:528
 msgid "Process Manager (pm)"
 msgstr "进程管理方式（pm）"
 
-#: src/views/environment/PhpConfigTuneView.vue:521
+#: src/views/environment/PhpConfigTuneView.vue:531
 msgid "Max Children (pm.max_children)"
 msgstr "最大子进程数（pm.max_children）"
 
-#: src/views/environment/PhpConfigTuneView.vue:531
+#: src/views/environment/PhpConfigTuneView.vue:541
 msgid "Start Servers (pm.start_servers)"
 msgstr "启动服务器数（pm.start_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:542
+#: src/views/environment/PhpConfigTuneView.vue:552
 msgid "Min Spare Servers (pm.min_spare_servers)"
 msgstr "最小空闲服务器数（pm.min_spare_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:553
+#: src/views/environment/PhpConfigTuneView.vue:563
 msgid "Max Spare Servers (pm.max_spare_servers)"
 msgstr "最大空闲服务器数（pm.max_spare_servers）"
 
-#: src/views/environment/PhpConfigTuneView.vue:581
+#: src/views/environment/PhpConfigTuneView.vue:591
 msgid "Adjust OPcache and JIT settings. The tracing JIT mode is recommended."
 msgstr "调整 OPcache 和 JIT 设置。推荐使用 tracing JIT 模式。"
 
-#: src/views/environment/PhpConfigTuneView.vue:584
+#: src/views/environment/PhpConfigTuneView.vue:594
 msgid "Memory Size (opcache.memory_consumption)"
 msgstr "内存大小（opcache.memory_consumption）"
 
-#: src/views/environment/PhpConfigTuneView.vue:595
+#: src/views/environment/PhpConfigTuneView.vue:605
 msgid "Interned Strings Buffer (opcache.interned_strings_buffer)"
 msgstr "驻留字符串缓冲区（opcache.interned_strings_buffer）"
 
-#: src/views/environment/PhpConfigTuneView.vue:606
+#: src/views/environment/PhpConfigTuneView.vue:616
 msgid "Max Cached Files (opcache.max_accelerated_files)"
 msgstr "最大缓存文件数（opcache.max_accelerated_files）"
 
-#: src/views/environment/PhpConfigTuneView.vue:610
+#: src/views/environment/PhpConfigTuneView.vue:620
 msgid "e.g. 100000"
 msgstr "例如 100000"
 
-#: src/views/environment/PhpConfigTuneView.vue:614
+#: src/views/environment/PhpConfigTuneView.vue:624
 msgid "Revalidate Frequency (opcache.revalidate_freq)"
 msgstr "重新验证频率（opcache.revalidate_freq）"
 
-#: src/views/environment/PhpConfigTuneView.vue:622
+#: src/views/environment/PhpConfigTuneView.vue:632
 msgid "JIT Mode (opcache.jit)"
 msgstr "JIT 模式（opcache.jit）"
 
-#: src/views/environment/PhpConfigTuneView.vue:625
+#: src/views/environment/PhpConfigTuneView.vue:635
 msgid "JIT Buffer Size (opcache.jit_buffer_size)"
 msgstr "JIT 缓冲区大小（opcache.jit_buffer_size）"
 
-#: src/views/environment/PhpConfigTuneView.vue:661
+#: src/views/environment/PhpConfigTuneView.vue:671
 msgid "Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running."
 msgstr "调整 PHP 会话设置。使用 redis 或 memcached 时，请确保已安装相应扩展且服务正在运行。"
 
-#: src/views/environment/PhpConfigTuneView.vue:667
+#: src/views/environment/PhpConfigTuneView.vue:677
 msgid "Save Handler (session.save_handler)"
 msgstr "保存处理器（session.save_handler）"
 
-#: src/views/environment/PhpConfigTuneView.vue:673
+#: src/views/environment/PhpConfigTuneView.vue:683
 msgid "Save Path (session.save_path)"
 msgstr "保存路径（session.save_path）"
 
-#: src/views/environment/PhpConfigTuneView.vue:675
+#: src/views/environment/PhpConfigTuneView.vue:685
 msgid "e.g. /tmp"
 msgstr "例如 /tmp"
 
-#: src/views/environment/PhpConfigTuneView.vue:679
+#: src/views/environment/PhpConfigTuneView.vue:689
 msgid "Redis Host"
 msgstr "Redis 主机"
 
-#: src/views/environment/PhpConfigTuneView.vue:682
+#: src/views/environment/PhpConfigTuneView.vue:692
 msgid "Redis Port"
 msgstr "Redis 端口"
 
-#: src/views/environment/PhpConfigTuneView.vue:685
+#: src/views/environment/PhpConfigTuneView.vue:695
 msgid "Redis Password"
 msgstr "Redis 密码"
 
-#: src/views/environment/PhpConfigTuneView.vue:690
+#: src/views/environment/PhpConfigTuneView.vue:700
 msgid "Leave empty if no password"
 msgstr "无密码则留空"
 
-#: src/views/environment/PhpConfigTuneView.vue:696
+#: src/views/environment/PhpConfigTuneView.vue:706
 msgid "Memcached Host"
 msgstr "Memcached 主机"
 
-#: src/views/environment/PhpConfigTuneView.vue:699
+#: src/views/environment/PhpConfigTuneView.vue:709
 msgid "Memcached Port"
 msgstr "Memcached 端口"
 
-#: src/views/environment/PhpConfigTuneView.vue:703
+#: src/views/environment/PhpConfigTuneView.vue:713
 msgid "GC Max Lifetime (session.gc_maxlifetime)"
 msgstr "GC 最大生命周期（session.gc_maxlifetime）"
 
-#: src/views/environment/PhpConfigTuneView.vue:707
+#: src/views/environment/PhpConfigTuneView.vue:717
 msgid "e.g. 1440 (seconds)"
 msgstr "例如 1440（秒）"
 
-#: src/views/environment/PhpConfigTuneView.vue:711
+#: src/views/environment/PhpConfigTuneView.vue:721
 msgid "Cookie Lifetime (session.cookie_lifetime)"
 msgstr "Cookie 生命周期（session.cookie_lifetime）"
 
-#: src/views/environment/PhpConfigTuneView.vue:715
+#: src/views/environment/PhpConfigTuneView.vue:725
 msgid "e.g. 0 (until browser closes)"
 msgstr "例如 0（直到浏览器关闭）"
 
-#: src/views/environment/PhpConfigTuneView.vue:734
+#: src/views/environment/PhpConfigTuneView.vue:744
 msgid "Are you sure you want to clean all session files?"
 msgstr "您确定要清理所有会话文件吗？"
 
-#: src/views/environment/PhpConfigTuneView.vue:743
+#: src/views/environment/PhpConfigTuneView.vue:753
 msgid "Clean Session Files"
 msgstr "清理会话文件"
 
-#: src/views/environment/PhpConfigTuneView.vue:755
+#: src/views/environment/PhpConfigTuneView.vue:765
 msgid "Application Profile"
 msgstr "应用配置"
 
@@ -11325,172 +11334,166 @@ msgstr "昨天"
 msgid "Last 7 Days"
 msgstr "近 7 天"
 
-#: src/views/project/CreateModal.vue:20
-msgid "Source Code"
-msgstr "源代码"
-
-#: src/views/project/CreateModal.vue:21
-msgid "Binary"
-msgstr "二进制"
-
-#: src/views/project/CreateModal.vue:324
+#: src/views/project/composables/useProxyWebsite.ts:19
+#: src/views/project/ProxyModal.vue:111
 msgid "Please enter at least one domain"
 msgstr "请输入至少一个域名"
 
-#: src/views/project/CreateModal.vue:328
+#: src/views/project/composables/useProxyWebsite.ts:23
 msgid "Please enter the project port"
 msgstr "请输入项目端口"
 
-#: src/views/project/CreateModal.vue:339
+#: src/views/project/composables/useProxyWebsite.ts:38
 msgid "Auto-created for project: %{ name }"
 msgstr "为 %{ name } 项目自动创建"
 
-#: src/views/project/CreateModal.vue:365
+#: src/views/project/CreateModal.vue:25
+msgid "Source Code"
+msgstr "源代码"
+
+#: src/views/project/CreateModal.vue:26
+msgid "Binary"
+msgstr "二进制"
+
+#: src/views/project/CreateModal.vue:209
 msgid "Project created successfully"
 msgstr "项目创建成功"
 
-#: src/views/project/CreateModal.vue:376
+#: src/views/project/CreateModal.vue:223
 msgid "Create General Project"
 msgstr "创建通用项目"
 
-#: src/views/project/CreateModal.vue:377
+#: src/views/project/CreateModal.vue:224
 msgid "Create Go Project"
 msgstr "创建 Go 项目"
 
-#: src/views/project/CreateModal.vue:378
+#: src/views/project/CreateModal.vue:225
 msgid "Create Java Project"
 msgstr "创建 Java 项目"
 
-#: src/views/project/CreateModal.vue:379
+#: src/views/project/CreateModal.vue:226
 msgid "Create Node.js Project"
 msgstr "创建 Node.js 项目"
 
-#: src/views/project/CreateModal.vue:380
+#: src/views/project/CreateModal.vue:227
 msgid "Create PHP Project"
 msgstr "创建 PHP 项目"
 
-#: src/views/project/CreateModal.vue:381
+#: src/views/project/CreateModal.vue:228
 msgid "Create Python Project"
 msgstr "创建 Python 项目"
 
-#: src/views/project/CreateModal.vue:382
+#: src/views/project/CreateModal.vue:229
 msgid "Create .NET Project"
 msgstr "创建 .NET 项目"
 
-#: src/views/project/CreateModal.vue:384
-#: src/views/project/ListView.vue:298
+#: src/views/project/CreateModal.vue:231
+#: src/views/project/ListView.vue:332
 msgid "Create Project"
 msgstr "创建项目"
 
-#: src/views/project/CreateModal.vue:391
-#: src/views/project/EditModal.vue:260
-msgid "Project Name"
-msgstr "项目名"
-
-#: src/views/project/CreateModal.vue:396
-#: src/views/project/EditModal.vue:265
-msgid "Project name, used as service identifier"
-msgstr "项目名称，用作服务标识符"
-
-#: src/views/project/CreateModal.vue:400
-#: src/views/project/EditModal.vue:279
-msgid "Project Directory"
-msgstr "项目目录"
-
-#: src/views/project/CreateModal.vue:407
-msgid "Project root directory (if left empty, defaults to project directory/project name)"
-msgstr "项目根目录（如果留空，默认为项目目录/项目名称）"
-
-#: src/views/project/CreateModal.vue:422
-msgid "Run Mode"
-msgstr "运行模式"
-
-#: src/views/project/CreateModal.vue:436
+#: src/views/project/CreateModal.vue:235
 msgid "Go Version"
 msgstr "Go 版本"
 
-#: src/views/project/CreateModal.vue:440
+#: src/views/project/CreateModal.vue:235
 msgid "Select Go Version"
 msgstr "选择 Go 版本"
 
-#: src/views/project/CreateModal.vue:444
-msgid "Entry File"
-msgstr "入口文件"
-
-#: src/views/project/CreateModal.vue:449
-msgid "e.g., main.go, cmd/server/main.go"
-msgstr "例如 main.go，cmd/server/main.go"
-
-#: src/views/project/CreateModal.vue:459
+#: src/views/project/CreateModal.vue:236
 msgid "Java Version"
 msgstr "Java 版本"
 
-#: src/views/project/CreateModal.vue:463
+#: src/views/project/CreateModal.vue:236
 msgid "Select Java Version"
 msgstr "选择 Java 版本"
 
-#: src/views/project/CreateModal.vue:467
-#: src/views/project/CreateModal.vue:489
-#: src/views/project/CreateModal.vue:511
-#: src/views/project/CreateModal.vue:533
-#: src/views/project/CreateModal.vue:555
-msgid "Framework"
-msgstr "框架"
-
-#: src/views/project/CreateModal.vue:471
-#: src/views/project/CreateModal.vue:493
-#: src/views/project/CreateModal.vue:515
-#: src/views/project/CreateModal.vue:537
-#: src/views/project/CreateModal.vue:559
-msgid "Select Framework"
-msgstr "选择框架"
-
-#: src/views/project/CreateModal.vue:481
+#: src/views/project/CreateModal.vue:237
 msgid "Node.js Version"
 msgstr "Node.js 版本"
 
-#: src/views/project/CreateModal.vue:485
+#: src/views/project/CreateModal.vue:237
 msgid "Select Node.js Version"
 msgstr "选择 Node.js 版本"
 
-#: src/views/project/CreateModal.vue:507
+#: src/views/project/CreateModal.vue:238
 #: src/views/website/CreateModal.vue:178
 #: src/views/website/EditModal.vue:1058
 #: src/views/website/EditModal.vue:1981
 msgid "Select PHP Version"
 msgstr "选择 PHP 版本"
 
-#: src/views/project/CreateModal.vue:525
+#: src/views/project/CreateModal.vue:239
 msgid "Python Version"
 msgstr "Python 版本"
 
-#: src/views/project/CreateModal.vue:529
+#: src/views/project/CreateModal.vue:239
 msgid "Select Python Version"
 msgstr "选择 Python 版本"
 
-#: src/views/project/CreateModal.vue:547
+#: src/views/project/CreateModal.vue:240
 msgid ".NET Version"
 msgstr ".NET 版本"
 
-#: src/views/project/CreateModal.vue:551
+#: src/views/project/CreateModal.vue:240
 msgid "Select .NET Version"
 msgstr "选择 .NET 版本"
 
-#: src/views/project/CreateModal.vue:574
-#: src/views/project/EditModal.vue:321
-msgid "Select or enter user"
-msgstr "选择或输入用户"
+#: src/views/project/CreateModal.vue:247
+#: src/views/project/EditModal.vue:275
+msgid "Project Name"
+msgstr "项目名"
 
-#: src/views/project/CreateModal.vue:581
-msgid "Select www user if no special requirements"
-msgstr "如果没有特殊要求，请选择 www 用户"
+#: src/views/project/CreateModal.vue:252
+#: src/views/project/EditModal.vue:280
+msgid "Project name, used as service identifier"
+msgstr "项目名称，用作服务标识符"
 
-#: src/views/project/CreateModal.vue:590
-#: src/views/project/EditModal.vue:338
+#: src/views/project/CreateModal.vue:256
+#: src/views/project/EditModal.vue:294
+msgid "Project Directory"
+msgstr "项目目录"
+
+#: src/views/project/CreateModal.vue:272
+msgid "Also used as the working directory of the project"
+msgstr "同时用作项目的工作目录"
+
+#: src/views/project/CreateModal.vue:277
+msgid "Run Mode"
+msgstr "运行模式"
+
+#: src/views/project/CreateModal.vue:297
+msgid "Framework"
+msgstr "框架"
+
+#: src/views/project/CreateModal.vue:301
+msgid "Select Framework"
+msgstr "选择框架"
+
+#: src/views/project/CreateModal.vue:313
+#: src/views/project/EditModal.vue:354
 msgid "e.g., php artisan serve, node app.js"
 msgstr "例如，php artisan serve、node app.js"
 
-#: src/views/project/CreateModal.vue:593
+#: src/views/project/CreateModal.vue:325
+msgid "Select the entry file on the right to generate the command"
+msgstr "在右侧选择入口文件以生成命令"
+
+#: src/views/project/CreateModal.vue:326
+msgid "Select the executable file on the right as the command"
+msgstr "在右侧选择可执行文件作为命令"
+
+#: src/views/project/CreateModal.vue:340
+#: src/views/project/EditModal.vue:336
+msgid "Select or enter user"
+msgstr "选择或输入用户"
+
+#: src/views/project/CreateModal.vue:347
+msgid "Select www user if no special requirements"
+msgstr "如果没有特殊要求，请选择 www 用户"
+
+#: src/views/project/CreateModal.vue:352
+#: src/views/project/ListView.vue:186
 #: src/views/website/BulkCreateModal.vue:62
 #: src/views/website/CreateModal.vue:29
 #: src/views/website/EditModal.vue:128
@@ -11499,251 +11502,243 @@ msgstr "例如，php artisan serve、node app.js"
 msgid "Reverse Proxy"
 msgstr "反向代理"
 
-#: src/views/project/CreateModal.vue:597
+#: src/views/project/CreateModal.vue:356
 msgid "Automatically create a reverse proxy website for this project"
 msgstr "自动为此项目创建反向代理网站"
 
-#: src/views/project/CreateModal.vue:612
-msgid "Project Port"
-msgstr "项目端口"
-
-#: src/views/project/CreateModal.vue:618
-msgid "e.g., 3000"
-msgstr "例如 3000"
-
-#: src/views/project/EditModal.vue:59
+#: src/views/project/EditModal.vue:62
 msgid "No restart"
 msgstr "不重启"
 
-#: src/views/project/EditModal.vue:60
+#: src/views/project/EditModal.vue:63
 msgid "Always restart"
 msgstr "始终重启"
 
-#: src/views/project/EditModal.vue:61
+#: src/views/project/EditModal.vue:64
 msgid "Restart on failure"
 msgstr "失败时重启"
 
-#: src/views/project/EditModal.vue:62
+#: src/views/project/EditModal.vue:65
 msgid "Restart on abnormal"
 msgstr "异常时重启"
 
-#: src/views/project/EditModal.vue:63
+#: src/views/project/EditModal.vue:66
 msgid "Restart on abort"
 msgstr "中止时重启"
 
-#: src/views/project/EditModal.vue:64
+#: src/views/project/EditModal.vue:67
 msgid "Restart on success"
 msgstr "成功时重启"
 
-#: src/views/project/EditModal.vue:73
+#: src/views/project/EditModal.vue:76
 msgid "File (append)"
 msgstr "文件（附加）"
 
-#: src/views/project/EditModal.vue:74
+#: src/views/project/EditModal.vue:77
 msgid "File (truncate)"
 msgstr "文件（截断）"
 
-#: src/views/project/EditModal.vue:132
+#: src/views/project/EditModal.vue:135
 msgid "Requires"
 msgstr "Requires"
 
-#: src/views/project/EditModal.vue:133
+#: src/views/project/EditModal.vue:136
 msgid "Strong dependencies, service will fail if these are not available"
 msgstr "强依赖，如果这些不可用，服务将会失败"
 
-#: src/views/project/EditModal.vue:137
+#: src/views/project/EditModal.vue:140
 msgid "Wants"
 msgstr "Wants"
 
-#: src/views/project/EditModal.vue:138
+#: src/views/project/EditModal.vue:141
 msgid "Weak dependencies, service will still start if these fail"
 msgstr "弱依赖，如果这些失败服务仍然会启动"
 
-#: src/views/project/EditModal.vue:142
+#: src/views/project/EditModal.vue:145
 msgid "After"
 msgstr "After"
 
-#: src/views/project/EditModal.vue:143
+#: src/views/project/EditModal.vue:146
 msgid "Start this service after the specified services"
 msgstr "在指定服务之后启动此服务"
 
-#: src/views/project/EditModal.vue:147
+#: src/views/project/EditModal.vue:150
 msgid "Before"
 msgstr "Before"
 
-#: src/views/project/EditModal.vue:148
+#: src/views/project/EditModal.vue:151
 msgid "Start this service before the specified services"
 msgstr "在指定的服务之前启动此服务"
 
-#: src/views/project/EditModal.vue:253
+#: src/views/project/EditModal.vue:268
 msgid "Edit Project - %{ name }"
 msgstr "编辑项目 - %{ name }"
 
-#: src/views/project/EditModal.vue:275
+#: src/views/project/EditModal.vue:290
 msgid "Project description"
 msgstr "项目描述"
 
-#: src/views/project/EditModal.vue:285
+#: src/views/project/EditModal.vue:300
 msgid "Project root directory"
 msgstr "项目根目录"
 
-#: src/views/project/EditModal.vue:302
+#: src/views/project/EditModal.vue:317
 msgid "Working directory (optional, defaults to project directory)"
 msgstr "工作目录（可选，默认为项目目录）"
 
-#: src/views/project/EditModal.vue:331
+#: src/views/project/EditModal.vue:346
 msgid "Runtime Settings"
 msgstr "运行设置"
 
-#: src/views/project/EditModal.vue:341
+#: src/views/project/EditModal.vue:363
 msgid "Pre-start Command"
 msgstr "预启动命令"
 
-#: src/views/project/EditModal.vue:346
+#: src/views/project/EditModal.vue:368
 msgid "Command to run before starting (optional)"
 msgstr "启动前运行的命令（可选）"
 
-#: src/views/project/EditModal.vue:349
+#: src/views/project/EditModal.vue:371
 msgid "Post-start Command"
 msgstr "启动后命令"
 
-#: src/views/project/EditModal.vue:354
+#: src/views/project/EditModal.vue:376
 msgid "Command to run after starting (optional)"
 msgstr "启动后运行的命令（可选）"
 
-#: src/views/project/EditModal.vue:357
+#: src/views/project/EditModal.vue:379
 msgid "Stop Command"
 msgstr "停止命令"
 
-#: src/views/project/EditModal.vue:362
+#: src/views/project/EditModal.vue:384
 msgid "Custom stop command (optional)"
 msgstr "自定义停止命令（可选）"
 
-#: src/views/project/EditModal.vue:365
+#: src/views/project/EditModal.vue:387
 msgid "Reload Command"
 msgstr "重载命令"
 
-#: src/views/project/EditModal.vue:370
+#: src/views/project/EditModal.vue:392
 msgid "Custom reload command (optional)"
 msgstr "自定义重载命令（可选）"
 
-#: src/views/project/EditModal.vue:377
+#: src/views/project/EditModal.vue:399
 msgid "Restart Strategy"
 msgstr "重启策略"
 
-#: src/views/project/EditModal.vue:384
+#: src/views/project/EditModal.vue:406
 msgid "Restart Interval"
 msgstr "重启间隔"
 
-#: src/views/project/EditModal.vue:389
+#: src/views/project/EditModal.vue:411
 msgid "e.g., 5s, 1min"
 msgstr "例如 5 秒，1 分钟"
 
-#: src/views/project/EditModal.vue:394
+#: src/views/project/EditModal.vue:416
 msgid "Max Restarts"
 msgstr "最大重启次数"
 
-#: src/views/project/EditModal.vue:405
+#: src/views/project/EditModal.vue:427
 msgid "Start Timeout (s)"
 msgstr "启动超时（秒）"
 
-#: src/views/project/EditModal.vue:428
+#: src/views/project/EditModal.vue:450
 msgid "Other"
 msgstr "其他"
 
-#: src/views/project/EditModal.vue:434
+#: src/views/project/EditModal.vue:456
 msgid "Standard Output"
 msgstr "标准输出"
 
-#: src/views/project/EditModal.vue:444
+#: src/views/project/EditModal.vue:466
 msgid "Standard Error"
 msgstr "标准错误"
 
-#: src/views/project/EditModal.vue:482
+#: src/views/project/EditModal.vue:504
 msgid "Dependencies"
 msgstr "依赖"
 
-#: src/views/project/EditModal.vue:486
+#: src/views/project/EditModal.vue:508
 msgid "Configure service dependencies to control startup order. Common services: network.target, mysqld.service, postgresql.service, redis.service"
 msgstr "配置服务依赖关系以控制启动顺序。常见服务：network.target、mysqld.service、postgresql.service、redis.service"
 
-#: src/views/project/EditModal.vue:505
+#: src/views/project/EditModal.vue:527
 msgid "Search by name or description"
 msgstr "按名称或描述搜索"
 
-#: src/views/project/EditModal.vue:521
+#: src/views/project/EditModal.vue:543
 msgid "Set resource limits to prevent the service from consuming too many system resources"
 msgstr "设置资源限制以防止服务消耗过多系统资源"
 
-#: src/views/project/EditModal.vue:528
+#: src/views/project/EditModal.vue:550
 msgid "Memory Limit (MB)"
 msgstr "内存限制（MB）"
 
-#: src/views/project/EditModal.vue:538
+#: src/views/project/EditModal.vue:560
 msgid "Set to 0 to disable memory limit"
 msgstr "设置为 0 以禁用内存限制"
 
-#: src/views/project/EditModal.vue:542
+#: src/views/project/EditModal.vue:564
 msgid "CPU Quota"
 msgstr "CPU 配额"
 
-#: src/views/project/EditModal.vue:547
+#: src/views/project/EditModal.vue:569
 msgid "e.g., 50% or 200%"
 msgstr "例如 50% 或 200%"
 
-#: src/views/project/EditModal.vue:551
+#: src/views/project/EditModal.vue:573
 msgid "100% = 1 CPU core, 200% = 2 cores"
 msgstr "100% = 1 个 CPU 核心，200% = 2 个核心"
 
-#: src/views/project/EditModal.vue:560
+#: src/views/project/EditModal.vue:582
 msgid "Security Settings"
 msgstr "安全设置"
 
-#: src/views/project/EditModal.vue:564
+#: src/views/project/EditModal.vue:586
 msgid "Security settings can enhance service isolation but may affect functionality. Please test thoroughly before enabling."
 msgstr "安全设置可以增强服务隔离，但可能会影响功能。请在启用之前进行充分测试。"
 
-#: src/views/project/EditModal.vue:570
+#: src/views/project/EditModal.vue:592
 msgid "Privilege Control"
 msgstr "权限控制"
 
-#: src/views/project/EditModal.vue:576
+#: src/views/project/EditModal.vue:598
 msgid "No New Privileges"
 msgstr "没有新权限"
 
-#: src/views/project/EditModal.vue:580
+#: src/views/project/EditModal.vue:602
 msgid "Protect /tmp"
 msgstr "保护 /tmp"
 
-#: src/views/project/EditModal.vue:583
+#: src/views/project/EditModal.vue:605
 msgid "Protect /home"
 msgstr "保护 /home"
 
-#: src/views/project/EditModal.vue:588
+#: src/views/project/EditModal.vue:610
 msgid "Protect System"
 msgstr "保护系统"
 
-#: src/views/project/EditModal.vue:597
+#: src/views/project/EditModal.vue:619
 msgid "true: /usr, /boot read-only; full: + /etc read-only; strict: entire filesystem read-only"
 msgstr "true：/usr，/boot 为只读；full：+ /etc 为只读；strict：整个文件系统为只读"
 
-#: src/views/project/EditModal.vue:605
+#: src/views/project/EditModal.vue:627
 msgid "Path Access Control"
 msgstr "路径访问控制"
 
-#: src/views/project/EditModal.vue:607
+#: src/views/project/EditModal.vue:629
 msgid "Read-Write Paths"
 msgstr "读写路径"
 
-#: src/views/project/EditModal.vue:620
+#: src/views/project/EditModal.vue:642
 msgid "Paths that the service can read and write to"
 msgstr "服务可以读写的路径"
 
-#: src/views/project/EditModal.vue:625
+#: src/views/project/EditModal.vue:647
 msgid "Read-Only Paths"
 msgstr "只读路径"
 
-#: src/views/project/EditModal.vue:638
+#: src/views/project/EditModal.vue:660
 msgid "Paths that the service can only read from"
 msgstr "服务只能读取的路径"
 
@@ -11776,37 +11771,100 @@ msgstr "Python"
 msgid ".NET"
 msgstr ".NET"
 
-#: src/views/project/ListView.vue:42
+#: src/views/project/ListView.vue:47
 msgid "Starting"
 msgstr "启动中"
 
-#: src/views/project/ListView.vue:43
+#: src/views/project/ListView.vue:48
 msgid "Reloading"
 msgstr "重载中"
 
-#: src/views/project/ListView.vue:44
+#: src/views/project/ListView.vue:49
 msgid "Stopping"
 msgstr "停止中"
 
-#: src/views/project/ListView.vue:86
+#: src/views/project/ListView.vue:91
 msgid "Autostart"
 msgstr "自启动"
 
-#: src/views/project/ListView.vue:189
+#: src/views/project/ListView.vue:209
 msgid "Are you sure you want to delete project %{ name }?"
 msgstr "您确定要删除项目 %{ name } 吗？"
 
-#: src/views/project/ListView.vue:251
+#: src/views/project/ListView.vue:219
+msgid "Also delete bound websites"
+msgstr "同时删除绑定的网站"
+
+#: src/views/project/ListView.vue:278
 msgid "Autostart enabled"
 msgstr "自启动开启"
 
-#: src/views/project/ListView.vue:256
+#: src/views/project/ListView.vue:283
 msgid "Autostart disabled"
 msgstr "自启动关闭"
 
-#: src/views/project/ListView.vue:303
+#: src/views/project/ListView.vue:337
 msgid "Are you sure you want to delete the selected projects?"
 msgstr "您确定要删除所选项目吗？"
+
+#: src/views/project/ProxyForm.vue:14
+#: src/views/project/ProxyModal.vue:339
+msgid "Project Port"
+msgstr "项目端口"
+
+#: src/views/project/ProxyForm.vue:20
+#: src/views/project/ProxyModal.vue:346
+msgid "e.g., 3000"
+msgstr "例如 3000"
+
+#: src/views/project/ProxyModal.vue:132
+msgid "Unbound successfully"
+msgstr "解绑成功"
+
+#: src/views/project/ProxyModal.vue:199
+msgid "Bound to another project"
+msgstr "绑定到另一个项目"
+
+#: src/views/project/ProxyModal.vue:221
+msgid "Bound successfully"
+msgstr "绑定成功"
+
+#: src/views/project/ProxyModal.vue:235
+msgid "Reverse Proxy - %{ name }"
+msgstr "反向代理 - %{ name }"
+
+#: src/views/project/ProxyModal.vue:255
+#: src/views/project/ProxyModal.vue:328
+msgid "Bind"
+msgstr "绑定"
+
+#: src/views/project/ProxyModal.vue:282
+msgid "No reverse proxy website bound"
+msgstr "没有绑定反向代理网站"
+
+#: src/views/project/ProxyModal.vue:308
+msgid "Search by name or remark"
+msgstr "按名称或备注搜索"
+
+#: src/views/project/ProxyModal.vue:316
+msgid "Only reverse proxy websites not bound to other projects can be bound"
+msgstr "只有未绑定其他项目的反向代理网站才能绑定"
+
+#: src/views/project/ProxyModal.vue:351
+msgid "The root path does not proxy to a local port, please modify it in full settings"
+msgstr "根路径未代理到本地端口，请在完整设置中修改它"
+
+#: src/views/project/ProxyModal.vue:362
+msgid "Unbind"
+msgstr "解绑"
+
+#: src/views/project/ProxyModal.vue:365
+msgid "Unbind website %{ name } from this project? The website will be kept."
+msgstr "从该项目中解绑网站 %{ name } 吗？该网站将被保留。"
+
+#: src/views/project/ProxyModal.vue:370
+msgid "Full Settings"
+msgstr "完整设置"
 
 #: src/views/setting/CreateModal.vue:41
 msgid "Enter user name"

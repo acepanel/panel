@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-10-19 15:42\n"
+"PO-Revision-Date: 2026-10-29 12:31\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -3478,7 +3478,7 @@ msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/biz/website.go:149
+#: internal/biz/website.go:152
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 資料庫伺服器，請先新增"
 
@@ -3663,7 +3663,7 @@ msgstr "磁碟使用率"
 msgid "disk write speed"
 msgstr "磁碟寫入速率"
 
-#: internal/data/website.go:1533
+#: internal/data/website.go:1545
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被網站 %s 使用"
 
@@ -3771,7 +3771,7 @@ msgstr "在目標端建立資料庫失敗：%v"
 msgid "failed to create database user on target: %v"
 msgstr "在目標端建立資料庫使用者失敗：%v"
 
-#: internal/biz/website.go:138
+#: internal/biz/website.go:141
 msgid "failed to create database: %v"
 msgstr "建立資料庫失敗：%v"
 
@@ -4023,7 +4023,7 @@ msgstr "取得 grafana 狀態失敗：%v"
 msgid "failed to get home apps: %v"
 msgstr "無法取得首頁應用：%v"
 
-#: internal/data/website.go:403
+#: internal/data/website.go:407
 msgid "failed to get index template file: %v"
 msgstr "取得首頁範本檔案失敗：%v"
 
@@ -4159,8 +4159,8 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1229
-#: internal/data/website.go:854
+#: internal/data/website.go:1241
+#: internal/data/website.go:858
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -4179,8 +4179,8 @@ msgstr "解析 phpMyAdmin 登入頁面失敗"
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1232
-#: internal/data/website.go:857
+#: internal/data/website.go:1244
+#: internal/data/website.go:861
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -4298,7 +4298,7 @@ msgstr "重載 apache 失敗：%v"
 msgid "failed to reload nginx: %v"
 msgstr "重新載入 nginx 失敗：%v"
 
-#: internal/biz/website.go:134
+#: internal/biz/website.go:137
 msgid "failed to reload web server: %v"
 msgstr "重載 Web 伺服器失敗：%v"
 
@@ -4527,7 +4527,7 @@ msgstr "如果網站連接資料庫，請在其配置中將主機地址從 1Pane
 msgid "initializing ACME client"
 msgstr "初始化 ACME 客戶端"
 
-#: internal/data/user.go:197
+#: internal/data/user.go:199
 #: internal/service/user.go:150
 msgid "invalid 2FA code"
 msgstr "無效的兩步驟驗證碼"
@@ -4639,7 +4639,7 @@ msgstr "小於等於"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1333
+#: internal/data/website.go:1345
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -4873,7 +4873,7 @@ msgstr "請先取消任務"
 msgid "please connect to the source server first"
 msgstr "請先連接源伺服器"
 
-#: internal/biz/user.go:115
+#: internal/biz/user.go:111
 #: internal/service/file.go:311
 #: internal/service/file.go:429
 #: internal/service/file.go:480
@@ -4914,7 +4914,7 @@ msgstr "項目 %s 未執行"
 msgid "project backup failed: %v"
 msgstr "項目備份失敗：%v"
 
-#: internal/biz/project.go:96
+#: internal/biz/project.go:98
 msgid "project name already exists"
 msgstr "項目名已存在"
 
@@ -4956,7 +4956,7 @@ msgstr "續簽證書，域名：%s"
 msgid "resource no longer exists on the source server"
 msgstr "源伺服器上已不存在該資源"
 
-#: internal/data/website.go:728
+#: internal/data/website.go:732
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr "偽靜態規則、自訂設定、速率限制和真實 IP 設定不會遷移"
 
@@ -4980,7 +4980,7 @@ msgstr "找不到規則"
 msgid "running"
 msgstr "執行中"
 
-#: internal/data/website.go:832
+#: internal/data/website.go:836
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
@@ -5047,7 +5047,7 @@ msgstr "簽名已過期"
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr "未安裝 smartmontools，請先安裝它（例如：apt install smartmontools 或 dnf install smartmontools）"
 
-#: internal/data/cert.go:203
+#: internal/data/cert.go:205
 msgid "some of the selected websites do not exist"
 msgstr "所選網站中有部分不存在"
 
@@ -5273,7 +5273,7 @@ msgstr "此證書尚未成功簽發，無法續期"
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此證書未與任何網站關聯，無法簽發。您可以嘗試使用手動簽發"
 
-#: internal/data/cert.go:320
+#: internal/data/cert.go:322
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
 
@@ -5375,9 +5375,9 @@ msgstr "上傳檔案錯誤：%v"
 msgid "uploading"
 msgstr "正在上傳"
 
-#: internal/data/user.go:143
-#: internal/data/user.go:150
-#: internal/data/user.go:160
+#: internal/data/user.go:145
+#: internal/data/user.go:152
+#: internal/data/user.go:162
 msgid "username or password error"
 msgstr "使用者名稱或密碼錯誤"
 
@@ -5426,7 +5426,7 @@ msgstr "網站備份失敗：%v"
 msgid "website configuration import failed: %v"
 msgstr "網站配置匯入失敗：%v"
 
-#: internal/data/website.go:839
+#: internal/data/website.go:843
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
@@ -5450,7 +5450,7 @@ msgstr "網站檔案匯入失敗：%v"
 msgid "website not found"
 msgstr "網站不存在"
 
-#: internal/data/website.go:513
+#: internal/data/website.go:517
 msgid "website type is unchanged"
 msgstr "網站類型未更改"
 
@@ -5459,7 +5459,7 @@ msgstr "網站類型未更改"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/biz/website.go:267
+#: internal/biz/website.go:294
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
