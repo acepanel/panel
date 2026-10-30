@@ -1328,16 +1328,17 @@ const handleUnCompress = () => {
   )
 }
 
-const {
-  loading,
-  data: rawData,
-  page,
-  total,
-  pageSize,
-  refresh,
-} = usePagination(
+const { loading, data, page, total, pageSize, refresh, reload } = usePagination(
   (page, pageSize) =>
-    file.list(encodeURIComponent(path.value), keyword.value, sub.value, sort.value, page, pageSize),
+    file.list(
+      encodeURIComponent(path.value),
+      keyword.value,
+      sub.value,
+      sort.value,
+      page,
+      pageSize,
+      !fileStore.showHidden,
+    ),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
@@ -1346,13 +1347,6 @@ const {
   },
 )
 const pagination = useTablePagination(page, pageSize, total, [100, 200, 500, 1000])
-
-const data = computed(() => {
-  if (fileStore.showHidden) {
-    return rawData.value
-  }
-  return rawData.value.filter((item: any) => !item.hidden)
-})
 
 // selected 只保留当前列表中存在的项，避免删除/翻页/排序后残留导致表头复选框显示部分勾选
 // 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
@@ -1377,7 +1371,7 @@ watch(data, (list) => {
 const handleFileSearch = () => {
   selected.value = []
   nextTick(() => {
-    refresh()
+    reload()
   })
   fileStore.pushHistory(props.tabId, path.value)
 }
@@ -1407,16 +1401,15 @@ onMounted(() => {
       sizeCache.value.clear()
       sizeLoading.value.clear()
       nextTick(() => {
-        refresh()
+        reload()
       })
     },
     { immediate: true },
   )
 
-  // 监听排序变化
-  watch(sort, () => {
+  watch([sort, () => fileStore.showHidden], () => {
     nextTick(() => {
-      refresh()
+      reload()
     })
   })
 

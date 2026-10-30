@@ -58,7 +58,9 @@ export default {
     sort: string,
     page: number,
     limit: number,
-  ): any => http.Get('/file/list', { params: { path, keyword, sub, sort, page, limit } }),
+    exclude_hidden = false,
+  ): any =>
+    http.Get('/file/list', { params: { path, keyword, sub, sort, page, limit, exclude_hidden } }),
   // 分块上传开始
   chunkStart: (data: {
     path: string

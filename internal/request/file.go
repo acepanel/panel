@@ -8,14 +8,16 @@ import (
 )
 
 type FileList struct {
-	Path    string `json:"path" form:"path" validate:"required && unix_path"`
-	Sort    string `json:"sort" form:"sort"`
-	Keyword string `form:"keyword" json:"keyword"`
-	Sub     bool   `form:"sub" json:"sub"`
+	Path          string `json:"path" form:"path" validate:"required && unix_path"`
+	Sort          string `json:"sort" form:"sort"`
+	Keyword       string `form:"keyword" json:"keyword"`
+	Sub           bool   `form:"sub" json:"sub"`
+	ExcludeHidden bool   `form:"exclude_hidden" json:"exclude_hidden"`
 }
 
 func (r *FileList) Prepare(req *http.Request) error {
 	r.Sub = cast.ToBool(req.FormValue("sub"))
+	r.ExcludeHidden = cast.ToBool(req.FormValue("exclude_hidden"))
 	return nil
 }
 

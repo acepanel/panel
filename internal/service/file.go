@@ -724,6 +724,10 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	if req.ExcludeHidden {
+		entries = lo.Reject(entries, func(e fileEntry, _ int) bool { return strings.HasPrefix(e.info.Name(), ".") })
+	}
+
 	// 前缀 - 表示降序
 	sortKey := req.Sort
 	sortDesc := false
