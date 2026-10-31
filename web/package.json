@@ -74,7 +74,7 @@
     "@vue/tsconfig": "0.9.1",
     "colord": "2.10.0",
     "cpx2": "9.0.3",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-oxlint": "1.90.0",
     "eslint-plugin-vue": "10.12.0",
@@ -82,7 +82,7 @@
     "npm-run-all2": "9.0.4",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
-    "sass": "1.107.0",
+    "sass": "1.107.1",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "unocss": "66.12.0",
@@ -94,7 +94,7 @@
     "vite-plugin-html": "3.2.2",
     "vite-plugin-mock": "3.0.2",
     "vite-plugin-vue-devtools": "8.2.1",
-    "vue-tsc": "3.3.13"
+    "vue-tsc": "3.3.14"
   },
   "packageManager": "pnpm@12.16.1"
 }
