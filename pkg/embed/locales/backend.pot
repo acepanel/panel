@@ -3655,7 +3655,7 @@ msgstr ""
 msgid "disk write speed"
 msgstr ""
 
-#: internal/data/website.go:1550
+#: internal/data/website.go:1553
 msgid "domain %s is already used by website %s"
 msgstr ""
 
@@ -4015,7 +4015,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:407
+#: internal/data/website.go:408
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -4151,8 +4151,8 @@ msgstr ""
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1246
-#: internal/data/website.go:863
+#: internal/data/website.go:1249
+#: internal/data/website.go:865
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -4171,8 +4171,8 @@ msgstr ""
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1249
-#: internal/data/website.go:866
+#: internal/data/website.go:1252
+#: internal/data/website.go:868
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -4631,7 +4631,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1350
+#: internal/data/website.go:1353
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -4948,7 +4948,7 @@ msgstr ""
 msgid "resource no longer exists on the source server"
 msgstr ""
 
-#: internal/data/website.go:737
+#: internal/data/website.go:739
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr ""
 
@@ -4972,7 +4972,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:841
+#: internal/data/website.go:843
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -5418,7 +5418,7 @@ msgstr ""
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/data/website.go:848
+#: internal/data/website.go:850
 msgid "website directory does not exist"
 msgstr ""
 
@@ -5442,7 +5442,7 @@ msgstr ""
 msgid "website not found"
 msgstr ""
 
-#: internal/data/website.go:517
+#: internal/data/website.go:518
 msgid "website type is unchanged"
 msgstr ""
 
