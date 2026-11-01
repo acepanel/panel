@@ -2,6 +2,8 @@ module github.com/acepanel/panel/v3
 
 go 1.27.0
 
+toolchain go1.27.3
+
 // CVE-2026-98432
 godebug multipathtcp=0
 
