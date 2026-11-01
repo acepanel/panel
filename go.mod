@@ -2,7 +2,7 @@ module github.com/acepanel/panel/v3
 
 go 1.27.0
 
-// 关闭 Go 1.24 起默认开启的 MPTCP 监听，规避 CVE-2026-98432 已公开的远程利用路径
+// CVE-2026-98432
 godebug multipathtcp=0
 
 require (
