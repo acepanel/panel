@@ -235,7 +235,7 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 	}
 	for _, proxy := range website.Proxies {
 		update.Proxies = append(update.Proxies, webtypes.Proxy{
-			Location: lo.CoalesceOrEmpty(proxy.Location, "/"), Pass: proxy.Pass, Host: proxy.Host,
+			Location: lo.CoalesceOrEmpty(proxy.Location, "/"), Pass: proxy.Pass, Host: lo.CoalesceOrEmpty(proxy.Host, webtypes.DefaultProxyHost(proxy.Pass, nil)),
 			HTTPVersion: "1.1", Replaces: proxy.Replaces,
 		})
 	}

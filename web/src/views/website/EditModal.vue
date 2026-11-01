@@ -510,14 +510,20 @@ const buildLocation = (type: string, expression: string): string => {
   return `${type} ${expression}`
 }
 
-// 从 URL 提取主机名
-const extractHostFromUrl = (url: string): string => {
+// 代理目标的默认 Host，与后端 DefaultProxyHost 同一规则：本机、IP、unix 套接字与上游发访客域名，外部域名发目标域名
+const defaultProxyHost = (pass: string): string => {
+  let hostname: string
   try {
-    const urlObj = new URL(url)
-    return urlObj.hostname
+    hostname = new URL(pass).hostname
   } catch {
-    return ''
+    return '$host'
   }
+  const local =
+    !hostname.includes('.') ||
+    hostname.startsWith('[') ||
+    /^\d+(\.\d+){3}$/.test(hostname) ||
+    setting.value.upstreams?.some((u: any) => u.name.toLowerCase() === hostname)
+  return local ? '$host' : '$proxy_host'
 }
 
 // 添加新的代理
@@ -747,12 +753,7 @@ const removeProxy = (index: number) => {
 // 处理 Proxy Pass 变化，自动更新 Host
 const handleProxyPassChange = (proxy: any, value: string) => {
   proxy.pass = value
-  const extracted = extractHostFromUrl(value)
-  if (extracted !== '') {
-    proxy.host = extracted
-  } else {
-    proxy.host = '$host'
-  }
+  proxy.host = defaultProxyHost(value)
 }
 
 // 更新 Location 匹配类型

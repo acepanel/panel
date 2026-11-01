@@ -1,6 +1,12 @@
 package types
 
-import "time"
+import (
+	"net"
+	"net/url"
+	"slices"
+	"strings"
+	"time"
+)
 
 type CacheConfig struct {
 	// 缓存时长，状态码 -> 时长，如: {"200 302": "10m", "404": "1m", "any": "5m"}
@@ -90,6 +96,22 @@ type Proxy struct {
 	ResponseHeaders   *ResponseHeaderConfig `form:"response_headers" json:"response_headers"`                 // 响应头修改配置
 	AccessControl     *AccessControlConfig  `form:"access_control" json:"access_control"`                     // IP 访问控制配置
 	Custom            string                `form:"custom" json:"custom"`                                     // 自定义指令，当前 Web 服务器的原生语法，追加到该规则作用域的末尾，切换服务器时不迁移
+}
+
+// DefaultProxyHost 按代理目标给出默认的 Host。本机、IP、unix 套接字与上游都是站点自己的应用，
+// 要发访客的域名，否则应用生成的链接、CSRF 与 WebSocket 的 Origin 校验都会出错；
+// 外部域名靠 Host 选虚拟主机，必须发目标自己的域名
+func DefaultProxyHost(pass string, upstreams []Upstream) string {
+	u, err := url.Parse(pass)
+	if err != nil {
+		return "$host"
+	}
+	host := u.Hostname()
+	upstream := slices.ContainsFunc(upstreams, func(up Upstream) bool { return strings.EqualFold(up.Name, host) })
+	if upstream || !strings.Contains(host, ".") || net.ParseIP(host) != nil {
+		return "$host"
+	}
+	return "$proxy_host"
 }
 
 // 负载均衡算法的规范值，取 nginx 写法。各方言写入时映射到自己的语法，

@@ -371,6 +371,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 			{
 				Location: "^~ /",
 				Pass:     req.Proxy,
+				Host:     webservertypes.DefaultProxyHost(req.Proxy, nil),
 			},
 		}); err != nil {
 			return nil, err
@@ -566,6 +567,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		update.Proxies = []webservertypes.Proxy{{
 			Location: "^~ /",
 			Pass:     req.Proxy,
+			Host:     webservertypes.DefaultProxyHost(req.Proxy, nil),
 		}}
 	default:
 		// 静态站点沿用默认配置
@@ -1155,6 +1157,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 			update.Proxies = []webservertypes.Proxy{{
 				Location: "^~ /",
 				Pass:     setting.Proxies[0].Pass,
+				Host:     webservertypes.DefaultProxyHost(setting.Proxies[0].Pass, setting.Upstreams),
 			}}
 		}
 	default:
