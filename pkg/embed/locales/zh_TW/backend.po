@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-10-29 12:31\n"
+"PO-Revision-Date: 2026-11-01 12:43\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -3515,27 +3515,27 @@ msgstr "無法將第 %d 行的字符 %s 儲存為 %s"
 msgid "check server connection failed"
 msgstr "檢查伺服器連接失敗"
 
-#: internal/service/file.go:907
+#: internal/service/file.go:911
 msgid "chunk %d is missing"
 msgstr "缺少分塊 %d"
 
-#: internal/service/file.go:870
+#: internal/service/file.go:874
 msgid "chunk hash mismatch"
 msgstr "分塊哈希不匹配"
 
-#: internal/service/file.go:836
+#: internal/service/file.go:840
 msgid "chunk index out of range"
 msgstr "分塊索引超出範圍"
 
-#: internal/service/file.go:866
+#: internal/service/file.go:870
 msgid "chunk size mismatch"
 msgstr "分塊大小不匹配"
 
-#: internal/service/file.go:830
+#: internal/service/file.go:834
 msgid "chunk upload not started"
 msgstr "分塊上傳未開始"
 
-#: internal/service/file.go:902
+#: internal/service/file.go:906
 msgid "chunk upload not started or chunk count mismatch"
 msgstr "分塊上傳未開始或分塊數量不匹配"
 
@@ -3572,7 +3572,7 @@ msgid "could not find database backup file"
 msgstr "找不到資料庫備份檔案"
 
 #: internal/service/file.go:341
-#: internal/service/file.go:787
+#: internal/service/file.go:791
 msgid "create directory error: %v"
 msgstr "建立目錄錯誤：%v"
 
@@ -3663,7 +3663,7 @@ msgstr "磁碟使用率"
 msgid "disk write speed"
 msgstr "磁碟寫入速率"
 
-#: internal/data/website.go:1545
+#: internal/data/website.go:1550
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被網站 %s 使用"
 
@@ -4159,8 +4159,8 @@ msgstr "解析 SMART 資訊失敗：%v"
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1241
-#: internal/data/website.go:858
+#: internal/data/website.go:1246
+#: internal/data/website.go:863
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -4179,8 +4179,8 @@ msgstr "解析 phpMyAdmin 登入頁面失敗"
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1244
-#: internal/data/website.go:861
+#: internal/data/website.go:1249
+#: internal/data/website.go:866
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -4639,7 +4639,7 @@ msgstr "小於等於"
 msgid "log file %s not exists"
 msgstr "日誌檔案 %s 不存在"
 
-#: internal/data/website.go:1345
+#: internal/data/website.go:1350
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已達到自定義配置的最大數量（限制：%d）"
 
@@ -4748,7 +4748,7 @@ msgstr "只能遷移 PHP 執行環境網站：%s"
 msgid "open file error: %v"
 msgstr "開啟檔案錯誤：%v"
 
-#: internal/service/file.go:842
+#: internal/service/file.go:846
 msgid "open upload file error: %v"
 msgstr "開啟上傳檔案錯誤：%v"
 
@@ -4956,7 +4956,7 @@ msgstr "續簽證書，域名：%s"
 msgid "resource no longer exists on the source server"
 msgstr "源伺服器上已不存在該資源"
 
-#: internal/data/website.go:732
+#: internal/data/website.go:737
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr "偽靜態規則、自訂設定、速率限制和真實 IP 設定不會遷移"
 
@@ -4980,15 +4980,15 @@ msgstr "找不到規則"
 msgid "running"
 msgstr "執行中"
 
-#: internal/data/website.go:836
+#: internal/data/website.go:841
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
-#: internal/service/file.go:800
-#: internal/service/file.go:849
-#: internal/service/file.go:859
-#: internal/service/file.go:877
-#: internal/service/file.go:882
+#: internal/service/file.go:804
+#: internal/service/file.go:853
+#: internal/service/file.go:863
+#: internal/service/file.go:881
+#: internal/service/file.go:886
 msgid "save chunk error: %v"
 msgstr "儲存分塊錯誤：%v"
 
@@ -5135,8 +5135,8 @@ msgid "target is a directory"
 msgstr "目標是一個目錄"
 
 #: internal/service/file.go:335
-#: internal/service/file.go:783
-#: internal/service/file.go:914
+#: internal/service/file.go:787
+#: internal/service/file.go:918
 msgid "target path %s already exists"
 msgstr "目標路徑 %s 已存在"
 
@@ -5426,7 +5426,7 @@ msgstr "網站備份失敗：%v"
 msgid "website configuration import failed: %v"
 msgstr "網站配置匯入失敗：%v"
 
-#: internal/data/website.go:843
+#: internal/data/website.go:848
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
@@ -5465,7 +5465,7 @@ msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
 #: internal/service/file.go:365
 #: internal/service/file.go:369
-#: internal/service/file.go:918
+#: internal/service/file.go:922
 msgid "write file error: %v"
 msgstr "寫入檔案錯誤：%v"
 
