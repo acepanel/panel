@@ -19,6 +19,7 @@ const passwordModal = ref(false)
 const twoFaModal = ref(false)
 const tokenModal = ref(false)
 const passkeyModal = ref(false)
+const switching = reactive(new Set<number>())
 
 const columns: any = [
   {
@@ -62,15 +63,19 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.two_fa !== '',
+        loading: switching.has(row.id),
         onUpdateValue: (v) => {
           if (v) {
             twoFaModal.value = true
             currentID.value = row.id
           } else {
-            useRequest(user.updateTwoFA(row.id, '', '')).onSuccess(() => {
-              window.$message.success($gettext('Disabled successfully'))
-              refresh()
-            })
+            switching.add(row.id)
+            useRequest(user.updateTwoFA(row.id, '', ''))
+              .onSuccess(() => {
+                window.$message.success($gettext('Disabled successfully'))
+                refresh()
+              })
+              .onComplete(() => switching.delete(row.id))
           }
         },
       })

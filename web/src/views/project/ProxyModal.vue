@@ -61,13 +61,18 @@ const handleSelect = (id: number) => {
   if (themeStore.isMobile) collapsed.value = true
 }
 
+const switching = reactive(new Set<number>())
+
 const handleStatus = (item: any, status: boolean) => {
-  useRequest(website.status(item.id, status)).onSuccess(() => {
-    item.status = status
-    window.$message.success(
-      status ? $gettext('Started successfully') : $gettext('Stopped successfully'),
-    )
-  })
+  switching.add(item.id)
+  useRequest(website.status(item.id, status))
+    .onSuccess(() => {
+      item.status = status
+      window.$message.success(
+        status ? $gettext('Started successfully') : $gettext('Stopped successfully'),
+      )
+    })
+    .onComplete(() => switching.delete(item.id))
 }
 
 // ==================== 快捷设置 ====================
@@ -270,6 +275,7 @@ const handleBind = () => {
               <n-switch
                 size="small"
                 :value="item.status"
+                :loading="switching.has(item.id)"
                 @click.stop
                 @update:value="(value: boolean) => handleStatus(item, value)"
               />

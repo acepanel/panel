@@ -64,6 +64,7 @@ const jailsColumns: any = [
         size: 'small',
         rubberBand: false,
         value: row.enabled,
+        loading: switching.has(row.name),
         onUpdateValue: (value: boolean) => handleToggleJail(row, value),
       })
     },
@@ -224,11 +225,16 @@ const handleDeleteJail = (name: string) => {
   })
 }
 
+const switching = reactive(new Set<string>())
+
 const handleToggleJail = (row: any, enabled: boolean) => {
-  useRequest(fail2ban.update(row.name, { ...row, enabled })).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Saved successfully'))
-  })
+  switching.add(row.name)
+  useRequest(fail2ban.update(row.name, { ...row, enabled }))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => switching.delete(row.name))
 }
 
 const handleEditJail = () => {

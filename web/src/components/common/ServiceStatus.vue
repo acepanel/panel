@@ -138,7 +138,7 @@ onMounted(() => {
   <n-card :title="props.title ?? $gettext('Running Status')">
     <template #header-extra>
       <n-switch
-        :disabled="fetchingIsEnabled"
+        :loading="fetchingIsEnabled"
         v-model:value="isEnabled"
         @update:value="handleIsEnabled"
       >

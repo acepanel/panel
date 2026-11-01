@@ -98,6 +98,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.status,
+        loading: switching.has(row.id),
         onUpdateValue: () => handleStatusChange(row),
       })
     },
@@ -188,7 +189,10 @@ const { loading, data, page, total, pageSize, refresh } = usePagination(
 )
 const pagination = useTablePagination(page, pageSize, total)
 
+const switching = reactive(new Set<number>())
+
 const handleStatusChange = (row: any) => {
+  switching.add(row.id)
   useRequest(
     webhook.update(row.id, {
       name: row.name,
@@ -197,10 +201,12 @@ const handleStatusChange = (row: any) => {
       user: row.user,
       status: !row.status,
     }),
-  ).onSuccess(() => {
-    row.status = !row.status
-    window.$message.success($gettext('Modified successfully'))
-  })
+  )
+    .onSuccess(() => {
+      row.status = !row.status
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => switching.delete(row.id))
 }
 
 const handleCopyUrl = (row: any) => {

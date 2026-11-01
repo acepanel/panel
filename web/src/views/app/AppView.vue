@@ -61,6 +61,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.show,
+        loading: switching.has(row.slug),
         onUpdateValue: () => handleShowChange(row),
       })
     },
@@ -179,11 +180,16 @@ const handleCategoryChange = (category: string) => {
   page.value = 1
 }
 
+const switching = reactive(new Set<string>())
+
 const handleShowChange = (row: any) => {
-  useRequest(app.updateShow(row.slug, !row.show)).onSuccess(() => {
-    row.show = !row.show
-    window.$message.success($gettext('Setup successfully'))
-  })
+  switching.add(row.slug)
+  useRequest(app.updateShow(row.slug, !row.show))
+    .onSuccess(() => {
+      row.show = !row.show
+      window.$message.success($gettext('Setup successfully'))
+    })
+    .onComplete(() => switching.delete(row.slug))
 }
 
 const handleUpdate = (slug: string) => {

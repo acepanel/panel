@@ -273,6 +273,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.auto_renewal,
+        loading: switching.has(row.id),
         onUpdateValue: () => handleAutoRenewalUpdate(row),
       })
     },
@@ -434,7 +435,10 @@ const handleUpdateCert = () => {
     })
 }
 
+const switching = reactive(new Set<number>())
+
 const handleAutoRenewalUpdate = (row: any) => {
+  switching.add(row.id)
   updateModel.value.domains = row.domains
   updateModel.value.alias = row.alias
   updateModel.value.type = row.type
@@ -451,6 +455,7 @@ const handleAutoRenewalUpdate = (row: any) => {
       window.$message.success($gettext('Update successful'))
     })
     .onComplete(() => {
+      switching.delete(row.id)
       updateModel.value.domains = []
       updateModel.value.alias = {}
       updateModel.value.type = 'P256'

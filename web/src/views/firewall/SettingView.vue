@@ -19,17 +19,26 @@ useRequest(safe.pingStatus).onSuccess(({ data }) => {
   model.value.pingStatus = data
 })
 
+const firewallLoading = ref(false)
+const pingLoading = ref(false)
+
 const handleFirewallStatus = () => {
-  useRequest(firewall.updateStatus(model.value.firewallStatus)).onSuccess(() => {
-    window.$message.success($gettext('Settings saved successfully'))
-    window.$bus.emit('firewall:refresh')
-  })
+  firewallLoading.value = true
+  useRequest(firewall.updateStatus(model.value.firewallStatus))
+    .onSuccess(() => {
+      window.$message.success($gettext('Settings saved successfully'))
+      window.$bus.emit('firewall:refresh')
+    })
+    .onComplete(() => (firewallLoading.value = false))
 }
 
 const handlePingStatus = () => {
-  useRequest(safe.updatePingStatus(model.value.pingStatus)).onSuccess(() => {
-    window.$message.success($gettext('Settings saved successfully'))
-  })
+  pingLoading.value = true
+  useRequest(safe.updatePingStatus(model.value.pingStatus))
+    .onSuccess(() => {
+      window.$message.success($gettext('Settings saved successfully'))
+    })
+    .onComplete(() => (pingLoading.value = false))
 }
 
 // 扫描感知设置
@@ -90,10 +99,18 @@ const handleSaveScanSetting = () => {
 <template>
   <n-form :model="model" v-bind="formLayout">
     <n-form-item path="firewall" :label="$gettext('System Firewall')">
-      <n-switch v-model:value="model.firewallStatus" @update:value="handleFirewallStatus" />
+      <n-switch
+        v-model:value="model.firewallStatus"
+        :loading="firewallLoading"
+        @update:value="handleFirewallStatus"
+      />
     </n-form-item>
     <n-form-item path="ping" :label="$gettext('Allow Ping')">
-      <n-switch v-model:value="model.pingStatus" @update:value="handlePingStatus" />
+      <n-switch
+        v-model:value="model.pingStatus"
+        :loading="pingLoading"
+        @update:value="handlePingStatus"
+      />
     </n-form-item>
     <n-divider />
     <n-form-item :label="$gettext('Scan Awareness')">

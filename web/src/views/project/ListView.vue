@@ -96,6 +96,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.enabled,
+        loading: switching.has(row.name),
         onUpdateValue: (value: boolean) => handleToggleAutostart(row, value),
       })
     },
@@ -271,18 +272,18 @@ const handleReload = (row: any) => {
   })
 }
 
+const switching = reactive(new Set<string>())
+
 const handleToggleAutostart = (row: any, enabled: boolean) => {
-  if (enabled) {
-    useRequest(systemctl.enable(row.name)).onSuccess(() => {
-      row.enabled = true
-      window.$message.success($gettext('Autostart enabled'))
+  switching.add(row.name)
+  useRequest(enabled ? systemctl.enable(row.name) : systemctl.disable(row.name))
+    .onSuccess(() => {
+      row.enabled = enabled
+      window.$message.success(
+        enabled ? $gettext('Autostart enabled') : $gettext('Autostart disabled'),
+      )
     })
-  } else {
-    useRequest(systemctl.disable(row.name)).onSuccess(() => {
-      row.enabled = false
-      window.$message.success($gettext('Autostart disabled'))
-    })
-  }
+    .onComplete(() => switching.delete(row.name))
 }
 
 const handleShowLog = (row: any) => {

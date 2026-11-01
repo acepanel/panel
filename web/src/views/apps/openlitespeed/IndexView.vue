@@ -101,6 +101,7 @@ const phpColumns: any = [
         {
           value: row.lsapi,
           disabled: !row.lsphp,
+          loading: switching.has(row.version),
           checkedValue: true,
           uncheckedValue: false,
           onUpdateValue: (value: boolean) => handleSetPHP(row.version, value),
@@ -114,11 +115,16 @@ const phpColumns: any = [
   },
 ]
 
+const switching = reactive(new Set<number>())
+
 const handleSetPHP = (version: number, lsapi: boolean) => {
-  useRequest(openlitespeed.setPHP(version, lsapi)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    fetchPHP()
-  })
+  switching.add(version)
+  useRequest(openlitespeed.setPHP(version, lsapi))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      fetchPHP()
+    })
+    .onComplete(() => switching.delete(version))
 }
 
 const handleSaveConfig = () => {

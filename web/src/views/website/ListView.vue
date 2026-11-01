@@ -148,6 +148,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.status,
+        loading: switching.has(row.id),
         onUpdateValue: () => handleStatusChange(row),
       })
     },
@@ -338,17 +339,22 @@ const { loading, data, page, total, pageSize, refresh } = usePagination(
 const pagination = useTablePagination(page, pageSize, total)
 
 // 修改运行状态
+const switching = reactive(new Set<number>())
+
 const handleStatusChange = (row: any) => {
   if (isNullOrUndef(row.id)) return
 
-  useRequest(website.status(row.id, !row.status)).onSuccess(() => {
-    row.status = !row.status
-    if (row.status) {
-      window.$message.success($gettext('Started successfully'))
-    } else {
-      window.$message.success($gettext('Stopped successfully'))
-    }
-  })
+  switching.add(row.id)
+  useRequest(website.status(row.id, !row.status))
+    .onSuccess(() => {
+      row.status = !row.status
+      if (row.status) {
+        window.$message.success($gettext('Started successfully'))
+      } else {
+        window.$message.success($gettext('Stopped successfully'))
+      }
+    })
+    .onComplete(() => switching.delete(row.id))
 }
 
 // 修改到期时间

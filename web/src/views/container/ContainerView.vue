@@ -67,6 +67,7 @@ const columns: any = [
         size: 'small',
         rubberBand: false,
         value: row.state === 'running',
+        loading: switching.has(row.id),
         onUpdateValue: (value: boolean) => {
           if (value) {
             handleStart(row.id)
@@ -305,18 +306,26 @@ const handleRename = () => {
     })
 }
 
+const switching = reactive(new Set<string>())
+
 const handleStart = (id: string) => {
-  useRequest(container.containerStart(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Start successful'))
-  })
+  switching.add(id)
+  useRequest(container.containerStart(id))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Start successful'))
+    })
+    .onComplete(() => switching.delete(id))
 }
 
 const handleStop = (id: string) => {
-  useRequest(container.containerStop(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Stop successful'))
-  })
+  switching.add(id)
+  useRequest(container.containerStop(id))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Stop successful'))
+    })
+    .onComplete(() => switching.delete(id))
 }
 
 const handleRestart = (id: string) => {
