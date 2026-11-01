@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@iconify-json/mdi": "1.2.3",
-    "@iconify/vue": "5.0.4",
+    "@iconify/vue": "5.0.5",
     "@tsconfig/node24": "24.0.5",
     "@types/lodash-es": "4.17.12",
     "@types/luxon": "3.7.6",
