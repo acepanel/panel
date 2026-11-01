@@ -45,6 +45,13 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "vue-tsc 3.3.14 会把模板属性值中的 // 生成为注释导致误报，见 vuejs/language-tools#6322",
+      "matchPackageNames": [
+        "vue-tsc"
+      ],
+      "allowedVersions": "!/^3\\.3\\.14$/"
     }
   ]
 }
