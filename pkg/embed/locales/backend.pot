@@ -3507,27 +3507,27 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:907
+#: internal/service/file.go:911
 msgid "chunk %d is missing"
 msgstr ""
 
-#: internal/service/file.go:870
+#: internal/service/file.go:874
 msgid "chunk hash mismatch"
 msgstr ""
 
-#: internal/service/file.go:836
+#: internal/service/file.go:840
 msgid "chunk index out of range"
 msgstr ""
 
-#: internal/service/file.go:866
+#: internal/service/file.go:870
 msgid "chunk size mismatch"
 msgstr ""
 
-#: internal/service/file.go:830
+#: internal/service/file.go:834
 msgid "chunk upload not started"
 msgstr ""
 
-#: internal/service/file.go:902
+#: internal/service/file.go:906
 msgid "chunk upload not started or chunk count mismatch"
 msgstr ""
 
@@ -3564,7 +3564,7 @@ msgid "could not find database backup file"
 msgstr ""
 
 #: internal/service/file.go:341
-#: internal/service/file.go:787
+#: internal/service/file.go:791
 msgid "create directory error: %v"
 msgstr ""
 
@@ -4740,7 +4740,7 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:842
+#: internal/service/file.go:846
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -4976,11 +4976,11 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/service/file.go:800
-#: internal/service/file.go:849
-#: internal/service/file.go:859
-#: internal/service/file.go:877
-#: internal/service/file.go:882
+#: internal/service/file.go:804
+#: internal/service/file.go:853
+#: internal/service/file.go:863
+#: internal/service/file.go:881
+#: internal/service/file.go:886
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -5127,8 +5127,8 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:335
-#: internal/service/file.go:783
-#: internal/service/file.go:914
+#: internal/service/file.go:787
+#: internal/service/file.go:918
 msgid "target path %s already exists"
 msgstr ""
 
@@ -5457,7 +5457,7 @@ msgstr ""
 
 #: internal/service/file.go:365
 #: internal/service/file.go:369
-#: internal/service/file.go:918
+#: internal/service/file.go:922
 msgid "write file error: %v"
 msgstr ""
 
