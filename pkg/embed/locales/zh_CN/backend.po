@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-01 12:43\n"
+"PO-Revision-Date: 2026-11-01 13:05\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -3663,7 +3663,7 @@ msgstr "磁盘使用率"
 msgid "disk write speed"
 msgstr "磁盘写入速率"
 
-#: internal/data/website.go:1550
+#: internal/data/website.go:1553
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被网站 %s 使用"
 
@@ -4023,7 +4023,7 @@ msgstr "获取 grafana 状态失败：%v"
 msgid "failed to get home apps: %v"
 msgstr "获取主页应用失败： %v"
 
-#: internal/data/website.go:407
+#: internal/data/website.go:408
 msgid "failed to get index template file: %v"
 msgstr "获取首页模板文件失败：%v"
 
@@ -4159,8 +4159,8 @@ msgstr "解析 SMART 信息失败：%v"
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1246
-#: internal/data/website.go:863
+#: internal/data/website.go:1249
+#: internal/data/website.go:865
 msgid "failed to parse certificate: %v"
 msgstr "解析证书失败： %v"
 
@@ -4179,8 +4179,8 @@ msgstr "解析 phpMyAdmin 登录页面失败"
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:247
 #: internal/biz/setting.go:325
-#: internal/data/website.go:1249
-#: internal/data/website.go:866
+#: internal/data/website.go:1252
+#: internal/data/website.go:868
 msgid "failed to parse private key: %v"
 msgstr "解析私钥失败： %v"
 
@@ -4639,7 +4639,7 @@ msgstr "小于等于"
 msgid "log file %s not exists"
 msgstr "日志文件 %s 不存在"
 
-#: internal/data/website.go:1350
+#: internal/data/website.go:1353
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr "已达到自定义配置的最大数量（限制：%d）"
 
@@ -4956,7 +4956,7 @@ msgstr "续签证书，域名：%s"
 msgid "resource no longer exists on the source server"
 msgstr "源服务器上已不存在该资源"
 
-#: internal/data/website.go:737
+#: internal/data/website.go:739
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr "伪静态规则、自定义配置、速率限制和真实 IP 设置不会迁移"
 
@@ -4980,7 +4980,7 @@ msgstr "找不到规则"
 msgid "running"
 msgstr "运行中"
 
-#: internal/data/website.go:841
+#: internal/data/website.go:843
 msgid "runtime directory does not exist"
 msgstr "运行目录不存在"
 
@@ -5426,7 +5426,7 @@ msgstr "网站备份失败：%v"
 msgid "website configuration import failed: %v"
 msgstr "网站配置导入失败：%v"
 
-#: internal/data/website.go:848
+#: internal/data/website.go:850
 msgid "website directory does not exist"
 msgstr "网站目录不存在"
 
@@ -5450,7 +5450,7 @@ msgstr "网站文件导入失败：%v"
 msgid "website not found"
 msgstr "网站不存在"
 
-#: internal/data/website.go:517
+#: internal/data/website.go:518
 msgid "website type is unchanged"
 msgstr "网站类型未更改"
 
