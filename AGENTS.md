@@ -96,7 +96,7 @@ pnpm build
 
 - **`internal/apps/`**: 面板子应用实现
 
-- **`internal/mocks/`**: mockery 生成的 biz 接口 mock，改接口后跑 `go run github.com/vektra/mockery/v3@v3.8.0` 重新生成
+- **`internal/mocks/`**: mockery 生成的 biz 接口 mock，改接口后跑 `go run github.com/vektra/mockery/v3@v3.9.0` 重新生成
 
 - **`internal/bootstrap/`**: 各模块启动引导
 
