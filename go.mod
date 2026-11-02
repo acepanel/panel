@@ -69,7 +69,7 @@ require (
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/valyala/fastjson v1.6.10
 	github.com/wneessen/go-mail v0.8.1
-	github.com/xuri/excelize/v2 v2.11.1-0.20261029001137-c5fd73bde8f6
+	github.com/xuri/excelize/v2 v2.11.1-0.20261102001617-c4331ec2d7aa
 	go.yaml.in/yaml/v4 v4.0.0-rc.7
 	golang.org/x/crypto v0.58.0
 	golang.org/x/net v0.62.0
