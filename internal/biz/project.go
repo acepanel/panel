@@ -12,6 +12,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -120,8 +121,23 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 		return err
 	}
 
-	// 如果名称变更，需要重命名 unit 文件
-	if req.Name != project.Name {
+	// systemd 按名字跟踪服务，只改 unit 文件名会让旧单元带着进程继续跑而新单元显示停止
+	// 改名需先停掉并取消自启旧单元，写完新配置后再按原状态恢复新单元
+	renamed := req.Name != project.Name
+	var running, enabled bool
+	if renamed {
+		running, _ = systemctl.Status(ctx, project.Name)
+		enabled, _ = systemctl.IsEnabled(ctx, project.Name)
+		if running {
+			if err := systemctl.Stop(ctx, project.Name); err != nil {
+				return err
+			}
+		}
+		if enabled {
+			if err := systemctl.Disable(ctx, project.Name); err != nil {
+				return err
+			}
+		}
 		if err := uc.repo.RenameUnitFile(project.Name, req.Name); err != nil {
 			return err
 		}
@@ -137,7 +153,20 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 	uc.log.Info("project updated", slog.String("type", OperationTypeProject), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", project.Name))
 
 	// 更新 systemd unit 文件
-	return uc.repo.UpdateUnitFile(ctx, project.Name, req)
+	if err := uc.repo.UpdateUnitFile(ctx, project.Name, req); err != nil {
+		return err
+	}
+
+	if renamed && enabled {
+		if err := systemctl.Enable(ctx, project.Name); err != nil {
+			return err
+		}
+	}
+	if renamed && running {
+		return systemctl.Start(ctx, project.Name)
+	}
+
+	return nil
 }
 
 func (uc *ProjectUsecase) Delete(ctx context.Context, id uint, websites bool) error {
