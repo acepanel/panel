@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/netip"
 	"os"
 	"regexp"
 	"slices"
@@ -23,9 +24,10 @@ type ufw struct {
 
 func newUFW() *ufw {
 	return &ufw{
-		// 匹配 ufw status numbered 的输出行
+		// 匹配 ufw status numbered 的输出行，From 列后可能跟 (v6)、on eth0、(out)、(log) 与 # 注释
 		// [ 1] 22/tcp                     ALLOW IN    Anywhere
 		// [ 2] 80/tcp                     DENY IN     192.168.1.0/24
+		// [ 3] 1.2.3.4 443/tcp            ALLOW OUT   Anywhere                   (out) # api
 		ruleRegex: regexp.MustCompile(`^\[\s*\d+\]\s+(.+?)\s+(ALLOW|DENY|REJECT|LIMIT)\s+(IN|OUT)\s+(.+)$`),
 		// 匹配 before.rules 中的 NAT PREROUTING 规则
 		natRegex: regexp.MustCompile(`^-A PREROUTING -p (\w+) --dport (\d+) -j DNAT --to-destination (.+):(\d+)$`),
@@ -91,24 +93,79 @@ func (r *ufw) ListRule(ctx context.Context) ([]FireInfo, error) {
 	return mergeRules(data), nil
 }
 
-// parseRule 解析 ufw status numbered 的单行规则
-func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
-	info := &FireInfo{
-		Family: "ipv4",
-	}
+// ufwPortRegex 匹配列中的端口规格：22、80:443、22/tcp、80:443/udp
+var ufwPortRegex = regexp.MustCompile(`^(\d{1,5})(?::(\d{1,5}))?(?:/(tcp|udp))?$`)
 
+// ufwEndpoint ufw status 一列（To 或 From）解析出的地址、端口与协议
+type ufwEndpoint struct {
+	address   string
+	portStart uint
+	portEnd   uint
+	protocol  string
+	v6        bool
+}
+
+// parseEndpoint 解析 ufw status numbered 的 To 或 From 列
+// 列形如 "Anywhere"、"22/tcp"、"1.2.3.4"、"10.0.0.8/tcp"、"1.2.3.4 443/tcp"，后面可能跟 (v6)、(out)、(log)、on eth0
+// 绑定网卡、应用配置名（如 "Nginx Full"）、多端口列表（如 80,443/tcp）面板无法表示，返回 false
+func parseEndpoint(col string) (ufwEndpoint, bool) {
+	var ep ufwEndpoint
+	for _, token := range strings.Fields(col) {
+		switch {
+		case token == "(v6)":
+			ep.v6 = true
+		case token == "(out)", token == "(log)", token == "(log-all)":
+		case token == "on":
+			return ep, false
+		case strings.HasPrefix(token, "Anywhere"):
+			_, proto := stripProtocolSuffix(token)
+			ep.protocol = cmp.Or(proto, ep.protocol)
+		case ufwPortRegex.MatchString(token):
+			m := ufwPortRegex.FindStringSubmatch(token)
+			ep.portStart = cast.ToUint(m[1])
+			ep.portEnd = cmp.Or(cast.ToUint(m[2]), ep.portStart)
+			ep.protocol = cmp.Or(m[3], ep.protocol)
+		default:
+			addr, proto := stripProtocolSuffix(token)
+			if !isIPOrCIDR(addr) {
+				return ep, false
+			}
+			ep.address = addr
+			ep.protocol = cmp.Or(proto, ep.protocol)
+		}
+	}
+	return ep, true
+}
+
+// parseRule 解析 ufw status numbered 的单行规则，To 列是目的地址/端口，From 列是来源地址/端口
+// 面板模型只有目的端口加一个地址（入站取来源、出站取目的），带来源端口或两侧都带地址的规则无法表示，返回 nil
+func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 	// 行尾注释（如 Fail2Ban 的 "1.2.3.4  # by Fail2Ban ..."）会被正则并入 source，需先去掉
 	source, _, _ = strings.Cut(source, "#")
 
-	// 解析方向
-	switch strings.ToLower(direction) {
-	case "out":
-		info.Direction = "out"
-	default:
-		info.Direction = "in"
+	to, ok := parseEndpoint(target)
+	if !ok {
+		return nil
+	}
+	from, ok := parseEndpoint(source)
+	if !ok {
+		return nil
 	}
 
-	// 解析策略
+	info := &FireInfo{Type: TypeNormal, Family: "ipv4", Protocol: ProtocolTCPUDP, Direction: DirectionIn}
+	if strings.EqualFold(direction, "out") {
+		info.Direction = DirectionOut
+	}
+
+	info.Address = from.address
+	other := to.address
+	if info.Direction == DirectionOut {
+		info.Address, other = to.address, from.address
+	}
+	if from.portStart != 0 || other != "" {
+		return nil
+	}
+
 	switch strings.ToUpper(action) {
 	case "ALLOW", "LIMIT":
 		info.Strategy = StrategyAccept
@@ -118,74 +175,20 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 		info.Strategy = StrategyReject
 	}
 
-	// 判断 IPv6
-	if strings.Contains(target, "(v6)") || strings.Contains(source, "(v6)") {
+	// 列里带具体 IPv6 地址时 ufw 不再标 (v6)
+	if to.v6 || from.v6 || strings.Contains(info.Address, ":") {
 		info.Family = "ipv6"
-		target = strings.ReplaceAll(target, " (v6)", "")
-		source = strings.ReplaceAll(source, " (v6)", "")
+	}
+	if proto := cmp.Or(to.protocol, from.protocol); proto != "" {
+		info.Protocol = Protocol(proto)
 	}
 
-	// 从 source 中提取可能附带的协议后缀（如 8.8.8.8/tcp）
-	// target 的 /tcp 是端口协议规格（如 80/tcp），不能剥离
-	source = strings.TrimSpace(source)
-	target = strings.TrimSpace(target)
-	source, sourceProto := stripProtocolSuffix(source)
-
-	// target 仅在 "Anywhere/tcp" 形式下才需要剥离协议后缀
-	targetProto := ""
-	if strings.HasPrefix(target, "Anywhere") {
-		target, targetProto = stripProtocolSuffix(target)
-	}
-
-	// 解析地址
-	if source != "Anywhere" {
-		info.Address = source
-	}
-
-	// 确定协议（source 和 target 侧的协议后缀取先出现的）
-	extractedProto := targetProto
-	if extractedProto == "" {
-		extractedProto = sourceProto
-	}
-
-	// 解析端口和协议
-	if target == "Anywhere" {
-		// 纯 IP 规则，无端口
+	info.PortStart, info.PortEnd = to.portStart, to.portEnd
+	// 无目的端口即 IP 规则，面板以全端口范围表示
+	if to.portStart == 0 {
+		info.PortStart, info.PortEnd = 1, 65535
 		info.Type = TypeRich
-		info.PortStart = 1
-		info.PortEnd = 65535
-		if extractedProto != "" {
-			info.Protocol = Protocol(extractedProto)
-		} else {
-			info.Protocol = ProtocolTCPUDP
-		}
-		return info
 	}
-
-	// 解析 port/proto 格式
-	info.Type = TypeNormal
-	if strings.Contains(target, "/") {
-		parts := strings.SplitN(target, "/", 2)
-		portPart := parts[0]
-		protoPart := strings.ToLower(parts[1])
-
-		switch protoPart {
-		case "tcp":
-			info.Protocol = ProtocolTCP
-		case "udp":
-			info.Protocol = ProtocolUDP
-		default:
-			info.Protocol = Protocol(protoPart)
-		}
-
-		r.parsePort(portPart, info)
-	} else {
-		// 仅端口，默认 tcp/udp
-		info.Protocol = ProtocolTCPUDP
-		r.parsePort(target, info)
-	}
-
-	// 有地址的规则标记为 rich
 	if info.Address != "" {
 		info.Type = TypeRich
 	}
@@ -209,18 +212,13 @@ func stripProtocolSuffix(addr string) (string, string) {
 	}
 }
 
-// parsePort 解析端口部分（支持范围如 80:443）
-func (r *ufw) parsePort(portStr string, info *FireInfo) {
-	// ufw 使用冒号分隔端口范围
-	if strings.Contains(portStr, ":") {
-		parts := strings.SplitN(portStr, ":", 2)
-		info.PortStart = cast.ToUint(parts[0])
-		info.PortEnd = cast.ToUint(parts[1])
-	} else {
-		port := cast.ToUint(portStr)
-		info.PortStart = port
-		info.PortEnd = port
+// isIPOrCIDR 判断是否为 IP 或 CIDR
+func isIPOrCIDR(s string) bool {
+	if _, err := netip.ParseAddr(s); err == nil {
+		return true
 	}
+	_, err := netip.ParsePrefix(s)
+	return err == nil
 }
 
 func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) error {

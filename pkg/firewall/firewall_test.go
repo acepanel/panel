@@ -214,10 +214,86 @@ func TestUFWParseRule(t *testing.T) {
 			name: "ipv6 端口范围", target: "80:443/tcp (v6)", action: "ALLOW", direction: "IN", source: "Anywhere (v6)",
 			want: FireInfo{Type: TypeNormal, Family: "ipv6", PortStart: 80, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
 		},
+		{
+			// 列里带具体 IPv6 地址时 ufw 不标 (v6)，需按地址推断
+			name: "ipv6 地址无标记", target: "22/tcp", action: "ALLOW", direction: "IN", source: "2001:db8::1",
+			want: FireInfo{Type: TypeRich, Family: "ipv6", Address: "2001:db8::1", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "ipv6 CIDR 的 IP 规则", target: "Anywhere (v6)", action: "ALLOW", direction: "IN", source: "2001:db8::/32",
+			want: FireInfo{Type: TypeRich, Family: "ipv6", Address: "2001:db8::/32", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			// 出站行的 From 列尾部带 (out)
+			name: "出站端口带 (out) 后缀", target: "53/udp", action: "ALLOW", direction: "OUT", source: "Anywhere                   (out)",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 53, PortEnd: 53, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			// ufw allow out proto tcp to 1.2.3.4 port 443 → 地址与端口都在 To 列
+			name: "出站端口带地址", target: "1.2.3.4 443/tcp", action: "ALLOW", direction: "OUT", source: "Anywhere                   (out)",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "1.2.3.4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			name: "出站端口范围带地址", target: "1.2.3.4 100:200/udp", action: "ALLOW", direction: "OUT", source: "Anywhere                   (out)",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "1.2.3.4", PortStart: 100, PortEnd: 200, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			name: "出站 IP 规则", target: "5.6.7.8", action: "DENY", direction: "OUT", source: "Anywhere                   (out)",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "5.6.7.8", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyDrop, Direction: DirectionOut},
+		},
+		{
+			name: "出站 IP 规则带协议", target: "5.6.7.8/tcp", action: "REJECT", direction: "OUT", source: "Anywhere                   (out)",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "5.6.7.8", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyReject, Direction: DirectionOut},
+		},
+		{
+			name: "出站 ipv6 端口带地址", target: "2001:db8::2 443/tcp", action: "ALLOW", direction: "OUT", source: "Anywhere (v6)              (out)",
+			want: FireInfo{Type: TypeRich, Family: "ipv6", Address: "2001:db8::2", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			name: "出站带 (out) 与注释", target: "1.2.3.4 443/tcp", action: "ALLOW", direction: "OUT", source: "Anywhere                   (out) # api",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "1.2.3.4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			name: "带 (log) 后缀", target: "84/tcp", action: "ALLOW", direction: "IN", source: "Anywhere                   (log)",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 84, PortEnd: 84, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			// ufw allow proto tcp from any to any，无地址无端口，由 service 层过滤
+			name: "仅协议", target: "Anywhere/tcp", action: "ALLOW", direction: "IN", source: "Anywhere/tcp",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			check.DeepEqual(t, fw.parseRule(tt.target, tt.action, tt.direction, tt.source), &tt.want)
+		})
+	}
+}
+
+// 面板模型表示不了的规则应跳过，而不是解析成端口 0 或把整列塞进地址
+func TestUFWParseRuleUnsupported(t *testing.T) {
+	fw := newUFW()
+	tests := []struct {
+		name      string
+		target    string
+		action    string
+		direction string
+		source    string
+	}{
+		{"应用配置名", "Web", "ALLOW", "IN", "Anywhere"},
+		{"应用配置名带空格", "Nginx Full", "ALLOW", "IN", "Anywhere"},
+		{"多端口列表", "80,443/tcp", "ALLOW", "IN", "Anywhere"},
+		{"绑定网卡", "81 on eth0", "ALLOW", "IN", "Anywhere"},
+		{"ipv6 绑定网卡", "81 (v6) on eth0", "ALLOW", "IN", "Anywhere (v6)"},
+		{"出站来源绑定网卡", "9.9.9.9", "DENY", "OUT", "Anywhere on eth0           (out)"},
+		{"带来源端口", "9000/tcp", "ALLOW", "IN", "1.1.1.1 1024/tcp"},
+		{"入站两侧都带地址", "10.0.0.5 82", "ALLOW", "IN", "1.1.1.1"},
+		{"入站仅目的地址", "10.0.0.5 83", "ALLOW", "IN", "Anywhere"},
+		{"出站仅来源地址", "443/tcp", "ALLOW", "OUT", "10.0.0.5                   (out)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.Nil(t, fw.parseRule(tt.target, tt.action, tt.direction, tt.source))
 		})
 	}
 }

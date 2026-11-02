@@ -109,7 +109,7 @@ const columns: any = [
     },
   },
   {
-    title: $gettext('Target'),
+    title: $gettext('IP Address'),
     key: 'address',
     minWidth: 200,
     render(row: any): any {

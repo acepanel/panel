@@ -246,7 +246,7 @@ const columns: any = [
     },
   },
   {
-    title: $gettext('Target'),
+    title: $gettext('Address'),
     key: 'address',
     minWidth: 200,
     render(row: any): any {

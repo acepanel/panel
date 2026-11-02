@@ -77,6 +77,11 @@ const newCreateModel = () => ({
 
 const createModel = ref(newCreateModel())
 
+// 入站规则的地址是来源，出站规则的地址是目的地，标签跟随方向避免被当成目标地址
+const addressLabel = computed(() =>
+  createModel.value.direction === 'in' ? $gettext('Source address') : $gettext('Target address'),
+)
+
 watch(show, (value) => {
   if (!value) return
   createModel.value = newCreateModel()
@@ -175,18 +180,21 @@ const handleCreate = async () => {
           />
         </n-form-item-gi>
       </n-grid>
-      <n-form-item path="address" :label="$gettext('Target')">
+      <n-form-item path="direction" :label="$gettext('Direction')">
+        <n-select v-model:value="createModel.direction" :options="directions" />
+      </n-form-item>
+      <n-form-item path="address" :label="addressLabel">
         <ListInput
           v-model:value="createModel.address"
           show-sort-button
           :placeholder="$gettext('IP or IP range: 172.16.0.1 or 172.16.0.0/16')"
         />
+        <template #feedback>
+          {{ $gettext('Leave empty to match all addresses') }}
+        </template>
       </n-form-item>
       <n-form-item path="strategy" :label="$gettext('Strategy')">
         <n-select v-model:value="createModel.strategy" :options="strategies" />
-      </n-form-item>
-      <n-form-item path="strategy" :label="$gettext('Direction')">
-        <n-select v-model:value="createModel.direction" :options="directions" />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
