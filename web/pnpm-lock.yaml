@@ -236,8 +236,8 @@ importers:
         specifier: 2.0.2
         version: 2.0.2(@babel/runtime@8.0.10)(@nginx/reference-lib@1.1.43)(monaco-editor@0.57.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       node-forge:
-        specifier: 1.4.2
-        version: 1.4.2
+        specifier: 1.4.3
+        version: 1.4.3
       p-limit:
         specifier: 7.3.3
         version: 7.3.3
@@ -2698,8 +2698,8 @@ packages:
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
 
-  node-forge@1.4.2:
-    resolution: {integrity: sha512-rRtAR5XLJ8gCKd9du4qrKAsgCG1ObGP4gLeNJMa4vYSeq4bmBMOJk5IHkrviBV0q7uoAJlVd8HEQYQSVUb4FGQ==}
+  node-forge@1.4.3:
+    resolution: {integrity: sha512-P6wzfh6t70avmV8FrVEAd/36sOPJQ+hkaJVX1Laap9J/77m7M0eyozDvc8SwnDf4P7MP94gwbAAo0rg3YVXT+g==}
     engines: {node: '>= 6.13.0'}
 
   node-html-parser@5.4.2:
@@ -5616,7 +5616,7 @@ snapshots:
 
   node-fetch-native@1.6.7: {}
 
-  node-forge@1.4.2: {}
+  node-forge@1.4.3: {}
 
   node-html-parser@5.4.2:
     dependencies:

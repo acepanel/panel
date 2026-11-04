@@ -50,7 +50,7 @@
     "mitt": "3.0.1",
     "monaco-editor": "0.57.0",
     "monaco-editor-nginx": "2.0.2",
-    "node-forge": "1.4.2",
+    "node-forge": "1.4.3",
     "p-limit": "7.3.3",
     "pinia": "4.1.0",
     "pinia-plugin-persistedstate": "4.7.1",
