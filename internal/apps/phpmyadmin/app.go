@@ -293,16 +293,22 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 	// 站点配置已落盘，放行与重载不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
 	fw := firewall.NewFirewall()
-	err = fw.Port(ctx, firewall.FireInfo{
-		Type:      firewall.TypeNormal,
-		PortStart: req.Port,
-		PortEnd:   req.Port,
-		Strategy:  firewall.StrategyAccept,
-		Direction: firewall.DirectionIn,
-	}, firewall.OperationAdd)
+	running, err := fw.Status(ctx)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
+	}
+	if running {
+		if err = fw.Port(ctx, firewall.FireInfo{
+			Type:      firewall.TypeNormal,
+			PortStart: req.Port,
+			PortEnd:   req.Port,
+			Strategy:  firewall.StrategyAccept,
+			Direction: firewall.DirectionIn,
+		}, firewall.OperationAdd); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
 	}
 
 	if err = d.Reload(ctx); err != nil {

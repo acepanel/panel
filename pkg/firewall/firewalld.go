@@ -295,8 +295,13 @@ func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operati
 }
 
 func (r *firewalld) PingStatus(ctx context.Context) (bool, error) {
+	// 未运行时 firewall-cmd 要重试约 10 秒才失败，此时也没有规则拦截 Ping
+	if running, err := r.Status(ctx); err != nil || !running {
+		return true, err
+	}
+
 	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
-	if err != nil { // 可能防火墙已关闭等
+	if err != nil {
 		return true, nil //nolint:nilerr
 	}
 

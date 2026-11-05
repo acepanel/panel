@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os/exec"
 	"strings"
 	"sync"
 
 	"github.com/samber/lo"
-
-	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 // Firewall 防火墙统一接口
@@ -58,19 +57,24 @@ type detected struct {
 	name string
 }
 
-// detectFirewall 防火墙类型是开机后不再变化的环境事实，探测一次后全局复用
-// 探测用不可取消 ctx：跟随调用方 ctx 时，取消会让两次探测都失败而退回 firewalld 默认值，并把这个错误结论缓存到进程结束
-var detectFirewall = sync.OnceValue(func() detected {
-	ctx := context.Background()
-	if _, err := shell.Execf(ctx, "firewall-cmd --version"); err == nil {
-		return detected{newFirewalld(), "firewalld"}
+var (
+	firewalldBackend = newFirewalld()
+	ufwBackend       = newUFW()
+)
+
+// detectFirewall 只查命令是否存在，不执行
+// firewall-cmd 连 --version 都要先连 D-Bus，firewalld 未运行时重试约 10 秒才失败，执行探测会卡住请求并误判为未安装
+// 查 PATH 足够便宜，每次都重新探测，装卸防火墙后无需重启面板
+func detectFirewall() detected {
+	if _, err := exec.LookPath("firewall-cmd"); err == nil {
+		return detected{firewalldBackend, "firewalld"}
 	}
-	if _, err := shell.Execf(ctx, "ufw version"); err == nil {
-		return detected{newUFW(), "ufw"}
+	if _, err := exec.LookPath("ufw"); err == nil {
+		return detected{ufwBackend, "ufw"}
 	}
 	// 都没装时按 firewalld 处理，名字留空供上层提示未安装
-	return detected{newFirewalld(), ""}
-})
+	return detected{firewalldBackend, ""}
+}
 
 // mu 串行化所有防火墙变更操作
 // ufw 在加锁前就已将 user.rules 读入内存，并发执行时后写入的进程会覆盖先写入的规则且都返回成功
