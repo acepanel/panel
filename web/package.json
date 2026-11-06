@@ -82,7 +82,7 @@
     "npm-run-all2": "9.0.4",
     "oxfmt": "0.76.0",
     "oxlint": "1.91.0",
-    "sass": "1.107.1",
+    "sass": "1.108.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "unocss": "66.12.0",
@@ -96,5 +96,5 @@
     "vite-plugin-vue-devtools": "8.2.1",
     "vue-tsc": "3.3.13"
   },
-  "packageManager": "pnpm@12.16.1"
+  "packageManager": "pnpm@12.18.0"
 }
