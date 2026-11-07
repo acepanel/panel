@@ -239,7 +239,7 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	postgres, err := db.NewPostgres(r.Context(), "postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
 		// 回退到直接修改密码
-		if _, err = shell.Execf(ctx, `su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
+		if _, err = shell.Execf(ctx, `su -s /bin/bash - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
@@ -732,6 +732,14 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	postgresPassword, err := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load PostgreSQL postgres password: %v", err))
+		return
+	}
+	port := db.PostgresPort(app.Root)
+	env := "PGPASSWORD=" + shell.Quote(postgresPassword)
+
 	var cmd string
 	if req.Operation == "repack" {
 		if !io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control") {
@@ -742,14 +750,14 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		for _, table := range req.Tables {
 			fmt.Fprintf(&args, ` -t "%s.%s"`, table.Schema, table.Table)
 		}
-		cmd = fmt.Sprintf(`su - postgres -c 'pg_repack -d "%s"%s'`, req.Database, args.String())
+		cmd = fmt.Sprintf(`%s %s/server/postgresql/bin/pg_repack -h 127.0.0.1 -p %d -U postgres -d "%s"%s`, env, app.Root, port, req.Database, args.String())
 	} else {
 		statement := map[string]string{"vacuum": "VACUUM", "vacuum_full": "VACUUM FULL", "analyze": "ANALYZE"}[req.Operation]
 		var args strings.Builder
 		for _, table := range req.Tables {
 			fmt.Fprintf(&args, ` -c "%s \"%s\".\"%s\""`, statement, table.Schema, table.Table)
 		}
-		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s"%s'`, req.Database, args.String())
+		cmd = fmt.Sprintf(`%s psql -h 127.0.0.1 -p %d -U postgres -d "%s"%s`, env, port, req.Database, args.String())
 	}
 
 	task := new(biz.Task)
