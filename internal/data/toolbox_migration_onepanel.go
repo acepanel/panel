@@ -76,8 +76,9 @@ func (a *onePanelAdapter) Items(ctx context.Context) ([]types.MigrationItem, err
 
 // websiteItems 列出静态、反代与 PHP 运行环境网站
 func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem, error) {
+	// orderBy 用 created_at：v1 只接受下划线写法，v2 两种都接受
 	data, err := a.api(ctx, http.MethodPost, "/websites/search", map[string]any{
-		"page": 1, "pageSize": 10000, "name": "", "orderBy": "createdAt", "order": "descending",
+		"page": 1, "pageSize": 10000, "name": "", "orderBy": "created_at", "order": "descending",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("load websites: %w", err)
@@ -174,6 +175,11 @@ func (a *onePanelAdapter) databaseUserDetail(ctx context.Context, item types.Mig
 
 // databaseUserItems 列出各数据库服务下的用户，1Panel 的用户接口直接返回明文密码
 func (a *onePanelAdapter) databaseUserItems(ctx context.Context) []types.MigrationItem {
+	// v1 没有数据库用户接口
+	if a.v1 {
+		return nil
+	}
+
 	items := make([]types.MigrationItem, 0)
 	for _, subtype := range []string{"mysql", "mariadb", "postgresql"} {
 		data, err := a.api(ctx, http.MethodGet, "/databases/db/list/"+subtype, nil)
@@ -221,8 +227,9 @@ func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, vers
 	if subtype == "postgresql" {
 		path = "/databases/pg/search"
 	}
+	// orderBy 用 name：v1 只接受 created_at，v2 只接受 createdAt，name 两边都收
 	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
-		"page": 1, "pageSize": 10000, "info": "", "database": server, "orderBy": "createdAt", "order": "descending",
+		"page": 1, "pageSize": 10000, "info": "", "database": server, "orderBy": "name", "order": "descending",
 	})
 	if err != nil {
 		return nil
@@ -291,7 +298,7 @@ func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.Migratio
 			website.Proxies = append(website.Proxies, types.MigrationProxy{Location: "/", Pass: a.proxyPass(pass)})
 		}
 	}
-	website.Redirects = a.redirects(ctx, item.Name)
+	website.Redirects = a.redirects(ctx, item.SourceID)
 	a.applySSL(ctx, item.SourceID, website)
 	return website, nil
 }
@@ -344,9 +351,9 @@ func (a *onePanelAdapter) proxyPass(pass string) string {
 	return "http://" + pass
 }
 
-// redirects 读取站点重定向规则
-func (a *onePanelAdapter) redirects(ctx context.Context, name string) []types.MigrationRedirect {
-	data, err := a.api(ctx, http.MethodPost, "/websites/redirect", map[string]any{"websiteName": name})
+// redirects 读取站点重定向规则，v1 与 v2 都按站点 ID 查询
+func (a *onePanelAdapter) redirects(ctx context.Context, websiteID string) []types.MigrationRedirect {
+	data, err := a.api(ctx, http.MethodPost, "/websites/redirect", map[string]any{"websiteId": cast.ToUint(websiteID)})
 	if err != nil {
 		return nil
 	}
@@ -423,7 +430,7 @@ func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.Migrati
 	}
 	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
 		"page": 1, "pageSize": 10000, "info": item.Name, "database": item.SourceGroup,
-		"orderBy": "createdAt", "order": "descending",
+		"orderBy": "name", "order": "descending",
 	})
 	if err != nil {
 		return nil, err
@@ -452,17 +459,33 @@ func (a *onePanelAdapter) SetRunning(ctx context.Context, item types.MigrationIt
 
 func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDetail) (string, error) {
 	item := detail.Item
+	name := item.Name
+	// 备份记录查询无条件按 name 过滤，而网站记录的 name 在 v1 存主域名、v2 存别名；先读一次站点，顺带确定版本
+	if item.Type == "website" {
+		data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil)
+		if err != nil {
+			return "", err
+		}
+		if a.v1 {
+			name = cast.ToString(cast.ToStringMap(data)["primaryDomain"])
+		}
+	}
+
 	backup := map[string]any{"isImmediate": true}
 	switch item.Type {
 	case "website":
-		backup["type"], backup["name"], backup["detailName"] = "website", item.Name, item.Name
+		backup["type"], backup["name"], backup["detailName"] = "website", name, item.Name
 	case "database":
 		backup["type"], backup["name"], backup["detailName"] = item.Subtype, item.SourceGroup, item.Name
 	default:
 		return "", errors.New(a.t.Get("unsupported migration resource type: %s", item.Type))
 	}
 
-	if _, err := a.api(ctx, http.MethodPost, "/backups/backup", backup); err != nil {
+	// v1 的备份接口是同步的，站点稍大就会超过默认超时；v2 立即返回，放宽超时没有副作用
+	if err := a.tryVersions(func() error {
+		_, err := a.callTimeout(ctx, http.MethodPost, a.resolve("/backups/backup"), backup, 30*time.Minute)
+		return err
+	}); err != nil {
 		return "", err
 	}
 	record, err := a.waitBackup(ctx, backup)
@@ -481,7 +504,7 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 	return cast.ToString(path), nil
 }
 
-// waitBackup 轮询最新一条备份记录直到写盘完成，备份接口只是把任务丢进后台就返回
+// waitBackup 轮询最新一条备份记录直到写盘完成，v2 的备份接口只是把任务丢进后台就返回
 func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any) (map[string]any, error) {
 	for range 3600 {
 		data, err := a.api(ctx, http.MethodPost, "/backups/record/search", map[string]any{
@@ -491,8 +514,9 @@ func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any)
 			return nil, err
 		}
 		if records := a.rows(cast.ToStringMap(data)["items"]); len(records) > 0 {
+			// v1 的备份记录没有 status，记录出现即代表备份已完成
 			switch cast.ToString(records[0]["status"]) {
-			case "Success":
+			case "", "Success":
 				return records[0], nil
 			case "Failed":
 				return nil, errors.New(a.t.Get("the source task failed"))
@@ -540,7 +564,7 @@ func (a *onePanelAdapter) resolve(path string) string {
 	return "/api/v1" + path
 }
 
-// tryVersions 大版本未确定时先按 v2 再按 v1 尝试，两版都失败则上报 v2 的错误
+// tryVersions 大版本未确定时先按 v2 再按 v1 尝试，两版都失败则同时上报两个错误
 func (a *onePanelAdapter) tryVersions(run func() error) error {
 	err := run()
 	if err == nil {
@@ -552,11 +576,13 @@ func (a *onePanelAdapter) tryVersions(run func() error) error {
 	}
 
 	a.v1 = true
-	if retry := run(); retry == nil {
+	retry := run()
+	if retry == nil {
 		a.known = true
 		return nil
 	}
 	a.v1 = false
 
-	return err
+	// v2 在 v1 面板上只会拿到未认证守卫页（如 416），真实原因通常在后一条
+	return fmt.Errorf("v2: %v; v1: %v", err, retry)
 }
