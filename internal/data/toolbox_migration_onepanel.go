@@ -470,10 +470,20 @@ func (a *onePanelAdapter) SetRunning(ctx context.Context, item types.MigrationIt
 
 func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDetail) (string, error) {
 	item := detail.Item
+	name := item.Name
+	// 1Panel v1 的备份记录按主域名存 name，v2 按别名存；先读一次站点，顺带确定版本
+	if item.Type == "website" {
+		if data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil); err == nil && a.v1 {
+			if domain := cast.ToString(cast.ToStringMap(data)["primaryDomain"]); domain != "" {
+				name = domain
+			}
+		}
+	}
+
 	backup := map[string]any{"isImmediate": true}
 	switch item.Type {
 	case "website":
-		backup["type"], backup["name"], backup["detailName"] = "website", item.Name, item.Name
+		backup["type"], backup["name"], backup["detailName"] = "website", name, item.Name
 	case "database":
 		backup["type"], backup["name"], backup["detailName"] = item.Subtype, item.SourceGroup, item.Name
 	default:
@@ -502,12 +512,10 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 
 // waitBackup 轮询最新一条备份记录直到写盘完成，备份接口只是把任务丢进后台就返回
 func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any) (map[string]any, error) {
+	// 1Panel 的记录查询会无条件按 name 过滤，名字为空会查不到任何记录
 	query := map[string]any{
-		"page": 1, "pageSize": 1, "type": backup["type"], "detailName": backup["detailName"],
-	}
-	// v1 的备份是同步的，记录里的 name 是站点主域名，与别名不一定相同，不能按名称过滤
-	if !a.v1 {
-		query["name"] = backup["name"]
+		"page": 1, "pageSize": 1, "type": backup["type"],
+		"name": backup["name"], "detailName": backup["detailName"],
 	}
 
 	for range 3600 {
