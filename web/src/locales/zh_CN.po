@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-11-01 13:05\n"
+"PO-Revision-Date: 2026-11-08 14:07\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:570
@@ -35,6 +35,7 @@ msgstr "QQ 群"
 #: src/views/cert/CertView.vue:654
 #: src/views/cert/CreateCertModal.vue:111
 #: src/views/home/IndexView.vue:552
+#: src/views/log/OperationLog.vue:35
 #: src/views/project/ProxyModal.vue:308
 #: src/views/task/CreateModal.vue:442
 #: src/views/task/CreateModal.vue:464
@@ -414,7 +415,7 @@ msgstr "选择文件"
 #: src/views/database/CreateServerModal.vue:103
 #: src/views/database/ServerList.vue:67
 #: src/views/database/UpdateServerModal.vue:57
-#: src/views/file/ListView.vue:1469
+#: src/views/file/ListView.vue:1485
 #: src/views/file/PropertyModal.vue:19
 #: src/views/file/ToolBar.vue:152
 #: src/views/home/IndexView.vue:707
@@ -445,15 +446,15 @@ msgstr "名称"
 
 #: src/components/common/PathSelector.vue:81
 #: src/components/file-editor/FileTree.vue:365
-#: src/views/file/ListView.vue:1506
-#: src/views/file/ListView.vue:1527
+#: src/views/file/ListView.vue:1522
+#: src/views/file/ListView.vue:1543
 msgid "Folder name"
 msgstr "文件夹名"
 
 #: src/components/common/PathSelector.vue:81
 #: src/components/file-editor/FileTree.vue:365
-#: src/views/file/ListView.vue:1506
-#: src/views/file/ListView.vue:1527
+#: src/views/file/ListView.vue:1522
+#: src/views/file/ListView.vue:1543
 msgid "File name"
 msgstr "文件名"
 
@@ -462,7 +463,7 @@ msgid "Permissions"
 msgstr "权限"
 
 #: src/components/common/PathSelector.vue:127
-#: src/views/file/ListView.vue:1480
+#: src/views/file/ListView.vue:1496
 msgid "Owner / Group"
 msgstr "所有者 / 组"
 
@@ -474,7 +475,7 @@ msgstr "所有者 / 组"
 #: src/views/container/ImageView.vue:82
 #: src/views/database/ElasticsearchDataView.vue:113
 #: src/views/database/RedisDataView.vue:117
-#: src/views/file/ListView.vue:1476
+#: src/views/file/ListView.vue:1492
 #: src/views/file/PropertyModal.vue:31
 #: src/views/file/ToolBar.vue:153
 #: src/views/file/UploadModal.vue:131
@@ -487,26 +488,26 @@ msgid "Size"
 msgstr "大小"
 
 #: src/components/common/PathSelector.vue:174
-#: src/views/file/ListView.vue:1643
+#: src/views/file/ListView.vue:1659
 msgid "Calculate"
 msgstr "计算"
 
 #: src/components/common/PathSelector.vue:179
-#: src/views/file/ListView.vue:1485
+#: src/views/file/ListView.vue:1501
 #: src/views/file/PropertyModal.vue:43
 #: src/views/file/ToolBar.vue:154
 msgid "Modification Time"
 msgstr "修改时间"
 
 #: src/components/common/PathSelector.vue:228
-#: src/views/file/ListView.vue:1320
-#: src/views/file/PathInput.vue:45
+#: src/views/file/ListView.vue:1339
+#: src/views/file/PathInput.vue:51
 msgid "Invalid path"
 msgstr "无效路径"
 
 #: src/components/common/PathSelector.vue:295
 #: src/views/file/ListView.vue:153
-#: src/views/file/ListView.vue:835
+#: src/views/file/ListView.vue:842
 #: src/views/file/ToolBar.vue:55
 msgid "Invalid name"
 msgstr "无效的名称"
@@ -541,6 +542,7 @@ msgstr "创建成功"
 #: src/views/file/PropertyModal.vue:26
 #: src/views/file/ToolBar.vue:176
 #: src/views/file/UploadModal.vue:118
+#: src/views/log/OperationLog.vue:41
 msgid "File"
 msgstr "文件"
 
@@ -564,7 +566,7 @@ msgid "Create"
 msgstr "创建"
 
 #: src/components/common/PathSelector.vue:396
-#: src/views/file/PathInput.vue:157
+#: src/views/file/PathInput.vue:261
 msgid "Root Directory"
 msgstr "根目录"
 
@@ -655,7 +657,7 @@ msgstr "命令可能仍在运行。关闭窗口将终止命令。您确定吗？
 #: src/views/file/composables/usePaste.ts:74
 #: src/views/file/composables/usePaste.ts:154
 #: src/views/file/ListView.vue:318
-#: src/views/file/ListView.vue:861
+#: src/views/file/ListView.vue:868
 #: src/views/file/ToolBar.vue:216
 #: src/views/file/UploadModal.vue:228
 #: src/views/file/UploadModal.vue:391
@@ -696,7 +698,7 @@ msgstr "取消"
 #: src/views/container/ContainerView.vue:699
 #: src/views/database/ServerList.vue:175
 #: src/views/file/ListView.vue:428
-#: src/views/file/ListView.vue:1030
+#: src/views/file/ListView.vue:1040
 #: src/views/file/ToolBar.vue:191
 msgid "Terminal"
 msgstr "终端"
@@ -757,6 +759,9 @@ msgstr "跳转到底部"
 #: src/views/database/ElasticsearchDataView.vue:316
 #: src/views/database/IndexView.vue:199
 #: src/views/database/RedisDataView.vue:291
+#: src/views/log/DatabaseLog.vue:173
+#: src/views/log/HttpLog.vue:202
+#: src/views/log/OperationLog.vue:255
 #: src/views/project/ListView.vue:350
 #: src/views/website/ListView.vue:445
 msgid "Search"
@@ -1453,18 +1458,18 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/apps/redis/RedisPerformanceView.vue:165
 #: src/views/environment/PHPView.vue:387
 #: src/views/environment/PHPView.vue:408
-#: src/views/file/PathInput.vue:135
+#: src/views/file/PathInput.vue:168
 #: src/views/home/UpdateView.vue:178
-#: src/views/log/DatabaseLog.vue:168
-#: src/views/log/HttpLog.vue:197
-#: src/views/log/OperationLog.vue:224
+#: src/views/log/DatabaseLog.vue:180
+#: src/views/log/HttpLog.vue:209
+#: src/views/log/OperationLog.vue:262
 #: src/views/log/SSHLog.vue:117
 #: src/views/monitor/AlertView.vue:236
 #: src/views/ssh/SftpBrowser.vue:134
 #: src/views/tamper/TamperView.vue:385
 #: src/views/toolbox/MigrationView.vue:595
 #: src/views/toolbox/network/InterfaceView.vue:351
-#: src/views/toolbox/NetworkView.vue:197
+#: src/views/toolbox/NetworkView.vue:199
 #: src/views/toolbox/PanelView.vue:102
 #: src/views/toolbox/PanelView.vue:240
 #: src/views/toolbox/ProcessView.vue:339
@@ -1632,9 +1637,9 @@ msgstr "尾部"
 #: src/views/app/EnvironmentView.vue:251
 #: src/views/app/TemplateView.vue:89
 #: src/views/firewall/RuleView.vue:256
-#: src/views/log/DatabaseLog.vue:30
-#: src/views/log/HttpLog.vue:30
-#: src/views/log/OperationLog.vue:33
+#: src/views/log/DatabaseLog.vue:31
+#: src/views/log/HttpLog.vue:31
+#: src/views/log/OperationLog.vue:60
 #: src/views/project/IndexView.vue:21
 #: src/views/website/IndexView.vue:25
 #: src/views/website/stats/ErrorsTab.vue:20
@@ -1740,8 +1745,8 @@ msgstr "创建失败"
 #: src/views/file/composables/usePaste.ts:49
 #: src/views/file/composables/usePaste.ts:165
 #: src/views/file/ListView.vue:426
-#: src/views/file/ListView.vue:1065
-#: src/views/file/ListView.vue:1726
+#: src/views/file/ListView.vue:1081
+#: src/views/file/ListView.vue:1742
 #: src/views/file/UploadModal.vue:66
 #: src/views/file/UploadModal.vue:449
 #: src/views/file/UploadModal.vue:479
@@ -1790,9 +1795,9 @@ msgstr "重命名"
 #: src/views/database/UserList.vue:166
 #: src/views/environment/PHPView.vue:179
 #: src/views/file/ListView.vue:384
-#: src/views/file/ListView.vue:440
-#: src/views/file/ListView.vue:1066
-#: src/views/file/ListView.vue:1737
+#: src/views/file/ListView.vue:447
+#: src/views/file/ListView.vue:1082
+#: src/views/file/ListView.vue:1753
 #: src/views/file/ToolBar.vue:108
 #: src/views/file/ToolBar.vue:241
 #: src/views/firewall/ForwardView.vue:99
@@ -1822,8 +1827,8 @@ msgstr "删除"
 #: src/components/file-editor/FileTree.vue:468
 #: src/views/backup/ListView.vue:103
 #: src/views/file/ListView.vue:418
-#: src/views/file/ListView.vue:1064
-#: src/views/file/ListView.vue:1716
+#: src/views/file/ListView.vue:1080
+#: src/views/file/ListView.vue:1732
 #: src/views/monitor/SystemView.vue:541
 #: src/views/toolbox/SshView.vue:352
 msgid "Download"
@@ -1845,8 +1850,8 @@ msgstr "重命名失败"
 #: src/components/file-editor/FileTree.vue:594
 #: src/views/apps/nginx/NginxIndex.vue:212
 #: src/views/apps/nginx/NginxIndex.vue:276
-#: src/views/file/ListView.vue:904
-#: src/views/file/ListView.vue:1731
+#: src/views/file/ListView.vue:911
+#: src/views/file/ListView.vue:1747
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "您确定要删除 %{ name } 吗？"
 
@@ -2062,6 +2067,7 @@ msgid "Apps"
 msgstr "应用"
 
 #: src/locales/menu.ts:8
+#: src/views/log/OperationLog.vue:44
 #: src/views/task/CreateModal.vue:146
 msgid "Backup"
 msgstr "备份"
@@ -2071,6 +2077,7 @@ msgstr "备份"
 #: src/views/cert/CertView.vue:709
 #: src/views/cert/IndexView.vue:98
 #: src/views/cert/UploadCertModal.vue:38
+#: src/views/log/OperationLog.vue:40
 #: src/views/setting/SettingSafe.vue:304
 #: src/views/website/EditModal.vue:1854
 msgid "Certificate"
@@ -2078,6 +2085,7 @@ msgstr "证书"
 
 #: src/locales/menu.ts:10
 #: src/views/home/IndexView.vue:547
+#: src/views/log/OperationLog.vue:45
 #: src/views/task/CreateModal.vue:466
 msgid "Container"
 msgstr "容器"
@@ -2093,6 +2101,7 @@ msgstr "容器"
 #: src/views/apps/redis/RedisPerformanceView.vue:43
 #: src/views/backup/ListView.vue:394
 #: src/views/home/IndexView.vue:556
+#: src/views/log/OperationLog.vue:36
 #: src/views/toolbox/MigrationView.vue:85
 #: src/views/website/CreateModal.vue:184
 msgid "Database"
@@ -2103,6 +2112,7 @@ msgid "Files"
 msgstr "文件"
 
 #: src/locales/menu.ts:13
+#: src/views/log/OperationLog.vue:46
 msgid "Firewall"
 msgstr "防火墙"
 
@@ -2113,6 +2123,7 @@ msgstr "首页"
 #: src/locales/menu.ts:15
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:225
 #: src/views/container/ContainerCreate.vue:995
+#: src/views/log/OperationLog.vue:47
 msgid "Security"
 msgstr "安全"
 
@@ -2123,11 +2134,13 @@ msgstr "监控"
 
 #: src/locales/menu.ts:18
 #: src/views/home/IndexView.vue:561
+#: src/views/log/OperationLog.vue:39
 #: src/views/toolbox/MigrationView.vue:87
 msgid "Project"
 msgstr "项目"
 
 #: src/locales/menu.ts:19
+#: src/views/log/OperationLog.vue:49
 msgid "Setting"
 msgstr "设置"
 
@@ -2136,6 +2149,7 @@ msgid "Task"
 msgstr "任务"
 
 #: src/locales/menu.ts:22
+#: src/views/log/OperationLog.vue:54
 msgid "Toolbox"
 msgstr "工具箱"
 
@@ -2287,7 +2301,7 @@ msgstr "在主页显示"
 #: src/views/database/ServerList.vue:162
 #: src/views/database/UserList.vue:135
 #: src/views/environment/PHPView.vue:143
-#: src/views/file/ListView.vue:1488
+#: src/views/file/ListView.vue:1504
 #: src/views/file/ShareModal.vue:104
 #: src/views/file/ToolBar.vue:228
 #: src/views/file/UploadModal.vue:208
@@ -2477,7 +2491,7 @@ msgstr "部分运行"
 #: src/views/database/UserList.vue:114
 #: src/views/file/UploadModal.vue:162
 #: src/views/firewall/RuleView.vue:104
-#: src/views/log/HttpLog.vue:111
+#: src/views/log/HttpLog.vue:115
 #: src/views/log/SSHLog.vue:63
 #: src/views/monitor/AlertView.vue:95
 #: src/views/monitor/SettingView.vue:125
@@ -2643,7 +2657,7 @@ msgstr "更新现有"
 #: src/views/apps/supervisor/IndexView.vue:76
 #: src/views/container/ContainerInfoModal.vue:128
 #: src/views/file/ListView.vue:275
-#: src/views/file/ListView.vue:909
+#: src/views/file/ListView.vue:916
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:86
@@ -2657,7 +2671,7 @@ msgstr "是"
 #: src/views/apps/supervisor/IndexView.vue:77
 #: src/views/container/ContainerInfoModal.vue:128
 #: src/views/file/ListView.vue:276
-#: src/views/file/ListView.vue:910
+#: src/views/file/ListView.vue:917
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:86
@@ -3101,7 +3115,7 @@ msgstr "ClickHouse 默认用户密码用于访问数据库。请妥善保管！"
 #: src/views/database/UserList.vue:57
 #: src/views/file/ListView.vue:380
 #: src/views/file/ListView.vue:414
-#: src/views/file/ListView.vue:1010
+#: src/views/file/ListView.vue:1020
 #: src/views/file/ToolBar.vue:100
 msgid "Copy"
 msgstr "复制"
@@ -3536,7 +3550,7 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 #: src/views/database/RedisDataView.vue:95
 #: src/views/database/RedisKeyModal.vue:93
 #: src/views/file/PropertyModal.vue:25
-#: src/views/log/OperationLog.vue:90
+#: src/views/log/OperationLog.vue:120
 #: src/views/monitor/ChannelModal.vue:92
 #: src/views/monitor/SettingView.vue:113
 #: src/views/project/ListView.vue:71
@@ -3572,7 +3586,7 @@ msgstr "保护模式"
 #: src/views/backup/StorageView.vue:410
 #: src/views/backup/StorageView.vue:464
 #: src/views/backup/StorageView.vue:491
-#: src/views/log/HttpLog.vue:101
+#: src/views/log/HttpLog.vue:105
 #: src/views/tamper/TamperView.vue:211
 msgid "Path"
 msgstr "路径"
@@ -3625,7 +3639,7 @@ msgstr "保护路径"
 #: src/views/file/ToolBar.vue:266
 #: src/views/firewall/CreateForwardModal.vue:81
 #: src/views/firewall/CreateIpModal.vue:128
-#: src/views/firewall/CreateModal.vue:193
+#: src/views/firewall/CreateModal.vue:201
 #: src/views/setting/CreateModal.vue:62
 #: src/views/setting/PasswordModal.vue:51
 #: src/views/setting/TwoFaModal.vue:86
@@ -4424,6 +4438,7 @@ msgstr "运行用户"
 #: src/views/database/IndexView.vue:134
 #: src/views/home/IndexView.vue:709
 #: src/views/home/IndexView.vue:823
+#: src/views/log/OperationLog.vue:52
 #: src/views/log/SSHLog.vue:73
 #: src/views/monitor/SystemView.vue:272
 #: src/views/monitor/SystemView.vue:284
@@ -4597,8 +4612,8 @@ msgstr "浏览器（直连）"
 #: src/views/container/ComposeView.vue:125
 #: src/views/container/ContainerView.vue:190
 #: src/views/file/ListView.vue:405
-#: src/views/file/ListView.vue:1059
-#: src/views/file/ListView.vue:1708
+#: src/views/file/ListView.vue:1075
+#: src/views/file/ListView.vue:1724
 #: src/views/monitor/AlertView.vue:112
 #: src/views/monitor/SettingView.vue:152
 #: src/views/project/ListView.vue:196
@@ -5118,7 +5133,7 @@ msgstr "引擎"
 
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:91
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:118
-#: src/views/log/DatabaseLog.vue:110
+#: src/views/log/DatabaseLog.vue:114
 msgid "Rows"
 msgstr "行"
 
@@ -5692,6 +5707,7 @@ msgstr "选项（可选），例如 weight=5 backup"
 
 #: src/views/apps/nginx/NginxIndex.vue:730
 #: src/views/apps/redis/RedisPerformanceView.vue:41
+#: src/views/firewall/RuleView.vue:249
 msgid "Address"
 msgstr "地址"
 
@@ -6565,9 +6581,9 @@ msgstr "追加同步（appendfsync）"
 #: src/views/apps/redis/RedisPerformanceView.vue:27
 #: src/views/backup/ListView.vue:76
 #: src/views/backup/ListView.vue:381
-#: src/views/log/DatabaseLog.vue:64
-#: src/views/log/HttpLog.vue:72
-#: src/views/log/OperationLog.vue:67
+#: src/views/log/DatabaseLog.vue:68
+#: src/views/log/HttpLog.vue:76
+#: src/views/log/OperationLog.vue:97
 #: src/views/log/SSHLog.vue:58
 #: src/views/monitor/AlertView.vue:148
 #: src/views/tamper/TamperView.vue:198
@@ -7170,7 +7186,7 @@ msgstr "输入主机"
 #: src/views/backup/StorageView.vue:423
 #: src/views/database/CreateServerModal.vue:146
 #: src/views/database/UpdateServerModal.vue:75
-#: src/views/firewall/CreateModal.vue:151
+#: src/views/firewall/CreateModal.vue:156
 #: src/views/firewall/ForwardView.vue:34
 #: src/views/firewall/RuleView.vue:91
 #: src/views/firewall/ScanView.vue:302
@@ -8011,6 +8027,7 @@ msgid "Soft and hard limits for processes in the container, such as the number o
 msgstr "容器内进程的软限制和硬限制，例如打开文件数（nofile）。-1 表示无限制。"
 
 #: src/views/container/ContainerCreate.vue:825
+#: src/views/log/OperationLog.vue:53
 msgid "Environment"
 msgstr "环境"
 
@@ -8224,7 +8241,7 @@ msgid "Resume"
 msgstr "恢复"
 
 #: src/views/container/ContainerView.vue:267
-#: src/views/file/ListView.vue:1747
+#: src/views/file/ListView.vue:1763
 msgid "More"
 msgstr "更多"
 
@@ -9177,7 +9194,7 @@ msgid "Requests"
 msgstr "请求"
 
 #: src/views/environment/PHPView.vue:108
-#: src/views/log/HttpLog.vue:81
+#: src/views/log/HttpLog.vue:85
 #: src/views/website/stats/ErrorsTab.vue:96
 msgid "Method"
 msgstr "方法"
@@ -9347,6 +9364,14 @@ msgstr "返回首页"
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "标记成功，请导航到目标路径进行粘贴"
 
+#: src/views/file/composables/useFileOps.ts:63
+msgid "Added to favorites"
+msgstr "已加入收藏"
+
+#: src/views/file/composables/useFileOps.ts:63
+msgid "Removed from favorites"
+msgstr "已取消收藏"
+
 #: src/views/file/composables/usePaste.ts:16
 msgid "Please mark the files/folders to copy or move first"
 msgstr "请先标记要复制或移动的文件/文件夹"
@@ -9366,8 +9391,8 @@ msgstr "名称不能为空"
 
 #: src/views/file/composables/usePaste.ts:139
 #: src/views/file/ListView.vue:312
-#: src/views/file/ListView.vue:858
-#: src/views/file/ListView.vue:907
+#: src/views/file/ListView.vue:865
+#: src/views/file/ListView.vue:914
 msgid "Warning"
 msgstr "警告"
 
@@ -9376,7 +9401,7 @@ msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr "存在同名项目 %{ items } 是否要覆盖？"
 
 #: src/views/file/composables/usePaste.ts:176
-#: src/views/file/ListView.vue:860
+#: src/views/file/ListView.vue:867
 #: src/views/file/UploadModal.vue:67
 #: src/views/file/UploadModal.vue:452
 #: src/views/file/UploadModal.vue:480
@@ -9387,9 +9412,9 @@ msgstr "覆盖"
 #: src/views/file/CompressModal.vue:104
 #: src/views/file/ListView.vue:382
 #: src/views/file/ListView.vue:418
-#: src/views/file/ListView.vue:1013
-#: src/views/file/ListView.vue:1063
-#: src/views/file/ListView.vue:1697
+#: src/views/file/ListView.vue:1023
+#: src/views/file/ListView.vue:1079
+#: src/views/file/ListView.vue:1713
 #: src/views/file/ToolBar.vue:102
 msgid "Compress"
 msgstr "压缩"
@@ -9414,19 +9439,19 @@ msgstr "保存文件失败：%{ files }"
 msgid "File Editor"
 msgstr "文件编辑器"
 
-#: src/views/file/IndexView.vue:173
+#: src/views/file/IndexView.vue:174
 msgid "Drop files to upload"
 msgstr "拖放文件以上传"
 
 #: src/views/file/ListView.vue:268
-#: src/views/file/ListView.vue:435
-#: src/views/file/ListView.vue:1036
+#: src/views/file/ListView.vue:442
+#: src/views/file/ListView.vue:1052
 msgid "Add Protection"
 msgstr "添加保护"
 
 #: src/views/file/ListView.vue:268
-#: src/views/file/ListView.vue:434
-#: src/views/file/ListView.vue:1036
+#: src/views/file/ListView.vue:441
+#: src/views/file/ListView.vue:1052
 msgid "Remove Protection"
 msgstr "移除保护"
 
@@ -9448,22 +9473,22 @@ msgstr "%{ name } 具有不可变属性。面板将暂时移除不可变属性�
 
 #: src/views/file/ListView.vue:370
 #: src/views/file/ListView.vue:388
-#: src/views/file/ListView.vue:444
+#: src/views/file/ListView.vue:451
 #: src/views/file/ToolBar.vue:219
 msgid "Paste"
 msgstr "粘贴"
 
 #: src/views/file/ListView.vue:381
 #: src/views/file/ListView.vue:415
-#: src/views/file/ListView.vue:1011
+#: src/views/file/ListView.vue:1021
 #: src/views/file/ToolBar.vue:101
 msgid "Move"
 msgstr "移动"
 
 #: src/views/file/ListView.vue:383
 #: src/views/file/ListView.vue:416
-#: src/views/file/ListView.vue:1012
-#: src/views/file/ListView.vue:1479
+#: src/views/file/ListView.vue:1022
+#: src/views/file/ListView.vue:1495
 #: src/views/file/PermissionModal.vue:136
 #: src/views/file/PropertyModal.vue:34
 #: src/views/file/ToolBar.vue:103
@@ -9471,121 +9496,154 @@ msgid "Permission"
 msgstr "权限"
 
 #: src/views/file/ListView.vue:400
-#: src/views/file/ListView.vue:1056
-#: src/views/file/ListView.vue:1689
+#: src/views/file/ListView.vue:1072
+#: src/views/file/ListView.vue:1705
 msgid "Open"
 msgstr "打开"
 
 #: src/views/file/ListView.vue:402
-#: src/views/file/ListView.vue:1058
-#: src/views/file/ListView.vue:1708
+#: src/views/file/ListView.vue:1074
+#: src/views/file/ListView.vue:1724
 msgid "Preview"
 msgstr "预览"
 
 #: src/views/file/ListView.vue:404
-#: src/views/file/ListView.vue:1018
-#: src/views/file/ListView.vue:1809
+#: src/views/file/ListView.vue:1028
+#: src/views/file/ListView.vue:1825
 msgid "Uncompress"
 msgstr "解压"
 
 #: src/views/file/ListView.vue:422
-#: src/views/file/ListView.vue:1023
+#: src/views/file/ListView.vue:1033
 msgid "Share"
 msgstr "分享"
 
-#: src/views/file/ListView.vue:439
-#: src/views/file/ListView.vue:1041
+#: src/views/file/ListView.vue:434
+#: src/views/file/ListView.vue:1043
+msgid "Remove from Favorites"
+msgstr "取消收藏"
+
+#: src/views/file/ListView.vue:435
+#: src/views/file/ListView.vue:1044
+msgid "Add to Favorites"
+msgstr "加入收藏"
+
+#: src/views/file/ListView.vue:446
+#: src/views/file/ListView.vue:1057
 #: src/views/file/PropertyModal.vue:11
 msgid "Properties"
 msgstr "属性"
 
-#: src/views/file/ListView.vue:846
+#: src/views/file/ListView.vue:853
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "成功将 %{ source } 重命名为 %{ target }"
 
-#: src/views/file/ListView.vue:859
+#: src/views/file/ListView.vue:866
 msgid "There are items with the same name. Do you want to overwrite?"
 msgstr "存在同名项目。您要覆盖吗？"
 
-#: src/views/file/ListView.vue:898
+#: src/views/file/ListView.vue:905
 msgid "Some files are immutable and cannot be deleted"
 msgstr "某些文件是不可变的，无法删除"
 
-#: src/views/file/ListView.vue:905
+#: src/views/file/ListView.vue:912
 msgid "Are you sure you want to delete %{count} items?"
 msgstr "您确定要删除 %{count} 项吗？"
 
-#: src/views/file/ListView.vue:918
-#: src/views/file/PathInput.vue:34
+#: src/views/file/ListView.vue:925
+#: src/views/file/PathInput.vue:40
 msgid "Path copied to clipboard"
 msgstr "路径已复制到剪贴板"
 
-#: src/views/file/ListView.vue:1026
+#: src/views/file/ListView.vue:1036
 msgid "Copy Path"
 msgstr "复制路径"
 
-#: src/views/file/ListView.vue:1758
+#: src/views/file/ListView.vue:1774
 msgid "No files"
 msgstr "没有文件"
 
-#: src/views/file/ListView.vue:1768
+#: src/views/file/ListView.vue:1784
 #: src/views/toolbox/LogView.vue:221
 msgid "%{count} item(s) selected"
 msgstr "选择了 %{count} 项"
 
-#: src/views/file/ListView.vue:1771
+#: src/views/file/ListView.vue:1787
 msgid "Clear"
 msgstr "清除"
 
-#: src/views/file/ListView.vue:1776
+#: src/views/file/ListView.vue:1792
 msgid "%{count} item(s)"
 msgstr "共 %{count} 项"
 
-#: src/views/file/ListView.vue:1801
+#: src/views/file/ListView.vue:1817
 msgid "Uncompress - %{ file }"
 msgstr "解压 - %{ file }"
 
-#: src/views/file/ListView.vue:1805
+#: src/views/file/ListView.vue:1821
 msgid "Uncompress to"
 msgstr "解压到"
 
-#: src/views/file/ListView.vue:1819
+#: src/views/file/ListView.vue:1835
 #: src/views/file/ToolBar.vue:273
 msgid "Terminal - %{ path }"
 msgstr "终端 - %{ path }"
 
-#: src/views/file/PathInput.vue:36
+#: src/views/file/PathInput.vue:42
 msgid "Failed to copy path"
 msgstr "路径复制失败"
 
-#: src/views/file/PathInput.vue:111
+#: src/views/file/PathInput.vue:144
 #: src/views/home/UpdateView.vue:176
 #: src/views/toolbox/MigrationView.vue:620
 msgid "Back"
 msgstr "返回"
 
-#: src/views/file/PathInput.vue:119
+#: src/views/file/PathInput.vue:152
 msgid "Forward"
 msgstr "前进"
 
-#: src/views/file/PathInput.vue:127
+#: src/views/file/PathInput.vue:160
 #: src/views/toolbox/network/InterfaceView.vue:168
 msgid "Up"
 msgstr "上一级"
 
-#: src/views/file/PathInput.vue:144
+#: src/views/file/PathInput.vue:177
 msgid "Hide hidden files"
 msgstr "不显示隐藏文件"
 
-#: src/views/file/PathInput.vue:144
+#: src/views/file/PathInput.vue:177
 msgid "Show hidden files"
 msgstr "显示隐藏文件"
 
-#: src/views/file/PathInput.vue:177
+#: src/views/file/PathInput.vue:195
+msgid "Favorites"
+msgstr "收藏夹"
+
+#: src/views/file/PathInput.vue:199
+msgid "Remove current directory"
+msgstr "移除当前目录"
+
+#: src/views/file/PathInput.vue:200
+msgid "Add current directory"
+msgstr "添加当前目录"
+
+#: src/views/file/PathInput.vue:205
+msgid "No favorites yet"
+msgstr "暂无收藏"
+
+#: src/views/file/PathInput.vue:229
+#: src/views/website/CreateModal.vue:260
+#: src/views/website/CreateModal.vue:265
+#: src/views/website/ListView.vue:239
+msgid "Remark"
+msgstr "备注"
+
+#: src/views/file/PathInput.vue:281
 msgid "Enter search content"
 msgstr "输入搜索内容"
 
-#: src/views/file/PathInput.vue:180
+#: src/views/file/PathInput.vue:284
 msgid "Include subdirectories"
 msgstr "包括子目录"
 
@@ -9964,7 +10022,7 @@ msgstr "创建转发"
 
 #: src/views/firewall/CreateForwardModal.vue:55
 #: src/views/firewall/CreateIpModal.vue:107
-#: src/views/firewall/CreateModal.vue:136
+#: src/views/firewall/CreateModal.vue:141
 #: src/views/firewall/ForwardView.vue:17
 #: src/views/firewall/IpRuleView.vue:17
 #: src/views/firewall/RuleView.vue:57
@@ -10030,75 +10088,81 @@ msgid "Outbound"
 msgstr "出站"
 
 #: src/views/firewall/CreateIpModal.vue:93
-#: src/views/firewall/CreateModal.vue:121
+#: src/views/firewall/CreateModal.vue:126
 msgid "%{ address } created successfully"
 msgstr "%{ address } 创建成功"
 
 #: src/views/firewall/CreateIpModal.vue:105
-#: src/views/firewall/CreateModal.vue:134
+#: src/views/firewall/CreateModal.vue:139
 #: src/views/firewall/IpRuleView.vue:197
 #: src/views/firewall/RuleView.vue:381
 msgid "Create Rule"
 msgstr "创建规则"
 
 #: src/views/firewall/CreateIpModal.vue:110
-#: src/views/firewall/CreateModal.vue:139
+#: src/views/firewall/CreateModal.vue:144
 #: src/views/firewall/IpRuleView.vue:34
 #: src/views/firewall/RuleView.vue:74
 msgid "Network Protocol"
 msgstr "网络协议"
 
 #: src/views/firewall/CreateIpModal.vue:113
+#: src/views/firewall/IpRuleView.vue:112
 msgid "IP Address"
 msgstr "IP 地址"
 
 #: src/views/firewall/CreateIpModal.vue:117
-#: src/views/firewall/CreateModal.vue:182
+#: src/views/firewall/CreateModal.vue:190
 msgid "IP or IP range: 172.16.0.1 or 172.16.0.0/16"
 msgstr "IP 或 IP 范围：172.16.0.1 或 172.16.0.0/16"
 
 #: src/views/firewall/CreateIpModal.vue:120
-#: src/views/firewall/CreateModal.vue:185
+#: src/views/firewall/CreateModal.vue:196
 #: src/views/firewall/IpRuleView.vue:51
 #: src/views/firewall/RuleView.vue:179
 msgid "Strategy"
 msgstr "策略"
 
 #: src/views/firewall/CreateIpModal.vue:123
-#: src/views/firewall/CreateModal.vue:188
+#: src/views/firewall/CreateModal.vue:183
 #: src/views/firewall/IpRuleView.vue:87
 #: src/views/firewall/RuleView.vue:224
 msgid "Direction"
 msgstr "方向"
 
-#: src/views/firewall/CreateModal.vue:142
+#: src/views/firewall/CreateModal.vue:82
+#: src/views/toolbox/MigrationView.vue:537
+msgid "Source address"
+msgstr "源地址"
+
+#: src/views/firewall/CreateModal.vue:82
+#: src/views/toolbox/MigrationView.vue:537
+msgid "Target address"
+msgstr "目标地址"
+
+#: src/views/firewall/CreateModal.vue:147
 msgid "Port Type"
 msgstr "端口类型"
 
-#: src/views/firewall/CreateModal.vue:144
+#: src/views/firewall/CreateModal.vue:149
 msgid "Single Port"
 msgstr "单个端口"
 
-#: src/views/firewall/CreateModal.vue:145
+#: src/views/firewall/CreateModal.vue:150
 msgid "Port Range"
 msgstr "端口范围"
 
-#: src/views/firewall/CreateModal.vue:161
+#: src/views/firewall/CreateModal.vue:166
 msgid "Start Port"
 msgstr "起始端口"
 
-#: src/views/firewall/CreateModal.vue:169
+#: src/views/firewall/CreateModal.vue:174
 msgid "End Port"
 msgstr "结束端口"
 
-#: src/views/firewall/CreateModal.vue:178
-#: src/views/firewall/IpRuleView.vue:112
-#: src/views/firewall/RuleView.vue:249
-#: src/views/monitor/AlertRuleModal.vue:147
-#: src/views/toolbox/MigrationView.vue:167
-#: src/views/website/EditModal.vue:1949
-msgid "Target"
-msgstr "目标"
+#: src/views/firewall/CreateModal.vue:193
+msgid "Leave empty to match all addresses"
+msgstr "留空表示匹配所有地址"
 
 #: src/views/firewall/ForwardView.vue:127
 #: src/views/firewall/IpRuleView.vue:169
@@ -10692,46 +10756,46 @@ msgstr "清理"
 msgid "Delete logs on and before the selected date"
 msgstr "删除所选日期当天及之前的日志"
 
-#: src/views/log/DatabaseLog.vue:44
-#: src/views/log/HttpLog.vue:44
-#: src/views/log/OperationLog.vue:47
+#: src/views/log/DatabaseLog.vue:45
+#: src/views/log/HttpLog.vue:45
+#: src/views/log/OperationLog.vue:74
 #: src/views/monitor/TimeRangePicker.vue:16
 #: src/views/website/StatsView.vue:32
 msgid "Today"
 msgstr "今天"
 
-#: src/views/log/DatabaseLog.vue:73
-#: src/views/log/DatabaseLog.vue:145
-#: src/views/log/HttpLog.vue:174
-#: src/views/log/OperationLog.vue:76
-#: src/views/log/OperationLog.vue:201
+#: src/views/log/DatabaseLog.vue:77
+#: src/views/log/DatabaseLog.vue:149
+#: src/views/log/HttpLog.vue:178
+#: src/views/log/OperationLog.vue:106
+#: src/views/log/OperationLog.vue:231
 msgid "Level"
 msgstr "级别"
 
-#: src/views/log/DatabaseLog.vue:87
+#: src/views/log/DatabaseLog.vue:91
 msgid "Query"
 msgstr "查询"
 
-#: src/views/log/DatabaseLog.vue:97
-#: src/views/log/HttpLog.vue:123
+#: src/views/log/DatabaseLog.vue:101
+#: src/views/log/HttpLog.vue:127
 #: src/views/toolbox/MigrationView.vue:236
 msgid "Duration"
 msgstr "持续时间"
 
-#: src/views/log/DatabaseLog.vue:136
-#: src/views/log/HttpLog.vue:165
-#: src/views/log/OperationLog.vue:192
+#: src/views/log/DatabaseLog.vue:140
+#: src/views/log/HttpLog.vue:169
+#: src/views/log/OperationLog.vue:222
 msgid "Date"
 msgstr "日期"
 
-#: src/views/log/DatabaseLog.vue:154
-#: src/views/log/HttpLog.vue:183
-#: src/views/log/OperationLog.vue:210
+#: src/views/log/DatabaseLog.vue:158
+#: src/views/log/HttpLog.vue:187
+#: src/views/log/OperationLog.vue:240
 #: src/views/log/SSHLog.vue:103
 msgid "Show entries"
 msgstr "显示条目"
 
-#: src/views/log/HttpLog.vue:137
+#: src/views/log/HttpLog.vue:141
 msgid "Client IP"
 msgstr "客户端 IP"
 
@@ -10751,11 +10815,44 @@ msgstr "HTTP 日志"
 msgid "SSH Log"
 msgstr "SSH 日志"
 
-#: src/views/log/OperationLog.vue:98
-msgid "Operator"
-msgstr "操作员"
+#: src/views/log/OperationLog.vue:34
+#: src/views/toolbox/IndexView.vue:36
+msgid "Panel"
+msgstr "面板"
 
-#: src/views/log/OperationLog.vue:103
+#: src/views/log/OperationLog.vue:37
+#: src/views/toolbox/MigrationView.vue:86
+#: src/views/website/CreateModal.vue:216
+#: src/views/website/CreateModal.vue:221
+msgid "Database User"
+msgstr "数据库用户"
+
+#: src/views/log/OperationLog.vue:38
+msgid "Database Server"
+msgstr "数据库服务器"
+
+#: src/views/log/OperationLog.vue:42
+msgid "App"
+msgstr "应用"
+
+#: src/views/log/OperationLog.vue:43
+msgid "Cron"
+msgstr "计划任务"
+
+#: src/views/log/OperationLog.vue:48
+msgid "SSH"
+msgstr "SSH"
+
+#: src/views/log/OperationLog.vue:50
+msgid "Monitor"
+msgstr "监控"
+
+#: src/views/log/OperationLog.vue:51
+msgid "Webhook"
+msgstr "Webhook"
+
+#: src/views/log/OperationLog.vue:55
+#: src/views/log/OperationLog.vue:133
 #: src/views/monitor/IndexView.vue:20
 #: src/views/toolbox/IndexView.vue:29
 #: src/views/toolbox/PanelView.vue:136
@@ -10763,15 +10860,19 @@ msgstr "操作员"
 msgid "System"
 msgstr "系统"
 
-#: src/views/log/OperationLog.vue:109
+#: src/views/log/OperationLog.vue:128
+msgid "Operator"
+msgstr "操作员"
+
+#: src/views/log/OperationLog.vue:139
 msgid "Message"
 msgstr "消息"
 
-#: src/views/log/OperationLog.vue:116
+#: src/views/log/OperationLog.vue:146
 msgid "Details"
 msgstr "详情"
 
-#: src/views/log/OperationLog.vue:140
+#: src/views/log/OperationLog.vue:170
 msgid "%{count} fields"
 msgstr "%{count} 个字段"
 
@@ -10853,6 +10954,12 @@ msgstr "规则名称"
 #: src/views/monitor/AlertView.vue:155
 msgid "Metric"
 msgstr "指标"
+
+#: src/views/monitor/AlertRuleModal.vue:147
+#: src/views/toolbox/MigrationView.vue:167
+#: src/views/website/EditModal.vue:1949
+msgid "Target"
+msgstr "目标"
 
 #: src/views/monitor/AlertRuleModal.vue:152
 #: src/views/monitor/AlertView.vue:66
@@ -13419,10 +13526,6 @@ msgstr "跑分"
 msgid "Migration"
 msgstr "迁移"
 
-#: src/views/toolbox/IndexView.vue:36
-msgid "Panel"
-msgstr "面板"
-
 #: src/views/toolbox/LogView.vue:35
 msgid "Panel Logs"
 msgstr "面板日志"
@@ -13535,12 +13638,6 @@ msgstr "1Panel → AcePanel"
 msgid "Pull websites and databases from 1Panel."
 msgstr "从 1Panel 拉取网站和数据库。"
 
-#: src/views/toolbox/MigrationView.vue:86
-#: src/views/website/CreateModal.vue:216
-#: src/views/website/CreateModal.vue:221
-msgid "Database User"
-msgstr "数据库用户"
-
 #: src/views/toolbox/MigrationView.vue:93
 msgid "Success"
 msgstr "成功"
@@ -13649,14 +13746,6 @@ msgstr "迁移中"
 #: src/views/toolbox/MigrationView.vue:517
 msgid "Migration source"
 msgstr "迁移来源"
-
-#: src/views/toolbox/MigrationView.vue:537
-msgid "Target address"
-msgstr "目标地址"
-
-#: src/views/toolbox/MigrationView.vue:537
-msgid "Source address"
-msgstr "源地址"
 
 #: src/views/toolbox/MigrationView.vue:547
 msgid "Token ID"
@@ -13928,28 +14017,28 @@ msgstr "本地地址"
 msgid "Remote Address"
 msgstr "远程地址"
 
-#: src/views/toolbox/NetworkView.vue:154
+#: src/views/toolbox/NetworkView.vue:156
 #: src/views/toolbox/ProcessView.vue:472
 msgid "Network Connections"
 msgstr "网络连接"
 
-#: src/views/toolbox/NetworkView.vue:162
+#: src/views/toolbox/NetworkView.vue:164
 msgid "Filter by status"
 msgstr "按状态筛选"
 
-#: src/views/toolbox/NetworkView.vue:169
+#: src/views/toolbox/NetworkView.vue:171
 msgid "Search PID"
 msgstr "搜索 PID"
 
-#: src/views/toolbox/NetworkView.vue:179
+#: src/views/toolbox/NetworkView.vue:181
 msgid "Search process"
 msgstr "搜索进程"
 
-#: src/views/toolbox/NetworkView.vue:189
+#: src/views/toolbox/NetworkView.vue:191
 msgid "Search port"
 msgstr "搜索端口"
 
-#: src/views/toolbox/NetworkView.vue:218
+#: src/views/toolbox/NetworkView.vue:220
 msgid "Network Interface Configuration"
 msgstr "网络接口配置"
 
@@ -14577,12 +14666,6 @@ msgstr "代理目标"
 #: src/views/website/CreateModal.vue:257
 msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr "代理目标地址（如：http://127.0.0.1:3000）"
-
-#: src/views/website/CreateModal.vue:260
-#: src/views/website/CreateModal.vue:265
-#: src/views/website/ListView.vue:239
-msgid "Remark"
-msgstr "备注"
 
 #: src/views/website/EditModal.vue:119
 msgid "Round Robin (default)"
