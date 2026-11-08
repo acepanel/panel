@@ -134,7 +134,20 @@ type migrationClient struct {
 
 // call 调用来源面板 API 并返回业务数据
 func (c *migrationClient) call(ctx context.Context, method, path string, body map[string]any) (any, error) {
-	client := c.client(45 * time.Second)
+	return c.callTimeout(ctx, method, path, body, 0)
+}
+
+// callTimeout 按指定超时调用，timeout 为 0 时使用默认值
+func (c *migrationClient) callTimeout(
+	ctx context.Context,
+	method, path string,
+	body map[string]any,
+	timeout time.Duration,
+) (any, error) {
+	if timeout <= 0 {
+		timeout = 45 * time.Second
+	}
+	client := c.client(timeout)
 	defer func() { _ = client.Close() }()
 
 	req := client.R().SetContext(ctx)
