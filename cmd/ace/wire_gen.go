@@ -79,11 +79,11 @@ func initAce() (*app.Ace, func() error, error) {
 	}
 	wireCleanup.arm(wireResourceCleanup4)
 
-	wireValue106_0 := data.NewDatabaseServerRepo(wireValue4_0)
+	wireValue107_0 := data.NewDatabaseServerRepo(wireValue4_0)
 
-	wireValue116_0 := data.NewSettingRepo(wireValue0_0, wireValue4_0)
+	wireValue118_0 := data.NewSettingRepo(wireValue0_0, wireValue4_0)
 
-	wireValue19_0 := clickhouse.NewApp(wireValue1_0, wireValue106_0, wireValue116_0)
+	wireValue19_0 := clickhouse.NewApp(wireValue1_0, wireValue107_0, wireValue118_0)
 
 	wireValue20_0 := codeserver.NewApp()
 
@@ -91,9 +91,9 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue22_0 := elasticsearch.NewApp(wireValue1_0)
 
-	wireValue125_0 := data.NewWebsiteRepo(wireValue4_0, wireValue1_0, wireValue116_0)
+	wireValue127_0 := data.NewWebsiteRepo(wireValue4_0, wireValue1_0, wireValue118_0)
 
-	wireValue23_0 := fail2ban.NewApp(wireValue1_0, wireValue125_0)
+	wireValue23_0 := fail2ban.NewApp(wireValue1_0, wireValue127_0)
 
 	wireValue24_0 := frp.NewApp(wireValue1_0)
 
@@ -113,15 +113,15 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue3_0 := bootstrap.NewSlog(wireValue2_0)
 
-	wireValue112_0 := data.NewNotifyChannelRepo(wireValue4_0)
+	wireValue114_0 := data.NewNotifyChannelRepo(wireValue4_0)
 
-	wireValue73_0 := biz.NewNotifyUsecase(wireValue1_0, wireValue3_0, wireValue112_0, wireValue116_0)
+	wireValue74_0 := biz.NewNotifyUsecase(wireValue1_0, wireValue3_0, wireValue114_0, wireValue118_0)
 
-	wireValue7_0 := bootstrap.NewRunner(wireValue73_0, wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue7_0 := bootstrap.NewRunner(wireValue74_0, wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue119_0 := data.NewTaskRepo(wireValue4_0, wireValue1_0, wireValue3_0, wireValue7_0)
+	wireValue121_0 := data.NewTaskRepo(wireValue4_0, wireValue1_0, wireValue3_0, wireValue7_0)
 
-	wireValue32_0 := mysql.NewApp(wireValue1_0, wireValue106_0, wireValue116_0, wireValue119_0)
+	wireValue32_0 := mysql.NewApp(wireValue1_0, wireValue107_0, wireValue118_0, wireValue121_0)
 
 	wireValue28_0 := mariadb.NewApp(wireValue32_0)
 
@@ -129,7 +129,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue30_0 := minio.NewApp()
 
-	wireValue31_0 := mongodb.NewApp(wireValue1_0, wireValue106_0, wireValue116_0)
+	wireValue31_0 := mongodb.NewApp(wireValue1_0, wireValue107_0, wireValue118_0)
 
 	wireValue33_0 := nginx.NewApp(wireValue1_0)
 
@@ -141,19 +141,19 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue37_0 := percona.NewApp(wireValue32_0)
 
-	wireValue38_0 := pgadmin.NewApp(wireValue0_0, wireValue1_0, wireValue106_0)
+	wireValue38_0 := pgadmin.NewApp(wireValue0_0, wireValue1_0, wireValue107_0)
 
-	wireValue39_0 := phpmyadmin.NewApp(wireValue0_0, wireValue1_0, wireValue106_0, wireValue116_0)
+	wireValue39_0 := phpmyadmin.NewApp(wireValue0_0, wireValue1_0, wireValue107_0, wireValue118_0)
 
 	wireValue40_0 := podman.NewApp()
 
-	wireValue41_0 := postgresql.NewApp(wireValue1_0, wireValue0_0, wireValue106_0, wireValue116_0, wireValue119_0)
+	wireValue41_0 := postgresql.NewApp(wireValue1_0, wireValue0_0, wireValue107_0, wireValue118_0, wireValue121_0)
 
-	wireValue42_0 := prometheus.NewApp(wireValue0_0, wireValue1_0, wireValue119_0)
+	wireValue42_0 := prometheus.NewApp(wireValue0_0, wireValue1_0, wireValue121_0)
 
 	wireValue43_0 := pureftpd.NewApp(wireValue1_0)
 
-	wireValue44_0 := redis.NewApp(wireValue1_0, wireValue106_0, wireValue119_0)
+	wireValue44_0 := redis.NewApp(wireValue1_0, wireValue107_0, wireValue121_0)
 
 	wireValue45_0 := rocketmq.NewApp(wireValue1_0)
 
@@ -163,7 +163,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue48_0 := supervisor.NewApp(wireValue1_0)
 
-	wireValue49_0 := valkey.NewApp(wireValue1_0, wireValue106_0, wireValue119_0)
+	wireValue49_0 := valkey.NewApp(wireValue1_0, wireValue107_0, wireValue121_0)
 
 	wireValue10_0 := bootstrap.NewLoader(wireValue17_0, wireValue18_0, wireValue19_0, wireValue20_0, wireValue21_0, wireValue22_0, wireValue23_0, wireValue24_0, wireValue25_0, wireValue26_0, wireValue27_0, wireValue28_0, wireValue29_0, wireValue30_0, wireValue31_0, wireValue32_0, wireValue33_0, wireValue34_0, wireValue35_0, wireValue36_0, wireValue37_0, wireValue38_0, wireValue39_0, wireValue40_0, wireValue41_0, wireValue42_0, wireValue43_0, wireValue44_0, wireValue45_0, wireValue46_0, wireValue47_0, wireValue48_0, wireValue49_0)
 
@@ -174,11 +174,11 @@ func initAce() (*app.Ace, func() error, error) {
 		return wireZero0, nil, errors.Join(wireErr6, cleanupErr)
 	}
 
-	wireValue90_0 := data.NewAppRepo(wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue91_0 := data.NewAppRepo(wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue123_0 := data.NewUserTokenRepo(wireValue0_0, wireValue4_0, wireValue1_0)
+	wireValue125_0 := data.NewUserTokenRepo(wireValue0_0, wireValue4_0, wireValue1_0)
 
-	wireValue9_0, wireResourceCleanup9, wireErr9 := middleware.NewMiddlewares(wireValue0_0, wireValue1_0, wireValue6_0, wireValue90_0, wireValue123_0)
+	wireValue9_0, wireResourceCleanup9, wireErr9 := middleware.NewMiddlewares(wireValue0_0, wireValue1_0, wireValue6_0, wireValue91_0, wireValue125_0)
 	if wireErr9 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
@@ -188,372 +188,379 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue8_0 := bootstrap.NewValidator(wireValue0_0, wireValue4_0, wireValue1_0)
 
-	wireValue89_0, wireErr89 := data.NewAlertRepo(wireValue4_0)
-	if wireErr89 != nil {
+	wireValue90_0, wireErr90 := data.NewAlertRepo(wireValue4_0)
+	if wireErr90 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr89, cleanupErr)
+		return wireZero0, nil, errors.Join(wireErr90, cleanupErr)
 	}
 
-	wireValue97_0 := data.NewContainerRepo()
+	wireValue98_0 := data.NewContainerRepo()
 
-	wireValue50_0 := biz.NewAlertUsecase(wireValue73_0, wireValue10_0, wireValue1_0, wireValue3_0, wireValue89_0, wireValue90_0, wireValue97_0, wireValue106_0, wireValue116_0)
+	wireValue50_0 := biz.NewAlertUsecase(wireValue74_0, wireValue10_0, wireValue1_0, wireValue3_0, wireValue90_0, wireValue91_0, wireValue98_0, wireValue107_0, wireValue118_0)
 
-	wireValue130_0 := service.NewAlertService(wireValue50_0)
+	wireValue132_0 := service.NewAlertService(wireValue50_0)
 
-	wireValue93_0 := data.NewCacheRepo(wireValue4_0)
+	wireValue94_0 := data.NewCacheRepo(wireValue4_0)
 
-	wireValue51_0 := biz.NewAppUsecase(wireValue1_0, wireValue90_0, wireValue93_0, wireValue119_0)
+	wireValue51_0 := biz.NewAppUsecase(wireValue1_0, wireValue91_0, wireValue94_0, wireValue121_0)
 
-	wireValue54_0 := biz.NewCacheUsecase(wireValue93_0)
+	wireValue54_0 := biz.NewCacheUsecase(wireValue94_0)
 
-	wireValue77_0 := biz.NewSettingUsecase(wireValue1_0, wireValue3_0, wireValue116_0, wireValue119_0)
+	wireValue78_0 := biz.NewSettingUsecase(wireValue1_0, wireValue3_0, wireValue118_0, wireValue121_0)
 
-	wireValue131_0 := service.NewAppService(wireValue10_0, wireValue51_0, wireValue54_0, wireValue77_0, wireValue1_0)
+	wireValue133_0 := service.NewAppService(wireValue10_0, wireValue51_0, wireValue54_0, wireValue78_0, wireValue1_0)
 
-	wireValue91_0 := data.NewBackupRepo(wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0, wireValue116_0, wireValue125_0)
+	wireValue92_0 := data.NewBackupRepo(wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0, wireValue118_0, wireValue127_0)
 
-	wireValue52_0 := biz.NewBackupUsecase(wireValue73_0, wireValue1_0, wireValue3_0, wireValue91_0)
+	wireValue52_0 := biz.NewBackupUsecase(wireValue74_0, wireValue1_0, wireValue3_0, wireValue92_0)
 
-	wireValue80_0 := biz.NewTaskUsecase(wireValue119_0)
+	wireValue81_0 := biz.NewTaskUsecase(wireValue121_0)
 
-	wireValue132_0 := service.NewBackupService(wireValue52_0, wireValue80_0, wireValue1_0)
+	wireValue134_0 := service.NewBackupService(wireValue52_0, wireValue81_0, wireValue1_0)
 
-	wireValue92_0 := data.NewBackupAccountRepo(wireValue4_0)
+	wireValue93_0 := data.NewBackupAccountRepo(wireValue4_0)
 
-	wireValue53_0 := biz.NewBackupAccountUsecase(wireValue1_0, wireValue3_0, wireValue92_0, wireValue116_0)
+	wireValue53_0 := biz.NewBackupAccountUsecase(wireValue1_0, wireValue3_0, wireValue93_0, wireValue118_0)
 
-	wireValue133_0 := service.NewBackupStorageService(wireValue53_0, wireValue1_0)
+	wireValue135_0 := service.NewBackupStorageService(wireValue53_0, wireValue1_0)
 
-	wireValue94_0 := data.NewCertRepo(wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue95_0 := data.NewCertRepo(wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue55_0 := biz.NewCertUsecase(wireValue1_0, wireValue3_0, wireValue94_0, wireValue116_0)
+	wireValue55_0 := biz.NewCertUsecase(wireValue1_0, wireValue3_0, wireValue95_0, wireValue118_0)
 
-	wireValue134_0 := service.NewCertService(wireValue55_0, wireValue1_0)
+	wireValue136_0 := service.NewCertService(wireValue55_0, wireValue1_0)
 
-	wireValue95_0 := data.NewCertAccountRepo(wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue96_0 := data.NewCertAccountRepo(wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue121_0 := data.NewUserRepo(wireValue4_0, wireValue1_0)
+	wireValue123_0 := data.NewUserRepo(wireValue4_0, wireValue1_0)
 
-	wireValue56_0 := biz.NewCertAccountUsecase(wireValue1_0, wireValue3_0, wireValue95_0, wireValue121_0)
+	wireValue56_0 := biz.NewCertAccountUsecase(wireValue1_0, wireValue3_0, wireValue96_0, wireValue123_0)
 
-	wireValue135_0 := service.NewCertAccountService(wireValue56_0)
+	wireValue137_0 := service.NewCertAccountService(wireValue56_0)
 
-	wireValue96_0 := data.NewCertDNSRepo(wireValue4_0)
+	wireValue97_0 := data.NewCertDNSRepo(wireValue4_0)
 
-	wireValue57_0 := biz.NewCertDNSUsecase(wireValue96_0, wireValue3_0)
+	wireValue57_0 := biz.NewCertDNSUsecase(wireValue97_0, wireValue3_0)
 
-	wireValue136_0 := service.NewCertDNSService(wireValue57_0)
+	wireValue138_0 := service.NewCertDNSService(wireValue57_0)
 
-	wireValue58_0 := biz.NewContainerUsecase(wireValue1_0, wireValue97_0, wireValue116_0, wireValue119_0)
+	wireValue58_0 := biz.NewContainerUsecase(wireValue1_0, wireValue98_0, wireValue118_0, wireValue121_0)
 
-	wireValue138_0 := service.NewContainerService(wireValue58_0)
+	wireValue140_0 := service.NewContainerService(wireValue58_0)
 
-	wireValue98_0 := data.NewContainerComposeRepo()
+	wireValue99_0 := data.NewContainerComposeRepo()
 
-	wireValue59_0 := biz.NewContainerComposeUsecase(wireValue98_0)
+	wireValue59_0 := biz.NewContainerComposeUsecase(wireValue99_0)
 
-	wireValue139_0 := service.NewContainerComposeService(wireValue59_0)
+	wireValue141_0 := service.NewContainerComposeService(wireValue59_0)
 
-	wireValue99_0 := data.NewContainerImageRepo()
+	wireValue100_0 := data.NewContainerImageRepo()
 
-	wireValue60_0 := biz.NewContainerImageUsecase(wireValue1_0, wireValue99_0, wireValue116_0, wireValue119_0)
+	wireValue60_0 := biz.NewContainerImageUsecase(wireValue1_0, wireValue100_0, wireValue118_0, wireValue121_0)
 
-	wireValue140_0 := service.NewContainerImageService(wireValue60_0)
+	wireValue142_0 := service.NewContainerImageService(wireValue60_0)
 
-	wireValue100_0 := data.NewContainerNetworkRepo()
+	wireValue101_0 := data.NewContainerNetworkRepo()
 
-	wireValue61_0 := biz.NewContainerNetworkUsecase(wireValue100_0, wireValue116_0)
+	wireValue61_0 := biz.NewContainerNetworkUsecase(wireValue101_0, wireValue118_0)
 
-	wireValue141_0 := service.NewContainerNetworkService(wireValue61_0)
+	wireValue143_0 := service.NewContainerNetworkService(wireValue61_0)
 
-	wireValue101_0 := data.NewContainerVolumeRepo()
+	wireValue102_0 := data.NewContainerVolumeRepo()
 
-	wireValue62_0 := biz.NewContainerVolumeUsecase(wireValue101_0, wireValue116_0)
+	wireValue62_0 := biz.NewContainerVolumeUsecase(wireValue102_0, wireValue118_0)
 
-	wireValue142_0 := service.NewContainerVolumeService(wireValue62_0)
+	wireValue144_0 := service.NewContainerVolumeService(wireValue62_0)
 
-	wireValue102_0 := data.NewCronRepo(wireValue4_0, wireValue1_0)
+	wireValue103_0 := data.NewCronRepo(wireValue4_0, wireValue1_0)
 
-	wireValue63_0 := biz.NewCronUsecase(wireValue102_0, wireValue3_0)
+	wireValue63_0 := biz.NewCronUsecase(wireValue103_0, wireValue3_0)
 
-	wireValue143_0 := service.NewCronService(wireValue63_0)
+	wireValue145_0 := service.NewCronService(wireValue63_0)
 
-	wireValue107_0 := data.NewDatabaseUserRepo(wireValue4_0)
+	wireValue108_0 := data.NewDatabaseUserRepo(wireValue4_0)
 
-	wireValue68_0 := biz.NewDatabaseUserUsecase(wireValue3_0, wireValue106_0, wireValue107_0)
+	wireValue68_0 := biz.NewDatabaseUserUsecase(wireValue3_0, wireValue107_0, wireValue108_0)
 
-	wireValue103_0 := data.NewDatabaseRepo(wireValue4_0)
+	wireValue104_0 := data.NewDatabaseRepo(wireValue4_0)
 
-	wireValue64_0 := biz.NewDatabaseUsecase(wireValue68_0, wireValue1_0, wireValue3_0, wireValue103_0, wireValue106_0)
+	wireValue64_0 := biz.NewDatabaseUsecase(wireValue68_0, wireValue1_0, wireValue3_0, wireValue104_0, wireValue107_0)
 
-	wireValue144_0 := service.NewDatabaseService(wireValue64_0)
+	wireValue146_0 := service.NewDatabaseService(wireValue64_0)
 
-	wireValue105_0 := data.NewDatabaseElasticsearchRepo(wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue106_0 := data.NewDatabaseElasticsearchRepo(wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue66_0 := biz.NewDatabaseElasticsearchUsecase(wireValue105_0)
+	wireValue66_0 := biz.NewDatabaseElasticsearchUsecase(wireValue106_0)
 
-	wireValue146_0 := service.NewDatabaseElasticsearchService(wireValue66_0)
+	wireValue148_0 := service.NewDatabaseElasticsearchService(wireValue66_0)
 
-	wireValue104_0 := data.NewDatabaseRedisRepo(wireValue4_0, wireValue1_0, wireValue3_0)
+	wireValue105_0 := data.NewDatabaseRedisRepo(wireValue4_0, wireValue1_0, wireValue3_0)
 
-	wireValue65_0 := biz.NewDatabaseRedisUsecase(wireValue104_0)
+	wireValue65_0 := biz.NewDatabaseRedisUsecase(wireValue105_0)
 
-	wireValue145_0 := service.NewDatabaseRedisService(wireValue65_0)
+	wireValue147_0 := service.NewDatabaseRedisService(wireValue65_0)
 
-	wireValue67_0 := biz.NewDatabaseServerUsecase(wireValue1_0, wireValue3_0, wireValue106_0)
+	wireValue67_0 := biz.NewDatabaseServerUsecase(wireValue1_0, wireValue3_0, wireValue107_0)
 
-	wireValue147_0 := service.NewDatabaseServerService(wireValue67_0)
+	wireValue149_0 := service.NewDatabaseServerService(wireValue67_0)
 
-	wireValue148_0 := service.NewDatabaseUserService(wireValue68_0)
+	wireValue150_0 := service.NewDatabaseUserService(wireValue68_0)
 
-	wireValue108_0 := data.NewEnvironmentRepo(wireValue0_0, wireValue1_0)
+	wireValue109_0 := data.NewEnvironmentRepo(wireValue0_0, wireValue1_0)
 
-	wireValue69_0 := biz.NewEnvironmentUsecase(wireValue1_0, wireValue93_0, wireValue108_0, wireValue119_0)
+	wireValue69_0 := biz.NewEnvironmentUsecase(wireValue1_0, wireValue94_0, wireValue109_0, wireValue121_0)
 
-	wireValue149_0 := service.NewEnvironmentService(wireValue69_0, wireValue80_0, wireValue1_0)
+	wireValue151_0 := service.NewEnvironmentService(wireValue69_0, wireValue81_0, wireValue1_0)
 
-	wireValue155_0 := service.NewEnvironmentDotnetService(wireValue69_0, wireValue1_0)
+	wireValue157_0 := service.NewEnvironmentDotnetService(wireValue69_0, wireValue1_0)
 
-	wireValue150_0 := service.NewEnvironmentGoService(wireValue69_0, wireValue1_0)
+	wireValue152_0 := service.NewEnvironmentGoService(wireValue69_0, wireValue1_0)
 
-	wireValue151_0 := service.NewEnvironmentJavaService(wireValue69_0, wireValue1_0)
+	wireValue153_0 := service.NewEnvironmentJavaService(wireValue69_0, wireValue1_0)
 
-	wireValue152_0 := service.NewEnvironmentNodejsService(wireValue69_0, wireValue1_0)
+	wireValue154_0 := service.NewEnvironmentNodejsService(wireValue69_0, wireValue1_0)
 
-	wireValue153_0 := service.NewEnvironmentPHPService(wireValue69_0, wireValue80_0, wireValue77_0, wireValue0_0, wireValue1_0)
+	wireValue155_0 := service.NewEnvironmentPHPService(wireValue69_0, wireValue81_0, wireValue78_0, wireValue0_0, wireValue1_0)
 
-	wireValue154_0 := service.NewEnvironmentPythonService(wireValue69_0, wireValue1_0)
+	wireValue156_0 := service.NewEnvironmentPythonService(wireValue69_0, wireValue1_0)
 
-	wireValue118_0, wireErr118 := data.NewTamperRepo(wireValue4_0)
-	if wireErr118 != nil {
+	wireValue120_0, wireErr120 := data.NewTamperRepo(wireValue4_0)
+	if wireErr120 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr118, cleanupErr)
+		return wireZero0, nil, errors.Join(wireErr120, cleanupErr)
 	}
 
-	wireValue79_0 := biz.NewTamperUsecase(wireValue73_0, wireValue77_0, wireValue1_0, wireValue3_0, wireValue118_0)
+	wireValue80_0 := biz.NewTamperUsecase(wireValue74_0, wireValue78_0, wireValue1_0, wireValue3_0, wireValue120_0)
 
-	wireValue156_0 := service.NewFileService(wireValue58_0, wireValue79_0, wireValue80_0, wireValue1_0)
+	wireValue158_0 := service.NewFileService(wireValue58_0, wireValue80_0, wireValue81_0, wireValue1_0)
 
-	wireValue109_0 := data.NewFileShareRepo(wireValue4_0, wireValue1_0)
+	wireValue110_0 := data.NewFileShareRepo(wireValue4_0, wireValue1_0)
 
-	wireValue70_0 := biz.NewFileShareUsecase(wireValue3_0, wireValue109_0)
+	wireValue70_0 := biz.NewFileShareUsecase(wireValue3_0, wireValue110_0)
 
-	wireValue157_0 := service.NewFileShareService(wireValue70_0, wireValue1_0)
+	wireValue159_0 := service.NewFileShareService(wireValue70_0, wireValue1_0)
 
-	wireValue158_0 := service.NewFirewallService(wireValue1_0)
+	wireValue111_0 := data.NewFileFavoriteRepo(wireValue4_0)
 
-	wireValue115_0, wireErr115 := data.NewScanEventRepo()
-	if wireErr115 != nil {
+	wireValue71_0 := biz.NewFileFavoriteUsecase(wireValue111_0)
+
+	wireValue160_0 := service.NewFileFavoriteService(wireValue71_0)
+
+	wireValue161_0 := service.NewFirewallService(wireValue1_0)
+
+	wireValue117_0, wireErr117 := data.NewScanEventRepo()
+	if wireErr117 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr115, cleanupErr)
+		return wireZero0, nil, errors.Join(wireErr117, cleanupErr)
 	}
 
-	wireValue76_0 := biz.NewScanEventUsecase(wireValue115_0, wireValue116_0)
+	wireValue77_0 := biz.NewScanEventUsecase(wireValue117_0, wireValue118_0)
 
-	wireValue159_0 := service.NewFirewallScanService(wireValue76_0)
+	wireValue162_0 := service.NewFirewallScanService(wireValue77_0)
 
-	wireValue113_0 := data.NewProjectRepo(wireValue4_0, wireValue1_0)
+	wireValue115_0 := data.NewProjectRepo(wireValue4_0, wireValue1_0)
 
-	wireValue126_0, wireErr126 := data.NewWebsiteStatRepo()
-	if wireErr126 != nil {
+	wireValue128_0, wireErr128 := data.NewWebsiteStatRepo()
+	if wireErr128 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr126, cleanupErr)
+		return wireZero0, nil, errors.Join(wireErr128, cleanupErr)
 	}
 
-	wireValue87_0 := biz.NewWebsiteStatUsecase(wireValue126_0)
+	wireValue88_0 := biz.NewWebsiteStatUsecase(wireValue128_0)
 
-	wireValue86_0 := biz.NewWebsiteUsecase(wireValue56_0, wireValue55_0, wireValue64_0, wireValue68_0, wireValue79_0, wireValue87_0, wireValue1_0, wireValue3_0, wireValue106_0, wireValue125_0)
+	wireValue87_0 := biz.NewWebsiteUsecase(wireValue56_0, wireValue55_0, wireValue64_0, wireValue68_0, wireValue80_0, wireValue88_0, wireValue1_0, wireValue3_0, wireValue107_0, wireValue127_0)
 
-	wireValue74_0 := biz.NewProjectUsecase(wireValue1_0, wireValue3_0, wireValue113_0, wireValue86_0)
+	wireValue75_0 := biz.NewProjectUsecase(wireValue1_0, wireValue3_0, wireValue115_0, wireValue87_0)
 
-	wireValue160_0 := service.NewHomeService(wireValue51_0, wireValue52_0, wireValue58_0, wireValue63_0, wireValue67_0, wireValue69_0, wireValue74_0, wireValue77_0, wireValue80_0, wireValue86_0, wireValue0_0, wireValue1_0)
+	wireValue163_0 := service.NewHomeService(wireValue51_0, wireValue52_0, wireValue58_0, wireValue63_0, wireValue67_0, wireValue69_0, wireValue75_0, wireValue78_0, wireValue81_0, wireValue87_0, wireValue0_0, wireValue1_0)
 
-	wireValue110_0 := data.NewLogRepo(wireValue4_0)
+	wireValue112_0 := data.NewLogRepo(wireValue4_0)
 
-	wireValue71_0 := biz.NewLogUsecase(wireValue110_0, wireValue3_0)
+	wireValue72_0 := biz.NewLogUsecase(wireValue112_0, wireValue3_0)
 
-	wireValue161_0 := service.NewLogService(wireValue71_0, wireValue1_0)
+	wireValue164_0 := service.NewLogService(wireValue72_0, wireValue1_0)
 
-	wireValue111_0, wireErr111 := data.NewMonitorRepo()
-	if wireErr111 != nil {
+	wireValue113_0, wireErr113 := data.NewMonitorRepo()
+	if wireErr113 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr111, cleanupErr)
+		return wireZero0, nil, errors.Join(wireErr113, cleanupErr)
 	}
 
-	wireValue72_0 := biz.NewMonitorUsecase(wireValue111_0, wireValue116_0)
+	wireValue73_0 := biz.NewMonitorUsecase(wireValue113_0, wireValue118_0)
 
-	wireValue162_0 := service.NewMonitorService(wireValue72_0, wireValue77_0)
+	wireValue165_0 := service.NewMonitorService(wireValue73_0, wireValue78_0)
 
-	wireValue163_0 := service.NewNotifyService(wireValue73_0)
+	wireValue166_0 := service.NewNotifyService(wireValue74_0)
 
-	wireValue164_0 := service.NewProcessService()
+	wireValue167_0 := service.NewProcessService()
 
-	wireValue165_0 := service.NewProjectService(wireValue74_0, wireValue77_0)
+	wireValue168_0 := service.NewProjectService(wireValue75_0, wireValue78_0)
 
-	wireValue114_0 := data.NewSafeRepo()
+	wireValue116_0 := data.NewSafeRepo()
 
-	wireValue75_0 := biz.NewSafeUsecase(wireValue114_0, wireValue3_0)
+	wireValue76_0 := biz.NewSafeUsecase(wireValue116_0, wireValue3_0)
 
-	wireValue166_0 := service.NewSafeService(wireValue75_0)
+	wireValue169_0 := service.NewSafeService(wireValue76_0)
 
-	wireValue167_0 := service.NewSettingService(wireValue56_0, wireValue55_0, wireValue77_0, wireValue4_0, wireValue1_0)
+	wireValue170_0 := service.NewSettingService(wireValue56_0, wireValue55_0, wireValue78_0, wireValue4_0, wireValue1_0)
 
-	wireValue117_0 := data.NewSSHRepo(wireValue4_0, wireValue1_0)
+	wireValue119_0 := data.NewSSHRepo(wireValue4_0, wireValue1_0)
 
-	wireValue78_0 := biz.NewSSHUsecase(wireValue117_0, wireValue3_0)
+	wireValue79_0 := biz.NewSSHUsecase(wireValue119_0, wireValue3_0)
 
-	wireValue168_0 := service.NewSSHService(wireValue78_0)
+	wireValue171_0 := service.NewSSHService(wireValue79_0)
 
-	wireValue169_0 := service.NewSystemctlService(wireValue1_0)
+	wireValue172_0 := service.NewSystemctlService(wireValue1_0)
 
-	wireValue170_0 := service.NewTamperService(wireValue79_0, wireValue1_0)
+	wireValue173_0 := service.NewTamperService(wireValue80_0, wireValue1_0)
 
-	wireValue171_0 := service.NewTaskService(wireValue80_0)
+	wireValue174_0 := service.NewTaskService(wireValue81_0)
 
-	wireValue120_0 := data.NewTemplateRepo(wireValue3_0)
+	wireValue122_0 := data.NewTemplateRepo(wireValue3_0)
 
-	wireValue81_0 := biz.NewTemplateUsecase(wireValue1_0, wireValue93_0, wireValue120_0)
+	wireValue82_0 := biz.NewTemplateUsecase(wireValue1_0, wireValue94_0, wireValue122_0)
 
-	wireValue172_0 := service.NewTemplateService(wireValue77_0, wireValue81_0, wireValue1_0)
+	wireValue175_0 := service.NewTemplateService(wireValue78_0, wireValue82_0, wireValue1_0)
 
-	wireValue181_0 := service.NewToolboxBenchmarkService(wireValue1_0)
+	wireValue184_0 := service.NewToolboxBenchmarkService(wireValue1_0)
 
-	wireValue183_0 := service.NewToolboxDiskService(wireValue1_0)
+	wireValue186_0 := service.NewToolboxDiskService(wireValue1_0)
 
-	wireValue184_0 := service.NewToolboxLogService(wireValue60_0, wireValue77_0, wireValue4_0, wireValue1_0)
+	wireValue187_0 := service.NewToolboxLogService(wireValue60_0, wireValue78_0, wireValue4_0, wireValue1_0)
 
-	wireValue127_0 := data.NewMigrationSourceRepo(wireValue1_0)
+	wireValue129_0 := data.NewMigrationSourceRepo(wireValue1_0)
 
-	wireValue128_0 := data.NewMigrationRemoteRepo(wireValue1_0)
+	wireValue130_0 := data.NewMigrationRemoteRepo(wireValue1_0)
 
-	wireValue129_0 := data.NewMigrationArchiveRepo()
+	wireValue131_0 := data.NewMigrationArchiveRepo()
 
-	wireValue88_0 := biz.NewToolboxMigrationUsecase(wireValue1_0, wireValue3_0, wireValue127_0, wireValue128_0, wireValue129_0, wireValue77_0, wireValue86_0, wireValue64_0, wireValue67_0, wireValue68_0, wireValue52_0, wireValue74_0, wireValue51_0, wireValue69_0)
+	wireValue89_0 := biz.NewToolboxMigrationUsecase(wireValue1_0, wireValue3_0, wireValue129_0, wireValue130_0, wireValue131_0, wireValue78_0, wireValue87_0, wireValue64_0, wireValue67_0, wireValue68_0, wireValue52_0, wireValue75_0, wireValue51_0, wireValue69_0)
 
-	wireValue185_0 := service.NewToolboxMigrationService(wireValue88_0, wireValue0_0, wireValue1_0, wireValue3_0)
+	wireValue188_0 := service.NewToolboxMigrationService(wireValue89_0, wireValue0_0, wireValue1_0, wireValue3_0)
 
-	wireValue179_0 := service.NewToolboxNetworkService(wireValue1_0)
+	wireValue182_0 := service.NewToolboxNetworkService(wireValue1_0)
 
-	wireValue182_0 := service.NewToolboxSSHService(wireValue1_0)
+	wireValue185_0 := service.NewToolboxSSHService(wireValue1_0)
 
-	wireValue180_0 := service.NewToolboxSystemService(wireValue1_0)
+	wireValue183_0 := service.NewToolboxSystemService(wireValue1_0)
 
-	wireValue82_0 := biz.NewUserUsecase(wireValue1_0, wireValue3_0, wireValue121_0)
+	wireValue83_0 := biz.NewUserUsecase(wireValue1_0, wireValue3_0, wireValue123_0)
 
-	wireValue173_0 := service.NewUserService(wireValue73_0, wireValue82_0, wireValue0_0, wireValue1_0, wireValue6_0)
+	wireValue176_0 := service.NewUserService(wireValue74_0, wireValue83_0, wireValue0_0, wireValue1_0, wireValue6_0)
 
-	wireValue122_0 := data.NewUserPasskeyRepo(wireValue4_0)
+	wireValue124_0 := data.NewUserPasskeyRepo(wireValue4_0)
 
-	wireValue83_0 := biz.NewUserPasskeyUsecase(wireValue122_0)
+	wireValue84_0 := biz.NewUserPasskeyUsecase(wireValue124_0)
 
-	wireValue174_0 := service.NewUserPasskeyService(wireValue73_0, wireValue83_0, wireValue82_0, wireValue0_0, wireValue1_0, wireValue6_0)
+	wireValue177_0 := service.NewUserPasskeyService(wireValue74_0, wireValue84_0, wireValue83_0, wireValue0_0, wireValue1_0, wireValue6_0)
 
-	wireValue84_0 := biz.NewUserTokenUsecase(wireValue123_0)
+	wireValue85_0 := biz.NewUserTokenUsecase(wireValue125_0)
 
-	wireValue175_0 := service.NewUserTokenService(wireValue84_0, wireValue1_0)
+	wireValue178_0 := service.NewUserTokenService(wireValue85_0, wireValue1_0)
 
-	wireValue124_0 := data.NewWebHookRepo(wireValue4_0, wireValue1_0)
+	wireValue126_0 := data.NewWebHookRepo(wireValue4_0, wireValue1_0)
 
-	wireValue85_0 := biz.NewWebHookUsecase(wireValue1_0, wireValue3_0, wireValue124_0)
+	wireValue86_0 := biz.NewWebHookUsecase(wireValue1_0, wireValue3_0, wireValue126_0)
 
-	wireValue176_0 := service.NewWebHookService(wireValue85_0)
+	wireValue179_0 := service.NewWebHookService(wireValue86_0)
 
-	wireValue177_0 := service.NewWebsiteService(wireValue77_0, wireValue86_0, wireValue1_0)
+	wireValue180_0 := service.NewWebsiteService(wireValue78_0, wireValue87_0, wireValue1_0)
 
 	wireValue16_0 := websitestat.NewAggregator()
 
-	wireValue178_0 := service.NewWebsiteStatService(wireValue77_0, wireValue87_0, wireValue86_0, wireValue16_0)
+	wireValue181_0 := service.NewWebsiteStatService(wireValue78_0, wireValue88_0, wireValue87_0, wireValue16_0)
 
-	wireValue186_0 := service.NewWsService(wireValue52_0, wireValue55_0, wireValue78_0, wireValue77_0, wireValue80_0, wireValue0_0, wireValue1_0, wireValue3_0)
+	wireValue189_0 := service.NewWsService(wireValue52_0, wireValue55_0, wireValue79_0, wireValue78_0, wireValue81_0, wireValue0_0, wireValue1_0, wireValue3_0)
 
-	wireValue187_1 := &route.Services{
-		Alert:                 wireValue130_0,
-		App:                   wireValue131_0,
-		Backup:                wireValue132_0,
-		BackupStorage:         wireValue133_0,
-		Cert:                  wireValue134_0,
-		CertAccount:           wireValue135_0,
-		CertDNS:               wireValue136_0,
-		Container:             wireValue138_0,
-		ContainerCompose:      wireValue139_0,
-		ContainerImage:        wireValue140_0,
-		ContainerNetwork:      wireValue141_0,
-		ContainerVolume:       wireValue142_0,
-		Cron:                  wireValue143_0,
-		Database:              wireValue144_0,
-		DatabaseElasticsearch: wireValue146_0,
-		DatabaseRedis:         wireValue145_0,
-		DatabaseServer:        wireValue147_0,
-		DatabaseUser:          wireValue148_0,
-		Environment:           wireValue149_0,
-		EnvironmentDotnet:     wireValue155_0,
-		EnvironmentGo:         wireValue150_0,
-		EnvironmentJava:       wireValue151_0,
-		EnvironmentNodejs:     wireValue152_0,
-		EnvironmentPHP:        wireValue153_0,
-		EnvironmentPython:     wireValue154_0,
-		File:                  wireValue156_0,
-		FileShare:             wireValue157_0,
-		Firewall:              wireValue158_0,
-		FirewallScan:          wireValue159_0,
-		Home:                  wireValue160_0,
-		Log:                   wireValue161_0,
-		Monitor:               wireValue162_0,
-		Notify:                wireValue163_0,
-		Process:               wireValue164_0,
-		Project:               wireValue165_0,
-		Safe:                  wireValue166_0,
-		Setting:               wireValue167_0,
-		SSH:                   wireValue168_0,
-		Systemctl:             wireValue169_0,
-		Tamper:                wireValue170_0,
-		Task:                  wireValue171_0,
-		Template:              wireValue172_0,
-		ToolboxBenchmark:      wireValue181_0,
-		ToolboxDisk:           wireValue183_0,
-		ToolboxLog:            wireValue184_0,
-		ToolboxMigration:      wireValue185_0,
-		ToolboxNetwork:        wireValue179_0,
-		ToolboxSSH:            wireValue182_0,
-		ToolboxSystem:         wireValue180_0,
-		User:                  wireValue173_0,
-		UserPasskey:           wireValue174_0,
-		UserToken:             wireValue175_0,
-		WebHook:               wireValue176_0,
-		Website:               wireValue177_0,
-		WebsiteStat:           wireValue178_0,
-		Ws:                    wireValue186_0,
+	wireValue190_1 := &route.Services{
+		Alert:                 wireValue132_0,
+		App:                   wireValue133_0,
+		Backup:                wireValue134_0,
+		BackupStorage:         wireValue135_0,
+		Cert:                  wireValue136_0,
+		CertAccount:           wireValue137_0,
+		CertDNS:               wireValue138_0,
+		Container:             wireValue140_0,
+		ContainerCompose:      wireValue141_0,
+		ContainerImage:        wireValue142_0,
+		ContainerNetwork:      wireValue143_0,
+		ContainerVolume:       wireValue144_0,
+		Cron:                  wireValue145_0,
+		Database:              wireValue146_0,
+		DatabaseElasticsearch: wireValue148_0,
+		DatabaseRedis:         wireValue147_0,
+		DatabaseServer:        wireValue149_0,
+		DatabaseUser:          wireValue150_0,
+		Environment:           wireValue151_0,
+		EnvironmentDotnet:     wireValue157_0,
+		EnvironmentGo:         wireValue152_0,
+		EnvironmentJava:       wireValue153_0,
+		EnvironmentNodejs:     wireValue154_0,
+		EnvironmentPHP:        wireValue155_0,
+		EnvironmentPython:     wireValue156_0,
+		File:                  wireValue158_0,
+		FileShare:             wireValue159_0,
+		FileFavorite:          wireValue160_0,
+		Firewall:              wireValue161_0,
+		FirewallScan:          wireValue162_0,
+		Home:                  wireValue163_0,
+		Log:                   wireValue164_0,
+		Monitor:               wireValue165_0,
+		Notify:                wireValue166_0,
+		Process:               wireValue167_0,
+		Project:               wireValue168_0,
+		Safe:                  wireValue169_0,
+		Setting:               wireValue170_0,
+		SSH:                   wireValue171_0,
+		Systemctl:             wireValue172_0,
+		Tamper:                wireValue173_0,
+		Task:                  wireValue174_0,
+		Template:              wireValue175_0,
+		ToolboxBenchmark:      wireValue184_0,
+		ToolboxDisk:           wireValue186_0,
+		ToolboxLog:            wireValue187_0,
+		ToolboxMigration:      wireValue188_0,
+		ToolboxNetwork:        wireValue182_0,
+		ToolboxSSH:            wireValue185_0,
+		ToolboxSystem:         wireValue183_0,
+		User:                  wireValue176_0,
+		UserPasskey:           wireValue177_0,
+		UserToken:             wireValue178_0,
+		WebHook:               wireValue179_0,
+		Website:               wireValue180_0,
+		WebsiteStat:           wireValue181_0,
+		Ws:                    wireValue189_0,
 	}
 
-	wireValue188_0 := route.NewEndpoints(wireValue187_1)
+	wireValue191_0 := route.NewEndpoints(wireValue190_1)
 
-	wireValue11_0, wireErr11 := bootstrap.NewRouter(wireValue10_0, wireValue0_0, wireValue1_0, wireValue9_0, wireValue8_0, wireValue188_0)
+	wireValue11_0, wireErr11 := bootstrap.NewRouter(wireValue10_0, wireValue0_0, wireValue1_0, wireValue9_0, wireValue8_0, wireValue191_0)
 	if wireErr11 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
 		return wireZero0, nil, errors.Join(wireErr11, cleanupErr)
 	}
 
-	wireValue189_1 := &job.Dependencies{
+	wireValue192_1 := &job.Dependencies{
 		Alert:       wireValue50_0,
 		Backup:      wireValue52_0,
 		Cache:       wireValue54_0,
 		Cert:        wireValue55_0,
 		CertAccount: wireValue56_0,
 		FileShare:   wireValue70_0,
-		Monitor:     wireValue72_0,
-		Notify:      wireValue73_0,
-		ScanEvent:   wireValue76_0,
-		Setting:     wireValue77_0,
-		Tamper:      wireValue79_0,
-		Task:        wireValue80_0,
-		Website:     wireValue86_0,
-		WebsiteStat: wireValue87_0,
+		Monitor:     wireValue73_0,
+		Notify:      wireValue74_0,
+		ScanEvent:   wireValue77_0,
+		Setting:     wireValue78_0,
+		Tamper:      wireValue80_0,
+		Task:        wireValue81_0,
+		Website:     wireValue87_0,
+		WebsiteStat: wireValue88_0,
 		Conf:        wireValue0_0,
 		DB:          wireValue4_0,
 		T:           wireValue1_0,
@@ -561,9 +568,9 @@ func initAce() (*app.Ace, func() error, error) {
 		Aggregator:  wireValue16_0,
 	}
 
-	wireValue190_0 := job.NewJobs(wireValue189_1)
+	wireValue193_0 := job.NewJobs(wireValue192_1)
 
-	wireValue14_0, wireErr14 := bootstrap.NewCron(wireValue3_0, wireValue190_0)
+	wireValue14_0, wireErr14 := bootstrap.NewCron(wireValue3_0, wireValue193_0)
 	if wireErr14 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()
@@ -581,11 +588,11 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue13_0 := bootstrap.NewHttp(wireValue11_0, wireValue0_0, wireValue12_0)
 
-	wireValue191_0 := app.NewAce(wireValue11_0, wireValue0_0, wireValue14_0, wireValue5_0, wireValue13_0, wireValue12_0, wireValue7_0)
+	wireValue194_0 := app.NewAce(wireValue11_0, wireValue0_0, wireValue14_0, wireValue5_0, wireValue13_0, wireValue12_0, wireValue7_0)
 
 	wireCommitted = true
 
-	return wireValue191_0, wireCleanup.close, nil
+	return wireValue194_0, wireCleanup.close, nil
 }
 
 func wireRunCleanup(cleanup func() error) (err error, panicValue any) {

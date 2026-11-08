@@ -96,6 +96,20 @@ type FileShareCreate struct {
 	ExpireHours  uint   `form:"expire_hours" json:"expire_hours" validate:"required && min:1 && max:8760"` // 有效期（小时）
 }
 
+type FileFavoriteCreate struct {
+	Path   string `form:"path" json:"path" validate:"required && unix_path"`
+	Remark string `form:"remark" json:"remark"`
+}
+
+type FileFavoriteUpdate struct {
+	ID     uint   `json:"id" form:"id" uri:"id" validate:"required && exists:file_favorites,id"`
+	Remark string `form:"remark" json:"remark"`
+}
+
+type FileFavoriteOrder struct {
+	IDs []uint `form:"ids" json:"ids" validate:"required"`
+}
+
 type FileShareToken struct {
 	Token string `json:"token" form:"token" uri:"token" validate:"required"`
 }

@@ -250,4 +250,14 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261108-add-file-favorite",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.FileFavorite{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.FileFavorite{})
+		},
+	})
+
 }

@@ -43,7 +43,7 @@ const themeVars = useThemeVars()
 const fileStore = useFileStore()
 const taskQueue = useTaskQueueStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, movePath, markClipboard } = useFileOps()
+const { deletePaths, movePath, markClipboard, toggleFavorite } = useFileOps()
 const { isMobile } = useResponsive()
 
 const props = defineProps<{
@@ -427,6 +427,13 @@ const options = computed<DropdownOption[]>(() => {
     {
       label: $gettext('Terminal'),
       key: 'terminal',
+      show: selectedRow.value.dir,
+    },
+    {
+      label: fileStore.isFavorite(selectedRow.value.full)
+        ? $gettext('Remove from Favorites')
+        : $gettext('Add to Favorites'),
+      key: 'favorite',
       show: selectedRow.value.dir,
     },
     {
@@ -980,6 +987,9 @@ const handleSelect = (key: string) => {
     case 'terminal':
       openTerminal(selectedRow.value)
       break
+    case 'favorite':
+      toggleFavorite(selectedRow.value.full)
+      break
     case 'properties':
       openProperty(selectedRow.value)
       break
@@ -1025,9 +1035,15 @@ const getMoreOptions = (item: any): SelectOption[] => {
 
   options.push({ label: $gettext('Copy Path'), value: 'copy-path' })
 
-  // 如果是文件夹，添加终端选项
+  // 如果是文件夹，添加终端与收藏选项
   if (item.dir) {
     options.push({ label: $gettext('Terminal'), value: 'terminal' })
+    options.push({
+      label: fileStore.isFavorite(item.full)
+        ? $gettext('Remove from Favorites')
+        : $gettext('Add to Favorites'),
+      value: 'favorite',
+    })
   }
 
   // 防篡改运行时，添加/移除保护
@@ -1110,6 +1126,9 @@ const handleRowAction = (key: string, item: any) => {
       break
     case 'terminal':
       openTerminal(item)
+      break
+    case 'favorite':
+      toggleFavorite(item.full)
       break
     case 'properties':
       openProperty(item)

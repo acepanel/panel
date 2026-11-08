@@ -101,6 +101,7 @@ const handleDrop = async (e: DragEvent) => {
 
 onMounted(() => {
   window.$bus.on('file:edit', handleEditFile)
+  fileStore.loadFavorites()
 })
 
 onUnmounted(() => {

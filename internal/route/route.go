@@ -43,6 +43,7 @@ type Services struct {
 	EnvironmentPython     *service.EnvironmentPythonService
 	File                  *service.FileService
 	FileShare             *service.FileShareService
+	FileFavorite          *service.FileFavoriteService
 	Firewall              *service.FirewallService
 	FirewallScan          *service.FirewallScanService
 	Home                  *service.HomeService
@@ -98,6 +99,7 @@ func NewEndpoints(s *Services) []Endpoints {
 		ContainerRoutes(s.ContainerCompose, s.ContainerImage, s.ContainerNetwork, s.Container, s.ContainerVolume),
 		FileRoutes(s.File),
 		FileShareRoutes(s.FileShare),
+		FileFavoriteRoutes(s.FileFavorite),
 		CronRoutes(s.Cron),
 		ProcessRoutes(s.Process),
 		FirewallRoutes(s.FirewallScan, s.Firewall),

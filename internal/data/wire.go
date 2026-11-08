@@ -31,6 +31,7 @@ var Module = wire.New().
 	Provide(NewDatabaseUserRepo).
 	Provide(NewEnvironmentRepo).
 	Provide(NewFileShareRepo).
+	Provide(NewFileFavoriteRepo).
 	Provide(NewLogRepo).
 	Provide(NewMonitorRepo).
 	Provide(NewNotifyChannelRepo).
@@ -72,6 +73,7 @@ var Module = wire.New().
 	Export[biz.DatabaseUserRepo]().
 	Export[biz.EnvironmentRepo]().
 	Export[biz.FileShareRepo]().
+	Export[biz.FileFavoriteRepo]().
 	Export[biz.LogRepo]().
 	Export[biz.MonitorRepo]().
 	Export[biz.NotifyChannelRepo]().

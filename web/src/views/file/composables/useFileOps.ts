@@ -56,5 +56,13 @@ export function useFileOps() {
     )
   }
 
-  return { deletePaths, movePath, markClipboard }
+  // 收藏/取消收藏目录
+  async function toggleFavorite(path: string) {
+    const added = await fileStore.toggleFavorite(path)
+    window.$message.success(
+      added ? $gettext('Added to favorites') : $gettext('Removed from favorites'),
+    )
+  }
+
+  return { deletePaths, movePath, markClipboard, toggleFavorite }
 }

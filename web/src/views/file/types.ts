@@ -4,6 +4,12 @@ export interface Marked {
   force: boolean
 }
 
+export interface FileFavorite {
+  id: number
+  path: string
+  remark: string
+}
+
 // 文件信息接口，用于权限编辑和属性显示
 export interface FileInfo {
   name: string

@@ -1,4 +1,5 @@
-import type { Marked } from '@/views/file/types'
+import api from '@/api/panel/file'
+import type { FileFavorite, Marked } from '@/views/file/types'
 
 export interface FileTab {
   id: string // 标签页唯一标识
@@ -19,6 +20,8 @@ export interface FileState {
   viewType: 'list' | 'grid'
   sortKey: string
   sortOrder: 'asc' | 'desc'
+  // 收藏目录，已按后端排序，本地仅作缓存
+  favorites: FileFavorite[]
   // 全局剪贴板（跨标签页共享）
   clipboard: {
     marked: Marked[]
@@ -56,6 +59,7 @@ export const useFileStore = defineStore('file', {
       viewType: 'list',
       sortKey: '',
       sortOrder: 'asc',
+      favorites: [],
       clipboard: {
         marked: [],
         markedType: 'copy',
@@ -70,6 +74,7 @@ export const useFileStore = defineStore('file', {
     activeTab(): FileTab | undefined {
       return this.tabs.find((t) => t.id === this.activeTabId)
     },
+    isFavorite: (state) => (path: string) => state.favorites.some((f) => f.path === path),
   },
   actions: {
     // 新建标签页
@@ -158,6 +163,29 @@ export const useFileStore = defineStore('file', {
     },
     toggleViewType() {
       this.viewType = this.viewType === 'list' ? 'grid' : 'list'
+    },
+    async loadFavorites() {
+      this.favorites = await api.favoriteList()
+    },
+    // 收藏/取消收藏目录，返回操作后是否已收藏
+    async toggleFavorite(path: string): Promise<boolean> {
+      const exist = this.favorites.find((f) => f.path === path)
+      if (exist) {
+        await api.favoriteDelete(exist.id)
+        this.favorites = this.favorites.filter((f) => f.id !== exist.id)
+        return false
+      }
+      this.favorites.push(await api.favoriteCreate(path))
+      return true
+    },
+    async updateFavoriteRemark(id: number, remark: string) {
+      await api.favoriteUpdate(id, remark)
+      const favorite = this.favorites.find((f) => f.id === id)
+      if (favorite) favorite.remark = remark
+    },
+    // 按当前列表顺序保存排序
+    async sortFavorites() {
+      await api.favoriteOrder(this.favorites.map((f) => f.id))
     },
     setSort(key: string) {
       if (this.sortKey === key) {

@@ -84,6 +84,16 @@ export default {
   // 取消分块上传，清理服务器上的临时分块
   chunkCancel: (data: { path: string; file_name: string; file_hash: string }): any =>
     http.Post('/file/chunk/cancel', data, { meta: { noAlert: true } }),
+  // 收藏列表
+  favoriteList: (): any => http.Get('/file_favorite'),
+  // 添加收藏
+  favoriteCreate: (path: string, remark = ''): any => http.Post('/file_favorite', { path, remark }),
+  // 更新收藏备注
+  favoriteUpdate: (id: number, remark: string): any => http.Put(`/file_favorite/${id}`, { remark }),
+  // 删除收藏
+  favoriteDelete: (id: number): any => http.Delete(`/file_favorite/${id}`),
+  // 更新收藏排序
+  favoriteOrder: (ids: number[]): any => http.Post('/file_favorite/order', { ids }),
   // 分享列表
   shareList: (): any => http.Get('/file_share'),
   // 创建分享

@@ -2,12 +2,18 @@
 import copy2clipboard from '@vavt/copy2clipboard'
 import type { InputInst } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+import draggable from 'vuedraggable'
 
+import { useResponsive } from '@/components/system/composables/useResponsive'
 import { useFileStore } from '@/stores'
 import { checkPath } from '@/utils/file'
+import { useFileOps } from '@/views/file/composables/useFileOps'
+import type { FileFavorite } from '@/views/file/types'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
+const { toggleFavorite } = useFileOps()
+const { isMobile } = useResponsive()
 
 const props = defineProps<{
   tabId: string
@@ -90,6 +96,33 @@ const handleSearch = () => {
   window.$bus.emit('file:search')
 }
 
+// 收藏目录
+const showFavorites = ref(false)
+const isFavorite = computed(() => fileStore.isFavorite(path.value))
+
+const favoriteName = (item: FileFavorite) => item.remark || item.path.split('/').pop() || '/'
+
+const handleGoFavorite = (p: string) => {
+  showFavorites.value = false
+  fileStore.updateTabPath(props.tabId, p)
+}
+
+// 行内编辑备注，回车或失焦保存，Esc 取消
+const editingId = ref<number | null>(null)
+const editingRemark = ref('')
+
+const startEditRemark = (item: FileFavorite) => {
+  editingId.value = item.id
+  editingRemark.value = item.remark
+}
+
+const saveRemark = () => {
+  if (editingId.value === null) return
+  const id = editingId.value
+  editingId.value = null
+  fileStore.updateFavoriteRemark(id, editingRemark.value.trim())
+}
+
 watch(
   path,
   (value) => {
@@ -143,6 +176,77 @@ watch(
         </template>
         {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
       </n-tooltip>
+      <n-popover
+        v-model:show="showFavorites"
+        trigger="click"
+        placement="bottom-start"
+        :show-arrow="false"
+        content-class="!p-0"
+        @update:show="editingId = null"
+      >
+        <template #trigger>
+          <n-button :type="isFavorite ? 'primary' : 'default'">
+            <i-mdi-star v-if="isFavorite" class="text-base" />
+            <i-mdi-star-outline v-else class="text-base" />
+          </n-button>
+        </template>
+        <div class="favorites" :class="{ 'is-mobile': isMobile }">
+          <div class="favorites-header">
+            <span>{{ $gettext('Favorites') }}</span>
+            <n-button size="tiny" quaternary type="primary" @click="toggleFavorite(path)">
+              {{
+                isFavorite
+                  ? $gettext('Remove current directory')
+                  : $gettext('Add current directory')
+              }}
+            </n-button>
+          </div>
+          <div v-if="!fileStore.favorites.length" class="favorites-empty">
+            {{ $gettext('No favorites yet') }}
+          </div>
+          <draggable
+            v-model="fileStore.favorites"
+            item-key="id"
+            handle=".favorites-drag"
+            class="favorites-list"
+            @end="fileStore.sortFavorites()"
+          >
+            <template #item="{ element: item }">
+              <div
+                class="favorites-item"
+                :class="{ active: item.path === path }"
+                @click="handleGoFavorite(item.path)"
+              >
+                <i-mdi-drag class="favorites-drag" />
+                <i-mdi-folder class="text-amber-500 shrink-0" />
+                <div class="favorites-text">
+                  <n-input
+                    v-if="editingId === item.id"
+                    v-model:value="editingRemark"
+                    size="tiny"
+                    autofocus
+                    @click.stop
+                    :placeholder="$gettext('Remark')"
+                    @keyup.enter="saveRemark"
+                    @keyup.esc="editingId = null"
+                    @blur="saveRemark"
+                  />
+                  <div v-else class="favorites-name">{{ favoriteName(item) }}</div>
+                  <div class="favorites-path">{{ item.path }}</div>
+                </div>
+                <div class="favorites-actions" @click.stop>
+                  <n-button size="tiny" quaternary circle @click="startEditRemark(item)">
+                    <i-mdi-pencil />
+                  </n-button>
+                  <n-button size="tiny" quaternary circle @click="toggleFavorite(item.path)">
+                    <i-mdi-close />
+                  </n-button>
+                </div>
+              </div>
+            </template>
+          </draggable>
+        </div>
+      </n-popover>
     </n-button-group>
     <n-input-group flex-1>
       <n-tag
@@ -188,4 +292,88 @@ watch(
   </n-flex>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.favorites {
+  width: 320px;
+  max-width: 90vw;
+  font-size: 13px;
+}
+
+.favorites-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 12px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.favorites-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+}
+
+.favorites-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.favorites-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-subtle);
+
+    .favorites-actions {
+      opacity: 1;
+    }
+  }
+
+  &.active {
+    background: var(--color-brand-subtle);
+  }
+}
+
+.favorites-drag {
+  flex-shrink: 0;
+  cursor: grab;
+  color: var(--color-text-tertiary);
+}
+
+.favorites-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.favorites-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorites-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.favorites-actions {
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+// 触屏没有悬停，操作按钮常显
+.favorites.is-mobile .favorites-actions {
+  opacity: 1;
+}
+</style>
