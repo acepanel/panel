@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/spf13/cast"
 
@@ -12,11 +14,15 @@ import (
 )
 
 type FirewallScanService struct {
+	t        *gotext.Locale
+	log      *slog.Logger
 	scanRepo *biz.ScanEventUsecase
 }
 
-func NewFirewallScanService(scanEventUsecase *biz.ScanEventUsecase) *FirewallScanService {
+func NewFirewallScanService(t *gotext.Locale, log *slog.Logger, scanEventUsecase *biz.ScanEventUsecase) *FirewallScanService {
 	return &FirewallScanService{
+		t:        t,
+		log:      log,
 		scanRepo: scanEventUsecase,
 	}
 }
@@ -28,6 +34,7 @@ func (s *FirewallScanService) GetSetting(w http.ResponseWriter, r *http.Request)
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
 	Success(w, setting)
 }
 
@@ -39,7 +46,7 @@ func (s *FirewallScanService) UpdateSetting(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err = s.scanRepo.UpdateSetting(&biz.ScanSetting{
+	if err = s.scanRepo.UpdateSetting(r.Context(), &biz.ScanSetting{
 		Enabled:        req.Enabled,
 		Days:           req.Days,
 		Interfaces:     req.Interfaces,
@@ -148,6 +155,7 @@ func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	s.log.Info(s.t.Get("scan event list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("start", start), slog.String("end", end), slog.String("source_ip", sourceIP), slog.Uint64("port", uint64(port)), slog.String("location", location), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
 	Success(w, chix.M{
 		"total": total,
 		"items": items,
@@ -156,7 +164,7 @@ func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request)
 
 // Clear 清空所有扫描数据
 func (s *FirewallScanService) Clear(w http.ResponseWriter, r *http.Request) {
-	if err := s.scanRepo.Clear(); err != nil {
+	if err := s.scanRepo.Clear(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

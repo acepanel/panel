@@ -116,7 +116,7 @@ func (r *appRepo) UpdateOrder(slugs []string) error {
 func (r *appRepo) DownloadCallback(slug string) {
 	// 下载回调
 	if err := r.api.AppCallback(slug); err != nil {
-		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
+		r.log.Warn(r.t.Get("download callback failed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
 	}
 }
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+
+	"github.com/leonelquinteros/gotext"
 )
 
 type SafeRepo interface {
@@ -14,11 +16,12 @@ type SafeRepo interface {
 
 type SafeUsecase struct {
 	repo SafeRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewSafeUsecase(repo SafeRepo, log *slog.Logger) *SafeUsecase {
-	return &SafeUsecase{repo: repo, log: log}
+func NewSafeUsecase(repo SafeRepo, t *gotext.Locale, log *slog.Logger) *SafeUsecase {
+	return &SafeUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *SafeUsecase) GetPingStatus(ctx context.Context) (bool, error) {
@@ -39,7 +42,7 @@ func (uc *SafeUsecase) UpdatePingStatus(ctx context.Context, status bool) error 
 	}
 
 	// 记录日志
-	uc.log.Info("ping status updated", slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", operatorID(ctx)), slog.Bool("status", status))
+	uc.log.Info(uc.t.Get("ping status updated"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("status", status))
 
 	return nil
 }

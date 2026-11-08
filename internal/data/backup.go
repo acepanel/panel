@@ -168,19 +168,20 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		if app.IsCli {
 			fmt.Println(r.t.Get("☆ Backup failed: %v [%s]", err, time.Now().Format(time.DateTime)))
 		}
-		r.log.Warn("backup failed",
+		r.log.Warn(r.t.Get("backup failed"),
 			slog.String("type", biz.OperationTypeBackup),
-			slog.Uint64("operator_id", getOperatorID(ctx)),
+			slog.Uint64("operator_id", biz.OperatorID(ctx)),
 			slog.String("backup_type", string(typ)),
 			slog.String("target", target),
+			slog.Any("err", err),
 		)
 	} else {
 		if app.IsCli {
 			fmt.Println(r.t.Get("☆ Backup completed [%s]", time.Now().Format(time.DateTime)))
 		}
-		r.log.Info("backup created",
+		r.log.Info(r.t.Get("backup created"),
 			slog.String("type", biz.OperationTypeBackup),
-			slog.Uint64("operator_id", getOperatorID(ctx)),
+			slog.Uint64("operator_id", biz.OperatorID(ctx)),
 			slog.String("backup_type", string(typ)),
 			slog.String("target", target),
 		)
@@ -1849,7 +1850,7 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 	// 备份留档
 	progress(r.t.Get("Backing up panel data..."))
 	if err := r.CreatePanel(ctx); err != nil {
-		r.log.Warn("failed to backup panel before update", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to backup panel before update"), slog.Any("err", err))
 	}
 
 	// 下载新版本
@@ -1898,7 +1899,6 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 	}
 
 	_ = io.Remove(workDir)
-	r.log.Info("panel updated", slog.String("version", version))
 	progress(r.t.Get("Update completed"))
 
 	// 由调用方重启面板，数据库连接在进程退出时统一关闭

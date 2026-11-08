@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,13 +16,15 @@ import (
 
 type EnvironmentService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	environmentRepo *biz.EnvironmentUsecase
 	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *EnvironmentService {
+func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale, log *slog.Logger) *EnvironmentService {
 	return &EnvironmentService{
 		t:               t,
+		log:             log,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
 	}
@@ -78,6 +81,8 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 			CustomSupported:  biz.CustomCompileEnv(item.Type),
 		})
 	}
+
+	s.log.Info(s.t.Get("environment list viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", typ), slog.String("query", query), slog.Bool("installed", onlyInstalled))
 
 	Success(w, environments)
 }

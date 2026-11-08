@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"time"
+
+	"github.com/leonelquinteros/gotext"
 )
 
 const (
@@ -33,6 +35,9 @@ const (
 	OperationTypeMonitor        = "monitor"
 	OperationTypeWebhook        = "webhook"
 	OperationTypeUser           = "user"
+	OperationTypeEnvironment    = "environment"
+	OperationTypeToolbox        = "toolbox"
+	OperationTypeSystem         = "system"
 )
 
 // LogEntry 日志条目
@@ -51,7 +56,8 @@ type LogRepo interface {
 	// List 获取日志列表
 	// date 格式为 YYYY-MM-DD，空字符串表示当天日志
 	// level 为日志级别（DEBUG/INFO/WARN/ERROR），空字符串表示不过滤
-	List(logType string, limit int, date, level string) ([]LogEntry, error)
+	// keyword 不区分大小写匹配整条日志，空字符串表示不过滤
+	List(logType string, limit int, date, level, keyword string) ([]LogEntry, error)
 	// ListDates 获取可用的日志日期列表
 	ListDates(logType string) ([]string, error)
 	// Clean 清理指定日期及之前的日志
@@ -60,15 +66,16 @@ type LogRepo interface {
 
 type LogUsecase struct {
 	repo LogRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewLogUsecase(repo LogRepo, log *slog.Logger) *LogUsecase {
-	return &LogUsecase{repo: repo, log: log}
+func NewLogUsecase(t *gotext.Locale, log *slog.Logger, repo LogRepo) *LogUsecase {
+	return &LogUsecase{repo: repo, t: t, log: log}
 }
 
-func (uc *LogUsecase) List(logType string, limit int, date, level string) ([]LogEntry, error) {
-	return uc.repo.List(logType, limit, date, level)
+func (uc *LogUsecase) List(logType string, limit int, date, level, keyword string) ([]LogEntry, error) {
+	return uc.repo.List(logType, limit, date, level, keyword)
 }
 
 func (uc *LogUsecase) ListDates(logType string) ([]string, error) {
@@ -81,7 +88,7 @@ func (uc *LogUsecase) Clean(ctx context.Context, logType, date string) error {
 	}
 
 	// 记录日志，操作日志被清空后留下这一条作为痕迹
-	uc.log.Info("logs cleaned", slog.String("type", OperationTypePanel), slog.Uint64("operator_id", operatorID(ctx)), slog.String("log_type", logType), slog.String("date", date))
+	uc.log.Warn(uc.t.Get("logs cleaned"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("log_type", logType), slog.String("date", date))
 
 	return nil
 }

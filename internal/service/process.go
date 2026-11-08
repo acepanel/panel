@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 	"slices"
 	"sort"
@@ -9,18 +10,26 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/samber/lo"
 	"github.com/shirou/gopsutil/v4/process"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type ProcessService struct {
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewProcessService() *ProcessService {
-	return &ProcessService{}
+func NewProcessService(t *gotext.Locale, log *slog.Logger) *ProcessService {
+	return &ProcessService{
+		t:   t,
+		log: log,
+	}
 }
 
 func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +84,7 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, data)
 
+	s.log.Info(s.t.Get("process list viewed"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("keyword", req.Keyword), slog.String("status", req.Status), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -94,11 +104,14 @@ func (s *ProcessService) Kill(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	name, _ := proc.Name()
+	username, _ := proc.Username()
 	if err = proc.Kill(); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
+	s.log.Warn(s.t.Get("process killed"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("pid", int(req.PID)), slog.String("name", name), slog.String("username", username))
 	Success(w, nil)
 }
 
@@ -116,11 +129,15 @@ func (s *ProcessService) Signal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	name, _ := proc.Name()
+	username, _ := proc.Username()
 	if err = proc.SendSignal(syscall.Signal(req.Signal)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
+	level := lo.Ternary(slices.Contains([]syscall.Signal{syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT}, syscall.Signal(req.Signal)), slog.LevelWarn, slog.LevelInfo)
+	s.log.Log(r.Context(), level, s.t.Get("process signal sent"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("pid", int(req.PID)), slog.String("name", name), slog.String("username", username), slog.Int("signal", req.Signal))
 	Success(w, nil)
 }
 
@@ -140,6 +157,7 @@ func (s *ProcessService) Detail(w http.ResponseWriter, r *http.Request) {
 
 	data := s.processProcessFull(proc)
 
+	s.log.Info(s.t.Get("process viewed"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("pid", int(req.PID)), slog.String("name", data.Name))
 	Success(w, data)
 }
 

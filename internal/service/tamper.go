@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,12 +18,14 @@ import (
 
 type TamperService struct {
 	t          *gotext.Locale
+	log        *slog.Logger
 	tamperRepo *biz.TamperUsecase
 }
 
-func NewTamperService(tamperUsecase *biz.TamperUsecase, t *gotext.Locale) *TamperService {
+func NewTamperService(tamperUsecase *biz.TamperUsecase, t *gotext.Locale, log *slog.Logger) *TamperService {
 	return &TamperService{
 		t:          t,
+		log:        log,
 		tamperRepo: tamperUsecase,
 	}
 }
@@ -49,6 +52,9 @@ func (s *TamperService) GetSetting(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("tamper settings viewed"), slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
+
 	Success(w, setting)
 }
 
@@ -71,7 +77,7 @@ func (s *TamperService) SaveSetting(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = s.tamperRepo.SaveSetting(&biz.TamperSetting{
+	if err = s.tamperRepo.SaveSetting(r.Context(), &biz.TamperSetting{
 		Enabled:       req.Enabled,
 		Mode:          req.Mode,
 		BlockNewFiles: req.BlockNewFiles,
@@ -108,7 +114,7 @@ func (s *TamperService) Protect(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if err = s.tamperRepo.SetProtect(req.Path, req.Protect); err != nil {
+	if err = s.tamperRepo.SetProtect(r.Context(), req.Path, req.Protect); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -123,6 +129,9 @@ func (s *TamperService) ListRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	paged, total := Paginate(r, rules)
+
+	s.log.Info(s.t.Get("tamper rule list viewed"), slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))), slog.Uint64("limit", cast.ToUint64(r.URL.Query().Get("limit"))))
+
 	Success(w, chix.M{"total": total, "items": paged})
 }
 
@@ -133,7 +142,7 @@ func (s *TamperService) CreateRule(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if err = s.tamperRepo.CreateRule(&biz.TamperRule{
+	if err = s.tamperRepo.CreateRule(r.Context(), &biz.TamperRule{
 		Name:     req.Name,
 		Path:     req.Path,
 		Exts:     req.Exts,
@@ -162,7 +171,7 @@ func (s *TamperService) UpdateRule(w http.ResponseWriter, r *http.Request) {
 	rule.Exts = req.Exts
 	rule.Excludes = req.Excludes
 	rule.Enabled = req.Enabled
-	if err = s.tamperRepo.UpdateRule(rule); err != nil {
+	if err = s.tamperRepo.UpdateRule(r.Context(), rule); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -172,7 +181,7 @@ func (s *TamperService) UpdateRule(w http.ResponseWriter, r *http.Request) {
 // DeleteRule 删除保护规则
 func (s *TamperService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 	id := cast.ToUint(chi.URLParam(r, "id"))
-	if err := s.tamperRepo.DeleteRule(id); err != nil {
+	if err := s.tamperRepo.DeleteRule(r.Context(), id); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -191,12 +200,15 @@ func (s *TamperService) ListLogs(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("tamper log viewed"), slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{"total": total, "items": logs})
 }
 
 // ClearLogs 清空拦截日志
 func (s *TamperService) ClearLogs(w http.ResponseWriter, r *http.Request) {
-	if err := s.tamperRepo.ClearLogs(); err != nil {
+	if err := s.tamperRepo.ClearLogs(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

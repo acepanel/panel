@@ -1,9 +1,12 @@
 package biz
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
@@ -59,30 +62,67 @@ type UserTokenRepo interface {
 
 type UserTokenUsecase struct {
 	repo UserTokenRepo
+	log  *slog.Logger
+	t    *gotext.Locale
 }
 
-func NewUserTokenUsecase(repo UserTokenRepo) *UserTokenUsecase {
-	return &UserTokenUsecase{repo: repo}
+func NewUserTokenUsecase(t *gotext.Locale, log *slog.Logger, repo UserTokenRepo) *UserTokenUsecase {
+	return &UserTokenUsecase{
+		repo: repo,
+		log:  log,
+		t:    t,
+	}
 }
 
-func (uc *UserTokenUsecase) List(userID, page, limit uint) ([]*UserToken, int64, error) {
-	return uc.repo.List(userID, page, limit)
+func (uc *UserTokenUsecase) List(ctx context.Context, userID, page, limit uint) ([]*UserToken, int64, error) {
+	userTokens, total, err := uc.repo.List(userID, page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("user token list viewed"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("user_id", uint64(userID)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return userTokens, total, nil
 }
 
-func (uc *UserTokenUsecase) Create(userID uint, ips []string, expired time.Time) (*UserToken, error) {
-	return uc.repo.Create(userID, ips, expired)
+func (uc *UserTokenUsecase) Create(ctx context.Context, userID uint, ips []string, expired time.Time) (*UserToken, error) {
+	userToken, err := uc.repo.Create(userID, ips, expired)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("user token created"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(userToken.ID)), slog.Uint64("user_id", uint64(userToken.UserID)), slog.Any("ips", userToken.IPs), slog.Time("expired_at", userToken.ExpiredAt))
+
+	return userToken, nil
 }
 
 func (uc *UserTokenUsecase) Get(id uint) (*UserToken, error) {
 	return uc.repo.Get(id)
 }
 
-func (uc *UserTokenUsecase) Delete(id uint) error {
-	return uc.repo.Delete(id)
+func (uc *UserTokenUsecase) Delete(ctx context.Context, id uint) error {
+	userToken, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("user token deleted"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.Uint64("user_id", uint64(userToken.UserID)))
+
+	return nil
 }
 
-func (uc *UserTokenUsecase) Update(id uint, ips []string, expired time.Time) (*UserToken, error) {
-	return uc.repo.Update(id, ips, expired)
+func (uc *UserTokenUsecase) Update(ctx context.Context, id uint, ips []string, expired time.Time) (*UserToken, error) {
+	userToken, err := uc.repo.Update(id, ips, expired)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("user token updated"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(userToken.ID)), slog.Uint64("user_id", uint64(userToken.UserID)), slog.Any("ips", userToken.IPs), slog.Time("expired_at", userToken.ExpiredAt))
+
+	return userToken, nil
 }
 
 func (uc *UserTokenUsecase) ValidateReq(req *http.Request) (uint, error) {

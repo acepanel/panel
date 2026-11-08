@@ -3,6 +3,7 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -31,15 +32,17 @@ var defaultVersionRegexp = regexp.MustCompile(`default_version\s*=\s*'([^']+)'`)
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	conf               *config.Config
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
 	taskRepo           biz.TaskRepo
 }
 
-func NewApp(t *gotext.Locale, conf *config.Config, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, conf *config.Config, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		conf:               conf,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
@@ -91,6 +94,8 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
+
 	service.Success(w, config)
 }
 
@@ -113,6 +118,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
+
 	service.Success(w, nil)
 }
 
@@ -124,6 +131,8 @@ func (s *App) GetUserConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", app.Root+"/server/postgresql/data/pg_hba.conf"))
 
 	service.Success(w, config)
 }
@@ -145,6 +154,8 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", app.Root+"/server/postgresql/data/pg_hba.conf"))
 
 	service.Success(w, nil)
 }
@@ -221,6 +232,8 @@ func (s *App) GetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("username", "postgres"))
+
 	service.Success(w, password)
 }
 
@@ -257,6 +270,8 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = s.databaseServerRepo.UpdatePassword("local_postgresql", req.Password)
+
+	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("username", "postgres"))
 
 	service.Success(w, nil)
 }
@@ -298,6 +313,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		// IO 设置
 		IoMethod: confval.Postgres.Get(config, "io_method"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -356,6 +373,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", confPath), slog.String("port", req.Port), slog.String("listen_addresses", req.ListenAddresses), slog.String("max_connections", req.MaxConnections), slog.String("shared_buffers", req.SharedBuffers))
+
 	service.Success(w, nil)
 }
 
@@ -372,6 +391,8 @@ func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	s.log.Info(s.t.Get("postgresql extension list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"))
 
 	service.Success(w, extensions)
 }
@@ -401,6 +422,8 @@ func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("postgresql extension install queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
+
 	service.Success(w, nil)
 }
 
@@ -428,6 +451,8 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("postgresql extension uninstall queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
 
 	service.Success(w, nil)
 }
@@ -459,6 +484,8 @@ func (s *App) EnableExtension(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to enable extension: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("postgresql extension enabled"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.String("ext_name", ext.ExtName), slog.String("database", req.Database))
 
 	service.Success(w, nil)
 }
@@ -503,6 +530,8 @@ func (s *App) SessionList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("postgresql session list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"))
+
 	service.Success(w, sessions)
 }
 
@@ -525,6 +554,8 @@ func (s *App) TerminateSession(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("postgresql session terminated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.Int64("pid", pid))
 
 	service.Success(w, nil)
 }
@@ -574,6 +605,8 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"))
+
 	service.Success(w, TopSQL{Enabled: true, Items: items})
 }
 
@@ -592,7 +625,8 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 			libs = append(libs, lib)
 		}
 	}
-	if !slices.Contains(libs, "pg_stat_statements") {
+	configChanged := !slices.Contains(libs, "pg_stat_statements")
+	if configChanged {
 		libs = append(libs, "pg_stat_statements")
 		config = confval.Postgres.Set(config, "shared_preload_libraries", strings.Join(libs, ","))
 		if err = io.Write(s.configPath(), config, 0644); err != nil {
@@ -613,6 +647,8 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app top sql enabled"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("extension", "pg_stat_statements"), slog.String("path", s.configPath()), slog.Bool("config_changed", configChanged))
+
 	service.Success(w, nil)
 }
 
@@ -629,6 +665,8 @@ func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app top sql reset"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("extension", "pg_stat_statements"))
 
 	service.Success(w, nil)
 }
@@ -709,6 +747,8 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("database", req.Database))
+
 	service.Success(w, Bloat{
 		RepackInstalled: io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control"),
 		Items:           items,
@@ -769,6 +809,11 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	tables := lo.Map(req.Tables, func(table MaintenanceTable, _ int) string {
+		return table.Schema + "." + table.Table
+	})
+	s.log.Info(s.t.Get("app maintenance queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("database", req.Database), slog.String("operation", req.Operation), slog.Any("tables", tables), slog.Uint64("task_id", uint64(task.ID)))
 
 	service.Success(w, nil)
 }
@@ -855,6 +900,8 @@ func (s *App) DropReplicationSlot(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("postgresql replication slot deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slot", slot))
 
 	service.Success(w, nil)
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
@@ -26,14 +27,16 @@ type EnvironmentUsecase struct {
 	cache CacheRepo
 	task  TaskRepo
 	t     *gotext.Locale
+	log   *slog.Logger
 }
 
-func NewEnvironmentUsecase(t *gotext.Locale, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) *EnvironmentUsecase {
+func NewEnvironmentUsecase(t *gotext.Locale, log *slog.Logger, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) *EnvironmentUsecase {
 	return &EnvironmentUsecase{
 		repo:  environmentRepo,
 		cache: cacheRepo,
 		task:  taskRepo,
 		t:     t,
+		log:   log,
 	}
 }
 
@@ -142,25 +145,37 @@ func (uc *EnvironmentUsecase) do(ctx context.Context, typ, slug, action string) 
 
 	cmd := uc.repo.ScriptCommand(typ, action, env.Slug, env.Version)
 
-	if app.IsCli {
-		return uc.repo.ExecScript(ctx, cmd)
-	}
-
-	var name string
+	var name, msg string
+	logf := uc.log.Info
 	switch action {
 	case "install":
 		name = uc.t.Get("Install environment %s", env.Name)
+		msg = uc.t.Get("environment installed")
 	case "uninstall":
 		name = uc.t.Get("Uninstall environment %s", env.Name)
+		msg = uc.t.Get("environment uninstalled")
+		logf = uc.log.Warn
 	case "update":
 		name = uc.t.Get("Update environment %s", env.Name)
+		msg = uc.t.Get("environment updated")
 	}
 
-	task := new(Task)
-	task.Key = fmt.Sprintf("environment:%s:%s", typ, slug)
-	task.Name = name
-	task.Status = TaskStatusWaiting
-	task.Shell = cmd
+	if app.IsCli {
+		if err := uc.repo.ExecScript(ctx, cmd); err != nil {
+			return err
+		}
+	} else {
+		task := new(Task)
+		task.Key = fmt.Sprintf("environment:%s:%s", typ, slug)
+		task.Name = name
+		task.Status = TaskStatusWaiting
+		task.Shell = cmd
+		if err := uc.task.Push(task); err != nil {
+			return err
+		}
+	}
 
-	return uc.task.Push(task)
+	logf(msg, slog.String("type", OperationTypeEnvironment), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("environment_type", typ), slog.String("slug", slug), slog.String("name", env.Name), slog.String("version", env.Version))
+
+	return nil
 }

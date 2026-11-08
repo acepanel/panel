@@ -29,6 +29,9 @@ var _ biz.UserPasskeyRepo = &UserPasskeyRepo{}
 //			DeleteAllByUserIDFunc: func(userID uint) error {
 //				panic("mock out the DeleteAllByUserID method")
 //			},
+//			GetFunc: func(userID uint, id uint) (*biz.UserPasskey, error) {
+//				panic("mock out the Get method")
+//			},
 //			GetByCredentialIDFunc: func(credentialID []byte) (*biz.UserPasskey, *biz.User, error) {
 //				panic("mock out the GetByCredentialID method")
 //			},
@@ -62,6 +65,9 @@ type UserPasskeyRepo struct {
 
 	// DeleteAllByUserIDFunc mocks the DeleteAllByUserID method.
 	DeleteAllByUserIDFunc func(userID uint) error
+
+	// GetFunc mocks the Get method.
+	GetFunc func(userID uint, id uint) (*biz.UserPasskey, error)
 
 	// GetByCredentialIDFunc mocks the GetByCredentialID method.
 	GetByCredentialIDFunc func(credentialID []byte) (*biz.UserPasskey, *biz.User, error)
@@ -100,6 +106,13 @@ type UserPasskeyRepo struct {
 			// UserID is the userID argument value.
 			UserID uint
 		}
+		// Get holds details about calls to the Get method.
+		Get []struct {
+			// UserID is the userID argument value.
+			UserID uint
+			// ID is the id argument value.
+			ID uint
+		}
 		// GetByCredentialID holds details about calls to the GetByCredentialID method.
 		GetByCredentialID []struct {
 			// CredentialID is the credentialID argument value.
@@ -134,6 +147,7 @@ type UserPasskeyRepo struct {
 	lockCreate            sync.RWMutex
 	lockDelete            sync.RWMutex
 	lockDeleteAllByUserID sync.RWMutex
+	lockGet               sync.RWMutex
 	lockGetByCredentialID sync.RWMutex
 	lockHasAny            sync.RWMutex
 	lockHasPasskey        sync.RWMutex
@@ -239,6 +253,42 @@ func (mock *UserPasskeyRepo) DeleteAllByUserIDCalls() []struct {
 	mock.lockDeleteAllByUserID.RLock()
 	calls = mock.calls.DeleteAllByUserID
 	mock.lockDeleteAllByUserID.RUnlock()
+	return calls
+}
+
+// Get calls GetFunc.
+func (mock *UserPasskeyRepo) Get(userID uint, id uint) (*biz.UserPasskey, error) {
+	if mock.GetFunc == nil {
+		panic("UserPasskeyRepo.GetFunc: method is nil but UserPasskeyRepo.Get was just called")
+	}
+	callInfo := struct {
+		UserID uint
+		ID     uint
+	}{
+		UserID: userID,
+		ID:     id,
+	}
+	mock.lockGet.Lock()
+	mock.calls.Get = append(mock.calls.Get, callInfo)
+	mock.lockGet.Unlock()
+	return mock.GetFunc(userID, id)
+}
+
+// GetCalls gets all the calls that were made to Get.
+// Check the length with:
+//
+//	len(mockedUserPasskeyRepo.GetCalls())
+func (mock *UserPasskeyRepo) GetCalls() []struct {
+	UserID uint
+	ID     uint
+} {
+	var calls []struct {
+		UserID uint
+		ID     uint
+	}
+	mock.lockGet.RLock()
+	calls = mock.calls.Get
+	mock.lockGet.RUnlock()
 	return calls
 }
 

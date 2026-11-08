@@ -1413,18 +1413,15 @@ onDeactivated(removeDocumentListeners)
 onMounted(() => {
   refreshShares()
 
-  watch(
-    path,
-    () => {
-      selected.value = []
-      sizeCache.value.clear()
-      sizeLoading.value.clear()
-      nextTick(() => {
-        reload()
-      })
-    },
-    { immediate: true },
-  )
+  // 首次加载由 usePagination 自己发起，这里只跟随路径变化，否则刷新页面会请求两次
+  watch(path, () => {
+    selected.value = []
+    sizeCache.value.clear()
+    sizeLoading.value.clear()
+    nextTick(() => {
+      reload()
+    })
+  })
 
   watch([sort, () => fileStore.showHidden], () => {
     nextTick(() => {

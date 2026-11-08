@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/collect"
 	"gorm.io/gorm"
 
@@ -36,10 +37,11 @@ type PanelTask struct {
 	scanRepo    *biz.ScanEventUsecase
 	statRepo    *biz.WebsiteStatUsecase
 	tamperRepo  *biz.TamperUsecase
+	t           *gotext.Locale
 }
 
 // NewPanelTask 构造面板每日任务
-func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, monitorUsecase *biz.MonitorUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, log *slog.Logger) Job {
+func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, monitorUsecase *biz.MonitorUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
 	return Job{
 		Spec: "0 2 * * *",
 		Task: &PanelTask{
@@ -55,6 +57,7 @@ func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUseca
 			scanRepo:    scanEventUsecase,
 			statRepo:    websiteStatUsecase,
 			tamperRepo:  tamperUsecase,
+			t:           t,
 		},
 	}
 }
@@ -65,36 +68,36 @@ func (r *PanelTask) Run(ctx context.Context) error {
 	// 优化主数据库
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
 		app.Status = app.StatusFailed
-		r.log.Warn("failed to wal checkpoint database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to wal checkpoint database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
 	if err := r.db.Exec("VACUUM").Error; err != nil {
 		app.Status = app.StatusFailed
-		r.log.Warn("failed to vacuum database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to vacuum database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
 	// 优化辅助数据库
 	if err := r.scanRepo.VacuumDB(); err != nil {
-		r.log.Warn("failed to vacuum scan event database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to vacuum scan event database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 	if err := r.statRepo.VacuumDB(); err != nil {
-		r.log.Warn("failed to vacuum website stat database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to vacuum website stat database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 	if err := r.tamperRepo.VacuumDB(); err != nil {
-		r.log.Warn("failed to vacuum tamper database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to vacuum tamper database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 	if err := r.monitorRepo.VacuumDB(); err != nil {
-		r.log.Warn("failed to vacuum monitor database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to vacuum monitor database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 备份面板
 	if err := r.backupRepo.CreatePanel(ctx); err != nil {
-		r.log.Warn("failed to backup panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to backup panel"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 清理备份
 	if err := r.backupRepo.ClearExpired(r.backupRepo.GetDefaultPath(biz.BackupTypePanel), "panel_", 10); err != nil {
-		r.log.Warn("failed to clear backup", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear backup"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 非离线模式下任务
@@ -124,7 +127,7 @@ func (r *PanelTask) Run(ctx context.Context) error {
 func (r *PanelTask) updateCategories() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateCategories(); err != nil {
-			r.log.Warn("failed to update categories cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update categories cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 	})
 }
@@ -133,7 +136,7 @@ func (r *PanelTask) updateCategories() {
 func (r *PanelTask) updateApps() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateApps(); err != nil {
-			r.log.Warn("failed to update apps cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update apps cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 	})
 }
@@ -142,7 +145,7 @@ func (r *PanelTask) updateApps() {
 func (r *PanelTask) updateEnvironments() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateEnvironments(); err != nil {
-			r.log.Warn("failed to update environment cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update environment cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 	})
 }
@@ -151,7 +154,7 @@ func (r *PanelTask) updateEnvironments() {
 func (r *PanelTask) updateTemplates() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateTemplates(); err != nil {
-			r.log.Warn("failed to update template cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update template cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 	})
 }
@@ -188,9 +191,9 @@ func (r *PanelTask) updatePanel(ctx context.Context) {
 			url := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.URL)
 			checksum := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.Checksum)
 			if err = r.backupRepo.UpdatePanel(ctx, panel.Version, url, checksum, func(msg string) {
-				r.log.Info("panel updating", slog.String("type", biz.OperationTypePanel), slog.String("msg", msg))
+				r.log.Debug(r.t.Get("panel updating"), slog.String("type", biz.OperationTypePanel), slog.String("progress", msg))
 			}); err != nil {
-				r.log.Warn("failed to update panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				r.log.Warn(r.t.Get("failed to update panel"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				return
 			}
 			// 新流程非破坏性、storage 原地不动，失败无需 FixPanel；成功后由本入口负责重启
@@ -219,9 +222,9 @@ func (r *PanelTask) updateIPDB(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
-		r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to download ipdb"), slog.String("url", ipdbURL), slog.Any("err", err))
 		return
 	}
 
-	r.log.Info("ipdb updated", slog.String("url", ipdbURL), slog.String("path", destPath))
+	r.log.Info(r.t.Get("ipdb updated"), slog.String("url", ipdbURL), slog.String("path", destPath))
 }

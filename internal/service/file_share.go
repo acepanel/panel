@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 	stdos "os"
 	"path/filepath"
@@ -11,16 +12,21 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/config"
 )
 
 type FileShareService struct {
 	t             *gotext.Locale
+	log           *slog.Logger
+	conf          *config.Config
 	fileShareRepo *biz.FileShareUsecase
 }
 
-func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale) *FileShareService {
+func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale, log *slog.Logger, conf *config.Config) *FileShareService {
 	return &FileShareService{
 		t:             t,
+		log:           log,
+		conf:          conf,
 		fileShareRepo: fileShareUsecase,
 	}
 }
@@ -97,6 +103,10 @@ func (s *FileShareService) Download(w http.ResponseWriter, r *http.Request) {
 	if err != nil || info.IsDir() {
 		Error(w, http.StatusNotFound, s.t.Get("share link not found"))
 		return
+	}
+
+	if count {
+		s.log.Info(s.t.Get("file share downloaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(share.ID)), slog.String("path", share.Path), slog.String("ip", clientIP(r, s.conf.HTTP.IPHeader)))
 	}
 
 	render := chix.NewRender(w, r)

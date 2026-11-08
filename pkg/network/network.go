@@ -93,12 +93,15 @@ type Service struct {
 	apply    sync.Mutex
 	mu       sync.RWMutex
 	backend  backend
+	name     string
 	rollback func(context.Context) error
 	timer    *time.Timer
+	onExpire func(name string, err error)
 }
 
-func New() *Service {
-	return &Service{}
+// New 创建网卡配置管理服务，onExpire 在超时自动回滚后调用，err 为回滚错误
+func New(onExpire func(name string, err error)) *Service {
+	return &Service{onExpire: onExpire}
 }
 
 func (s *Service) Interfaces(ctx context.Context) (*Result, error) {
@@ -168,6 +171,7 @@ func (s *Service) Update(ctx context.Context, config Config) error {
 	}
 
 	s.mu.Lock()
+	s.name = config.Name
 	s.rollback = rollback
 	s.timer = time.AfterFunc(ConfirmTimeout, s.expire)
 	s.mu.Unlock()
@@ -201,7 +205,7 @@ func (s *Service) expire() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	_ = rollback(ctx)
+	s.onExpire(s.name, rollback(ctx))
 }
 
 // pending 是否有变更等待确认

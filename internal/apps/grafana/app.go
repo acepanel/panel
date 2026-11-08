@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -23,11 +25,15 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
-	return &App{t: t}
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return &App{
+		t:   t,
+		log: log,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -94,11 +100,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "grafana"), slog.String("path", s.configPath()))
 	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), 0644, "grafana")
+	common.SaveConfig(w, r, s.log, s.t, "grafana", s.configPath(), 0644, "grafana")
 }
 
 // GetConfigTune 获取 Grafana 配置调整参数
@@ -137,6 +144,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		LogMode:  get("log", "mode"),
 		LogLevel: get("log", "level"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "grafana"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -188,12 +197,28 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "grafana"),
+		slog.String("path", s.configPath()),
+		slog.String("http_port", req.HTTPPort),
+		slog.String("domain", req.Domain),
+		slog.String("protocol", req.Protocol),
+		slog.String("db_type", req.DBType),
+		slog.String("admin_user", req.AdminUser),
+	)
+
 	service.Success(w, nil)
 }
 
 // DataSourceList 获取数据源列表
 func (s *App) DataSourceList(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, s.getDatasourceList(s.readDatasources()))
+	list := s.getDatasourceList(s.readDatasources())
+
+	s.log.Info(s.t.Get("grafana datasource list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "grafana"), slog.String("path", s.datasourcePath()))
+
+	service.Success(w, list)
 }
 
 // CreateDataSource 创建数据源
@@ -226,6 +251,16 @@ func (s *App) CreateDataSource(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("grafana datasource created"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "grafana"),
+		slog.String("name", req.Name),
+		slog.String("datasource_type", req.Type),
+		slog.String("url", req.URL),
+		slog.Bool("is_default", req.IsDefault),
+	)
 
 	service.Success(w, nil)
 }
@@ -280,6 +315,17 @@ func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("grafana datasource updated"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "grafana"),
+		slog.String("old_name", oldName),
+		slog.String("name", req.Name),
+		slog.String("datasource_type", req.Type),
+		slog.String("url", req.URL),
+		slog.Bool("is_default", req.IsDefault),
+	)
+
 	service.Success(w, nil)
 }
 
@@ -306,6 +352,13 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("grafana datasource deleted"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "grafana"),
+		slog.String("name", name),
+	)
 
 	service.Success(w, nil)
 }

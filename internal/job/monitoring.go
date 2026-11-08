@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -17,18 +18,20 @@ type Monitoring struct {
 	log         *slog.Logger
 	monitorRepo *biz.MonitorUsecase
 	settingRepo *biz.SettingUsecase
+	t           *gotext.Locale
 	lastRun     time.Time
 	cleanedAt   time.Time
 }
 
 // NewMonitoring 构造系统监控任务
-func NewMonitoring(settingUsecase *biz.SettingUsecase, monitorUsecase *biz.MonitorUsecase, log *slog.Logger) Job {
+func NewMonitoring(settingUsecase *biz.SettingUsecase, monitorUsecase *biz.MonitorUsecase, t *gotext.Locale, log *slog.Logger) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &Monitoring{
 			log:         log,
 			monitorRepo: monitorUsecase,
 			settingRepo: settingUsecase,
+			t:           t,
 		},
 	}
 }
@@ -65,7 +68,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 	}
 
 	if err = r.monitorRepo.Create(&biz.Monitor{Info: info}); err != nil {
-		r.log.Warn("failed to create monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to create monitor record"), slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
 
@@ -84,7 +87,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil
 	}
 	if err = r.monitorRepo.ClearBefore(time.Now().AddDate(0, 0, -day)); err != nil {
-		r.log.Warn("failed to delete monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to delete monitor record"), slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
 	return nil

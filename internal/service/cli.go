@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"math/rand/v2"
 	stdos "os"
@@ -50,6 +51,7 @@ const passwordEnv = "ACEPANEL_PASSWORD"
 type CliService struct {
 	hr                 string
 	t                  *gotext.Locale
+	log                *slog.Logger
 	api                *api.API
 	conf               *config.Config
 	db                 *gorm.DB
@@ -69,11 +71,12 @@ type CliService struct {
 	validator          *validator.Validator
 }
 
-func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, v *validator.Validator) *CliService {
+func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger, v *validator.Validator) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
 		t:                  t,
+		log:                log,
 		conf:               conf,
 		db:                 db,
 		validator:          v,
@@ -334,6 +337,7 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 	if err := s.db.Save(user).Error; err != nil {
 		return errors.New(s.t.Get("Failed to change username: %v", err))
 	}
+	s.log.Info(s.t.Get("user username updated"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("old_username", oldUsername), slog.String("username", newUsername))
 
 	fmt.Println(s.t.Get("Username %s changed to %s successfully", oldUsername, newUsername))
 	return nil
@@ -369,6 +373,7 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 	if err = s.db.Save(user).Error; err != nil {
 		return errors.New(s.t.Get("Failed to change password: %v", err))
 	}
+	s.log.Info(s.t.Get("user password updated"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", user.Username))
 
 	fmt.Println(s.t.Get("Password for user %s changed successfully", username))
 	return nil
@@ -394,6 +399,7 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 		if err := s.db.Save(user).Error; err != nil {
 			return errors.New(s.t.Get("Failed to change 2FA status: %v", err))
 		}
+		s.log.Info(s.t.Get("user 2fa updated"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", user.Username), slog.Bool("enabled", false))
 		fmt.Println(s.t.Get("2FA disabled for user %s", username))
 		return nil
 	}
@@ -409,7 +415,7 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return errors.New(s.t.Get("Failed to read input: %v", err))
 	}
-	if err = s.userRepo.UpdateTwoFA(user.ID, strings.TrimSpace(code), secret); err != nil {
+	if err = s.userRepo.UpdateTwoFA(ctx, user.ID, strings.TrimSpace(code), secret); err != nil {
 		return errors.New(s.t.Get("Failed to update 2FA: %v", err))
 	}
 
@@ -433,6 +439,7 @@ func (s *CliService) UserPasskey(ctx context.Context, cmd *cli.Command) error {
 	if err := s.userPasskeyRepo.DeleteAllByUserID(user.ID); err != nil {
 		return errors.New(s.t.Get("Failed to clear passkeys: %v", err))
 	}
+	s.log.Warn(s.t.Get("user passkeys cleared"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", user.Username))
 
 	fmt.Println(s.t.Get("All passkeys cleared for user %s", username))
 	return nil
@@ -1005,7 +1012,7 @@ func (s *CliService) DatabaseDeleteServer(ctx context.Context, cmd *cli.Command)
 		return err
 	}
 
-	if err = s.databaseServerRepo.Delete(server.ID); err != nil {
+	if err = s.databaseServerRepo.Delete(ctx, server.ID); err != nil {
 		return err
 	}
 

@@ -2,11 +2,14 @@ package minio
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
@@ -14,10 +17,16 @@ import (
 
 const envPath = "/etc/default/minio"
 
-type App struct{}
+type App struct {
+	t   *gotext.Locale
+	log *slog.Logger
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return &App{
+		t:   t,
+		log: log,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -31,6 +40,7 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetEnv(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "minio"), slog.String("path", envPath))
 	common.ServeConfig(w, envPath)
 }
 
@@ -41,5 +51,5 @@ func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	common.WriteConfig(w, r, envPath, req.Env, 0600, "minio")
+	common.WriteConfig(w, r, s.log, s.t, "minio", envPath, req.Env, 0600, "minio")
 }

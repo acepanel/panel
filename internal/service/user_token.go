@@ -30,7 +30,7 @@ func (s *UserTokenService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userTokens, total, err := s.userTokenRepo.List(req.UserID, req.Page, req.Limit)
+	userTokens, total, err := s.userTokenRepo.List(r.Context(), req.UserID, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -59,7 +59,7 @@ func (s *UserTokenService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userToken, err := s.userTokenRepo.Create(req.UserID, req.IPs, expiredAt)
+	userToken, err := s.userTokenRepo.Create(r.Context(), req.UserID, req.IPs, expiredAt)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -94,7 +94,7 @@ func (s *UserTokenService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userToken, err := s.userTokenRepo.Update(req.ID, req.IPs, expiredAt)
+	userToken, err := s.userTokenRepo.Update(r.Context(), req.ID, req.IPs, expiredAt)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -110,7 +110,7 @@ func (s *UserTokenService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userTokenRepo.Delete(req.ID); err != nil {
+	if err = s.userTokenRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -3,6 +3,7 @@ package openlitespeed
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -26,12 +28,14 @@ import (
 const rtReport = "/tmp/lshttpd/.rtreport"
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -53,11 +57,14 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(openlitespeed.ServerRoot + "/conf/httpd_config.conf")
+	path := openlitespeed.ServerRoot + "/conf/httpd_config.conf"
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -69,7 +76,8 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(openlitespeed.ServerRoot+"/conf/httpd_config.conf", req.Config, 0600); err != nil {
+	path := openlitespeed.ServerRoot + "/conf/httpd_config.conf"
+	if err = io.Write(path, req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -78,6 +86,8 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", path))
 
 	service.Success(w, nil)
 }
@@ -91,6 +101,8 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", openlitespeed.ServerRoot+"/logs/error.log"))
 
 	service.Success(w, nil)
 }
@@ -173,6 +185,8 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("openlitespeed php protocol updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.Uint64("php_version", uint64(req.Version)), slog.Bool("lsapi", req.LSAPI))
+
 	service.Success(w, nil)
 }
 
@@ -182,6 +196,8 @@ func (s *App) GetRealIP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("openlitespeed real ip viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"))
 
 	service.Success(w, realIP)
 }
@@ -201,6 +217,8 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("openlitespeed real ip updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.Bool("enabled", req.Enabled), slog.Any("trusted", req.Trusted))
 
 	service.Success(w, nil)
 }

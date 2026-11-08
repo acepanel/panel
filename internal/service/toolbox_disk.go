@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
@@ -12,17 +13,20 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 type ToolboxDiskService struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewToolboxDiskService(t *gotext.Locale) *ToolboxDiskService {
+func NewToolboxDiskService(t *gotext.Locale, log *slog.Logger) *ToolboxDiskService {
 	return &ToolboxDiskService{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -67,6 +71,7 @@ func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Info(s.t.Get("disk list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"disks": lsblkData.BlockDevices,
 		"df":    dfMap,
@@ -87,6 +92,7 @@ func (s *ToolboxDiskService) GetPartitions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	s.log.Info(s.t.Get("partition list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device))
 	Success(w, output)
 }
 
@@ -157,6 +163,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Info(s.t.Get("partition mounted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device), slog.String("path", req.Path), slog.Bool("write_fstab", req.WriteFstab), slog.String("mount_option", req.MountOption))
 	Success(w, nil)
 }
 
@@ -173,6 +180,7 @@ func (s *ToolboxDiskService) Umount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("partition unmounted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	Success(w, nil)
 }
 
@@ -205,6 +213,7 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("partition formatted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device), slog.String("fs_type", req.FsType))
 	Success(w, nil)
 }
 
@@ -282,6 +291,7 @@ func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("disk initialized"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device), slog.String("partition", partDevice), slog.String("fs_type", req.FsType))
 	Success(w, nil)
 }
 
@@ -298,6 +308,7 @@ func (s *ToolboxDiskService) GetLVMInfo(w http.ResponseWriter, r *http.Request) 
 	vgs := s.parseLVMOutput(vgOutput)
 	lvs := s.parseLVMOutput(lvOutput)
 
+	s.log.Info(s.t.Get("lvm info viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"pvs": pvs,
 		"vgs": vgs,
@@ -318,6 +329,7 @@ func (s *ToolboxDiskService) CreatePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("physical volume created"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device))
 	Success(w, nil)
 }
 
@@ -340,6 +352,7 @@ func (s *ToolboxDiskService) CreateVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("volume group created"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("name", req.Name), slog.Any("devices", req.Devices))
 	Success(w, nil)
 }
 
@@ -363,6 +376,7 @@ func (s *ToolboxDiskService) CreateLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("logical volume created"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("name", req.Name), slog.String("vg_name", req.VGName), slog.Int("size_gb", req.Size))
 	Success(w, nil)
 }
 
@@ -379,6 +393,7 @@ func (s *ToolboxDiskService) RemovePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("physical volume deleted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device))
 	Success(w, nil)
 }
 
@@ -395,6 +410,7 @@ func (s *ToolboxDiskService) RemoveVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("volume group deleted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("name", req.Name))
 	Success(w, nil)
 }
 
@@ -411,6 +427,7 @@ func (s *ToolboxDiskService) RemoveLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("logical volume deleted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	Success(w, nil)
 }
 
@@ -481,6 +498,7 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Info(s.t.Get("logical volume extended"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.Int("size_gb", req.Size), slog.Bool("resize", req.Resize))
 	Success(w, nil)
 }
 
@@ -548,6 +566,7 @@ func (s *ToolboxDiskService) GetFstab(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Info(s.t.Get("fstab list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, entries)
 }
 
@@ -578,6 +597,7 @@ func (s *ToolboxDiskService) DeleteFstab(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	s.log.Warn(s.t.Get("fstab entry deleted"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("mount_point", req.MountPoint))
 	Success(w, nil)
 }
 
@@ -665,41 +685,29 @@ func (s *ToolboxDiskService) GetSmartInfo(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	s.log.Info(s.t.Get("smart info viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("device", req.Device))
 	Success(w, result)
 }
 
 // GetRaidInfo 获取 RAID 阵列状态
 func (s *ToolboxDiskService) GetRaidInfo(w http.ResponseWriter, r *http.Request) {
-	// 按优先级检测 RAID 类型
-	// 1. 软件 RAID (mdadm)
-	if info := s.detectMdadm(r.Context()); info != nil {
-		Success(w, info)
-		return
-	}
-	// 2. MegaRAID (LSI/Broadcom)
-	if info := s.detectMegaRAID(r.Context()); info != nil {
-		Success(w, info)
-		return
-	}
-	// 3. HP Smart Array
-	if info := s.detectHPSA(r.Context()); info != nil {
-		Success(w, info)
-		return
-	}
-	// 4. Adaptec
-	if info := s.detectAdaptec(r.Context()); info != nil {
-		Success(w, info)
-		return
-	}
-
-	// 未检测到任何 RAID
-	Success(w, chix.M{
+	info := chix.M{
 		"available":   false,
 		"message":     s.t.Get("no RAID configuration detected"),
 		"type":        "",
 		"controllers": []any{},
 		"arrays":      []any{},
-	})
+	}
+	// 按优先级检测 RAID 类型：软件 RAID (mdadm)、MegaRAID (LSI/Broadcom)、HP Smart Array、Adaptec
+	for _, detect := range []func(context.Context) chix.M{s.detectMdadm, s.detectMegaRAID, s.detectHPSA, s.detectAdaptec} {
+		if found := detect(r.Context()); found != nil {
+			info = found
+			break
+		}
+	}
+
+	s.log.Info(s.t.Get("raid info viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
+	Success(w, info)
 }
 
 // raidArray RAID 阵列信息

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -34,6 +35,7 @@ type FirewallScan struct {
 	log          *slog.Logger
 	setting      *biz.SettingUsecase
 	scanRepo     *biz.ScanEventUsecase
+	t            *gotext.Locale
 	scanner      *scan.Scanner
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
@@ -48,13 +50,14 @@ type FirewallScan struct {
 }
 
 // NewFirewallScan 构造防火墙扫描感知任务
-func NewFirewallScan(scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, log *slog.Logger) Job {
+func NewFirewallScan(scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) Job {
 	return Job{
 		Spec: "*/2 * * * *",
 		Task: &FirewallScan{
 			log:        log,
 			setting:    settingUsecase,
 			scanRepo:   scanEventUsecase,
+			t:          t,
 			buffer:     make(map[string]*biz.ScanEvent),
 			ipCounters: make(map[string]*ipCounter),
 			blockedIPs: make(map[string]time.Time),
@@ -78,7 +81,7 @@ func (r *FirewallScan) Run(ctx context.Context) error {
 	r.ensureScanner()
 
 	// 热更新 GeoIP
-	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.log)
+	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.t, r.log)
 
 	// flush 缓冲到数据库
 	r.flush()
@@ -99,7 +102,7 @@ func (r *FirewallScan) ensureScanner() {
 
 	if !scan.Supported() {
 		if !r.unsupportedLogged {
-			r.log.Warn("eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)")
+			r.log.Warn(r.t.Get("eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"))
 			r.unsupportedLogged = true
 		}
 		return
@@ -107,13 +110,13 @@ func (r *FirewallScan) ensureScanner() {
 
 	setting, err := r.scanRepo.GetSetting()
 	if err != nil {
-		r.log.Warn("failed to get scan setting", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to get scan setting"), slog.Any("err", err))
 		return
 	}
 
-	scanner, err := scan.New(setting.Interfaces, r.log)
+	scanner, err := scan.New(setting.Interfaces, r.t, r.log)
 	if err != nil {
-		r.log.Warn("failed to start eBPF scan detector", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to start eBPF scan detector"), slog.Any("err", err))
 		return
 	}
 
@@ -201,7 +204,7 @@ func (r *FirewallScan) flush() {
 	}
 
 	if err := r.scanRepo.Upsert(events); err != nil {
-		r.log.Warn("failed to upsert scan events", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert scan events"), slog.Any("err", err))
 		app.Health.Report(healthKeyScanDB, app.HealthLevelError, err.Error())
 		return
 	}
@@ -225,7 +228,7 @@ func (r *FirewallScan) autoBlock(ctx context.Context) {
 	running, err := fw.Status(ctx)
 	if err != nil {
 		// 查询失败不等于防火墙没运行，清空计数器会丢掉本轮窗口内累计的扫描次数
-		r.log.Warn("failed to get firewall status", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to get firewall status"), slog.Any("err", err))
 		return
 	}
 	if !running {
@@ -289,19 +292,19 @@ func (r *FirewallScan) autoBlock(ctx context.Context) {
 			Strategy:  firewall.StrategyDrop,
 			Direction: firewall.DirectionIn,
 		}, firewall.OperationRemove); err != nil {
-			r.log.Warn("failed to unblock IP", slog.String("ip", ip), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to unblock IP"), slog.String("ip", ip), slog.Any("err", err))
 			continue
 		}
 		r.mu.Lock()
 		delete(r.blockedIPs, ip)
 		r.mu.Unlock()
-		r.log.Info("auto unblocked IP (expired)", slog.String("ip", ip), slog.Uint64("duration_hours", uint64(setting.BlockDuration)))
+		r.log.Info(r.t.Get("auto unblocked IP (expired)"), slog.String("ip", ip), slog.Uint64("duration_hours", uint64(setting.BlockDuration)))
 	}
 
 	// 执行屏蔽
 	for _, item := range toBlock {
 		if isWhitelisted(item.ip, whitelist) {
-			r.log.Info("skip whitelisted IP", slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)))
+			r.log.Info(r.t.Get("skip whitelisted IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)))
 			continue
 		}
 		family := ipFamily(item.ip)
@@ -311,13 +314,13 @@ func (r *FirewallScan) autoBlock(ctx context.Context) {
 			Strategy:  firewall.StrategyDrop,
 			Direction: firewall.DirectionIn,
 		}, firewall.OperationAdd); err != nil {
-			r.log.Warn("failed to auto block IP", slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to auto block IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Any("err", err))
 			continue
 		}
 		r.mu.Lock()
 		r.blockedIPs[item.ip] = now
 		r.mu.Unlock()
-		r.log.Info("auto blocked IP", slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Uint64("threshold", uint64(setting.BlockThreshold)), slog.Uint64("window_min", uint64(setting.BlockWindow)))
+		r.log.Info(r.t.Get("auto blocked IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Uint64("threshold", uint64(setting.BlockThreshold)), slog.Uint64("window_min", uint64(setting.BlockWindow)))
 	}
 }
 
@@ -386,6 +389,6 @@ func (r *FirewallScan) cleanup() {
 
 	cutoff := time.Now().AddDate(0, 0, -day).Format(time.DateOnly)
 	if err = r.scanRepo.ClearBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired scan data", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired scan data"), slog.Any("err", err))
 	}
 }

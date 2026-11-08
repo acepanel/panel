@@ -20,6 +20,14 @@ func (r *fileFavoriteRepo) List() ([]*biz.FileFavorite, error) {
 	return favorites, err
 }
 
+func (r *fileFavoriteRepo) Get(id uint) (*biz.FileFavorite, error) {
+	favorite := new(biz.FileFavorite)
+	if err := r.db.First(favorite, id).Error; err != nil {
+		return nil, err
+	}
+	return favorite, nil
+}
+
 // Create 新收藏追加到末尾
 func (r *fileFavoriteRepo) Create(path, remark string) (*biz.FileFavorite, error) {
 	var maxSort int

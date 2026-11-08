@@ -27,6 +27,33 @@ interface LogEntry {
 const limit = ref(200)
 const selectedDate = ref('')
 const selectedLevel = ref('')
+const keyword = ref('')
+
+// 操作类型显示名，键对应后端 biz.OperationType 常量
+const typeLabels: Record<string, string> = {
+  panel: $gettext('Panel'),
+  website: $gettext('Website'),
+  database: $gettext('Database'),
+  database_user: $gettext('Database User'),
+  database_server: $gettext('Database Server'),
+  project: $gettext('Project'),
+  cert: $gettext('Certificate'),
+  file: $gettext('File'),
+  app: $gettext('App'),
+  cron: $gettext('Cron'),
+  backup: $gettext('Backup'),
+  container: $gettext('Container'),
+  firewall: $gettext('Firewall'),
+  safe: $gettext('Security'),
+  ssh: $gettext('SSH'),
+  setting: $gettext('Setting'),
+  monitor: $gettext('Monitor'),
+  webhook: $gettext('Webhook'),
+  user: $gettext('User'),
+  environment: $gettext('Environment'),
+  toolbox: $gettext('Toolbox'),
+  system: $gettext('System'),
+}
 
 // 日志级别选项
 const levelOptions = [
@@ -57,9 +84,12 @@ const {
   loading,
   data,
   send: refresh,
-} = useRequest(() => log.list('app', limit.value, selectedDate.value, selectedLevel.value), {
-  initialData: [],
-})
+} = useRequest(
+  () => log.list('app', limit.value, selectedDate.value, selectedLevel.value, keyword.value),
+  {
+    initialData: [],
+  },
+)
 
 // 表格列配置
 const columns = [
@@ -91,7 +121,7 @@ const columns = [
     key: 'type',
     width: 120,
     render: (row: LogEntry) => {
-      return row.type || '-'
+      return row.type ? typeLabels[row.type] || row.type : '-'
     },
   },
   {
@@ -220,6 +250,14 @@ const handleCleaned = () => {
           @update:value="handleRefresh"
         />
       </div>
+      <n-input
+        v-model:value="keyword"
+        :placeholder="$gettext('Search')"
+        clearable
+        class="w-60"
+        @keyup.enter="handleRefresh"
+        @clear="handleRefresh"
+      />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>

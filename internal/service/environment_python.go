@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -15,12 +16,14 @@ import (
 
 type EnvironmentPythonService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentPythonService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentPythonService {
+func NewEnvironmentPythonService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale, log *slog.Logger) *EnvironmentPythonService {
 	return &EnvironmentPythonService{
 		t:               t,
+		log:             log,
 		environmentRepo: environmentUsecase,
 	}
 }
@@ -42,6 +45,8 @@ func (s *EnvironmentPythonService) SetCli(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "python"), slog.String("slug", req.Slug), slog.String("bin_path", binPath))
+
 	Success(w, nil)
 }
 
@@ -62,6 +67,8 @@ func (s *EnvironmentPythonService) GetMirror(w http.ResponseWriter, r *http.Requ
 		mirror = "https://pypi.org/simple"
 	}
 
+	s.log.Info(s.t.Get("python mirror viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug))
+
 	Success(w, strings.TrimSpace(mirror))
 }
 
@@ -81,6 +88,8 @@ func (s *EnvironmentPythonService) SetMirror(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("python mirror set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug), slog.String("mirror", redactURL(req.Mirror)))
 
 	Success(w, nil)
 }

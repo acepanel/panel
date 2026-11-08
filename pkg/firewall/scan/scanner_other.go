@@ -5,6 +5,8 @@ package scan
 import (
 	"errors"
 	"log/slog"
+
+	"github.com/leonelquinteros/gotext"
 )
 
 // Scanner eBPF 扫描检测器（非 Linux 平台占位）
@@ -16,7 +18,7 @@ func Supported() bool {
 }
 
 // New 非 Linux 平台不支持
-func New(_ []string, _ *slog.Logger) (*Scanner, error) {
+func New(_ []string, _ *gotext.Locale, _ *slog.Logger) (*Scanner, error) {
 	return nil, errors.New("not support eBPF")
 }
 

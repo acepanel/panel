@@ -137,7 +137,7 @@ func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccou
 	}
 
 	// 记录日志
-	uc.log.Info("cert account created", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("ca", req.CA), slog.String("email", req.Email))
+	uc.log.Info(uc.t.Get("cert account created"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("ca", req.CA), slog.String("email", req.Email))
 
 	return account, nil
 }
@@ -199,18 +199,23 @@ func (uc *CertAccountUsecase) Update(ctx context.Context, req *request.CertAccou
 	}
 
 	// 记录日志
-	uc.log.Info("cert account updated", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("ca", req.CA))
+	uc.log.Info(uc.t.Get("cert account updated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("ca", req.CA), slog.String("email", req.Email), slog.String("key_type", req.KeyType))
 
 	return nil
 }
 
 func (uc *CertAccountUsecase) Delete(ctx context.Context, id uint) error {
-	if err := uc.repo.Delete(id); err != nil {
+	account, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(id); err != nil {
 		return err
 	}
 
 	// 记录日志
-	uc.log.Info("cert account deleted", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+	uc.log.Warn(uc.t.Get("cert account deleted"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("email", account.Email), slog.String("ca", account.CA))
 
 	return nil
 }

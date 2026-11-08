@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/ntp"
@@ -24,12 +26,14 @@ import (
 )
 
 type ToolboxSystemService struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewToolboxSystemService(t *gotext.Locale) *ToolboxSystemService {
+func NewToolboxSystemService(t *gotext.Locale, log *slog.Logger) *ToolboxSystemService {
 	return &ToolboxSystemService{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -58,6 +62,7 @@ func (s *ToolboxSystemService) GetSWAP(w http.ResponseWriter, r *http.Request) {
 		free = tools.FormatBytes(cast.ToFloat64(match[3]) * 1024)
 	}
 
+	s.log.Info(s.t.Get("swap viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", filepath.Join(app.Root, "swap")))
 	Success(w, chix.M{
 		"total": total,
 		"size":  size,
@@ -135,6 +140,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	s.log.Info(s.t.Get("swap updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int64("size", req.Size), slog.String("path", filepath.Join(app.Root, "swap")))
 	Success(w, nil)
 }
 
@@ -160,6 +166,7 @@ func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Reques
 		return types.LV{Label: z, Value: z}
 	})
 
+	s.log.Info(s.t.Get("timezone viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"timezone":  match[1],
 		"timezones": zonesList,
@@ -179,6 +186,7 @@ func (s *ToolboxSystemService) UpdateTimezone(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	s.log.Info(s.t.Get("timezone updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("timezone", req.Timezone))
 	Success(w, nil)
 }
 
@@ -195,6 +203,7 @@ func (s *ToolboxSystemService) UpdateTime(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	s.log.Info(s.t.Get("system time updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("system_time", req.Time.Format(time.DateTime)))
 	Success(w, nil)
 }
 
@@ -222,6 +231,7 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.log.Info(s.t.Get("system time synced"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("server", req.Server), slog.String("system_time", now.Format(time.DateTime)))
 	Success(w, nil)
 }
 
@@ -233,6 +243,7 @@ func (s *ToolboxSystemService) GetNTPServers(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	s.log.Info(s.t.Get("ntp servers viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"service_type": config.ServiceType,
 		"servers":      config.Servers,
@@ -253,6 +264,7 @@ func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	s.log.Info(s.t.Get("ntp servers updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Any("servers", req.Servers))
 	Success(w, nil)
 }
 
@@ -262,6 +274,7 @@ func (s *ToolboxSystemService) GetHostname(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		hostname, _ = io.Read("/etc/hostname")
 	}
+	s.log.Info(s.t.Get("hostname viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, strings.TrimSpace(hostname))
 }
 
@@ -281,12 +294,14 @@ func (s *ToolboxSystemService) UpdateHostname(w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	s.log.Info(s.t.Get("hostname updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("hostname", req.Hostname))
 	Success(w, nil)
 }
 
 // GetHosts 获取 hosts 信息
 func (s *ToolboxSystemService) GetHosts(w http.ResponseWriter, r *http.Request) {
 	hosts, _ := io.Read("/etc/hosts")
+	s.log.Info(s.t.Get("hosts file viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", "/etc/hosts"))
 	Success(w, hosts)
 }
 
@@ -303,5 +318,6 @@ func (s *ToolboxSystemService) UpdateHosts(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	s.log.Info(s.t.Get("hosts file saved"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", "/etc/hosts"))
 	Success(w, nil)
 }

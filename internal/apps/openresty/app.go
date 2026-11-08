@@ -2,8 +2,10 @@ package openresty
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -14,9 +16,9 @@ type App struct {
 	nginx *nginx.App
 }
 
-func NewApp(nginxApp *nginx.App) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		nginx: nginxApp,
+		nginx: nginx.New("openresty", t, log),
 	}
 }
 

@@ -26,7 +26,7 @@ func (s *NotifyService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channels, total, err := s.notifyRepo.List(req.Page, req.Limit)
+	channels, total, err := s.notifyRepo.List(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -55,7 +55,7 @@ func (s *NotifyService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channel, err := s.notifyRepo.Get(req.ID)
+	channel, err := s.notifyRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -126,7 +126,7 @@ func (s *NotifyService) Test(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *NotifyService) GetSetting(w http.ResponseWriter, r *http.Request) {
-	setting, err := s.notifyRepo.GetSetting()
+	setting, err := s.notifyRepo.GetSetting(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -142,7 +142,7 @@ func (s *NotifyService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.notifyRepo.UpdateSetting(req); err != nil {
+	if err = s.notifyRepo.UpdateSetting(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

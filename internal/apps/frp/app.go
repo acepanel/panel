@@ -3,12 +3,16 @@ package frp
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/samber/lo"
 
+	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -16,12 +20,14 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -59,11 +65,14 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := io.Read(confPath(req.Name))
+	path := confPath(req.Name)
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", req.Name), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -75,17 +84,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(confPath(req.Name), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(r.Context(), req.Name); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.WriteConfig(w, r, s.log, s.t, "frp", confPath(req.Name), req.Config, 0644, req.Name)
 }
 
 func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -111,6 +110,8 @@ func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
 	if matches := groupCaptureRegex.FindStringSubmatch(content); len(matches) > 1 {
 		userInfo.Group = matches[1]
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", req.Name), slog.String("path", servicePath))
 
 	service.Success(w, userInfo)
 }
@@ -165,12 +166,15 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("frp service user updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", req.Name), slog.String("user", req.User), slog.String("group", req.Group))
+
 	service.Success(w, nil)
 }
 
 // GetServer 获取 frps 可视化参数
 func (s *App) GetServer(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(confPath("frps"))
+	path := confPath("frps")
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -178,6 +182,8 @@ func (s *App) GetServer(w http.ResponseWriter, r *http.Request) {
 
 	tune := new(ServerTune)
 	readTune(config, serverFields(tune))
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frps"), slog.String("path", path))
 
 	service.Success(w, tune)
 }
@@ -207,12 +213,15 @@ func (s *App) UpdateServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frps"), slog.String("path", path), slog.String("bind_port", req.BindPort), slog.String("vhost_http_port", req.VhostHTTPPort), slog.String("vhost_https_port", req.VhostHTTPSPort))
+
 	service.Success(w, nil)
 }
 
 // GetClient 获取 frpc 可视化公共参数
 func (s *App) GetClient(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(confPath("frpc"))
+	path := confPath("frpc")
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -220,6 +229,8 @@ func (s *App) GetClient(w http.ResponseWriter, r *http.Request) {
 
 	tune := new(ClientTune)
 	readTune(config, clientFields(tune))
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frpc"), slog.String("path", path))
 
 	service.Success(w, tune)
 }
@@ -249,6 +260,8 @@ func (s *App) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frpc"), slog.String("path", path), slog.String("server_addr", req.ServerAddr), slog.String("server_port", req.ServerPort))
+
 	service.Success(w, nil)
 }
 
@@ -261,6 +274,8 @@ func (s *App) Proxies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paged, total := service.Paginate(r, confD.Proxies)
+
+	s.log.Info(s.t.Get("frp proxy list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"))
 
 	service.Success(w, chix.M{
 		"total": total,
@@ -281,7 +296,14 @@ func (s *App) CreateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
+	if err = s.save(r.Context(), proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}}); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("frp proxy created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("proxy_type", req.Type), slog.String("local_ip", req.LocalIP), slog.Int("local_port", req.LocalPort), slog.Int("remote_port", req.RemotePort), slog.Any("custom_domains", req.CustomDomains), slog.String("subdomain", req.Subdomain))
+
+	service.Success(w, nil)
 }
 
 // GetProxy 获取单个代理
@@ -292,11 +314,14 @@ func (s *App) GetProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confD, err := readConfD(itemPath(proxyPrefix, req.Name))
+	path := itemPath(proxyPrefix, req.Name)
+	confD, err := readConfD(path)
 	if err != nil || len(confD.Proxies) == 0 {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
 		return
 	}
+
+	s.log.Info(s.t.Get("frp proxy viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("path", path))
 
 	service.Success(w, confD.Proxies[0])
 }
@@ -314,7 +339,14 @@ func (s *App) UpdateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
+	if err = s.save(r.Context(), proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}}); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("frp proxy updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("proxy_type", req.Type), slog.String("local_ip", req.LocalIP), slog.Int("local_port", req.LocalPort), slog.Int("remote_port", req.RemotePort), slog.Any("custom_domains", req.CustomDomains), slog.Bool("enabled", lo.FromPtrOr(req.Enabled, true)))
+
+	service.Success(w, nil)
 }
 
 // DeleteProxy 删除代理
@@ -327,7 +359,8 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 
 	// 配置已删除，重启不跟随请求取消，否则代理仍在运行的 frpc 里生效
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(itemPath(proxyPrefix, req.Name)); err != nil {
+	path := itemPath(proxyPrefix, req.Name)
+	if err = io.Remove(path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -336,6 +369,8 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("frp proxy deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("path", path))
 
 	service.Success(w, nil)
 }
@@ -349,6 +384,8 @@ func (s *App) Visitors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paged, total := service.Paginate(r, confD.Visitors)
+
+	s.log.Info(s.t.Get("frp visitor list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"))
 
 	service.Success(w, chix.M{
 		"total": total,
@@ -369,7 +406,14 @@ func (s *App) CreateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
+	if err = s.save(r.Context(), visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}}); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("frp visitor created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("visitor_type", req.Type), slog.String("server_name", req.ServerName), slog.String("bind_addr", req.BindAddr), slog.Int("bind_port", req.BindPort))
+
+	service.Success(w, nil)
 }
 
 // GetVisitor 获取单个访问者
@@ -380,11 +424,14 @@ func (s *App) GetVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confD, err := readConfD(itemPath(visitorPrefix, req.Name))
+	path := itemPath(visitorPrefix, req.Name)
+	confD, err := readConfD(path)
 	if err != nil || len(confD.Visitors) == 0 {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
 		return
 	}
+
+	s.log.Info(s.t.Get("frp visitor viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("path", path))
 
 	service.Success(w, confD.Visitors[0])
 }
@@ -402,7 +449,14 @@ func (s *App) UpdateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
+	if err = s.save(r.Context(), visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}}); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("frp visitor updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("visitor_type", req.Type), slog.String("server_name", req.ServerName), slog.String("bind_addr", req.BindAddr), slog.Int("bind_port", req.BindPort), slog.Bool("enabled", lo.FromPtrOr(req.Enabled, true)))
+
+	service.Success(w, nil)
 }
 
 // DeleteVisitor 删除访问者
@@ -414,7 +468,8 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(itemPath(visitorPrefix, req.Name)); err != nil {
+	path := itemPath(visitorPrefix, req.Name)
+	if err = io.Remove(path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -424,19 +479,15 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("frp visitor deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("name", req.Name), slog.String("path", path))
+
 	service.Success(w, nil)
 }
 
-func (s *App) save(ctx context.Context, w http.ResponseWriter, prefix, name string, confD ConfD) {
+func (s *App) save(ctx context.Context, prefix, name string, confD ConfD) error {
 	if err := writeConfD(prefix, name, confD); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+		return err
 	}
 
-	if err := systemctl.Restart(ctx, "frpc"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	return systemctl.Restart(ctx, "frpc")
 }

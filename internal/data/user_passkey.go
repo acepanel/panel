@@ -24,6 +24,14 @@ func (r userPasskeyRepo) List(userID uint) ([]*biz.UserPasskey, error) {
 	return passkeys, nil
 }
 
+func (r userPasskeyRepo) Get(userID, id uint) (*biz.UserPasskey, error) {
+	passkey := new(biz.UserPasskey)
+	if err := r.db.Where("user_id = ? AND id = ?", userID, id).First(passkey).Error; err != nil {
+		return nil, err
+	}
+	return passkey, nil
+}
+
 func (r userPasskeyRepo) Create(passkey *biz.UserPasskey) error {
 	return r.db.Create(passkey).Error
 }

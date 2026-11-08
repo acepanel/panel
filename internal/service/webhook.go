@@ -7,15 +7,18 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/config"
 )
 
 type WebHookService struct {
 	webhookRepo *biz.WebHookUsecase
+	conf        *config.Config
 }
 
-func NewWebHookService(webHookUsecase *biz.WebHookUsecase) *WebHookService {
+func NewWebHookService(webHookUsecase *biz.WebHookUsecase, conf *config.Config) *WebHookService {
 	return &WebHookService{
 		webhookRepo: webHookUsecase,
+		conf:        conf,
 	}
 }
 
@@ -26,7 +29,7 @@ func (s *WebHookService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	webhooks, total, err := s.webhookRepo.List(req.Page, req.Limit)
+	webhooks, total, err := s.webhookRepo.List(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -45,7 +48,7 @@ func (s *WebHookService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	webhook, err := s.webhookRepo.Get(req.ID)
+	webhook, err := s.webhookRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -115,7 +118,7 @@ func (s *WebHookService) Call(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := s.webhookRepo.Call(req.Key)
+	output, err := s.webhookRepo.Call(r.Context(), webhook, clientIP(r, s.conf.HTTP.IPHeader))
 	if err != nil {
 		if webhook.Raw {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")

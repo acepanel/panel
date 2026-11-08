@@ -25,7 +25,7 @@ func NewMonitorService(monitorUsecase *biz.MonitorUsecase, settingUsecase *biz.S
 }
 
 func (s *MonitorService) GetSetting(w http.ResponseWriter, r *http.Request) {
-	setting, err := s.monitorRepo.GetSetting()
+	setting, err := s.monitorRepo.GetSetting(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -41,7 +41,7 @@ func (s *MonitorService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.monitorRepo.UpdateSetting(req); err != nil {
+	if err = s.monitorRepo.UpdateSetting(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -50,7 +50,7 @@ func (s *MonitorService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *MonitorService) Clear(w http.ResponseWriter, r *http.Request) {
-	if err := s.monitorRepo.Clear(); err != nil {
+	if err := s.monitorRepo.Clear(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

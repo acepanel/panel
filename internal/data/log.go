@@ -40,10 +40,12 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 // List 获取日志列表
 // date 格式为 YYYY-MM-DD，空字符串表示当天日志
 // level 为日志级别（DEBUG/INFO/WARN/ERROR），空字符串表示不过滤
-func (r *logRepo) List(logType string, limit int, date, level string) ([]biz.LogEntry, error) {
+// keyword 不区分大小写匹配整条日志，空字符串表示不过滤
+func (r *logRepo) List(logType string, limit int, date, level, keyword string) ([]biz.LogEntry, error) {
 	if date == "" {
 		date = time.Now().Format(time.DateOnly)
 	}
+	keyword = strings.ToLower(keyword)
 	files, err := r.files(logType)
 	if err != nil {
 		return nil, err
@@ -60,6 +62,9 @@ func (r *logRepo) List(logType string, limit int, date, level string) ([]biz.Log
 			return nil, err
 		}
 		for j := len(lines) - 1; j >= 0 && len(entries) < limit; j-- {
+			if keyword != "" && !strings.Contains(strings.ToLower(lines[j]), keyword) {
+				continue
+			}
 			entry, err := r.parseLine(lines[j], logType)
 			if err != nil || (level != "" && entry.Level != level) {
 				continue

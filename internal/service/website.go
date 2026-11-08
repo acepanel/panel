@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 	"slices"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -19,13 +21,15 @@ import (
 
 type WebsiteService struct {
 	t           *gotext.Locale
+	log         *slog.Logger
 	websiteRepo *biz.WebsiteUsecase
 	settingRepo *biz.SettingUsecase
 }
 
-func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale) *WebsiteService {
+func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale, log *slog.Logger) *WebsiteService {
 	return &WebsiteService{
 		t:           t,
+		log:         log,
 		websiteRepo: websiteUsecase,
 		settingRepo: settingUsecase,
 	}
@@ -54,6 +58,8 @@ func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request
 	notFound, _ := io.Read(filepath.Join(htmlPath, "404.html"))
 	tlsVersions, _ := s.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
 	listenIPv6, _ := s.settingRepo.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
+
+	s.log.Info(s.t.Get("website default config viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 
 	Success(w, chix.M{
 		"index":        index,
@@ -230,6 +236,8 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	s.log.Info(s.t.Get("website default site updated"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(req.ID)), slog.String("name", lo.FromPtr(target).Name))
+
 	Success(w, nil)
 }
 
@@ -262,6 +270,8 @@ func (s *WebsiteService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("website list viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("website_type", req.Type), slog.String("keyword", req.Keyword), slog.Uint64("project_id", uint64(req.ProjectID)), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -306,6 +316,8 @@ func (s *WebsiteService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("website config viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(req.ID)), slog.String("name", config.Name))
 
 	Success(w, config)
 }
@@ -366,7 +378,7 @@ func (s *WebsiteService) UpdateRemark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.UpdateRemark(req.ID, req.Remark); err != nil {
+	if err = s.websiteRepo.UpdateRemark(r.Context(), req.ID, req.Remark); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -396,7 +408,7 @@ func (s *WebsiteService) UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.UpdateProject(req.ID, req.ProjectID); err != nil {
+	if err = s.websiteRepo.UpdateProject(r.Context(), req.ID, req.ProjectID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -436,7 +448,7 @@ func (s *WebsiteService) UpdateExpireAt(w http.ResponseWriter, r *http.Request) 
 		expireAt = &t
 	}
 
-	if err = s.websiteRepo.UpdateExpireAt(req.ID, expireAt); err != nil {
+	if err = s.websiteRepo.UpdateExpireAt(r.Context(), req.ID, expireAt); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

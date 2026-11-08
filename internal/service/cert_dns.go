@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -10,11 +12,15 @@ import (
 )
 
 type CertDNSService struct {
+	t           *gotext.Locale
+	log         *slog.Logger
 	certDNSRepo *biz.CertDNSUsecase
 }
 
-func NewCertDNSService(certDNSUsecase *biz.CertDNSUsecase) *CertDNSService {
+func NewCertDNSService(certDNSUsecase *biz.CertDNSUsecase, t *gotext.Locale, log *slog.Logger) *CertDNSService {
 	return &CertDNSService{
+		t:           t,
+		log:         log,
 		certDNSRepo: certDNSUsecase,
 	}
 }
@@ -31,6 +37,8 @@ func (s *CertDNSService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cert dns list viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -81,6 +89,8 @@ func (s *CertDNSService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cert dns viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", certDNS.Name), slog.String("dns_type", string(certDNS.Type)))
 
 	Success(w, certDNS)
 }

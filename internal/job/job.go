@@ -44,14 +44,14 @@ type Dependencies struct {
 
 func NewJobs(d *Dependencies) []Job {
 	return []Job{
-		NewAlert(d.Alert, d.Log),
-		NewMonitoring(d.Setting, d.Monitor, d.Log),
-		NewFirewallScan(d.ScanEvent, d.Setting, d.Log),
+		NewAlert(d.Alert, d.T, d.Log),
+		NewMonitoring(d.Setting, d.Monitor, d.T, d.Log),
+		NewFirewallScan(d.ScanEvent, d.Setting, d.T, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
-		NewFileShareClean(d.FileShare, d.Log),
-		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.Conf, d.DB, d.Log),
-		NewWebsiteStat(d.Setting, d.WebsiteStat, d.Log, d.Aggregator),
+		NewFileShareClean(d.FileShare, d.T, d.Log),
+		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.Conf, d.DB, d.T, d.Log),
+		NewWebsiteStat(d.Setting, d.WebsiteStat, d.T, d.Log, d.Aggregator),
 		NewWebsiteExpire(d.Notify, d.Website, d.DB, d.T, d.Log),
-		NewTamper(d.Tamper, d.Log),
+		NewTamper(d.Tamper, d.T, d.Log),
 	}
 }

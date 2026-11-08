@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -16,12 +17,14 @@ import (
 
 type BackupStorageService struct {
 	t                 *gotext.Locale
+	log               *slog.Logger
 	backupAccountRepo *biz.BackupAccountUsecase
 }
 
-func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale) *BackupStorageService {
+func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale, log *slog.Logger) *BackupStorageService {
 	return &BackupStorageService{
 		t:                 t,
+		log:               log,
 		backupAccountRepo: backupAccountUsecase,
 	}
 }
@@ -38,6 +41,8 @@ func (s *BackupStorageService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("backup storage list viewed"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -98,6 +103,8 @@ func (s *BackupStorageService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("backup storage viewed"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(req.ID)), slog.String("name", account.Name), slog.String("account_type", string(account.Type)))
 
 	Success(w, account)
 }

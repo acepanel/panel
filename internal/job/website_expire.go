@@ -44,16 +44,15 @@ func (r *WebsiteExpire) Run(ctx context.Context) error {
 	now := time.Now()
 	// 直接查询已到期且仍在运行的网站
 	if err := r.db.Where("expire_at IS NOT NULL AND expire_at <= ? AND status = ?", now, true).Find(&websites).Error; err != nil {
-		r.log.Warn("failed to query expired websites", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to query expired websites"), slog.Any("err", err))
 		return nil
 	}
 
 	for _, website := range websites {
 		if err := r.websiteRepo.UpdateStatus(ctx, website.ID, false); err != nil {
-			r.log.Warn("failed to disable expired website", slog.String("name", website.Name), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to disable expired website"), slog.String("name", website.Name), slog.Any("err", err))
 			continue
 		}
-		r.log.Info("website expired and disabled", slog.String("name", website.Name), slog.Time("expire_at", *website.ExpireAt))
 		r.notifyRepo.SendEvent(biz.NotifyEventWebsiteExpire, r.t.Get("[AcePanel] Website Expired"), biz.NotifyBody(r.t.Get("website expired and has been disabled"), [][2]string{
 			{r.t.Get("Website"), website.Name},
 			{r.t.Get("Expire Time"), website.ExpireAt.Format(time.DateTime)},

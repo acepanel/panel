@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log/slog"
 	"mime"
 	"net/http"
 	"path/filepath"
@@ -94,7 +95,7 @@ func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 	return reloader, nil
 }
 
-func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) *hlfhr.Server {
+func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader, log *slog.Logger) *hlfhr.Server {
 	mux := router
 
 	srv := hlfhr.New(&http.Server{
@@ -102,6 +103,8 @@ func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) *
 		Handler:           mux,
 		MaxHeaderBytes:    4 << 20,
 		ReadHeaderTimeout: 30 * time.Second,
+		// 标准库的 TLS 握手失败等内部噪音只在调试模式下落日志，否则会刷满操作日志
+		ErrorLog: slog.NewLogLogger(log.Handler(), slog.LevelDebug),
 	})
 	srv.Listen80RedirectTo443 = true
 

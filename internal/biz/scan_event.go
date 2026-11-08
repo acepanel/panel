@@ -1,9 +1,12 @@
 package biz
 
 import (
+	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 )
 
@@ -95,12 +98,14 @@ type ScanEventRepo interface {
 
 // ScanEventUsecase 扫描事件业务逻辑
 type ScanEventUsecase struct {
+	t       *gotext.Locale
+	log     *slog.Logger
 	repo    ScanEventRepo
 	setting SettingRepo
 }
 
-func NewScanEventUsecase(repo ScanEventRepo, setting SettingRepo) *ScanEventUsecase {
-	return &ScanEventUsecase{repo: repo, setting: setting}
+func NewScanEventUsecase(t *gotext.Locale, log *slog.Logger, repo ScanEventRepo, setting SettingRepo) *ScanEventUsecase {
+	return &ScanEventUsecase{t: t, log: log, repo: repo, setting: setting}
 }
 
 func (uc *ScanEventUsecase) Upsert(events []*ScanEvent) error {
@@ -185,7 +190,7 @@ func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
 	}, nil
 }
 
-func (uc *ScanEventUsecase) UpdateSetting(setting *ScanSetting) error {
+func (uc *ScanEventUsecase) UpdateSetting(ctx context.Context, setting *ScanSetting) error {
 	if err := uc.setting.Set(SettingKeyScanAware, cast.ToString(setting.Enabled)); err != nil {
 		return err
 	}
@@ -214,11 +219,21 @@ func (uc *ScanEventUsecase) UpdateSetting(setting *ScanSetting) error {
 		return err
 	}
 
-	return uc.setting.SetSlice(SettingKeyScanAwareWhitelist, setting.Whitelist)
+	if err = uc.setting.SetSlice(SettingKeyScanAwareWhitelist, setting.Whitelist); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("scan aware setting updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Bool("auto_block", setting.AutoBlock), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("block_threshold", uint64(setting.BlockThreshold)), slog.Uint64("block_window", uint64(setting.BlockWindow)), slog.Uint64("block_duration", uint64(setting.BlockDuration)), slog.Any("whitelist", setting.Whitelist))
+	return nil
 }
 
-func (uc *ScanEventUsecase) Clear() error {
-	return uc.repo.Clear()
+func (uc *ScanEventUsecase) Clear(ctx context.Context) error {
+	if err := uc.repo.Clear(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("scan events cleared"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)))
+	return nil
 }
 
 func (uc *ScanEventUsecase) VacuumDB() error {

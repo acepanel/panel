@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cast"
 )
 
-// operatorID 从 context 获取操作员 ID，无法获取时返回 0（系统操作）
-func operatorID(ctx context.Context) uint64 {
+// OperatorID 从 context 获取操作员 ID，无法获取时返回 0（系统操作），供各层记操作日志用
+func OperatorID(ctx context.Context) uint64 {
 	if ctx == nil {
 		return 0
 	}

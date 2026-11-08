@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	stdio "io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -20,13 +21,15 @@ import (
 
 type BackupService struct {
 	t          *gotext.Locale
+	log        *slog.Logger
 	backupRepo *biz.BackupUsecase
 	taskRepo   *biz.TaskUsecase
 }
 
-func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *BackupService {
+func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale, log *slog.Logger) *BackupService {
 	return &BackupService{
 		t:          t,
+		log:        log,
 		backupRepo: backupUsecase,
 		taskRepo:   taskUsecase,
 	}
@@ -46,6 +49,8 @@ func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paged, total := Paginate(r, list)
+
+	s.log.Info(s.t.Get("backup list viewed"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type))
 
 	Success(w, chix.M{
 		"total": total,
@@ -91,6 +96,8 @@ exit $rc`, pathEnv, tmpDir, backupCmd)
 		return
 	}
 
+	s.log.Info(s.t.Get("backup task created"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("target", req.Target), slog.Uint64("storage_id", uint64(req.Storage)), slog.Uint64("task_id", uint64(task.ID)))
+
 	Success(w, nil)
 }
 
@@ -133,6 +140,9 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = src.Close()
+
+	s.log.Info(s.t.Get("backup uploaded"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("name", req.File.Filename), slog.String("path", filepath.Join(path, req.File.Filename)), slog.Int64("size", req.File.Size))
+
 	Success(w, nil)
 }
 
@@ -168,6 +178,8 @@ func (s *BackupService) Download(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusForbidden, s.t.Get("can't download a directory"))
 		return
 	}
+
+	s.log.Info(s.t.Get("backup downloaded"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("name", info.Name()), slog.String("path", file))
 
 	render := chix.NewRender(w, r)
 	defer render.Release()
@@ -211,6 +223,8 @@ exit $rc`, pathEnv, tmpDir, restoreCmd)
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("restore task created"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("target", req.Target), slog.String("name", filepath.Base(req.File)), slog.String("path", req.File), slog.Uint64("task_id", uint64(task.ID)))
 
 	Success(w, nil)
 }

@@ -1,6 +1,12 @@
 package biz
 
-import "time"
+import (
+	"context"
+	"log/slog"
+	"time"
+
+	"github.com/leonelquinteros/gotext"
+)
 
 type UserPasskey struct {
 	ID             uint       `gorm:"primaryKey" json:"id"`
@@ -20,6 +26,7 @@ type UserPasskey struct {
 
 type UserPasskeyRepo interface {
 	List(userID uint) ([]*UserPasskey, error)
+	Get(userID, id uint) (*UserPasskey, error)
 	Create(passkey *UserPasskey) error
 	UpdateSignCount(credentialID []byte, signCount uint32) error
 	UpdateLastUsed(credentialID []byte) error
@@ -32,18 +39,31 @@ type UserPasskeyRepo interface {
 
 type UserPasskeyUsecase struct {
 	repo UserPasskeyRepo
+	log  *slog.Logger
+	t    *gotext.Locale
 }
 
-func NewUserPasskeyUsecase(repo UserPasskeyRepo) *UserPasskeyUsecase {
-	return &UserPasskeyUsecase{repo: repo}
+func NewUserPasskeyUsecase(t *gotext.Locale, log *slog.Logger, repo UserPasskeyRepo) *UserPasskeyUsecase {
+	return &UserPasskeyUsecase{
+		repo: repo,
+		log:  log,
+		t:    t,
+	}
 }
 
 func (uc *UserPasskeyUsecase) List(userID uint) ([]*UserPasskey, error) {
 	return uc.repo.List(userID)
 }
 
-func (uc *UserPasskeyUsecase) Create(passkey *UserPasskey) error {
-	return uc.repo.Create(passkey)
+func (uc *UserPasskeyUsecase) Create(ctx context.Context, passkey *UserPasskey) error {
+	if err := uc.repo.Create(passkey); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info(uc.t.Get("user passkey created"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(passkey.ID)), slog.String("name", passkey.Name), slog.Uint64("user_id", uint64(passkey.UserID)))
+
+	return nil
 }
 
 func (uc *UserPasskeyUsecase) UpdateSignCount(credentialID []byte, signCount uint32) error {
@@ -54,8 +74,20 @@ func (uc *UserPasskeyUsecase) UpdateLastUsed(credentialID []byte) error {
 	return uc.repo.UpdateLastUsed(credentialID)
 }
 
-func (uc *UserPasskeyUsecase) Delete(userID, id uint) error {
-	return uc.repo.Delete(userID, id)
+func (uc *UserPasskeyUsecase) Delete(ctx context.Context, userID, id uint) error {
+	passkey, err := uc.repo.Get(userID, id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(userID, id); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Warn(uc.t.Get("user passkey deleted"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", passkey.Name), slog.Uint64("user_id", uint64(userID)))
+
+	return nil
 }
 
 func (uc *UserPasskeyUsecase) GetByCredentialID(credentialID []byte) (*UserPasskey, *User, error) {

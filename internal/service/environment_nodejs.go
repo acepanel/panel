@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -15,12 +16,14 @@ import (
 
 type EnvironmentNodejsService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentNodejsService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentNodejsService {
+func NewEnvironmentNodejsService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale, log *slog.Logger) *EnvironmentNodejsService {
 	return &EnvironmentNodejsService{
 		t:               t,
+		log:             log,
 		environmentRepo: environmentUsecase,
 	}
 }
@@ -42,6 +45,8 @@ func (s *EnvironmentNodejsService) SetCli(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "nodejs"), slog.String("slug", req.Slug), slog.String("bin_path", binPath))
+
 	Success(w, nil)
 }
 
@@ -62,6 +67,8 @@ func (s *EnvironmentNodejsService) GetRegistry(w http.ResponseWriter, r *http.Re
 		registry = "https://registry.npmjs.org/"
 	}
 
+	s.log.Info(s.t.Get("nodejs registry viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug))
+
 	Success(w, strings.TrimSpace(registry))
 }
 
@@ -81,6 +88,8 @@ func (s *EnvironmentNodejsService) SetRegistry(w http.ResponseWriter, r *http.Re
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("nodejs registry set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug), slog.String("registry", redactURL(req.Registry)))
 
 	Success(w, nil)
 }

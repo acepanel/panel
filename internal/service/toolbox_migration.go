@@ -77,8 +77,7 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	//nolint:contextcheck
-	if err = s.migrationRepo.Start(req); err != nil {
+	if err = s.migrationRepo.Start(r.Context(), req); err != nil {
 		Error(w, http.StatusConflict, "%v", err)
 		return
 	}
@@ -98,7 +97,7 @@ func (s *ToolboxMigrationService) GetStatus(w http.ResponseWriter, r *http.Reque
 
 // Reset 重置迁移状态
 func (s *ToolboxMigrationService) Reset(w http.ResponseWriter, r *http.Request) {
-	if err := s.migrationRepo.Reset(); err != nil {
+	if err := s.migrationRepo.Reset(r.Context()); err != nil {
 		Error(w, http.StatusConflict, "%v", err)
 		return
 	}
@@ -114,6 +113,7 @@ func (s *ToolboxMigrationService) DownloadLog(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	s.log.Info(s.t.Get("migration log downloaded"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Content-Disposition", "attachment; filename=migration.log")
 	_, _ = w.Write([]byte(strings.Join(logs, "\n")))
@@ -128,7 +128,7 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 
 	ws, err := websocket.Accept(w, r, opts)
 	if err != nil {
-		s.log.Warn("websocket upgrade error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("websocket upgrade error"), slog.Any("err", err))
 		return
 	}
 	defer func() { _ = ws.CloseNow() }()
@@ -152,7 +152,7 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 				"started_at": startedAt, "ended_at": endedAt,
 			})
 			if err != nil {
-				s.log.Warn("marshal migration progress error", slog.Any("err", err))
+				s.log.Warn(s.t.Get("marshal migration progress error"), slog.Any("err", err))
 				return
 			}
 			if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
@@ -218,6 +218,7 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 	if waitErr := <-waitCh; waitErr != nil {
 		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())
 	} else {
+		s.log.Info(s.t.Get("migration command executed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("command", req.Command))
 		_, _ = fmt.Fprintf(w, "event: done\ndata: ok\n\n")
 	}
 	flusher.Flush()

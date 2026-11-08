@@ -50,12 +50,26 @@ func NewWebHookUsecase(t *gotext.Locale, log *slog.Logger, webHookRepo WebHookRe
 	}
 }
 
-func (uc *WebHookUsecase) List(page, limit uint) ([]*WebHook, int64, error) {
-	return uc.repo.List(page, limit)
+func (uc *WebHookUsecase) List(ctx context.Context, page, limit uint) ([]*WebHook, int64, error) {
+	webhooks, total, err := uc.repo.List(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("webhook list viewed"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return webhooks, total, nil
 }
 
-func (uc *WebHookUsecase) Get(id uint) (*WebHook, error) {
-	return uc.repo.Get(id)
+func (uc *WebHookUsecase) Get(ctx context.Context, id uint) (*WebHook, error) {
+	webhook, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("webhook viewed"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
+
+	return webhook, nil
 }
 
 func (uc *WebHookUsecase) GetByKey(key string) (*WebHook, error) {
@@ -78,7 +92,7 @@ func (uc *WebHookUsecase) Create(ctx context.Context, req *request.WebHookCreate
 	}
 
 	// 记录日志
-	uc.log.Info("webhook created", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("webhook created"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(webhook.ID)), slog.String("name", req.Name), slog.String("user", req.User), slog.Bool("raw", req.Raw))
 
 	return webhook, nil
 }
@@ -94,7 +108,7 @@ func (uc *WebHookUsecase) Update(ctx context.Context, req *request.WebHookUpdate
 	}
 
 	// 记录日志
-	uc.log.Info("webhook updated", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("webhook updated"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name), slog.Bool("status", req.Status), slog.String("user", req.User), slog.Bool("raw", req.Raw))
 
 	return nil
 }
@@ -112,12 +126,19 @@ func (uc *WebHookUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("webhook deleted", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
+	uc.log.Warn(uc.t.Get("webhook deleted"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
 
 	return nil
 }
 
-func (uc *WebHookUsecase) Call(key string) (string, error) {
+func (uc *WebHookUsecase) Call(ctx context.Context, webhook *WebHook, ip string) (string, error) {
 	// 校验与执行紧耦合，留 repo.Call 内单次读取，避免重复读与 TOCTOU
-	return uc.repo.Call(key)
+	output, err := uc.repo.Call(webhook.Key)
+	if err != nil {
+		return output, err
+	}
+
+	uc.log.Info(uc.t.Get("webhook called"), slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(webhook.ID)), slog.String("name", webhook.Name), slog.String("user", webhook.User), slog.String("ip", ip))
+
+	return output, nil
 }

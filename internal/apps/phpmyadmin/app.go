@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html"
 	stdio "io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -34,14 +35,16 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	conf               *config.Config
 	databaseServerRepo biz.DatabaseServerRepo
 	settingRepo        biz.SettingRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
 		settingRepo:        settingRepo,
@@ -258,6 +261,8 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, cookie)
 	}
 
+	s.log.Info(s.t.Get("app logged in"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.Uint64("server_id", uint64(server.ID)), slog.String("server", server.Name), slog.String("host", server.Host), slog.Uint64("port", uint64(server.Port)), slog.String("username", server.Username))
+
 	service.Success(w, chix.M{
 		"path": path,
 		"port": port,
@@ -316,6 +321,8 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app port updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.Uint64("port", uint64(req.Port)), slog.Bool("firewall_opened", running))
+
 	service.Success(w, nil)
 }
 
@@ -325,11 +332,14 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	config, err := io.Read(filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile()))
+	path := filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile())
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -346,7 +356,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile()), req.Config, 0600); err != nil {
+	path := filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile())
+	if err = io.Write(path, req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -354,6 +365,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.String("path", path))
 
 	service.Success(w, nil)
 }

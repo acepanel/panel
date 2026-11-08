@@ -207,7 +207,7 @@ func (uc *BackupAccountUsecase) Create(ctx context.Context, req *request.BackupS
 		return nil, err
 	}
 
-	uc.log.Info("backup storage created", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("account_type", req.Type), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("backup storage created"), slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("account_type", req.Type), slog.String("name", req.Name))
 
 	return account, nil
 }
@@ -218,6 +218,7 @@ func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupS
 		return err
 	}
 
+	oldName := account.Name
 	account.Type = BackupStorageType(req.Type)
 	account.Name = req.Name
 	account.Info = req.Info
@@ -226,17 +227,22 @@ func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupS
 		return err
 	}
 
-	uc.log.Info("backup storage updated", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("account_type", req.Type))
+	uc.log.Info(uc.t.Get("backup storage updated"), slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name), slog.String("old_name", oldName), slog.String("account_type", req.Type))
 
 	return nil
 }
 
 func (uc *BackupAccountUsecase) Delete(ctx context.Context, id uint) error {
-	if err := uc.repo.Delete(id); err != nil {
+	account, err := uc.repo.GetByID(id)
+	if err != nil {
 		return err
 	}
 
-	uc.log.Info("backup storage deleted", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("backup storage deleted"), slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", account.Name), slog.String("account_type", string(account.Type)))
 
 	return nil
 }

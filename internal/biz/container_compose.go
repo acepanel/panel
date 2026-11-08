@@ -2,6 +2,9 @@ package biz
 
 import (
 	"context"
+	"log/slog"
+
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -18,39 +21,78 @@ type ContainerComposeRepo interface {
 
 type ContainerComposeUsecase struct {
 	repo ContainerComposeRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewContainerComposeUsecase(repo ContainerComposeRepo) *ContainerComposeUsecase {
-	return &ContainerComposeUsecase{repo: repo}
+func NewContainerComposeUsecase(t *gotext.Locale, log *slog.Logger, repo ContainerComposeRepo) *ContainerComposeUsecase {
+	return &ContainerComposeUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *ContainerComposeUsecase) List(ctx context.Context) ([]types.ContainerCompose, error) {
-	return uc.repo.List(ctx)
+	composes, err := uc.repo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("compose list viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)))
+	return composes, nil
 }
 
-func (uc *ContainerComposeUsecase) Get(name string) (string, []types.KV, error) {
-	return uc.repo.Get(name)
+func (uc *ContainerComposeUsecase) Get(ctx context.Context, name string) (string, []types.KV, error) {
+	compose, envs, err := uc.repo.Get(name)
+	if err != nil {
+		return "", nil, err
+	}
+
+	uc.log.Info(uc.t.Get("compose viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name))
+	return compose, envs, nil
 }
 
-func (uc *ContainerComposeUsecase) Create(name, compose string, envs []types.KV) error {
-	return uc.repo.Create(name, compose, envs)
+func (uc *ContainerComposeUsecase) Create(ctx context.Context, name, compose string, envs []types.KV) error {
+	if err := uc.repo.Create(name, compose, envs); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("compose created"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name))
+	return nil
 }
 
-func (uc *ContainerComposeUsecase) Update(name, compose string, envs []types.KV) error {
-	return uc.repo.Update(name, compose, envs)
+func (uc *ContainerComposeUsecase) Update(ctx context.Context, name, compose string, envs []types.KV) error {
+	if err := uc.repo.Update(name, compose, envs); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("compose updated"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerComposeUsecase) Up(ctx context.Context, name string, force bool) error {
-	return uc.repo.Up(ctx, name, force)
+	if err := uc.repo.Up(ctx, name, force); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("compose started"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name), slog.Bool("force", force))
+	return nil
 }
 
 func (uc *ContainerComposeUsecase) Down(ctx context.Context, name string) error {
-	return uc.repo.Down(ctx, name)
+	if err := uc.repo.Down(ctx, name); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("compose stopped"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerComposeUsecase) Remove(ctx context.Context, name string) error {
 	if err := uc.repo.Down(ctx, name); err != nil {
 		return err
 	}
-	return uc.repo.RemoveDir(name)
+	if err := uc.repo.RemoveDir(name); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("compose deleted"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name))
+	return nil
 }

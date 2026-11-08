@@ -190,11 +190,14 @@ func (uc *ToolboxMigrationUsecase) Items(ctx context.Context) ([]types.Migration
 		uc.state.step = types.MigrationStepSelect
 	}
 	uc.state.mu.Unlock()
+
+	uc.log.Info(uc.t.Get("migration item list viewed"), slog.String("type", OperationTypeToolbox), slog.Uint64("operator_id", OperatorID(ctx)),
+		slog.String("source_panel", conn.SourcePanel), slog.String("url", conn.URL))
 	return items, nil
 }
 
 // Start 异步开始迁移
-func (uc *ToolboxMigrationUsecase) Start(req *request.ToolboxMigrationStart) error {
+func (uc *ToolboxMigrationUsecase) Start(ctx context.Context, req *request.ToolboxMigrationStart) error {
 	conn, err := uc.connection()
 	if err != nil {
 		return err
@@ -216,7 +219,12 @@ func (uc *ToolboxMigrationUsecase) Start(req *request.ToolboxMigrationStart) err
 	uc.state.mu.Unlock()
 
 	connection := *conn
-	go uc.run(&connection, req)
+	go uc.run(context.WithoutCancel(ctx), &connection, req)
+
+	uc.log.Info(uc.t.Get("migration started"), slog.String("type", OperationTypeToolbox), slog.Uint64("operator_id", OperatorID(ctx)),
+		slog.String("source_panel", conn.SourcePanel), slog.String("url", conn.URL),
+		slog.Any("items", lo.Map(req.Items, func(item request.ToolboxMigrationItem, _ int) string { return item.Key })),
+		slog.Bool("skip_blocked", req.SkipBlocked), slog.Bool("stop_source", req.StopSource))
 	return nil
 }
 
@@ -241,7 +249,7 @@ func (uc *ToolboxMigrationUsecase) Logs() []string {
 }
 
 // Reset 重置迁移状态
-func (uc *ToolboxMigrationUsecase) Reset() error {
+func (uc *ToolboxMigrationUsecase) Reset(ctx context.Context) error {
 	uc.state.mu.Lock()
 	defer uc.state.mu.Unlock()
 	if uc.state.step == types.MigrationStepRunning {
@@ -254,13 +262,14 @@ func (uc *ToolboxMigrationUsecase) Reset() error {
 	uc.state.logs = nil
 	uc.state.startedAt = nil
 	uc.state.endedAt = nil
+	uc.log.Info(uc.t.Get("migration reset"), slog.String("type", OperationTypeToolbox), slog.Uint64("operator_id", OperatorID(ctx)))
 	return nil
 }
 
 // run 执行迁移，按依赖顺序逐项处理
-func (uc *ToolboxMigrationUsecase) run(conn *request.ToolboxMigrationConnection, req *request.ToolboxMigrationStart) {
+func (uc *ToolboxMigrationUsecase) run(ctx context.Context, conn *request.ToolboxMigrationConnection, req *request.ToolboxMigrationStart) {
 	// 迁移脱离请求生命周期，大文件传输给足超时
-	ctx, cancel := context.WithTimeout(context.Background(), 24*time.Hour)
+	ctx, cancel := context.WithTimeout(ctx, 24*time.Hour)
 	defer cancel()
 	uc.addLog("===== " + uc.t.Get("Migration started") + " =====")
 	defer func() {

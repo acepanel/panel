@@ -39,7 +39,7 @@ func (s *TaskService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, total, err := s.taskRepo.List(req.Page, req.Limit)
+	tasks, total, err := s.taskRepo.List(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -58,7 +58,7 @@ func (s *TaskService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := s.taskRepo.Get(req.ID)
+	task, err := s.taskRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -91,7 +91,7 @@ func (s *TaskService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.taskRepo.Delete(req.ID)
+	err = s.taskRepo.Delete(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -107,7 +107,7 @@ func (s *TaskService) Cancel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.taskRepo.Cancel(req.ID); err != nil {
+	if err = s.taskRepo.Cancel(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

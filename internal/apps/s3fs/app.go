@@ -2,6 +2,7 @@ package s3fs
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -21,12 +23,14 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -50,6 +54,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := service.Paginate(r, list)
 
+	s.log.Info(s.t.Get("s3fs mount list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "s3fs"), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
 	service.Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -118,6 +123,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("s3fs mount created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "s3fs"), slog.Int64("id", id), slog.String("bucket", req.Bucket), slog.String("path", req.Path), slog.String("url", req.URL))
 	service.Success(w, nil)
 }
 
@@ -164,6 +170,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("s3fs mount deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "s3fs"), slog.Int64("id", mount.ID), slog.String("bucket", mount.Bucket), slog.String("path", mount.Path), slog.String("url", mount.URL))
 	service.Success(w, nil)
 }
 

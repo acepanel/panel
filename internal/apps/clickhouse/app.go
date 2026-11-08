@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -26,13 +27,15 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
 	}
@@ -109,12 +112,13 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "clickhouse"), slog.String("path", s.configPath()))
 	common.ServeConfig(w, s.configPath())
 }
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), 0644, "clickhouse-server")
+	common.SaveConfig(w, r, s.log, s.t, "clickhouse", s.configPath(), 0644, "clickhouse-server")
 }
 
 // GetConfigTune 获取配置调整参数
@@ -136,6 +140,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		TmpPath:        confval.GetYAML(cfg, "tmp_path"),
 		LogLevel:       confval.GetYAML(cfg, "logger.level"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "clickhouse"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -180,6 +186,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "clickhouse"), slog.String("listen_host", req.ListenHost), slog.String("http_port", req.HTTPPort), slog.String("tcp_port", req.TCPPort), slog.String("max_memory_usage", req.MaxMemoryUsage), slog.String("max_threads", req.MaxThreads), slog.String("data_path", req.Path), slog.String("tmp_path", req.TmpPath), slog.String("log_level", req.LogLevel))
+
 	service.Success(w, nil)
 }
 
@@ -190,6 +198,8 @@ func (s *App) GetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get ClickHouse default password: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "clickhouse"), slog.String("username", "default"))
 
 	service.Success(w, password)
 }
@@ -241,6 +251,8 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = s.databaseServerRepo.UpdatePassword("local_clickhouse", req.Password)
+
+	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "clickhouse"), slog.String("username", "default"))
 
 	service.Success(w, nil)
 }

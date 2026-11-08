@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/xuri/excelize/v2"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/os"
@@ -23,6 +25,7 @@ import (
 
 type FirewallService struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	firewall firewall.Firewall
 }
 
@@ -30,9 +33,10 @@ type firewallRuleOperator interface {
 	Port(ctx context.Context, rule firewall.FireInfo, operation firewall.Operation) error
 }
 
-func NewFirewallService(t *gotext.Locale) *FirewallService {
+func NewFirewallService(t *gotext.Locale, log *slog.Logger) *FirewallService {
 	return &FirewallService{
 		t:        t,
+		log:      log,
 		firewall: firewall.NewFirewall(),
 	}
 }
@@ -68,6 +72,7 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("firewall status updated"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Bool("status", req.Status), slog.String("firewall", s.firewall.Name()))
 	Success(w, nil)
 }
 
@@ -114,6 +119,7 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, filledRules)
 
+	s.log.Info(s.t.Get("firewall rule list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))), slog.Uint64("limit", cast.ToUint64(r.URL.Query().Get("limit"))))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -134,6 +140,7 @@ func (s *FirewallService) CreateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("firewall rule created"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
 
@@ -166,6 +173,7 @@ func (s *FirewallService) UpdateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("firewall rule updated"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction), slog.String("new_strategy", req.NewStrategy))
 	Success(w, nil)
 }
 
@@ -183,6 +191,7 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("firewall rule deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
 
@@ -235,6 +244,7 @@ func (s *FirewallService) ExportRules(w http.ResponseWriter, r *http.Request) {
 		row++
 	}
 
+	s.log.Info(s.t.Get("firewall rules exported"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("count", row-2))
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", `attachment; filename="firewall_rules.xlsx"`)
 	_ = f.Write(w)
@@ -247,7 +257,7 @@ func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	file, _, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -316,6 +326,7 @@ func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
 		succeeded++
 	}
 
+	s.log.Info(s.t.Get("firewall rules imported"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("filename", header.Filename), slog.Int("succeeded", succeeded), slog.Int("failed", failed))
 	Success(w, chix.M{
 		"succeeded": succeeded,
 		"failed":    failed,
@@ -345,6 +356,7 @@ func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, filledRules)
 
+	s.log.Info(s.t.Get("firewall ip rule list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))), slog.Uint64("limit", cast.ToUint64(r.URL.Query().Get("limit"))))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -365,6 +377,7 @@ func (s *FirewallService) CreateIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("firewall ip rule created"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
 
@@ -382,6 +395,7 @@ func (s *FirewallService) DeleteIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("firewall ip rule deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
 
@@ -394,6 +408,7 @@ func (s *FirewallService) GetForwards(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, forwards)
 
+	s.log.Info(s.t.Get("firewall forward list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))), slog.Uint64("limit", cast.ToUint64(r.URL.Query().Get("limit"))))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -414,6 +429,7 @@ func (s *FirewallService) CreateForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.log.Info(s.t.Get("firewall forward created"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("protocol", req.Protocol), slog.Uint64("port", uint64(req.Port)), slog.String("target_ip", req.TargetIP), slog.Uint64("target_port", uint64(req.TargetPort)))
 	Success(w, nil)
 }
 
@@ -431,6 +447,7 @@ func (s *FirewallService) DeleteForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.log.Warn(s.t.Get("firewall forward deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("protocol", req.Protocol), slog.Uint64("port", uint64(req.Port)), slog.String("target_ip", req.TargetIP), slog.Uint64("target_port", uint64(req.TargetPort)))
 	Success(w, nil)
 }
 

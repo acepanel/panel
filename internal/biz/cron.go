@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -41,11 +43,12 @@ type CronRepo interface {
 // CronUsecase 计划任务业务逻辑
 type CronUsecase struct {
 	repo CronRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewCronUsecase(repo CronRepo, log *slog.Logger) *CronUsecase {
-	return &CronUsecase{repo: repo, log: log}
+func NewCronUsecase(repo CronRepo, t *gotext.Locale, log *slog.Logger) *CronUsecase {
+	return &CronUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *CronUsecase) Count() (int64, error) {
@@ -99,7 +102,7 @@ func (uc *CronUsecase) Create(ctx context.Context, req *request.CronCreate) erro
 	}
 
 	// 记录日志
-	uc.log.Info("cron created", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("cron_type", req.Type))
+	uc.log.Info(uc.t.Get("cron created"), slog.String("type", OperationTypeCron), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cron.ID)), slog.String("name", req.Name), slog.String("cron_type", req.Type), slog.String("sub_type", req.SubType), slog.String("schedule", req.Time))
 
 	return nil
 }
@@ -159,7 +162,7 @@ func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) erro
 	}
 
 	// 记录日志
-	uc.log.Info("cron updated", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
+	uc.log.Info(uc.t.Get("cron updated"), slog.String("type", OperationTypeCron), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name), slog.String("cron_type", cron.Type), slog.String("schedule", req.Time))
 
 	return nil
 }
@@ -182,7 +185,7 @@ func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("cron deleted", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
+	uc.log.Warn(uc.t.Get("cron deleted"), slog.String("type", OperationTypeCron), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
 
 	return nil
 }
@@ -204,5 +207,11 @@ func (uc *CronUsecase) Status(ctx context.Context, id uint, status bool) error {
 
 	cron.Status = status
 
-	return uc.repo.Save(cron)
+	if err = uc.repo.Save(cron); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("cron status updated"), slog.String("type", OperationTypeCron), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name), slog.Bool("status", status))
+
+	return nil
 }

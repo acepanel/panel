@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -104,7 +105,13 @@ func (uc *WebsiteUsecase) GetRewrites() (map[string]string, error) {
 }
 
 func (uc *WebsiteUsecase) UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error {
-	return uc.repo.UpdateDefaultConfig(ctx, req)
+	if err := uc.repo.UpdateDefaultConfig(ctx, req); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website default config saved"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Any("tls_versions", req.TLSVersions), slog.Bool("listen_ipv6", req.ListenIPv6), slog.Bool("custom_not_found", req.NotFound != ""))
+
+	return nil
 }
 
 func (uc *WebsiteUsecase) Count() (int64, error) {
@@ -129,9 +136,6 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 		return nil, nil, err
 	}
 
-	// 记录日志
-	uc.log.Info("website created", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
-
 	var warnings []string
 	if err = uc.repo.ReloadWebServer(ctx); err != nil {
 		warnings = append(warnings, uc.t.Get("failed to reload web server: %v", err))
@@ -141,6 +145,8 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 			warnings = append(warnings, uc.t.Get("failed to create database: %v", err))
 		}
 	}
+
+	uc.log.Info(uc.t.Get("website created"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(w.ID)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.Any("domains", req.Domains), slog.String("path", req.Path), slog.Bool("db", req.DB), slog.String("db_name", lo.Ternary(req.DB, req.DBName, "")))
 
 	return w, warnings, nil
 }
@@ -169,7 +175,7 @@ func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate
 	}
 
 	// 记录日志
-	uc.log.Info("website updated", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+	uc.log.Info(uc.t.Get("website updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name), slog.Any("domains", req.Domains), slog.String("path", req.Path), slog.String("root", req.Root), slog.Bool("ssl", req.SSL), slog.Uint64("php", uint64(req.PHP)))
 
 	return uc.repo.ReloadWebServer(ctx)
 }
@@ -180,7 +186,7 @@ func (uc *WebsiteUsecase) SwitchType(ctx context.Context, req *request.WebsiteSw
 		return err
 	}
 
-	uc.log.Info("website type switched", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name), slog.String("website_type", req.Type))
+	uc.log.Info(uc.t.Get("website type switched"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name), slog.String("website_type", req.Type), slog.Uint64("php", uint64(req.PHP)), slog.String("proxy", req.Proxy))
 
 	return nil
 }
@@ -200,7 +206,7 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 			cleaned := filepath.Clean(website.Path)
 			for _, rule := range rules {
 				if rule.Path != "" && filepath.Clean(rule.Path) == cleaned {
-					_ = uc.tamper.DeleteRule(rule.ID)
+					_ = uc.tamper.deleteRule(rule.ID)
 				}
 			}
 		}
@@ -226,18 +232,38 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 	_ = uc.stat.DeleteBySite(website.Name)
 
 	// 记录日志
-	uc.log.Info("website deleted", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+	uc.log.Warn(uc.t.Get("website deleted"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name), slog.String("path", website.Path), slog.Bool("remove_path", req.Path), slog.Bool("remove_db", req.DB))
 
 	return uc.repo.ReloadWebServer(ctx)
 }
 
-func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
-	return uc.repo.UpdateRemark(id, remark)
+func (uc *WebsiteUsecase) UpdateRemark(ctx context.Context, id uint, remark string) error {
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.UpdateRemark(id, remark); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website remark updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.String("remark", remark))
+
+	return nil
 }
 
 // UpdateProject 绑定到项目，projectID 为 0 时解除绑定
-func (uc *WebsiteUsecase) UpdateProject(id, projectID uint) error {
-	return uc.repo.UpdateProject(id, projectID)
+func (uc *WebsiteUsecase) UpdateProject(ctx context.Context, id, projectID uint) error {
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.UpdateProject(id, projectID); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website project updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.Uint64("project_id", uint64(projectID)))
+
+	return nil
 }
 
 // ReleaseProject 处理项目删除后留下的网站：remove 为 true 时一并删除，否则解除绑定成为普通网站
@@ -265,19 +291,59 @@ func (uc *WebsiteUsecase) Rebuild(ctx context.Context, website *Website) (bool, 
 }
 
 func (uc *WebsiteUsecase) ResetConfig(ctx context.Context, id uint) error {
-	return uc.repo.ResetConfig(ctx, id)
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.ResetConfig(ctx, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website config reset"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name))
+
+	return nil
 }
 
 func (uc *WebsiteUsecase) UpdateStatus(ctx context.Context, id uint, status bool) error {
-	return uc.repo.UpdateStatus(ctx, id, status)
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.UpdateStatus(ctx, id, status); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website status updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.Bool("status", status))
+
+	return nil
 }
 
-func (uc *WebsiteUsecase) UpdateExpireAt(id uint, expireAt *time.Time) error {
-	return uc.repo.UpdateExpireAt(id, expireAt)
+func (uc *WebsiteUsecase) UpdateExpireAt(ctx context.Context, id uint, expireAt *time.Time) error {
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.UpdateExpireAt(id, expireAt); err != nil {
+		return err
+	}
+
+	var expire string
+	if expireAt != nil {
+		expire = expireAt.Format(time.DateTime)
+	}
+	uc.log.Info(uc.t.Get("website expire time updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.String("expire_at", expire))
+
+	return nil
 }
 
 func (uc *WebsiteUsecase) UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error {
-	return uc.repo.UpdateCert(ctx, req)
+	if err := uc.repo.UpdateCert(ctx, req); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website cert updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name))
+
+	return nil
 }
 
 func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
@@ -302,7 +368,7 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 	newCert, err := uc.cert.GetByWebsite(website.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			newCert, err = uc.cert.Create(ctx, &request.CertCreate{
+			newCert, err = uc.cert.repo.Create(&request.CertCreate{
 				Type:        string(acme.KeyEC256),
 				Domains:     website.Domains,
 				AutoRenewal: true,
@@ -328,5 +394,6 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return err
 	}
 
-	return uc.cert.Deploy(ctx, newCert.ID, []uint{website.ID}, true)
+	_, _, err = uc.cert.deploy(ctx, newCert.ID, []uint{website.ID}, true)
+	return err
 }

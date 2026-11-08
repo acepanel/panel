@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"regexp"
@@ -33,6 +34,7 @@ import (
 
 type HomeService struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	api                *api.API
 	conf               *config.Config
 	taskRepo           *biz.TaskUsecase
@@ -47,9 +49,10 @@ type HomeService struct {
 	containerRepo      *biz.ContainerUsecase
 }
 
-func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale) *HomeService {
+func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *HomeService {
 	return &HomeService{
 		t:                  t,
+		log:                log,
 		api:                api.NewAPI(app.Version, app.Locale),
 		conf:               conf,
 		taskRepo:           taskUsecase,
@@ -408,6 +411,7 @@ func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tools.RestartPanel(r.Context())
+	s.log.Info(s.t.Get("panel restarted"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }
 
@@ -418,6 +422,7 @@ func (s *HomeService) RestartServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tools.RestartServer(r.Context())
+	s.log.Warn(s.t.Get("server restarted"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }
 
@@ -446,6 +451,7 @@ func (s *HomeService) RuntimeInfo(w http.ResponseWriter, r *http.Request) {
 	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
 
+	s.log.Info(s.t.Get("panel runtime info viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"uptime":          time.Since(app.StartTime).Seconds(),
 		"goroutines":      runtime.NumGoroutine(),
@@ -523,6 +529,7 @@ func (s *HomeService) Goroutines(w http.ResponseWriter, r *http.Request) {
 		return GoroutineInfo{ID: id, State: matches[2], Stack: stack}, true
 	})
 
+	s.log.Info(s.t.Get("panel goroutines viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, goroutines)
 }
 

@@ -55,7 +55,7 @@ func (r *CertRenew) Run(ctx context.Context) error {
 
 	var certs []biz.Cert
 	if err := r.db.Preload("Websites").Preload("Account").Preload("DNS").Find(&certs).Error; err != nil {
-		r.log.Warn("failed to get certs", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to get certs"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
 
@@ -74,7 +74,7 @@ func (r *CertRenew) Run(ctx context.Context) error {
 		if cert.RenewalInfo.NeedsRefresh() {
 			renewInfo, err := r.certRepo.RefreshRenewalInfo(ctx, cert.ID)
 			if err != nil {
-				r.log.Warn("failed to refresh renewal info", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				r.log.Warn(r.t.Get("failed to refresh renewal info"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
 				continue
 			}
 			cert.RenewalInfo = renewInfo
@@ -83,7 +83,7 @@ func (r *CertRenew) Run(ctx context.Context) error {
 		// 到达建议时间，续签证书
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
 			if _, err := r.certRepo.RenewWithProgressCallback(ctx, cert.ID, nil); err != nil {
-				r.log.Warn("failed to renew certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				r.log.Warn(r.t.Get("failed to renew certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
 				// ctx 取消不是证书本身的问题，告警了也只是噪音
 				if ctx.Err() == nil {
 					r.notifyFailed(strings.Join(cert.Domains, ", "), err)
@@ -106,12 +106,12 @@ func (r *CertRenew) Run(ctx context.Context) error {
 				return nil
 			}
 		} else {
-			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to parse panel certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 
 		newCrt, newKey, err := pkgcert.GenerateSelfSigned(tools.CollectLocalNames()) //nolint:contextcheck
 		if err != nil {
-			r.log.Warn("failed to generate self-signed certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to generate self-signed certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
@@ -119,11 +119,11 @@ func (r *CertRenew) Run(ctx context.Context) error {
 			Cert: string(newCrt),
 			Key:  string(newKey),
 		}); err != nil {
-			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update panel certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
-		r.log.Info("panel self-signed certificate renewed", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
+		r.log.Info(r.t.Get("panel self-signed certificate renewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
 
 	case "off", "custom":
 		// off/custom 不需要自动续签
@@ -142,23 +142,23 @@ func (r *CertRenew) Run(ctx context.Context) error {
 			}
 		} else {
 			// 解析失败则继续续签流程，可能是证书格式不对或者文件不存在
-			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to parse panel certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 
 		var user biz.User
 		if err = r.db.First(&user).Error; err != nil {
-			r.log.Warn("failed to get a panel user", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to get a panel user"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return nil
 		}
 		account, err := r.certAccountRepo.GetDefault(ctx, user.ID)
 		if err != nil {
-			r.log.Warn("failed to get panel ACME account", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to get panel ACME account"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 		crt, key, err := r.certRepo.ObtainPanel(ctx, account, r.conf.HTTP.BindDomain)
 		if err != nil {
-			r.log.Warn("failed to obtain panel certificate via ACME", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to obtain panel certificate via ACME"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
@@ -167,12 +167,12 @@ func (r *CertRenew) Run(ctx context.Context) error {
 			Cert: string(crt),
 			Key:  string(key),
 		}); err != nil {
-			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to update panel certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 
-		r.log.Info("panel certificate renewed successfully", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
+		r.log.Info(r.t.Get("panel certificate renewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
 	}
 
 	return nil

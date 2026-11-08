@@ -201,9 +201,9 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 			defer cancel()
 			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
 			if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
-				uc.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
+				uc.log.Warn(uc.t.Get("failed to download ipdb"), slog.String("url", ipdbURL), slog.Any("err", err))
 			} else {
-				uc.log.Info("ipdb downloaded", slog.String("url", ipdbURL))
+				uc.log.Info(uc.t.Get("ipdb downloaded"), slog.String("url", ipdbURL))
 			}
 		}()
 	}
@@ -309,7 +309,7 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 	}
 
 	// 记录日志
-	uc.log.Info("panel settings updated", slog.String("type", OperationTypeSetting), slog.Uint64("operator_id", operatorID(ctx)))
+	uc.log.Info(uc.t.Get("panel settings updated"), slog.String("type", OperationTypeSetting), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("port", uint64(req.Port)), slog.String("locale", req.Locale), slog.String("tls", req.TLS), slog.Uint64("lifetime", uint64(req.Lifetime)), slog.Any("bind_domain", req.BindDomain), slog.Bool("restart", restartFlag))
 
 	return restartFlag, nil
 }

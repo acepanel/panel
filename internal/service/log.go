@@ -7,10 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -30,12 +31,14 @@ const (
 
 type LogService struct {
 	t       *gotext.Locale
+	log     *slog.Logger
 	logRepo *biz.LogUsecase
 }
 
-func NewLogService(logUsecase *biz.LogUsecase, t *gotext.Locale) *LogService {
+func NewLogService(logUsecase *biz.LogUsecase, t *gotext.Locale, log *slog.Logger) *LogService {
 	return &LogService{
 		t:       t,
+		log:     log,
 		logRepo: logUsecase,
 	}
 }
@@ -53,10 +56,15 @@ func (s *LogService) List(w http.ResponseWriter, r *http.Request) {
 		req.Limit = 100
 	}
 
-	entries, err := s.logRepo.List(req.Type, req.Limit, req.Date, req.Level)
+	entries, err := s.logRepo.List(req.Type, req.Limit, req.Date, req.Level, req.Keyword)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
+	}
+
+	// 操作日志就在 app.log 中，查看时再记会不断自我记录
+	if req.Type != biz.LogTypeApp {
+		s.log.Info(s.t.Get("panel log viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("log_type", req.Type), slog.String("date", req.Date), slog.String("log_level", req.Level), slog.String("keyword", req.Keyword))
 	}
 
 	Success(w, entries)
@@ -113,19 +121,27 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ssh login log viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("limit", limit))
+
 	Success(w, logs)
 }
 
 // sshFromJournalctl 通过 journalctl 获取 SSH 日志
+// 登录记录在 journal 里很稀疏，按行数截断会漏，改为倒序流式读取，凑够 limit 条就停
 func (s *LogService) sshFromJournalctl(ctx context.Context, limit int) ([]types.SSHLoginLog, error) {
-	raw, err := shell.Execf(ctx, "journalctl -u sshd -u ssh --no-pager -o json -n %d 2>/dev/null", limit*5)
-	if err != nil || raw == "" {
-		return nil, errors.New(s.t.Get("journalctl is not available"))
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	pipe, err := shell.ExecWithPipe(ctx, "journalctl -u sshd -u ssh --no-pager -o json -r 2>/dev/null")
+	if err != nil {
+		return nil, err
 	}
+	defer func(pipe io.ReadCloser) { _ = pipe.Close() }(pipe)
 
 	var logs []types.SSHLoginLog
-	scanner := bufio.NewScanner(strings.NewReader(raw))
-	for scanner.Scan() {
+	scanner := bufio.NewScanner(pipe)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for len(logs) < limit && scanner.Scan() {
 		var entry struct {
 			RealtimeTimestamp string `json:"__REALTIME_TIMESTAMP"`
 			Message           string `json:"MESSAGE"`
@@ -145,14 +161,14 @@ func (s *LogService) sshFromJournalctl(ctx context.Context, limit int) ([]types.
 		}
 
 		logs = append(logs, *record)
-		if len(logs) >= limit {
-			break
-		}
 	}
 
 	if len(logs) == 0 {
 		return nil, errors.New(s.t.Get("no SSH log entries found"))
 	}
+
+	// 倒序读的，翻回时间正序与文件解析保持一致
+	slices.Reverse(logs)
 
 	return logs, nil
 }

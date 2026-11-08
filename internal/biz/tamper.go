@@ -101,7 +101,13 @@ func (uc *TamperUsecase) DetectEBPF() tamper.EBPFStatus {
 
 // EnableBPFLSMGrub 修改 grub 激活 bpf LSM(需重启系统生效)
 func (uc *TamperUsecase) EnableBPFLSMGrub(ctx context.Context) error {
-	return tamper.EnableBPFLSMGrub(ctx)
+	if err := tamper.EnableBPFLSMGrub(ctx); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("tamper ebpf activated"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return nil
 }
 
 // GetSetting 读取全局设置
@@ -122,7 +128,7 @@ func (uc *TamperUsecase) GetSetting() (*TamperSetting, error) {
 }
 
 // SaveSetting 保存全局设置并立即生效
-func (uc *TamperUsecase) SaveSetting(s *TamperSetting) error {
+func (uc *TamperUsecase) SaveSetting(ctx context.Context, s *TamperSetting) error {
 	if err := uc.setting.Set(SettingKeyTamperMode, s.Mode); err != nil {
 		return err
 	}
@@ -135,7 +141,13 @@ func (uc *TamperUsecase) SaveSetting(s *TamperSetting) error {
 	if err := uc.setting.Set(SettingKeyTamperEnabled, cast.ToString(s.Enabled)); err != nil {
 		return err
 	}
-	return uc.Reconcile()
+	if err := uc.Reconcile(); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("tamper settings updated"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", s.Enabled), slog.String("mode", s.Mode), slog.Bool("block_new_files", s.BlockNewFiles), slog.Uint64("log_days", uint64(s.LogDays)))
+
+	return nil
 }
 
 // Rules 规则管理
@@ -143,21 +155,55 @@ func (uc *TamperUsecase) ListRules() ([]*TamperRule, error) { return uc.repo.Lis
 
 func (uc *TamperUsecase) GetRule(id uint) (*TamperRule, error) { return uc.repo.GetRule(id) }
 
-func (uc *TamperUsecase) CreateRule(rule *TamperRule) error {
+func (uc *TamperUsecase) CreateRule(ctx context.Context, rule *TamperRule) error {
+	if err := uc.createRule(rule); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("tamper rule created"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(rule.ID)), slog.String("name", rule.Name), slog.String("path", rule.Path), slog.Bool("enabled", rule.Enabled), slog.Any("exts", rule.Exts), slog.Any("excludes", rule.Excludes))
+
+	return nil
+}
+
+func (uc *TamperUsecase) UpdateRule(ctx context.Context, rule *TamperRule) error {
+	if err := uc.updateRule(rule); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("tamper rule updated"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(rule.ID)), slog.String("name", rule.Name), slog.String("path", rule.Path), slog.Bool("enabled", rule.Enabled), slog.Any("exts", rule.Exts), slog.Any("excludes", rule.Excludes))
+
+	return nil
+}
+
+func (uc *TamperUsecase) DeleteRule(ctx context.Context, id uint) error {
+	rule, err := uc.repo.GetRule(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.deleteRule(id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("tamper rule deleted"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", rule.Name), slog.String("path", rule.Path))
+
+	return nil
+}
+
+func (uc *TamperUsecase) createRule(rule *TamperRule) error {
 	if err := uc.repo.CreateRule(rule); err != nil {
 		return err
 	}
 	return uc.Reconcile()
 }
 
-func (uc *TamperUsecase) UpdateRule(rule *TamperRule) error {
+func (uc *TamperUsecase) updateRule(rule *TamperRule) error {
 	if err := uc.repo.UpdateRule(rule); err != nil {
 		return err
 	}
 	return uc.Reconcile()
 }
 
-func (uc *TamperUsecase) DeleteRule(id uint) error {
+func (uc *TamperUsecase) deleteRule(id uint) error {
 	if err := uc.repo.DeleteRule(id); err != nil {
 		return err
 	}
@@ -171,7 +217,15 @@ func (uc *TamperUsecase) ListLogs(page, limit uint) ([]*TamperLog, int64, error)
 	return uc.repo.ListLogs(page, limit)
 }
 
-func (uc *TamperUsecase) ClearLogs() error { return uc.repo.ClearLogs() }
+func (uc *TamperUsecase) ClearLogs(ctx context.Context) error {
+	if err := uc.repo.ClearLogs(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("tamper logs cleared"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return nil
+}
 
 // buildConfig 从设置与规则构造运行配置
 func (uc *TamperUsecase) buildConfig(s *TamperSetting) (tamper.Config, error) {
@@ -224,7 +278,7 @@ func (uc *TamperUsecase) Reconcile() error {
 
 	// 重启 Manager 以套用最新配置(规则/模式可能变化)
 	uc.stopLocked()
-	mgr, err := tamper.NewManager(cfg, uc.log)
+	mgr, err := tamper.NewManager(cfg, uc.t, uc.log)
 	if err != nil {
 		return err
 	}
@@ -286,7 +340,7 @@ func (uc *TamperUsecase) FlushLogs() {
 	uc.bufMu.Unlock()
 
 	if err := uc.repo.AddLogs(logs); err != nil {
-		uc.log.Warn("failed to persist tamper logs", slog.Any("err", err))
+		uc.log.Warn(uc.t.Get("failed to persist tamper logs"), slog.Any("err", err))
 		return
 	}
 
@@ -395,17 +449,29 @@ func (uc *TamperUsecase) CheckPaths(paths []string) (map[string]bool, error) {
 // SetProtect 切换单个路径的保护状态,经由规则/排除联动实现:
 // 保护:命中排除则移除排除项,无覆盖规则则对目录新建整树规则
 // 解除:路径即规则根则删除规则,否则加入排除项
-func (uc *TamperUsecase) SetProtect(path string, protect bool) error {
+func (uc *TamperUsecase) SetProtect(ctx context.Context, path string, protect bool) error {
 	path = filepath.Clean(path)
+	rule, err := uc.setProtect(path, protect)
+	if err != nil || rule == nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("tamper path protection updated"), slog.String("type", OperationTypeSafe), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("path", path), slog.Bool("protect", protect), slog.Uint64("rule_id", uint64(rule.ID)), slog.String("rule_name", rule.Name))
+
+	return nil
+}
+
+// setProtect 返回被改动的规则,无改动时返回 nil
+func (uc *TamperUsecase) setProtect(path string, protect bool) (*TamperRule, error) {
 	info, err := os.Lstat(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	isDir := info.IsDir()
 
 	rules, _, err := uc.enabledRules()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var covering *TamperRule
 	for _, r := range rules {
@@ -418,9 +484,10 @@ func (uc *TamperUsecase) SetProtect(path string, protect bool) error {
 	if protect {
 		if covering == nil {
 			if !isDir {
-				return errors.New("file is not inside any protection rule, protect its directory instead")
+				return nil, errors.New("file is not inside any protection rule, protect its directory instead")
 			}
-			return uc.CreateRule(&TamperRule{Name: uc.ruleNameFor(rules, path), Path: path, Enabled: true})
+			rule := &TamperRule{Name: uc.ruleNameFor(rules, path), Path: path, Enabled: true}
+			return rule, uc.createRule(rule)
 		}
 		// 移除导致该路径被排除的排除项
 		kept := make([]string, 0, len(covering.Excludes))
@@ -431,25 +498,25 @@ func (uc *TamperUsecase) SetProtect(path string, protect bool) error {
 		}
 		if len(kept) != len(covering.Excludes) {
 			covering.Excludes = kept
-			return uc.UpdateRule(covering)
+			return covering, uc.updateRule(covering)
 		}
 		if !isDir && !tamper.MatchExt(path, covering.Exts) {
-			return errors.New("file extension is not protected by the rule, edit the rule extensions instead")
+			return nil, errors.New("file extension is not protected by the rule, edit the rule extensions instead")
 		}
-		return nil // 已处于保护中
+		return nil, nil // 已处于保护中
 	}
 
 	if covering == nil {
-		return nil // 本就未受保护
+		return nil, nil // 本就未受保护
 	}
 	if path == filepath.Clean(covering.Path) {
-		return uc.DeleteRule(covering.ID)
+		return covering, uc.deleteRule(covering.ID)
 	}
 	if !tamper.Covered([]tamper.Rule{{Paths: []string{covering.Path}, Exts: covering.Exts, Excludes: covering.Excludes}}, path, isDir) {
-		return nil // 本就未受保护(已排除或后缀不匹配)
+		return nil, nil // 本就未受保护(已排除或后缀不匹配)
 	}
 	covering.Excludes = append(covering.Excludes, path)
-	return uc.UpdateRule(covering)
+	return covering, uc.updateRule(covering)
 }
 
 // ruleNameFor 生成不冲突的规则名

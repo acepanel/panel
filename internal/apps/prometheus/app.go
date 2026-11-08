@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -27,12 +28,13 @@ import (
 
 type App struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	conf     *config.Config
 	taskRepo biz.TaskRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, taskRepo biz.TaskRepo) *App {
-	return &App{t: t, conf: conf, taskRepo: taskRepo}
+func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, taskRepo biz.TaskRepo) *App {
+	return &App{t: t, log: log, conf: conf, taskRepo: taskRepo}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -106,16 +108,19 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	common.ServeConfig(w, app.Root+"/server/prometheus/prometheus.yml")
+	confPath := app.Root + "/server/prometheus/prometheus.yml"
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
+	common.ServeConfig(w, confPath)
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, app.Root+"/server/prometheus/prometheus.yml", 0644, "prometheus")
+	common.SaveConfig(w, r, s.log, s.t, "prometheus", app.Root+"/server/prometheus/prometheus.yml", 0644, "prometheus")
 }
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(app.Root + "/server/prometheus/prometheus.yml")
+	confPath := app.Root + "/server/prometheus/prometheus.yml"
+	conf, _ := io.Read(confPath)
 
 	var cfg struct {
 		Global struct {
@@ -131,6 +136,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		EvaluationInterval: cfg.Global.EvaluationInterval,
 		ScrapeTimeout:      cfg.Global.ScrapeTimeout,
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
 
 	service.Success(w, tune)
 }
@@ -184,12 +191,18 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("scrape_interval", req.ScrapeInterval), slog.String("evaluation_interval", req.EvaluationInterval), slog.String("scrape_timeout", req.ScrapeTimeout))
+
 	service.Success(w, nil)
 }
 
 // GetAlertmanagerConfig 获取 Alertmanager 配置
 func (s *App) GetAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(app.Root + "/server/prometheus/alertmanager/alertmanager.yml")
+	confPath := app.Root + "/server/prometheus/alertmanager/alertmanager.yml"
+	conf, _ := io.Read(confPath)
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
+
 	service.Success(w, conf)
 }
 
@@ -201,7 +214,8 @@ func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(app.Root+"/server/prometheus/alertmanager/alertmanager.yml", req.Config, 0644); err != nil {
+	confPath := app.Root + "/server/prometheus/alertmanager/alertmanager.yml"
+	if err = io.Write(confPath, req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -210,6 +224,8 @@ func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
 
 	service.Success(w, nil)
 }
@@ -224,6 +240,8 @@ func (s *App) ExporterList(w http.ResponseWriter, r *http.Request) {
 			exporters[i].Running = running
 		}
 	}
+
+	s.log.Info(s.t.Get("prometheus exporter list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"))
 
 	service.Success(w, exporters)
 }
@@ -253,6 +271,8 @@ func (s *App) InstallExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("prometheus exporter installed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
+
 	service.Success(w, nil)
 }
 
@@ -281,6 +301,8 @@ func (s *App) UninstallExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("prometheus exporter uninstalled"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
+
 	service.Success(w, nil)
 }
 
@@ -296,6 +318,8 @@ func (s *App) StartExporter(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("prometheus exporter started"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
 
 	service.Success(w, nil)
 }
@@ -313,6 +337,8 @@ func (s *App) StopExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("prometheus exporter stopped"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
+
 	service.Success(w, nil)
 }
 
@@ -328,6 +354,8 @@ func (s *App) RestartExporter(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("prometheus exporter restarted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
 
 	service.Success(w, nil)
 }
@@ -347,6 +375,8 @@ func (s *App) GetExporterConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conf, _ := io.Read(confPath)
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug), slog.String("path", confPath))
 
 	service.Success(w, conf)
 }
@@ -380,6 +410,8 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("prometheus exporter config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug), slog.String("path", confPath))
 
 	service.Success(w, nil)
 }

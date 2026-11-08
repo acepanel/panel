@@ -2,6 +2,8 @@ package valkey
 
 import (
 	"context"
+	"log/slog"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 
@@ -13,9 +15,9 @@ type App struct {
 	redis *redis.App
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
-		redis: redis.New("valkey", "Valkey", t, databaseServerRepo, taskRepo),
+		redis: redis.New("valkey", "Valkey", t, log, databaseServerRepo, taskRepo),
 	}
 }
 

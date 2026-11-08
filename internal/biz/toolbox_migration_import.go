@@ -249,10 +249,10 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 		return nil, errors.New(uc.t.Get("website configuration import failed: %v", err))
 	}
 	if website.Remark != "" {
-		_ = uc.website.UpdateRemark(created.ID, website.Remark)
+		_ = uc.website.UpdateRemark(ctx, created.ID, website.Remark)
 	}
 	if website.ExpireAt != nil {
-		_ = uc.website.UpdateExpireAt(created.ID, website.ExpireAt)
+		_ = uc.website.UpdateExpireAt(ctx, created.ID, website.ExpireAt)
 	}
 	if !website.Enabled {
 		_ = uc.website.UpdateStatus(ctx, created.ID, false)

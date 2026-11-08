@@ -4,12 +4,14 @@ import (
 	"cmp"
 	"context"
 	"log/slog"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -128,7 +130,7 @@ func (uc *BackupUsecase) Create(ctx context.Context, typ BackupType, target stri
 		{uc.t.Get("Error"), err.Error()},
 		{uc.t.Get("Time"), time.Now().Format(time.DateTime)},
 	})); sendErr != nil {
-		uc.log.Warn("failed to send backup failure notification", slog.Any("err", sendErr))
+		uc.log.Warn(uc.t.Get("failed to send backup failure notification"), slog.Any("err", sendErr))
 	}
 
 	return err
@@ -144,7 +146,7 @@ func (uc *BackupUsecase) Delete(ctx context.Context, typ BackupType, name string
 	}
 
 	// 记录日志
-	uc.log.Info("backup deleted", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
+	uc.log.Warn(uc.t.Get("backup deleted"), slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
 
 	return nil
 }
@@ -155,11 +157,12 @@ func (uc *BackupUsecase) Restore(ctx context.Context, typ BackupType, backup, ta
 	}
 
 	// 记录日志
-	uc.log.Info("backup restored",
+	uc.log.Info(uc.t.Get("backup restored"),
 		slog.String("type", OperationTypeBackup),
-		slog.Uint64("operator_id", operatorID(ctx)),
+		slog.Uint64("operator_id", OperatorID(ctx)),
 		slog.String("backup_type", string(typ)),
 		slog.String("target", target),
+		slog.String("file", filepath.Base(backup)),
 	)
 
 	return nil
@@ -190,5 +193,12 @@ func (uc *BackupUsecase) FixPanel(ctx context.Context) error {
 }
 
 func (uc *BackupUsecase) UpdatePanel(ctx context.Context, version, url, checksum string, progress func(string)) error {
-	return uc.repo.UpdatePanel(ctx, version, url, checksum, progress)
+	fromVersion := app.Version
+	if err := uc.repo.UpdatePanel(ctx, version, url, checksum, progress); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("panel updated"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("from_version", fromVersion), slog.String("version", version))
+
+	return nil
 }

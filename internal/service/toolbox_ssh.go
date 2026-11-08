@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/spf13/cast"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -20,11 +22,12 @@ import (
 
 type ToolboxSSHService struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	service  string
 	firewall firewall.Firewall
 }
 
-func NewToolboxSSHService(t *gotext.Locale) *ToolboxSSHService {
+func NewToolboxSSHService(t *gotext.Locale, log *slog.Logger) *ToolboxSSHService {
 	// 沟槽的大便和乌班图喜欢搞特殊
 	service := "sshd"
 	if os.IsDebian() || os.IsUbuntu() {
@@ -32,6 +35,7 @@ func NewToolboxSSHService(t *gotext.Locale) *ToolboxSSHService {
 	}
 	return &ToolboxSSHService{
 		t:        t,
+		log:      log,
 		service:  service,
 		firewall: firewall.NewFirewall(),
 	}
@@ -74,6 +78,7 @@ func (s *ToolboxSSHService) GetInfo(w http.ResponseWriter, r *http.Request) {
 		rootLogin = strings.ToLower(rootLoginMatch[1])
 	}
 
+	s.log.Info(s.t.Get("ssh server config viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", s.service))
 	Success(w, chix.M{
 		"service":       s.service,
 		"port":          port,
@@ -121,6 +126,7 @@ func (s *ToolboxSSHService) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ssh server port updated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("port", uint64(req.Port)), slog.Bool("firewall_allowed", running))
 	Success(w, nil)
 }
 
@@ -142,7 +148,13 @@ func (s *ToolboxSSHService) UpdatePasswordAuth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	s.restart(w, r)
+	if err = systemctl.Restart(r.Context(), s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("ssh server password auth updated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Bool("enabled", req.Enabled))
+	Success(w, nil)
 }
 
 // UpdatePubKeyAuth 设置密钥认证
@@ -163,7 +175,13 @@ func (s *ToolboxSSHService) UpdatePubKeyAuth(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	s.restart(w, r)
+	if err = systemctl.Restart(r.Context(), s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("ssh server pubkey auth updated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Bool("enabled", req.Enabled))
+	Success(w, nil)
 }
 
 // UpdateRootLogin 设置 Root 登录
@@ -179,7 +197,13 @@ func (s *ToolboxSSHService) UpdateRootLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	s.restart(w, r)
+	if err = systemctl.Restart(r.Context(), s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("ssh server root login updated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("mode", req.Mode))
+	Success(w, nil)
 }
 
 // UpdateRootPassword 修改 Root 密码
@@ -196,6 +220,7 @@ func (s *ToolboxSSHService) UpdateRootPassword(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	s.log.Info(s.t.Get("root password updated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("user", "root"))
 	Success(w, nil)
 }
 
@@ -210,6 +235,7 @@ func (s *ToolboxSSHService) GetRootKey(w http.ResponseWriter, r *http.Request) {
 		privateKey, _ = io.Read("/root/.ssh/id_rsa")
 	}
 
+	s.log.Info(s.t.Get("root ssh key viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("user", "root"))
 	Success(w, strings.TrimSpace(privateKey))
 }
 
@@ -272,17 +298,8 @@ func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Reque
 
 	_ = systemctl.Restart(r.Context(), s.service)
 
+	s.log.Info(s.t.Get("root ssh key generated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("key_type", keyType), slog.String("path", "/root/.ssh/id_"+keyType))
 	Success(w, privateKey)
-}
-
-// restart 重启 SSH 服务并回写响应
-func (s *ToolboxSSHService) restart(w http.ResponseWriter, r *http.Request) {
-	if err := systemctl.Restart(r.Context(), s.service); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
 }
 
 // updateSSHConfig 更新 SSH 配置项

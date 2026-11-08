@@ -54,7 +54,7 @@ func (s *ContainerService) Update(w http.ResponseWriter, r *http.Request) {
 
 	idParam := chi.URLParam(r, "id")
 	if req.Background {
-		if err = s.containerRepo.UpdateBackground(idParam, req); err != nil {
+		if err = s.containerRepo.UpdateBackground(r.Context(), idParam, req); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -79,7 +79,7 @@ func (s *ContainerService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Background {
-		if err = s.containerRepo.CreateBackground(req); err != nil {
+		if err = s.containerRepo.CreateBackground(r.Context(), req); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}

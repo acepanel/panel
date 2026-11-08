@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 )
@@ -30,11 +32,12 @@ type CertDNSRepo interface {
 
 type CertDNSUsecase struct {
 	repo CertDNSRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewCertDNSUsecase(repo CertDNSRepo, log *slog.Logger) *CertDNSUsecase {
-	return &CertDNSUsecase{repo: repo, log: log}
+func NewCertDNSUsecase(t *gotext.Locale, log *slog.Logger, repo CertDNSRepo) *CertDNSUsecase {
+	return &CertDNSUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *CertDNSUsecase) List(page, limit uint) ([]*CertDNS, int64, error) {
@@ -52,7 +55,7 @@ func (uc *CertDNSUsecase) Create(ctx context.Context, req *request.CertDNSCreate
 	}
 
 	// 记录日志
-	uc.log.Info("cert dns created", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("cert dns created"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", req.Name))
 
 	return certDNS, nil
 }
@@ -63,7 +66,7 @@ func (uc *CertDNSUsecase) Update(ctx context.Context, req *request.CertDNSUpdate
 	}
 
 	// 记录日志
-	uc.log.Info("cert dns updated", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("cert dns updated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
 
 	return nil
 }
@@ -79,7 +82,7 @@ func (uc *CertDNSUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("cert dns deleted", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
+	uc.log.Warn(uc.t.Get("cert dns deleted"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
 
 	return nil
 }

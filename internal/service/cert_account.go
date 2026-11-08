@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -10,11 +12,15 @@ import (
 )
 
 type CertAccountService struct {
+	t               *gotext.Locale
+	log             *slog.Logger
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertAccountService(certAccountUsecase *biz.CertAccountUsecase) *CertAccountService {
+func NewCertAccountService(certAccountUsecase *biz.CertAccountUsecase, t *gotext.Locale, log *slog.Logger) *CertAccountService {
 	return &CertAccountService{
+		t:               t,
+		log:             log,
 		certAccountRepo: certAccountUsecase,
 	}
 }
@@ -31,6 +37,8 @@ func (s *CertAccountService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cert account list viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -81,6 +89,8 @@ func (s *CertAccountService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cert account viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(account.ID)), slog.String("email", account.Email), slog.String("ca", account.CA))
 
 	Success(w, account)
 }

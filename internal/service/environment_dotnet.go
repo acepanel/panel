@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -13,12 +14,14 @@ import (
 
 type EnvironmentDotnetService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentDotnetService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentDotnetService {
+func NewEnvironmentDotnetService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale, log *slog.Logger) *EnvironmentDotnetService {
 	return &EnvironmentDotnetService{
 		t:               t,
+		log:             log,
 		environmentRepo: environmentUsecase,
 	}
 }
@@ -39,6 +42,8 @@ func (s *EnvironmentDotnetService) SetCli(w http.ResponseWriter, r *http.Request
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "dotnet"), slog.String("slug", req.Slug), slog.String("bin_path", binPath))
 
 	Success(w, nil)
 }

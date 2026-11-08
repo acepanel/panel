@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 
@@ -23,14 +24,16 @@ type ContainerImageUsecase struct {
 	setting SettingRepo
 	task    TaskRepo
 	t       *gotext.Locale
+	log     *slog.Logger
 }
 
-func NewContainerImageUsecase(t *gotext.Locale, containerImageRepo ContainerImageRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerImageUsecase {
+func NewContainerImageUsecase(t *gotext.Locale, log *slog.Logger, containerImageRepo ContainerImageRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerImageUsecase {
 	return &ContainerImageUsecase{
 		repo:    containerImageRepo,
 		setting: settingRepo,
 		task:    taskRepo,
 		t:       t,
+		log:     log,
 	}
 }
 
@@ -46,10 +49,15 @@ func (uc *ContainerImageUsecase) Exist(ctx context.Context, name string) (bool, 
 
 func (uc *ContainerImageUsecase) Pull(ctx context.Context, req *request.ContainerImagePull) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Pull(ctx, sock, req)
+	if err := uc.repo.Pull(ctx, sock, req); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("image pulled"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name))
+	return nil
 }
 
-func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull) error {
+func (uc *ContainerImageUsecase) PullBackground(ctx context.Context, req *request.ContainerImagePull) error {
 	shell, cancelShell, err := docker.ImagePullShell(containerSock(uc.setting), req)
 	if err != nil {
 		return err
@@ -62,12 +70,22 @@ func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull)
 	task.Shell = shell
 	task.CancelShell = cancelShell
 
-	return uc.task.Push(task)
+	if err = uc.task.Push(task); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("image pulled"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Bool("background", true))
+	return nil
 }
 
 func (uc *ContainerImageUsecase) Remove(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Remove(ctx, sock, id)
+	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("image deleted"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id))
+	return nil
 }
 
 func (uc *ContainerImageUsecase) Prune(ctx context.Context) error {

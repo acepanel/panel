@@ -24,6 +24,7 @@ interface LogEntry {
 const limit = ref(200)
 const selectedDate = ref('')
 const selectedLevel = ref('')
+const keyword = ref('')
 
 // 日志级别选项
 const levelOptions = [
@@ -54,9 +55,12 @@ const {
   loading,
   data,
   send: refresh,
-} = useRequest(() => log.list('http', limit.value, selectedDate.value, selectedLevel.value), {
-  initialData: [],
-})
+} = useRequest(
+  () => log.list('http', limit.value, selectedDate.value, selectedLevel.value, keyword.value),
+  {
+    initialData: [],
+  },
+)
 
 // 获取状态码颜色
 const getStatusType = (code: number): 'success' | 'warning' | 'error' | 'info' => {
@@ -193,6 +197,14 @@ const handleCleaned = () => {
           @update:value="handleRefresh"
         />
       </div>
+      <n-input
+        v-model:value="keyword"
+        :placeholder="$gettext('Search')"
+        clearable
+        class="w-60"
+        @keyup.enter="handleRefresh"
+        @clear="handleRefresh"
+      />
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>

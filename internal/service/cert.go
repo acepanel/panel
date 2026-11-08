@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -14,12 +15,14 @@ import (
 
 type CertService struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	certRepo *biz.CertUsecase
 }
 
-func NewCertService(certUsecase *biz.CertUsecase, t *gotext.Locale) *CertService {
+func NewCertService(certUsecase *biz.CertUsecase, t *gotext.Locale, log *slog.Logger) *CertService {
 	return &CertService{
 		t:        t,
+		log:      log,
 		certRepo: certUsecase,
 	}
 }
@@ -128,6 +131,8 @@ func (s *CertService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("cert list viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{
 		"total": total,
 		"items": certs,
@@ -193,6 +198,8 @@ func (s *CertService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cert viewed"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains))
 
 	Success(w, cert)
 }

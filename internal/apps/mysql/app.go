@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"slices"
@@ -27,17 +28,25 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
 	taskRepo           biz.TaskRepo
+	slug               string
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+	return New("mysql", t, log, databaseServerRepo, settingRepo, taskRepo)
+}
+
+func New(slug string, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
 		taskRepo:           taskRepo,
+		slug:               slug,
 	}
 }
 
@@ -178,11 +187,13 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+	config, err := io.Read(configPath())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
 
 	service.Success(w, config)
 }
@@ -195,7 +206,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(app.Root+"/server/mysql/conf/my.cnf", req.Config, 0644); err != nil {
+	if err = io.Write(configPath(), req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -204,6 +215,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
 
 	service.Success(w, nil)
 }
@@ -220,6 +233,8 @@ func (s *App) GetRootPassword(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("username", "root"))
 
 	service.Success(w, rootPassword)
 }
@@ -257,12 +272,14 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 
 	_ = s.databaseServerRepo.UpdatePassword("local_mysql", req.Password)
 
+	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("username", "root"))
+
 	service.Success(w, nil)
 }
 
 // GetConfigTune 获取 MySQL 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+	config, err := io.Read(configPath())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -301,6 +318,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		LongQueryTime: confval.INI.Get(config, "long_query_time"),
 	}
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
+
 	service.Success(w, tune)
 }
 
@@ -312,7 +331,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := app.Root + "/server/mysql/conf/my.cnf"
+	confPath := configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -355,6 +374,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", confPath), slog.String("port", req.Port), slog.String("max_connections", req.MaxConnections), slog.String("innodb_buffer_pool_size", req.InnodbBufferPoolSize), slog.String("slow_query_log", req.SlowQueryLog))
+
 	service.Success(w, nil)
 }
 
@@ -391,6 +412,8 @@ func (s *App) ProcessList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("mysql process list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+
 	service.Success(w, processes)
 }
 
@@ -409,11 +432,16 @@ func (s *App) KillProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
+	var user, host, database string
+	_ = mysql.QueryRow(r.Context(), `SELECT coalesce(USER,''), coalesce(HOST,''), coalesce(DB,'') FROM information_schema.PROCESSLIST WHERE ID = ?`, id).Scan(&user, &host, &database)
+
 	// KILL 不支持预编译参数，id 已校验为正整数
 	if _, err = mysql.Exec(r.Context(), fmt.Sprintf(`KILL %d`, id)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("mysql process killed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.Int64("process_id", id), slog.String("user", user), slog.String("host", host), slog.String("database", database))
 
 	service.Success(w, nil)
 }
@@ -479,6 +507,8 @@ func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Info(s.t.Get("mysql transaction list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+
 	service.Success(w, result)
 }
 
@@ -502,7 +532,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	if enabled == 0 {
 		// 检查是否已配置等待重启
-		config, _ := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+		config, _ := io.Read(configPath())
 		pending := strings.EqualFold(confval.SectionINI.GetIn(config, "mysqld", "performance_schema"), "on")
 		service.Success(w, TopSQL{Supported: true, Enabled: false, PendingRestart: pending, Items: []TopSQLItem{}})
 		return
@@ -533,6 +563,8 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+
 	service.Success(w, TopSQL{Supported: true, Enabled: true, Items: items})
 }
 
@@ -551,7 +583,7 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := app.Root + "/server/mysql/conf/my.cnf"
+	confPath := configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -564,6 +596,8 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app top sql enabled"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", confPath))
 
 	service.Success(w, nil)
 }
@@ -581,6 +615,8 @@ func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app top sql reset"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("table", "performance_schema.events_statements_summary_by_digest"))
 
 	service.Success(w, nil)
 }
@@ -675,6 +711,8 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("database", req.Database))
+
 	service.Success(w, items)
 }
 
@@ -717,6 +755,8 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app maintenance queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("operation", req.Operation), slog.Any("tables", tables), slog.Uint64("task_id", uint64(task.ID)))
 
 	service.Success(w, nil)
 }
@@ -761,6 +801,8 @@ func (s *App) BinlogList(w http.ResponseWriter, r *http.Request) {
 	}
 	binlog.TotalSize = tools.FormatBytes(float64(total))
 
+	s.log.Info(s.t.Get("mysql binlog list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+
 	service.Success(w, binlog)
 }
 
@@ -799,6 +841,8 @@ func (s *App) PurgeBinlog(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("mysql binlog purged"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("to_file", req.File))
 
 	service.Success(w, nil)
 }
@@ -840,6 +884,8 @@ func (s *App) ReplicationStatus(w http.ResponseWriter, r *http.Request) {
 		return ""
 	}
 	m := maps[0]
+	s.log.Info(s.t.Get("mysql replication status viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+
 	service.Success(w, Replication{
 		Enabled:       true,
 		IORunning:     pick(m, "Replica_IO_Running", "Slave_IO_Running"),
@@ -848,6 +894,10 @@ func (s *App) ReplicationStatus(w http.ResponseWriter, r *http.Request) {
 		SourceHost:    pick(m, "Source_Host", "Master_Host"),
 		LastError:     pick(m, "Last_Error"),
 	})
+}
+
+func configPath() string {
+	return app.Root + "/server/mysql/conf/my.cnf"
 }
 
 // connect 以 root 用户通过 unix socket 连接

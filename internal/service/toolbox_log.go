@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,14 +30,16 @@ var rotatedLog = regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 
 type ToolboxLogService struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	db                 *gorm.DB
 	containerImageRepo *biz.ContainerImageUsecase
 	settingRepo        *biz.SettingUsecase
 }
 
-func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) *ToolboxLogService {
+func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) *ToolboxLogService {
 	return &ToolboxLogService{
 		t:                  t,
+		log:                log,
 		db:                 db,
 		containerImageRepo: containerImageUsecase,
 		settingRepo:        settingUsecase,
@@ -61,7 +64,10 @@ func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Success(w, s.scan(r.Context(), req.Type))
+	items := s.scan(r.Context(), req.Type)
+	s.log.Info(s.t.Get("log list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("log_type", req.Type))
+
+	Success(w, items)
 }
 
 // Clean 清理勾选的日志
@@ -75,6 +81,7 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 	// 以重新扫描的结果为准，只清理其中被勾选的项
 	var cleaned int64
 	var errs []error
+	var names []string
 	for _, item := range s.scan(r.Context(), req.Type) {
 		if !slices.Contains(req.Paths, item.Path) {
 			continue
@@ -84,6 +91,11 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		cleaned += item.bytes
+		names = append(names, item.Name)
+	}
+	// 部分失败时已清理的项也要留痕
+	if len(names) > 0 {
+		s.log.Warn(s.t.Get("logs cleaned"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("log_type", req.Type), slog.Any("items", names), slog.String("cleaned", tools.FormatBytes(float64(cleaned))), slog.Int("failed", len(errs)))
 	}
 	if len(errs) > 0 {
 		Error(w, http.StatusInternalServerError, "%v", errors.Join(errs...))

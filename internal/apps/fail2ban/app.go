@@ -2,6 +2,7 @@ package fail2ban
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -25,12 +26,14 @@ import (
 
 type App struct {
 	t           *gotext.Locale
+	log         *slog.Logger
 	websiteRepo biz.WebsiteRepo
 }
 
-func NewApp(t *gotext.Locale, websiteRepo biz.WebsiteRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, websiteRepo biz.WebsiteRepo) *App {
 	return &App{
 		t:           t,
+		log:         log,
 		websiteRepo: websiteRepo,
 	}
 }
@@ -61,6 +64,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := service.Paginate(r, jails)
 
+	s.log.Info(s.t.Get("fail2ban jail list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
 	service.Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -150,7 +154,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(r.Context(), w)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("fail2ban jail created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("name", jail.Name), slog.String("jail_type", req.Type), slog.String("port", jail.Port), slog.Int("max_retry", req.MaxRetry), slog.Int("find_time", req.FindTime), slog.Int("ban_time", req.BanTime), slog.String("website_path", req.WebsitePath))
+	service.Success(w, nil)
 }
 
 // Update 修改规则
@@ -177,7 +187,13 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(r.Context(), w)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("fail2ban jail updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("name", jail.Name), slog.Bool("enabled", req.Enabled), slog.Int("max_retry", req.MaxRetry), slog.Int("find_time", req.FindTime), slog.Int("ban_time", req.BanTime))
+	service.Success(w, nil)
 }
 
 // Delete 删除规则
@@ -208,7 +224,13 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	s.reload(ctx, w)
+	if err = s.reload(ctx); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Warn(s.t.Get("fail2ban jail deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.String("app", "fail2ban"), slog.String("name", jail.Name), slog.String("filter", jail.Filter), slog.String("port", jail.Port))
+	service.Success(w, nil)
 }
 
 // BanList 获取封禁列表
@@ -255,6 +277,7 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
+	s.log.Info(s.t.Get("fail2ban ban list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("jail", req.Name))
 	service.Success(w, chix.M{
 		"currently_ban": currentlyBan,
 		"total_ban":     totalBan,
@@ -276,6 +299,7 @@ func (s *App) Unban(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("fail2ban ip unbanned"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("jail", req.Name), slog.String("ip", req.IP))
 	service.Success(w, nil)
 }
 
@@ -293,22 +317,25 @@ func (s *App) SetWhiteList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(r.Context(), w)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("fail2ban whitelist saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("path", jailLocal), slog.String("ignore_ip", req.IP))
+	service.Success(w, nil)
 }
 
 // GetWhiteList 获取白名单
 func (s *App) GetWhiteList(w http.ResponseWriter, r *http.Request) {
 	raw, _ := io.Read(jailLocal)
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "fail2ban"), slog.String("path", jailLocal))
 	service.Success(w, confval.SectionINI.GetIn(raw, "DEFAULT", "ignoreip"))
 }
 
-func (s *App) reload(ctx context.Context, w http.ResponseWriter) {
+func (s *App) reload(ctx context.Context) error {
 	// 规则已落盘，重载不跟随请求取消，否则磁盘规则与运行中的 fail2ban 不一致
-	if _, err := shell.Execf(context.WithoutCancel(ctx), "fail2ban-client reload"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	_, err := shell.Execf(context.WithoutCancel(ctx), "fail2ban-client reload")
+	return err
 }

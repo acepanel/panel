@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -10,11 +12,15 @@ import (
 )
 
 type SSHService struct {
+	t       *gotext.Locale
+	log     *slog.Logger
 	sshRepo *biz.SSHUsecase
 }
 
-func NewSSHService(sshUsecase *biz.SSHUsecase) *SSHService {
+func NewSSHService(sshUsecase *biz.SSHUsecase, t *gotext.Locale, log *slog.Logger) *SSHService {
 	return &SSHService{
+		t:       t,
+		log:     log,
 		sshRepo: sshUsecase,
 	}
 }
@@ -31,6 +37,8 @@ func (s *SSHService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("ssh host list viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -81,6 +89,8 @@ func (s *SSHService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ssh host viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(cron.ID)), slog.String("name", cron.Name), slog.String("host", cron.Host))
+
 	Success(w, cron)
 }
 
@@ -112,6 +122,8 @@ func (s *SSHService) ListFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ssh file list viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("host_id", uint64(req.ID)), slog.String("path", req.Path))
+
 	Success(w, files)
 }
 
@@ -122,7 +134,7 @@ func (s *SSHService) Mkdir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.sshRepo.Mkdir(req.ID, req.Path); err != nil {
+	if err = s.sshRepo.Mkdir(r.Context(), req.ID, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

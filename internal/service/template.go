@@ -1,10 +1,12 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -12,13 +14,15 @@ import (
 
 type TemplateService struct {
 	t            *gotext.Locale
+	log          *slog.Logger
 	templateRepo *biz.TemplateUsecase
 	settingRepo  *biz.SettingUsecase
 }
 
-func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale) *TemplateService {
+func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale, log *slog.Logger) *TemplateService {
 	return &TemplateService{
 		t:            t,
+		log:          log,
 		templateRepo: templateUsecase,
 		settingRepo:  settingUsecase,
 	}
@@ -40,6 +44,7 @@ func (s *TemplateService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paged, total := Paginate(r, templates)
+	s.log.Info(s.t.Get("template list viewed"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("category", category), slog.String("query", query), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -60,6 +65,7 @@ func (s *TemplateService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("template viewed"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug))
 	Success(w, template)
 }
 
@@ -85,7 +91,7 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建编排
-	dir, err := s.templateRepo.CreateCompose(req.Name, compose, req.Envs)
+	dir, err := s.templateRepo.CreateCompose(r.Context(), req.Slug, req.Name, compose, req.Envs)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

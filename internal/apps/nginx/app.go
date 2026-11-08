@@ -2,7 +2,9 @@ package nginx
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"regexp"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -26,12 +29,20 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t    *gotext.Locale
+	log  *slog.Logger
+	slug string
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return New("nginx", t, log)
+}
+
+func New(slug string, t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:    t,
+		log:  log,
+		slug: slug,
 	}
 }
 
@@ -60,11 +71,14 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/nginx/conf/nginx.conf")
+	path := app.Root + "/server/nginx/conf/nginx.conf"
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -76,12 +90,20 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(app.Root+"/server/nginx/conf/nginx.conf", req.Config, 0600); err != nil {
+	path := app.Root + "/server/nginx/conf/nginx.conf"
+	if err = io.Write(path, req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.reload(w, r)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", path))
+
+	service.Success(w, nil)
 }
 
 func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +115,8 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", app.Root+"/server/nginx/nginx-error.log"))
 
 	service.Success(w, nil)
 }
@@ -175,7 +199,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Nginx 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/nginx/conf/nginx.conf")
+	confPath := app.Root + "/server/nginx/conf/nginx.conf"
+	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -212,6 +237,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		ZstdTypes:     confval.Nginx.Get(config, "zstd_types"),
 		ZstdStatic:    confval.Nginx.Get(config, "zstd_static"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", confPath))
 
 	service.Success(w, tune)
 }
@@ -271,25 +298,43 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	s.reload(w, r)
-}
-
-// reload 重载 nginx 并回写响应，失败时删除 rollback 指定的配置文件
-// 走方言的 Reload，错误里已带配置检查输出
-func (s *App) reload(w http.ResponseWriter, r *http.Request, rollback ...string) {
-	d, err := webserver.Get(webserver.TypeNginx)
-	if err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = d.Reload(r.Context()); err != nil {
+	s.log.Info(s.t.Get("app config tune saved"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", s.slug),
+		slog.String("path", confPath),
+		slog.String("worker_processes", req.WorkerProcesses),
+		slog.String("worker_connections", req.WorkerConnections),
+		slog.String("keepalive_timeout", req.KeepaliveTimeout),
+		slog.String("client_max_body_size", req.ClientMaxBodySize),
+		slog.Bool("reuseport", req.Reuseport),
+		slog.String("gzip", req.Gzip),
+		slog.String("brotli", req.Brotli),
+		slog.String("zstd", req.Zstd),
+	)
+
+	service.Success(w, nil)
+}
+
+// reload 重载 nginx，失败时删除 rollback 指定的配置文件
+// 走方言的 Reload，错误里已带配置检查输出
+func (s *App) reload(ctx context.Context, rollback ...string) error {
+	d, err := webserver.Get(webserver.TypeNginx)
+	if err != nil {
+		return err
+	}
+
+	if err = d.Reload(ctx); err != nil {
 		for _, path := range rollback {
 			_ = os.Remove(path)
 		}
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
+		return errors.New(s.t.Get("failed to reload nginx: %v", err))
 	}
 
-	service.Success(w, nil)
+	return nil
 }

@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"os"
 	"testing"
+
+	"github.com/leonelquinteros/gotext"
 )
 
 func TestSupportedAndAttach(t *testing.T) {
@@ -16,7 +18,7 @@ func TestSupportedAndAttach(t *testing.T) {
 		t.Skip("内核不支持 eBPF 扫描检测(TCX 需 6.6+)")
 	}
 
-	s, err := New([]string{"lo"}, slog.New(slog.DiscardHandler))
+	s, err := New([]string{"lo"}, gotext.NewLocale("", "en"), slog.New(slog.DiscardHandler))
 	if err != nil {
 		t.Fatal(err)
 	}

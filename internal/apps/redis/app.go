@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -29,19 +30,21 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	databaseServerRepo biz.DatabaseServerRepo
 	taskRepo           biz.TaskRepo
 	slug               string // 服务名与配置目录名，如 redis、valkey
 	name               string // 展示名，如 Redis、Valkey
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
-	return New("redis", "Redis", t, databaseServerRepo, taskRepo)
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+	return New("redis", "Redis", t, log, databaseServerRepo, taskRepo)
 }
 
-func New(slug, name string, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+func New(slug, name string, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		databaseServerRepo: databaseServerRepo,
 		taskRepo:           taskRepo,
 		slug:               slug,
@@ -124,11 +127,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.confPath()))
 	common.ServeConfig(w, s.confPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.confPath(), 0644, s.slug)
+	common.SaveConfig(w, r, s.log, s.t, s.slug, s.confPath(), 0644, s.slug)
 }
 
 // GetConfigTune 获取配置调整参数
@@ -151,6 +155,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		Appendonly:      confval.Directive.Get(config, "appendonly"),
 		Appendfsync:     confval.Directive.Get(config, "appendfsync"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.confPath()))
 
 	service.Success(w, tune)
 }
@@ -193,6 +199,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	// 同步密码到数据库服务器记录
 	_ = s.databaseServerRepo.UpdatePassword("local_"+s.slug, req.Requirepass)
+
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("bind", req.Bind), slog.String("port", req.Port), slog.String("databases", req.Databases), slog.String("maxmemory", req.Maxmemory), slog.String("maxmemory_policy", req.MaxmemoryPolicy), slog.String("appendonly", req.Appendonly), slog.String("appendfsync", req.Appendfsync))
 
 	service.Success(w, nil)
 }
@@ -238,6 +246,8 @@ func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 		entries = append(entries, entry)
 	}
 
+	s.log.Info(s.t.Get("app log viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("log", "slowlog"))
+
 	service.Success(w, entries)
 }
 
@@ -254,6 +264,8 @@ func (s *App) ResetSlowLog(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app slow log reset"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
 
 	service.Success(w, nil)
 }
@@ -322,6 +334,8 @@ func (s *App) KillClient(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("client %d not found", req.ID))
 		return
 	}
+
+	s.log.Warn(s.t.Get("app client killed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.Int64("client_id", req.ID))
 
 	service.Success(w, nil)
 }
@@ -418,6 +432,8 @@ func (s *App) ScanBigKeys(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app big keys scan queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.Uint64("task_id", uint64(task.ID)))
 
 	service.Success(w, nil)
 }

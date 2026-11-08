@@ -110,7 +110,7 @@ func (uc *ProjectUsecase) Create(ctx context.Context, req *request.ProjectCreate
 	}
 
 	// 记录日志
-	uc.log.Info("project created", slog.String("type", OperationTypeProject), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("project_type", string(req.Type)))
+	uc.log.Info(uc.t.Get("project created"), slog.String("type", OperationTypeProject), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(project.ID)), slog.String("name", req.Name), slog.String("project_type", string(req.Type)), slog.String("path", project.Path))
 
 	return uc.repo.ParseDetail(ctx, project)
 }
@@ -123,7 +123,8 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 
 	// systemd 按名字跟踪服务，只改 unit 文件名会让旧单元带着进程继续跑而新单元显示停止
 	// 改名需先停掉并取消自启旧单元，写完新配置后再按原状态恢复新单元
-	renamed := req.Name != project.Name
+	oldName := project.Name
+	renamed := req.Name != oldName
 	var running, enabled bool
 	if renamed {
 		running, _ = systemctl.Status(ctx, project.Name)
@@ -149,9 +150,6 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 		return err
 	}
 
-	// 记录日志
-	uc.log.Info("project updated", slog.String("type", OperationTypeProject), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", project.Name))
-
 	// 更新 systemd unit 文件
 	if err := uc.repo.UpdateUnitFile(ctx, project.Name, req); err != nil {
 		return err
@@ -163,8 +161,12 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 		}
 	}
 	if renamed && running {
-		return systemctl.Start(ctx, project.Name)
+		if err := systemctl.Start(ctx, project.Name); err != nil {
+			return err
+		}
 	}
+
+	uc.log.Info(uc.t.Get("project updated"), slog.String("type", OperationTypeProject), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", project.Name), slog.String("old_name", oldName), slog.String("path", project.Path))
 
 	return nil
 }
@@ -189,7 +191,7 @@ func (uc *ProjectUsecase) Delete(ctx context.Context, id uint, websites bool) er
 	}
 
 	// 记录日志
-	uc.log.Info("project deleted", slog.String("type", OperationTypeProject), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", project.Name))
+	uc.log.Warn(uc.t.Get("project deleted"), slog.String("type", OperationTypeProject), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", project.Name), slog.String("path", project.Path), slog.Bool("delete_websites", websites))
 
 	return nil
 }

@@ -1,10 +1,15 @@
 package service
 
 import (
+	"crypto/x509"
+	"log/slog"
+	"net"
 	"net/http"
+	"slices"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -16,15 +21,17 @@ import (
 
 type SettingService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	db              *gorm.DB
 	settingRepo     *biz.SettingUsecase
 	certRepo        *biz.CertUsecase
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) *SettingService {
+func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) *SettingService {
 	return &SettingService{
 		t:               t,
+		log:             log,
 		db:              db,
 		settingRepo:     settingUsecase,
 		certRepo:        certUsecase,
@@ -38,6 +45,8 @@ func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("panel settings viewed"), slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 
 	Success(w, setting)
 }
@@ -85,6 +94,8 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		info, _ := cert.ParseCert(crt)
+		s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", certNames(info)))
 		Success(w, nil)
 		return
 	}
@@ -115,6 +126,9 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	info, _ := cert.ParseCert(crt)
+	s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", certNames(info)))
+
 	Success(w, nil)
 }
 
@@ -131,6 +145,9 @@ func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	info, _ := cert.ParseCert([]byte(req.Cert))
+	s.log.Info(s.t.Get("panel certificate updated"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Any("domains", certNames(info)), slog.Time("not_after", info.NotAfter))
+
 	Success(w, nil)
 }
 
@@ -141,6 +158,8 @@ func (s *SettingService) GetMemo(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("memo viewed"), slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 
 	Success(w, memo)
 }
@@ -158,5 +177,13 @@ func (s *SettingService) UpdateMemo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("memo updated"), slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
+
 	Success(w, nil)
+}
+
+func certNames(info x509.Certificate) []string {
+	return slices.Concat(info.DNSNames, lo.Map(info.IPAddresses, func(ip net.IP, _ int) string {
+		return ip.String()
+	}))
 }

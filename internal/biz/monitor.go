@@ -1,8 +1,11 @@
 package biz
 
 import (
+	"context"
+	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -25,15 +28,17 @@ type MonitorRepo interface {
 }
 
 type MonitorUsecase struct {
+	t       *gotext.Locale
+	log     *slog.Logger
 	repo    MonitorRepo
 	setting SettingRepo
 }
 
-func NewMonitorUsecase(repo MonitorRepo, setting SettingRepo) *MonitorUsecase {
-	return &MonitorUsecase{repo: repo, setting: setting}
+func NewMonitorUsecase(t *gotext.Locale, log *slog.Logger, repo MonitorRepo, setting SettingRepo) *MonitorUsecase {
+	return &MonitorUsecase{t: t, log: log, repo: repo, setting: setting}
 }
 
-func (uc *MonitorUsecase) GetSetting() (*request.MonitorSetting, error) {
+func (uc *MonitorUsecase) GetSetting(ctx context.Context) (*request.MonitorSetting, error) {
 	monitor, err := uc.setting.Get(SettingKeyMonitor)
 	if err != nil {
 		return nil, err
@@ -57,10 +62,12 @@ func (uc *MonitorUsecase) GetSetting() (*request.MonitorSetting, error) {
 	setting.Interval = uint(monitorInterval)
 	setting.AlertDays = uint(alertDays)
 
+	uc.log.Info(uc.t.Get("monitor setting viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)))
+
 	return setting, nil
 }
 
-func (uc *MonitorUsecase) UpdateSetting(setting *request.MonitorSetting) error {
+func (uc *MonitorUsecase) UpdateSetting(ctx context.Context, setting *request.MonitorSetting) error {
 	if err := uc.setting.Set(SettingKeyMonitor, cast.ToString(setting.Enabled)); err != nil {
 		return err
 	}
@@ -71,11 +78,23 @@ func (uc *MonitorUsecase) UpdateSetting(setting *request.MonitorSetting) error {
 		return err
 	}
 
-	return uc.setting.Set(SettingKeyAlertLogDays, cast.ToString(setting.AlertDays))
+	if err := uc.setting.Set(SettingKeyAlertLogDays, cast.ToString(setting.AlertDays)); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("monitor setting updated"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("interval", uint64(setting.Interval)), slog.Uint64("alert_days", uint64(setting.AlertDays)))
+
+	return nil
 }
 
-func (uc *MonitorUsecase) Clear() error {
-	return uc.repo.Clear()
+func (uc *MonitorUsecase) Clear(ctx context.Context) error {
+	if err := uc.repo.Clear(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("monitor data cleared"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return nil
 }
 
 func (uc *MonitorUsecase) Create(monitor *Monitor) error {

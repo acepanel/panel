@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"slices"
 	"time"
 
@@ -70,14 +71,16 @@ type AppUsecase struct {
 	cache CacheRepo
 	task  TaskRepo
 	t     *gotext.Locale
+	log   *slog.Logger
 }
 
-func NewAppUsecase(t *gotext.Locale, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) *AppUsecase {
+func NewAppUsecase(t *gotext.Locale, log *slog.Logger, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) *AppUsecase {
 	return &AppUsecase{
 		repo:  appRepo,
 		cache: cacheRepo,
 		task:  taskRepo,
 		t:     t,
+		log:   log,
 	}
 }
 
@@ -212,16 +215,22 @@ func (uc *AppUsecase) Install(ctx context.Context, channel, slug string) error {
 	uc.repo.DownloadCallback(slug)
 
 	if app.IsCli {
-		return uc.repo.ExecScript(ctx, script)
+		err = uc.repo.ExecScript(ctx, script)
+	} else {
+		task := new(Task)
+		task.Key = "app:" + slug
+		task.Name = uc.t.Get("Install app %s", item.Name)
+		task.Status = TaskStatusWaiting
+		task.Shell = script
+		err = uc.task.Push(task)
+	}
+	if err != nil {
+		return err
 	}
 
-	task := new(Task)
-	task.Key = "app:" + slug
-	task.Name = uc.t.Get("Install app %s", item.Name)
-	task.Status = TaskStatusWaiting
-	task.Shell = script
+	uc.log.Info(uc.t.Get("app installed"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", channel), slog.String("version", channelVersion(item, channel)))
 
-	return uc.task.Push(task)
+	return nil
 }
 
 func (uc *AppUsecase) UnInstall(ctx context.Context, slug string) error {
@@ -253,16 +262,22 @@ func (uc *AppUsecase) UnInstall(ctx context.Context, slug string) error {
 	}
 
 	if app.IsCli {
-		return uc.repo.ExecScript(ctx, script)
+		err = uc.repo.ExecScript(ctx, script)
+	} else {
+		task := new(Task)
+		task.Key = "app:" + slug
+		task.Name = uc.t.Get("Uninstall app %s", item.Name)
+		task.Status = TaskStatusWaiting
+		task.Shell = script
+		err = uc.task.Push(task)
+	}
+	if err != nil {
+		return err
 	}
 
-	task := new(Task)
-	task.Key = "app:" + slug
-	task.Name = uc.t.Get("Uninstall app %s", item.Name)
-	task.Status = TaskStatusWaiting
-	task.Shell = script
+	uc.log.Warn(uc.t.Get("app uninstalled"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(installed.ID)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", installed.Channel), slog.String("version", installed.Version))
 
-	return uc.task.Push(task)
+	return nil
 }
 
 func (uc *AppUsecase) Update(ctx context.Context, slug string) error {
@@ -296,20 +311,32 @@ func (uc *AppUsecase) Update(ctx context.Context, slug string) error {
 	uc.repo.DownloadCallback(slug)
 
 	if app.IsCli {
-		return uc.repo.ExecScript(ctx, script)
+		err = uc.repo.ExecScript(ctx, script)
+	} else {
+		task := new(Task)
+		task.Key = "app:" + slug
+		task.Name = uc.t.Get("Update app %s", item.Name)
+		task.Status = TaskStatusWaiting
+		task.Shell = script
+		err = uc.task.Push(task)
+	}
+	if err != nil {
+		return err
 	}
 
-	task := new(Task)
-	task.Key = "app:" + slug
-	task.Name = uc.t.Get("Update app %s", item.Name)
-	task.Status = TaskStatusWaiting
-	task.Shell = script
+	uc.log.Info(uc.t.Get("app updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(installed.ID)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", installed.Channel), slog.String("from_version", installed.Version), slog.String("to_version", channelVersion(item, installed.Channel)))
 
-	return uc.task.Push(task)
+	return nil
 }
 
-func (uc *AppUsecase) UpdateShow(slug string, show bool) error {
-	return uc.repo.UpdateShow(slug, show)
+func (uc *AppUsecase) UpdateShow(ctx context.Context, slug string, show bool) error {
+	if err := uc.repo.UpdateShow(slug, show); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("app home show updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.Bool("show", show))
+
+	return nil
 }
 
 func (uc *AppUsecase) GetCustom(slug string) (*AppCustom, error) {
@@ -317,9 +344,24 @@ func (uc *AppUsecase) GetCustom(slug string) (*AppCustom, error) {
 }
 
 func (uc *AppUsecase) SaveCustom(ctx context.Context, slug string, custom *AppCustom) error {
-	return uc.repo.SaveCustom(ctx, slug, custom)
+	if err := uc.repo.SaveCustom(ctx, slug, custom); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("app custom compile saved"), slog.String("type", lo.Ternary(CustomCompileApp(slug), OperationTypeApp, OperationTypeEnvironment)), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug))
+
+	return nil
 }
 
 func (uc *AppUsecase) UpdateOrder(slugs []string) error {
 	return uc.repo.UpdateOrder(slugs)
+}
+
+func channelVersion(item *api.App, channel string) string {
+	for ch := range slices.Values(item.Channels) {
+		if ch.Slug == channel {
+			return ch.Version
+		}
+	}
+	return ""
 }

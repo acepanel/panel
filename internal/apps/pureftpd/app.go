@@ -3,6 +3,7 @@ package pureftpd
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -24,12 +26,14 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -57,6 +61,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 			"total": 0,
 			"items": []User{},
 		})
+		return
 	}
 
 	userRe := regexp.MustCompile(`(\S+)\s+(\S+)`)
@@ -73,6 +78,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := service.Paginate(r, users)
 
+	s.log.Info(s.t.Get("ftp user list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
 	service.Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -106,6 +112,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ftp user created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("username", req.Username), slog.String("path", req.Path))
 	service.Success(w, nil)
 }
 
@@ -128,6 +135,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("ftp user deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("username", req.Username))
 	service.Success(w, nil)
 }
 
@@ -150,12 +158,14 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("ftp user password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("username", req.Username))
 	service.Success(w, nil)
 }
 
 // GetPort 获取端口
 func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf")
+	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 		return
@@ -167,6 +177,7 @@ func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
 		port = cast.ToInt(strings.TrimSpace(parts[1]))
 	}
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("path", confPath))
 	service.Success(w, port)
 }
 
@@ -216,12 +227,14 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app port updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.Uint64("port", uint64(req.Port)), slog.Bool("firewall_opened", running))
 	service.Success(w, nil)
 }
 
 // GetConfigTune 获取 Pure-FTPd 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf")
+	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -238,6 +251,7 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		MaxDiskUsage:     confval.FTP.Get(config, "MaxDiskUsage"),
 	}
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("path", confPath))
 	service.Success(w, tune)
 }
 
@@ -275,5 +289,6 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("max_clients_number", req.MaxClientsNumber), slog.String("max_clients_per_ip", req.MaxClientsPerIP), slog.String("max_idle_time", req.MaxIdleTime), slog.String("max_load", req.MaxLoad), slog.String("passive_port_range", req.PassivePortRange), slog.String("anonymous_only", req.AnonymousOnly), slog.String("no_anonymous", req.NoAnonymous), slog.String("max_disk_usage", req.MaxDiskUsage))
 	service.Success(w, nil)
 }

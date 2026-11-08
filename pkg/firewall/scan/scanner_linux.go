@@ -18,6 +18,7 @@ import (
 	"github.com/cilium/ebpf/asm"
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/ringbuf"
+	"github.com/leonelquinteros/gotext"
 	"golang.org/x/sys/unix"
 )
 
@@ -88,6 +89,7 @@ type Scanner struct {
 	eventsCh  chan Event
 	stopCh    chan struct{}
 	mu        sync.Mutex
+	t         *gotext.Locale
 	log       *slog.Logger
 	lastPorts map[uint16]bool
 }
@@ -456,7 +458,7 @@ func Supported() bool {
 }
 
 // New 创建 Scanner，加载 eBPF 程序并挂载到指定网卡
-func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
+func New(ifaces []string, t *gotext.Locale, log *slog.Logger) (*Scanner, error) {
 	if len(ifaces) == 0 {
 		defaultIface := DefaultInterface()
 		if defaultIface == "" {
@@ -493,6 +495,7 @@ func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
 		handles:   make(map[string]*ifaceHandle),
 		eventsCh:  make(chan Event, 4096),
 		stopCh:    make(chan struct{}),
+		t:         t,
 		log:       log,
 		lastPorts: make(map[uint16]bool),
 	}
@@ -500,7 +503,7 @@ func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
 	// 单网卡失败仅跳过（网卡可能已改名/移除），全部失败才报错
 	for _, ifaceName := range ifaces {
 		if err := s.attach(ifaceName); err != nil {
-			log.Warn("failed to attach scan detector, skip interface",
+			log.Warn(t.Get("failed to attach scan detector, skip interface"),
 				slog.String("iface", ifaceName), slog.Any("err", err))
 		}
 	}
@@ -547,9 +550,9 @@ func (s *Scanner) Close() error {
 
 	for name, h := range s.handles {
 		if err := h.link.Close(); err != nil {
-			s.log.Warn("failed to detach eBPF program", slog.String("iface", name), slog.Any("err", err))
+			s.log.Warn(s.t.Get("failed to detach eBPF program"), slog.String("iface", name), slog.Any("err", err))
 		}
-		s.log.Info("eBPF scan detector detached", slog.String("iface", name))
+		s.log.Info(s.t.Get("eBPF scan detector detached"), slog.String("iface", name))
 	}
 
 	if s.prog != nil {
@@ -582,7 +585,7 @@ func (s *Scanner) attach(ifaceName string) error {
 	}
 
 	s.handles[ifaceName] = &ifaceHandle{link: l}
-	s.log.Info("eBPF scan detector attached", slog.String("iface", ifaceName))
+	s.log.Info(s.t.Get("eBPF scan detector attached"), slog.String("iface", ifaceName))
 
 	return nil
 }
@@ -597,7 +600,7 @@ func (s *Scanner) readLoop() {
 			if errors.Is(err, ringbuf.ErrClosed) {
 				return
 			}
-			s.log.Warn("failed to read ring buffer", slog.Any("err", err))
+			s.log.Warn(s.t.Get("failed to read ring buffer"), slog.Any("err", err))
 			continue
 		}
 

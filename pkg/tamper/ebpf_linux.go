@@ -19,6 +19,7 @@ import (
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/ringbuf"
 	"github.com/cilium/ebpf/rlimit"
+	"github.com/leonelquinteros/gotext"
 	"golang.org/x/sys/unix"
 )
 
@@ -91,6 +92,7 @@ var dirHooks = []hookSpec{
 }
 
 type ebpfEngine struct {
+	t             *gotext.Locale
 	log           *slog.Logger
 	blockNew      bool
 	protected     *ebpf.Map
@@ -449,7 +451,7 @@ func isASCIIExt(s string) bool {
 }
 
 // newEBPFEngine 只加载不 attach,attach 由 start 触发;先 apply 后 attach 消除激活空窗
-func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEngine, error) {
+func newEBPFEngine(t *gotext.Locale, log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEngine, error) {
 	if log == nil {
 		log = slog.Default()
 	}
@@ -508,7 +510,7 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 
 	exts, rejected := normExts(ruleExts)
 	if len(rejected) > 0 {
-		log.Warn("tamper extensions cannot be matched in kernel, ignored", slog.Any("ignored", rejected))
+		log.Warn(t.Get("tamper extensions cannot be matched in kernel, ignored"), slog.Any("ignored", rejected))
 	}
 	extIndex := make(map[string]int, len(exts))
 	for i, x := range exts {
@@ -516,6 +518,7 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 	}
 
 	e := &ebpfEngine{
+		t:             t,
 		log:           log,
 		blockNew:      blockNew,
 		protected:     protected,
@@ -533,7 +536,7 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 		paramIdx, nargs, err := paramLayout(spec, h.hook, h.param)
 		if err != nil {
 			if h.optional && errors.Is(err, btf.ErrNotFound) {
-				log.Debug("skip unavailable optional LSM hook", slog.String("hook", h.hook))
+				log.Debug(t.Get("skip unavailable optional LSM hook"), slog.String("hook", h.hook))
 				continue
 			}
 			_ = e.Close()
@@ -635,7 +638,7 @@ func (e *ebpfEngine) readLoop() {
 	for {
 		if err := e.reader.ReadInto(&rec); err != nil {
 			if !errors.Is(err, ringbuf.ErrClosed) {
-				e.log.Error("tamper ringbuf reader stopped, event reporting disabled", slog.Any("err", err))
+				e.log.Error(e.t.Get("tamper ringbuf reader stopped, event reporting disabled"), slog.Any("err", err))
 			}
 			return
 		}
@@ -662,7 +665,7 @@ func (e *ebpfEngine) readLoop() {
 		default:
 			// 观察模式 drop=漏纳保
 			if n := e.userDrops.Add(1); !e.blockNew && (n == 1 || n%1000 == 0) {
-				e.log.Warn("tamper event dropped in observe mode, new object may miss protection",
+				e.log.Warn(e.t.Get("tamper event dropped in observe mode, new object may miss protection"),
 					slog.Uint64("drops", n))
 			}
 		}
@@ -703,7 +706,7 @@ func (e *ebpfEngine) dirValue(exts []string) [dirValueSize]byte {
 		missing = append(missing, x)
 	}
 	if len(missing) != 0 || mask == 0 {
-		e.log.Warn("tamper dir exts cannot be represented, upgrading to whole-tree",
+		e.log.Warn(e.t.Get("tamper dir exts cannot be represented, upgrading to whole-tree"),
 			slog.Any("exts", exts), slog.Any("unmatched", missing))
 		return v
 	}

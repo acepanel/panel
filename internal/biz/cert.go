@@ -124,7 +124,7 @@ func (uc *CertUsecase) Upload(ctx context.Context, req *request.CertUpload) (*Ce
 	}
 
 	// 记录日志
-	uc.log.Info("cert uploaded", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(cert.ID)))
+	uc.log.Info(uc.t.Get("cert uploaded"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", domains), slog.Time("not_after", info.NotAfter))
 
 	return cert, nil
 }
@@ -136,7 +136,7 @@ func (uc *CertUsecase) Create(ctx context.Context, req *request.CertCreate) (*Ce
 	}
 
 	// 记录日志
-	uc.log.Info("cert created", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.String("cert_type", req.Type))
+	uc.log.Info(uc.t.Get("cert created"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", req.Domains), slog.String("cert_type", req.Type), slog.Bool("auto_renewal", req.AutoRenewal), slog.Any("website_ids", req.WebsiteIDs))
 
 	return cert, nil
 }
@@ -159,18 +159,23 @@ func (uc *CertUsecase) Update(ctx context.Context, req *request.CertUpdate) erro
 	}
 
 	// 记录日志
-	uc.log.Info("cert updated", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)))
+	uc.log.Info(uc.t.Get("cert updated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.Any("domains", req.Domains), slog.String("cert_type", req.Type), slog.Bool("auto_renewal", req.AutoRenewal), slog.Any("website_ids", req.WebsiteIDs))
 
 	return nil
 }
 
 func (uc *CertUsecase) Delete(ctx context.Context, id uint) error {
-	if err := uc.repo.Delete(id); err != nil {
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(id); err != nil {
 		return err
 	}
 
 	// 记录日志
-	uc.log.Info("cert deleted", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+	uc.log.Warn(uc.t.Get("cert deleted"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.Any("domains", cert.Domains), slog.String("cert_type", cert.Type))
 
 	return nil
 }
@@ -240,7 +245,7 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+		if _, _, err = uc.deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
 			return nil, err
 		}
 	}
@@ -249,6 +254,8 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
+
+	uc.log.Info(uc.t.Get("cert obtained"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.String("cert_type", cert.Type), slog.String("challenge", lo.Ternary(cert.DNS != nil, "dns", "http")), slog.Any("website_ids", cert.WebsiteIDs()))
 
 	return &ssl, nil
 }
@@ -288,7 +295,7 @@ func (uc *CertUsecase) ObtainSelfSigned(ctx context.Context, id uint) error {
 	}
 
 	if len(cert.Websites) > 0 {
-		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+		if _, _, err = uc.deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
 			return err
 		}
 	}
@@ -296,6 +303,8 @@ func (uc *CertUsecase) ObtainSelfSigned(ctx context.Context, id uint) error {
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return err
 	}
+
+	uc.log.Info(uc.t.Get("self-signed cert generated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("website_ids", cert.WebsiteIDs()))
 
 	return nil
 }
@@ -353,7 +362,8 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	renewCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	ssl, err := client.RenewCertificate(renewCtx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
 	cancel()
-	if err != nil {
+	reissued := err != nil
+	if reissued {
 		// 续签失败，尝试重签，重签独立计时，避免续签耗时过长导致重签必定超时
 		report(uc.t.Get("renewal failed, attempting re-issuance"))
 		obtainCtx, obtainCancel := context.WithTimeout(ctx, 10*time.Minute)
@@ -375,7 +385,7 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+		if _, _, err = uc.deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
 			return nil, err
 		}
 	}
@@ -383,6 +393,8 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
+
+	uc.log.Info(uc.t.Get("cert renewed"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Bool("reissued", reissued), slog.Any("website_ids", cert.WebsiteIDs()))
 
 	return &ssl, nil
 }
@@ -418,30 +430,45 @@ func (uc *CertUsecase) RefreshRenewalInfo(ctx context.Context, id uint) (mholtac
 }
 
 func (uc *CertUsecase) Deploy(ctx context.Context, id uint, websiteIDs []uint, enableHTTPS bool) error {
-	cert, err := uc.repo.Get(id)
+	cert, websites, err := uc.deploy(ctx, id, websiteIDs, enableHTTPS)
 	if err != nil {
 		return err
 	}
 
+	names := lo.Map(websites, func(website *Website, _ int) string {
+		return website.Name
+	})
+	uc.log.Info(uc.t.Get("cert deployed"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("websites", names), slog.Any("website_ids", websiteIDs), slog.Bool("enable_https", enableHTTPS))
+
+	return nil
+}
+
+// deploy 不记日志，供签发、续签内部复用，避免一次签发产生两条操作日志
+func (uc *CertUsecase) deploy(ctx context.Context, id uint, websiteIDs []uint, enableHTTPS bool) (*Cert, []*Website, error) {
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	if cert.Cert == "" || cert.Key == "" {
-		return errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
+		return nil, nil, errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
 	}
 
 	websites, err := uc.repo.LoadWebsites(websiteIDs)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	// 建立关联，使续签后能自动部署到这些网站
 	if err = uc.repo.BindWebsites(cert.ID, websiteIDs); err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	webServer, webServerErr := uc.setting.Get(SettingKeyWebserver)
 	tlsVersions, _ := uc.setting.GetSlice(SettingKeyWebsiteTLSVersions)
 	listenIPv6, err := uc.setting.GetBool(SettingKeyWebsiteListenIPv6, false)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	for _, website := range websites {
@@ -449,22 +476,26 @@ func (uc *CertUsecase) Deploy(ctx context.Context, id uint, websiteIDs []uint, e
 		certPath := filepath.Join(configDir, "fullchain.pem")
 		keyPath := filepath.Join(configDir, "private.key")
 		if err = uc.repo.WriteCertFiles(cert, certPath, keyPath); err != nil {
-			return err
+			return nil, nil, err
 		}
 
 		// 开启 HTTPS
 		if enableHTTPS && !website.SSL {
 			if webServerErr != nil {
-				return webServerErr
+				return nil, nil, webServerErr
 			}
 			if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions, listenIPv6); err != nil {
-				return err
+				return nil, nil, err
 			}
 		}
 	}
 
 	// 证书与 vhost 已落盘且不再回滚，reload 断开取消链，否则磁盘配置与运行中的配置会不一致
-	return uc.repo.ReloadWebserver(context.WithoutCancel(ctx), webServer)
+	if err = uc.repo.ReloadWebserver(context.WithoutCancel(ctx), webServer); err != nil {
+		return nil, nil, err
+	}
+
+	return cert, websites, nil
 }
 
 func (uc *CertUsecase) Save(cert *Cert) error {

@@ -2,11 +2,13 @@ package service
 
 import (
 	"cmp"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strconv"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/samber/lo"
 
@@ -16,14 +18,18 @@ import (
 )
 
 type WebsiteStatService struct {
+	t           *gotext.Locale
+	log         *slog.Logger
 	setting     *biz.SettingUsecase
 	statRepo    *biz.WebsiteStatUsecase
 	websiteRepo *biz.WebsiteUsecase
 	aggregator  *websitestat.Aggregator
 }
 
-func NewWebsiteStatService(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) *WebsiteStatService {
+func NewWebsiteStatService(t *gotext.Locale, log *slog.Logger, settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) *WebsiteStatService {
 	return &WebsiteStatService{
+		t:           t,
+		log:         log,
 		setting:     settingUsecase,
 		statRepo:    websiteStatUsecase,
 		websiteRepo: websiteUsecase,
@@ -100,6 +106,8 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 	siteList := lo.Map(websites, func(ws *biz.Website, _ int) chix.M {
 		return chix.M{"id": ws.ID, "name": ws.Name}
 	})
+
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "overview"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
 
 	Success(w, chix.M{
 		"current":         current,
@@ -194,6 +202,8 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 	// 转换为切片
 	items := lo.Values(siteMap)
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "sites"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
+
 	Success(w, chix.M{
 		"items": items,
 	})
@@ -223,6 +233,8 @@ func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request)
 			item.Percent = float64(item.Requests) / float64(total) * 100
 		}
 	}
+
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "spiders"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
 
 	Success(w, chix.M{
 		"items": items,
@@ -267,6 +279,8 @@ func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request)
 	slices.SortFunc(browsers, func(a, b rankItem) int { return cmp.Compare(b.Requests, a.Requests) })
 	slices.SortFunc(oss, func(a, b rankItem) int { return cmp.Compare(b.Requests, a.Requests) })
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "clients"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
+
 	Success(w, chix.M{
 		"items":    items,
 		"browsers": browsers,
@@ -288,6 +302,8 @@ func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "ips"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{
 		"items": items,
 		"total": total,
@@ -308,6 +324,8 @@ func (s *WebsiteStatService) GeoStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "geos"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites), slog.String("group_by", req.GroupBy), slog.String("country", req.Country), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{
 		"items": items,
 	})
@@ -326,6 +344,8 @@ func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "uris"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	Success(w, chix.M{
 		"items": items,
@@ -347,6 +367,8 @@ func (s *WebsiteStatService) SlowURIStats(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "slow_uris"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites), slog.Uint64("threshold", uint64(req.Threshold)), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{
 		"items": items,
 		"total": total,
@@ -367,6 +389,8 @@ func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "errors"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites), slog.Int("status", req.Status), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
 	Success(w, chix.M{
 		"items": items,
 		"total": total,
@@ -375,7 +399,7 @@ func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) 
 
 // Clear 清空所有统计数据
 func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
-	if err := s.statRepo.Clear(); err != nil {
+	if err := s.statRepo.Clear(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -391,6 +415,9 @@ func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) 
 	ipMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys, 500000)
 	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 50000)
 	bodyEnabled, _ := s.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled)
+
+	s.log.Info(s.t.Get("website stat settings viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
+
 	Success(w, chix.M{
 		"days":            days,
 		"err_buf_max":     errBufMax,
@@ -426,6 +453,8 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, strconv.Itoa(req.DetailMaxKeys))
 	}
 	_ = s.setting.Set(biz.SettingKeyWebsiteStatBodyEnabled, strconv.FormatBool(req.BodyEnabled))
+
+	s.log.Info(s.t.Get("website stat settings updated"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("days", uint64(req.Days)), slog.Int("err_buf_max", req.ErrBufMax), slog.Int("uv_max_keys", req.UVMaxKeys), slog.Int("ip_max_keys", req.IPMaxKeys), slog.Int("detail_max_keys", req.DetailMaxKeys), slog.Bool("body_enabled", req.BodyEnabled))
 
 	Success(w, nil)
 }

@@ -3,10 +3,12 @@ package biz
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"slices"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/moby/moby/api/types/container"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/docker"
@@ -34,14 +36,16 @@ type ContainerUsecase struct {
 	setting SettingRepo
 	task    TaskRepo
 	t       *gotext.Locale
+	log     *slog.Logger
 }
 
-func NewContainerUsecase(t *gotext.Locale, containerRepo ContainerRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerUsecase {
+func NewContainerUsecase(t *gotext.Locale, log *slog.Logger, containerRepo ContainerRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerUsecase {
 	return &ContainerUsecase{
 		repo:    containerRepo,
 		setting: settingRepo,
 		task:    taskRepo,
 		t:       t,
+		log:     log,
 	}
 }
 
@@ -57,6 +61,8 @@ func (uc *ContainerUsecase) List(ctx context.Context, keyword string) ([]types.C
 		return nil, err
 	}
 
+	uc.log.Info(uc.t.Get("container list viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("keyword", keyword))
+
 	keyword = strings.ToLower(keyword)
 	return slices.DeleteFunc(containers, func(item types.Container) bool {
 		return !strings.Contains(strings.ToLower(item.Name), keyword) && !strings.Contains(strings.ToLower(item.Image), keyword)
@@ -65,11 +71,27 @@ func (uc *ContainerUsecase) List(ctx context.Context, keyword string) ([]types.C
 
 func (uc *ContainerUsecase) Inspect(ctx context.Context, id string) (any, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.Inspect(ctx, sock, id)
+	data, err := uc.repo.Inspect(ctx, sock, id)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("container viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", containerName(data)))
+	return data, nil
 }
 
 // Create 创建并启动容器
 func (uc *ContainerUsecase) Create(ctx context.Context, req *request.ContainerCreate) (string, error) {
+	id, err := uc.create(ctx, req)
+	if err != nil {
+		return "", err
+	}
+
+	uc.log.Info(uc.t.Get("container created"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", req.Name), slog.String("image", req.Image))
+	return id, nil
+}
+
+func (uc *ContainerUsecase) create(ctx context.Context, req *request.ContainerCreate) (string, error) {
 	sock := containerSock(uc.setting)
 	// 中途取消会留下已创建未启动的容器
 	ctx = context.WithoutCancel(ctx)
@@ -83,7 +105,7 @@ func (uc *ContainerUsecase) Create(ctx context.Context, req *request.ContainerCr
 	return id, nil
 }
 
-func (uc *ContainerUsecase) CreateBackground(req *request.ContainerCreate) error {
+func (uc *ContainerUsecase) CreateBackground(ctx context.Context, req *request.ContainerCreate) error {
 	shell, err := docker.RunShell(containerSock(uc.setting), req)
 	if err != nil {
 		return err
@@ -103,19 +125,32 @@ func (uc *ContainerUsecase) CreateBackground(req *request.ContainerCreate) error
 	task.Status = TaskStatusWaiting
 	task.Shell = shell
 
-	return uc.task.Push(task)
+	if err = uc.task.Push(task); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container created"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.String("image", req.Image), slog.Bool("background", true))
+	return nil
 }
 
 // Update 删除旧容器后按新配置重建同名容器
 func (uc *ContainerUsecase) Update(ctx context.Context, id string, req *request.ContainerCreate) (string, error) {
 	sock := containerSock(uc.setting)
+	name := uc.name(ctx, sock, id)
 	if err := uc.repo.Remove(ctx, sock, id); err != nil {
 		return "", err
 	}
-	return uc.Create(ctx, req)
+	newID, err := uc.create(ctx, req)
+	if err != nil {
+		uc.log.Warn(uc.t.Get("container deleted"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+		return "", err
+	}
+
+	uc.log.Info(uc.t.Get("container updated"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("new_id", newID), slog.String("name", req.Name), slog.String("image", req.Image))
+	return newID, nil
 }
 
-func (uc *ContainerUsecase) UpdateBackground(id string, req *request.ContainerCreate) error {
+func (uc *ContainerUsecase) UpdateBackground(ctx context.Context, id string, req *request.ContainerCreate) error {
 	sock := containerSock(uc.setting)
 	runShell, err := docker.RunShell(sock, req)
 	if err != nil {
@@ -139,47 +174,100 @@ func (uc *ContainerUsecase) UpdateBackground(id string, req *request.ContainerCr
 	task.Status = TaskStatusWaiting
 	task.Shell = shell
 
-	return uc.task.Push(task)
+	if err = uc.task.Push(task); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container updated"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", req.Name), slog.String("image", req.Image), slog.Bool("background", true))
+	return nil
 }
 
 func (uc *ContainerUsecase) Remove(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Remove(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("container deleted"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Start(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Start(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Start(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container started"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Stop(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Stop(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Stop(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container stopped"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Restart(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Restart(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Restart(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container restarted"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Pause(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Pause(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Pause(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container paused"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Unpause(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Unpause(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Unpause(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container unpaused"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Kill(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Kill(ctx, sock, id)
+	name := uc.name(ctx, sock, id)
+	if err := uc.repo.Kill(ctx, sock, id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("container killed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", name))
+	return nil
 }
 
 func (uc *ContainerUsecase) Rename(ctx context.Context, id string, newName string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Rename(ctx, sock, id, newName)
+	oldName := uc.name(ctx, sock, id)
+	if err := uc.repo.Rename(ctx, sock, id, newName); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("container renamed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("old_name", oldName), slog.String("name", newName))
+	return nil
 }
 
 func (uc *ContainerUsecase) Logs(ctx context.Context, id string, tail int) (string, error) {
@@ -189,5 +277,22 @@ func (uc *ContainerUsecase) Logs(ctx context.Context, id string, tail int) (stri
 
 func (uc *ContainerUsecase) Prune(ctx context.Context) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Prune(ctx, sock)
+	if err := uc.repo.Prune(ctx, sock); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("containers pruned"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)))
+	return nil
+}
+
+func (uc *ContainerUsecase) name(ctx context.Context, sock, id string) string {
+	info, _ := uc.repo.Inspect(ctx, sock, id)
+	return containerName(info)
+}
+
+func containerName(info any) string {
+	if resp, ok := info.(container.InspectResponse); ok {
+		return strings.TrimPrefix(resp.Name, "/")
+	}
+	return ""
 }

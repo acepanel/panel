@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -10,11 +12,15 @@ import (
 )
 
 type CronService struct {
+	t        *gotext.Locale
+	log      *slog.Logger
 	cronRepo *biz.CronUsecase
 }
 
-func NewCronService(cronUsecase *biz.CronUsecase) *CronService {
+func NewCronService(cronUsecase *biz.CronUsecase, t *gotext.Locale, log *slog.Logger) *CronService {
 	return &CronService{
+		t:        t,
+		log:      log,
 		cronRepo: cronUsecase,
 	}
 }
@@ -31,6 +37,8 @@ func (s *CronService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cron list viewed"), slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", uint64(req.Page)))
 
 	Success(w, chix.M{
 		"total": total,
@@ -80,6 +88,8 @@ func (s *CronService) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("cron viewed"), slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
 
 	Success(w, cron)
 }

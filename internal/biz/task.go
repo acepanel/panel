@@ -1,6 +1,12 @@
 package biz
 
-import "time"
+import (
+	"context"
+	"log/slog"
+	"time"
+
+	"github.com/leonelquinteros/gotext"
+)
 
 type TaskStatus string
 
@@ -38,39 +44,71 @@ type TaskRepo interface {
 }
 
 type TaskUsecase struct {
+	t    *gotext.Locale
+	log  *slog.Logger
 	repo TaskRepo
 }
 
-func NewTaskUsecase(repo TaskRepo) *TaskUsecase {
-	return &TaskUsecase{repo: repo}
+func NewTaskUsecase(t *gotext.Locale, log *slog.Logger, repo TaskRepo) *TaskUsecase {
+	return &TaskUsecase{t: t, log: log, repo: repo}
 }
 
 func (uc *TaskUsecase) HasRunningTask() bool {
 	return uc.repo.HasRunningTask()
 }
 
-func (uc *TaskUsecase) List(page, limit uint) ([]*Task, int64, error) {
-	return uc.repo.List(page, limit)
+func (uc *TaskUsecase) List(ctx context.Context, page, limit uint) ([]*Task, int64, error) {
+	tasks, total, err := uc.repo.List(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("task list viewed"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+	return tasks, total, nil
 }
 
 func (uc *TaskUsecase) ListActive() ([]*Task, error) {
 	return uc.repo.ListActive()
 }
 
-func (uc *TaskUsecase) Get(id uint) (*Task, error) {
-	return uc.repo.Get(id)
+func (uc *TaskUsecase) Get(ctx context.Context, id uint) (*Task, error) {
+	task, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("task viewed"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", task.Name))
+	return task, nil
 }
 
 func (uc *TaskUsecase) GetByIDs(ids []uint) ([]*Task, error) {
 	return uc.repo.GetByIDs(ids)
 }
 
-func (uc *TaskUsecase) Delete(id uint) error {
-	return uc.repo.Delete(id)
+func (uc *TaskUsecase) Delete(ctx context.Context, id uint) error {
+	task, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("task deleted"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", task.Name), slog.String("status", string(task.Status)))
+	return nil
 }
 
-func (uc *TaskUsecase) Cancel(id uint) error {
-	return uc.repo.Cancel(id)
+func (uc *TaskUsecase) Cancel(ctx context.Context, id uint) error {
+	task, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.Cancel(id); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("task canceled"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", task.Name), slog.String("status", string(task.Status)))
+	return nil
 }
 
 func (uc *TaskUsecase) UpdateStatus(id uint, status TaskStatus) error {

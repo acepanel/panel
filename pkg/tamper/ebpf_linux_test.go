@@ -71,7 +71,7 @@ func TestEBPFVerifierLoad(t *testing.T) {
 		{"observe_wholetree", false, nil},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			e, err := newEBPFEngine(newLogger(), tc.blockNew, tc.exts)
+			e, err := newEBPFEngine(newLocale(), newLogger(), tc.blockNew, tc.exts)
 			if err == nil {
 				_ = e.Close()
 				return
@@ -100,7 +100,7 @@ func TestEBPFCreateBlock(t *testing.T) {
 		m, err := NewManager(Config{
 			Mode: ModeEBPF, BlockNewFiles: true,
 			Rules: []Rule{{Name: "t", Paths: []string{dir}, Exts: []string{"php"}}},
-		}, newLogger())
+		}, newLocale(), newLogger())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -159,7 +159,7 @@ func TestEBPFCreateBlock(t *testing.T) {
 		m, err := NewManager(Config{
 			Mode: ModeEBPF, BlockNewFiles: true,
 			Rules: []Rule{{Name: "t", Paths: []string{dir}}},
-		}, newLogger())
+		}, newLocale(), newLogger())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -192,7 +192,7 @@ func TestEBPFExtFailClosed(t *testing.T) {
 		Mode: ModeEBPF, BlockNewFiles: true,
 		// abcdefghijklmnop 超 14 字节内核限制,dirValue 应升级整树
 		Rules: []Rule{{Name: "t", Paths: []string{dir}, Exts: []string{"php", "abcdefghijklmnop"}}},
-	}, newLogger())
+	}, newLocale(), newLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,7 +218,7 @@ func TestEBPFCreateObserve(t *testing.T) {
 	m, err := NewManager(Config{
 		Mode: ModeEBPF, BlockNewFiles: false,
 		Rules: []Rule{{Name: "t", Paths: []string{dir}, Exts: []string{"php"}}},
-	}, newLogger())
+	}, newLocale(), newLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

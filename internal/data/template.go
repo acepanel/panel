@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"go.yaml.in/yaml/v4"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -18,12 +19,14 @@ import (
 )
 
 type templateRepo struct {
+	t   *gotext.Locale
 	log *slog.Logger
 	api *api.API
 }
 
-func NewTemplateRepo(log *slog.Logger) biz.TemplateRepo {
+func NewTemplateRepo(t *gotext.Locale, log *slog.Logger) biz.TemplateRepo {
 	return &templateRepo{
+		t:   t,
 		log: log,
 		api: api.NewAPI(app.Version, app.Locale),
 	}
@@ -65,7 +68,7 @@ func (r *templateRepo) LoadLocalTemplates() api.Templates {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			r.log.Warn("failed to read templates directory", "path", dir, "err", err)
+			r.log.Warn(r.t.Get("failed to read templates directory"), "path", dir, "err", err)
 		}
 		return nil
 	}
@@ -83,13 +86,13 @@ func (r *templateRepo) LoadLocalTemplates() api.Templates {
 		dataPath := filepath.Join(tplDir, "data.yml")
 		dataBytes, err := os.ReadFile(dataPath)
 		if err != nil {
-			r.log.Warn("failed to read template data.yml", "path", dataPath, "err", err)
+			r.log.Warn(r.t.Get("failed to read template data.yml"), "path", dataPath, "err", err)
 			continue
 		}
 
 		var data types.TemplateData
 		if err = yaml.Unmarshal(dataBytes, &data); err != nil {
-			r.log.Warn("failed to parse template data.yml", "path", dataPath, "err", err)
+			r.log.Warn(r.t.Get("failed to parse template data.yml"), "path", dataPath, "err", err)
 			continue
 		}
 
@@ -97,7 +100,7 @@ func (r *templateRepo) LoadLocalTemplates() api.Templates {
 		composePath := filepath.Join(tplDir, "docker-compose.yml")
 		composeBytes, err := os.ReadFile(composePath)
 		if err != nil {
-			r.log.Warn("failed to read template docker-compose.yml", "path", composePath, "err", err)
+			r.log.Warn(r.t.Get("failed to read template docker-compose.yml"), "path", composePath, "err", err)
 			continue
 		}
 

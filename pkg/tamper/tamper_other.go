@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+
+	"github.com/leonelquinteros/gotext"
 )
 
 // Supported 非 Linux 平台不支持防篡改
@@ -26,7 +28,7 @@ func EnableBPFLSMGrub(_ context.Context) error {
 type Manager struct{}
 
 // NewManager 非 Linux 平台不支持
-func NewManager(_ Config, _ *slog.Logger) (*Manager, error) {
+func NewManager(_ Config, _ *gotext.Locale, _ *slog.Logger) (*Manager, error) {
 	return nil, errors.New("tamper protection is only supported on Linux")
 }
 

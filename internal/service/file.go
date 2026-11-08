@@ -13,7 +13,9 @@ import (
 	"errors"
 	"fmt"
 	stdio "io"
+	"log/slog"
 	"net/http"
+	"net/url"
 	stdos "os"
 	"path/filepath"
 	"slices"
@@ -40,14 +42,16 @@ import (
 
 type FileService struct {
 	t             *gotext.Locale
+	log           *slog.Logger
 	taskRepo      *biz.TaskUsecase
 	containerRepo *biz.ContainerUsecase
 	tamperRepo    *biz.TamperUsecase
 }
 
-func NewFileService(containerUsecase *biz.ContainerUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *FileService {
+func NewFileService(containerUsecase *biz.ContainerUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale, log *slog.Logger) *FileService {
 	return &FileService{
 		t:             t,
+		log:           log,
 		taskRepo:      taskUsecase,
 		containerRepo: containerUsecase,
 		tamperRepo:    tamperUsecase,
@@ -76,6 +80,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.setPermission(req.Path, 0755, "www", "www")
+	s.log.Info(s.t.Get("file created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.Bool("dir", req.Dir))
 	Success(w, nil)
 }
 
@@ -119,6 +124,7 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file content viewed"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	Success(w, chix.M{
 		"mime":     mime,
 		"encoding": req.Encoding,
@@ -171,6 +177,10 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
+	}
+	// 只记首屏，向上翻页不重复记
+	if req.Offset == 0 {
+		s.log.Info(s.t.Get("file log viewed"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	}
 	size := stat.Size()
 	if size == 0 {
@@ -251,6 +261,7 @@ func (s *FileService) Truncate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("file truncated"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	Success(w, nil)
 }
 
@@ -286,6 +297,7 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file saved"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.String("encoding", req.Encoding))
 	Success(w, nil)
 }
 
@@ -322,6 +334,7 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("file deleted"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	Success(w, nil)
 }
 
@@ -370,6 +383,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file uploaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.Int64("size", req.File.Size), slog.Bool("force", req.Force))
 	Success(w, nil)
 }
 
@@ -434,6 +448,7 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		s.log.Info(s.t.Get("file moved"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.String("source", item.Source), slog.String("target", item.Target), slog.Bool("force", item.Force))
 	}
 
 	Success(w, nil)
@@ -485,6 +500,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		s.log.Info(s.t.Get("file copied"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.String("source", item.Source), slog.String("target", item.Target), slog.Bool("force", item.Force))
 	}
 
 	Success(w, nil)
@@ -507,6 +523,7 @@ func (s *FileService) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file downloaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path))
 	render := chix.NewRender(w, r)
 	defer render.Release()
 	render.Download(req.Path, info.Name())
@@ -531,6 +548,13 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// query 与 userinfo 里可能带签名令牌，不能入日志
+	downloadURL := ""
+	if u, err := url.Parse(req.URL); err == nil {
+		u.User, u.RawQuery = nil, ""
+		downloadURL = u.String()
+	}
+	s.log.Info(s.t.Get("remote download task created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.String("url", downloadURL), slog.Uint64("task_id", uint64(task.ID)))
 	Success(w, task)
 }
 
@@ -636,6 +660,7 @@ func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file permission updated"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.String("mode", req.Mode), slog.String("owner", req.Owner), slog.String("group", req.Group), slog.Bool("recursive", req.Recursive))
 	Success(w, nil)
 }
 
@@ -664,6 +689,7 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file compress task created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("file", req.File), slog.String("dir", req.Dir), slog.Any("paths", req.Paths), slog.Uint64("task_id", uint64(task.ID)))
 	Success(w, task)
 }
 
@@ -691,6 +717,7 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("file uncompress task created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("file", req.File), slog.String("path", req.Path), slog.Uint64("task_id", uint64(task.ID)))
 	Success(w, task)
 }
 
@@ -765,6 +792,7 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, s.formatEntries(entries))
 
+	s.log.Info(s.t.Get("file list viewed"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", req.Path), slog.String("keyword", req.Keyword))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -924,6 +952,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 	}
 	_ = stdos.Remove(mapPath)
 
+	s.log.Info(s.t.Get("file uploaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", targetPath), slog.String("file_hash", req.FileHash), slog.Int("chunk_count", req.ChunkCount), slog.Bool("force", req.Force))
 	Success(w, chix.M{
 		"path": targetPath,
 	})
@@ -1061,6 +1090,9 @@ func (s *FileService) tailService(ctx context.Context, w http.ResponseWriter, re
 	}
 	hasMore := len(lines) >= req.Limit
 
+	if req.Cursor == "" {
+		s.log.Info(s.t.Get("service log viewed"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.String("service", req.Service))
+	}
 	Success(w, chix.M{
 		"lines":       lines,
 		"has_more":    hasMore,
@@ -1121,6 +1153,9 @@ func (s *FileService) tailContainer(ctx context.Context, w http.ResponseWriter, 
 	}
 	// 取到的行数达到请求总数，说明可能还有更早的日志
 	hasMore := totalLoaded >= total
+	if req.Offset == 0 {
+		s.log.Info(s.t.Get("container log viewed"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.String("container", req.Container))
+	}
 	Success(w, chix.M{
 		"lines":    result,
 		"has_more": hasMore,

@@ -26,6 +26,9 @@ var _ biz.FileFavoriteRepo = &FileFavoriteRepo{}
 //			DeleteFunc: func(id uint) error {
 //				panic("mock out the Delete method")
 //			},
+//			GetFunc: func(id uint) (*biz.FileFavorite, error) {
+//				panic("mock out the Get method")
+//			},
 //			ListFunc: func() ([]*biz.FileFavorite, error) {
 //				panic("mock out the List method")
 //			},
@@ -47,6 +50,9 @@ type FileFavoriteRepo struct {
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(id uint) error
+
+	// GetFunc mocks the Get method.
+	GetFunc func(id uint) (*biz.FileFavorite, error)
 
 	// ListFunc mocks the List method.
 	ListFunc func() ([]*biz.FileFavorite, error)
@@ -71,6 +77,11 @@ type FileFavoriteRepo struct {
 			// ID is the id argument value.
 			ID uint
 		}
+		// Get holds details about calls to the Get method.
+		Get []struct {
+			// ID is the id argument value.
+			ID uint
+		}
 		// List holds details about calls to the List method.
 		List []struct {
 		}
@@ -89,6 +100,7 @@ type FileFavoriteRepo struct {
 	}
 	lockCreate       sync.RWMutex
 	lockDelete       sync.RWMutex
+	lockGet          sync.RWMutex
 	lockList         sync.RWMutex
 	lockUpdateOrder  sync.RWMutex
 	lockUpdateRemark sync.RWMutex
@@ -159,6 +171,38 @@ func (mock *FileFavoriteRepo) DeleteCalls() []struct {
 	mock.lockDelete.RLock()
 	calls = mock.calls.Delete
 	mock.lockDelete.RUnlock()
+	return calls
+}
+
+// Get calls GetFunc.
+func (mock *FileFavoriteRepo) Get(id uint) (*biz.FileFavorite, error) {
+	if mock.GetFunc == nil {
+		panic("FileFavoriteRepo.GetFunc: method is nil but FileFavoriteRepo.Get was just called")
+	}
+	callInfo := struct {
+		ID uint
+	}{
+		ID: id,
+	}
+	mock.lockGet.Lock()
+	mock.calls.Get = append(mock.calls.Get, callInfo)
+	mock.lockGet.Unlock()
+	return mock.GetFunc(id)
+}
+
+// GetCalls gets all the calls that were made to Get.
+// Check the length with:
+//
+//	len(mockedFileFavoriteRepo.GetCalls())
+func (mock *FileFavoriteRepo) GetCalls() []struct {
+	ID uint
+} {
+	var calls []struct {
+		ID uint
+	}
+	mock.lockGet.RLock()
+	calls = mock.calls.Get
+	mock.lockGet.RUnlock()
 	return calls
 }
 

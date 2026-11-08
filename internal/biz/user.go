@@ -49,8 +49,15 @@ func NewUserUsecase(t *gotext.Locale, log *slog.Logger, userRepo UserRepo) *User
 	}
 }
 
-func (uc *UserUsecase) List(page, limit uint) ([]*User, int64, error) {
-	return uc.repo.List(page, limit)
+func (uc *UserUsecase) List(ctx context.Context, page, limit uint) ([]*User, int64, error) {
+	users, total, err := uc.repo.List(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("user list viewed"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return users, total, nil
 }
 
 func (uc *UserUsecase) Get(id uint) (*User, error) {
@@ -64,40 +71,55 @@ func (uc *UserUsecase) Create(ctx context.Context, username, password, email str
 	}
 
 	// 记录日志
-	uc.log.Info("user created", slog.String("type", OperationTypeUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
+	uc.log.Info(uc.t.Get("user created"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
 
 	return user, nil
 }
 
 func (uc *UserUsecase) UpdateUsername(ctx context.Context, id uint, username string) error {
-	if err := uc.repo.UpdateUsername(id, username); err != nil {
+	user, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateUsername(id, username); err != nil {
 		return err
 	}
 
 	// 记录日志
-	uc.log.Info("user username updated", slog.String("type", OperationTypeUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
+	uc.log.Info(uc.t.Get("user username updated"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("old_username", user.Username), slog.String("username", username))
 
 	return nil
 }
 
 func (uc *UserUsecase) UpdatePassword(ctx context.Context, id uint, password string) error {
-	if err := uc.repo.UpdatePassword(id, password); err != nil {
+	user, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdatePassword(id, password); err != nil {
 		return err
 	}
 
 	// 记录日志
-	uc.log.Info("user password updated", slog.String("type", OperationTypeUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+	uc.log.Info(uc.t.Get("user password updated"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username))
 
 	return nil
 }
 
 func (uc *UserUsecase) UpdateEmail(ctx context.Context, id uint, email string) error {
-	if err := uc.repo.UpdateEmail(id, email); err != nil {
+	user, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateEmail(id, email); err != nil {
 		return err
 	}
 
 	// 记录日志
-	uc.log.Info("user email updated", slog.String("type", OperationTypeUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("email", email))
+	uc.log.Info(uc.t.Get("user email updated"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username), slog.String("old_email", user.Email), slog.String("email", email))
 
 	return nil
 }
@@ -117,7 +139,7 @@ func (uc *UserUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("user deleted", slog.String("type", OperationTypeUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
+	uc.log.Warn(uc.t.Get("user deleted"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
 
 	return nil
 }
@@ -134,6 +156,18 @@ func (uc *UserUsecase) GenerateTwoFA(id uint) (image.Image, string, string, erro
 	return uc.repo.GenerateTwoFA(id)
 }
 
-func (uc *UserUsecase) UpdateTwoFA(id uint, code, secret string) error {
-	return uc.repo.UpdateTwoFA(id, code, secret)
+func (uc *UserUsecase) UpdateTwoFA(ctx context.Context, id uint, code, secret string) error {
+	user, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateTwoFA(id, code, secret); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info(uc.t.Get("user 2fa updated"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username), slog.Bool("enabled", secret != ""))
+
+	return nil
 }

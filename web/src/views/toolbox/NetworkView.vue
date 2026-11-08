@@ -144,6 +144,8 @@ const { loading, data, page, total, pageSize, reload } = usePagination(
     total: (res: any) => res.total,
     data: (res: any) => res.items,
     watchingStates: [sortState, stateFilter, pidSearch, processSearch, portSearch],
+    // 三个搜索框每敲一个字就请求一次，防抖避免刷接口与操作日志
+    debounce: [0, 0, 300, 300, 300],
   },
 )
 const pagination = useTablePagination(page, pageSize, total, [50, 100, 200, 500])

@@ -56,7 +56,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux, whitelist []string
 	compressor := chimiddleware.NewCompressor(6)
 
 	return []func(http.Handler) http.Handler{
-		Recoverer,
+		Recoverer(t),
 		httplog.RequestLogger(r.log, &httplog.Options{
 			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},

@@ -7,7 +7,8 @@ export default {
     limit: number = 100,
     date: string = '',
     level: string = '',
-  ): any => http.Get('/log/list', { params: { type, limit, date, level } }),
+    keyword: string = '',
+  ): any => http.Get('/log/list', { params: { type, limit, date, level, keyword } }),
   // 获取日志日期列表
   dates: (type: 'app' | 'db' | 'http'): any => http.Get('/log/dates', { params: { type } }),
   // 清理指定日期及之前的日志

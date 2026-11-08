@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"slices"
 	"sort"
@@ -14,19 +15,28 @@ import (
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	panelnetwork "github.com/acepanel/panel/v3/pkg/network"
 )
 
 type ToolboxNetworkService struct {
 	t       *gotext.Locale
+	log     *slog.Logger
 	network *panelnetwork.Service
 }
 
-func NewToolboxNetworkService(t *gotext.Locale) *ToolboxNetworkService {
+func NewToolboxNetworkService(t *gotext.Locale, log *slog.Logger) *ToolboxNetworkService {
 	return &ToolboxNetworkService{
-		t:       t,
-		network: panelnetwork.New(),
+		t:   t,
+		log: log,
+		network: panelnetwork.New(func(name string, err error) {
+			if err != nil {
+				log.Warn(t.Get("failed to roll back network interface"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", 0), slog.String("name", name), slog.Any("err", err))
+				return
+			}
+			log.Info(t.Get("network interface change rolled back"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", 0), slog.String("name", name), slog.Bool("expired", true))
+		}),
 	}
 }
 
@@ -47,6 +57,7 @@ func (s *ToolboxNetworkService) Interfaces(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	s.log.Info(s.t.Get("network interface list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, result)
 }
 
@@ -66,6 +77,7 @@ func (s *ToolboxNetworkService) UpdateInterface(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	s.log.Info(s.t.Get("network interface updated"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("name", req.Name), slog.Int("mtu", req.MTU), slog.String("ipv4_mode", req.IPv4.Mode), slog.Any("ipv4_addresses", req.IPv4.Addresses), slog.String("ipv6_mode", req.IPv6.Mode), slog.Any("ipv6_addresses", req.IPv6.Addresses))
 	Success(w, chix.M{"confirm_timeout": int(panelnetwork.ConfirmTimeout.Seconds())})
 }
 
@@ -76,6 +88,7 @@ func (s *ToolboxNetworkService) ConfirmInterface(w http.ResponseWriter, r *http.
 		return
 	}
 
+	s.log.Info(s.t.Get("network interface change confirmed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }
 
@@ -90,6 +103,7 @@ func (s *ToolboxNetworkService) RollbackInterface(w http.ResponseWriter, r *http
 		return
 	}
 
+	s.log.Info(s.t.Get("network interface change rolled back"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }
 
@@ -209,6 +223,7 @@ func (s *ToolboxNetworkService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, data)
 
+	s.log.Info(s.t.Get("network connection list viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("state", req.State), slog.String("pid", req.PID), slog.String("process", req.Process), slog.String("port", req.Port), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,

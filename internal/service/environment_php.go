@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
 	"net/url"
@@ -36,15 +37,17 @@ import (
 
 type EnvironmentPHPService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	conf            *config.Config
 	environmentRepo *biz.EnvironmentUsecase
 	taskRepo        *biz.TaskUsecase
 	settingRepo     biz.SettingRepo
 }
 
-func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, t *gotext.Locale) *EnvironmentPHPService {
+func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *EnvironmentPHPService {
 	return &EnvironmentPHPService{
 		t:               t,
+		log:             log,
 		conf:            conf,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
@@ -69,6 +72,8 @@ func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "php"), slog.String("slug", fmt.Sprintf("php%d", req.Version)), slog.String("bin_path", binPath))
+
 	Success(w, nil)
 }
 
@@ -90,6 +95,8 @@ func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.log.Info(s.t.Get("phpinfo viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+
 	Success(w, output)
 }
 
@@ -104,11 +111,14 @@ func (s *EnvironmentPHPService) GetConfig(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ini, err := io.Read(fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version))
+	path := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	ini, err := io.Read(path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("php config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
 
 	Success(w, ini)
 }
@@ -124,7 +134,8 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version), req.Config, 0644); err != nil {
+	path := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	if err = io.Write(path, req.Config, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -132,6 +143,8 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("php config saved"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
 
 	Success(w, nil)
 }
@@ -147,11 +160,14 @@ func (s *EnvironmentPHPService) GetFPMConfig(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ini, err := io.Read(fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version))
+	path := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	ini, err := io.Read(path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("php-fpm config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
 
 	Success(w, ini)
 }
@@ -167,7 +183,8 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version), req.Config, 0644); err != nil {
+	path := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	if err = io.Write(path, req.Config, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -175,6 +192,8 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("php-fpm config saved"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
 
 	Success(w, nil)
 }
@@ -302,6 +321,8 @@ func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	s.log.Info(s.t.Get("php module list viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+
 	Success(w, modules)
 }
 
@@ -337,6 +358,8 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	s.log.Info(s.t.Get("php module installed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("module", req.Slug))
+
 	Success(w, nil)
 }
 
@@ -371,6 +394,8 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("php module uninstalled"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("module", req.Slug))
 
 	Success(w, nil)
 }
@@ -437,6 +462,8 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 		PmMinSpareServers: confval.PHPINI.Get(fpm, "pm.min_spare_servers"),
 		PmMaxSpareServers: confval.PHPINI.Get(fpm, "pm.max_spare_servers"),
 	}
+
+	s.log.Info(s.t.Get("php config tune viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("ini_path", iniPath), slog.String("fpm_path", fpmPath))
 
 	Success(w, tune)
 }
@@ -511,6 +538,8 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 		return
 	}
 
+	s.log.Info(s.t.Get("php config tune saved"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("ini_path", iniPath), slog.String("fpm_path", fpmPath))
+
 	Success(w, nil)
 }
 
@@ -548,6 +577,8 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("php sessions cleaned"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", savePath))
 
 	Success(w, nil)
 }
@@ -699,6 +730,8 @@ func (s *EnvironmentPHPService) ResetOpcache(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	s.log.Info(s.t.Get("php opcache reset"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+
 	Success(w, nil)
 }
 
@@ -737,6 +770,8 @@ func (s *EnvironmentPHPService) InstallComposer(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	s.log.Info(s.t.Get("composer installed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("path", "/usr/local/bin/composer"))
+
 	Success(w, nil)
 }
 
@@ -757,6 +792,7 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 	if req.Mirror == "" {
 		// 恢复官方源，未设置过镜像时报错可忽略
 		_, _ = shell.ExecfWithEnv(r.Context(), env, "%s /usr/local/bin/composer config -g --unset repos.packagist", php)
+		s.log.Info(s.t.Get("composer mirror set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("mirror", redactURL(req.Mirror)))
 		Success(w, nil)
 		return
 	}
@@ -769,6 +805,8 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("composer mirror set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("mirror", redactURL(req.Mirror)))
 
 	Success(w, nil)
 }

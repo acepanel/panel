@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -18,15 +20,17 @@ import (
 
 type AppService struct {
 	t           *gotext.Locale
+	log         *slog.Logger
 	appRepo     *biz.AppUsecase
 	cacheRepo   *biz.CacheUsecase
 	settingRepo *biz.SettingUsecase
 	loader      *apploader.Loader
 }
 
-func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale) *AppService {
+func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) *AppService {
 	return &AppService{
 		t:           t,
+		log:         log,
 		appRepo:     appUsecase,
 		cacheRepo:   cacheUsecase,
 		settingRepo: settingUsecase,
@@ -121,6 +125,8 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, apps)
 
+	s.log.Info(s.t.Get("app list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("category", category), slog.String("query", query), slog.Bool("installed", onlyInstalled), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
+
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -179,7 +185,7 @@ func (s *AppService) UpdateShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.appRepo.UpdateShow(req.Slug, req.Show); err != nil {
+	if err = s.appRepo.UpdateShow(r.Context(), req.Slug, req.Show); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -240,6 +246,8 @@ func (s *AppService) GetCustom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app custom compile viewed"), slog.String("type", lo.Ternary(biz.CustomCompileApp(req.Slug), biz.OperationTypeApp, biz.OperationTypeEnvironment)), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("slug", req.Slug))
+
 	Success(w, custom)
 }
 
@@ -285,6 +293,7 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app cache updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }
 

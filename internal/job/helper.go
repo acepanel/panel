@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/geoip"
@@ -26,7 +28,7 @@ func resolveIPDBPath(setting *biz.SettingUsecase) string {
 }
 
 // refreshGeoIP 检查 IPDB 文件变化并热更新 GeoIP 实例
-func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath string, curModTime time.Time, log *slog.Logger) (*geoip.GeoIP, string, time.Time) {
+func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath string, curModTime time.Time, t *gotext.Locale, log *slog.Logger) (*geoip.GeoIP, string, time.Time) {
 	path := resolveIPDBPath(setting)
 
 	// 禁用模式，释放内存
@@ -38,7 +40,7 @@ func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath str
 	info, err := os.Stat(path)
 	if err != nil {
 		if current != nil {
-			log.Warn("ipdb file inaccessible, releasing GeoIP", slog.String("path", path), slog.Any("err", err))
+			log.Warn(t.Get("ipdb file inaccessible, releasing GeoIP"), slog.String("path", path), slog.Any("err", err))
 		}
 		_ = current.Close()
 		return nil, path, time.Time{}
@@ -54,10 +56,10 @@ func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath str
 	// 同路径文件更新，使用 Reload
 	if current != nil && path == curPath {
 		if err = current.Reload(path); err != nil {
-			log.Warn("failed to reload ipdb", slog.String("path", path), slog.Any("err", err))
+			log.Warn(t.Get("failed to reload ipdb"), slog.String("path", path), slog.Any("err", err))
 			return current, path, curModTime
 		}
-		log.Info("ipdb reloaded", slog.String("path", path))
+		log.Info(t.Get("ipdb reloaded"), slog.String("path", path))
 		return current, path, modTime
 	}
 
@@ -65,9 +67,9 @@ func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath str
 	_ = current.Close()
 	g, err := geoip.NewGeoIP(path)
 	if err != nil {
-		log.Warn("failed to load ipdb", slog.String("path", path), slog.Any("err", err))
+		log.Warn(t.Get("failed to load ipdb"), slog.String("path", path), slog.Any("err", err))
 		return nil, path, time.Time{}
 	}
-	log.Info("ipdb loaded", slog.String("path", path))
+	log.Info(t.Get("ipdb loaded"), slog.String("path", path))
 	return g, path, modTime
 }

@@ -3,6 +3,7 @@ package nginx
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	webserverNginx "github.com/acepanel/panel/v3/pkg/webserver/nginx"
@@ -26,6 +28,9 @@ func (s *App) ListStreamServers(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to list stream servers: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("nginx stream server list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.streamDir()))
+
 	service.Success(w, servers)
 }
 
@@ -48,7 +53,14 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, r, configPath)
+	if err = s.reload(r.Context(), configPath); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("nginx stream server created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("path", configPath), slog.String("listen", req.Listen), slog.String("proxy_pass", req.ProxyPass), slog.Bool("udp", req.UDP), slog.Bool("ssl", req.SSL))
+
+	service.Success(w, nil)
 }
 
 // UpdateStreamServer 更新 Stream Server
@@ -89,7 +101,14 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	s.reload(w, r)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("nginx stream server updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("old_name", name), slog.String("path", newConfigPath), slog.String("listen", req.Listen), slog.String("proxy_pass", req.ProxyPass), slog.Bool("udp", req.UDP), slog.Bool("ssl", req.SSL))
+
+	service.Success(w, nil)
 }
 
 // DeleteStreamServer 删除 Stream Server
@@ -111,7 +130,14 @@ func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, r)
+	if err := s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Warn(s.t.Get("nginx stream server deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", configPath))
+
+	service.Success(w, nil)
 }
 
 // ListStreamUpstreams 获取 Stream Upstream 列表
@@ -121,6 +147,9 @@ func (s *App) ListStreamUpstreams(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to list stream upstreams: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("nginx stream upstream list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.streamDir()))
+
 	service.Success(w, upstreams)
 }
 
@@ -143,7 +172,14 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, r, configPath)
+	if err = s.reload(r.Context(), configPath); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("nginx stream upstream created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("path", configPath), slog.String("algo", req.Algo), slog.Any("servers", lo.Keys(req.Servers)))
+
+	service.Success(w, nil)
 }
 
 // UpdateStreamUpstream 更新 Stream Upstream
@@ -184,7 +220,14 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	s.reload(w, r)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("nginx stream upstream updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("old_name", name), slog.String("path", newConfigPath), slog.String("algo", req.Algo), slog.Any("servers", lo.Keys(req.Servers)))
+
+	service.Success(w, nil)
 }
 
 // DeleteStreamUpstream 删除 Stream Upstream
@@ -206,7 +249,14 @@ func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, r)
+	if err := s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Warn(s.t.Get("nginx stream upstream deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", configPath))
+
+	service.Success(w, nil)
 }
 
 // parseStreamServers 解析所有 Stream Server 配置

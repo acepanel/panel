@@ -1,8 +1,10 @@
 package biz
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -23,13 +25,15 @@ type TemplateUsecase struct {
 	repo  TemplateRepo
 	cache CacheRepo
 	t     *gotext.Locale
+	log   *slog.Logger
 }
 
-func NewTemplateUsecase(t *gotext.Locale, cacheRepo CacheRepo, templateRepo TemplateRepo) *TemplateUsecase {
+func NewTemplateUsecase(t *gotext.Locale, log *slog.Logger, cacheRepo CacheRepo, templateRepo TemplateRepo) *TemplateUsecase {
 	return &TemplateUsecase{
 		repo:  templateRepo,
 		cache: cacheRepo,
 		t:     t,
+		log:   log,
 	}
 }
 
@@ -79,7 +83,7 @@ func (uc *TemplateUsecase) Callback(slug string) error {
 }
 
 // CreateCompose 创建编排
-func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV) (string, error) {
+func (uc *TemplateUsecase) CreateCompose(ctx context.Context, slug, name, compose string, envs []types.KV) (string, error) {
 	dir := filepath.Join(app.Root, "compose", name)
 
 	// 检查编排是否已存在
@@ -87,5 +91,11 @@ func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV) 
 		return "", errors.New(uc.t.Get("compose %s already exists", name))
 	}
 
-	return uc.repo.WriteCompose(name, compose, envs)
+	dir, err := uc.repo.WriteCompose(name, compose, envs)
+	if err != nil {
+		return "", err
+	}
+
+	uc.log.Info(uc.t.Get("compose created from template"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name), slog.String("template", slug))
+	return dir, nil
 }

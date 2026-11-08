@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
@@ -81,13 +82,15 @@ type DatabaseUserRepo interface {
 type DatabaseUserUsecase struct {
 	repo   DatabaseUserRepo
 	server DatabaseServerRepo
+	t      *gotext.Locale
 	log    *slog.Logger
 }
 
-func NewDatabaseUserUsecase(log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) *DatabaseUserUsecase {
+func NewDatabaseUserUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) *DatabaseUserUsecase {
 	return &DatabaseUserUsecase{
 		repo:   databaseUserRepo,
 		server: databaseServerRepo,
+		t:      t,
 		log:    log,
 	}
 }
@@ -147,7 +150,7 @@ func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.Database
 	}
 
 	// 记录日志
-	uc.log.Info("database user created", slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", operatorID(ctx)), slog.String("username", req.Username), slog.Uint64("server_id", uint64(req.ServerID)))
+	uc.log.Info(uc.t.Get("database user created"), slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", req.Username), slog.String("host", req.Host), slog.Uint64("server_id", uint64(req.ServerID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)), slog.Any("privileges", req.Privileges))
 
 	return nil
 }
@@ -200,11 +203,28 @@ func (uc *DatabaseUserUsecase) Update(ctx context.Context, req *request.Database
 
 	user.Remark = req.Remark
 
-	return uc.repo.Save(user)
+	if err = uc.repo.Save(user); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("database user updated"), slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", user.Username), slog.String("host", user.Host), slog.Uint64("server_id", uint64(user.ServerID)), slog.String("server", server.Name), slog.Bool("password_changed", req.Password != ""), slog.Any("privileges", req.Privileges))
+
+	return nil
 }
 
 func (uc *DatabaseUserUsecase) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
-	return uc.repo.UpdateRemark(ctx, req)
+	user, err := uc.repo.Get(ctx, req.ID)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateRemark(ctx, req); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("database user remark updated"), slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("username", user.Username), slog.Uint64("server_id", uint64(user.ServerID)), slog.String("remark", req.Remark))
+
+	return nil
 }
 
 func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
@@ -234,7 +254,7 @@ func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("database user deleted", slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username))
+	uc.log.Warn(uc.t.Get("database user deleted"), slog.String("type", OperationTypeDatabaseUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", user.Username), slog.String("host", user.Host), slog.Uint64("server_id", uint64(user.ServerID)), slog.String("server", server.Name))
 
 	return nil
 }

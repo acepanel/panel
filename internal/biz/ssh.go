@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
@@ -85,11 +86,12 @@ type SSHRepo interface {
 // SSHUsecase SSH 业务逻辑
 type SSHUsecase struct {
 	repo SSHRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewSSHUsecase(repo SSHRepo, log *slog.Logger) *SSHUsecase {
-	return &SSHUsecase{repo: repo, log: log}
+func NewSSHUsecase(t *gotext.Locale, log *slog.Logger, repo SSHRepo) *SSHUsecase {
+	return &SSHUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *SSHUsecase) List(page, limit uint) ([]*SSH, int64, error) {
@@ -106,7 +108,7 @@ func (uc *SSHUsecase) Create(ctx context.Context, req *request.SSHCreate) error 
 	}
 
 	// 记录日志
-	uc.log.Info("ssh created", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("host", req.Host))
+	uc.log.Info(uc.t.Get("ssh host created"), slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.String("host", req.Host), slog.Uint64("port", uint64(req.Port)), slog.String("user", req.User), slog.String("auth_method", req.AuthMethod))
 
 	return nil
 }
@@ -117,7 +119,7 @@ func (uc *SSHUsecase) Update(ctx context.Context, req *request.SSHUpdate) error 
 	}
 
 	// 记录日志
-	uc.log.Info("ssh updated", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("ssh host updated"), slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name), slog.String("host", req.Host), slog.Uint64("port", uint64(req.Port)), slog.String("user", req.User), slog.String("auth_method", req.AuthMethod))
 
 	return nil
 }
@@ -133,7 +135,7 @@ func (uc *SSHUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("ssh deleted", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", s.Name))
+	uc.log.Warn(uc.t.Get("ssh host deleted"), slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", s.Name), slog.String("host", s.Host), slog.Uint64("port", uint64(s.Port)))
 
 	return nil
 }
@@ -142,8 +144,20 @@ func (uc *SSHUsecase) ListFiles(hostID uint, path string) ([]*SSHFileInfo, error
 	return uc.repo.ListFiles(hostID, path)
 }
 
-func (uc *SSHUsecase) Mkdir(hostID uint, path string) error {
-	return uc.repo.Mkdir(hostID, path)
+func (uc *SSHUsecase) Mkdir(ctx context.Context, hostID uint, path string) error {
+	if err := uc.repo.Mkdir(hostID, path); err != nil {
+		return err
+	}
+
+	attrs := []any{slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("host_id", uint64(hostID)), slog.String("path", path)}
+	if hostID != 0 {
+		if s, err := uc.repo.Get(hostID); err == nil {
+			attrs = append(attrs, slog.String("name", s.Name), slog.String("host", s.Host))
+		}
+	}
+	uc.log.Info(uc.t.Get("ssh directory created"), attrs...)
+
+	return nil
 }
 
 func (uc *SSHUsecase) TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(transferred, total int64)) error {
@@ -152,7 +166,7 @@ func (uc *SSHUsecase) TransferFile(ctx context.Context, srcID uint, srcPath stri
 	}
 
 	// 记录日志
-	uc.log.Info("ssh file transferred", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("src_id", uint64(srcID)), slog.String("src_path", srcPath), slog.Uint64("dst_id", uint64(dstID)), slog.String("dst_path", dstPath))
+	uc.log.Info(uc.t.Get("ssh file transferred"), slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("src_id", uint64(srcID)), slog.String("src_path", srcPath), slog.Uint64("dst_id", uint64(dstID)), slog.String("dst_path", dstPath))
 
 	return nil
 }

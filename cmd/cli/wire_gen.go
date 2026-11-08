@@ -30,14 +30,6 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue1_0 := bootstrap.NewT(wireValue0_0)
 
-	wireValue4_0, wireResourceCleanup4, wireErr4 := bootstrap.NewDB(wireValue0_0)
-	if wireErr4 != nil {
-		wireCommitted = true
-		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr4, cleanupErr)
-	}
-	wireCleanup.arm(wireResourceCleanup4)
-
 	wireValue2_0, wireResourceCleanup2, wireErr2 := bootstrap.NewLogger(wireValue0_0)
 	if wireErr2 != nil {
 		wireCommitted = true
@@ -47,6 +39,14 @@ func initCli() (*app.Cli, func() error, error) {
 	wireCleanup.arm(wireResourceCleanup2)
 
 	wireValue3_0 := bootstrap.NewSlog(wireValue2_0)
+
+	wireValue4_0, wireResourceCleanup4, wireErr4 := bootstrap.NewDB(wireValue0_0)
+	if wireErr4 != nil {
+		wireCommitted = true
+		cleanupErr := wireCleanup.close()
+		return wireZero0, nil, errors.Join(wireErr4, cleanupErr)
+	}
+	wireCleanup.arm(wireResourceCleanup4)
 
 	wireValue58_0 := data.NewAppRepo(wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0)
 
@@ -62,7 +62,7 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue88_0 := data.NewTaskRepo(wireValue4_0, wireValue1_0, wireValue3_0, wireValue7_0)
 
-	wireValue18_0 := biz.NewAppUsecase(wireValue1_0, wireValue58_0, wireValue61_0, wireValue88_0)
+	wireValue18_0 := biz.NewAppUsecase(wireValue1_0, wireValue3_0, wireValue58_0, wireValue61_0, wireValue88_0)
 
 	wireValue94_0 := data.NewWebsiteRepo(wireValue4_0, wireValue1_0, wireValue85_0)
 
@@ -84,7 +84,7 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue70_0 := data.NewCronRepo(wireValue4_0, wireValue1_0)
 
-	wireValue30_0 := biz.NewCronUsecase(wireValue70_0, wireValue3_0)
+	wireValue30_0 := biz.NewCronUsecase(wireValue70_0, wireValue1_0, wireValue3_0)
 
 	wireValue74_0 := data.NewDatabaseServerRepo(wireValue4_0)
 
@@ -94,13 +94,13 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue91_0 := data.NewUserPasskeyRepo(wireValue4_0)
 
-	wireValue51_0 := biz.NewUserPasskeyUsecase(wireValue91_0)
+	wireValue51_0 := biz.NewUserPasskeyUsecase(wireValue1_0, wireValue3_0, wireValue91_0)
 
 	wireValue50_0 := biz.NewUserUsecase(wireValue1_0, wireValue3_0, wireValue90_0)
 
 	wireValue75_0 := data.NewDatabaseUserRepo(wireValue4_0)
 
-	wireValue35_0 := biz.NewDatabaseUserUsecase(wireValue3_0, wireValue74_0, wireValue75_0)
+	wireValue35_0 := biz.NewDatabaseUserUsecase(wireValue1_0, wireValue3_0, wireValue74_0, wireValue75_0)
 
 	wireValue71_0 := data.NewDatabaseRepo(wireValue4_0)
 
@@ -122,13 +122,13 @@ func initCli() (*app.Cli, func() error, error) {
 		return wireZero0, nil, errors.Join(wireErr95, cleanupErr)
 	}
 
-	wireValue55_0 := biz.NewWebsiteStatUsecase(wireValue95_0)
+	wireValue55_0 := biz.NewWebsiteStatUsecase(wireValue1_0, wireValue3_0, wireValue95_0)
 
 	wireValue54_0 := biz.NewWebsiteUsecase(wireValue23_0, wireValue22_0, wireValue31_0, wireValue35_0, wireValue47_0, wireValue55_0, wireValue1_0, wireValue3_0, wireValue74_0, wireValue94_0)
 
 	wireValue8_0 := bootstrap.NewValidator(wireValue0_0, wireValue4_0, wireValue1_0)
 
-	wireValue106_0 := service.NewCliService(wireValue18_0, wireValue19_0, wireValue21_0, wireValue23_0, wireValue22_0, wireValue30_0, wireValue34_0, wireValue41_0, wireValue45_0, wireValue51_0, wireValue50_0, wireValue54_0, wireValue0_0, wireValue4_0, wireValue1_0, wireValue8_0)
+	wireValue106_0 := service.NewCliService(wireValue18_0, wireValue19_0, wireValue21_0, wireValue23_0, wireValue22_0, wireValue30_0, wireValue34_0, wireValue41_0, wireValue45_0, wireValue51_0, wireValue50_0, wireValue54_0, wireValue0_0, wireValue4_0, wireValue1_0, wireValue3_0, wireValue8_0)
 
 	wireValue15_0 := bootstrap.NewCli(wireValue1_0, wireValue106_0)
 

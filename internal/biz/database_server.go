@@ -70,6 +70,7 @@ type DatabaseServerRepo interface {
 	Count() (int64, error)
 	List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseServer, int64, error)
 	Get(ctx context.Context, id uint) (*DatabaseServer, error)
+	Find(id uint) (*DatabaseServer, error)
 	GetByName(ctx context.Context, name string) (*DatabaseServer, error)
 	Create(server *DatabaseServer) error
 	Save(server *DatabaseServer) error
@@ -130,7 +131,13 @@ func (uc *DatabaseServerUsecase) Create(ctx context.Context, req *request.Databa
 		return errors.New(uc.t.Get("check server connection failed"))
 	}
 
-	return uc.repo.Create(databaseServer)
+	if err := uc.repo.Create(databaseServer); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("database server created"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(databaseServer.ID)), slog.String("name", databaseServer.Name), slog.String("server_type", string(databaseServer.Type)), slog.String("host", databaseServer.Host), slog.Uint64("port", uint64(databaseServer.Port)), slog.String("username", databaseServer.Username))
+
+	return nil
 }
 
 func (uc *DatabaseServerUsecase) Update(ctx context.Context, req *request.DatabaseServerUpdate) error {
@@ -150,11 +157,28 @@ func (uc *DatabaseServerUsecase) Update(ctx context.Context, req *request.Databa
 		return errors.New(uc.t.Get("check server connection failed"))
 	}
 
-	return uc.repo.Save(server)
+	if err = uc.repo.Save(server); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("database server updated"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("host", server.Host), slog.Uint64("port", uint64(server.Port)), slog.String("username", server.Username))
+
+	return nil
 }
 
-func (uc *DatabaseServerUsecase) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
-	return uc.repo.UpdateRemark(req)
+func (uc *DatabaseServerUsecase) UpdateRemark(ctx context.Context, req *request.DatabaseServerUpdateRemark) error {
+	server, err := uc.repo.Find(req.ID)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateRemark(req); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("database server remark updated"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", server.Name), slog.String("remark", req.Remark))
+
+	return nil
 }
 
 func (uc *DatabaseServerUsecase) UpdatePassword(name string, password string) error {
@@ -165,8 +189,19 @@ func (uc *DatabaseServerUsecase) UpdatePort(name string, port uint) error {
 	return uc.repo.UpdatePort(name, port)
 }
 
-func (uc *DatabaseServerUsecase) Delete(id uint) error {
-	return uc.repo.Delete(id)
+func (uc *DatabaseServerUsecase) Delete(ctx context.Context, id uint) error {
+	server, err := uc.repo.Find(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("database server deleted"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("host", server.Host), slog.Uint64("port", uint64(server.Port)))
+
+	return nil
 }
 
 func (uc *DatabaseServerUsecase) ClearUsers(id uint) error {
@@ -197,6 +232,7 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 	}
 	defer operator.Close()
 
+	synced := 0
 	switch server.Type {
 	case DatabaseTypeMysql:
 		allUsers, err := operator.Users(ctx)
@@ -214,8 +250,10 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 					Remark:   uc.t.Get("sync from server %s", server.Name),
 				}
 				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn("sync mysql database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
+					continue
 				}
+				synced++
 			}
 		}
 	case DatabaseTypePostgresql:
@@ -233,8 +271,10 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 					Remark:   uc.t.Get("sync from server %s", server.Name),
 				}
 				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn("sync postgresql database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
+					continue
 				}
+				synced++
 			}
 		}
 	case DatabaseTypeClickHouse:
@@ -252,12 +292,16 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 					Remark:   uc.t.Get("sync from server %s", server.Name),
 				}
 				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn("sync clickhouse database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
+					continue
 				}
+				synced++
 			}
 		}
 	default:
 	}
+
+	uc.log.Info(uc.t.Get("database server users synced"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.Int("synced", synced))
 
 	return nil
 }

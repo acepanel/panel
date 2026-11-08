@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/request"
 )
 
@@ -30,12 +32,14 @@ type FileShareRepo interface {
 
 type FileShareUsecase struct {
 	repo FileShareRepo
+	t    *gotext.Locale
 	log  *slog.Logger
 }
 
-func NewFileShareUsecase(log *slog.Logger, fileShareRepo FileShareRepo) *FileShareUsecase {
+func NewFileShareUsecase(t *gotext.Locale, log *slog.Logger, fileShareRepo FileShareRepo) *FileShareUsecase {
 	return &FileShareUsecase{
 		repo: fileShareRepo,
+		t:    t,
 		log:  log,
 	}
 }
@@ -53,7 +57,7 @@ func (uc *FileShareUsecase) Create(ctx context.Context, req *request.FileShareCr
 	}
 
 	// 记录日志
-	uc.log.Info("file share created", slog.String("type", OperationTypeFile), slog.Uint64("operator_id", operatorID(ctx)), slog.String("path", req.Path))
+	uc.log.Info(uc.t.Get("file share created"), slog.String("type", OperationTypeFile), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(share.ID)), slog.String("path", req.Path), slog.Uint64("max_downloads", uint64(req.MaxDownloads)), slog.Time("expired_at", share.ExpiredAt))
 
 	return share, nil
 }
@@ -69,7 +73,7 @@ func (uc *FileShareUsecase) Delete(ctx context.Context, id uint) error {
 	}
 
 	// 记录日志
-	uc.log.Info("file share deleted", slog.String("type", OperationTypeFile), slog.Uint64("operator_id", operatorID(ctx)), slog.String("path", share.Path))
+	uc.log.Warn(uc.t.Get("file share deleted"), slog.String("type", OperationTypeFile), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(share.ID)), slog.String("path", share.Path))
 
 	return nil
 }

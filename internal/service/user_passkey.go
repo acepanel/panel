@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"encoding/pem"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,6 +27,7 @@ import (
 
 type UserPasskeyService struct {
 	t               *gotext.Locale
+	log             *slog.Logger
 	conf            *config.Config
 	session         *sessions.Manager
 	userPasskeyRepo *biz.UserPasskeyUsecase
@@ -33,11 +35,12 @@ type UserPasskeyService struct {
 	notifyRepo      *biz.NotifyUsecase
 }
 
-func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) *UserPasskeyService {
+func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger, session *sessions.Manager) *UserPasskeyService {
 	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
 	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
 		t:               t,
+		log:             log,
 		conf:            conf,
 		session:         session,
 		userPasskeyRepo: userPasskeyUsecase,
@@ -200,7 +203,7 @@ func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Reque
 		BackupState:    credential.Flags.BackupState,
 	}
 
-	if err = s.userPasskeyRepo.Create(pk); err != nil {
+	if err = s.userPasskeyRepo.Create(r.Context(), pk); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -301,13 +304,16 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
 
+	ip := clientIP(r, s.conf.HTTP.IPHeader)
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
 		{s.t.Get("Username"), wUser.Inner.Username},
 		{s.t.Get("Method"), s.t.Get("passkey")},
-		{s.t.Get("IP"), clientIP(r, s.conf.HTTP.IPHeader)},
+		{s.t.Get("IP"), ip},
 		{s.t.Get("User Agent"), r.UserAgent()},
 		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
 	}))
+
+	s.log.Info(s.t.Get("user logged in"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(wUser.Inner.ID)), slog.String("username", wUser.Inner.Username), slog.String("ip", ip), slog.String("method", "passkey"))
 
 	Success(w, nil)
 }
@@ -336,6 +342,8 @@ func (s *UserPasskeyService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("user passkey list viewed"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("user_id", uint64(userID)))
+
 	Success(w, chix.M{
 		"items": passkeys,
 	})
@@ -359,7 +367,7 @@ func (s *UserPasskeyService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userPasskeyRepo.Delete(userID, req.ID); err != nil {
+	if err = s.userPasskeyRepo.Delete(r.Context(), userID, req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

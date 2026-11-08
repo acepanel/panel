@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -23,6 +24,7 @@ type WebsiteStat struct {
 	log          *slog.Logger
 	setting      *biz.SettingUsecase
 	statRepo     *biz.WebsiteStatUsecase
+	t            *gotext.Locale
 	aggregator   *websitestat.Aggregator
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
@@ -32,13 +34,14 @@ type WebsiteStat struct {
 }
 
 // NewWebsiteStat 构造网站统计任务
-func NewWebsiteStat(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, log *slog.Logger, aggregator *websitestat.Aggregator) Job {
+func NewWebsiteStat(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, aggregator *websitestat.Aggregator) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &WebsiteStat{
 			log:        log,
 			setting:    settingUsecase,
 			statRepo:   websiteStatUsecase,
+			t:          t,
 			aggregator: aggregator,
 		},
 	}
@@ -50,7 +53,7 @@ func (r *WebsiteStat) Run(_ context.Context) error {
 	}
 
 	r.ensureListener()
-	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.log)
+	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.t, r.log)
 	r.flush()
 	r.flushErrors()
 	r.flushDetails()
@@ -83,7 +86,7 @@ func (r *WebsiteStat) ensureListener() {
 
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)
 	if err != nil {
-		r.log.Warn("fail to start website stat listener", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to start website stat listener"), slog.Any("err", err))
 		r.started.Store(false)
 		return
 	}
@@ -96,7 +99,7 @@ func (r *WebsiteStat) readLoop(listener *websitestat.Listener) {
 	for {
 		tag, data, err := listener.Read()
 		if err != nil {
-			r.log.Warn("failed to read from website stat listener", slog.Any("err", err))
+			r.log.Warn(r.t.Get("failed to read from website stat listener"), slog.Any("err", err))
 			_ = listener.Close()
 			r.started.Store(false)
 			return
@@ -183,7 +186,7 @@ func (r *WebsiteStat) flush() {
 	}
 
 	if err := r.statRepo.Upsert(stats); err != nil {
-		r.log.Warn("failed to upsert website stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert website stats"), slog.Any("err", err))
 		app.Health.Report(healthKeyStatDB, app.HealthLevelError, err.Error())
 		// 直接丢弃已 drain 的增量，避免 DB 长期不可写时内存无界累积
 		commit()
@@ -215,7 +218,7 @@ func (r *WebsiteStat) flushErrors() {
 	})
 
 	if err := r.statRepo.InsertErrors(errors); err != nil {
-		r.log.Warn("failed to insert website error logs", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to insert website error logs"), slog.Any("err", err))
 		app.Health.Report(healthKeyStatDB, app.HealthLevelError, err.Error())
 		// 直接丢弃已 snapshot 的错误缓冲，避免内存无界累积
 		commit()
@@ -303,19 +306,19 @@ func (r *WebsiteStat) flushDetails() {
 
 	var lastErr error
 	if err := r.statRepo.UpsertSpiders(spiders); err != nil {
-		r.log.Warn("failed to upsert spider stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert spider stats"), slog.Any("err", err))
 		lastErr = err
 	}
 	if err := r.statRepo.UpsertClients(clients); err != nil {
-		r.log.Warn("failed to upsert client stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert client stats"), slog.Any("err", err))
 		lastErr = err
 	}
 	if err := r.statRepo.UpsertIPs(ips); err != nil {
-		r.log.Warn("failed to upsert ip stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert ip stats"), slog.Any("err", err))
 		lastErr = err
 	}
 	if err := r.statRepo.UpsertURIs(uris); err != nil {
-		r.log.Warn("failed to upsert uri stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to upsert uri stats"), slog.Any("err", err))
 		lastErr = err
 	}
 	// 无论成败都 commit：成功→减去已入库增量；失败→直接丢弃，避免内存无界累积
@@ -342,26 +345,26 @@ func (r *WebsiteStat) cleanup() {
 
 	cutoff := time.Now().AddDate(0, 0, -days).Format(time.DateOnly)
 	if err = r.statRepo.ClearBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired website stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired website stats"), slog.Any("err", err))
 	}
 
 	errCutoff := time.Now().AddDate(0, 0, -days)
 	if err = r.statRepo.ClearErrorsBefore(errCutoff); err != nil {
-		r.log.Warn("failed to clear expired website error logs", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired website error logs"), slog.Any("err", err))
 	}
 
 	// 清理详细统计表
 	if err = r.statRepo.ClearSpidersBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired spider stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired spider stats"), slog.Any("err", err))
 	}
 	if err = r.statRepo.ClearClientsBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired client stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired client stats"), slog.Any("err", err))
 	}
 	if err = r.statRepo.ClearIPsBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired ip stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired ip stats"), slog.Any("err", err))
 	}
 	if err = r.statRepo.ClearURIsBefore(cutoff); err != nil {
-		r.log.Warn("failed to clear expired uri stats", slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to clear expired uri stats"), slog.Any("err", err))
 	}
 }
 

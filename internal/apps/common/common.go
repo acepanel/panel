@@ -2,9 +2,13 @@
 package common
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 
+	"github.com/leonelquinteros/gotext"
+
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -18,19 +22,19 @@ func ServeConfig(w http.ResponseWriter, path string) {
 	service.Success(w, config)
 }
 
-// SaveConfig 绑定请求后写入配置文件并重启对应服务
-func SaveConfig(w http.ResponseWriter, r *http.Request, path string, perm os.FileMode, unit string) {
+// SaveConfig 绑定请求后写入配置文件并重启对应服务，app 是操作日志里的应用标识
+func SaveConfig(w http.ResponseWriter, r *http.Request, log *slog.Logger, t *gotext.Locale, app, path string, perm os.FileMode, unit string) {
 	req, err := service.Bind[request.AppUpdateConfig](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	WriteConfig(w, r, path, req.Config, perm, unit)
+	WriteConfig(w, r, log, t, app, path, req.Config, perm, unit)
 }
 
-// WriteConfig 写入配置文件并重启对应服务
-func WriteConfig(w http.ResponseWriter, r *http.Request, path, content string, perm os.FileMode, unit string) {
+// WriteConfig 写入配置文件并重启对应服务，app 是操作日志里的应用标识
+func WriteConfig(w http.ResponseWriter, r *http.Request, log *slog.Logger, t *gotext.Locale, app, path, content string, perm os.FileMode, unit string) {
 	if err := io.Write(path, content, perm); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -40,6 +44,8 @@ func WriteConfig(w http.ResponseWriter, r *http.Request, path, content string, p
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	log.Info(t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", app), slog.String("path", path))
 
 	service.Success(w, nil)
 }

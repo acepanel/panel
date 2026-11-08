@@ -59,7 +59,7 @@ func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade exec ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade exec ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -81,6 +81,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	}
 	// 关闭读端让上游拷贝协程拿到错误退出，否则命令派生的孙子进程持有写端时会一直阻塞
 	defer func() { _ = out.Close() }()
+	s.log.Info(s.t.Get("exec session opened"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 
 	go func() {
 		scanner := bufio.NewScanner(out)
@@ -116,7 +117,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade follow ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade follow ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -188,7 +189,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade pty ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade pty ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -215,6 +216,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 		_ = ws.Close(websocket.StatusNormalClosure, "")
 		return
 	}
+	s.log.Info(s.t.Get("terminal session opened"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 
 	go func() {
 		defer turn.Close()
@@ -239,7 +241,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade session ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade session ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -259,6 +261,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
 		return
 	}
+	s.log.Info(s.t.Get("ssh session opened"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("id", uint64(info.ID)), slog.String("name", info.Name), slog.String("host", info.Host), slog.Uint64("port", uint64(info.Port)))
 
 	go func() {
 		defer turn.Close() // Handle 退出后关闭 SSH 连接，以结束 Wait 阶段
@@ -274,7 +277,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) SSHTransfer(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade ssh transfer ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade ssh transfer ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -351,7 +354,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade container terminal ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade container terminal ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -367,6 +370,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
 		return
 	}
+	s.log.Info(s.t.Get("container exec session opened"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("id", req.ID))
 
 	go func() {
 		//nolint:contextcheck
@@ -382,7 +386,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade image pull ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade image pull ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -435,7 +439,7 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	// 迭代进度
 	for msg, err := range resp.JSONMessages(ctx) {
 		if err != nil {
-			s.log.Warn("image pull error", slog.Any("err", err))
+			s.log.Warn(s.t.Get("image pull error"), slog.Any("err", err))
 			_ = s.writeJSON(ctx, ws, map[string]any{
 				"status": "error",
 				"error":  err.Error(),
@@ -454,10 +458,11 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 
 		// 转发进度信息
 		if err = s.writeJSON(ctx, ws, msg); err != nil {
-			s.log.Warn("write image pull progress error", slog.Any("err", err))
+			s.log.Warn(s.t.Get("write image pull progress error"), slog.Any("err", err))
 			return
 		}
 	}
+	s.log.Info(s.t.Get("image pulled"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("name", req.Name))
 
 	// 拉取完成
 	_ = s.writeJSON(ctx, ws, map[string]any{
@@ -510,7 +515,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("upgrade panel update ws error", slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade panel update ws error"), slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -540,7 +545,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action string, fn func(ctx context.Context, id uint, cb func(string)) error) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn(fmt.Sprintf("upgrade cert %s ws error", action), slog.Any("err", err))
+		s.log.Warn(s.t.Get("upgrade cert ws error"), slog.String("action", action), slog.Any("err", err))
 		return
 	}
 	defer func() { _ = ws.CloseNow() }()
@@ -576,7 +581,7 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 			"msg":    msg,
 		}); err != nil {
 			writeFailed = true
-			s.log.Warn("write cert progress error", slog.Any("err", err), slog.String("action", action))
+			s.log.Warn(s.t.Get("write cert progress error"), slog.Any("err", err), slog.String("action", action))
 		}
 	}
 

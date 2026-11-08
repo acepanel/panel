@@ -1,8 +1,10 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -11,11 +13,15 @@ import (
 
 type ContainerImageService struct {
 	containerImageRepo *biz.ContainerImageUsecase
+	t                  *gotext.Locale
+	log                *slog.Logger
 }
 
-func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase) *ContainerImageService {
+func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase, t *gotext.Locale, log *slog.Logger) *ContainerImageService {
 	return &ContainerImageService{
 		containerImageRepo: containerImageUsecase,
+		t:                  t,
+		log:                log,
 	}
 }
 
@@ -28,6 +34,7 @@ func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := Paginate(r, images)
 
+	s.log.Info(s.t.Get("image list viewed"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -58,7 +65,7 @@ func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Background {
-		if err = s.containerImageRepo.PullBackground(req); err != nil {
+		if err = s.containerImageRepo.PullBackground(r.Context(), req); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -95,5 +102,6 @@ func (s *ContainerImageService) Prune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("images pruned"), slog.String("type", biz.OperationTypeContainer), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, nil)
 }

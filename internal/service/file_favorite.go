@@ -35,7 +35,7 @@ func (s *FileFavoriteService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favorite, err := s.fileFavoriteRepo.Create(filepath.Clean(req.Path), req.Remark)
+	favorite, err := s.fileFavoriteRepo.Create(r.Context(), filepath.Clean(req.Path), req.Remark)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -51,7 +51,7 @@ func (s *FileFavoriteService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.fileFavoriteRepo.UpdateRemark(req.ID, req.Remark); err != nil {
+	if err = s.fileFavoriteRepo.UpdateRemark(r.Context(), req.ID, req.Remark); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -66,7 +66,7 @@ func (s *FileFavoriteService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.fileFavoriteRepo.Delete(req.ID); err != nil {
+	if err = s.fileFavoriteRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

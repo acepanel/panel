@@ -1,14 +1,12 @@
 package data
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"sync"
 
 	"github.com/libtnb/sqlite"
 	"github.com/moby/moby/client"
-	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -30,19 +28,6 @@ func getDockerClient(sock string) (*client.Client, error) {
 	}
 
 	return apiClient, nil
-}
-
-// getOperatorID 从 context 中获取操作员ID
-// 如果无法获取，返回 0（表示系统操作）
-func getOperatorID(ctx context.Context) uint64 {
-	if ctx == nil {
-		return 0
-	}
-	userID := ctx.Value("user_id")
-	if userID == nil {
-		return 0
-	}
-	return cast.ToUint64(userID)
 }
 
 // openSharedDB 打开长期持有的辅助数据库

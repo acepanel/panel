@@ -2,13 +2,16 @@ package rsync
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -16,12 +19,14 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -48,6 +53,8 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := service.Paginate(r, modules)
 
+	s.log.Info(s.t.Get("rsync module list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rsync"), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
+
 	service.Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -66,7 +73,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, req)
+	s.save(r, w, req, s.t.Get("rsync module created"))
 }
 
 func (s *App) Update(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +88,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(r.Context(), w, req)
+	s.save(r, w, req, s.t.Get("rsync module updated"))
 }
 
 func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
@@ -107,27 +114,32 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("rsync module deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rsync"), slog.String("name", req.Name))
+
 	service.Success(w, nil)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rsync"), slog.String("path", rsyncdConf))
 	common.ServeConfig(w, rsyncdConf)
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, rsyncdConf, 0644, "rsyncd")
+	common.SaveConfig(w, r, s.log, s.t, "rsync", rsyncdConf, 0644, "rsyncd")
 }
 
-func (s *App) save(ctx context.Context, w http.ResponseWriter, req *Module) {
+func (s *App) save(r *http.Request, w http.ResponseWriter, req *Module, msg string) {
 	if err := writeModule(*req); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err := systemctl.Restart(ctx, "rsyncd"); err != nil {
+	if err := systemctl.Restart(r.Context(), "rsyncd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(msg, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rsync"), slog.String("name", req.Name), slog.String("path", req.Path), slog.String("auth_user", req.AuthUser), slog.Bool("read_only", req.ReadOnly), slog.String("hosts_allow", req.HostsAllow))
 
 	service.Success(w, nil)
 }

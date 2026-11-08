@@ -124,7 +124,7 @@ func (r *Runner) drain(ctx context.Context) {
 // clearZombie 启动时将残留的 running 任务标记为 failed
 func (r *Runner) clearZombie() {
 	if err := r.db.Model(&biz.Task{}).Where("status = ?", biz.TaskStatusRunning).Update("status", biz.TaskStatusFailed).Error; err != nil {
-		r.log.Error("failed to clear zombie tasks", slog.Any("err", err))
+		r.log.Error(r.t.Get("failed to clear zombie tasks"), slog.Any("err", err))
 	}
 }
 
@@ -157,7 +157,7 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 	// 原子抢占，任务可能在取出后被取消
 	result := r.db.Model(task).Where("status = ?", biz.TaskStatusWaiting).Update("status", biz.TaskStatusRunning)
 	if result.Error != nil {
-		r.log.Error("failed to update task status to running", slog.Any("task_id", task.ID), slog.Any("err", result.Error))
+		r.log.Error(r.t.Get("failed to update task status to running"), slog.Any("task_id", task.ID), slog.Any("err", result.Error))
 		return
 	}
 	if result.RowsAffected == 0 {
@@ -169,7 +169,7 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 	_ = os.MkdirAll(logDir, 0o700)
 	logFile := filepath.Join(logDir, fmt.Sprintf("%d.log", task.ID))
 	if err := r.db.Model(task).Update("log", logFile).Error; err != nil {
-		r.log.Error("failed to update task log path", slog.Any("task_id", task.ID), slog.Any("err", err))
+		r.log.Error(r.t.Get("failed to update task log path"), slog.Any("task_id", task.ID), slog.Any("err", err))
 		return
 	}
 
@@ -184,7 +184,7 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 			r.runCancelShell(ctx, task, logFile)
 		case <-time.After(200 * time.Millisecond):
 		}
-		r.log.Warn("background task did not finish", slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
+		r.log.Warn(r.t.Get("background task did not finish"), slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
 		_ = r.db.Model(task).Update("status", status).Error
 
 		// 用户主动取消不算故障
@@ -200,7 +200,7 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 	}
 
 	if err := r.db.Model(task).Update("status", biz.TaskStatusSuccess).Error; err != nil {
-		r.log.Error("failed to update task status to success", slog.Any("task_id", task.ID), slog.Any("err", err))
+		r.log.Error(r.t.Get("failed to update task status to success"), slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
 }
 
@@ -215,6 +215,6 @@ func (r *Runner) runCancelShell(ctx context.Context, task *biz.Task, logFile str
 	defer cancel()
 
 	if err := shell.ExecWithLogAppend(cleanupCtx, task.CancelShell, logFile); err != nil {
-		r.log.Warn("failed to run task cancel shell", slog.Any("task_id", task.ID), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to run task cancel shell"), slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
 }

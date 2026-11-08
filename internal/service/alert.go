@@ -26,7 +26,7 @@ func (s *AlertService) ListRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rules, total, err := s.alertRepo.ListRules(req.Page, req.Limit)
+	rules, total, err := s.alertRepo.ListRules(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -45,7 +45,7 @@ func (s *AlertService) GetRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rule, err := s.alertRepo.GetRule(req.ID)
+	rule, err := s.alertRepo.GetRule(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -107,7 +107,7 @@ func (s *AlertService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	alerts, total, err := s.alertRepo.ListAlerts(req.Page, req.Limit)
+	alerts, total, err := s.alertRepo.ListAlerts(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -120,7 +120,7 @@ func (s *AlertService) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AlertService) Clear(w http.ResponseWriter, r *http.Request) {
-	if err := s.alertRepo.ClearAlerts(); err != nil {
+	if err := s.alertRepo.ClearAlerts(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

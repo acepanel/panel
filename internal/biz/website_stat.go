@@ -1,6 +1,12 @@
 package biz
 
-import "time"
+import (
+	"context"
+	"log/slog"
+	"time"
+
+	"github.com/leonelquinteros/gotext"
+)
 
 // WebsiteStat 网站统计（每站每天一行或每小时一行）
 type WebsiteStat struct {
@@ -227,11 +233,13 @@ type WebsiteStatRepo interface {
 }
 
 type WebsiteStatUsecase struct {
+	t    *gotext.Locale
+	log  *slog.Logger
 	repo WebsiteStatRepo
 }
 
-func NewWebsiteStatUsecase(repo WebsiteStatRepo) *WebsiteStatUsecase {
-	return &WebsiteStatUsecase{repo: repo}
+func NewWebsiteStatUsecase(t *gotext.Locale, log *slog.Logger, repo WebsiteStatRepo) *WebsiteStatUsecase {
+	return &WebsiteStatUsecase{t: t, log: log, repo: repo}
 }
 
 func (uc *WebsiteStatUsecase) Upsert(stats []*WebsiteStat) error {
@@ -262,8 +270,14 @@ func (uc *WebsiteStatUsecase) ClearErrorsBefore(t time.Time) error {
 	return uc.repo.ClearErrorsBefore(t)
 }
 
-func (uc *WebsiteStatUsecase) Clear() error {
-	return uc.repo.Clear()
+func (uc *WebsiteStatUsecase) Clear(ctx context.Context) error {
+	if err := uc.repo.Clear(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("website stats cleared"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return nil
 }
 
 func (uc *WebsiteStatUsecase) DeleteBySite(site string) error {

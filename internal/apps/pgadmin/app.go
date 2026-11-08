@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	stdio "io"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
@@ -34,13 +35,15 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	conf               *config.Config
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) *App {
+func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
 	}
@@ -125,6 +128,8 @@ func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 	}
 	email, password := s.credential()
 
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.String("username", email))
+
 	service.Success(w, chix.M{
 		"port":     port,
 		"email":    email,
@@ -176,6 +181,8 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart pgAdmin: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app port updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.Uint64("port", uint64(req.Port)), slog.Bool("firewall_opened", running))
 
 	service.Success(w, nil)
 }
@@ -454,6 +461,8 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, cookie)
 	}
 
+	s.log.Info(s.t.Get("app logged in"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.String("username", email), slog.String("ip", clientIP))
+
 	service.Success(w, chix.M{
 		"port": port,
 	})
@@ -520,6 +529,8 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("pgadmin username updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.String("old_username", oldEmail), slog.String("username", req.Username))
+
 	service.Success(w, nil)
 }
 
@@ -554,6 +565,8 @@ func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.String("username", email))
 
 	service.Success(w, nil)
 }

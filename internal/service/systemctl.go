@@ -1,21 +1,25 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
 
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 )
 
 type SystemctlService struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewSystemctlService(t *gotext.Locale) *SystemctlService {
+func NewSystemctlService(t *gotext.Locale, log *slog.Logger) *SystemctlService {
 	return &SystemctlService{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -73,6 +77,7 @@ func (s *SystemctlService) Enable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service enabled"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -88,6 +93,7 @@ func (s *SystemctlService) Disable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service disabled"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -103,6 +109,7 @@ func (s *SystemctlService) Restart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service restarted"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -118,6 +125,7 @@ func (s *SystemctlService) Reload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service reloaded"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -133,6 +141,7 @@ func (s *SystemctlService) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service started"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -148,6 +157,7 @@ func (s *SystemctlService) Stop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("service stopped"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }
 
@@ -164,5 +174,6 @@ func (s *SystemctlService) ClearLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Warn(s.t.Get("service log cleared"), slog.String("type", biz.OperationTypeSystem), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", req.Service))
 	Success(w, nil)
 }

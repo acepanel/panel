@@ -3,23 +3,32 @@ package docker
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type App struct{}
+type App struct {
+	t   *gotext.Locale
+	log *slog.Logger
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return &App{
+		t:   t,
+		log: log,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -35,11 +44,12 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "docker"), slog.String("path", "/etc/docker/daemon.json"))
 	common.ServeConfig(w, "/etc/docker/daemon.json")
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, "/etc/docker/daemon.json", 0644, "docker")
+	common.SaveConfig(w, r, s.log, s.t, "docker", "/etc/docker/daemon.json", 0644, "docker")
 }
 
 // GetSettings 获取 Docker 设置
@@ -47,18 +57,16 @@ func (s *App) GetSettings(w http.ResponseWriter, r *http.Request) {
 	configPath := "/etc/docker/daemon.json"
 
 	content, err := io.Read(configPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			service.Success(w, Settings{})
-			return
-		}
+	if err != nil && !os.IsNotExist(err) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "docker"), slog.String("path", configPath))
+
 	var daemonConfig DaemonConfig
 	if err = json.Unmarshal([]byte(content), &daemonConfig); err != nil {
-		service.Success(w, Settings{}) // 配置文件可能为空或格式错误，返回默认设置
+		service.Success(w, Settings{}) // 配置文件可能不存在、为空或格式错误，返回默认设置
 		return
 	}
 
@@ -243,6 +251,8 @@ func (s *App) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "docker"), slog.String("path", configPath), slog.String("data_root", settings.DataRoot), slog.String("storage_driver", settings.StorageDriver), slog.String("cgroup_driver", settings.CgroupDriver), slog.String("firewall_backend", settings.FirewallBackend))
 
 	service.Success(w, nil)
 }

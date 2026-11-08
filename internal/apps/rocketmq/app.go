@@ -3,6 +3,7 @@ package rocketmq
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 
@@ -11,6 +12,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -18,11 +20,12 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
-	return &App{t: t}
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return &App{t: t, log: log}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -74,6 +77,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	conf, _ := io.Read(s.configPath())
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
 	service.Success(w, conf)
 }
 
@@ -93,6 +97,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
 
 	service.Success(w, nil)
 }
@@ -119,6 +125,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		BrokerHeapInitSize:  brokerInit,
 		BrokerHeapMaxSize:   brokerMax,
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -161,6 +169,19 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config tune saved"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "rocketmq"),
+		slog.String("broker_name", req.BrokerName),
+		slog.String("listen_port", req.ListenPort),
+		slog.String("namesrv_addr", req.NamesrvAddr),
+		slog.String("broker_role", req.BrokerRole),
+		slog.String("flush_disk_type", req.FlushDiskType),
+		slog.String("store_path_root_dir", req.StorePathRootDir),
+		slog.String("max_message_size", req.MaxMessageSize),
+	)
 
 	service.Success(w, nil)
 }

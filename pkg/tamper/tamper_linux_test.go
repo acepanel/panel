@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/assert/check"
 	"github.com/libtnb/assert/must"
 	"golang.org/x/sys/unix"
@@ -57,6 +58,10 @@ func newLogger() *slog.Logger {
 	return slog.New(slog.DiscardHandler)
 }
 
+func newLocale() *gotext.Locale {
+	return gotext.NewLocale("", "en")
+}
+
 func TestChattrMode(t *testing.T) {
 	if os.Geteuid() != 0 {
 		t.Skip("需要 root")
@@ -74,7 +79,7 @@ func TestChattrMode(t *testing.T) {
 	m, err := NewManager(Config{
 		Mode:  ModeChattr,
 		Rules: []Rule{{Name: "test", Paths: []string{dir}, Exts: []string{"html"}}},
-	}, newLogger())
+	}, newLocale(), newLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +126,7 @@ func TestEBPFMode(t *testing.T) {
 	m, err := NewManager(Config{
 		Mode:  ModeEBPF,
 		Rules: []Rule{{Name: "test", Paths: []string{dir}, Exts: []string{"php"}}},
-	}, newLogger())
+	}, newLocale(), newLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,6 +302,7 @@ func TestRelockDropsReplacedInode(t *testing.T) {
 	eng := &fakeEngine{}
 	m := &Manager{
 		cfg:       Config{Rules: []Rule{{Paths: []string{dir}}}},
+		t:         newLocale(),
 		log:       newLogger(),
 		eng:       eng,
 		entries:   make(map[string]fileEntry),
@@ -335,6 +341,7 @@ func TestRelockKeepsSameInode(t *testing.T) {
 	eng := &fakeEngine{}
 	m := &Manager{
 		cfg:       Config{Rules: []Rule{{Paths: []string{dir}}}},
+		t:         newLocale(),
 		log:       newLogger(),
 		eng:       eng,
 		entries:   make(map[string]fileEntry),

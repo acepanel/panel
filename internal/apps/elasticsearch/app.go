@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -24,11 +26,12 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
-	return &App{t: t}
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
+	return &App{t: t, log: log}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -94,11 +97,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("path", s.configPath()))
 	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), 0644, "elasticsearch")
+	common.SaveConfig(w, r, s.log, s.t, "elasticsearch", s.configPath(), 0644, "elasticsearch")
 }
 
 // GetConfigTune 获取 ElasticSearch 配置调整参数
@@ -130,6 +134,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		HeapInitSize:  heapInit,
 		HeapMaxSize:   heapMax,
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -181,6 +187,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("cluster_name", req.ClusterName), slog.String("node_name", req.NodeName), slog.String("network_host", req.NetworkHost), slog.String("http_port", req.HTTPPort), slog.String("discovery_type", req.DiscoveryType), slog.String("path_data", req.PathData), slog.String("path_logs", req.PathLogs), slog.String("heap_init_size", req.HeapInitSize), slog.String("heap_max_size", req.HeapMaxSize))
 
 	service.Success(w, nil)
 }

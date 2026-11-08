@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/leonelquinteros/gotext"
 	"golang.org/x/sys/unix"
 )
 
@@ -50,6 +51,7 @@ type engine interface {
 
 type Manager struct {
 	cfg    Config
+	t      *gotext.Locale
 	log    *slog.Logger
 	eng    engine
 	isEBPF bool
@@ -68,9 +70,10 @@ type Manager struct {
 	once   sync.Once
 }
 
-func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
+func NewManager(cfg Config, t *gotext.Locale, log *slog.Logger) (*Manager, error) {
 	m := &Manager{
 		cfg:       cfg,
+		t:         t,
 		log:       log,
 		entries:   make(map[string]fileEntry),
 		inodePath: make(map[fileKey]string),
@@ -88,7 +91,7 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 		for _, r := range cfg.Rules {
 			exts = append(exts, r.Exts...)
 		}
-		eng, err := newEBPFEngine(log, cfg.BlockNewFiles, exts)
+		eng, err := newEBPFEngine(t, log, cfg.BlockNewFiles, exts)
 		if err != nil {
 			return nil, err
 		}
@@ -283,14 +286,14 @@ func (m *Manager) Start() error {
 	// chattr 靠 fsnotify 补新建监控;eBPF 由创建类 LSM hook 全内核处理
 	if !m.isEBPF {
 		if err := m.startWatcher(); err != nil {
-			m.log.Warn("failed to start tamper file watcher, new file interception unavailable", slog.Any("err", err))
+			m.log.Warn(m.t.Get("failed to start tamper file watcher, new file interception unavailable"), slog.Any("err", err))
 		}
 	}
 
 	go m.rescanLoop()
 
 	st := m.Stats()
-	m.log.Info("tamper protection enabled",
+	m.log.Info(m.t.Get("tamper protection enabled"),
 		slog.String("mode", string(m.cfg.Mode)),
 		slog.Int("files", st.ProtectedFiles),
 		slog.Int("dirs", st.ProtectedDirs))
@@ -346,19 +349,19 @@ func (m *Manager) rescan() {
 	// 先摘后加：同一路径换了 inode 时，旧 inode 必须先离开集合
 	if len(removed) > 0 {
 		if err := m.eng.remove(removed); err != nil {
-			m.log.Warn("failed to drop stale tamper entries", slog.Any("err", err))
+			m.log.Warn(m.t.Get("failed to drop stale tamper entries"), slog.Any("err", err))
 		}
 		m.forget(removed)
 	}
 	if len(added) > 0 {
 		if err := m.eng.apply(added); err != nil {
-			m.log.Warn("failed to protect new tamper entries", slog.Any("err", err))
+			m.log.Warn(m.t.Get("failed to protect new tamper entries"), slog.Any("err", err))
 		}
 		m.remember(added)
 	}
 
 	st := m.Stats()
-	m.log.Debug("tamper protection rescanned",
+	m.log.Debug(m.t.Get("tamper protection rescanned"),
 		slog.Int("added", len(added)), slog.Int("removed", len(removed)),
 		slog.Int("files", st.ProtectedFiles), slog.Int("dirs", st.ProtectedDirs))
 }
@@ -393,7 +396,7 @@ func (m *Manager) startWatcher() error {
 	}
 	if failed > 0 {
 		// 常见原因 fs.inotify.max_user_watches 耗尽
-		m.log.Warn("failed to watch some tamper directories, new files may be missed",
+		m.log.Warn(m.t.Get("failed to watch some tamper directories, new files may be missed"),
 			slog.Int("failed", failed), slog.Int("total", len(dirs)))
 	}
 
@@ -421,7 +424,7 @@ func (m *Manager) watchLoop() {
 			if !ok {
 				return
 			}
-			m.log.Warn("tamper watcher error", slog.Any("err", err))
+			m.log.Warn(m.t.Get("tamper watcher error"), slog.Any("err", err))
 		}
 	}
 }
@@ -664,7 +667,7 @@ func (m *Manager) dropReplaced(entries []fileEntry) {
 		return
 	}
 	if err := m.eng.remove(stale); err != nil {
-		m.log.Warn("failed to drop replaced tamper entries", slog.Any("err", err))
+		m.log.Warn(m.t.Get("failed to drop replaced tamper entries"), slog.Any("err", err))
 		return
 	}
 	m.forget(stale)

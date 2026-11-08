@@ -8,6 +8,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"image/png"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -29,6 +30,7 @@ const loginFailThreshold = 3
 
 type UserService struct {
 	t          *gotext.Locale
+	log        *slog.Logger
 	conf       *config.Config
 	session    *sessions.Manager
 	userRepo   *biz.UserUsecase
@@ -36,11 +38,12 @@ type UserService struct {
 	guard      *loginGuard
 }
 
-func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) *UserService {
+func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger, session *sessions.Manager) *UserService {
 	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	gob.Register(rsa.PrivateKey{})
 	return &UserService{
 		t:          t,
+		log:        log,
 		conf:       conf,
 		session:    session,
 		userRepo:   userUsecase,
@@ -182,12 +185,16 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
 	}))
 
+	s.log.Info(s.t.Get("user logged in"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", ip), slog.String("method", "password"))
+
 	Success(w, nil)
 }
 
 // loginFailed 记录一次登录失败，同来源短时间内失败过多时告警
 func (s *UserService) loginFailed(r *http.Request, sess *sessions.Session, ip, username string, failCount int) {
 	sess.Put("login_fail_count", failCount+1)
+
+	s.log.Warn(s.t.Get("user login failed"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.String("username", username), slog.String("ip", ip))
 
 	count, exceeded := s.guard.Fail(ip)
 	if !exceeded {
@@ -207,8 +214,10 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	sess, err := s.session.GetSession(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
+	userID := cast.ToUint(sess.Get("user_id"))
 	sess.Forget("user_id")
 	sess.Forget("key")
 	sess.Forget("safe_login")
@@ -218,6 +227,10 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	if err = sess.Regenerate(true); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
+	}
+
+	if user, err := s.userRepo.Get(userID); err == nil {
+		s.log.Info(s.t.Get("user logged out"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", clientIP(r, s.conf.HTTP.IPHeader)))
 	}
 
 	Success(w, nil)
@@ -271,7 +284,7 @@ func (s *UserService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, total, err := s.userRepo.List(req.Page, req.Limit)
+	users, total, err := s.userRepo.List(r.Context(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -377,7 +390,7 @@ func (s *UserService) UpdateTwoFA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.userRepo.UpdateTwoFA(req.ID, req.Code, req.Secret); err != nil {
+	if err = s.userRepo.UpdateTwoFA(r.Context(), req.ID, req.Code, req.Secret); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

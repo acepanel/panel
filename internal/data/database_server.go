@@ -50,14 +50,23 @@ func (r *databaseServerRepo) List(ctx context.Context, page, limit uint, typ str
 }
 
 func (r *databaseServerRepo) Get(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
-	databaseServer := new(biz.DatabaseServer)
-	if err := r.db.Where("id = ?", id).First(databaseServer).Error; err != nil {
+	databaseServer, err := r.Find(id)
+	if err != nil {
 		return nil, err
 	}
 
 	r.CheckServer(ctx, databaseServer)
 
 	return databaseServer, nil
+}
+
+func (r *databaseServerRepo) Find(id uint) (*biz.DatabaseServer, error) {
+	server := new(biz.DatabaseServer)
+	if err := r.db.Where("id = ?", id).First(server).Error; err != nil {
+		return nil, err
+	}
+
+	return server, nil
 }
 
 func (r *databaseServerRepo) GetByName(ctx context.Context, name string) (*biz.DatabaseServer, error) {

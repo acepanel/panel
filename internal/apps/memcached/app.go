@@ -3,6 +3,7 @@ package memcached
 import (
 	"bufio"
 	"context"
+	"log/slog"
 	"net"
 	"net/http"
 	"regexp"
@@ -12,6 +13,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -19,12 +21,14 @@ import (
 )
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -93,11 +97,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", "/etc/systemd/system/memcached.service"))
 	common.ServeConfig(w, "/etc/systemd/system/memcached.service")
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, "/etc/systemd/system/memcached.service", 0644, "memcached")
+	common.SaveConfig(w, r, s.log, s.t, "memcached", "/etc/systemd/system/memcached.service", 0644, "memcached")
 }
 
 // GetConfigTune 获取 Memcached 配置调整参数
@@ -116,6 +121,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		MaxConnections: s.getExecStartArg(config, "-c"),
 		Threads:        s.getExecStartArg(config, "-t"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", "/etc/systemd/system/memcached.service"))
 
 	service.Success(w, tune)
 }
@@ -150,6 +157,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("port", req.Port), slog.String("udp_port", req.UDPPort), slog.String("listen_address", req.ListenAddress), slog.String("memory", req.Memory), slog.String("max_connections", req.MaxConnections), slog.String("threads", req.Threads))
 
 	service.Success(w, nil)
 }

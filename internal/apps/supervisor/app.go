@@ -2,6 +2,7 @@ package supervisor
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/os"
@@ -23,12 +25,14 @@ import (
 
 type App struct {
 	t    *gotext.Locale
+	log  *slog.Logger
 	name string
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
 		t:    t,
+		log:  log,
 		name: lo.Ternary(os.IsRHEL(), "supervisord", "supervisor"),
 	}
 }
@@ -62,12 +66,14 @@ func (s *App) Status(ctx context.Context) string {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	common.ServeConfig(w, mainConfPath())
+	path := mainConfPath()
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("path", path))
+	common.ServeConfig(w, path)
 }
 
 // UpdateConfig 保存配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, mainConfPath(), 0644, s.name)
+	common.SaveConfig(w, r, s.log, s.t, "supervisor", mainConfPath(), 0644, s.name)
 }
 
 // Processes 进程列表
@@ -107,6 +113,8 @@ func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
 
 	paged, total := service.Paginate(r, processes)
 
+	s.log.Info(s.t.Get("supervisor process list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))))
+
 	service.Success(w, chix.M{
 		"total": total,
 		"items": paged,
@@ -115,21 +123,21 @@ func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
 
 // StartProcess 启动进程
 func (s *App) StartProcess(w http.ResponseWriter, r *http.Request) {
-	s.control(w, r, "start")
+	s.control(w, r, "start", s.t.Get("supervisor process started"))
 }
 
 // StopProcess 停止进程
 func (s *App) StopProcess(w http.ResponseWriter, r *http.Request) {
-	s.control(w, r, "stop")
+	s.control(w, r, "stop", s.t.Get("supervisor process stopped"))
 }
 
 // RestartProcess 重启进程
 func (s *App) RestartProcess(w http.ResponseWriter, r *http.Request) {
-	s.control(w, r, "restart")
+	s.control(w, r, "restart", s.t.Get("supervisor process restarted"))
 }
 
 // control 对单个进程执行 supervisorctl 变更命令
-func (s *App) control(w http.ResponseWriter, r *http.Request, action string) {
+func (s *App) control(w http.ResponseWriter, r *http.Request, action, msg string) {
 	req, err := service.Bind[ProcessName](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
@@ -141,6 +149,8 @@ func (s *App) control(w http.ResponseWriter, r *http.Request, action string) {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
+
+	s.log.Info(msg, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", req.Process))
 
 	service.Success(w, nil)
 }
@@ -170,11 +180,15 @@ func (s *App) ProcessConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := io.Read(confPath(programName(req.Process)))
+	name := programName(req.Process)
+	path := confPath(name)
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", name), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -188,10 +202,13 @@ func (s *App) UpdateProcessConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := programName(req.Process)
-	if err = io.Write(confPath(name), req.Config, 0644); err != nil {
+	path := confPath(name)
+	if err = io.Write(path, req.Config, 0644); err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("supervisor process config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", name), slog.String("path", path))
 
 	s.reload(r.Context(), w, name)
 }
@@ -237,6 +254,8 @@ func (s *App) UpdateProcessSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("supervisor process setting updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", name), slog.String("path", path), slog.String("user", req.User), slog.String("numprocs", req.NumProcs))
+
 	s.reload(r.Context(), w, name)
 }
 
@@ -279,6 +298,8 @@ stdout_logfile_maxbytes=2MB
 	_, _ = shell.Execf(ctx, `supervisorctl update`)
 	_, _ = shell.Execf(ctx, `supervisorctl start '%s:'`, req.Name)
 
+	s.log.Info(s.t.Get("supervisor process created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", req.Name), slog.String("user", req.User), slog.String("directory", req.Path), slog.Int("numprocs", req.Num), slog.String("path", path))
+
 	service.Success(w, nil)
 }
 
@@ -304,7 +325,8 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(confPath(name)); err != nil {
+	path := confPath(name)
+	if err = io.Remove(path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -315,6 +337,8 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 
 	_, _ = shell.Execf(ctx, `supervisorctl reread`)
 	_, _ = shell.Execf(ctx, `supervisorctl update`)
+
+	s.log.Warn(s.t.Get("supervisor process deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "supervisor"), slog.String("process", name), slog.String("path", path), slog.String("log_path", logPath))
 
 	service.Success(w, nil)
 }

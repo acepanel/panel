@@ -194,12 +194,26 @@ func NewAlertUsecase(notifyUsecase *NotifyUsecase, loader *apploader.Loader, t *
 	}
 }
 
-func (uc *AlertUsecase) ListRules(page, limit uint) ([]*AlertRule, int64, error) {
-	return uc.repo.ListRules(page, limit)
+func (uc *AlertUsecase) ListRules(ctx context.Context, page, limit uint) ([]*AlertRule, int64, error) {
+	rules, total, err := uc.repo.ListRules(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("alert rule list viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return rules, total, nil
 }
 
-func (uc *AlertUsecase) GetRule(id uint) (*AlertRule, error) {
-	return uc.repo.GetRule(id)
+func (uc *AlertUsecase) GetRule(ctx context.Context, id uint) (*AlertRule, error) {
+	rule, err := uc.repo.GetRule(id)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("alert rule viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(rule.ID)), slog.String("name", rule.Name))
+
+	return rule, nil
 }
 
 func (uc *AlertUsecase) CreateRule(ctx context.Context, req *request.AlertRuleCreate) (*AlertRule, error) {
@@ -220,7 +234,7 @@ func (uc *AlertUsecase) CreateRule(ctx context.Context, req *request.AlertRuleCr
 		return nil, err
 	}
 
-	uc.log.Info("alert rule created", slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("alert rule created"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(rule.ID)), slog.String("name", rule.Name), slog.String("alert_type", rule.Type), slog.String("target", rule.Target), slog.Bool("enabled", rule.Enabled))
 
 	return rule, nil
 }
@@ -251,7 +265,7 @@ func (uc *AlertUsecase) UpdateRule(ctx context.Context, req *request.AlertRuleUp
 	uc.clearState(rule.ID)
 	uc.mu.Unlock()
 
-	uc.log.Info("alert rule updated", slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("alert rule updated"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(rule.ID)), slog.String("name", rule.Name), slog.String("alert_type", rule.Type), slog.String("target", rule.Target), slog.Bool("enabled", rule.Enabled))
 
 	return nil
 }
@@ -269,17 +283,30 @@ func (uc *AlertUsecase) DeleteRule(ctx context.Context, id uint) error {
 	uc.clearState(id)
 	uc.mu.Unlock()
 
-	uc.log.Info("alert rule deleted", slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", rule.Name))
+	uc.log.Warn(uc.t.Get("alert rule deleted"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", rule.Name))
 
 	return nil
 }
 
-func (uc *AlertUsecase) ListAlerts(page, limit uint) ([]*Alert, int64, error) {
-	return uc.repo.ListAlerts(page, limit)
+func (uc *AlertUsecase) ListAlerts(ctx context.Context, page, limit uint) ([]*Alert, int64, error) {
+	alerts, total, err := uc.repo.ListAlerts(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("alert record list viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return alerts, total, nil
 }
 
-func (uc *AlertUsecase) ClearAlerts() error {
-	return uc.repo.ClearAlerts()
+func (uc *AlertUsecase) ClearAlerts(ctx context.Context) error {
+	if err := uc.repo.ClearAlerts(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("alert records cleared"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return nil
 }
 
 // Evaluate 评估全部启用的规则，命中则记录并通知
@@ -321,7 +348,7 @@ func (uc *AlertUsecase) Evaluate(ctx context.Context) error {
 		if !ok {
 			var err error
 			if metrics, err = uc.collect(ctx, rule, info); err != nil {
-				uc.log.Warn("failed to collect alert metric", slog.String("rule", rule.Name), slog.Any("err", err))
+				uc.log.Warn(uc.t.Get("failed to collect alert metric"), slog.String("rule", rule.Name), slog.Any("err", err))
 				continue
 			}
 			collected[cacheKey] = metrics
@@ -389,7 +416,7 @@ func (uc *AlertUsecase) evaluateMetric(ctx context.Context, rule *AlertRule, met
 		{uc.t.Get("Time"), now.Format(time.DateTime)},
 	}))
 	if err != nil {
-		uc.log.Warn("failed to send alert notification", slog.String("rule", rule.Name), slog.Any("err", err))
+		uc.log.Warn(uc.t.Get("failed to send alert notification"), slog.String("rule", rule.Name), slog.Any("err", err))
 	}
 	alert.Notified = sent > 0
 
@@ -401,7 +428,7 @@ func (uc *AlertUsecase) evaluateMetric(ctx context.Context, rule *AlertRule, met
 	}
 
 	if err = uc.repo.AddAlert(alert); err != nil {
-		uc.log.Warn("failed to save alert record", slog.String("rule", rule.Name), slog.Any("err", err))
+		uc.log.Warn(uc.t.Get("failed to save alert record"), slog.String("rule", rule.Name), slog.Any("err", err))
 	}
 }
 
@@ -654,7 +681,7 @@ func (uc *AlertUsecase) checkHealth(ctx context.Context) {
 			{uc.t.Get("Detail"), issue.Message},
 			{uc.t.Get("Time"), issue.Since.Format(time.DateTime)},
 		})); err != nil {
-			uc.log.Warn("failed to send health notification", slog.String("item", issue.Key), slog.Any("err", err))
+			uc.log.Warn(uc.t.Get("failed to send health notification"), slog.String("item", issue.Key), slog.Any("err", err))
 			continue
 		}
 
@@ -836,7 +863,7 @@ func (uc *AlertUsecase) cleanup() {
 		return
 	}
 	if err = uc.repo.ClearAlertsBefore(time.Now().AddDate(0, 0, -days)); err != nil {
-		uc.log.Warn("failed to clear expired alerts", slog.Any("err", err))
+		uc.log.Warn(uc.t.Get("failed to clear expired alerts"), slog.Any("err", err))
 	}
 }
 

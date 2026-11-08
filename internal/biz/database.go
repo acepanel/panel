@@ -101,7 +101,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 		if mongoErr = mongo.DatabaseCreate(ctx, req.Name); mongoErr != nil {
 			return mongoErr
 		}
-		uc.log.Info("database created", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
+		uc.log.Info(uc.t.Get("database created"), slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)))
 		return nil
 	}
 
@@ -190,8 +190,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 	default:
 	}
 
-	// 记录日志
-	uc.log.Info("database created", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
+	uc.log.Info(uc.t.Get("database created"), slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", req.Username))
 
 	return nil
 }
@@ -246,8 +245,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 		}
 	}
 
-	// 记录日志
-	uc.log.Info("database deleted", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", name), slog.Uint64("server_id", uint64(serverID)))
+	uc.log.Warn(uc.t.Get("database deleted"), slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", name), slog.Uint64("server_id", uint64(serverID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)))
 
 	return nil
 }
@@ -269,7 +267,11 @@ func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseCom
 		if !ok {
 			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 		}
-		return pg.DatabaseComment(ctx, req.Name, req.Comment)
+		if err = pg.DatabaseComment(ctx, req.Name, req.Comment); err != nil {
+			return err
+		}
+		uc.log.Info(uc.t.Get("database comment updated"), slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)), slog.String("comment", req.Comment))
+		return nil
 	default:
 		return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 	}

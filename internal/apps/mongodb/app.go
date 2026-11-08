@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -23,13 +24,15 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	log                *slog.Logger
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
+		log:                log,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
 	}
@@ -108,12 +111,13 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("path", s.configPath()))
 	common.ServeConfig(w, s.configPath())
 }
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), 0644, "mongod")
+	common.SaveConfig(w, r, s.log, s.t, "mongodb", s.configPath(), 0644, "mongod")
 }
 
 // GetConfigTune 获取配置调整参数
@@ -133,6 +137,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		SystemLogPath: s.getYAMLValue(cfg, "systemLog.path"),
 		Authorization: s.getYAMLValue(cfg, "security.authorization"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -173,6 +179,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("path", s.configPath()), slog.String("db_path", req.DbPath), slog.String("cache_size_gb", req.CacheSizeGB), slog.String("port", req.Port), slog.String("bind_ip", req.BindIp), slog.String("system_log_path", req.SystemLogPath), slog.String("authorization", req.Authorization))
+
 	service.Success(w, nil)
 }
 
@@ -183,6 +191,8 @@ func (s *App) GetAdminPassword(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MongoDB admin password: %v", err))
 		return
 	}
+
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("username", "admin"))
 
 	service.Success(w, password)
 }
@@ -202,7 +212,8 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 
 	// 尝试用旧密码连接修改
 	_, err = shell.Execf(ctx, `mongosh --quiet -u admin -p '%s' --authenticationDatabase admin --eval "db.changeUserPassword('admin', '%s')"`, oldPassword, req.Password)
-	if err != nil {
+	fallback := err != nil
+	if fallback {
 		// 回退：停止服务，无认证模式修改
 		_ = systemctl.Stop(ctx, "mongod")
 		_, _ = shell.Execf(ctx, `su -s /bin/bash mongod -c "mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log"`, s.configPath())
@@ -221,6 +232,8 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = s.databaseServerRepo.UpdatePassword("local_mongodb", req.Password)
+
+	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("username", "admin"), slog.Bool("fallback", fallback))
 
 	service.Success(w, nil)
 }

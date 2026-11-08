@@ -41,6 +41,9 @@ var _ biz.DatabaseServerRepo = &DatabaseServerRepo{}
 //			DeleteFunc: func(id uint) error {
 //				panic("mock out the Delete method")
 //			},
+//			FindFunc: func(id uint) (*biz.DatabaseServer, error) {
+//				panic("mock out the Find method")
+//			},
 //			GetFunc: func(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
 //				panic("mock out the Get method")
 //			},
@@ -92,6 +95,9 @@ type DatabaseServerRepo struct {
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(id uint) error
+
+	// FindFunc mocks the Find method.
+	FindFunc func(id uint) (*biz.DatabaseServer, error)
 
 	// GetFunc mocks the Get method.
 	GetFunc func(ctx context.Context, id uint) (*biz.DatabaseServer, error)
@@ -149,6 +155,11 @@ type DatabaseServerRepo struct {
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
+			// ID is the id argument value.
+			ID uint
+		}
+		// Find holds details about calls to the Find method.
+		Find []struct {
 			// ID is the id argument value.
 			ID uint
 		}
@@ -220,6 +231,7 @@ type DatabaseServerRepo struct {
 	lockCreate         sync.RWMutex
 	lockCreateUser     sync.RWMutex
 	lockDelete         sync.RWMutex
+	lockFind           sync.RWMutex
 	lockGet            sync.RWMutex
 	lockGetByName      sync.RWMutex
 	lockList           sync.RWMutex
@@ -419,6 +431,38 @@ func (mock *DatabaseServerRepo) DeleteCalls() []struct {
 	mock.lockDelete.RLock()
 	calls = mock.calls.Delete
 	mock.lockDelete.RUnlock()
+	return calls
+}
+
+// Find calls FindFunc.
+func (mock *DatabaseServerRepo) Find(id uint) (*biz.DatabaseServer, error) {
+	if mock.FindFunc == nil {
+		panic("DatabaseServerRepo.FindFunc: method is nil but DatabaseServerRepo.Find was just called")
+	}
+	callInfo := struct {
+		ID uint
+	}{
+		ID: id,
+	}
+	mock.lockFind.Lock()
+	mock.calls.Find = append(mock.calls.Find, callInfo)
+	mock.lockFind.Unlock()
+	return mock.FindFunc(id)
+}
+
+// FindCalls gets all the calls that were made to Find.
+// Check the length with:
+//
+//	len(mockedDatabaseServerRepo.FindCalls())
+func (mock *DatabaseServerRepo) FindCalls() []struct {
+	ID uint
+} {
+	var calls []struct {
+		ID uint
+	}
+	mock.lockFind.RLock()
+	calls = mock.calls.Find
+	mock.lockFind.RUnlock()
 	return calls
 }
 

@@ -108,16 +108,30 @@ func NewNotifyUsecase(t *gotext.Locale, log *slog.Logger, notifyChannelRepo Noti
 	}
 }
 
-func (uc *NotifyUsecase) List(page, limit uint) ([]*NotifyChannel, int64, error) {
-	return uc.repo.List(page, limit)
+func (uc *NotifyUsecase) List(ctx context.Context, page, limit uint) ([]*NotifyChannel, int64, error) {
+	channels, total, err := uc.repo.List(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	uc.log.Info(uc.t.Get("notify channel list viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+
+	return channels, total, nil
 }
 
 func (uc *NotifyUsecase) All() ([]*NotifyChannel, error) {
 	return uc.repo.All()
 }
 
-func (uc *NotifyUsecase) Get(id uint) (*NotifyChannel, error) {
-	return uc.repo.Get(id)
+func (uc *NotifyUsecase) Get(ctx context.Context, id uint) (*NotifyChannel, error) {
+	channel, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("notify channel viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(channel.ID)), slog.String("name", channel.Name))
+
+	return channel, nil
 }
 
 func (uc *NotifyUsecase) Create(ctx context.Context, req *request.NotifyChannelCreate) (*NotifyChannel, error) {
@@ -136,7 +150,7 @@ func (uc *NotifyUsecase) Create(ctx context.Context, req *request.NotifyChannelC
 		return nil, err
 	}
 
-	uc.log.Info("notify channel created", slog.String("type", OperationTypeSetting), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("notify channel created"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(channel.ID)), slog.String("name", req.Name), slog.String("channel_type", req.Type), slog.Bool("enabled", req.Enabled))
 
 	// 落库时 Config 已被加密，重新读取以返回解密后的实体
 	return uc.repo.Get(channel.ID)
@@ -159,7 +173,7 @@ func (uc *NotifyUsecase) Update(ctx context.Context, req *request.NotifyChannelU
 		return err
 	}
 
-	uc.log.Info("notify channel updated", slog.String("type", OperationTypeSetting), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+	uc.log.Info(uc.t.Get("notify channel updated"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name), slog.String("channel_type", req.Type), slog.Bool("enabled", req.Enabled))
 
 	return nil
 }
@@ -173,7 +187,7 @@ func (uc *NotifyUsecase) Delete(ctx context.Context, id uint) error {
 		return err
 	}
 
-	uc.log.Info("notify channel deleted", slog.String("type", OperationTypeSetting), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", channel.Name))
+	uc.log.Warn(uc.t.Get("notify channel deleted"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", channel.Name))
 
 	return nil
 }
@@ -185,11 +199,16 @@ func (uc *NotifyUsecase) Test(ctx context.Context, id uint) error {
 		return err
 	}
 
-	return uc.dispatch(ctx, channel, uc.t.Get("[AcePanel] Test Notification"),
+	if err = uc.dispatch(ctx, channel, uc.t.Get("[AcePanel] Test Notification"),
 		NotifyBody(uc.t.Get("This is a test notification from AcePanel, receiving it means the channel is configured correctly."), [][2]string{
 			{uc.t.Get("Channel"), channel.Name},
 			{uc.t.Get("Time"), time.Now().Format(time.DateTime)},
-		}))
+		})); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("notify channel tested"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(channel.ID)), slog.String("name", channel.Name))
+	return nil
 }
 
 // Send 向指定渠道列表发送通知，返回成功发送的渠道数，部分渠道失败不影响其他渠道
@@ -227,7 +246,7 @@ func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 	select {
 	case uc.pending <- struct{}{}:
 	default:
-		uc.log.Warn("event notification dropped, too many pending sends", slog.String("event", string(event)))
+		uc.log.Warn(uc.t.Get("event notification dropped, too many pending sends"), slog.String("event", string(event)))
 		return
 	}
 
@@ -237,7 +256,7 @@ func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 		defer cancel()
 		if err := uc.SendEventSync(ctx, event, subject, body); err != nil {
-			uc.log.Warn("failed to send event notification", slog.String("event", string(event)), slog.Any("err", err))
+			uc.log.Warn(uc.t.Get("failed to send event notification"), slog.String("event", string(event)), slog.Any("err", err))
 		}
 	}()
 }
@@ -245,7 +264,7 @@ func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 // EventEnabled 判断给定事件中是否有已订阅且配好渠道的
 // 供调用方在采集前提前跳过，避免为没人接收的通知付出采集开销
 func (uc *NotifyUsecase) EventEnabled(events ...NotifyEvent) bool {
-	setting, err := uc.GetSetting()
+	setting, err := uc.getSetting()
 	if err != nil || len(setting.Channels) == 0 {
 		return false
 	}
@@ -258,7 +277,7 @@ func (uc *NotifyUsecase) EventEnabled(events ...NotifyEvent) bool {
 // SendEventSync 同步发送系统事件通知，未订阅该事件或未配置渠道时静默跳过
 // 供 CLI 等短生命周期进程使用，异步发送会随进程退出丢失
 func (uc *NotifyUsecase) SendEventSync(ctx context.Context, event NotifyEvent, subject, body string) error {
-	setting, err := uc.GetSetting()
+	setting, err := uc.getSetting()
 	if err != nil || len(setting.Channels) == 0 || !slices.Contains(setting.Events, string(event)) {
 		return err
 	}
@@ -268,7 +287,18 @@ func (uc *NotifyUsecase) SendEventSync(ctx context.Context, event NotifyEvent, s
 	return err
 }
 
-func (uc *NotifyUsecase) GetSetting() (*request.NotifySetting, error) {
+func (uc *NotifyUsecase) GetSetting(ctx context.Context) (*request.NotifySetting, error) {
+	setting, err := uc.getSetting()
+	if err != nil {
+		return nil, err
+	}
+
+	uc.log.Info(uc.t.Get("notify setting viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)))
+
+	return setting, nil
+}
+
+func (uc *NotifyUsecase) getSetting() (*request.NotifySetting, error) {
 	events, err := uc.setting.GetSlice(SettingKeyNotifyEvents)
 	if err != nil {
 		return nil, err
@@ -289,7 +319,7 @@ func (uc *NotifyUsecase) GetSetting() (*request.NotifySetting, error) {
 	}, nil
 }
 
-func (uc *NotifyUsecase) UpdateSetting(setting *request.NotifySetting) error {
+func (uc *NotifyUsecase) UpdateSetting(ctx context.Context, setting *request.NotifySetting) error {
 	if err := uc.setting.SetSlice(SettingKeyNotifyEvents, setting.Events); err != nil {
 		return err
 	}
@@ -299,7 +329,15 @@ func (uc *NotifyUsecase) UpdateSetting(setting *request.NotifySetting) error {
 		return err
 	}
 
-	return uc.setting.Set(SettingKeyNotifyEventChannels, string(channels))
+	if err = uc.setting.Set(SettingKeyNotifyEventChannels, string(channels)); err != nil {
+		return err
+	}
+
+	list, _ := uc.repo.GetByIDs(setting.Channels)
+	names := lo.Map(list, func(channel *NotifyChannel, _ int) string { return channel.Name })
+	uc.log.Info(uc.t.Get("notify setting updated"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Any("events", setting.Events), slog.Any("channel_ids", setting.Channels), slog.Any("channels", names))
+
+	return nil
 }
 
 func (uc *NotifyUsecase) dispatch(ctx context.Context, channel *NotifyChannel, subject, body string) error {

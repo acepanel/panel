@@ -3,6 +3,7 @@ package apache
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 
@@ -12,6 +13,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -24,12 +26,14 @@ import (
 var mpmEventRegexp = regexp.MustCompile(`(?s)<IfModule mpm_event_module>(.*?)</IfModule>`)
 
 type App struct {
-	t *gotext.Locale
+	t   *gotext.Locale
+	log *slog.Logger
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t: t,
+		t:   t,
+		log: log,
 	}
 }
 
@@ -49,11 +53,14 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/apache/conf/httpd.conf")
+	path := app.Root + "/server/apache/conf/httpd.conf"
+	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", path))
 
 	service.Success(w, config)
 }
@@ -65,29 +72,34 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(app.Root+"/server/apache/conf/httpd.conf", req.Config, 0600); err != nil {
+	path := app.Root + "/server/apache/conf/httpd.conf"
+	if err = io.Write(path, req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.reload(w, r)
-}
-
-// reload 重载 apache 并回写响应
-// 走方言的 Reload，错误里已带配置检查输出
-func (s *App) reload(w http.ResponseWriter, r *http.Request) {
-	d, err := webserver.Get(webserver.TypeApache)
-	if err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = d.Reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v", err))
-		return
-	}
+	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", path))
 
 	service.Success(w, nil)
+}
+
+// reload 走方言的 Reload，错误里已带配置检查输出
+func (s *App) reload(ctx context.Context) error {
+	d, err := webserver.Get(webserver.TypeApache)
+	if err != nil {
+		return err
+	}
+
+	if err = d.Reload(ctx); err != nil {
+		return fmt.Errorf("%s", s.t.Get("failed to reload apache: %v", err))
+	}
+
+	return nil
 }
 
 func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
@@ -99,6 +111,8 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+
+	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", app.Root+"/server/apache/logs/error_log"))
 
 	service.Success(w, nil)
 }
@@ -181,7 +195,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Apache 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	defaultConf, err := io.Read(app.Root + "/server/apache/conf/extra/httpd-default.conf")
+	confPath := app.Root + "/server/apache/conf/extra/httpd-default.conf"
+	defaultConf, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -214,6 +229,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		MaxKeepAliveRequests: get("MaxKeepAliveRequests"),
 		KeepAliveTimeout:     get("KeepAliveTimeout"),
 	}
+
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", confPath))
 
 	service.Success(w, tune)
 }
@@ -250,5 +267,27 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, r)
+	if err = s.reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("app config tune saved"),
+		slog.String("type", biz.OperationTypeApp),
+		slog.Uint64("operator_id", biz.OperatorID(r.Context())),
+		slog.String("app", "apache"),
+		slog.String("path", confPath),
+		slog.String("start_servers", req.StartServers),
+		slog.String("min_spare_threads", req.MinSpareThreads),
+		slog.String("max_spare_threads", req.MaxSpareThreads),
+		slog.String("threads_per_child", req.ThreadsPerChild),
+		slog.String("max_request_workers", req.MaxRequestWorkers),
+		slog.String("max_connections_per_child", req.MaxConnectionsPerChild),
+		slog.String("timeout", req.Timeout),
+		slog.String("keep_alive", req.KeepAlive),
+		slog.String("max_keep_alive_requests", req.MaxKeepAliveRequests),
+		slog.String("keep_alive_timeout", req.KeepAliveTimeout),
+	)
+
+	service.Success(w, nil)
 }
