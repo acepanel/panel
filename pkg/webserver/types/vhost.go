@@ -72,12 +72,14 @@ type Vhost interface {
 type StaticVhost interface {
 	Vhost
 	VhostRedirect
+	VhostProxy
 }
 
 type PHPVhost interface {
 	Vhost
 	VhostPHP
 	VhostRedirect
+	VhostProxy
 }
 
 type ProxyVhost interface {
@@ -97,6 +99,7 @@ type VhostRedirect interface {
 	SetRedirects(redirects []Redirect) error
 }
 
+// VhostProxy 反向代理规则与上游，静态与 PHP 站点也能用它把子路径（如 /api）交给后端
 type VhostProxy interface {
 	Proxies() []Proxy
 	SetProxies(proxies []Proxy) error

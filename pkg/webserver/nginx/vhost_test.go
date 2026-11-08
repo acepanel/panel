@@ -706,3 +706,20 @@ func TestDefaultWithSSLAndQUIC(t *testing.T) {
 		}
 	}
 }
+
+// 静态与 PHP 站点也能把子路径交给后端
+func TestStaticProxies(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://127.0.0.1:3000"}}))
+	check.Len(t, confFiles(t, configDir, "site", "200", "-proxy.conf"), 1)
+	check.Len(t, vhost.Proxies(), 1)
+	check.Equal(t, vhost.Proxies()[0].Location, "^~ /api")
+
+	php, _ := newPHPVhost(t)
+	check.NoError(t, php.SetUpstreams([]types.Upstream{{Name: "api", Servers: map[string]string{"127.0.0.1:3000": ""}}}))
+	check.NoError(t, php.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://api"}}))
+	check.Len(t, php.Upstreams(), 1)
+	check.Len(t, php.Proxies(), 1)
+}

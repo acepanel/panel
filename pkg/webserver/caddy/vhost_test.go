@@ -340,9 +340,10 @@ func TestVhostProxies(t *testing.T) {
 	check.Contains(t, conf, "("+upstreamSnippet(configDir, "backend")+") {\n\t# ace:upstream backend\n\tto 127.0.0.1:3001 127.0.0.1:3002\n\tlb_policy weighted_round_robin 5 1\n}\n")
 	check.Contains(t, conf, "("+upstreamSnippet(configDir, "api-pool")+") {\n\t# ace:upstream api-pool\n\tto 10.0.0.2:80 unix//tmp/api.sock\n\tlb_policy least_conn\n}\n")
 	// 精确、^~ 前缀、正则、普通前缀的顺序
-	order := `(?s)@ace_proxy_3 path /health.*@ace_proxy_1 path /api/\*.*@ace_proxy_2 path_regexp \(\?i\)\\\.\(jpg\|png\)\$.*@ace_proxy_0 path /\*`
+	order := "(?s)@ace_proxy_3 expression `\\{http\\.request\\.orig_uri\\.path\\} == \"/health\"`.*@ace_proxy_1 expression `\\{http\\.request\\.orig_uri\\.path\\}\\.startsWith\\(\"/api/\"\\)`.*@ace_proxy_2 expression `\\{http\\.request\\.orig_uri\\.path\\}\\.matches\\(\"\\(\\?i\\)\\\\\\\\\\.\\(jpg\\|png\\)\\$\"\\)`.*@ace_proxy_0 expression `\\{http\\.request\\.orig_uri\\.path\\}\\.startsWith\\(\"/\"\\)`"
 	check.True(t, regexp.MustCompile(order).MatchString(conf), check.Msgf("代理块顺序不符\n正则: %s\n配置:\n%s", order, conf))
-	check.Contains(t, conf, "\t\thandle @ace_proxy_0 {\n\t\t\t# ace:location /\n\t\t\t# ace:pass http://backend\n\t\t\treplace http://old https://new\n\t\t\treverse_proxy {\n\t\t\t\timport "+upstreamSnippet(configDir, "backend")+"\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n")
+	// 匹配与转发都按原始 URI，不受伪静态 try_files 改写影响
+	check.Contains(t, conf, "\t\thandle @ace_proxy_0 {\n\t\t\t# ace:location /\n\t\t\t# ace:pass http://backend\n\t\t\trewrite * {http.request.orig_uri}\n\t\t\treplace http://old https://new\n\t\t\treverse_proxy {\n\t\t\t\timport "+upstreamSnippet(configDir, "backend")+"\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n")
 	check.Equal(t, strings.Count(conf, "header_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n\t\t@ace_proxy_1"), 1, "用户自定义的 X-Real-IP 不重复补默认值")
 	check.Contains(t, conf, "\t\t\trequest_body {\n\t\t\t\tmax_size 10485760\n\t\t\t}\n")
 	check.Contains(t, conf, "\t\t\t@ace_deny_1 remote_ip 10.0.0.99\n\t\t\trespond @ace_deny_1 403\n\t\t\t@ace_allow_1 not remote_ip 10.0.0.0/8\n\t\t\trespond @ace_allow_1 403\n")

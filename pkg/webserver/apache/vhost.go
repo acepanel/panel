@@ -700,34 +700,34 @@ func phpVersionFromHandler(handler string) uint {
 	return version
 }
 
-func (v *ProxyVhost) Proxies() []types.Proxy {
+func (v *baseVhost) Proxies() []types.Proxy {
 	proxies, _ := parseProxyFiles(filepath.Join(v.configDir, "site"))
 	return proxies
 }
 
-func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+func (v *baseVhost) SetProxies(proxies []types.Proxy) error {
 	return writeProxyFiles(filepath.Join(v.configDir, "site"), proxies, v.upstreamNames())
 }
 
 // upstreamNames 已写入的上游名，代理目标指向其中之一时要换成 balancer 地址
-func (v *ProxyVhost) upstreamNames() []string {
+func (v *baseVhost) upstreamNames() []string {
 	return balancerNames(filepath.Join(v.configDir, "shared"))
 }
 
-func (v *ProxyVhost) ClearProxies() error {
+func (v *baseVhost) ClearProxies() error {
 	return clearProxyFiles(filepath.Join(v.configDir, "site"))
 }
 
-func (v *ProxyVhost) Upstreams() []types.Upstream {
+func (v *baseVhost) Upstreams() []types.Upstream {
 	upstreams, _ := parseBalancerFiles(filepath.Join(v.configDir, "shared"))
 	return upstreams
 }
 
-func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
+func (v *baseVhost) SetUpstreams(upstreams []types.Upstream) error {
 	return writeBalancerFiles(filepath.Join(v.configDir, "shared"), upstreams)
 }
 
-func (v *ProxyVhost) ClearUpstreams() error {
+func (v *baseVhost) ClearUpstreams() error {
 	return clearBalancerFiles(filepath.Join(v.configDir, "shared"))
 }
 

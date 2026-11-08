@@ -622,26 +622,26 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	return v.SetConfig("010-php.conf", types.ScopeSite, content)
 }
 
-func (v *ProxyVhost) Proxies() []types.Proxy {
+func (v *baseVhost) Proxies() []types.Proxy {
 	return parseProxyFiles(filepath.Join(v.configDir, "site"))
 }
 
-func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+func (v *baseVhost) SetProxies(proxies []types.Proxy) error {
 	return writeProxyFiles(filepath.Join(v.configDir, "site"), proxies)
 }
 
-func (v *ProxyVhost) ClearProxies() error {
+func (v *baseVhost) ClearProxies() error {
 	return clearProxyFiles(filepath.Join(v.configDir, "site"))
 }
 
-func (v *ProxyVhost) Upstreams() []types.Upstream {
+func (v *baseVhost) Upstreams() []types.Upstream {
 	return parseUpstreamFiles(filepath.Join(v.configDir, "shared"))
 }
 
-func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
+func (v *baseVhost) SetUpstreams(upstreams []types.Upstream) error {
 	return writeUpstreamFiles(filepath.Join(v.configDir, "shared"), upstreams)
 }
 
-func (v *ProxyVhost) ClearUpstreams() error {
+func (v *baseVhost) ClearUpstreams() error {
 	return clearUpstreamFiles(filepath.Join(v.configDir, "shared"))
 }

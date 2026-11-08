@@ -189,8 +189,8 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 		setting.Rewrite = phpVhost.Config("010-rewrite.conf", webservertypes.ScopeSite)
 	}
 
-	// 反向代理网站特有
-	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+	// 反向代理
+	if proxyVhost, ok := vhost.(webservertypes.VhostProxy); ok {
 		setting.Upstreams = proxyVhost.Upstreams()
 		setting.Proxies = proxyVhost.Proxies()
 	}
@@ -365,8 +365,8 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		return nil, err
 	}
 
-	// 反向代理支持
-	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+	// 反代站点的整站根规则
+	if proxyVhost, ok := vhost.(webservertypes.VhostProxy); ok && w.Type == biz.WebsiteTypeProxy {
 		if err = proxyVhost.SetProxies([]webservertypes.Proxy{
 			{
 				Location: "^~ /",
@@ -549,6 +549,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		OCSP:          setting.OCSP,
 		HTTPRedirect:  setting.HTTPRedirect,
 		SSLProtocols:  setting.SSLProtocols,
+		Upstreams:     setting.Upstreams,
 		Redirects:     setting.Redirects,
 		StatEnabled:   setting.StatEnabled,
 		AccessLog:     setting.AccessLog,
@@ -567,10 +568,14 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		update.Proxies = []webservertypes.Proxy{{
 			Location: "^~ /",
 			Pass:     req.Proxy,
-			Host:     webservertypes.DefaultProxyHost(req.Proxy, nil),
+			Host:     webservertypes.DefaultProxyHost(req.Proxy, setting.Upstreams),
 		}}
 	default:
 		// 静态站点沿用默认配置
+	}
+	// 整站反代是反代站点的类型本身：切入时只留新的根规则，切出时丢弃；静态与 PHP 互切时子路径反代随通用设置保留
+	if website.Type != biz.WebsiteTypeProxy && targetType != biz.WebsiteTypeProxy {
+		update.Proxies = setting.Proxies
 	}
 
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
@@ -948,7 +953,7 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 	}
 
 	// 反向代理
-	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+	if proxyVhost, ok := vhost.(webservertypes.VhostProxy); ok {
 		if err = proxyVhost.SetUpstreams(req.Upstreams); err != nil {
 			return err
 		}

@@ -777,3 +777,20 @@ func TestProxyVhostCustom(t *testing.T) {
 	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://backend:8080", Custom: "</Location>"}}))
 	check.Equal(t, vhost.Proxies()[0].Custom, custom)
 }
+
+// 静态与 PHP 站点也能把子路径交给后端
+func TestStaticVhostProxies(t *testing.T) {
+	configDir := t.TempDir()
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetUpstreams([]types.Upstream{{Name: "api", Servers: map[string]string{"127.0.0.1:3000": ""}}}))
+	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://api"}}))
+
+	content, err := os.ReadFile(filepath.Join(configDir, "site", "200-proxy.conf"))
+	must.NoError(t, err)
+	check.Contains(t, string(content), "ProxyPass /api balancer://api/api")
+	check.Len(t, vhost.Upstreams(), 1)
+	check.Len(t, vhost.Proxies(), 1)
+}

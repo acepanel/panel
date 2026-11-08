@@ -324,6 +324,22 @@ func locationToURI(location string) string {
 	return "/" + location + "/"
 }
 
+// proxyPassthrough 命中代理规则的请求跳过后续 rewrite 的规则，模式与上下文 uri 一致；根路径返回空
+func proxyPassthrough(location string) string {
+	uri := locationToURI(location)
+	switch {
+	case uri == "/":
+		return ""
+	case strings.HasPrefix(uri, "exp:"):
+		return strings.TrimPrefix(uri, "exp:") + " - [L]"
+	}
+	rule := "^" + regexp.QuoteMeta(uri)
+	if kind, _ := types.ParseLocation(location); kind == types.LocationExact {
+		rule += "$"
+	}
+	return rule + " - [L]"
+}
+
 // uriToLocation 无元数据时由上下文 uri 还原 location
 func uriToLocation(uri string) string {
 	if exp, ok := strings.CutPrefix(uri, "exp:"); ok {

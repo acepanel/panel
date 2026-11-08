@@ -584,5 +584,5 @@ func (a *onePanelAdapter) tryVersions(run func() error) error {
 	a.v1 = false
 
 	// v2 在 v1 面板上只会拿到未认证守卫页（如 416），真实原因通常在后一条
-	return fmt.Errorf("v2: %v; v1: %v", err, retry)
+	return fmt.Errorf("v2: %w; v1: %w", err, retry)
 }

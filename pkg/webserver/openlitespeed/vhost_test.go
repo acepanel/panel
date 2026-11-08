@@ -175,6 +175,10 @@ func TestProxy(t *testing.T) {
 	check.Contains(t, conf, "allow                    10.0.0.0/8")
 	check.Contains(t, conf, "websocket /ws/ {")
 	check.Contains(t, conf, "address                  127.0.0.1:3000")
+	// 子路径反代跳过后续 rewrite，根规则不拦
+	check.Contains(t, conf, "RewriteRule              ^/api/v[0-9]+/ - [L]")
+	check.Contains(t, conf, "RewriteRule              ^/ws/ - [L]")
+	check.NotContains(t, conf, "^/ - [L]")
 
 	reloaded, err := NewProxyVhost(configDir)
 	must.NoError(t, err)
@@ -387,4 +391,30 @@ func TestProxyCustom(t *testing.T) {
 	check.Equal(t, got[0].Custom, custom)
 
 	check.Error(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://127.0.0.1:8080", Custom: "rewrite {"}}))
+}
+
+func TestStaticProxyPassthrough(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetRawConfig("800-spa.conf", types.ScopeSite, Dialect{}.SPAConf()))
+	check.NoError(t, vhost.SetProxies([]types.Proxy{
+		{Location: "^~ /api", Pass: "http://127.0.0.1:3000"},
+		{Location: "= /health", Pass: "http://127.0.0.1:3000"},
+	}))
+	check.NoError(t, vhost.Save())
+
+	conf := readConf(t, configDir)
+	check.Contains(t, conf, "context /api/ {")
+	check.Contains(t, conf, "context / {")
+	// 透传规则在 SPA 回退片段之前
+	passthrough := strings.Index(conf, "RewriteRule              ^/api/ - [L]")
+	exact := strings.Index(conf, "RewriteRule              ^/health$ - [L]")
+	spa := strings.Index(conf, "include                  "+filepath.Join(configDir, "site", "800-spa.conf"))
+	must.True(t, passthrough > 0 && exact > 0 && spa > 0)
+	check.True(t, passthrough < spa && exact < spa)
+
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.Len(t, reloaded.Proxies(), 2)
 }

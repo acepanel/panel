@@ -535,7 +535,7 @@ const addProxy = () => {
     _id: generateId(),
     _size_unit: 'm',
     _units: { resolver_timeout: 's' },
-    location: '/',
+    location: '^~ /',
     pass: 'http://127.0.0.1:8080',
     host: '$host',
     sni: '',
@@ -1070,7 +1070,7 @@ const removeCustomConfig = (index: number) => {
           </n-form>
           <n-skeleton v-else text :repeat="10" />
         </n-tab-pane>
-        <n-tab-pane v-if="setting.type === 'proxy'" name="upstreams" :tab="$gettext('Upstreams')">
+        <n-tab-pane name="upstreams" :tab="$gettext('Upstreams')">
           <n-flex vertical>
             <!-- 上游卡片列表 -->
             <draggable
@@ -1176,7 +1176,7 @@ const removeCustomConfig = (index: number) => {
             </n-button>
           </n-flex>
         </n-tab-pane>
-        <n-tab-pane v-if="setting.type === 'proxy'" name="proxies" :tab="$gettext('Proxies')">
+        <n-tab-pane name="proxies" :tab="$gettext('Proxies')">
           <n-flex vertical>
             <!-- 代理卡片列表 -->
             <draggable

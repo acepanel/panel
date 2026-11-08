@@ -557,11 +557,11 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	return nil
 }
 
-func (v *ProxyVhost) Proxies() []types.Proxy {
+func (v *baseVhost) Proxies() []types.Proxy {
 	return v.proxies
 }
 
-func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+func (v *baseVhost) SetProxies(proxies []types.Proxy) error {
 	for _, p := range proxies {
 		if _, err := customNodes(p); err != nil {
 			return err
@@ -571,21 +571,21 @@ func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
 	return nil
 }
 
-func (v *ProxyVhost) ClearProxies() error {
+func (v *baseVhost) ClearProxies() error {
 	v.proxies = nil
 	return nil
 }
 
-func (v *ProxyVhost) Upstreams() []types.Upstream {
+func (v *baseVhost) Upstreams() []types.Upstream {
 	return v.upstreams
 }
 
-func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
+func (v *baseVhost) SetUpstreams(upstreams []types.Upstream) error {
 	v.upstreams = slices.Clone(upstreams)
 	return nil
 }
 
-func (v *ProxyVhost) ClearUpstreams() error {
+func (v *baseVhost) ClearUpstreams() error {
 	v.upstreams = nil
 	return nil
 }

@@ -126,10 +126,13 @@ func (v *baseVhost) buildProxies(body *conf.Block) {
 	for _, i := range proxyOrder(v.proxies) {
 		p := v.proxies[i]
 		name := fmt.Sprintf("@ace_proxy_%d", i)
-		route.Add(name, locationMatcher(p.Location)...)
+		route.Add(name, "expression", locationExpression(p.Location))
 		h := route.AddBlock("handle", name)
 		h.AddMeta("location", p.Location)
 		h.AddMeta("pass", p.Pass)
+		// 伪静态与 SPA 回退的 try_files 排在 route 之前执行，子路径反代的请求会先被改写成 /index.html，
+		// 所以按原始 URI 匹配、转发前再改回来，与 ACME 的处理一致
+		h.Add("rewrite", "*", "{http.request.orig_uri}")
 
 		if p.ClientMaxBodySize > 0 {
 			h.AddBlock("request_body").Add("max_size", strconv.FormatInt(p.ClientMaxBodySize, 10))
@@ -422,17 +425,21 @@ func accessLists(ac *types.AccessControlConfig) ([]string, []string) {
 	return allow, deny
 }
 
-func locationMatcher(location string) []string {
-	location = strings.TrimSpace(location)
-	switch {
-	case strings.HasPrefix(location, "~*"):
-		return []string{"path_regexp", "(?i)" + strings.TrimSpace(location[2:])}
-	case strings.HasPrefix(location, "~"):
-		return []string{"path_regexp", strings.TrimSpace(location[1:])}
-	case strings.HasPrefix(location, "="):
-		return []string{"path", strings.TrimSpace(location[1:])}
+// locationExpression 按原始 URI 匹配的 CEL 表达式，前缀与精确匹配区分大小写，与 nginx 一致；
+// Go 的转义规则是 CEL 字符串字面量的子集，可直接用 strconv.Quote
+func locationExpression(location string) string {
+	kind, rest := types.ParseLocation(location)
+	const path = "{http.request.orig_uri.path}"
+	switch kind {
+	case types.LocationExact:
+		return path + " == " + strconv.Quote(types.NormalizePath(rest))
+	case types.LocationRegex:
+		return path + ".matches(" + strconv.Quote(rest) + ")"
+	case types.LocationRegexAny:
+		return path + ".matches(" + strconv.Quote("(?i)"+rest) + ")"
+	default:
+		return path + ".startsWith(" + strconv.Quote(types.NormalizePath(rest)) + ")"
 	}
-	return []string{"path", strings.TrimSpace(strings.TrimPrefix(location, "^~")) + "*"}
 }
 
 func caddyAddress(addr string) string {

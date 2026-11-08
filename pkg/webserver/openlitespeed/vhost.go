@@ -461,11 +461,11 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	return nil
 }
 
-func (v *ProxyVhost) Proxies() []types.Proxy {
+func (v *baseVhost) Proxies() []types.Proxy {
 	return v.proxies
 }
 
-func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+func (v *baseVhost) SetProxies(proxies []types.Proxy) error {
 	for _, p := range proxies {
 		if _, err := customNodes(p); err != nil {
 			return err
@@ -475,21 +475,21 @@ func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
 	return nil
 }
 
-func (v *ProxyVhost) ClearProxies() error {
+func (v *baseVhost) ClearProxies() error {
 	v.proxies = nil
 	return nil
 }
 
-func (v *ProxyVhost) Upstreams() []types.Upstream {
+func (v *baseVhost) Upstreams() []types.Upstream {
 	return v.upstreams
 }
 
-func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
+func (v *baseVhost) SetUpstreams(upstreams []types.Upstream) error {
 	v.upstreams = slices.Clone(upstreams)
 	return nil
 }
 
-func (v *ProxyVhost) ClearUpstreams() error {
+func (v *baseVhost) ClearUpstreams() error {
 	v.upstreams = nil
 	return nil
 }
@@ -727,6 +727,13 @@ func (v *baseVhost) buildRewrite(cfg *conf.Config, fragments []string) {
 		}
 		rw.Add("RewriteCond", fmt.Sprintf("%%{HTTP_HOST} ^%s$ [NC]", strings.ReplaceAll(r.From, ".", `\.`)))
 		rw.Add("RewriteRule", fmt.Sprintf("^(.*)$ %s [R=%d,L]", to, redirectStatus(r)))
+	}
+	// vhost 级 rewrite 先于上下文匹配，伪静态与 SPA 回退会把子路径反代的请求改写去根上下文找文件，
+	// 命中代理规则的请求在此跳过后续规则；根规则不拦，整站反代沿用重写片段的既有行为
+	for _, p := range v.proxies {
+		if rule := proxyPassthrough(p.Location); rule != "" {
+			rw.Add("RewriteRule", rule)
+		}
 	}
 	for _, path := range fragments {
 		rw.Add("include", path)

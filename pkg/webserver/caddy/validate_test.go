@@ -175,6 +175,8 @@ import {sites}/*/config/caddy.conf
 	must.NoError(t, smoke.SetBasicAuth([]types.BasicAuth{{Path: "/admin", UserFile: htpasswd}}))
 	must.NoError(t, smoke.SetRedirects([]types.Redirect{{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 302}}))
 	must.NoError(t, smoke.SetRawConfig("800-spa.conf", types.ScopeSite, d.SPAConf()))
+	// 静态前端 + /api 后端，SPA 回退不能吞掉代理路径
+	must.NoError(t, smoke.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://127.0.0.1:18090", Host: "$host"}}))
 	must.NoError(t, smoke.SetConfig("010-error-404.conf", types.ScopeSite, d.ErrorPageConf()))
 	_, stat := d.StatConf("smoke")
 	must.NoError(t, smoke.SetConfig("021-stats-log.conf", types.ScopeSite, stat))
