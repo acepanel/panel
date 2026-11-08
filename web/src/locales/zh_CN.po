@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-11-08 14:07\n"
+"PO-Revision-Date: 2026-11-08 17:02\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:570
@@ -335,6 +335,12 @@ msgstr "当前状态无法保存"
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:75
 #: src/views/apps/rsync/IndexView.vue:139
 #: src/views/apps/rsync/IndexView.vue:194
+#: src/views/apps/stalwart/AccountView.vue:234
+#: src/views/apps/stalwart/DomainView.vue:322
+#: src/views/apps/stalwart/SettingView.vue:64
+#: src/views/apps/stalwart/SettingView.vue:76
+#: src/views/apps/stalwart/SettingView.vue:87
+#: src/views/apps/stalwart/SettingView.vue:100
 #: src/views/apps/supervisor/IndexView.vue:236
 #: src/views/apps/supervisor/IndexView.vue:330
 #: src/views/apps/supervisor/IndexView.vue:345
@@ -403,6 +409,7 @@ msgstr "选择文件"
 #: src/views/apps/redis/RedisPerformanceView.vue:42
 #: src/views/apps/rsync/IndexView.vue:46
 #: src/views/apps/rsync/IndexView.vue:261
+#: src/views/apps/stalwart/DomainView.vue:201
 #: src/views/apps/supervisor/IndexView.vue:90
 #: src/views/apps/supervisor/IndexView.vue:430
 #: src/views/backup/ListView.vue:46
@@ -471,6 +478,7 @@ msgstr "所有者 / 组"
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:93
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:144
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:102
+#: src/views/apps/stalwart/QueueView.vue:98
 #: src/views/backup/ListView.vue:67
 #: src/views/container/ImageView.vue:82
 #: src/views/database/ElasticsearchDataView.vue:113
@@ -722,6 +730,8 @@ msgstr "连接失败，正在重试..."
 #: src/views/apps/mongodb/IndexView.vue:76
 #: src/views/apps/mysql/MysqlIndex.vue:111
 #: src/views/apps/postgresql/IndexView.vue:146
+#: src/views/apps/stalwart/DomainView.vue:221
+#: src/views/apps/stalwart/SettingView.vue:120
 #: src/views/database/ServerList.vue:103
 #: src/views/database/UserList.vue:53
 #: src/views/file/composables/usePaste.ts:30
@@ -755,6 +765,7 @@ msgstr "跳转到底部"
 #: src/views/app/AppView.vue:245
 #: src/views/app/EnvironmentView.vue:266
 #: src/views/app/TemplateView.vue:104
+#: src/views/apps/stalwart/AccountView.vue:283
 #: src/views/container/ContainerView.vue:655
 #: src/views/database/ElasticsearchDataView.vue:316
 #: src/views/database/IndexView.vue:199
@@ -988,6 +999,7 @@ msgstr "自启动已成功禁用"
 #: src/views/apps/redis/IndexView.vue:62
 #: src/views/apps/rocketmq/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:208
+#: src/views/apps/stalwart/IndexView.vue:46
 #: src/views/apps/supervisor/IndexView.vue:362
 #: src/views/apps/valkey/IndexView.vue:62
 #: src/views/container/ContainerView.vue:119
@@ -1062,6 +1074,7 @@ msgid "Completed"
 msgstr "已完成"
 
 #: src/components/common/TaskWindow.vue:30
+#: src/views/apps/stalwart/StatusView.vue:63
 #: src/views/file/UploadModal.vue:86
 #: src/views/log/SSHLog.vue:46
 #: src/views/project/ListView.vue:51
@@ -1285,6 +1298,11 @@ msgstr "放弃"
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:178
 #: src/views/apps/rsync/IndexView.vue:249
 #: src/views/apps/rsync/IndexView.vue:370
+#: src/views/apps/stalwart/AccountView.vue:396
+#: src/views/apps/stalwart/DomainView.vue:406
+#: src/views/apps/stalwart/SettingView.vue:151
+#: src/views/apps/stalwart/SettingView.vue:173
+#: src/views/apps/stalwart/SettingView.vue:279
 #: src/views/apps/supervisor/IndexView.vue:403
 #: src/views/apps/supervisor/IndexView.vue:561
 #: src/views/apps/supervisor/IndexView.vue:575
@@ -1456,6 +1474,7 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/apps/redis/RedisPerformanceView.vue:130
 #: src/views/apps/redis/RedisPerformanceView.vue:149
 #: src/views/apps/redis/RedisPerformanceView.vue:165
+#: src/views/apps/stalwart/QueueView.vue:190
 #: src/views/environment/PHPView.vue:387
 #: src/views/environment/PHPView.vue:408
 #: src/views/file/PathInput.vue:168
@@ -1522,6 +1541,7 @@ msgid "Toggle Minimap"
 msgstr "切换小地图"
 
 #: src/components/file-editor/EditorToolbar.vue:260
+#: src/views/apps/stalwart/IndexView.vue:62
 #: src/views/firewall/IndexView.vue:54
 #: src/views/monitor/IndexView.vue:22
 #: src/views/ssh/IndexView.vue:530
@@ -1770,6 +1790,9 @@ msgstr "重命名"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:88
 #: src/views/apps/rsync/IndexView.vue:112
+#: src/views/apps/stalwart/AccountView.vue:178
+#: src/views/apps/stalwart/DomainView.vue:145
+#: src/views/apps/stalwart/QueueView.vue:149
 #: src/views/apps/supervisor/IndexView.vue:212
 #: src/views/backup/ListView.vue:130
 #: src/views/backup/ListView.vue:321
@@ -1866,6 +1889,9 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/apps/pureftpd/IndexView.vue:157
 #: src/views/apps/rsync/IndexView.vue:173
 #: src/views/apps/s3fs/IndexView.vue:89
+#: src/views/apps/stalwart/AccountView.vue:256
+#: src/views/apps/stalwart/DomainView.vue:332
+#: src/views/apps/stalwart/QueueView.vue:169
 #: src/views/apps/supervisor/IndexView.vue:292
 #: src/views/backup/ListView.vue:213
 #: src/views/backup/ListView.vue:225
@@ -2010,6 +2036,8 @@ msgstr "切换主题"
 #: src/layouts/header/components/UserAvatar.vue:14
 #: src/views/apps/pureftpd/IndexView.vue:72
 #: src/views/apps/pureftpd/IndexView.vue:258
+#: src/views/apps/stalwart/AccountView.vue:161
+#: src/views/apps/stalwart/AccountView.vue:400
 #: src/views/setting/PasswordModal.vue:38
 #: src/views/setting/SettingUser.vue:134
 msgid "Change Password"
@@ -2032,6 +2060,7 @@ msgid "Logged out successfully!"
 msgstr "退出登录成功！"
 
 #: src/layouts/header/components/UserAvatar.vue:49
+#: src/views/apps/stalwart/DomainView.vue:174
 #: src/views/cert/DnsView.vue:62
 #: src/views/firewall/IpRuleView.vue:79
 #: src/views/firewall/IpRuleView.vue:104
@@ -2073,6 +2102,7 @@ msgid "Backup"
 msgstr "备份"
 
 #: src/locales/menu.ts:9
+#: src/views/apps/stalwart/StatusView.vue:272
 #: src/views/cert/CertView.vue:602
 #: src/views/cert/CertView.vue:709
 #: src/views/cert/IndexView.vue:98
@@ -2238,6 +2268,9 @@ msgstr "应用名称"
 #: src/views/app/InstalledView.vue:166
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
+#: src/views/apps/stalwart/AccountView.vue:80
+#: src/views/apps/stalwart/AccountView.vue:327
+#: src/views/apps/stalwart/AccountView.vue:367
 #: src/views/environment/PHPView.vue:136
 #: src/views/project/EditModal.vue:284
 #: src/views/project/ListView.vue:64
@@ -2282,6 +2315,9 @@ msgstr "在主页显示"
 #: src/views/apps/redis/RedisPerformanceView.vue:58
 #: src/views/apps/rsync/IndexView.vue:83
 #: src/views/apps/s3fs/IndexView.vue:36
+#: src/views/apps/stalwart/AccountView.vue:121
+#: src/views/apps/stalwart/DomainView.vue:100
+#: src/views/apps/stalwart/QueueView.vue:118
 #: src/views/apps/supervisor/IndexView.vue:118
 #: src/views/backup/ListView.vue:85
 #: src/views/backup/StorageView.vue:96
@@ -2483,6 +2519,7 @@ msgstr "部分运行"
 #: src/views/apps/phpmyadmin/IndexView.vue:67
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:53
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
+#: src/views/apps/stalwart/DomainView.vue:230
 #: src/views/apps/supervisor/IndexView.vue:97
 #: src/views/container/ComposeView.vue:88
 #: src/views/container/ContainerInfoModal.vue:110
@@ -3020,6 +3057,7 @@ msgid "Listen Host"
 msgstr "监听主机"
 
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:79
+#: src/views/apps/stalwart/StatusView.vue:185
 msgid "HTTP Port"
 msgstr "HTTP 端口"
 
@@ -3076,6 +3114,7 @@ msgstr "日志级别（logger.level）"
 #: src/views/apps/mysql/MysqlIndex.vue:102
 #: src/views/apps/postgresql/IndexView.vue:137
 #: src/views/apps/pureftpd/IndexView.vue:147
+#: src/views/apps/stalwart/AccountView.vue:246
 #: src/views/database/DatabaseList.vue:118
 #: src/views/database/RedisDataView.vue:224
 #: src/views/database/ServerList.vue:277
@@ -3151,6 +3190,7 @@ msgstr "这将修改 Code Server 配置文件。如果您不了解各项参数�
 #: src/views/apps/docker/IndexView.vue:73
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:91
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:219
+#: src/views/apps/stalwart/DomainView.vue:64
 #: src/views/website/EditModal.vue:1366
 msgid "Default"
 msgstr "默认"
@@ -3452,6 +3492,7 @@ msgid "Find Time"
 msgstr "查找时间"
 
 #: src/views/apps/fail2ban/IndexView.vue:95
+#: src/views/apps/stalwart/SettingView.vue:310
 #: src/views/cert/CertView.vue:348
 #: src/views/database/ElasticsearchDataView.vue:187
 #: src/views/database/RedisDataView.vue:142
@@ -3484,6 +3525,8 @@ msgstr "解封"
 #: src/views/apps/pureftpd/IndexView.vue:132
 #: src/views/apps/rsync/IndexView.vue:162
 #: src/views/apps/s3fs/IndexView.vue:79
+#: src/views/apps/stalwart/AccountView.vue:215
+#: src/views/apps/stalwart/DomainView.vue:309
 #: src/views/apps/supervisor/IndexView.vue:261
 #: src/views/database/CreateServerModal.vue:83
 msgid "Added successfully"
@@ -3540,6 +3583,7 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:80
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:210
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:209
+#: src/views/apps/stalwart/DomainView.vue:184
 #: src/views/backup/StorageView.vue:74
 #: src/views/backup/StorageView.vue:219
 #: src/views/backup/StorageView.vue:372
@@ -3605,6 +3649,9 @@ msgstr "保护路径"
 #: src/views/apps/pureftpd/IndexView.vue:278
 #: src/views/apps/rsync/IndexView.vue:320
 #: src/views/apps/s3fs/IndexView.vue:174
+#: src/views/apps/stalwart/AccountView.vue:357
+#: src/views/apps/stalwart/AccountView.vue:431
+#: src/views/apps/stalwart/DomainView.vue:376
 #: src/views/apps/supervisor/IndexView.vue:473
 #: src/views/backup/ListView.vue:376
 #: src/views/backup/ListView.vue:411
@@ -3995,6 +4042,7 @@ msgstr "请求头"
 
 #: src/views/apps/frp/FrpProxyModal.vue:336
 #: src/views/apps/frp/FrpProxyModal.vue:349
+#: src/views/apps/stalwart/DomainView.vue:208
 #: src/views/container/ContainerCreate.vue:1071
 #: src/views/database/RedisKeyModal.vue:103
 #: src/views/toolbox/disk/SmartView.vue:207
@@ -4608,6 +4656,7 @@ msgstr "浏览器（直连）"
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:113
 #: src/views/apps/nginx/NginxIndex.vue:203
 #: src/views/apps/nginx/NginxIndex.vue:267
+#: src/views/apps/stalwart/AccountView.vue:144
 #: src/views/backup/StorageView.vue:112
 #: src/views/container/ComposeView.vue:125
 #: src/views/container/ContainerView.vue:190
@@ -4651,6 +4700,10 @@ msgstr "访问"
 #: src/views/apps/pureftpd/IndexView.vue:260
 #: src/views/apps/rsync/IndexView.vue:285
 #: src/views/apps/rsync/IndexView.vue:341
+#: src/views/apps/stalwart/AccountView.vue:316
+#: src/views/apps/stalwart/AccountView.vue:406
+#: src/views/apps/stalwart/SettingView.vue:253
+#: src/views/apps/stalwart/SettingView.vue:301
 #: src/views/backup/StorageView.vue:36
 #: src/views/backup/StorageView.vue:295
 #: src/views/backup/StorageView.vue:339
@@ -5402,6 +5455,7 @@ msgstr "未启用 performance_schema。启用后将收集 SQL 性能统计信息
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:107
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:226
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:208
+#: src/views/apps/stalwart/SettingView.vue:231
 #: src/views/website/EditModal.vue:2152
 msgid "Enable"
 msgstr "启用"
@@ -6179,6 +6233,7 @@ msgid "Slot Name"
 msgstr "槽名称"
 
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:211
+#: src/views/apps/stalwart/DomainView.vue:168
 #: src/views/home/IndexView.vue:773
 msgid "Active"
 msgstr "活跃"
@@ -6340,6 +6395,9 @@ msgstr "修改 exporter 配置将重启 exporter 服务。"
 
 #: src/views/apps/pureftpd/IndexView.vue:40
 #: src/views/apps/pureftpd/IndexView.vue:220
+#: src/views/apps/stalwart/AccountView.vue:304
+#: src/views/apps/stalwart/SettingView.vue:250
+#: src/views/apps/stalwart/SettingView.vue:295
 #: src/views/backup/StorageView.vue:284
 #: src/views/backup/StorageView.vue:333
 #: src/views/backup/StorageView.vue:431
@@ -6383,6 +6441,7 @@ msgid "Add User"
 msgstr "添加用户"
 
 #: src/views/apps/pureftpd/IndexView.vue:213
+#: src/views/apps/stalwart/IndexView.vue:66
 msgid "Run Log"
 msgstr "运行日志"
 
@@ -6408,6 +6467,8 @@ msgstr "输入用户名"
 
 #: src/views/apps/pureftpd/IndexView.vue:235
 #: src/views/apps/pureftpd/IndexView.vue:266
+#: src/views/apps/stalwart/AccountView.vue:323
+#: src/views/apps/stalwart/AccountView.vue:412
 msgid "It is recommended to use the generator to generate a random password"
 msgstr "建议使用生成器生成随机密码"
 
@@ -6826,6 +6887,496 @@ msgstr "挂载目录"
 msgid "Enter mount directory (e.g., /oss)"
 msgstr "输入挂载目录（例如，/oss）"
 
+#: src/views/apps/stalwart/AccountView.vue:73
+#: src/views/apps/stalwart/AccountView.vue:364
+#: src/views/apps/stalwart/AccountView.vue:403
+#: src/views/cert/AccountView.vue:40
+#: src/views/cert/AccountView.vue:213
+#: src/views/cert/CreateAccountModal.vue:96
+#: src/views/setting/CreateModal.vue:53
+#: src/views/setting/SettingUser.vue:42
+msgid "Email"
+msgstr "邮箱"
+
+#: src/views/apps/stalwart/AccountView.vue:88
+msgid "Quota"
+msgstr "配额"
+
+#: src/views/apps/stalwart/AccountView.vue:96
+#: src/views/file/ShareModal.vue:156
+#: src/views/website/EditModal.vue:1619
+#: src/views/website/EditModal.vue:1634
+#: src/views/website/EditModal.vue:2098
+#: src/views/website/EditModal.vue:2111
+#: src/views/website/EditModal.vue:2124
+msgid "Unlimited"
+msgstr "无限制"
+
+#: src/views/apps/stalwart/AccountView.vue:100
+#: src/views/apps/stalwart/AccountView.vue:345
+#: src/views/apps/stalwart/AccountView.vue:385
+msgid "Aliases"
+msgstr "别名"
+
+#: src/views/apps/stalwart/AccountView.vue:114
+#: src/views/apps/stalwart/DomainView.vue:93
+#: src/views/backup/StorageView.vue:88
+#: src/views/container/ContainerInfoModal.vue:118
+msgid "Created At"
+msgstr "创建于"
+
+#: src/views/apps/stalwart/AccountView.vue:170
+msgid "Are you sure you want to delete mailbox %{ email }? All of its mail will be deleted."
+msgstr "确定要删除邮箱 %{ email } 吗？其中的所有邮件都会被删除。"
+
+#: src/views/apps/stalwart/AccountView.vue:270
+#: src/views/apps/stalwart/AccountView.vue:301
+msgid "Add Mailbox"
+msgstr "添加邮箱"
+
+#: src/views/apps/stalwart/AccountView.vue:277
+msgid "All domains"
+msgstr "全部域名"
+
+#: src/views/apps/stalwart/AccountView.vue:312
+msgid "Select domain"
+msgstr "选择域名"
+
+#: src/views/apps/stalwart/AccountView.vue:331
+#: src/views/apps/stalwart/AccountView.vue:371
+#: src/views/apps/stalwart/DomainView.vue:194
+msgid "Optional"
+msgstr "可选"
+
+#: src/views/apps/stalwart/AccountView.vue:334
+#: src/views/apps/stalwart/AccountView.vue:374
+msgid "Quota (MB)"
+msgstr "配额 (MB)"
+
+#: src/views/apps/stalwart/AccountView.vue:351
+msgid "Quota 0 means unlimited. Aliases must be full addresses under a domain managed here."
+msgstr "配额为 0 表示不限。别名必须是此处管理的域名下的完整地址。"
+
+#: src/views/apps/stalwart/AccountView.vue:361
+msgid "Edit Mailbox"
+msgstr "编辑邮箱"
+
+#: src/views/apps/stalwart/AccountView.vue:419
+msgid "Changing the password signs out all clients and removes app passwords of this mailbox."
+msgstr "修改密码会让所有客户端下线，并清除该邮箱的应用密码。"
+
+#: src/views/apps/stalwart/DomainView.vue:52
+#: src/views/apps/stalwart/DomainView.vue:371
+#: src/views/cert/CertView.vue:150
+#: src/views/cert/CertView.vue:529
+#: src/views/cert/CreateCertModal.vue:95
+#: src/views/project/ProxyForm.vue:11
+#: src/views/project/ProxyModal.vue:342
+#: src/views/website/CreateModal.vue:156
+#: src/views/website/EditModal.vue:984
+msgid "Domain"
+msgstr "域名"
+
+#: src/views/apps/stalwart/DomainView.vue:71
+#: src/views/apps/stalwart/DomainView.vue:380
+msgid "Catch-all Address"
+msgstr "兜底地址"
+
+#: src/views/apps/stalwart/DomainView.vue:79
+msgid "Alias Domains"
+msgstr "别名域名"
+
+#: src/views/apps/stalwart/DomainView.vue:114
+msgid "DNS Records"
+msgstr "DNS 记录"
+
+#: src/views/apps/stalwart/DomainView.vue:127
+msgid "Catch-all"
+msgstr "兜底地址"
+
+#: src/views/apps/stalwart/DomainView.vue:137
+msgid "Are you sure you want to delete domain %{ name }? All mailboxes under this domain and their mail will be deleted as well."
+msgstr "确定要删除域名 %{ name } 吗？该域名下的所有邮箱及其邮件都会一并删除。"
+
+#: src/views/apps/stalwart/DomainView.vue:170
+msgid "Missing"
+msgstr "未添加"
+
+#: src/views/apps/stalwart/DomainView.vue:172
+msgid "Mismatch"
+msgstr "不一致"
+
+#: src/views/apps/stalwart/DomainView.vue:194
+msgid "Required"
+msgstr "必需"
+
+#: src/views/apps/stalwart/DomainView.vue:218
+msgid "Click to copy"
+msgstr "点击复制"
+
+#: src/views/apps/stalwart/DomainView.vue:242
+msgid "Current value: %{ value }"
+msgstr "当前值：%{ value }"
+
+#: src/views/apps/stalwart/DomainView.vue:293
+msgid "%{ count } records added"
+msgstr "已添加 %{ count } 条记录"
+
+#: src/views/apps/stalwart/DomainView.vue:345
+#: src/views/apps/stalwart/DomainView.vue:361
+msgid "Add Domain"
+msgstr "添加域名"
+
+#: src/views/apps/stalwart/DomainView.vue:365
+msgid "DKIM keys are generated automatically. After adding, open DNS Records to publish the MX, SPF, DKIM and DMARC records."
+msgstr "DKIM 密钥会自动生成。添加后请打开「DNS 记录」发布 MX、SPF、DKIM 和 DMARC 记录。"
+
+#: src/views/apps/stalwart/DomainView.vue:384
+msgid "Mail sent to addresses that do not exist under %{ domain } will be delivered to this mailbox. Leave empty to disable."
+msgstr "发往 %{ domain } 下不存在地址的邮件会投递到这个邮箱。留空表示关闭。"
+
+#: src/views/apps/stalwart/DomainView.vue:391
+msgid "Mailbox"
+msgstr "邮箱"
+
+#: src/views/apps/stalwart/DomainView.vue:413
+msgid "DNS Records of %{ domain }"
+msgstr "%{ domain } 的 DNS 记录"
+
+#: src/views/apps/stalwart/DomainView.vue:418
+msgid "Add these records at your DNS provider for zone %{ zone }. Required records are needed for mail to be accepted by other servers; optional ones enable client autoconfig, MTA-STS and TLS reporting."
+msgstr "请在 DNS 服务商处为区域 %{ zone } 添加以下记录。必需记录决定其他服务器是否接收你的邮件；可选记录用于客户端自动配置、MTA-STS 和 TLS 报告。"
+
+#: src/views/apps/stalwart/DomainView.vue:434
+msgid "Publish via DNS Provider"
+msgstr "通过 DNS 服务商发布"
+
+#: src/views/apps/stalwart/DomainView.vue:438
+msgid "Selected records that are not active yet will be added through the DNS account below. Existing records are not modified."
+msgstr "尚未生效的选中记录会通过下方的 DNS 账号添加，已有记录不会被修改。"
+
+#: src/views/apps/stalwart/DomainView.vue:448
+msgid "Select DNS account"
+msgstr "选择 DNS 账号"
+
+#: src/views/apps/stalwart/DomainView.vue:456
+msgid "Add Selected Records"
+msgstr "添加选中记录"
+
+#: src/views/apps/stalwart/DomainView.vue:459
+msgid "Recheck"
+msgstr "重新检测"
+
+#: src/views/apps/stalwart/DomainView.vue:465
+msgid "No DNS account is configured. Add one under Certificates → DNS Accounts to publish records with one click, or add them manually."
+msgstr "尚未配置 DNS 账号。请在「证书 → DNS 账号」中添加后一键发布记录，或手动添加。"
+
+#: src/views/apps/stalwart/IndexView.vue:53
+#: src/views/apps/stalwart/StatusView.vue:182
+#: src/views/website/EditModal.vue:1797
+msgid "Domains"
+msgstr "域名"
+
+#: src/views/apps/stalwart/IndexView.vue:56
+msgid "Mailboxes"
+msgstr "邮箱账户"
+
+#: src/views/apps/stalwart/IndexView.vue:59
+msgid "Mail Queue"
+msgstr "邮件队列"
+
+#: src/views/apps/stalwart/IndexView.vue:69
+msgid "The mail server has not written any log yet"
+msgstr "邮件服务器尚未产生日志"
+
+#: src/views/apps/stalwart/QueueView.vue:47
+msgid "Delivered"
+msgstr "已投递"
+
+#: src/views/apps/stalwart/QueueView.vue:49
+msgid "Temporary Failure"
+msgstr "暂时失败"
+
+#: src/views/apps/stalwart/QueueView.vue:51
+msgid "Permanent Failure"
+msgstr "永久失败"
+
+#: src/views/apps/stalwart/QueueView.vue:53
+msgid "Scheduled"
+msgstr "等待投递"
+
+#: src/views/apps/stalwart/QueueView.vue:59
+#: src/views/monitor/ChannelModal.vue:126
+msgid "Sender"
+msgstr "发件人"
+
+#: src/views/apps/stalwart/QueueView.vue:64
+msgid "(bounce)"
+msgstr "（退信）"
+
+#: src/views/apps/stalwart/QueueView.vue:67
+#: src/views/monitor/ChannelModal.vue:135
+#: src/views/monitor/SettingView.vue:119
+msgid "Recipients"
+msgstr "收件人"
+
+#: src/views/apps/stalwart/QueueView.vue:88
+msgid "%{ count } retries"
+msgstr "已重试 %{ count } 次"
+
+#: src/views/apps/stalwart/QueueView.vue:104
+msgid "Queued At"
+msgstr "入队时间"
+
+#: src/views/apps/stalwart/QueueView.vue:111
+msgid "Next Retry"
+msgstr "下次重试"
+
+#: src/views/apps/stalwart/QueueView.vue:133
+msgid "Retry Now"
+msgstr "立即重试"
+
+#: src/views/apps/stalwart/QueueView.vue:142
+msgid "Are you sure you want to delete this message from the queue? The sender will not be notified."
+msgstr "确定要从队列中删除这封邮件吗？发件人不会收到通知。"
+
+#: src/views/apps/stalwart/QueueView.vue:161
+msgid "Retry scheduled"
+msgstr "已安排重试"
+
+#: src/views/apps/stalwart/QueueView.vue:185
+msgid "Search sender or recipient"
+msgstr "搜索发件人或收件人"
+
+#: src/views/apps/stalwart/QueueView.vue:195
+msgid "Only messages waiting for delivery are listed here. Delivered mail leaves the queue immediately; failed recipients are retried automatically until they expire."
+msgstr "这里只列出等待投递的邮件。投递成功的邮件会立即离开队列；失败的收件人会自动重试直到过期。"
+
+#: src/views/apps/stalwart/SettingView.vue:43
+msgid "Not bound (self-signed certificate)"
+msgstr "未绑定（使用自签名证书）"
+
+#: src/views/apps/stalwart/SettingView.vue:47
+msgid "expires %{ date }"
+msgstr "%{ date } 到期"
+
+#: src/views/apps/stalwart/SettingView.vue:134
+#: src/views/apps/stalwart/StatusView.vue:151
+#: src/views/apps/stalwart/StatusView.vue:179
+#: src/views/container/ContainerCreate.vue:525
+msgid "Hostname"
+msgstr "主机名"
+
+#: src/views/apps/stalwart/SettingView.vue:138
+msgid "Public hostname of this mail server, used in the SMTP greeting, MX records and client autoconfig. It must resolve to this server and its reverse DNS must point back to it."
+msgstr "邮件服务器的公网主机名，用于 SMTP 问候、MX 记录和客户端自动配置。它必须解析到本服务器，且反向解析也要指回该主机名。"
+
+#: src/views/apps/stalwart/SettingView.vue:156
+msgid "TLS Certificate"
+msgstr "TLS 证书"
+
+#: src/views/apps/stalwart/SettingView.vue:160
+msgid "Choose a certificate from Certificate management that covers the hostname. It is used for SMTP, IMAP and POP3 connections, and the panel pushes renewed certificates automatically."
+msgstr "从证书管理中选择一张覆盖主机名的证书，用于 SMTP、IMAP 和 POP3 连接，续签后面板会自动推送。"
+
+#: src/views/apps/stalwart/SettingView.vue:178
+msgid "Listening Ports"
+msgstr "监听端口"
+
+#: src/views/apps/stalwart/SettingView.vue:182
+msgid "Ports 25 (SMTP), 465 (SMTPS), 993 (IMAPS), 995 (POP3S) and 4190 (ManageSieve) are always on. The STARTTLS ports below are optional and saving restarts the service."
+msgstr "25 (SMTP)、465 (SMTPS)、993 (IMAPS)、995 (POP3S) 和 4190 (ManageSieve) 端口始终开启。下方的 STARTTLS 端口为可选，保存后会重启服务。"
+
+#: src/views/apps/stalwart/SettingView.vue:188
+msgid "587 Submission"
+msgstr "587 Submission"
+
+#: src/views/apps/stalwart/SettingView.vue:192
+msgid "STARTTLS submission, used by most mail clients"
+msgstr "STARTTLS 提交端口，多数邮件客户端使用"
+
+#: src/views/apps/stalwart/SettingView.vue:196
+msgid "143 IMAP"
+msgstr "143 IMAP"
+
+#: src/views/apps/stalwart/SettingView.vue:199
+msgid "STARTTLS IMAP, 993 is preferred"
+msgstr "STARTTLS IMAP，建议优先使用 993"
+
+#: src/views/apps/stalwart/SettingView.vue:202
+msgid "110 POP3"
+msgstr "110 POP3"
+
+#: src/views/apps/stalwart/SettingView.vue:205
+msgid "STARTTLS POP3, 995 is preferred"
+msgstr "STARTTLS POP3，建议优先使用 995"
+
+#: src/views/apps/stalwart/SettingView.vue:216
+msgid "Save and Restart"
+msgstr "保存并重启"
+
+#: src/views/apps/stalwart/SettingView.vue:221
+msgid "Outbound Relay"
+msgstr "出站中继"
+
+#: src/views/apps/stalwart/SettingView.vue:225
+msgid "Most cloud providers block outbound port 25. When enabled, all outgoing mail to other domains is handed to the relay (smarthost) over port 587 (STARTTLS) or 465 (implicit TLS) instead of being delivered directly."
+msgstr "多数云厂商封禁出站 25 端口。启用后，发往其他域名的所有邮件会通过 587 (STARTTLS) 或 465（隐式 TLS）交给中继服务器 (smarthost) 转发，而不是直接投递。"
+
+#: src/views/apps/stalwart/SettingView.vue:235
+msgid "Relay Host"
+msgstr "中继主机"
+
+#: src/views/apps/stalwart/SettingView.vue:242
+#: src/views/backup/StorageView.vue:276
+#: src/views/backup/StorageView.vue:423
+#: src/views/database/CreateServerModal.vue:146
+#: src/views/database/UpdateServerModal.vue:75
+#: src/views/firewall/CreateModal.vue:156
+#: src/views/firewall/ForwardView.vue:34
+#: src/views/firewall/RuleView.vue:91
+#: src/views/firewall/ScanView.vue:302
+#: src/views/firewall/ScanView.vue:318
+#: src/views/firewall/ScanView.vue:383
+#: src/views/log/SSHLog.vue:83
+#: src/views/setting/SettingBase.vue:137
+#: src/views/ssh/CreateModal.vue:60
+#: src/views/ssh/UpdateModal.vue:66
+#: src/views/website/CreateModal.vue:164
+msgid "Port"
+msgstr "端口"
+
+#: src/views/apps/stalwart/SettingView.vue:258
+msgid "Leave empty to keep the current password"
+msgstr "留空则保持当前密码不变"
+
+#: src/views/apps/stalwart/SettingView.vue:262
+msgid "Implicit TLS"
+msgstr "隐式 TLS"
+
+#: src/views/apps/stalwart/SettingView.vue:266
+msgid "Turn on for port 465, off for 587 STARTTLS"
+msgstr "465 端口请开启，587 STARTTLS 请关闭"
+
+#: src/views/apps/stalwart/SettingView.vue:284
+msgid "Administrator Credentials"
+msgstr "管理员账号"
+
+#: src/views/apps/stalwart/SettingView.vue:288
+msgid "The panel manages the server with this account. You can also use it to sign in to the built-in Stalwart WebUI at /admin once a reverse proxy website for the hostname exists."
+msgstr "面板使用此账号管理邮件服务器。为主机名创建反向代理网站后，也可以用它登录 Stalwart 自带的 WebUI（/admin）。"
+
+#: src/views/apps/stalwart/SettingView.vue:306
+msgid "Click a value to copy it"
+msgstr "点击内容即可复制"
+
+#: src/views/apps/stalwart/StatusView.vue:59
+msgid "Passed"
+msgstr "通过"
+
+#: src/views/apps/stalwart/StatusView.vue:61
+#: src/views/file/composables/usePaste.ts:139
+#: src/views/file/ListView.vue:312
+#: src/views/file/ListView.vue:865
+#: src/views/file/ListView.vue:914
+msgid "Warning"
+msgstr "警告"
+
+#: src/views/apps/stalwart/StatusView.vue:65
+#: src/views/file/UploadModal.vue:87
+#: src/views/toolbox/MigrationView.vue:96
+msgid "Skipped"
+msgstr "已跳过"
+
+#: src/views/apps/stalwart/StatusView.vue:73
+msgid "Initialized successfully"
+msgstr "初始化成功"
+
+#: src/views/apps/stalwart/StatusView.vue:98
+msgid "Do not bind a certificate for now"
+msgstr "暂不绑定证书"
+
+#: src/views/apps/stalwart/StatusView.vue:122
+msgid "Reverse proxy website is ready"
+msgstr "反向代理网站已就绪"
+
+#: src/views/apps/stalwart/StatusView.vue:141
+#: src/views/apps/stalwart/StatusView.vue:172
+#: src/views/toolbox/DiskView.vue:749
+#: src/views/toolbox/DiskView.vue:775
+msgid "Initialize"
+msgstr "初始化"
+
+#: src/views/apps/stalwart/StatusView.vue:145
+msgid "The mail server is installed but not initialized. Enter the public hostname of this server and the first email domain to serve. Initialization takes about a minute and restarts the service several times."
+msgstr "邮件服务器已安装但尚未初始化。请填写本服务器的公网主机名和第一个邮件域名。初始化约需一分钟，期间会多次重启服务。"
+
+#: src/views/apps/stalwart/StatusView.vue:158
+msgid "Email Domain"
+msgstr "邮件域名"
+
+#: src/views/apps/stalwart/StatusView.vue:177
+#: src/views/firewall/ScanView.vue:358
+#: src/views/website/StatsView.vue:233
+msgid "Overview"
+msgstr "概览"
+
+#: src/views/apps/stalwart/StatusView.vue:190
+msgid "Self Check"
+msgstr "自检"
+
+#: src/views/apps/stalwart/StatusView.vue:194
+msgid "Checks outbound port 25, hostname resolution, reverse DNS, IP blacklists, listening ports and conflicting services. Fix failed items before sending mail."
+msgstr "检测出站 25 端口、主机名解析、反向解析、IP 黑名单、监听端口和冲突服务。发信前请先修复失败项。"
+
+#: src/views/apps/stalwart/StatusView.vue:206
+msgid "Run Check"
+msgstr "开始检测"
+
+#: src/views/apps/stalwart/StatusView.vue:224
+#: src/views/project/CreateModal.vue:352
+#: src/views/project/ListView.vue:187
+#: src/views/website/BulkCreateModal.vue:62
+#: src/views/website/CreateModal.vue:29
+#: src/views/website/EditModal.vue:128
+#: src/views/website/IndexView.vue:26
+#: src/views/website/ListView.vue:128
+msgid "Reverse Proxy"
+msgstr "反向代理"
+
+#: src/views/apps/stalwart/StatusView.vue:228
+msgid "The Stalwart admin UI, client autoconfig and MTA-STS policy are served over plain HTTP on 127.0.0.1:%{ port } and are not exposed directly. The panel can create one reverse proxy website covering all hostnames below and point it to http://127.0.0.1:%{ port }. Mail protocols (25, 465, 587, 993) are served by Stalwart directly and do not go through it."
+msgstr "Stalwart 管理后台、客户端自动配置和 MTA-STS 策略通过明文 HTTP 监听在 127.0.0.1:%{ port }，不直接对外。面板可以创建一个覆盖下方全部主机名的反向代理网站并指向 http://127.0.0.1:%{ port }。邮件协议（25、465、587、993）由 Stalwart 直接提供，不经过反代。"
+
+#: src/views/apps/stalwart/StatusView.vue:242
+msgid "Website %{ name } exists but is missing hostnames for newly added domains: %{ domains }"
+msgstr "网站 %{ name } 已存在，但缺少新增域名的主机名：%{ domains }"
+
+#: src/views/apps/stalwart/StatusView.vue:250
+msgid "Website %{ name } covers all hostnames above"
+msgstr "网站 %{ name } 已覆盖上方全部主机名"
+
+#: src/views/apps/stalwart/StatusView.vue:263
+msgid "Sync Hostnames"
+msgstr "同步主机名"
+
+#: src/views/apps/stalwart/StatusView.vue:266
+msgid "Open Website Management"
+msgstr "打开网站管理"
+
+#: src/views/apps/stalwart/StatusView.vue:276
+msgid "Select a certificate covering the hostnames above"
+msgstr "选择一张覆盖上方主机名的证书"
+
+#: src/views/apps/stalwart/StatusView.vue:282
+msgid "The certificate is deployed to the website with HTTPS enabled and, if the mail server has no certificate yet, also bound to it for SMTP and IMAP."
+msgstr "证书会部署到该网站并开启 HTTPS；如果邮件服务器还没有绑定证书，也会一并绑定供 SMTP 和 IMAP 使用。"
+
+#: src/views/apps/stalwart/StatusView.vue:294
+#: src/views/website/CreateModal.vue:79
+msgid "Create Reverse Proxy Website"
+msgstr "创建反向代理网站"
+
 #: src/views/apps/supervisor/IndexView.vue:81
 #: src/views/container/ContainerCreate.vue:85
 msgid "Always"
@@ -7082,11 +7633,6 @@ msgstr "恢复备份"
 msgid "Private Key"
 msgstr "私钥"
 
-#: src/views/backup/StorageView.vue:88
-#: src/views/container/ContainerInfoModal.vue:118
-msgid "Created At"
-msgstr "创建于"
-
 #: src/views/backup/StorageView.vue:122
 msgid "Are you sure you want to delete this storage?"
 msgstr "您确定要删除此存储吗？"
@@ -7182,24 +7728,6 @@ msgstr "输入路径（可选）"
 msgid "Enter host"
 msgstr "输入主机"
 
-#: src/views/backup/StorageView.vue:276
-#: src/views/backup/StorageView.vue:423
-#: src/views/database/CreateServerModal.vue:146
-#: src/views/database/UpdateServerModal.vue:75
-#: src/views/firewall/CreateModal.vue:156
-#: src/views/firewall/ForwardView.vue:34
-#: src/views/firewall/RuleView.vue:91
-#: src/views/firewall/ScanView.vue:302
-#: src/views/firewall/ScanView.vue:318
-#: src/views/firewall/ScanView.vue:383
-#: src/views/log/SSHLog.vue:83
-#: src/views/setting/SettingBase.vue:137
-#: src/views/ssh/CreateModal.vue:60
-#: src/views/ssh/UpdateModal.vue:66
-#: src/views/website/CreateModal.vue:164
-msgid "Port"
-msgstr "端口"
-
 #: src/views/backup/StorageView.vue:281
 #: src/views/backup/StorageView.vue:428
 msgid "Enter port"
@@ -7256,14 +7784,6 @@ msgstr "点击或将文件拖到此区域上传"
 #: src/views/backup/UploadModal.vue:44
 msgid "For large files, it is recommended to use SFTP or other methods to upload"
 msgstr "对于大文件，建议使用 SFTP 或其他方法上传"
-
-#: src/views/cert/AccountView.vue:40
-#: src/views/cert/AccountView.vue:213
-#: src/views/cert/CreateAccountModal.vue:96
-#: src/views/setting/CreateModal.vue:53
-#: src/views/setting/SettingUser.vue:42
-msgid "Email"
-msgstr "邮箱"
 
 #: src/views/cert/AccountView.vue:68
 #: src/views/cert/AccountView.vue:205
@@ -7347,16 +7867,6 @@ msgstr "输入 HMAC"
 #: src/views/cert/CertView.vue:141
 msgid "No matching websites found"
 msgstr "未找到匹配的网站"
-
-#: src/views/cert/CertView.vue:150
-#: src/views/cert/CertView.vue:529
-#: src/views/cert/CreateCertModal.vue:95
-#: src/views/project/ProxyForm.vue:11
-#: src/views/project/ProxyModal.vue:342
-#: src/views/website/CreateModal.vue:156
-#: src/views/website/EditModal.vue:984
-msgid "Domain"
-msgstr "域名"
 
 #: src/views/cert/CertView.vue:195
 #: src/views/file/ToolBar.vue:185
@@ -7867,10 +8377,6 @@ msgstr "静态 IP"
 #: src/views/container/ContainerCreate.vue:520
 msgid "Optional, requires a custom network with a subnet"
 msgstr "可选，需要使用带子网的自定义网络"
-
-#: src/views/container/ContainerCreate.vue:525
-msgid "Hostname"
-msgstr "主机名"
 
 #: src/views/container/ContainerCreate.vue:535
 msgid "Network Aliases"
@@ -9389,13 +9895,6 @@ msgstr "请键入新名称"
 msgid "Name cannot be empty"
 msgstr "名称不能为空"
 
-#: src/views/file/composables/usePaste.ts:139
-#: src/views/file/ListView.vue:312
-#: src/views/file/ListView.vue:865
-#: src/views/file/ListView.vue:914
-msgid "Warning"
-msgstr "警告"
-
 #: src/views/file/composables/usePaste.ts:140
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr "存在同名项目 %{ items } 是否要覆盖？"
@@ -9788,15 +10287,6 @@ msgstr "有效期"
 msgid "Download Limit"
 msgstr "下载次数限制"
 
-#: src/views/file/ShareModal.vue:156
-#: src/views/website/EditModal.vue:1619
-#: src/views/website/EditModal.vue:1634
-#: src/views/website/EditModal.vue:2098
-#: src/views/website/EditModal.vue:2111
-#: src/views/website/EditModal.vue:2124
-msgid "Unlimited"
-msgstr "无限制"
-
 #: src/views/file/ShareModal.vue:163
 msgid "Create Share Link"
 msgstr "创建分享链接"
@@ -9915,11 +10405,6 @@ msgstr "上传中"
 #: src/views/file/UploadModal.vue:84
 msgid "Paused"
 msgstr "已暂停"
-
-#: src/views/file/UploadModal.vue:87
-#: src/views/toolbox/MigrationView.vue:96
-msgid "Skipped"
-msgstr "已跳过"
 
 #: src/views/file/UploadModal.vue:137
 msgid "Progress"
@@ -10315,11 +10800,6 @@ msgstr "扫描感知已禁用"
 #: src/views/firewall/ScanView.vue:350
 msgid "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr "在设置标签页中启用扫描感知以开始检测端口扫描。"
-
-#: src/views/firewall/ScanView.vue:358
-#: src/views/website/StatsView.vue:233
-msgid "Overview"
-msgstr "概览"
 
 #: src/views/firewall/ScanView.vue:359
 msgid "Scan Events"
@@ -11106,10 +11586,6 @@ msgstr "登录账号"
 msgid "Login password or authorization code"
 msgstr "登录密码或授权码"
 
-#: src/views/monitor/ChannelModal.vue:126
-msgid "Sender"
-msgstr "发件人"
-
 #: src/views/monitor/ChannelModal.vue:129
 msgid "Defaults to the username"
 msgstr "默认与登录账号相同"
@@ -11117,11 +11593,6 @@ msgstr "默认与登录账号相同"
 #: src/views/monitor/ChannelModal.vue:132
 msgid "Sender Name"
 msgstr "发件人名称"
-
-#: src/views/monitor/ChannelModal.vue:135
-#: src/views/monitor/SettingView.vue:119
-msgid "Recipients"
-msgstr "收件人"
 
 #: src/views/monitor/ChannelModal.vue:138
 msgid "Skip Cert Verify"
@@ -11598,16 +12069,6 @@ msgstr "选择或输入用户"
 #: src/views/project/CreateModal.vue:347
 msgid "Select www user if no special requirements"
 msgstr "如果没有特殊要求，请选择 www 用户"
-
-#: src/views/project/CreateModal.vue:352
-#: src/views/project/ListView.vue:187
-#: src/views/website/BulkCreateModal.vue:62
-#: src/views/website/CreateModal.vue:29
-#: src/views/website/EditModal.vue:128
-#: src/views/website/IndexView.vue:26
-#: src/views/website/ListView.vue:128
-msgid "Reverse Proxy"
-msgstr "反向代理"
 
 #: src/views/project/CreateModal.vue:356
 msgid "Automatically create a reverse proxy website for this project"
@@ -13388,11 +13849,6 @@ msgstr "警告：格式化将清除所有数据！"
 msgid "Filesystem Type"
 msgstr "文件系统类型"
 
-#: src/views/toolbox/DiskView.vue:749
-#: src/views/toolbox/DiskView.vue:775
-msgid "Initialize"
-msgstr "初始化"
-
 #: src/views/toolbox/DiskView.vue:753
 msgid "Warning: This will delete all partitions and create a single partition. All data will be lost!"
 msgstr "警告：这将删除所有分区并创建一个单分区。所有数据将丢失！"
@@ -14628,10 +15084,6 @@ msgstr "端口：网站的端口号，多个端口可以用英文逗号分隔。
 msgid "Remark: The remark of the website, can be empty."
 msgstr "备注：网站的备注，可以为空。"
 
-#: src/views/website/CreateModal.vue:79
-msgid "Create Reverse Proxy Website"
-msgstr "创建反向代理网站"
-
 #: src/views/website/CreateModal.vue:81
 msgid "Create PHP Website"
 msgstr "创建 PHP 网站"
@@ -15108,10 +15560,6 @@ msgstr "添加代理规则"
 #: src/views/website/EditModal.vue:1783
 msgid "Certificate Validity"
 msgstr "证书有效期"
-
-#: src/views/website/EditModal.vue:1797
-msgid "Domains"
-msgstr "域名"
 
 #: src/views/website/EditModal.vue:1806
 msgid "Main Switch"
