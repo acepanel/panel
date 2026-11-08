@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-08 14:07\n"
+"PO-Revision-Date: 2026-11-08 17:02\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -27,15 +27,47 @@ msgstr "%d 个证书续签失败"
 msgid "%d images"
 msgstr "%d 个镜像"
 
+#: internal/apps/stalwart/check.go:107
+msgid "%s does not resolve, add an A record pointing to this server"
+msgstr "%s 无法解析，请添加指向本服务器的 A 记录"
+
 #: internal/biz/database.go:167
 #: internal/biz/database.go:268
 #: internal/biz/database.go:276
 msgid "%s does not support database comment"
 msgstr "%s 不支持数据库注释"
 
+#: internal/apps/stalwart/check.go:140
+msgid "%s has no PTR record"
+msgstr "%s 没有 PTR 记录"
+
 #: internal/biz/alert.go:903
 msgid "%s is %s, %s threshold %s"
 msgstr "%s 为 %s，%s阈值 %s"
+
+#: internal/apps/stalwart/check.go:233
+msgid "%s is running and may compete for mail ports, stop and disable it"
+msgstr "%s 正在运行，可能会抢占邮件端口，请停止并禁用"
+
+#: internal/apps/stalwart/check.go:145
+msgid "%s points to %s"
+msgstr "%s 指向 %s"
+
+#: internal/apps/stalwart/check.go:143
+msgid "%s points to %s instead of %s"
+msgstr "%s 指向 %s 而不是 %s"
+
+#: internal/apps/stalwart/check.go:117
+msgid "%s resolves to %s"
+msgstr "%s 解析到 %s"
+
+#: internal/apps/stalwart/check.go:112
+msgid "%s resolves to %s, but the panel does not know this server's public IP to compare"
+msgstr "%s 解析到 %s，但面板不知道本服务器的公网 IP，无法比对"
+
+#: internal/apps/stalwart/check.go:121
+msgid "%s resolves to %s, which does not match this server's public IP %s"
+msgstr "%s 解析到 %s，与本服务器的公网 IP %s 不一致"
 
 #: pkg/tui/tui.go:170
 msgid "(comma separated)"
@@ -412,6 +444,10 @@ msgstr "CPU 使用率"
 msgid "Calendar is a library for handling dates"
 msgstr "Calendar 是一个用于处理日期的库"
 
+#: internal/apps/stalwart/check.go:93
+msgid "Cannot connect to any remote mail server on port 25. Most cloud providers block it by default; configure an outbound relay in settings or ask your provider to unblock it"
+msgstr "无法通过 25 端口连接任何远程邮件服务器。多数云厂商默认封禁该端口，请在设置中配置出站中继，或联系服务商解封"
+
 #: internal/job/cert_renew.go:184
 #: internal/request/attributes.go:25
 msgid "Certificate"
@@ -537,9 +573,17 @@ msgstr "配置"
 msgid "Config Reload Success"
 msgstr "配置重载成功"
 
+#: internal/apps/stalwart/check.go:220
+msgid "Conflicting mail services"
+msgstr "冲突的邮件服务"
+
 #: internal/apps/redis/app.go:113
 msgid "Connected Clients"
 msgstr "已连接客户端数"
+
+#: internal/apps/stalwart/check.go:89
+msgid "Connected to %s, direct delivery is possible"
+msgstr "已连接到 %s，可以直接投递"
 
 #: internal/command/cutoff.go:40
 msgid "Container"
@@ -1329,6 +1373,10 @@ msgstr "主机"
 msgid "Hostname"
 msgstr "主机名"
 
+#: internal/apps/stalwart/check.go:98
+msgid "Hostname resolution"
+msgstr "主机名解析"
+
 #: internal/service/cert.go:70
 msgid "Huawei Cloud"
 msgstr "华为云"
@@ -1386,6 +1434,10 @@ msgstr "IP 列表"
 #: internal/request/attributes.go:71
 msgid "IP Max Keys"
 msgstr "IP 键最大值"
+
+#: internal/apps/stalwart/check.go:157
+msgid "IP blacklists"
+msgstr "IP 黑名单"
 
 #: internal/service/environment_php.go:229
 msgid "Idle Processes"
@@ -1597,6 +1649,10 @@ msgstr "网站关联的域名列表"
 msgid "List of listening addresses associated with the website"
 msgstr "网站关联的监听地址列表"
 
+#: internal/apps/stalwart/check.go:186
+msgid "Listed on %s, delivery to major providers will be rejected until delisted"
+msgstr "已被 %s 列入黑名单，解除前发往主流邮箱的邮件会被拒收"
+
 #: internal/request/attributes.go:83
 msgid "Listen Address"
 msgstr "监听地址"
@@ -1667,6 +1723,14 @@ msgstr "日志段字节数"
 #: internal/command/cutoff.go:16
 msgid "Log rotation"
 msgstr "日志轮转"
+
+#: internal/apps/stalwart/check.go:198
+msgid "Mail ports"
+msgstr "邮件端口"
+
+#: internal/apps/stalwart/check.go:101
+msgid "Mail server is not initialized"
+msgstr "邮件服务器尚未初始化"
 
 #: internal/service/environment_php.go:232
 msgid "Max Active Processes"
@@ -1877,6 +1941,14 @@ msgstr "未找到备份文件，无法自动修复"
 msgid "No matches"
 msgstr "无匹配项"
 
+#: internal/apps/stalwart/check.go:229
+msgid "No other mail service is running"
+msgstr "没有其他邮件服务在运行"
+
+#: internal/apps/stalwart/check.go:160
+msgid "No public IPv4 address to check"
+msgstr "没有可检测的公网 IPv4 地址"
+
 #: internal/apps/kafka/app.go:59
 msgid "Node ID"
 msgstr "节点 ID"
@@ -1890,6 +1962,14 @@ msgstr "未安装 Node.js 依赖；请安装依赖并手动启动项目"
 #: internal/service/environment_nodejs.go:82
 msgid "Node.js-%s is not installed"
 msgstr "Node.js-%s 未安装"
+
+#: internal/apps/stalwart/check.go:192
+msgid "Not listed on %s"
+msgstr "未被 %s 列入黑名单"
+
+#: internal/apps/stalwart/check.go:189
+msgid "Not listed on the blacklists that answered; %s refused the query from this resolver"
+msgstr "已应答的黑名单均未列入；%s 拒绝了来自当前解析器的查询"
 
 #: internal/service/home.go:271
 msgid "Not used"
@@ -1999,6 +2079,10 @@ msgstr "Oracle 兼容函数"
 msgid "Order"
 msgstr "排序方向"
 
+#: internal/apps/stalwart/check.go:77
+msgid "Outbound port 25"
+msgstr "出站 25 端口"
+
 #: internal/service/cli.go:1651
 msgid "Output"
 msgstr "输出"
@@ -2051,6 +2135,10 @@ msgstr "PHP-%d 未安装"
 #: internal/request/attributes.go:114
 msgid "PID"
 msgstr "PID"
+
+#: internal/apps/stalwart/check.go:151
+msgid "PTR records are set in your cloud provider's console, not in your DNS zone"
+msgstr "PTR 记录需要在云厂商控制台设置，而不是在 DNS 解析里"
 
 #: internal/request/attributes.go:115
 msgid "Page"
@@ -2156,7 +2244,7 @@ msgstr "请输入新密码： "
 msgid "Please enter the password: "
 msgstr "请输入密码： "
 
-#: internal/biz/cert.go:272
+#: internal/biz/cert.go:273
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr "请先在设置中设置面板 IP 以生成 ACME 证书"
 
@@ -2224,6 +2312,14 @@ msgstr "端口：%d"
 #: internal/service/cli.go:713
 msgid "Port: %d-%d, Protocol: %s, Strategy: %s, Direction: %s, Address: %s"
 msgstr "端口：%d-%d，协议：%s，策略：%s，方向：%s，地址：%s"
+
+#: internal/apps/stalwart/check.go:215
+msgid "Ports %s are not listening, check the service status and log"
+msgstr "端口 %s 未在监听，请检查服务状态与日志"
+
+#: internal/apps/stalwart/check.go:211
+msgid "Ports 25, 465 and 993 are listening locally; make sure they are open in the firewall and security group"
+msgstr "25、465、993 端口已在本机监听，请确认防火墙与安全组已放行"
 
 #: internal/apps/prometheus/app.go:425
 msgid "PostgreSQL database metrics"
@@ -2390,6 +2486,10 @@ msgstr "上报失败的计划任务，由任务包装脚本调用"
 msgid "Requests/sec"
 msgstr "每秒请求"
 
+#: internal/apps/stalwart/check.go:129
+msgid "Requires an initialized server and a known public IP"
+msgstr "需要已初始化的服务器和已知的公网 IP"
+
 #: internal/apps/mongodb/app.go:105
 msgid "Resident Memory (MB)"
 msgstr "常驻内存（MB）"
@@ -2417,6 +2517,10 @@ msgstr "恢复面板备份（恢复后面板自动重启）"
 #: internal/command/restore.go:20
 msgid "Restore website backup"
 msgstr "恢复网站备份"
+
+#: internal/apps/stalwart/check.go:126
+msgid "Reverse DNS (PTR)"
+msgstr "反向解析 (PTR)"
 
 #: internal/apps/mysql/app.go:112
 msgid "Rollbacks per Second"
@@ -2627,6 +2731,10 @@ msgstr "源面板"
 #: internal/apps/postgresql/app.go:913
 msgid "Spatial and geographic objects support"
 msgstr "支持空间和地理对象"
+
+#: internal/apps/stalwart/proxy.go:111
+msgid "Stalwart mail server reverse proxy"
+msgstr "Stalwart 邮件服务反向代理"
 
 #: internal/request/attributes.go:157
 msgid "Start"
@@ -3420,6 +3528,18 @@ msgstr "告警规则已更新"
 msgid "alert rule viewed"
 msgstr "已查看告警规则"
 
+#: internal/apps/stalwart/account.go:53
+msgid "alias %s is the same as the account address"
+msgstr "别名 %s 与账户地址相同"
+
+#: internal/apps/stalwart/account.go:46
+msgid "alias %s must be a full email address"
+msgstr "别名 %s 必须是完整的邮箱地址"
+
+#: internal/apps/stalwart/account.go:50
+msgid "alias domain %s is not managed by this mail server"
+msgstr "别名域名 %s 不由本邮件服务器管理"
+
 #: internal/biz/app.go:203
 msgid "app %s already installed"
 msgstr "应用 %s 已安装"
@@ -3601,6 +3721,7 @@ msgstr "应用密码已更新"
 #: internal/apps/mysql/app.go:237
 #: internal/apps/pgadmin/app.go:131
 #: internal/apps/postgresql/app.go:235
+#: internal/apps/stalwart/app.go:392
 msgid "app password viewed"
 msgstr "已查看应用密码"
 
@@ -3662,9 +3783,9 @@ msgstr "后台任务未能完成"
 msgid "background task failed"
 msgstr "后台任务执行失败"
 
-#: internal/biz/setting.go:237
-#: internal/biz/setting.go:303
-#: internal/biz/setting.go:319
+#: internal/biz/setting.go:242
+#: internal/biz/setting.go:308
+#: internal/biz/setting.go:324
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
@@ -3806,7 +3927,7 @@ msgstr "证书已创建"
 msgid "cert deleted"
 msgstr "证书已删除"
 
-#: internal/biz/cert.go:441
+#: internal/biz/cert.go:444
 msgid "cert deployed"
 msgstr "证书已部署"
 
@@ -3830,15 +3951,19 @@ msgstr "证书 DNS 已更新"
 msgid "cert dns viewed"
 msgstr "已查看证书 DNS"
 
+#: internal/biz/cert_hook.go:32
+msgid "cert hook failed"
+msgstr "证书钩子执行失败"
+
 #: internal/service/cert.go:134
 msgid "cert list viewed"
 msgstr "已查看证书列表"
 
-#: internal/biz/cert.go:258
+#: internal/biz/cert.go:259
 msgid "cert obtained"
 msgstr "证书已签发"
 
-#: internal/biz/cert.go:397
+#: internal/biz/cert.go:400
 msgid "cert renewed"
 msgstr "证书已续签"
 
@@ -4188,7 +4313,7 @@ msgid "default site is not supported by the current web server"
 msgstr "当前 Web 服务器不支持默认网站"
 
 #: internal/biz/cert.go:247
-#: internal/biz/cert.go:387
+#: internal/biz/cert.go:389
 msgid "deploying certificate to website"
 msgstr "部署证书到网站"
 
@@ -4231,6 +4356,10 @@ msgstr "磁盘写入速率"
 #: internal/data/website.go:1558
 msgid "domain %s is already used by website %s"
 msgstr "域名 %s 已被网站 %s 使用"
+
+#: internal/apps/stalwart/account.go:146
+msgid "domain not found"
+msgstr "域名不存在"
 
 #: internal/data/app.go:119
 msgid "download callback failed"
@@ -4422,6 +4551,10 @@ msgstr "备份面板失败"
 msgid "failed to backup panel before update"
 msgstr "更新前备份面板失败"
 
+#: internal/apps/stalwart/proxy.go:148
+msgid "failed to bind certificate to mail server: %v"
+msgstr "绑定证书到邮件服务器失败：%v"
+
 #: internal/data/ssh.go:105
 #: internal/data/ssh.go:75
 msgid "failed to check ssh connection: %v"
@@ -4478,6 +4611,10 @@ msgstr "清除僵尸任务失败"
 #: internal/biz/alert.go:351
 msgid "failed to collect alert metric"
 msgstr "采集告警指标失败"
+
+#: internal/apps/stalwart/app.go:363
+msgid "failed to configure mail server proxy headers"
+msgstr "配置邮件服务器反代头失败"
 
 #: internal/biz/toolbox_migration_push.go:35
 #: internal/biz/toolbox_migration_push.go:43
@@ -4609,7 +4746,7 @@ msgstr "禁用 %s 服务失败：%v"
 msgid "failed to disable expired website"
 msgstr "停用到期网站失败"
 
-#: internal/biz/setting.go:204
+#: internal/biz/setting.go:209
 #: internal/job/panel_task.go:225
 msgid "failed to download ipdb"
 msgstr "下载 ipdb 失败"
@@ -4663,7 +4800,7 @@ msgstr "生成 SSH 密钥失败：%v"
 msgid "failed to generate self-signed certificate"
 msgstr "生成自签名证书失败"
 
-#: internal/biz/setting.go:226
+#: internal/biz/setting.go:231
 msgid "failed to generate self-signed certificate: %v"
 msgstr "生成自签名证书失败：%v"
 
@@ -4965,8 +5102,8 @@ msgid "failed to parse SMART info: %v"
 msgstr "解析 SMART 信息失败：%v"
 
 #: internal/biz/cert.go:104
-#: internal/biz/setting.go:244
-#: internal/biz/setting.go:322
+#: internal/biz/setting.go:249
+#: internal/biz/setting.go:327
 #: internal/data/website.go:1254
 #: internal/data/website.go:870
 msgid "failed to parse certificate: %v"
@@ -4990,8 +5127,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登录页面失败"
 
 #: internal/biz/cert.go:107
-#: internal/biz/setting.go:247
-#: internal/biz/setting.go:325
+#: internal/biz/setting.go:252
+#: internal/biz/setting.go:330
 #: internal/data/website.go:1257
 #: internal/data/website.go:873
 msgid "failed to parse private key: %v"
@@ -5886,7 +6023,7 @@ msgstr "无效的用户ID，请重新登录"
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）"
 
-#: internal/biz/setting.go:206
+#: internal/biz/setting.go:211
 msgid "ipdb downloaded"
 msgstr "ipdb 已下载"
 
@@ -5946,6 +6083,115 @@ msgstr "日志已清理"
 #: internal/service/toolbox_disk.go:311
 msgid "lvm info viewed"
 msgstr "已查看 LVM 信息"
+
+#: internal/apps/stalwart/account.go:172
+msgid "mail account created"
+msgstr "邮箱账户已创建"
+
+#: internal/apps/stalwart/account.go:281
+msgid "mail account deleted"
+msgstr "邮箱账户已删除"
+
+#: internal/apps/stalwart/account.go:119
+msgid "mail account list viewed"
+msgstr "已查看邮箱账户列表"
+
+#: internal/apps/stalwart/account.go:250
+msgid "mail account password updated"
+msgstr "邮箱账户密码已更新"
+
+#: internal/apps/stalwart/account.go:215
+msgid "mail account updated"
+msgstr "邮箱账户已更新"
+
+#: internal/apps/stalwart/domain.go:177
+msgid "mail domain catch-all updated"
+msgstr "邮件域名兜底地址已更新"
+
+#: internal/apps/stalwart/domain.go:86
+msgid "mail domain created"
+msgstr "邮件域名已创建"
+
+#: internal/apps/stalwart/domain.go:142
+msgid "mail domain deleted"
+msgstr "邮件域名已删除"
+
+#: internal/apps/stalwart/dns.go:308
+msgid "mail domain dns records published"
+msgstr "邮件域名 DNS 记录已发布"
+
+#: internal/apps/stalwart/dns.go:223
+msgid "mail domain dns viewed"
+msgstr "已查看邮件域名 DNS 记录"
+
+#: internal/apps/stalwart/domain.go:54
+msgid "mail domain list viewed"
+msgstr "已查看邮件域名列表"
+
+#: internal/apps/stalwart/queue.go:155
+msgid "mail queue message deleted"
+msgstr "邮件队列消息已删除"
+
+#: internal/apps/stalwart/queue.go:128
+msgid "mail queue message retried"
+msgstr "邮件队列消息已重试"
+
+#: internal/apps/stalwart/queue.go:86
+msgid "mail queue viewed"
+msgstr "已查看邮件队列"
+
+#: internal/apps/stalwart/setting.go:162
+msgid "mail server cert bound"
+msgstr "邮件服务器证书已绑定"
+
+#: internal/apps/stalwart/setting.go:226
+msgid "mail server cert synced"
+msgstr "邮件服务器证书已同步"
+
+#: internal/apps/stalwart/setting.go:139
+msgid "mail server cert unbound"
+msgstr "邮件服务器证书已解绑"
+
+#: internal/apps/stalwart/app.go:264
+msgid "mail server did not return administrator credentials"
+msgstr "邮件服务器未返回管理员账号密码"
+
+#: internal/apps/stalwart/setting.go:116
+msgid "mail server hostname updated"
+msgstr "邮件服务器主机名已更新"
+
+#: internal/apps/stalwart/app.go:308
+msgid "mail server initialized"
+msgstr "邮件服务器已初始化"
+
+#: internal/apps/stalwart/app.go:209
+msgid "mail server is already initialized"
+msgstr "邮件服务器已经初始化过了"
+
+#: internal/apps/stalwart/app.go:117
+#: internal/apps/stalwart/app.go:388
+msgid "mail server is not initialized"
+msgstr "邮件服务器尚未初始化"
+
+#: internal/apps/stalwart/setting.go:280
+msgid "mail server listeners updated"
+msgstr "邮件服务器监听端口已更新"
+
+#: internal/apps/stalwart/proxy.go:156
+msgid "mail server proxy website synced"
+msgstr "邮件服务器反代网站已同步"
+
+#: internal/apps/stalwart/setting.go:375
+msgid "mail server relay updated"
+msgstr "邮件服务器出站中继已更新"
+
+#: internal/apps/stalwart/check.go:72
+msgid "mail server self check performed"
+msgstr "已执行邮件服务器自检"
+
+#: internal/apps/stalwart/setting.go:47
+msgid "mail server settings viewed"
+msgstr "已查看邮件服务器设置"
 
 #: internal/service/toolbox_migration.go:155
 msgid "marshal migration progress error"
@@ -6167,6 +6413,10 @@ msgstr "未在目标端找到匹配的数据库服务器"
 msgid "no migration logs available"
 msgstr "暂无迁移日志"
 
+#: internal/apps/stalwart/dns.go:296
+msgid "no records selected"
+msgstr "未选择任何记录"
+
 #: internal/service/firewall.go:280
 msgid "no rules found in file"
 msgstr "文件中未找到规则"
@@ -6229,7 +6479,7 @@ msgid "ntp servers viewed"
 msgstr "已查看 NTP 服务器"
 
 #: internal/biz/cert.go:237
-#: internal/biz/cert.go:377
+#: internal/biz/cert.go:379
 msgid "obtaining and saving certificate"
 msgstr "获取并保存证书"
 
@@ -6323,7 +6573,7 @@ msgstr "面板自签名证书已续签"
 msgid "panel service file is missing"
 msgstr "面板服务文件丢失"
 
-#: internal/biz/setting.go:312
+#: internal/biz/setting.go:317
 msgid "panel settings updated"
 msgstr "面板设置已更新"
 
@@ -6520,9 +6770,13 @@ msgstr "请填写源面板 API 密钥"
 msgid "please select at least one migration resource"
 msgstr "请至少选择一个迁移资源"
 
-#: internal/biz/setting.go:265
+#: internal/biz/setting.go:270
 msgid "port is already in use"
 msgstr "端口已被占用"
+
+#: internal/apps/stalwart/app.go:220
+msgid "ports %s are occupied by other programs, please stop them first"
+msgstr "端口 %s 已被其他程序占用，请先停止它们"
 
 #: internal/apps/postgresql/app.go:488
 msgid "postgresql extension enabled"
@@ -6552,7 +6806,7 @@ msgstr "已查看 PostgreSQL 会话列表"
 msgid "postgresql session terminated"
 msgstr "PostgreSQL 会话已终止"
 
-#: internal/biz/cert.go:319
+#: internal/biz/cert.go:321
 msgid "preparing renewal"
 msgstr "准备续签"
 
@@ -6669,6 +6923,10 @@ msgstr "已查看 RAID 信息"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一个用于连接 Apache Kafka 的库"
 
+#: internal/apps/stalwart/app.go:136
+msgid "recovery credential not found in %s, please reinstall the app"
+msgstr "在 %s 中找不到引导凭据，请重新安装应用"
+
 #: internal/biz/database_redis.go:100
 msgid "redis database cleared"
 msgstr "Redis 数据库已清空"
@@ -6697,15 +6955,19 @@ msgstr "Redis 键 TTL 已更新"
 msgid "redis key viewed"
 msgstr "已查看 Redis 键"
 
+#: internal/apps/stalwart/setting.go:338
+msgid "relay password is required"
+msgstr "请填写中继密码"
+
 #: internal/service/file.go:557
 msgid "remote download task created"
 msgstr "远程下载任务已创建"
 
-#: internal/biz/cert.go:368
+#: internal/biz/cert.go:370
 msgid "renewal failed, attempting re-issuance"
 msgstr "续签失败，尝试重新签发"
 
-#: internal/biz/cert.go:360
+#: internal/biz/cert.go:362
 msgid "renewing certificate, domains: %s"
 msgstr "续签证书，域名：%s"
 
@@ -6810,7 +7072,7 @@ msgstr "已查看扫描事件列表"
 msgid "scan events cleared"
 msgstr "扫描事件已清除"
 
-#: internal/biz/cert.go:307
+#: internal/biz/cert.go:309
 msgid "self-signed cert generated"
 msgstr "自签名证书已生成"
 
@@ -7226,6 +7488,10 @@ msgstr "已查看模板"
 msgid "terminal session opened"
 msgstr "已打开终端会话"
 
+#: internal/apps/stalwart/account.go:273
+msgid "the administrator account used by the panel cannot be deleted"
+msgstr "面板使用的管理员账户不能删除"
+
 #: internal/data/toolbox_migration_remote.go:238
 msgid "the connection to the target server was interrupted"
 msgstr "与目标服务器的连接已中断"
@@ -7241,6 +7507,10 @@ msgstr "当前版本是最新版本"
 #: internal/biz/toolbox_migration_import.go:126
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
 msgstr "数据库已导入，但无法获取源密码；请重置数据库用户密码并手动更新网站配置"
+
+#: internal/apps/stalwart/domain.go:115
+msgid "the default domain cannot be deleted"
+msgstr "默认域名不能删除"
 
 #: internal/biz/toolbox_migration_import.go:40
 #: internal/biz/toolbox_migration_import.go:62
@@ -7334,16 +7604,20 @@ msgstr "目标网站目录不为空"
 msgid "this 1Panel website type is not supported for automatic migration: %s"
 msgstr "不支持自动迁移此类 1Panel 网站：%s"
 
-#: internal/biz/cert.go:454
+#: internal/apps/stalwart/setting.go:150
+msgid "this certificate has not been obtained successfully"
+msgstr "该证书尚未签发成功"
+
+#: internal/biz/cert.go:457
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr "此证书尚未成功签发，无法部署"
 
-#: internal/biz/cert.go:331
+#: internal/biz/cert.go:333
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr "此证书尚未成功签发，无法续签"
 
 #: internal/biz/cert.go:212
-#: internal/biz/cert.go:345
+#: internal/biz/cert.go:347
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此证书未与任何网站关联，无法签发。您可以尝试使用手动签发"
 
@@ -7785,7 +8059,7 @@ msgid "websocket upgrade error"
 msgstr "WebSocket 升级错误"
 
 #: internal/biz/cert.go:218
-#: internal/biz/cert.go:349
+#: internal/biz/cert.go:351
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "通配符域名不能使用 HTTP 验证"
 
