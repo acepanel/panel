@@ -259,5 +259,4 @@ func init() {
 			return tx.Migrator().DropTable(&biz.FileFavorite{})
 		},
 	})
-
 }

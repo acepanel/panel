@@ -123,7 +123,7 @@ func (s *WebHookService) Call(w http.ResponseWriter, r *http.Request) {
 		if webhook.Raw {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(output))
+			_, _ = w.Write([]byte(output)) //nolint:gosec // 脚本输出按纯文本返回，不会被当作 HTML 渲染
 			return
 		}
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -132,7 +132,7 @@ func (s *WebHookService) Call(w http.ResponseWriter, r *http.Request) {
 
 	if webhook.Raw {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = w.Write([]byte(output))
+		_, _ = w.Write([]byte(output)) //nolint:gosec // 脚本输出按纯文本返回，不会被当作 HTML 渲染
 		return
 	}
 
