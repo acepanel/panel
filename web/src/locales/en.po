@@ -329,6 +329,12 @@ msgstr "Cannot save in current state"
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:75
 #: src/views/apps/rsync/IndexView.vue:139
 #: src/views/apps/rsync/IndexView.vue:194
+#: src/views/apps/stalwart/AccountView.vue:234
+#: src/views/apps/stalwart/DomainView.vue:322
+#: src/views/apps/stalwart/SettingView.vue:64
+#: src/views/apps/stalwart/SettingView.vue:76
+#: src/views/apps/stalwart/SettingView.vue:87
+#: src/views/apps/stalwart/SettingView.vue:100
 #: src/views/apps/supervisor/IndexView.vue:236
 #: src/views/apps/supervisor/IndexView.vue:330
 #: src/views/apps/supervisor/IndexView.vue:345
@@ -386,6 +392,7 @@ msgstr "Select File"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:26
 #: src/views/apps/redis/RedisPerformanceView.vue:42
 #: src/views/apps/rsync/IndexView.vue:46 src/views/apps/rsync/IndexView.vue:261
+#: src/views/apps/stalwart/DomainView.vue:201
 #: src/views/apps/supervisor/IndexView.vue:90
 #: src/views/apps/supervisor/IndexView.vue:430 src/views/backup/ListView.vue:46
 #: src/views/backup/StorageView.vue:67 src/views/backup/StorageView.vue:216
@@ -437,7 +444,8 @@ msgstr "Owner / Group"
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:93
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:144
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:102
-#: src/views/backup/ListView.vue:67 src/views/container/ImageView.vue:82
+#: src/views/apps/stalwart/QueueView.vue:98 src/views/backup/ListView.vue:67
+#: src/views/container/ImageView.vue:82
 #: src/views/database/ElasticsearchDataView.vue:113
 #: src/views/database/RedisDataView.vue:117 src/views/file/ListView.vue:1492
 #: src/views/file/PropertyModal.vue:31 src/views/file/ToolBar.vue:153
@@ -644,6 +652,8 @@ msgstr "Connection error. Please refresh."
 #: src/views/apps/mongodb/IndexView.vue:76
 #: src/views/apps/mysql/MysqlIndex.vue:111
 #: src/views/apps/postgresql/IndexView.vue:146
+#: src/views/apps/stalwart/DomainView.vue:221
+#: src/views/apps/stalwart/SettingView.vue:120
 #: src/views/database/ServerList.vue:103 src/views/database/UserList.vue:53
 #: src/views/file/composables/usePaste.ts:30
 #: src/views/setting/TokenModal.vue:168
@@ -675,6 +685,7 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:710 src/views/app/AppView.vue:245
 #: src/views/app/EnvironmentView.vue:266 src/views/app/TemplateView.vue:104
+#: src/views/apps/stalwart/AccountView.vue:283
 #: src/views/container/ContainerView.vue:655
 #: src/views/database/ElasticsearchDataView.vue:316
 #: src/views/database/IndexView.vue:199
@@ -901,6 +912,7 @@ msgstr "Autostart disabled successfully"
 #: src/views/apps/redis/IndexView.vue:62
 #: src/views/apps/rocketmq/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:208
+#: src/views/apps/stalwart/IndexView.vue:46
 #: src/views/apps/supervisor/IndexView.vue:362
 #: src/views/apps/valkey/IndexView.vue:62
 #: src/views/container/ContainerView.vue:119
@@ -966,7 +978,8 @@ msgstr "Waiting"
 msgid "Completed"
 msgstr "Completed"
 
-#: src/components/common/TaskWindow.vue:30 src/views/file/UploadModal.vue:86
+#: src/components/common/TaskWindow.vue:30
+#: src/views/apps/stalwart/StatusView.vue:63 src/views/file/UploadModal.vue:86
 #: src/views/log/SSHLog.vue:46 src/views/project/ListView.vue:51
 #: src/views/task/TaskView.vue:45 src/views/toolbox/MigrationView.vue:95
 msgid "Failed"
@@ -1193,6 +1206,11 @@ msgstr ""
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:178
 #: src/views/apps/rsync/IndexView.vue:249
 #: src/views/apps/rsync/IndexView.vue:370
+#: src/views/apps/stalwart/AccountView.vue:396
+#: src/views/apps/stalwart/DomainView.vue:406
+#: src/views/apps/stalwart/SettingView.vue:151
+#: src/views/apps/stalwart/SettingView.vue:173
+#: src/views/apps/stalwart/SettingView.vue:279
 #: src/views/apps/supervisor/IndexView.vue:403
 #: src/views/apps/supervisor/IndexView.vue:561
 #: src/views/apps/supervisor/IndexView.vue:575
@@ -1360,6 +1378,7 @@ msgstr ""
 #: src/views/apps/redis/RedisPerformanceView.vue:130
 #: src/views/apps/redis/RedisPerformanceView.vue:149
 #: src/views/apps/redis/RedisPerformanceView.vue:165
+#: src/views/apps/stalwart/QueueView.vue:190
 #: src/views/environment/PHPView.vue:387 src/views/environment/PHPView.vue:408
 #: src/views/file/PathInput.vue:168 src/views/home/UpdateView.vue:178
 #: src/views/log/DatabaseLog.vue:180 src/views/log/HttpLog.vue:209
@@ -1420,9 +1439,9 @@ msgid "Toggle Minimap"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:260
-#: src/views/firewall/IndexView.vue:54 src/views/monitor/IndexView.vue:22
-#: src/views/ssh/IndexView.vue:530 src/views/tamper/TamperView.vue:231
-#: src/views/website/IndexView.vue:30
+#: src/views/apps/stalwart/IndexView.vue:62 src/views/firewall/IndexView.vue:54
+#: src/views/monitor/IndexView.vue:22 src/views/ssh/IndexView.vue:530
+#: src/views/tamper/TamperView.vue:231 src/views/website/IndexView.vue:30
 msgid "Settings"
 msgstr "Settings"
 
@@ -1662,6 +1681,9 @@ msgstr "Rename"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:88
 #: src/views/apps/rsync/IndexView.vue:112
+#: src/views/apps/stalwart/AccountView.vue:178
+#: src/views/apps/stalwart/DomainView.vue:145
+#: src/views/apps/stalwart/QueueView.vue:149
 #: src/views/apps/supervisor/IndexView.vue:212
 #: src/views/backup/ListView.vue:130 src/views/backup/ListView.vue:321
 #: src/views/backup/StorageView.vue:127 src/views/cert/AccountView.vue:114
@@ -1735,6 +1757,9 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:260
 #: src/views/apps/pureftpd/IndexView.vue:157
 #: src/views/apps/rsync/IndexView.vue:173 src/views/apps/s3fs/IndexView.vue:89
+#: src/views/apps/stalwart/AccountView.vue:256
+#: src/views/apps/stalwart/DomainView.vue:332
+#: src/views/apps/stalwart/QueueView.vue:169
 #: src/views/apps/supervisor/IndexView.vue:292
 #: src/views/backup/ListView.vue:213 src/views/backup/ListView.vue:225
 #: src/views/backup/StorageView.vue:185 src/views/container/ImageView.vue:157
@@ -1875,6 +1900,8 @@ msgstr "Switch Theme"
 #: src/layouts/header/components/UserAvatar.vue:14
 #: src/views/apps/pureftpd/IndexView.vue:72
 #: src/views/apps/pureftpd/IndexView.vue:258
+#: src/views/apps/stalwart/AccountView.vue:161
+#: src/views/apps/stalwart/AccountView.vue:400
 #: src/views/setting/PasswordModal.vue:38 src/views/setting/SettingUser.vue:134
 msgid "Change Password"
 msgstr "Change Password"
@@ -1896,10 +1923,11 @@ msgid "Logged out successfully!"
 msgstr "Logged out successfully!"
 
 #: src/layouts/header/components/UserAvatar.vue:49
-#: src/views/cert/DnsView.vue:62 src/views/firewall/IpRuleView.vue:79
-#: src/views/firewall/IpRuleView.vue:104 src/views/firewall/RuleView.vue:216
-#: src/views/firewall/RuleView.vue:241 src/views/project/ListView.vue:85
-#: src/views/toolbox/DiskView.vue:161 src/views/website/stats/GeoTab.vue:102
+#: src/views/apps/stalwart/DomainView.vue:174 src/views/cert/DnsView.vue:62
+#: src/views/firewall/IpRuleView.vue:79 src/views/firewall/IpRuleView.vue:104
+#: src/views/firewall/RuleView.vue:216 src/views/firewall/RuleView.vue:241
+#: src/views/project/ListView.vue:85 src/views/toolbox/DiskView.vue:161
+#: src/views/website/stats/GeoTab.vue:102
 #: src/views/website/stats/GeoTab.vue:104
 #: src/views/website/stats/GeoTab.vue:225
 #: src/views/website/stats/IPsTab.vue:100
@@ -1931,10 +1959,11 @@ msgstr "Apps"
 msgid "Backup"
 msgstr "Backup"
 
-#: src/locales/menu.ts:9 src/views/cert/CertView.vue:602
-#: src/views/cert/CertView.vue:709 src/views/cert/IndexView.vue:98
-#: src/views/cert/UploadCertModal.vue:38 src/views/log/OperationLog.vue:40
-#: src/views/setting/SettingSafe.vue:304 src/views/website/EditModal.vue:1854
+#: src/locales/menu.ts:9 src/views/apps/stalwart/StatusView.vue:272
+#: src/views/cert/CertView.vue:602 src/views/cert/CertView.vue:709
+#: src/views/cert/IndexView.vue:98 src/views/cert/UploadCertModal.vue:38
+#: src/views/log/OperationLog.vue:40 src/views/setting/SettingSafe.vue:304
+#: src/views/website/EditModal.vue:1854
 msgid "Certificate"
 msgstr "Certificate"
 
@@ -2077,6 +2106,9 @@ msgstr "App Name"
 #: src/views/app/InstalledView.vue:40 src/views/app/InstalledView.vue:166
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
+#: src/views/apps/stalwart/AccountView.vue:80
+#: src/views/apps/stalwart/AccountView.vue:327
+#: src/views/apps/stalwart/AccountView.vue:367
 #: src/views/environment/PHPView.vue:136 src/views/project/EditModal.vue:284
 #: src/views/project/ListView.vue:64
 msgid "Description"
@@ -2114,6 +2146,9 @@ msgstr "Show in Home"
 #: src/views/apps/pureftpd/IndexView.vue:54
 #: src/views/apps/redis/RedisPerformanceView.vue:58
 #: src/views/apps/rsync/IndexView.vue:83 src/views/apps/s3fs/IndexView.vue:36
+#: src/views/apps/stalwart/AccountView.vue:121
+#: src/views/apps/stalwart/DomainView.vue:100
+#: src/views/apps/stalwart/QueueView.vue:118
 #: src/views/apps/supervisor/IndexView.vue:118 src/views/backup/ListView.vue:85
 #: src/views/backup/StorageView.vue:96 src/views/cert/AccountView.vue:75
 #: src/views/cert/CertView.vue:282 src/views/cert/DnsView.vue:70
@@ -2302,6 +2337,7 @@ msgstr "Description"
 #: src/views/apps/phpmyadmin/IndexView.vue:67
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:53
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
+#: src/views/apps/stalwart/DomainView.vue:230
 #: src/views/apps/supervisor/IndexView.vue:97
 #: src/views/container/ComposeView.vue:88
 #: src/views/container/ContainerInfoModal.vue:110
@@ -2846,6 +2882,7 @@ msgid "Listen Host"
 msgstr "Specific Host"
 
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:79
+#: src/views/apps/stalwart/StatusView.vue:185
 #, fuzzy
 msgid "HTTP Port"
 msgstr "SSH Port"
@@ -2910,6 +2947,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:102
 #: src/views/apps/postgresql/IndexView.vue:137
 #: src/views/apps/pureftpd/IndexView.vue:147
+#: src/views/apps/stalwart/AccountView.vue:246
 #: src/views/database/DatabaseList.vue:118
 #: src/views/database/RedisDataView.vue:224
 #: src/views/database/ServerList.vue:277
@@ -2985,6 +3023,7 @@ msgstr ""
 #: src/views/apps/docker/IndexView.vue:73
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:91
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:219
+#: src/views/apps/stalwart/DomainView.vue:64
 #: src/views/website/EditModal.vue:1366
 #, fuzzy
 msgid "Default"
@@ -3321,7 +3360,8 @@ msgstr "Ban Time"
 msgid "Find Time"
 msgstr "Find Time"
 
-#: src/views/apps/fail2ban/IndexView.vue:95 src/views/cert/CertView.vue:348
+#: src/views/apps/fail2ban/IndexView.vue:95
+#: src/views/apps/stalwart/SettingView.vue:310 src/views/cert/CertView.vue:348
 #: src/views/database/ElasticsearchDataView.vue:187
 #: src/views/database/RedisDataView.vue:142
 msgid "View"
@@ -3352,6 +3392,8 @@ msgstr "Unban"
 #: src/views/apps/fail2ban/IndexView.vue:213
 #: src/views/apps/pureftpd/IndexView.vue:132
 #: src/views/apps/rsync/IndexView.vue:162 src/views/apps/s3fs/IndexView.vue:79
+#: src/views/apps/stalwart/AccountView.vue:215
+#: src/views/apps/stalwart/DomainView.vue:309
 #: src/views/apps/supervisor/IndexView.vue:261
 #: src/views/database/CreateServerModal.vue:83
 msgid "Added successfully"
@@ -3416,6 +3458,7 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:80
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:210
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:209
+#: src/views/apps/stalwart/DomainView.vue:184
 #: src/views/backup/StorageView.vue:74 src/views/backup/StorageView.vue:219
 #: src/views/backup/StorageView.vue:372 src/views/cert/CertView.vue:173
 #: src/views/cert/DnsView.vue:44 src/views/container/ContainerInfoModal.vue:157
@@ -3469,6 +3512,9 @@ msgstr "Protection Path"
 #: src/views/apps/pureftpd/IndexView.vue:255
 #: src/views/apps/pureftpd/IndexView.vue:278
 #: src/views/apps/rsync/IndexView.vue:320 src/views/apps/s3fs/IndexView.vue:174
+#: src/views/apps/stalwart/AccountView.vue:357
+#: src/views/apps/stalwart/AccountView.vue:431
+#: src/views/apps/stalwart/DomainView.vue:376
 #: src/views/apps/supervisor/IndexView.vue:473
 #: src/views/backup/ListView.vue:376 src/views/backup/ListView.vue:411
 #: src/views/backup/StorageView.vue:362 src/views/backup/StorageView.vue:506
@@ -3869,6 +3915,7 @@ msgstr "Filename"
 
 #: src/views/apps/frp/FrpProxyModal.vue:336
 #: src/views/apps/frp/FrpProxyModal.vue:349
+#: src/views/apps/stalwart/DomainView.vue:208
 #: src/views/container/ContainerCreate.vue:1071
 #: src/views/database/RedisKeyModal.vue:103
 #: src/views/toolbox/disk/SmartView.vue:207
@@ -4537,8 +4584,9 @@ msgstr "Select Directory"
 
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:113
 #: src/views/apps/nginx/NginxIndex.vue:203
-#: src/views/apps/nginx/NginxIndex.vue:267 src/views/backup/StorageView.vue:112
-#: src/views/container/ComposeView.vue:125
+#: src/views/apps/nginx/NginxIndex.vue:267
+#: src/views/apps/stalwart/AccountView.vue:144
+#: src/views/backup/StorageView.vue:112 src/views/container/ComposeView.vue:125
 #: src/views/container/ContainerView.vue:190 src/views/file/ListView.vue:405
 #: src/views/file/ListView.vue:1075 src/views/file/ListView.vue:1724
 #: src/views/monitor/AlertView.vue:112 src/views/monitor/SettingView.vue:152
@@ -4577,10 +4625,14 @@ msgstr "Access Log"
 #: src/views/apps/pureftpd/IndexView.vue:228
 #: src/views/apps/pureftpd/IndexView.vue:260
 #: src/views/apps/rsync/IndexView.vue:285
-#: src/views/apps/rsync/IndexView.vue:341 src/views/backup/StorageView.vue:36
-#: src/views/backup/StorageView.vue:295 src/views/backup/StorageView.vue:339
-#: src/views/backup/StorageView.vue:442 src/views/backup/StorageView.vue:483
-#: src/views/container/ImageView.vue:409
+#: src/views/apps/rsync/IndexView.vue:341
+#: src/views/apps/stalwart/AccountView.vue:316
+#: src/views/apps/stalwart/AccountView.vue:406
+#: src/views/apps/stalwart/SettingView.vue:253
+#: src/views/apps/stalwart/SettingView.vue:301
+#: src/views/backup/StorageView.vue:36 src/views/backup/StorageView.vue:295
+#: src/views/backup/StorageView.vue:339 src/views/backup/StorageView.vue:442
+#: src/views/backup/StorageView.vue:483 src/views/container/ImageView.vue:409
 #: src/views/database/CreateDatabaseModal.vue:120
 #: src/views/database/CreateServerModal.vue:170
 #: src/views/database/CreateUserModal.vue:116
@@ -5408,6 +5460,7 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:107
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:226
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:208
+#: src/views/apps/stalwart/SettingView.vue:231
 #: src/views/website/EditModal.vue:2152
 #, fuzzy
 msgid "Enable"
@@ -6273,7 +6326,7 @@ msgid "Slot Name"
 msgstr "Note Name"
 
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:211
-#: src/views/home/IndexView.vue:773
+#: src/views/apps/stalwart/DomainView.vue:168 src/views/home/IndexView.vue:773
 msgid "Active"
 msgstr "Active"
 
@@ -6469,6 +6522,9 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:40
 #: src/views/apps/pureftpd/IndexView.vue:220
+#: src/views/apps/stalwart/AccountView.vue:304
+#: src/views/apps/stalwart/SettingView.vue:250
+#: src/views/apps/stalwart/SettingView.vue:295
 #: src/views/backup/StorageView.vue:284 src/views/backup/StorageView.vue:333
 #: src/views/backup/StorageView.vue:431 src/views/backup/StorageView.vue:477
 #: src/views/container/ImageView.vue:401
@@ -6506,6 +6562,7 @@ msgid "Add User"
 msgstr "Add User"
 
 #: src/views/apps/pureftpd/IndexView.vue:213
+#: src/views/apps/stalwart/IndexView.vue:66
 msgid "Run Log"
 msgstr "Run Log"
 
@@ -6528,6 +6585,8 @@ msgstr "Enter username"
 
 #: src/views/apps/pureftpd/IndexView.vue:235
 #: src/views/apps/pureftpd/IndexView.vue:266
+#: src/views/apps/stalwart/AccountView.vue:323
+#: src/views/apps/stalwart/AccountView.vue:412
 msgid "It is recommended to use the generator to generate a random password"
 msgstr "It is recommended to use the generator to generate a random password"
 
@@ -6971,6 +7030,575 @@ msgstr "Mount Directory"
 msgid "Enter mount directory (e.g., /oss)"
 msgstr "Enter mount directory (e.g., /oss)"
 
+#: src/views/apps/stalwart/AccountView.vue:73
+#: src/views/apps/stalwart/AccountView.vue:364
+#: src/views/apps/stalwart/AccountView.vue:403
+#: src/views/cert/AccountView.vue:40 src/views/cert/AccountView.vue:213
+#: src/views/cert/CreateAccountModal.vue:96
+#: src/views/setting/CreateModal.vue:53 src/views/setting/SettingUser.vue:42
+msgid "Email"
+msgstr "Email"
+
+#: src/views/apps/stalwart/AccountView.vue:88
+msgid "Quota"
+msgstr ""
+
+#: src/views/apps/stalwart/AccountView.vue:96 src/views/file/ShareModal.vue:156
+#: src/views/website/EditModal.vue:1619 src/views/website/EditModal.vue:1634
+#: src/views/website/EditModal.vue:2098 src/views/website/EditModal.vue:2111
+#: src/views/website/EditModal.vue:2124
+msgid "Unlimited"
+msgstr ""
+
+#: src/views/apps/stalwart/AccountView.vue:100
+#: src/views/apps/stalwart/AccountView.vue:345
+#: src/views/apps/stalwart/AccountView.vue:385
+#, fuzzy
+msgid "Aliases"
+msgstr "Network Name"
+
+#: src/views/apps/stalwart/AccountView.vue:114
+#: src/views/apps/stalwart/DomainView.vue:93
+#: src/views/backup/StorageView.vue:88
+#: src/views/container/ContainerInfoModal.vue:118
+#, fuzzy
+msgid "Created At"
+msgstr "Create Host"
+
+#: src/views/apps/stalwart/AccountView.vue:170
+#, fuzzy
+msgid ""
+"Are you sure you want to delete mailbox %{ email }? All of its mail will be "
+"deleted."
+msgstr "Are you sure you want to delete mount %{ path }?"
+
+#: src/views/apps/stalwart/AccountView.vue:270
+#: src/views/apps/stalwart/AccountView.vue:301
+#, fuzzy
+msgid "Add Mailbox"
+msgstr "Add Mount"
+
+#: src/views/apps/stalwart/AccountView.vue:277
+#, fuzzy
+msgid "All domains"
+msgstr "Domains"
+
+#: src/views/apps/stalwart/AccountView.vue:312
+#, fuzzy
+msgid "Select domain"
+msgstr "Create Container"
+
+#: src/views/apps/stalwart/AccountView.vue:331
+#: src/views/apps/stalwart/AccountView.vue:371
+#: src/views/apps/stalwart/DomainView.vue:194
+#, fuzzy
+msgid "Optional"
+msgstr "Options"
+
+#: src/views/apps/stalwart/AccountView.vue:334
+#: src/views/apps/stalwart/AccountView.vue:374
+msgid "Quota (MB)"
+msgstr ""
+
+#: src/views/apps/stalwart/AccountView.vue:351
+msgid ""
+"Quota 0 means unlimited. Aliases must be full addresses under a domain "
+"managed here."
+msgstr ""
+
+#: src/views/apps/stalwart/AccountView.vue:361
+msgid "Edit Mailbox"
+msgstr ""
+
+#: src/views/apps/stalwart/AccountView.vue:419
+msgid ""
+"Changing the password signs out all clients and removes app passwords of "
+"this mailbox."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:52
+#: src/views/apps/stalwart/DomainView.vue:371 src/views/cert/CertView.vue:150
+#: src/views/cert/CertView.vue:529 src/views/cert/CreateCertModal.vue:95
+#: src/views/project/ProxyForm.vue:11 src/views/project/ProxyModal.vue:342
+#: src/views/website/CreateModal.vue:156 src/views/website/EditModal.vue:984
+msgid "Domain"
+msgstr "Domain"
+
+#: src/views/apps/stalwart/DomainView.vue:71
+#: src/views/apps/stalwart/DomainView.vue:380
+#, fuzzy
+msgid "Catch-all Address"
+msgstr "IP Address"
+
+#: src/views/apps/stalwart/DomainView.vue:79
+#, fuzzy
+msgid "Alias Domains"
+msgstr "Domains"
+
+#: src/views/apps/stalwart/DomainView.vue:114
+#, fuzzy
+msgid "DNS Records"
+msgstr "DNS Records to Set"
+
+#: src/views/apps/stalwart/DomainView.vue:127
+msgid "Catch-all"
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:137
+msgid ""
+"Are you sure you want to delete domain %{ name }? All mailboxes under this "
+"domain and their mail will be deleted as well."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:170
+msgid "Missing"
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:172
+#, fuzzy
+msgid "Mismatch"
+msgstr "Match Type"
+
+#: src/views/apps/stalwart/DomainView.vue:194
+#, fuzzy
+msgid "Required"
+msgstr "Add Server"
+
+#: src/views/apps/stalwart/DomainView.vue:218
+msgid "Click to copy"
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:242
+#, fuzzy
+msgid "Current value: %{ value }"
+msgstr "Current DNS manager: %{ manager }"
+
+#: src/views/apps/stalwart/DomainView.vue:293
+#, fuzzy
+msgid "%{ count } records added"
+msgstr "Mount Path"
+
+#: src/views/apps/stalwart/DomainView.vue:345
+#: src/views/apps/stalwart/DomainView.vue:361
+#, fuzzy
+msgid "Add Domain"
+msgstr "Bind Domain"
+
+#: src/views/apps/stalwart/DomainView.vue:365
+msgid ""
+"DKIM keys are generated automatically. After adding, open DNS Records to "
+"publish the MX, SPF, DKIM and DMARC records."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:384
+msgid ""
+"Mail sent to addresses that do not exist under %{ domain } will be delivered "
+"to this mailbox. Leave empty to disable."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:391
+msgid "Mailbox"
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:413
+#, fuzzy
+msgid "DNS Records of %{ domain }"
+msgstr "DNS Records to Set"
+
+#: src/views/apps/stalwart/DomainView.vue:418
+msgid ""
+"Add these records at your DNS provider for zone %{ zone }. Required records "
+"are needed for mail to be accepted by other servers; optional ones enable "
+"client autoconfig, MTA-STS and TLS reporting."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:434
+#, fuzzy
+msgid "Publish via DNS Provider"
+msgstr "Please select a channel"
+
+#: src/views/apps/stalwart/DomainView.vue:438
+msgid ""
+"Selected records that are not active yet will be added through the DNS "
+"account below. Existing records are not modified."
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:448
+#, fuzzy
+msgid "Select DNS account"
+msgstr "Select DNS"
+
+#: src/views/apps/stalwart/DomainView.vue:456
+#, fuzzy
+msgid "Add Selected Records"
+msgstr "Host Record"
+
+#: src/views/apps/stalwart/DomainView.vue:459
+msgid "Recheck"
+msgstr ""
+
+#: src/views/apps/stalwart/DomainView.vue:465
+msgid ""
+"No DNS account is configured. Add one under Certificates → DNS Accounts to "
+"publish records with one click, or add them manually."
+msgstr ""
+
+#: src/views/apps/stalwart/IndexView.vue:53
+#: src/views/apps/stalwart/StatusView.vue:182
+#: src/views/website/EditModal.vue:1797
+msgid "Domains"
+msgstr "Domains"
+
+#: src/views/apps/stalwart/IndexView.vue:56
+msgid "Mailboxes"
+msgstr ""
+
+#: src/views/apps/stalwart/IndexView.vue:59
+#, fuzzy
+msgid "Mail Queue"
+msgstr "Task Schedule"
+
+#: src/views/apps/stalwart/IndexView.vue:69
+msgid "The mail server has not written any log yet"
+msgstr ""
+
+#: src/views/apps/stalwart/QueueView.vue:47
+#, fuzzy
+msgid "Delivered"
+msgstr "Driver"
+
+#: src/views/apps/stalwart/QueueView.vue:49
+#, fuzzy
+msgid "Temporary Failure"
+msgstr "HTTP Redirect"
+
+#: src/views/apps/stalwart/QueueView.vue:51
+#, fuzzy
+msgid "Permanent Failure"
+msgstr "HTTP Redirect"
+
+#: src/views/apps/stalwart/QueueView.vue:53
+#, fuzzy
+msgid "Scheduled"
+msgstr "Scheduled Tasks"
+
+#: src/views/apps/stalwart/QueueView.vue:59
+#: src/views/monitor/ChannelModal.vue:126
+#, fuzzy
+msgid "Sender"
+msgstr "Send"
+
+#: src/views/apps/stalwart/QueueView.vue:64
+msgid "(bounce)"
+msgstr ""
+
+#: src/views/apps/stalwart/QueueView.vue:67
+#: src/views/monitor/ChannelModal.vue:135 src/views/monitor/SettingView.vue:119
+msgid "Recipients"
+msgstr ""
+
+#: src/views/apps/stalwart/QueueView.vue:88
+#, fuzzy
+msgid "%{ count } retries"
+msgstr "Mount Path"
+
+#: src/views/apps/stalwart/QueueView.vue:104
+#, fuzzy
+msgid "Queued At"
+msgstr "Create Host"
+
+#: src/views/apps/stalwart/QueueView.vue:111
+msgid "Next Retry"
+msgstr ""
+
+#: src/views/apps/stalwart/QueueView.vue:133
+#, fuzzy
+msgid "Retry Now"
+msgstr "Login Timeout"
+
+#: src/views/apps/stalwart/QueueView.vue:142
+#, fuzzy
+msgid ""
+"Are you sure you want to delete this message from the queue? The sender will "
+"not be notified."
+msgstr "Are you sure you want to delete this access token?"
+
+#: src/views/apps/stalwart/QueueView.vue:161
+#, fuzzy
+msgid "Retry scheduled"
+msgstr "Create Scheduled Task"
+
+#: src/views/apps/stalwart/QueueView.vue:185
+msgid "Search sender or recipient"
+msgstr ""
+
+#: src/views/apps/stalwart/QueueView.vue:195
+msgid ""
+"Only messages waiting for delivery are listed here. Delivered mail leaves "
+"the queue immediately; failed recipients are retried automatically until "
+"they expire."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:43
+msgid "Not bound (self-signed certificate)"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:47
+#, fuzzy
+msgid "expires %{ date }"
+msgstr "Expires in %{ days } days"
+
+#: src/views/apps/stalwart/SettingView.vue:134
+#: src/views/apps/stalwart/StatusView.vue:151
+#: src/views/apps/stalwart/StatusView.vue:179
+#: src/views/container/ContainerCreate.vue:525
+msgid "Hostname"
+msgstr "Hostname"
+
+#: src/views/apps/stalwart/SettingView.vue:138
+msgid ""
+"Public hostname of this mail server, used in the SMTP greeting, MX records "
+"and client autoconfig. It must resolve to this server and its reverse DNS "
+"must point back to it."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:156
+#, fuzzy
+msgid "TLS Certificate"
+msgstr "Certificate"
+
+#: src/views/apps/stalwart/SettingView.vue:160
+msgid ""
+"Choose a certificate from Certificate management that covers the hostname. "
+"It is used for SMTP, IMAP and POP3 connections, and the panel pushes renewed "
+"certificates automatically."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:178
+#, fuzzy
+msgid "Listening Ports"
+msgstr "Listening Address"
+
+#: src/views/apps/stalwart/SettingView.vue:182
+msgid ""
+"Ports 25 (SMTP), 465 (SMTPS), 993 (IMAPS), 995 (POP3S) and 4190 "
+"(ManageSieve) are always on. The STARTTLS ports below are optional and "
+"saving restarts the service."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:188
+msgid "587 Submission"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:192
+msgid "STARTTLS submission, used by most mail clients"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:196
+msgid "143 IMAP"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:199
+msgid "STARTTLS IMAP, 993 is preferred"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:202
+msgid "110 POP3"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:205
+msgid "STARTTLS POP3, 995 is preferred"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:216
+#, fuzzy
+msgid "Save and Restart"
+msgstr "Max Retries"
+
+#: src/views/apps/stalwart/SettingView.vue:221
+#, fuzzy
+msgid "Outbound Relay"
+msgstr "Outbound"
+
+#: src/views/apps/stalwart/SettingView.vue:225
+msgid ""
+"Most cloud providers block outbound port 25. When enabled, all outgoing mail "
+"to other domains is handed to the relay (smarthost) over port 587 (STARTTLS) "
+"or 465 (implicit TLS) instead of being delivered directly."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:235
+#, fuzzy
+msgid "Relay Host"
+msgstr "Specific Host"
+
+#: src/views/apps/stalwart/SettingView.vue:242
+#: src/views/backup/StorageView.vue:276 src/views/backup/StorageView.vue:423
+#: src/views/database/CreateServerModal.vue:146
+#: src/views/database/UpdateServerModal.vue:75
+#: src/views/firewall/CreateModal.vue:156 src/views/firewall/ForwardView.vue:34
+#: src/views/firewall/RuleView.vue:91 src/views/firewall/ScanView.vue:302
+#: src/views/firewall/ScanView.vue:318 src/views/firewall/ScanView.vue:383
+#: src/views/log/SSHLog.vue:83 src/views/setting/SettingBase.vue:137
+#: src/views/ssh/CreateModal.vue:60 src/views/ssh/UpdateModal.vue:66
+#: src/views/website/CreateModal.vue:164
+msgid "Port"
+msgstr "Port"
+
+#: src/views/apps/stalwart/SettingView.vue:258
+#, fuzzy
+msgid "Leave empty to keep the current password"
+msgstr "Please enter username and password"
+
+#: src/views/apps/stalwart/SettingView.vue:262
+msgid "Implicit TLS"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:266
+msgid "Turn on for port 465, off for 587 STARTTLS"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:284
+msgid "Administrator Credentials"
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:288
+msgid ""
+"The panel manages the server with this account. You can also use it to sign "
+"in to the built-in Stalwart WebUI at /admin once a reverse proxy website for "
+"the hostname exists."
+msgstr ""
+
+#: src/views/apps/stalwart/SettingView.vue:306
+#, fuzzy
+msgid "Click a value to copy it"
+msgstr "Files to compress"
+
+#: src/views/apps/stalwart/StatusView.vue:59
+#, fuzzy
+msgid "Passed"
+msgstr "Password"
+
+#: src/views/apps/stalwart/StatusView.vue:61
+#: src/views/file/composables/usePaste.ts:139 src/views/file/ListView.vue:312
+#: src/views/file/ListView.vue:865 src/views/file/ListView.vue:914
+msgid "Warning"
+msgstr "Warning"
+
+#: src/views/apps/stalwart/StatusView.vue:65 src/views/file/UploadModal.vue:87
+#: src/views/toolbox/MigrationView.vue:96
+#, fuzzy
+msgid "Skipped"
+msgstr "Stopped"
+
+#: src/views/apps/stalwart/StatusView.vue:73
+#, fuzzy
+msgid "Initialized successfully"
+msgstr "Disabled successfully"
+
+#: src/views/apps/stalwart/StatusView.vue:98
+msgid "Do not bind a certificate for now"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:122
+#, fuzzy
+msgid "Reverse proxy website is ready"
+msgstr "Create Website"
+
+#: src/views/apps/stalwart/StatusView.vue:141
+#: src/views/apps/stalwart/StatusView.vue:172
+#: src/views/toolbox/DiskView.vue:749 src/views/toolbox/DiskView.vue:775
+msgid "Initialize"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:145
+msgid ""
+"The mail server is installed but not initialized. Enter the public hostname "
+"of this server and the first email domain to serve. Initialization takes "
+"about a minute and restarts the service several times."
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:158
+#, fuzzy
+msgid "Email Domain"
+msgstr "Bind Domain"
+
+#: src/views/apps/stalwart/StatusView.vue:177
+#: src/views/firewall/ScanView.vue:358 src/views/website/StatsView.vue:233
+#, fuzzy
+msgid "Overview"
+msgstr "Overwrite"
+
+#: src/views/apps/stalwart/StatusView.vue:190
+#, fuzzy
+msgid "Self Check"
+msgstr "Status"
+
+#: src/views/apps/stalwart/StatusView.vue:194
+msgid ""
+"Checks outbound port 25, hostname resolution, reverse DNS, IP blacklists, "
+"listening ports and conflicting services. Fix failed items before sending "
+"mail."
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:206
+msgid "Run Check"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:224
+#: src/views/project/CreateModal.vue:352 src/views/project/ListView.vue:187
+#: src/views/website/BulkCreateModal.vue:62
+#: src/views/website/CreateModal.vue:29 src/views/website/EditModal.vue:128
+#: src/views/website/IndexView.vue:26 src/views/website/ListView.vue:128
+msgid "Reverse Proxy"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:228
+msgid ""
+"The Stalwart admin UI, client autoconfig and MTA-STS policy are served over "
+"plain HTTP on 127.0.0.1:%{ port } and are not exposed directly. The panel "
+"can create one reverse proxy website covering all hostnames below and point "
+"it to http://127.0.0.1:%{ port }. Mail protocols (25, 465, 587, 993) are "
+"served by Stalwart directly and do not go through it."
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:242
+msgid ""
+"Website %{ name } exists but is missing hostnames for newly added domains: "
+"%{ domains }"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:250
+#, fuzzy
+msgid "Website %{ name } covers all hostnames above"
+msgstr "Website %{ name } created successfully"
+
+#: src/views/apps/stalwart/StatusView.vue:263
+#, fuzzy
+msgid "Sync Hostnames"
+msgstr "System Hostname"
+
+#: src/views/apps/stalwart/StatusView.vue:266
+#, fuzzy
+msgid "Open Website Management"
+msgstr "User Management"
+
+#: src/views/apps/stalwart/StatusView.vue:276
+msgid "Select a certificate covering the hostnames above"
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:282
+msgid ""
+"The certificate is deployed to the website with HTTPS enabled and, if the "
+"mail server has no certificate yet, also bound to it for SMTP and IMAP."
+msgstr ""
+
+#: src/views/apps/stalwart/StatusView.vue:294
+#: src/views/website/CreateModal.vue:79
+#, fuzzy
+msgid "Create Reverse Proxy Website"
+msgstr "Create Website"
+
 #: src/views/apps/supervisor/IndexView.vue:81
 #: src/views/container/ContainerCreate.vue:85
 msgid "Always"
@@ -7240,12 +7868,6 @@ msgstr "Restore Backup"
 msgid "Private Key"
 msgstr "Private Key"
 
-#: src/views/backup/StorageView.vue:88
-#: src/views/container/ContainerInfoModal.vue:118
-#, fuzzy
-msgid "Created At"
-msgstr "Create Host"
-
 #: src/views/backup/StorageView.vue:122
 #, fuzzy
 msgid "Are you sure you want to delete this storage?"
@@ -7337,18 +7959,6 @@ msgstr "Optional"
 msgid "Enter host"
 msgstr "Container Name"
 
-#: src/views/backup/StorageView.vue:276 src/views/backup/StorageView.vue:423
-#: src/views/database/CreateServerModal.vue:146
-#: src/views/database/UpdateServerModal.vue:75
-#: src/views/firewall/CreateModal.vue:156 src/views/firewall/ForwardView.vue:34
-#: src/views/firewall/RuleView.vue:91 src/views/firewall/ScanView.vue:302
-#: src/views/firewall/ScanView.vue:318 src/views/firewall/ScanView.vue:383
-#: src/views/log/SSHLog.vue:83 src/views/setting/SettingBase.vue:137
-#: src/views/ssh/CreateModal.vue:60 src/views/ssh/UpdateModal.vue:66
-#: src/views/website/CreateModal.vue:164
-msgid "Port"
-msgstr "Port"
-
 #: src/views/backup/StorageView.vue:281 src/views/backup/StorageView.vue:428
 #, fuzzy
 msgid "Enter port"
@@ -7404,12 +8014,6 @@ msgid ""
 "For large files, it is recommended to use SFTP or other methods to upload"
 msgstr ""
 "For large files, it is recommended to use SFTP or other methods to upload"
-
-#: src/views/cert/AccountView.vue:40 src/views/cert/AccountView.vue:213
-#: src/views/cert/CreateAccountModal.vue:96
-#: src/views/setting/CreateModal.vue:53 src/views/setting/SettingUser.vue:42
-msgid "Email"
-msgstr "Email"
 
 #: src/views/cert/AccountView.vue:68 src/views/cert/AccountView.vue:205
 #: src/views/cert/CertView.vue:537 src/views/cert/CreateAccountModal.vue:88
@@ -7489,13 +8093,6 @@ msgstr "Enter HMAC"
 #, fuzzy
 msgid "No matching websites found"
 msgstr "Database"
-
-#: src/views/cert/CertView.vue:150 src/views/cert/CertView.vue:529
-#: src/views/cert/CreateCertModal.vue:95 src/views/project/ProxyForm.vue:11
-#: src/views/project/ProxyModal.vue:342 src/views/website/CreateModal.vue:156
-#: src/views/website/EditModal.vue:984
-msgid "Domain"
-msgstr "Domain"
 
 #: src/views/cert/CertView.vue:195 src/views/file/ToolBar.vue:185
 #: src/views/file/UploadModal.vue:300 src/views/monitor/SystemView.vue:535
@@ -7992,10 +8589,6 @@ msgstr "Status"
 #: src/views/container/ContainerCreate.vue:520
 msgid "Optional, requires a custom network with a subnet"
 msgstr ""
-
-#: src/views/container/ContainerCreate.vue:525
-msgid "Hostname"
-msgstr "Hostname"
 
 #: src/views/container/ContainerCreate.vue:535
 #, fuzzy
@@ -9676,11 +10269,6 @@ msgstr "Please enter absolute path"
 msgid "Name cannot be empty"
 msgstr "Proxy address cannot be empty"
 
-#: src/views/file/composables/usePaste.ts:139 src/views/file/ListView.vue:312
-#: src/views/file/ListView.vue:865 src/views/file/ListView.vue:914
-msgid "Warning"
-msgstr "Warning"
-
 #: src/views/file/composables/usePaste.ts:140
 #, fuzzy
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
@@ -10081,12 +10669,6 @@ msgstr ""
 msgid "Download Limit"
 msgstr "Download URL"
 
-#: src/views/file/ShareModal.vue:156 src/views/website/EditModal.vue:1619
-#: src/views/website/EditModal.vue:1634 src/views/website/EditModal.vue:2098
-#: src/views/website/EditModal.vue:2111 src/views/website/EditModal.vue:2124
-msgid "Unlimited"
-msgstr ""
-
 #: src/views/file/ShareModal.vue:163
 #, fuzzy
 msgid "Create Share Link"
@@ -10212,11 +10794,6 @@ msgstr "Upload"
 #, fuzzy
 msgid "Paused"
 msgstr "Pause"
-
-#: src/views/file/UploadModal.vue:87 src/views/toolbox/MigrationView.vue:96
-#, fuzzy
-msgid "Skipped"
-msgstr "Stopped"
 
 #: src/views/file/UploadModal.vue:137
 #, fuzzy
@@ -10623,11 +11200,6 @@ msgstr ""
 msgid ""
 "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr ""
-
-#: src/views/firewall/ScanView.vue:358 src/views/website/StatsView.vue:233
-#, fuzzy
-msgid "Overview"
-msgstr "Overwrite"
 
 #: src/views/firewall/ScanView.vue:359
 msgid "Scan Events"
@@ -11454,11 +12026,6 @@ msgstr "Login Timeout"
 msgid "Login password or authorization code"
 msgstr "Authentication Method"
 
-#: src/views/monitor/ChannelModal.vue:126
-#, fuzzy
-msgid "Sender"
-msgstr "Send"
-
 #: src/views/monitor/ChannelModal.vue:129
 #, fuzzy
 msgid "Defaults to the username"
@@ -11468,10 +12035,6 @@ msgstr "Default Document"
 #, fuzzy
 msgid "Sender Name"
 msgstr "Filename"
-
-#: src/views/monitor/ChannelModal.vue:135 src/views/monitor/SettingView.vue:119
-msgid "Recipients"
-msgstr ""
 
 #: src/views/monitor/ChannelModal.vue:138
 msgid "Skip Cert Verify"
@@ -11995,13 +12558,6 @@ msgstr "Please enter username and password"
 
 #: src/views/project/CreateModal.vue:347
 msgid "Select www user if no special requirements"
-msgstr ""
-
-#: src/views/project/CreateModal.vue:352 src/views/project/ListView.vue:187
-#: src/views/website/BulkCreateModal.vue:62
-#: src/views/website/CreateModal.vue:29 src/views/website/EditModal.vue:128
-#: src/views/website/IndexView.vue:26 src/views/website/ListView.vue:128
-msgid "Reverse Proxy"
 msgstr ""
 
 #: src/views/project/CreateModal.vue:356
@@ -13991,10 +14547,6 @@ msgstr ""
 msgid "Filesystem Type"
 msgstr "File System"
 
-#: src/views/toolbox/DiskView.vue:749 src/views/toolbox/DiskView.vue:775
-msgid "Initialize"
-msgstr ""
-
 #: src/views/toolbox/DiskView.vue:753
 msgid ""
 "Warning: This will delete all partitions and create a single partition. All "
@@ -15389,11 +15941,6 @@ msgstr ""
 msgid "Remark: The remark of the website, can be empty."
 msgstr "Remark: The remark of the website, can be empty."
 
-#: src/views/website/CreateModal.vue:79
-#, fuzzy
-msgid "Create Reverse Proxy Website"
-msgstr "Create Website"
-
 #: src/views/website/CreateModal.vue:81
 #, fuzzy
 msgid "Create PHP Website"
@@ -15945,10 +16492,6 @@ msgstr "Add Rule"
 #: src/views/website/EditModal.vue:1783
 msgid "Certificate Validity"
 msgstr "Certificate Validity"
-
-#: src/views/website/EditModal.vue:1797
-msgid "Domains"
-msgstr "Domains"
 
 #: src/views/website/EditModal.vue:1806
 msgid "Main Switch"
@@ -16678,10 +17221,6 @@ msgstr "Add Server"
 #~ msgstr "Server"
 
 #, fuzzy
-#~ msgid "Match"
-#~ msgstr "Match Type"
-
-#, fuzzy
 #~ msgid "Ignore environment check"
 #~ msgstr "Environment Variables"
 
@@ -16834,9 +17373,6 @@ msgstr "Add Server"
 #~ msgstr ""
 #~ "Please set up DNS resolution for the domain first, then continue with the "
 #~ "issuance"
-
-#~ msgid "DNS Records to Set"
-#~ msgstr "DNS Records to Set"
 
 #~ msgid "Please create a host first"
 #~ msgstr "Please create a host first"

@@ -19,14 +19,46 @@ msgstr ""
 msgid "%d images"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:107
+msgid "%s does not resolve, add an A record pointing to this server"
+msgstr ""
+
 #: internal/biz/database.go:167
 #: internal/biz/database.go:268
 #: internal/biz/database.go:276
 msgid "%s does not support database comment"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:140
+msgid "%s has no PTR record"
+msgstr ""
+
 #: internal/biz/alert.go:903
 msgid "%s is %s, %s threshold %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:233
+msgid "%s is running and may compete for mail ports, stop and disable it"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:145
+msgid "%s points to %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:143
+msgid "%s points to %s instead of %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:117
+msgid "%s resolves to %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:112
+msgid "%s resolves to %s, but the panel does not know this server's public IP to compare"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:121
+msgid "%s resolves to %s, which does not match this server's public IP %s"
 msgstr ""
 
 #: pkg/tui/tui.go:170
@@ -404,6 +436,10 @@ msgstr ""
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:93
+msgid "Cannot connect to any remote mail server on port 25. Most cloud providers block it by default; configure an outbound relay in settings or ask your provider to unblock it"
+msgstr ""
+
 #: internal/job/cert_renew.go:184
 #: internal/request/attributes.go:25
 msgid "Certificate"
@@ -529,8 +565,16 @@ msgstr ""
 msgid "Config Reload Success"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:220
+msgid "Conflicting mail services"
+msgstr ""
+
 #: internal/apps/redis/app.go:113
 msgid "Connected Clients"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:89
+msgid "Connected to %s, direct delivery is possible"
 msgstr ""
 
 #: internal/command/cutoff.go:40
@@ -1321,6 +1365,10 @@ msgstr ""
 msgid "Hostname"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:98
+msgid "Hostname resolution"
+msgstr ""
+
 #: internal/service/cert.go:70
 msgid "Huawei Cloud"
 msgstr ""
@@ -1377,6 +1425,10 @@ msgstr ""
 
 #: internal/request/attributes.go:71
 msgid "IP Max Keys"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:157
+msgid "IP blacklists"
 msgstr ""
 
 #: internal/service/environment_php.go:229
@@ -1589,6 +1641,10 @@ msgstr ""
 msgid "List of listening addresses associated with the website"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:186
+msgid "Listed on %s, delivery to major providers will be rejected until delisted"
+msgstr ""
+
 #: internal/request/attributes.go:83
 msgid "Listen Address"
 msgstr ""
@@ -1658,6 +1714,14 @@ msgstr ""
 
 #: internal/command/cutoff.go:16
 msgid "Log rotation"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:198
+msgid "Mail ports"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:101
+msgid "Mail server is not initialized"
 msgstr ""
 
 #: internal/service/environment_php.go:232
@@ -1869,6 +1933,14 @@ msgstr ""
 msgid "No matches"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:229
+msgid "No other mail service is running"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:160
+msgid "No public IPv4 address to check"
+msgstr ""
+
 #: internal/apps/kafka/app.go:59
 msgid "Node ID"
 msgstr ""
@@ -1881,6 +1953,14 @@ msgstr ""
 #: internal/service/environment_nodejs.go:60
 #: internal/service/environment_nodejs.go:82
 msgid "Node.js-%s is not installed"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:192
+msgid "Not listed on %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:189
+msgid "Not listed on the blacklists that answered; %s refused the query from this resolver"
 msgstr ""
 
 #: internal/service/home.go:271
@@ -1991,6 +2071,10 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:77
+msgid "Outbound port 25"
+msgstr ""
+
 #: internal/service/cli.go:1651
 msgid "Output"
 msgstr ""
@@ -2042,6 +2126,10 @@ msgstr ""
 
 #: internal/request/attributes.go:114
 msgid "PID"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:151
+msgid "PTR records are set in your cloud provider's console, not in your DNS zone"
 msgstr ""
 
 #: internal/request/attributes.go:115
@@ -2148,7 +2236,7 @@ msgstr ""
 msgid "Please enter the password: "
 msgstr ""
 
-#: internal/biz/cert.go:272
+#: internal/biz/cert.go:273
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr ""
 
@@ -2215,6 +2303,14 @@ msgstr ""
 
 #: internal/service/cli.go:713
 msgid "Port: %d-%d, Protocol: %s, Strategy: %s, Direction: %s, Address: %s"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:215
+msgid "Ports %s are not listening, check the service status and log"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:211
+msgid "Ports 25, 465 and 993 are listening locally; make sure they are open in the firewall and security group"
 msgstr ""
 
 #: internal/apps/prometheus/app.go:425
@@ -2382,6 +2478,10 @@ msgstr ""
 msgid "Requests/sec"
 msgstr ""
 
+#: internal/apps/stalwart/check.go:129
+msgid "Requires an initialized server and a known public IP"
+msgstr ""
+
 #: internal/apps/mongodb/app.go:105
 msgid "Resident Memory (MB)"
 msgstr ""
@@ -2408,6 +2508,10 @@ msgstr ""
 
 #: internal/command/restore.go:20
 msgid "Restore website backup"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:126
+msgid "Reverse DNS (PTR)"
 msgstr ""
 
 #: internal/apps/mysql/app.go:112
@@ -2618,6 +2722,10 @@ msgstr ""
 
 #: internal/apps/postgresql/app.go:913
 msgid "Spatial and geographic objects support"
+msgstr ""
+
+#: internal/apps/stalwart/proxy.go:111
+msgid "Stalwart mail server reverse proxy"
 msgstr ""
 
 #: internal/request/attributes.go:157
@@ -3412,6 +3520,18 @@ msgstr ""
 msgid "alert rule viewed"
 msgstr ""
 
+#: internal/apps/stalwart/account.go:53
+msgid "alias %s is the same as the account address"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:46
+msgid "alias %s must be a full email address"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:50
+msgid "alias domain %s is not managed by this mail server"
+msgstr ""
+
 #: internal/biz/app.go:203
 msgid "app %s already installed"
 msgstr ""
@@ -3593,6 +3713,7 @@ msgstr ""
 #: internal/apps/mysql/app.go:237
 #: internal/apps/pgadmin/app.go:131
 #: internal/apps/postgresql/app.go:235
+#: internal/apps/stalwart/app.go:392
 msgid "app password viewed"
 msgstr ""
 
@@ -3654,9 +3775,9 @@ msgstr ""
 msgid "background task failed"
 msgstr ""
 
-#: internal/biz/setting.go:237
-#: internal/biz/setting.go:303
-#: internal/biz/setting.go:319
+#: internal/biz/setting.go:242
+#: internal/biz/setting.go:308
+#: internal/biz/setting.go:324
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -3798,7 +3919,7 @@ msgstr ""
 msgid "cert deleted"
 msgstr ""
 
-#: internal/biz/cert.go:441
+#: internal/biz/cert.go:444
 msgid "cert deployed"
 msgstr ""
 
@@ -3822,15 +3943,19 @@ msgstr ""
 msgid "cert dns viewed"
 msgstr ""
 
+#: internal/biz/cert_hook.go:32
+msgid "cert hook failed"
+msgstr ""
+
 #: internal/service/cert.go:134
 msgid "cert list viewed"
 msgstr ""
 
-#: internal/biz/cert.go:258
+#: internal/biz/cert.go:259
 msgid "cert obtained"
 msgstr ""
 
-#: internal/biz/cert.go:397
+#: internal/biz/cert.go:400
 msgid "cert renewed"
 msgstr ""
 
@@ -4180,7 +4305,7 @@ msgid "default site is not supported by the current web server"
 msgstr ""
 
 #: internal/biz/cert.go:247
-#: internal/biz/cert.go:387
+#: internal/biz/cert.go:389
 msgid "deploying certificate to website"
 msgstr ""
 
@@ -4222,6 +4347,10 @@ msgstr ""
 
 #: internal/data/website.go:1558
 msgid "domain %s is already used by website %s"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:146
+msgid "domain not found"
 msgstr ""
 
 #: internal/data/app.go:119
@@ -4414,6 +4543,10 @@ msgstr ""
 msgid "failed to backup panel before update"
 msgstr ""
 
+#: internal/apps/stalwart/proxy.go:148
+msgid "failed to bind certificate to mail server: %v"
+msgstr ""
+
 #: internal/data/ssh.go:105
 #: internal/data/ssh.go:75
 msgid "failed to check ssh connection: %v"
@@ -4469,6 +4602,10 @@ msgstr ""
 
 #: internal/biz/alert.go:351
 msgid "failed to collect alert metric"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:363
+msgid "failed to configure mail server proxy headers"
 msgstr ""
 
 #: internal/biz/toolbox_migration_push.go:35
@@ -4601,7 +4738,7 @@ msgstr ""
 msgid "failed to disable expired website"
 msgstr ""
 
-#: internal/biz/setting.go:204
+#: internal/biz/setting.go:209
 #: internal/job/panel_task.go:225
 msgid "failed to download ipdb"
 msgstr ""
@@ -4655,7 +4792,7 @@ msgstr ""
 msgid "failed to generate self-signed certificate"
 msgstr ""
 
-#: internal/biz/setting.go:226
+#: internal/biz/setting.go:231
 msgid "failed to generate self-signed certificate: %v"
 msgstr ""
 
@@ -4957,8 +5094,8 @@ msgid "failed to parse SMART info: %v"
 msgstr ""
 
 #: internal/biz/cert.go:104
-#: internal/biz/setting.go:244
-#: internal/biz/setting.go:322
+#: internal/biz/setting.go:249
+#: internal/biz/setting.go:327
 #: internal/data/website.go:1254
 #: internal/data/website.go:870
 msgid "failed to parse certificate: %v"
@@ -4982,8 +5119,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr ""
 
 #: internal/biz/cert.go:107
-#: internal/biz/setting.go:247
-#: internal/biz/setting.go:325
+#: internal/biz/setting.go:252
+#: internal/biz/setting.go:330
 #: internal/data/website.go:1257
 #: internal/data/website.go:873
 msgid "failed to parse private key: %v"
@@ -5878,7 +6015,7 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
-#: internal/biz/setting.go:206
+#: internal/biz/setting.go:211
 msgid "ipdb downloaded"
 msgstr ""
 
@@ -5937,6 +6074,115 @@ msgstr ""
 
 #: internal/service/toolbox_disk.go:311
 msgid "lvm info viewed"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:172
+msgid "mail account created"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:281
+msgid "mail account deleted"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:119
+msgid "mail account list viewed"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:250
+msgid "mail account password updated"
+msgstr ""
+
+#: internal/apps/stalwart/account.go:215
+msgid "mail account updated"
+msgstr ""
+
+#: internal/apps/stalwart/domain.go:177
+msgid "mail domain catch-all updated"
+msgstr ""
+
+#: internal/apps/stalwart/domain.go:86
+msgid "mail domain created"
+msgstr ""
+
+#: internal/apps/stalwart/domain.go:142
+msgid "mail domain deleted"
+msgstr ""
+
+#: internal/apps/stalwart/dns.go:308
+msgid "mail domain dns records published"
+msgstr ""
+
+#: internal/apps/stalwart/dns.go:223
+msgid "mail domain dns viewed"
+msgstr ""
+
+#: internal/apps/stalwart/domain.go:54
+msgid "mail domain list viewed"
+msgstr ""
+
+#: internal/apps/stalwart/queue.go:155
+msgid "mail queue message deleted"
+msgstr ""
+
+#: internal/apps/stalwart/queue.go:128
+msgid "mail queue message retried"
+msgstr ""
+
+#: internal/apps/stalwart/queue.go:86
+msgid "mail queue viewed"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:162
+msgid "mail server cert bound"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:226
+msgid "mail server cert synced"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:139
+msgid "mail server cert unbound"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:264
+msgid "mail server did not return administrator credentials"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:116
+msgid "mail server hostname updated"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:308
+msgid "mail server initialized"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:209
+msgid "mail server is already initialized"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:117
+#: internal/apps/stalwart/app.go:388
+msgid "mail server is not initialized"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:280
+msgid "mail server listeners updated"
+msgstr ""
+
+#: internal/apps/stalwart/proxy.go:156
+msgid "mail server proxy website synced"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:375
+msgid "mail server relay updated"
+msgstr ""
+
+#: internal/apps/stalwart/check.go:72
+msgid "mail server self check performed"
+msgstr ""
+
+#: internal/apps/stalwart/setting.go:47
+msgid "mail server settings viewed"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:155
@@ -6159,6 +6405,10 @@ msgstr ""
 msgid "no migration logs available"
 msgstr ""
 
+#: internal/apps/stalwart/dns.go:296
+msgid "no records selected"
+msgstr ""
+
 #: internal/service/firewall.go:280
 msgid "no rules found in file"
 msgstr ""
@@ -6221,7 +6471,7 @@ msgid "ntp servers viewed"
 msgstr ""
 
 #: internal/biz/cert.go:237
-#: internal/biz/cert.go:377
+#: internal/biz/cert.go:379
 msgid "obtaining and saving certificate"
 msgstr ""
 
@@ -6315,7 +6565,7 @@ msgstr ""
 msgid "panel service file is missing"
 msgstr ""
 
-#: internal/biz/setting.go:312
+#: internal/biz/setting.go:317
 msgid "panel settings updated"
 msgstr ""
 
@@ -6512,8 +6762,12 @@ msgstr ""
 msgid "please select at least one migration resource"
 msgstr ""
 
-#: internal/biz/setting.go:265
+#: internal/biz/setting.go:270
 msgid "port is already in use"
+msgstr ""
+
+#: internal/apps/stalwart/app.go:220
+msgid "ports %s are occupied by other programs, please stop them first"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:488
@@ -6544,7 +6798,7 @@ msgstr ""
 msgid "postgresql session terminated"
 msgstr ""
 
-#: internal/biz/cert.go:319
+#: internal/biz/cert.go:321
 msgid "preparing renewal"
 msgstr ""
 
@@ -6661,6 +6915,10 @@ msgstr ""
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
+#: internal/apps/stalwart/app.go:136
+msgid "recovery credential not found in %s, please reinstall the app"
+msgstr ""
+
 #: internal/biz/database_redis.go:100
 msgid "redis database cleared"
 msgstr ""
@@ -6689,15 +6947,19 @@ msgstr ""
 msgid "redis key viewed"
 msgstr ""
 
+#: internal/apps/stalwart/setting.go:338
+msgid "relay password is required"
+msgstr ""
+
 #: internal/service/file.go:557
 msgid "remote download task created"
 msgstr ""
 
-#: internal/biz/cert.go:368
+#: internal/biz/cert.go:370
 msgid "renewal failed, attempting re-issuance"
 msgstr ""
 
-#: internal/biz/cert.go:360
+#: internal/biz/cert.go:362
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
@@ -6802,7 +7064,7 @@ msgstr ""
 msgid "scan events cleared"
 msgstr ""
 
-#: internal/biz/cert.go:307
+#: internal/biz/cert.go:309
 msgid "self-signed cert generated"
 msgstr ""
 
@@ -7218,6 +7480,10 @@ msgstr ""
 msgid "terminal session opened"
 msgstr ""
 
+#: internal/apps/stalwart/account.go:273
+msgid "the administrator account used by the panel cannot be deleted"
+msgstr ""
+
 #: internal/data/toolbox_migration_remote.go:238
 msgid "the connection to the target server was interrupted"
 msgstr ""
@@ -7232,6 +7498,10 @@ msgstr ""
 
 #: internal/biz/toolbox_migration_import.go:126
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
+msgstr ""
+
+#: internal/apps/stalwart/domain.go:115
+msgid "the default domain cannot be deleted"
 msgstr ""
 
 #: internal/biz/toolbox_migration_import.go:40
@@ -7326,16 +7596,20 @@ msgstr ""
 msgid "this 1Panel website type is not supported for automatic migration: %s"
 msgstr ""
 
-#: internal/biz/cert.go:454
+#: internal/apps/stalwart/setting.go:150
+msgid "this certificate has not been obtained successfully"
+msgstr ""
+
+#: internal/biz/cert.go:457
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr ""
 
-#: internal/biz/cert.go:331
+#: internal/biz/cert.go:333
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr ""
 
 #: internal/biz/cert.go:212
-#: internal/biz/cert.go:345
+#: internal/biz/cert.go:347
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
@@ -7777,7 +8051,7 @@ msgid "websocket upgrade error"
 msgstr ""
 
 #: internal/biz/cert.go:218
-#: internal/biz/cert.go:349
+#: internal/biz/cert.go:351
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
