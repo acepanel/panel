@@ -227,8 +227,9 @@ func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, vers
 	if subtype == "postgresql" {
 		path = "/databases/pg/search"
 	}
-	data, err := a.apiVersioned(ctx, http.MethodPost, path, func() map[string]any {
-		return a.databaseSearchBody("", server)
+	// orderBy 用 name：v1 只接受 created_at，v2 只接受 createdAt，name 两边都收
+	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
+		"page": 1, "pageSize": 10000, "info": "", "database": server, "orderBy": "name", "order": "descending",
 	})
 	if err != nil {
 		return nil
@@ -246,19 +247,6 @@ func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, vers
 		})
 	}
 	return items
-}
-
-// databaseSearchBody 构造数据库列表查询，v1 只接受 created_at，v2 只接受 createdAt
-func (a *onePanelAdapter) databaseSearchBody(info, server string) map[string]any {
-	orderBy := "createdAt"
-	if a.v1 {
-		orderBy = "created_at"
-	}
-
-	return map[string]any{
-		"page": 1, "pageSize": 10000, "info": info, "database": server,
-		"orderBy": orderBy, "order": "descending",
-	}
 }
 
 func (a *onePanelAdapter) Detail(ctx context.Context, item types.MigrationItem) (*types.MigrationDetail, error) {
@@ -440,8 +428,9 @@ func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.Migrati
 	if item.Subtype == "postgresql" {
 		path = "/databases/pg/search"
 	}
-	data, err := a.apiVersioned(ctx, http.MethodPost, path, func() map[string]any {
-		return a.databaseSearchBody(item.Name, item.SourceGroup)
+	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
+		"page": 1, "pageSize": 10000, "info": item.Name, "database": item.SourceGroup,
+		"orderBy": "name", "order": "descending",
 	})
 	if err != nil {
 		return nil, err
@@ -471,12 +460,14 @@ func (a *onePanelAdapter) SetRunning(ctx context.Context, item types.MigrationIt
 func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDetail) (string, error) {
 	item := detail.Item
 	name := item.Name
-	// 1Panel v1 的备份记录按主域名存 name，v2 按别名存；先读一次站点，顺带确定版本
+	// 备份记录查询无条件按 name 过滤，而网站记录的 name 在 v1 存主域名、v2 存别名；先读一次站点，顺带确定版本
 	if item.Type == "website" {
-		if data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil); err == nil && a.v1 {
-			if domain := cast.ToString(cast.ToStringMap(data)["primaryDomain"]); domain != "" {
-				name = domain
-			}
+		data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil)
+		if err != nil {
+			return "", err
+		}
+		if a.v1 {
+			name = cast.ToString(cast.ToStringMap(data)["primaryDomain"])
 		}
 	}
 
@@ -490,8 +481,11 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 		return "", errors.New(a.t.Get("unsupported migration resource type: %s", item.Type))
 	}
 
-	// v1 的备份接口是同步的，站点稍大就会超过默认超时
-	if _, err := a.apiLong(ctx, http.MethodPost, "/backups/backup", backup); err != nil {
+	// v1 的备份接口是同步的，站点稍大就会超过默认超时；v2 立即返回，放宽超时没有副作用
+	if err := a.tryVersions(func() error {
+		_, err := a.callTimeout(ctx, http.MethodPost, a.resolve("/backups/backup"), backup, 30*time.Minute)
+		return err
+	}); err != nil {
 		return "", err
 	}
 	record, err := a.waitBackup(ctx, backup)
@@ -510,27 +504,19 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 	return cast.ToString(path), nil
 }
 
-// waitBackup 轮询最新一条备份记录直到写盘完成，备份接口只是把任务丢进后台就返回
+// waitBackup 轮询最新一条备份记录直到写盘完成，v2 的备份接口只是把任务丢进后台就返回
 func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any) (map[string]any, error) {
-	// 1Panel 的记录查询会无条件按 name 过滤，名字为空会查不到任何记录
-	query := map[string]any{
-		"page": 1, "pageSize": 1, "type": backup["type"],
-		"name": backup["name"], "detailName": backup["detailName"],
-	}
-
 	for range 3600 {
-		data, err := a.api(ctx, http.MethodPost, "/backups/record/search", query)
+		data, err := a.api(ctx, http.MethodPost, "/backups/record/search", map[string]any{
+			"page": 1, "pageSize": 1, "type": backup["type"], "name": backup["name"], "detailName": backup["detailName"],
+		})
 		if err != nil {
 			return nil, err
 		}
 		if records := a.rows(cast.ToStringMap(data)["items"]); len(records) > 0 {
-			status := cast.ToString(records[0]["status"])
 			// v1 的备份记录没有 status，记录出现即代表备份已完成
-			if status == "" && a.v1 {
-				return records[0], nil
-			}
-			switch status {
-			case "Success":
+			switch cast.ToString(records[0]["status"]) {
+			case "", "Success":
 				return records[0], nil
 			case "Failed":
 				return nil, errors.New(a.t.Get("the source task failed"))
@@ -556,38 +542,10 @@ func (a *onePanelAdapter) Download(ctx context.Context, remote, local string, pr
 
 // api 调用 1Panel 接口
 func (a *onePanelAdapter) api(ctx context.Context, method, path string, body map[string]any) (any, error) {
-	return a.request(ctx, method, path, func() map[string]any { return body }, 0)
-}
-
-// apiLong 用于 v1 的同步备份等耗时接口
-func (a *onePanelAdapter) apiLong(ctx context.Context, method, path string, body map[string]any) (any, error) {
-	return a.request(ctx, method, path, func() map[string]any { return body }, 30*time.Minute)
-}
-
-// apiVersioned 每次版本尝试时按当前版本生成请求体，v1 与 v2 的部分字段取值不同
-func (a *onePanelAdapter) apiVersioned(
-	ctx context.Context,
-	method, path string,
-	body func() map[string]any,
-) (any, error) {
-	return a.request(ctx, method, path, body, 0)
-}
-
-// request 执行一次带版本回退的请求，v1Timeout 只作用于 v1 尝试
-func (a *onePanelAdapter) request(
-	ctx context.Context,
-	method, path string,
-	body func() map[string]any,
-	v1Timeout time.Duration,
-) (any, error) {
 	var data any
 	err := a.tryVersions(func() error {
-		timeout := time.Duration(0)
-		if a.v1 {
-			timeout = v1Timeout
-		}
 		var err error
-		data, err = a.callTimeout(ctx, method, a.resolve(path), body(), timeout)
+		data, err = a.call(ctx, method, a.resolve(path), body)
 		return err
 	})
 
