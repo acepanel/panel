@@ -393,62 +393,67 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 }
 
 func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
+	return NewDNSProvider(s.dns, s.param)
+}
+
+// NewDNSProvider 按提供商类型构造 libdns 客户端，供证书签发之外的模块（如邮件服务写 DNS 记录）复用
+func NewDNSProvider(dnsType DnsType, param DNSParam) (DNSProvider, error) {
 	var dns DNSProvider
 
-	switch s.dns {
+	switch dnsType {
 	case AliYun:
 		dns = &alidns.Provider{
 			CredentialInfo: alidns.CredentialInfo{
-				AccessKeyID:     s.param.AK,
-				AccessKeySecret: s.param.SK,
+				AccessKeyID:     param.AK,
+				AccessKeySecret: param.SK,
 			},
 		}
 	case Tencent:
 		dns = &tencentcloud.Provider{
-			SecretId:  s.param.AK,
-			SecretKey: s.param.SK,
+			SecretId:  param.AK,
+			SecretKey: param.SK,
 		}
 	case Huawei:
 		dns = &huaweicloud.Provider{
-			AccessKeyId:     s.param.AK,
-			SecretAccessKey: s.param.SK,
+			AccessKeyId:     param.AK,
+			SecretAccessKey: param.SK,
 		}
 	case Westcn:
 		dns = &westcn.Provider{
-			Username:    s.param.SK,
-			APIPassword: s.param.AK,
+			Username:    param.SK,
+			APIPassword: param.AK,
 		}
 	case CloudFlare:
 		dns = &cloudflare.Provider{
-			APIToken: s.param.AK,
+			APIToken: param.AK,
 		}
 	case Gcore:
 		dns = &gcore.Provider{
-			APIKey: s.param.AK,
+			APIKey: param.AK,
 		}
 	case Porkbun:
 		dns = &porkbun.Provider{
-			APIKey:       s.param.AK,
-			APISecretKey: s.param.SK,
+			APIKey:       param.AK,
+			APISecretKey: param.SK,
 		}
 	case NameSilo:
 		dns = &namesilo.Provider{
-			APIToken: s.param.AK,
+			APIToken: param.AK,
 		}
 	case ClouDNS:
-		if after, ok := strings.CutPrefix(s.param.AK, "sub-"); ok {
+		if after, ok := strings.CutPrefix(param.AK, "sub-"); ok {
 			dns = &cloudns.Provider{
 				SubAuthId:    after,
-				AuthPassword: s.param.SK,
+				AuthPassword: param.SK,
 			}
 		} else {
 			dns = &cloudns.Provider{
-				AuthId:       s.param.AK,
-				AuthPassword: s.param.SK,
+				AuthId:       param.AK,
+				AuthPassword: param.SK,
 			}
 		}
 	default:
-		return nil, fmt.Errorf("unsupported DNS provider: %s", s.dns)
+		return nil, fmt.Errorf("unsupported DNS provider: %s", dnsType)
 	}
 
 	return dns, nil

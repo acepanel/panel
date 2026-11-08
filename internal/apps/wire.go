@@ -36,6 +36,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/rocketmq"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
+	"github.com/acepanel/panel/v3/internal/apps/stalwart"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
 	"github.com/acepanel/panel/v3/internal/apps/valkey"
 )
@@ -73,6 +74,7 @@ var Module = wire.New().
 	Provide(rocketmq.NewApp).
 	Provide(rsync.NewApp).
 	Provide(s3fs.NewApp).
+	Provide(stalwart.NewApp).
 	Provide(supervisor.NewApp).
 	Provide(valkey.NewApp).
 	Export[*apache.App]().
@@ -106,5 +108,6 @@ var Module = wire.New().
 	Export[*rocketmq.App]().
 	Export[*rsync.App]().
 	Export[*s3fs.App]().
+	Export[*stalwart.App]().
 	Export[*supervisor.App]().
 	Export[*valkey.App]()

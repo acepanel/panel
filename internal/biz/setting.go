@@ -41,6 +41,11 @@ const (
 	SettingKeyPostgresPassword          SettingKey = "postgres_password"
 	SettingKeyMongoDBAdminPassword      SettingKey = "mongodb_admin_password"
 	SettingKeyClickHouseDefaultPassword SettingKey = "clickhouse_default_password"
+	SettingKeyStalwartAdminUser         SettingKey = "stalwart_admin_user"
+	SettingKeyStalwartAdminPassword     SettingKey = "stalwart_admin_password"
+	SettingKeyStalwartCertID            SettingKey = "stalwart_cert_id"     // 绑定到邮件服务的面板证书 ID
+	SettingKeyStalwartCertObject        SettingKey = "stalwart_cert_object" // Stalwart 侧对应的证书对象 ID
+	SettingKeyStalwartProxyWebsite      SettingKey = "stalwart_proxy_website" // 一键创建的反代网站 ID
 	SettingKeyOfflineMode               SettingKey = "offline_mode"
 	SettingKeyAutoUpdate                SettingKey = "auto_update"
 	SettingKeyWebserver                 SettingKey = "webserver"

@@ -32,13 +32,14 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/rocketmq"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
+	"github.com/acepanel/panel/v3/internal/apps/stalwart"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
 	"github.com/acepanel/panel/v3/internal/apps/valkey"
 	"github.com/acepanel/panel/v3/pkg/apploader"
 )
 
-func NewLoader(apacheApp *apache.App, caddyApp *caddy.App, clickhouseApp *clickhouse.App, codeserverApp *codeserver.App, dockerApp *docker.App, elasticsearchApp *elasticsearch.App, fail2banApp *fail2ban.App, frpApp *frp.App, giteaApp *gitea.App, grafanaApp *grafana.App, kafkaApp *kafka.App, mariadbApp *mariadb.App, memcachedApp *memcached.App, minioApp *minio.App, mongodbApp *mongodb.App, mysqlApp *mysql.App, nginxApp *nginx.App, openlitespeedApp *openlitespeed.App, openrestyApp *openresty.App, opensearchApp *opensearch.App, perconaApp *percona.App, pgadminApp *pgadmin.App, phpmyadminApp *phpmyadmin.App, podmanApp *podman.App, postgresqlApp *postgresql.App, prometheusApp *prometheus.App, pureftpdApp *pureftpd.App, redisApp *redis.App, rocketmqApp *rocketmq.App, rsyncApp *rsync.App, s3fsApp *s3fs.App, supervisorApp *supervisor.App, valkeyApp *valkey.App) *apploader.Loader {
+func NewLoader(apacheApp *apache.App, caddyApp *caddy.App, clickhouseApp *clickhouse.App, codeserverApp *codeserver.App, dockerApp *docker.App, elasticsearchApp *elasticsearch.App, fail2banApp *fail2ban.App, frpApp *frp.App, giteaApp *gitea.App, grafanaApp *grafana.App, kafkaApp *kafka.App, mariadbApp *mariadb.App, memcachedApp *memcached.App, minioApp *minio.App, mongodbApp *mongodb.App, mysqlApp *mysql.App, nginxApp *nginx.App, openlitespeedApp *openlitespeed.App, openrestyApp *openresty.App, opensearchApp *opensearch.App, perconaApp *percona.App, pgadminApp *pgadmin.App, phpmyadminApp *phpmyadmin.App, podmanApp *podman.App, postgresqlApp *postgresql.App, prometheusApp *prometheus.App, pureftpdApp *pureftpd.App, redisApp *redis.App, rocketmqApp *rocketmq.App, rsyncApp *rsync.App, s3fsApp *s3fs.App, stalwartApp *stalwart.App, supervisorApp *supervisor.App, valkeyApp *valkey.App) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(apacheApp, caddyApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openlitespeedApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader.Add(apacheApp, caddyApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openlitespeedApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, stalwartApp, supervisorApp, valkeyApp)
 	return loader
 }

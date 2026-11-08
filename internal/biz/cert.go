@@ -254,6 +254,7 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
+	uc.runCertHooks(ctx, cert)
 
 	uc.log.Info(uc.t.Get("cert obtained"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.String("cert_type", cert.Type), slog.String("challenge", lo.Ternary(cert.DNS != nil, "dns", "http")), slog.Any("website_ids", cert.WebsiteIDs()))
 
@@ -303,6 +304,7 @@ func (uc *CertUsecase) ObtainSelfSigned(ctx context.Context, id uint) error {
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return err
 	}
+	uc.runCertHooks(ctx, cert)
 
 	uc.log.Info(uc.t.Get("self-signed cert generated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("website_ids", cert.WebsiteIDs()))
 
@@ -393,6 +395,7 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
+	uc.runCertHooks(ctx, cert)
 
 	uc.log.Info(uc.t.Get("cert renewed"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Bool("reissued", reissued), slog.Any("website_ids", cert.WebsiteIDs()))
 

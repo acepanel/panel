@@ -45,6 +45,7 @@ var supportedSlugs = []string{
 	"rocketmq",
 	"rsync",
 	"s3fs",
+	"stalwart",
 	"supervisor",
 	"valkey",
 }
