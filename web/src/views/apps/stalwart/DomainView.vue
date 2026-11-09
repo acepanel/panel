@@ -443,7 +443,7 @@ onMounted(() => {
           <n-flex align="center">
             <n-select
               v-model:value="dnsAccountID"
-              class="w-80"
+              class="md:!w-80"
               :options="dnsAccountOptions"
               :placeholder="$gettext('Select DNS account')"
             />

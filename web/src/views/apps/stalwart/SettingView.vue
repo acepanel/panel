@@ -141,7 +141,7 @@ onMounted(() => {
           }}
         </n-text>
         <n-flex>
-          <n-input v-model:value="hostname" class="w-80" placeholder="mail.example.com" />
+          <n-input v-model:value="hostname" class="md:!w-80" placeholder="mail.example.com" />
           <n-button
             type="primary"
             :loading="hostnameLoading"
@@ -163,7 +163,7 @@ onMounted(() => {
           }}
         </n-text>
         <n-flex>
-          <n-select v-model:value="certID" class="w-120" :options="certOptions" />
+          <n-select v-model:value="certID" class="md:!w-120" :options="certOptions" />
           <n-button
             type="primary"
             :loading="certLoading"

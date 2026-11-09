@@ -271,14 +271,14 @@ onMounted(() => {
       </n-button>
       <n-select
         v-model:value="domainID"
-        class="w-60"
+        class="md:!w-60"
         clearable
         :options="domainOptions"
         :placeholder="$gettext('All domains')"
       />
       <n-input
         v-model:value="keyword"
-        class="w-60"
+        class="md:!w-60"
         clearable
         :placeholder="$gettext('Search')"
         @keyup.enter="refresh"
@@ -307,7 +307,7 @@ onMounted(() => {
             <n-input-group-label>@</n-input-group-label>
             <n-select
               v-model:value="addModel.domain_id"
-              class="w-60"
+              class="md:!w-60"
               :options="domainOptions"
               :placeholder="$gettext('Select domain')"
             />
