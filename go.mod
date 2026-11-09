@@ -28,7 +28,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.6.3
 	github.com/hashicorp/go-version v1.9.0
-	github.com/klauspost/compress v1.20.3
+	github.com/klauspost/compress v1.20.4
 	github.com/leonelquinteros/gotext v1.8.0
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7
@@ -47,7 +47,7 @@ require (
 	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.6
 	github.com/libtnb/sessions v1.5.0
-	github.com/libtnb/sqlite v1.2.2
+	github.com/libtnb/sqlite v1.3.0
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.6.0
 	github.com/libtnb/validator/contrib/openapi v0.3.1
@@ -74,10 +74,10 @@ require (
 	go.yaml.in/yaml/v4 v4.0.0
 	golang.org/x/crypto v0.58.0
 	golang.org/x/net v0.62.0
-	golang.org/x/sync v0.24.0
-	golang.org/x/sys v0.49.0
-	golang.org/x/term v0.47.0
-	golang.org/x/text v0.43.0
+	golang.org/x/sync v0.25.0
+	golang.org/x/sys v0.50.0
+	golang.org/x/term v0.48.0
+	golang.org/x/text v0.44.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.62.0
 	resty.dev/v3 v3.0.0-rc.4
