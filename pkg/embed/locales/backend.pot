@@ -2554,7 +2554,7 @@ msgstr ""
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
-#: internal/service/log.go:187
+#: internal/service/log.go:189
 msgid "SSH log file not found"
 msgstr ""
 
@@ -6388,7 +6388,7 @@ msgstr ""
 msgid "no RAID configuration detected"
 msgstr ""
 
-#: internal/service/log.go:167
+#: internal/service/log.go:169
 msgid "no SSH log entries found"
 msgstr ""
 
@@ -6532,7 +6532,7 @@ msgstr ""
 msgid "panel is upgrading, please refresh later"
 msgstr ""
 
-#: internal/service/log.go:67
+#: internal/service/log.go:68
 msgid "panel log viewed"
 msgstr ""
 
@@ -7223,7 +7223,7 @@ msgstr ""
 msgid "ssh host viewed"
 msgstr ""
 
-#: internal/service/log.go:124
+#: internal/service/log.go:125
 msgid "ssh login log viewed"
 msgstr ""
 
