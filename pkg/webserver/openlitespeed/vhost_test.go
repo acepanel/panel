@@ -191,19 +191,21 @@ func TestProxy(t *testing.T) {
 	must.NoError(t, err)
 	check.DeepEqual(t, reloaded.Upstreams(), upstreams, cmpopts.EquateEmpty())
 
-	// OLS 没有缓冲开关，Buffering 回读时丢失；未设置的 Host 补成 nginx 的默认变量，其余字段原样保留
+	// 走上游的代理没有自己的 extprocessor，Buffering 回读时丢失；未设置的 Host 补成 nginx 的默认变量，
+	// 没有 Host 头的透传回填 $host，HTTP 版本按 OLS 实际行为回填 1.1，其余字段原样保留
 	check.DeepEqual(t, reloaded.Proxies(), []types.Proxy{
-		{Location: "^~ /", Pass: "http://backend", Host: "example.com"},
+		{Location: "^~ /", Pass: "http://backend", Host: "example.com", HTTPVersion: "1.1"},
 		{
 			Location:        "~ ^/api/v[0-9]+/",
 			Pass:            "https://api.example.com",
 			Host:            "$proxy_host",
+			HTTPVersion:     "1.1",
 			Headers:         map[string]string{"X-Custom": "1"},
 			ResponseHeaders: &types.ResponseHeaderConfig{Add: map[string]string{"X-Cache": "HIT"}, Hide: []string{"X-Powered-By"}},
 			AccessControl:   &types.AccessControlConfig{Allow: []string{"10.0.0.0/8"}, Deny: []string{"*"}},
 		},
-		{Location: "/ws", Pass: "http://127.0.0.1:3000", Host: "$proxy_host"},
-		{Location: "/passthrough", Pass: "http://127.0.0.1:4000", Host: "$host"},
+		{Location: "/ws", Pass: "http://127.0.0.1:3000", Host: "$proxy_host", HTTPVersion: "1.1"},
+		{Location: "/passthrough", Pass: "http://127.0.0.1:4000", Host: "$host", HTTPVersion: "1.1"},
 	}, cmpopts.EquateEmpty())
 }
 

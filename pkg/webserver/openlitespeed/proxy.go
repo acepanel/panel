@@ -295,9 +295,12 @@ func (v *baseVhost) loadProxies(cfg *conf.Config) {
 			}
 		}
 
-		// OLS 不改写 Host 时原样透传客户端的，没有 Host 头就是 $host
+		// 配置里没写的项按 OLS 的实际行为回填：不改写 Host 就是透传客户端的 $host，对上游固定用 HTTP/1.1
 		if p.Host == "" {
 			p.Host = "$host"
+		}
+		if p.HTTPVersion == "" {
+			p.HTTPVersion = "1.1"
 		}
 
 		if ac := ctx.GetBlock("accessControl"); ac != nil {

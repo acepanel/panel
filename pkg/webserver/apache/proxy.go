@@ -145,6 +145,13 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	if d := cfg.FindOne("IfModule.ProxyPreserveHost"); d != nil && strings.EqualFold(d.Arg(0), "on") {
 		proxy.Host = "$host"
 	}
+	// 配置里没写的项按 mod_proxy 的实际行为回填：不保留也不改写 Host 时发上游主机名，对上游固定用 HTTP/1.1
+	if proxy.Host == "" {
+		proxy.Host = "$proxy_host"
+	}
+	if proxy.HTTPVersion == "" {
+		proxy.HTTPVersion = "1.1"
+	}
 
 	if cfg.FindOne("IfModule.ProxyIOBufferSize") != nil {
 		proxy.Buffering = true

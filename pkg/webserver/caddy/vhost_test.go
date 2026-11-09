@@ -371,6 +371,9 @@ func TestVhostProxies(t *testing.T) {
 		if wantProxies[i].Host == "" {
 			wantProxies[i].Host = "$proxy_host"
 		}
+		if wantProxies[i].HTTPVersion == "" {
+			wantProxies[i].HTTPVersion = "1.1"
+		}
 	}
 	check.DeepEqual(t, reloaded.Proxies(), wantProxies)
 

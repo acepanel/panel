@@ -311,14 +311,17 @@ func (v *baseVhost) loadProxies(body *conf.Block) {
 
 func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 	h, custom := h.SplitCustom()
+	// 配置里没写的项按 Caddy 的实际行为回填：不改写 Host 就是透传客户端的 $host、默认缓冲、对上游用 HTTP/1.1
 	p := types.Proxy{
-		Location:  h.Meta("location"),
-		Pass:      h.Meta("pass"),
-		Buffering: true,
-		Resolver:  []string{},
-		Headers:   make(map[string]string),
-		Replaces:  make(map[string]string),
-		Custom:    strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
+		Location:    h.Meta("location"),
+		Pass:        h.Meta("pass"),
+		Host:        "$host",
+		Buffering:   true,
+		HTTPVersion: "1.1",
+		Resolver:    []string{},
+		Headers:     make(map[string]string),
+		Replaces:    make(map[string]string),
+		Custom:      strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
 	}
 	if body := h.Get("request_body"); body != nil {
 		p.ClientMaxBodySize, _ = strconv.ParseInt(body.Get("max_size").Arg(0), 10, 64)

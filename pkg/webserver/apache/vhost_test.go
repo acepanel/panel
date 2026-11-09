@@ -509,7 +509,7 @@ func TestProxyVhostProxies(t *testing.T) {
 	// 验证代理文件已创建
 	check.Len(t, confFiles(t, configDir, "site", "2", "-proxy.conf"), 2)
 
-	check.DeepEqual(t, vhost.Proxies(), proxies, cmpopts.EquateEmpty())
+	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
 }
 
 func TestProxyVhostProxyConfig(t *testing.T) {
@@ -640,7 +640,7 @@ func TestProxyVhostSNI(t *testing.T) {
 	check.Contains(t, string(content), "SSLProxyEngine On")
 	check.Contains(t, string(content), "# ace:sni backend.example.com")
 
-	check.DeepEqual(t, vhost.Proxies(), proxies, cmpopts.EquateEmpty())
+	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
 }
 
 func TestProxyVhostSubstitute(t *testing.T) {
@@ -667,7 +667,7 @@ func TestProxyVhostSubstitute(t *testing.T) {
 	check.Contains(t, string(content), "mod_substitute")
 	check.Contains(t, string(content), "Substitute")
 
-	check.DeepEqual(t, vhost.Proxies(), proxies, cmpopts.EquateEmpty())
+	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
 }
 
 func TestProxyVhostSubstituteWithSlash(t *testing.T) {
@@ -693,7 +693,7 @@ func TestProxyVhostSubstituteWithSlash(t *testing.T) {
 	// 验证使用 | 作为分隔符
 	check.Contains(t, string(content), "Substitute \"s|http://old.example.com/path/to/resource|https://new.example.com/new/path|n\"")
 
-	check.DeepEqual(t, vhost.Proxies(), proxies, cmpopts.EquateEmpty())
+	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
 }
 
 func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
@@ -793,4 +793,19 @@ func TestStaticVhostProxies(t *testing.T) {
 	check.Contains(t, string(content), "ProxyPass /api balancer://api/api")
 	check.Len(t, vhost.Upstreams(), 1)
 	check.Len(t, vhost.Proxies(), 1)
+}
+
+// withProxyDefaults 回读会把没写进配置的 Host 与 HTTP 版本按 mod_proxy 的实际行为补齐
+func withProxyDefaults(proxies []types.Proxy) []types.Proxy {
+	want := make([]types.Proxy, len(proxies))
+	for i, p := range proxies {
+		if p.Host == "" {
+			p.Host = "$proxy_host"
+		}
+		if p.HTTPVersion == "" {
+			p.HTTPVersion = "1.1"
+		}
+		want[i] = p
+	}
+	return want
 }
