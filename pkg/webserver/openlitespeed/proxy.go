@@ -106,9 +106,6 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 		headers := v.contextHeaders()
 		if host := proxyHost(p); host != "" {
 			headers = append(headers, "RequestHeader set Host "+host)
-		} else if strings.TrimSpace(p.Host) == "$host" {
-			// 透传客户端 Host 在 OLS 里就是不写 Host 头，配置里没有痕迹，要用注释记住这个选择，否则回读成空再保存会变成上游主机名
-			ctx.AddMeta("host", "$host")
 		}
 		for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
 			headers = append(headers, fmt.Sprintf("RequestHeader set %s %s", name, headerValue(p.Headers[name])))
@@ -298,8 +295,9 @@ func (v *baseVhost) loadProxies(cfg *conf.Config) {
 			}
 		}
 
+		// OLS 不改写 Host 时原样透传客户端的，没有 Host 头就是 $host
 		if p.Host == "" {
-			p.Host = ctx.Meta("host")
+			p.Host = "$host"
 		}
 
 		if ac := ctx.GetBlock("accessControl"); ac != nil {
