@@ -76,7 +76,7 @@
     "cpx2": "9.0.3",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-oxlint": "1.92.0",
+    "eslint-plugin-oxlint": "1.93.0",
     "eslint-plugin-vue": "10.12.0",
     "naive-ui": "2.45.3",
     "npm-run-all2": "9.0.4",
