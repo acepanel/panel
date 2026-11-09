@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-11-09 18:29\n"
+"PO-Revision-Date: 2026-11-09 18:42\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
@@ -2562,7 +2562,7 @@ msgstr "在資料庫內執行定期工作，安裝後需要重啟 PostgreSQL"
 msgid "SNMP is a protocol for network management"
 msgstr "SNMP 是一種用於網路管理的協定"
 
-#: internal/service/log.go:187
+#: internal/service/log.go:189
 msgid "SSH log file not found"
 msgstr "未找到 SSH 日誌檔案"
 
@@ -6396,7 +6396,7 @@ msgstr "Nginx Stream 上游已更新"
 msgid "no RAID configuration detected"
 msgstr "未偵測到 RAID 配置"
 
-#: internal/service/log.go:167
+#: internal/service/log.go:169
 msgid "no SSH log entries found"
 msgstr "未找到 SSH 日誌條目"
 
@@ -6540,7 +6540,7 @@ msgstr "面板維護中，請稍後重新整理"
 msgid "panel is upgrading, please refresh later"
 msgstr "面板升級中，請稍後重新整理"
 
-#: internal/service/log.go:67
+#: internal/service/log.go:68
 msgid "panel log viewed"
 msgstr "已查看面板日誌"
 
@@ -7231,7 +7231,7 @@ msgstr "SSH 主機已更新"
 msgid "ssh host viewed"
 msgstr "已查看 SSH 主機"
 
-#: internal/service/log.go:124
+#: internal/service/log.go:125
 msgid "ssh login log viewed"
 msgstr "已查看 SSH 登入日誌"
 
