@@ -201,7 +201,7 @@ const handleCleaned = () => {
         v-model:value="keyword"
         :placeholder="$gettext('Search')"
         clearable
-        class="w-60"
+        class="md:!w-60"
         @keyup.enter="handleRefresh"
         @clear="handleRefresh"
       />
