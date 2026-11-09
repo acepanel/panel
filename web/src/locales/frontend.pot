@@ -437,7 +437,7 @@ msgstr ""
 #: src/views/toolbox/WebHookView.vue:323
 #: src/views/toolbox/WebHookView.vue:356
 #: src/views/website/CreateModal.vue:143
-#: src/views/website/EditModal.vue:2263
+#: src/views/website/EditModal.vue:2265
 msgid "Name"
 msgstr ""
 
@@ -686,7 +686,7 @@ msgstr ""
 #: src/views/toolbox/network/InterfaceView.vue:425
 #: src/views/toolbox/ProcessView.vue:251
 #: src/views/website/EditModal.vue:239
-#: src/views/website/EditModal.vue:2372
+#: src/views/website/EditModal.vue:2374
 msgid "Cancel"
 msgstr ""
 
@@ -1333,7 +1333,7 @@ msgstr ""
 #: src/views/toolbox/SystemView.vue:239
 #: src/views/toolbox/SystemView.vue:313
 #: src/views/toolbox/WebHookView.vue:385
-#: src/views/website/EditModal.vue:2381
+#: src/views/website/EditModal.vue:2383
 msgid "Save"
 msgstr ""
 
@@ -2100,7 +2100,7 @@ msgstr ""
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/log/OperationLog.vue:40
 #: src/views/setting/SettingSafe.vue:304
-#: src/views/website/EditModal.vue:1854
+#: src/views/website/EditModal.vue:1856
 msgid "Certificate"
 msgstr ""
 
@@ -3182,7 +3182,7 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:91
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:219
 #: src/views/apps/stalwart/DomainView.vue:64
-#: src/views/website/EditModal.vue:1366
+#: src/views/website/EditModal.vue:1368
 msgid "Default"
 msgstr ""
 
@@ -3210,7 +3210,7 @@ msgid "Registry Mirrors"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:182
-#: src/views/website/EditModal.vue:1881
+#: src/views/website/EditModal.vue:1883
 msgid "Presets"
 msgstr ""
 
@@ -3554,7 +3554,7 @@ msgstr ""
 #: src/views/monitor/AlertView.vue:205
 #: src/views/tamper/RuleModal.vue:90
 #: src/views/tamper/TamperView.vue:354
-#: src/views/website/EditModal.vue:2227
+#: src/views/website/EditModal.vue:2229
 msgid "Add Rule"
 msgstr ""
 
@@ -4716,7 +4716,7 @@ msgstr ""
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/UpdateModal.vue:74
 #: src/views/ssh/UpdateModal.vue:83
-#: src/views/website/EditModal.vue:2217
+#: src/views/website/EditModal.vue:2219
 msgid "Password"
 msgstr ""
 
@@ -5447,7 +5447,7 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:226
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:208
 #: src/views/apps/stalwart/SettingView.vue:231
-#: src/views/website/EditModal.vue:2152
+#: src/views/website/EditModal.vue:2154
 msgid "Enable"
 msgstr ""
 
@@ -5769,20 +5769,20 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:758
 #: src/views/website/EditModal.vue:1118
-#: src/views/website/EditModal.vue:1263
+#: src/views/website/EditModal.vue:1265
 msgid "DNS Resolver"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:761
 #: src/views/container/ContainerCreate.vue:545
 #: src/views/website/EditModal.vue:1122
-#: src/views/website/EditModal.vue:1267
+#: src/views/website/EditModal.vue:1269
 msgid "e.g., 8.8.8.8"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:767
 #: src/views/website/EditModal.vue:1128
-#: src/views/website/EditModal.vue:1273
+#: src/views/website/EditModal.vue:1275
 msgid "Resolver Timeout"
 msgstr ""
 
@@ -5790,7 +5790,7 @@ msgstr ""
 #: src/views/project/CreateModal.vue:238
 #: src/views/website/CreateModal.vue:174
 #: src/views/website/EditModal.vue:1056
-#: src/views/website/EditModal.vue:1997
+#: src/views/website/EditModal.vue:1999
 msgid "PHP Version"
 msgstr ""
 
@@ -5814,7 +5814,7 @@ msgid "LSAPI is the native protocol of OpenLiteSpeed and performs better than Fa
 msgstr ""
 
 #: src/views/apps/openlitespeed/IndexView.vue:197
-#: src/views/website/EditModal.vue:2136
+#: src/views/website/EditModal.vue:2138
 msgid "Real IP"
 msgstr ""
 
@@ -5823,12 +5823,12 @@ msgid "OpenLiteSpeed reads the client IP from the X-Forwarded-For header at the 
 msgstr ""
 
 #: src/views/apps/openlitespeed/IndexView.vue:210
-#: src/views/website/EditModal.vue:2156
+#: src/views/website/EditModal.vue:2158
 msgid "IP Sources"
 msgstr ""
 
 #: src/views/apps/openlitespeed/IndexView.vue:214
-#: src/views/website/EditModal.vue:2160
+#: src/views/website/EditModal.vue:2162
 msgid "One per line, e.g., 127.0.0.1 or 10.0.0.0/8"
 msgstr ""
 
@@ -6363,7 +6363,7 @@ msgid "e.g. 10s"
 msgstr ""
 
 #: src/views/apps/prometheus/PrometheusExportersView.vue:112
-#: src/views/website/EditModal.vue:2258
+#: src/views/website/EditModal.vue:2260
 msgid "Config"
 msgstr ""
 
@@ -6406,7 +6406,7 @@ msgstr ""
 #: src/views/setting/SettingUser.vue:26
 #: src/views/ssh/CreateModal.vue:74
 #: src/views/ssh/UpdateModal.vue:80
-#: src/views/website/EditModal.vue:2216
+#: src/views/website/EditModal.vue:2218
 msgid "Username"
 msgstr ""
 
@@ -6427,7 +6427,7 @@ msgid "User Management"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:193
-#: src/views/website/EditModal.vue:2218
+#: src/views/website/EditModal.vue:2220
 msgid "Add User"
 msgstr ""
 
@@ -6472,7 +6472,7 @@ msgstr ""
 #: src/views/project/ListView.vue:105
 #: src/views/task/CreateModal.vue:458
 #: src/views/website/CreateModal.vue:233
-#: src/views/website/EditModal.vue:2210
+#: src/views/website/EditModal.vue:2212
 #: src/views/website/ListView.vue:157
 msgid "Directory"
 msgstr ""
@@ -6895,11 +6895,11 @@ msgstr ""
 
 #: src/views/apps/stalwart/AccountView.vue:96
 #: src/views/file/ShareModal.vue:156
-#: src/views/website/EditModal.vue:1619
-#: src/views/website/EditModal.vue:1634
-#: src/views/website/EditModal.vue:2098
-#: src/views/website/EditModal.vue:2111
-#: src/views/website/EditModal.vue:2124
+#: src/views/website/EditModal.vue:1621
+#: src/views/website/EditModal.vue:1636
+#: src/views/website/EditModal.vue:2100
+#: src/views/website/EditModal.vue:2113
+#: src/views/website/EditModal.vue:2126
 msgid "Unlimited"
 msgstr ""
 
@@ -7064,7 +7064,7 @@ msgstr ""
 
 #: src/views/apps/stalwart/IndexView.vue:53
 #: src/views/apps/stalwart/StatusView.vue:182
-#: src/views/website/EditModal.vue:1797
+#: src/views/website/EditModal.vue:1799
 msgid "Domains"
 msgstr ""
 
@@ -7620,7 +7620,7 @@ msgstr ""
 #: src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/UpdateModal.vue:75
 #: src/views/ssh/UpdateModal.vue:86
-#: src/views/website/EditModal.vue:1864
+#: src/views/website/EditModal.vue:1866
 msgid "Private Key"
 msgstr ""
 
@@ -7875,7 +7875,7 @@ msgid "Associated Website"
 msgstr ""
 
 #: src/views/cert/CertView.vue:240
-#: src/views/website/EditModal.vue:1791
+#: src/views/website/EditModal.vue:1793
 msgid "Issuer"
 msgstr ""
 
@@ -7895,7 +7895,7 @@ msgid "Auto Renewal"
 msgstr ""
 
 #: src/views/cert/CertView.vue:301
-#: src/views/website/EditModal.vue:2405
+#: src/views/website/EditModal.vue:2407
 msgid "Issue"
 msgstr ""
 
@@ -7940,13 +7940,13 @@ msgstr ""
 #: src/views/cert/CreateDnsModal.vue:63
 #: src/views/cert/DnsView.vue:183
 #: src/views/cert/IndexView.vue:100
-#: src/views/website/EditModal.vue:2396
+#: src/views/website/EditModal.vue:2398
 msgid "DNS"
 msgstr ""
 
 #: src/views/cert/CertView.vue:569
 #: src/views/cert/CreateCertModal.vue:131
-#: src/views/website/EditModal.vue:2399
+#: src/views/website/EditModal.vue:2401
 msgid "Select DNS for certificate issuance"
 msgstr ""
 
@@ -7967,13 +7967,13 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:607
 #: src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditModal.vue:1858
+#: src/views/website/EditModal.vue:1860
 msgid "Enter the content of the PEM certificate file"
 msgstr ""
 
 #: src/views/cert/CertView.vue:619
 #: src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditModal.vue:1868
+#: src/views/website/EditModal.vue:1870
 msgid "Enter the content of the KEY private key file"
 msgstr ""
 
@@ -8588,8 +8588,8 @@ msgid "Label value"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:924
-#: src/views/website/EditModal.vue:1428
-#: src/views/website/EditModal.vue:1983
+#: src/views/website/EditModal.vue:1430
+#: src/views/website/EditModal.vue:1985
 msgid "Advanced Settings"
 msgstr ""
 
@@ -8896,8 +8896,8 @@ msgstr ""
 
 #: src/views/container/NetworkView.vue:63
 #: src/views/container/VolumeView.vue:44
-#: src/views/website/EditModal.vue:2199
-#: src/views/website/EditModal.vue:2271
+#: src/views/website/EditModal.vue:2201
+#: src/views/website/EditModal.vue:2273
 msgid "Scope"
 msgstr ""
 
@@ -9147,7 +9147,7 @@ msgid "Are you sure you want to delete this index?"
 msgstr ""
 
 #: src/views/database/ElasticsearchDataView.vue:163
-#: src/views/website/EditModal.vue:1936
+#: src/views/website/EditModal.vue:1938
 msgid "Source"
 msgstr ""
 
@@ -11429,7 +11429,7 @@ msgstr ""
 
 #: src/views/monitor/AlertRuleModal.vue:147
 #: src/views/toolbox/MigrationView.vue:167
-#: src/views/website/EditModal.vue:1949
+#: src/views/website/EditModal.vue:1951
 msgid "Target"
 msgstr ""
 
@@ -11490,7 +11490,7 @@ msgstr ""
 
 #: src/views/monitor/AlertView.vue:153
 #: src/views/website/EditModal.vue:1197
-#: src/views/website/EditModal.vue:1911
+#: src/views/website/EditModal.vue:1913
 msgid "Rule"
 msgstr ""
 
@@ -11800,7 +11800,7 @@ msgid "Clear Monitoring Records"
 msgstr ""
 
 #: src/views/monitor/SettingView.vue:48
-#: src/views/website/EditModal.vue:2342
+#: src/views/website/EditModal.vue:2344
 msgid "Are you sure you want to clear?"
 msgstr ""
 
@@ -11989,7 +11989,7 @@ msgstr ""
 #: src/views/project/CreateModal.vue:238
 #: src/views/website/CreateModal.vue:178
 #: src/views/website/EditModal.vue:1060
-#: src/views/website/EditModal.vue:2001
+#: src/views/website/EditModal.vue:2003
 msgid "Select PHP Version"
 msgstr ""
 
@@ -12734,7 +12734,7 @@ msgid "Panel public IP is used to issue HTTPS certificates using ACME. Ensure th
 msgstr ""
 
 #: src/views/setting/SettingSafe.vue:301
-#: src/views/website/EditModal.vue:1812
+#: src/views/website/EditModal.vue:1814
 msgid "Use Existing Certificate"
 msgstr ""
 
@@ -13011,7 +13011,7 @@ msgstr ""
 
 #: src/views/tamper/TamperView.vue:218
 #: src/views/tamper/TamperView.vue:379
-#: src/views/website/EditModal.vue:2347
+#: src/views/website/EditModal.vue:2349
 msgid "Clear Logs"
 msgstr ""
 
@@ -15045,14 +15045,14 @@ msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:181
 #: src/views/website/CreateModal.vue:136
-#: src/views/website/EditModal.vue:1985
+#: src/views/website/EditModal.vue:1987
 #: src/views/website/ListView.vue:122
 msgid "Website Type"
 msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:185
 #: src/views/website/CreateModal.vue:140
-#: src/views/website/EditModal.vue:1994
+#: src/views/website/EditModal.vue:1996
 msgid "Select Website Type"
 msgstr ""
 
@@ -15103,7 +15103,7 @@ msgid "Website root directory (if left empty, defaults to website directory/webs
 msgstr ""
 
 #: src/views/website/CreateModal.vue:252
-#: src/views/website/EditModal.vue:2004
+#: src/views/website/EditModal.vue:2006
 msgid "Proxy Target"
 msgstr ""
 
@@ -15297,504 +15297,504 @@ msgid "Proxy Host"
 msgstr ""
 
 #: src/views/website/EditModal.vue:1241
-msgid "Default: $proxy_host, or extracted from Proxy Pass"
+msgid "$host keeps the visitor Host, $proxy_host sends the upstream hostname; empty means $proxy_host"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1245
+#: src/views/website/EditModal.vue:1247
 msgid "Proxy SNI"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1248
+#: src/views/website/EditModal.vue:1250
 msgid "Optional, for HTTPS backends"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1251
+#: src/views/website/EditModal.vue:1253
 msgid "Enable Cache"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1257
+#: src/views/website/EditModal.vue:1259
 msgid "Enable Buffering"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1302
+#: src/views/website/EditModal.vue:1304
 msgid "Cache Settings"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1307
+#: src/views/website/EditModal.vue:1309
 msgid "Cache Valid"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1310
+#: src/views/website/EditModal.vue:1312
 msgid "Status codes, e.g., 200 302 or any"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1311
+#: src/views/website/EditModal.vue:1313
 msgid "Duration, e.g., 10m, 1h, 1d"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1312
+#: src/views/website/EditModal.vue:1314
 msgid "Add Cache Valid Rule"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1318
+#: src/views/website/EditModal.vue:1320
 msgid "No Cache Conditions"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1331
+#: src/views/website/EditModal.vue:1333
 msgid "Select or enter conditions"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1335
+#: src/views/website/EditModal.vue:1337
 msgid "Use Stale"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1348
+#: src/views/website/EditModal.vue:1350
 msgid "When to use stale cache"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1352
+#: src/views/website/EditModal.vue:1354
 msgid "Background Update"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1356
+#: src/views/website/EditModal.vue:1358
 msgid "Cache Lock"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1360
+#: src/views/website/EditModal.vue:1362
 msgid "Min Uses"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1371
+#: src/views/website/EditModal.vue:1373
 msgid "Cache Methods"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1380
+#: src/views/website/EditModal.vue:1382
 msgid "Default: GET HEAD"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1384
+#: src/views/website/EditModal.vue:1386
 msgid "Cache Key"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1388
+#: src/views/website/EditModal.vue:1390
 msgid "Custom cache key, e.g., $scheme$host$request_uri"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1396
+#: src/views/website/EditModal.vue:1398
 msgid "Custom Request Headers"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1399
-#: src/views/website/EditModal.vue:1699
+#: src/views/website/EditModal.vue:1401
+#: src/views/website/EditModal.vue:1701
 msgid "Header name"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1401
+#: src/views/website/EditModal.vue:1403
 msgid "Value or variable like $host, $remote_addr"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1403
+#: src/views/website/EditModal.vue:1405
 msgid "Add Request Header"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1411
+#: src/views/website/EditModal.vue:1413
 msgid "Response Content Replacement"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1416
+#: src/views/website/EditModal.vue:1418
 msgid "Original content"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1417
+#: src/views/website/EditModal.vue:1419
 msgid "Replacement content"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1418
+#: src/views/website/EditModal.vue:1420
 msgid "Add Replacement Rule"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1433
+#: src/views/website/EditModal.vue:1435
 msgid "HTTP Version"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1441
+#: src/views/website/EditModal.vue:1443
 msgid "Select HTTP version"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1446
+#: src/views/website/EditModal.vue:1448
 msgid "Max Body Size"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1452
+#: src/views/website/EditModal.vue:1454
 msgid "Use global"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1471
+#: src/views/website/EditModal.vue:1473
 msgid "Timeout Settings"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1482
+#: src/views/website/EditModal.vue:1484
 msgid "Connect Timeout"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1508
+#: src/views/website/EditModal.vue:1510
 msgid "Read Timeout"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1534
+#: src/views/website/EditModal.vue:1536
 msgid "Send Timeout"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1565
+#: src/views/website/EditModal.vue:1567
 msgid "Retry Settings"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1576
+#: src/views/website/EditModal.vue:1578
 msgid "SSL Backend Verify"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1585
+#: src/views/website/EditModal.vue:1587
 msgid "Response Headers"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1596
+#: src/views/website/EditModal.vue:1598
 msgid "Retry Conditions"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1612
+#: src/views/website/EditModal.vue:1614
 msgid "Select retry conditions"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1615
+#: src/views/website/EditModal.vue:1617
 msgid "Max Tries"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1623
+#: src/views/website/EditModal.vue:1625
 msgid "Retry Timeout"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1653
+#: src/views/website/EditModal.vue:1655
 msgid "Enable Verify"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1656
+#: src/views/website/EditModal.vue:1658
 msgid "Verify Depth"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1663
+#: src/views/website/EditModal.vue:1665
 msgid "Trusted Certificate"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1667
+#: src/views/website/EditModal.vue:1669
 msgid "CA certificate path, e.g. /etc/ssl/certs/ca-certificates.crt"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1679
+#: src/views/website/EditModal.vue:1681
 msgid "Hide Headers"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1693
+#: src/views/website/EditModal.vue:1695
 msgid "Select or input headers to hide"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1696
+#: src/views/website/EditModal.vue:1698
 msgid "Add Headers"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1700
+#: src/views/website/EditModal.vue:1702
 msgid "Header value"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1701
+#: src/views/website/EditModal.vue:1703
 msgid "Add Response Header"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1706
+#: src/views/website/EditModal.vue:1708
 msgid "Custom headers replace the site-level HSTS and Alt-Svc headers for this location"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1717
+#: src/views/website/EditModal.vue:1719
 msgid "IP Access Control"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1728
+#: src/views/website/EditModal.vue:1730
 msgid "Allow IPs"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1731
+#: src/views/website/EditModal.vue:1733
 msgid "IP or CIDR, e.g. 192.168.1.0/24"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1734
+#: src/views/website/EditModal.vue:1736
 msgid "Deny IPs"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1737
+#: src/views/website/EditModal.vue:1739
 msgid "IP or CIDR, e.g. all"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1745
+#: src/views/website/EditModal.vue:1747
 msgid "Custom Directives"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1754
+#: src/views/website/EditModal.vue:1756
 msgid "Written in the native syntax of the current web server and appended to the end of this rule; not migrated when switching web servers"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1769
+#: src/views/website/EditModal.vue:1771
 msgid "No proxy rules configured"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1774
+#: src/views/website/EditModal.vue:1776
 msgid "Add Proxy Rule"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1783
+#: src/views/website/EditModal.vue:1785
 msgid "Certificate Validity"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1806
+#: src/views/website/EditModal.vue:1808
 msgid "Main Switch"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1829
+#: src/views/website/EditModal.vue:1831
 msgid "HTTP Redirect"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1832
+#: src/views/website/EditModal.vue:1834
 msgid "OCSP Stapling"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1837
+#: src/views/website/EditModal.vue:1839
 msgid "TLS Version"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1878
+#: src/views/website/EditModal.vue:1880
 msgid "Rewrite"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1893
+#: src/views/website/EditModal.vue:1895
 msgid "Redirects"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1924
+#: src/views/website/EditModal.vue:1926
 msgid "Redirect Type"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1927
+#: src/views/website/EditModal.vue:1929
 #: src/views/website/stats/ErrorsTab.vue:117
 msgid "Status Code"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1942
+#: src/views/website/EditModal.vue:1944
 msgid "Source path, e.g., /old"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1943
+#: src/views/website/EditModal.vue:1945
 msgid "Source host, e.g., example.com"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1955
+#: src/views/website/EditModal.vue:1957
 msgid "Target path, e.g., /new"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1956
+#: src/views/website/EditModal.vue:1958
 msgid "Target URL, e.g., https://example.com"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1960
+#: src/views/website/EditModal.vue:1962
 msgid "Keep URI"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1963
+#: src/views/website/EditModal.vue:1965
 msgid "Keep the original request path and query parameters"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1974
+#: src/views/website/EditModal.vue:1976
 msgid "No redirect rules configured"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1979
+#: src/views/website/EditModal.vue:1981
 msgid "Add Redirect Rule"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1987
+#: src/views/website/EditModal.vue:1989
 msgid "Current Website Type"
 msgstr ""
 
-#: src/views/website/EditModal.vue:1990
+#: src/views/website/EditModal.vue:1992
 msgid "Target Website Type"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2007
+#: src/views/website/EditModal.vue:2009
 msgid "For example: http://127.0.0.1:3000"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2012
+#: src/views/website/EditModal.vue:2014
 msgid "After switching, common settings and website files will be preserved. The original type-specific configuration will be deleted and rebuilt for the new type."
 msgstr ""
 
-#: src/views/website/EditModal.vue:2023
+#: src/views/website/EditModal.vue:2025
 msgid "Switch Website Type"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2031
+#: src/views/website/EditModal.vue:2033
 msgid "Access Statistics"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2035
+#: src/views/website/EditModal.vue:2037
 msgid "Enable Statistics"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2045
+#: src/views/website/EditModal.vue:2047
 msgid "Enables the LiteSpeed cache module for this site. Pages are cached only when the application asks for it, e.g. WordPress with the LiteSpeed Cache plugin."
 msgstr ""
 
-#: src/views/website/EditModal.vue:2051
+#: src/views/website/EditModal.vue:2053
 msgid "Enable LSCache"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2058
+#: src/views/website/EditModal.vue:2060
 msgid "Log Settings"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2060
-#: src/views/website/EditModal.vue:2307
+#: src/views/website/EditModal.vue:2062
+#: src/views/website/EditModal.vue:2309
 msgid "Access Log"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2069
-#: src/views/website/EditModal.vue:2323
+#: src/views/website/EditModal.vue:2071
+#: src/views/website/EditModal.vue:2325
 msgid "Error Log"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2084
+#: src/views/website/EditModal.vue:2086
 msgid "Rate Limiting"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2088
+#: src/views/website/EditModal.vue:2090
 msgid "Enable Rate Limiting"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2092
+#: src/views/website/EditModal.vue:2094
 msgid "Concurrent Limit"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2102
+#: src/views/website/EditModal.vue:2104
 msgid "Limit the maximum concurrent connections for this site"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2105
+#: src/views/website/EditModal.vue:2107
 msgid "Per IP Limit"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2115
+#: src/views/website/EditModal.vue:2117
 msgid "Limit the maximum concurrent connections per IP"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2118
+#: src/views/website/EditModal.vue:2120
 msgid "Rate Limit"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2128
+#: src/views/website/EditModal.vue:2130
 msgid "Limit the rate of each request (unit: KB)"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2139
+#: src/views/website/EditModal.vue:2141
 msgid "Configure trusted proxy IPs (e.g., CDN or Frp) to identify real visitor IPs."
 msgstr ""
 
-#: src/views/website/EditModal.vue:2146
+#: src/views/website/EditModal.vue:2148
 msgid "If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) or ::/0 (ipv6) [insecure]."
 msgstr ""
 
-#: src/views/website/EditModal.vue:2164
+#: src/views/website/EditModal.vue:2166
 msgid "IP Header"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2179
+#: src/views/website/EditModal.vue:2181
 msgid "Recursive"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2182
+#: src/views/website/EditModal.vue:2184
 msgid "Recursively search for real IP in X-Forwarded-For header"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2190
+#: src/views/website/EditModal.vue:2192
 msgid "Basic Authentication"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2205
+#: src/views/website/EditModal.vue:2207
 msgid "Entire Website"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2207
+#: src/views/website/EditModal.vue:2209
 msgid "Specific Directory"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2213
+#: src/views/website/EditModal.vue:2215
 msgid "User Credentials"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2231
+#: src/views/website/EditModal.vue:2233
 msgid "Visitors will need to enter a username and password to access the protected directories."
 msgstr ""
 
-#: src/views/website/EditModal.vue:2240
+#: src/views/website/EditModal.vue:2242
 msgid "Custom Configs"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2267
+#: src/views/website/EditModal.vue:2269
 msgid "Config name (letters, numbers, underscore, hyphen)"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2275
+#: src/views/website/EditModal.vue:2277
 msgid "This Website"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2276
+#: src/views/website/EditModal.vue:2278
 msgid "Global"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2281
+#: src/views/website/EditModal.vue:2283
 msgid "Content"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2295
+#: src/views/website/EditModal.vue:2297
 msgid "No custom configs"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2300
+#: src/views/website/EditModal.vue:2302
 msgid "Add Custom Config"
-msgstr ""
-
-#: src/views/website/EditModal.vue:2312
-#: src/views/website/EditModal.vue:2328
-msgid "All logs can be viewed by downloading the file"
 msgstr ""
 
 #: src/views/website/EditModal.vue:2314
 #: src/views/website/EditModal.vue:2330
+msgid "All logs can be viewed by downloading the file"
+msgstr ""
+
+#: src/views/website/EditModal.vue:2316
+#: src/views/website/EditModal.vue:2332
 msgid "view"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2358
+#: src/views/website/EditModal.vue:2360
 msgid "One-click Certificate Issuance"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2362
+#: src/views/website/EditModal.vue:2364
 msgid "Are you sure you want to reset the configuration?"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2367
+#: src/views/website/EditModal.vue:2369
 msgid "Reset Configuration"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2386
+#: src/views/website/EditModal.vue:2388
 msgid "Select DNS Provider"
 msgstr ""
 
-#: src/views/website/EditModal.vue:2390
+#: src/views/website/EditModal.vue:2392
 msgid "Your website contains wildcard domains (e.g. *.example.com), which require DNS verification to issue certificates."
 msgstr ""
 
