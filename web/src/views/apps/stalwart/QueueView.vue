@@ -180,7 +180,7 @@ onMounted(() => {
     <n-flex align="center">
       <n-input
         v-model:value="keyword"
-        class="w-60"
+        class="md:!w-60"
         clearable
         :placeholder="$gettext('Search sender or recipient')"
         @keyup.enter="refresh"
