@@ -1238,7 +1238,9 @@ const removeCustomConfig = (index: number) => {
                         <n-input
                           v-model:value="proxy.host"
                           :placeholder="
-                            $gettext('Default: $proxy_host, or extracted from Proxy Pass')
+                            $gettext(
+                              '$host keeps the visitor Host, $proxy_host sends the upstream hostname; empty means $proxy_host',
+                            )
                           "
                         />
                       </n-form-item-gi>
