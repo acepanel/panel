@@ -19,6 +19,9 @@ const (
 	StatusDisconnected = "disconnected"
 )
 
+// JournalPattern 供 journalctl -g 预过滤，必须覆盖下面四条规则能识别的全部消息
+const JournalPattern = `Accepted \S+ for|Failed \S+ for|Invalid user|Disconnected from`
+
 var (
 	accepted    = regexp.MustCompile(`Accepted\s+(\S+)\s+for\s+(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)
 	failed      = regexp.MustCompile(`Failed\s+(\S+)\s+for\s+(?:invalid user\s+)?(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)

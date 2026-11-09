@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -127,12 +128,13 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 }
 
 // sshFromJournalctl 通过 journalctl 获取 SSH 日志
-// 登录记录在 journal 里很稀疏，按行数截断会漏，改为倒序流式读取，凑够 limit 条就停
+// 登录记录在 journal 里很稀疏，连接关闭、PAM 之类的噪音是它的几十倍，让 journalctl 自己按正则过滤后倒序取 limit 条，
+// 面板只收到命中的行，也不用再反序列化整条 journal 记录
 func (s *LogService) sshFromJournalctl(ctx context.Context, limit int) ([]types.SSHLoginLog, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	pipe, err := shell.ExecWithPipe(ctx, "journalctl -u sshd -u ssh --no-pager -o json -r 2>/dev/null")
+	pipe, err := shell.ExecWithPipe(ctx, fmt.Sprintf("journalctl -u sshd -u ssh --no-pager -q -o json --output-fields=MESSAGE,__REALTIME_TIMESTAMP -g %s -n %d -r 2>/dev/null", shell.Quote(sshlog.JournalPattern), limit))
 	if err != nil {
 		return nil, err
 	}
