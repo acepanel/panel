@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-11-09 18:29\n"
+"PO-Revision-Date: 2026-11-09 18:42\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:570
@@ -10025,7 +10025,7 @@ msgstr "取消收藏"
 #: src/views/file/ListView.vue:435
 #: src/views/file/ListView.vue:1044
 msgid "Add to Favorites"
-msgstr "加入收藏"
+msgstr "收藏"
 
 #: src/views/file/ListView.vue:446
 #: src/views/file/ListView.vue:1057
