@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-08 17:02\n"
+"PO-Revision-Date: 2026-11-09 18:29\n"
 
 #: pkg/tui/tui.go:144
 msgid "#%d, leave empty to finish"
