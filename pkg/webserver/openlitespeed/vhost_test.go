@@ -162,6 +162,11 @@ func TestProxy(t *testing.T) {
 			Location: "/ws",
 			Pass:     "http://127.0.0.1:3000",
 		},
+		{
+			Location: "/passthrough",
+			Pass:     "http://127.0.0.1:4000",
+			Host:     "$host",
+		},
 	}))
 	check.NoError(t, vhost.Save())
 
@@ -175,6 +180,9 @@ func TestProxy(t *testing.T) {
 	check.Contains(t, conf, "allow                    10.0.0.0/8")
 	check.Contains(t, conf, "websocket /ws/ {")
 	check.Contains(t, conf, "address                  127.0.0.1:3000")
+	// 透传客户端 Host 不写 Host 头，只留注释供回读；/ws 那条默认补上游主机名，所以 127.0.0.1 只出现一次
+	check.Equal(t, 1, strings.Count(conf, "RequestHeader set Host 127.0.0.1"))
+	check.Contains(t, conf, "# ace:host $host")
 	// 子路径反代跳过后续 rewrite，根规则不拦
 	check.Contains(t, conf, "RewriteRule              ^/api/v[0-9]+/ - [L]")
 	check.Contains(t, conf, "RewriteRule              ^/ws/ - [L]")
@@ -196,6 +204,7 @@ func TestProxy(t *testing.T) {
 			AccessControl:   &types.AccessControlConfig{Allow: []string{"10.0.0.0/8"}, Deny: []string{"*"}},
 		},
 		{Location: "/ws", Pass: "http://127.0.0.1:3000", Host: "$proxy_host"},
+		{Location: "/passthrough", Pass: "http://127.0.0.1:4000", Host: "$host"},
 	}, cmpopts.EquateEmpty())
 }
 
