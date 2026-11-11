@@ -340,6 +340,10 @@ func proxyNode(p types.Proxy) (*conf.Directive, error) {
 		for _, header := range p.ResponseHeaders.Hide {
 			loc.Add("proxy_hide_header", header)
 		}
+		// location 里一旦出现 add_header 就不再继承 server 级的 HSTS、Alt-Svc，需显式合并
+		if len(p.ResponseHeaders.Add) > 0 {
+			loc.Add("add_header_inherit", "merge")
+		}
 		for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
 			loc.Add("add_header", name, p.ResponseHeaders.Add[name], "always")
 		}
