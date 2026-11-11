@@ -62,3 +62,27 @@ func TestProxyCustom(t *testing.T) {
 	check.Error(t, v.SetProxies([]types.Proxy{{Location: "/", Pass: "http://127.0.0.1:8080", Custom: "location /x {"}}))
 	check.Equal(t, v.Proxies()[0].Custom, custom)
 }
+
+func TestProxyResponseHeadersInherit(t *testing.T) {
+	v, dir := newProxyVhost(t)
+	for _, tt := range []struct {
+		name    string
+		headers *types.ResponseHeaderConfig
+		want    string
+	}{
+		{"添加响应头时合并继承", &types.ResponseHeaderConfig{Hide: []string{"X-Powered-By"}, Add: map[string]string{"X-Proxy": "ace"}}, "merge"},
+		{"仅隐藏响应头时不写", &types.ResponseHeaderConfig{Hide: []string{"X-Powered-By"}, Add: map[string]string{}}, ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			must.NoError(t, v.SetProxies([]types.Proxy{{Location: "/", Pass: "http://127.0.0.1:8080", ResponseHeaders: tt.headers}}))
+			cfg, err := ParseFile(filepath.Join(dir, "site", "200-proxy.conf"))
+			must.NoError(t, err)
+			check.Equal(t, cfg.GetBlock("location").Value("add_header_inherit"), tt.want)
+
+			got := v.Proxies()
+			must.Len(t, got, 1)
+			check.DeepEqual(t, got[0].ResponseHeaders, tt.headers)
+			check.Empty(t, got[0].Custom)
+		})
+	}
+}

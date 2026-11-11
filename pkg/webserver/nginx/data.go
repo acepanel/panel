@@ -163,8 +163,9 @@ var order = map[string]int{
 	"zstd_types":      923,
 	"zstd_static":     924,
 
-	"add_header": 1000,
-	"expires":    1001,
+	"add_header_inherit": 999,
+	"add_header":         1000,
+	"expires":            1001,
 
 	// rewrite 阶段按书写顺序执行，三者共用排序键以保持原有先后
 	"set":     1100,
