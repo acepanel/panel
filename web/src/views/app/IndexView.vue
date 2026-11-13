@@ -42,7 +42,6 @@ const handleUpdateCache = () => {
         <n-tab name="template" :tab="$gettext('Container Template')" />
         <template #suffix>
           <n-button
-            v-if="currentTab != 'installed'"
             type="primary"
             :loading="updateCacheLoading"
             :disabled="updateCacheLoading"
