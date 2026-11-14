@@ -54,8 +54,8 @@ require (
 	github.com/libtnb/wire v0.3.0
 	github.com/medama-io/go-useragent v1.2.5
 	github.com/mholt/acmez/v3 v3.1.7
-	github.com/moby/moby/api v1.56.1
-	github.com/moby/moby/client v0.6.2
+	github.com/moby/moby/api v1.57.0
+	github.com/moby/moby/client v0.6.3
 	github.com/molecule-man/go-brrr v1.3.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
