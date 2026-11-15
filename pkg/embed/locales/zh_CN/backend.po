@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-15 18:02\n"
+"PO-Revision-Date: 2026-11-15 18:50\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -5017,7 +5017,7 @@ msgstr "解析模板 data.yml 失败"
 msgid "failed to parse version: %v"
 msgstr "解析版本失败： %v"
 
-#: internal/service/firewall.go:233
+#: internal/service/firewall.go:240
 msgid "failed to parse xlsx: %v"
 msgstr "解析 xlsx 失败：%v"
 
@@ -5366,7 +5366,7 @@ msgstr "更新分类缓存失败"
 msgid "failed to update environment cache"
 msgstr "更新运行环境缓存失败"
 
-#: internal/service/firewall.go:162
+#: internal/service/firewall.go:169
 #: internal/service/toolbox_ssh.go:85
 msgid "failed to update firewall rule: %v"
 msgstr "更新防火墙规则失败：%v"
@@ -5586,51 +5586,51 @@ msgstr "文件解压任务已创建"
 msgid "file uploaded"
 msgstr "文件已上传"
 
-#: internal/service/firewall.go:396
+#: internal/service/firewall.go:403
 msgid "firewall forward created"
 msgstr "防火墙端口转发已创建"
 
-#: internal/service/firewall.go:414
+#: internal/service/firewall.go:421
 msgid "firewall forward deleted"
 msgstr "防火墙端口转发已删除"
 
-#: internal/service/firewall.go:375
+#: internal/service/firewall.go:382
 msgid "firewall forward list viewed"
 msgstr "已查看防火墙端口转发列表"
 
-#: internal/service/firewall.go:344
+#: internal/service/firewall.go:351
 msgid "firewall ip rule created"
 msgstr "防火墙 IP 规则已创建"
 
-#: internal/service/firewall.go:362
+#: internal/service/firewall.go:369
 msgid "firewall ip rule deleted"
 msgstr "防火墙 IP 规则已删除"
 
-#: internal/service/firewall.go:323
+#: internal/service/firewall.go:330
 msgid "firewall ip rule list viewed"
 msgstr "已查看防火墙 IP 规则列表"
 
-#: internal/service/firewall.go:133
+#: internal/service/firewall.go:140
 msgid "firewall rule created"
 msgstr "防火墙规则已创建"
 
-#: internal/service/firewall.go:184
+#: internal/service/firewall.go:191
 msgid "firewall rule deleted"
 msgstr "防火墙规则已删除"
 
-#: internal/service/firewall.go:112
+#: internal/service/firewall.go:119
 msgid "firewall rule list viewed"
 msgstr "已查看防火墙规则列表"
 
-#: internal/service/firewall.go:166
+#: internal/service/firewall.go:173
 msgid "firewall rule updated"
 msgstr "防火墙规则已更新"
 
-#: internal/service/firewall.go:211
+#: internal/service/firewall.go:218
 msgid "firewall rules exported"
 msgstr "防火墙规则已导出"
 
-#: internal/service/firewall.go:293
+#: internal/service/firewall.go:300
 msgid "firewall rules imported"
 msgstr "防火墙规则已导入"
 
@@ -5806,7 +5806,7 @@ msgstr "验证码无效"
 msgid "invalid channel config: %v"
 msgstr "渠道配置无效：%v"
 
-#: internal/service/firewall.go:254
+#: internal/service/firewall.go:261
 msgid "invalid file: missing port_start column"
 msgstr "无效文件：缺少 port_start 列"
 
@@ -6265,7 +6265,7 @@ msgstr "暂无迁移日志"
 msgid "no records selected"
 msgstr "未选择任何记录"
 
-#: internal/service/firewall.go:244
+#: internal/service/firewall.go:251
 msgid "no rules found in file"
 msgstr "文件中未找到规则"
 
