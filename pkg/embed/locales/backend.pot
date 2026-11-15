@@ -5009,7 +5009,7 @@ msgstr ""
 msgid "failed to parse version: %v"
 msgstr ""
 
-#: internal/service/firewall.go:233
+#: internal/service/firewall.go:240
 msgid "failed to parse xlsx: %v"
 msgstr ""
 
@@ -5358,7 +5358,7 @@ msgstr ""
 msgid "failed to update environment cache"
 msgstr ""
 
-#: internal/service/firewall.go:162
+#: internal/service/firewall.go:169
 #: internal/service/toolbox_ssh.go:85
 msgid "failed to update firewall rule: %v"
 msgstr ""
@@ -5578,51 +5578,51 @@ msgstr ""
 msgid "file uploaded"
 msgstr ""
 
-#: internal/service/firewall.go:396
+#: internal/service/firewall.go:403
 msgid "firewall forward created"
 msgstr ""
 
-#: internal/service/firewall.go:414
+#: internal/service/firewall.go:421
 msgid "firewall forward deleted"
 msgstr ""
 
-#: internal/service/firewall.go:375
+#: internal/service/firewall.go:382
 msgid "firewall forward list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:344
+#: internal/service/firewall.go:351
 msgid "firewall ip rule created"
 msgstr ""
 
-#: internal/service/firewall.go:362
+#: internal/service/firewall.go:369
 msgid "firewall ip rule deleted"
 msgstr ""
 
-#: internal/service/firewall.go:323
+#: internal/service/firewall.go:330
 msgid "firewall ip rule list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:133
+#: internal/service/firewall.go:140
 msgid "firewall rule created"
 msgstr ""
 
-#: internal/service/firewall.go:184
+#: internal/service/firewall.go:191
 msgid "firewall rule deleted"
 msgstr ""
 
-#: internal/service/firewall.go:112
+#: internal/service/firewall.go:119
 msgid "firewall rule list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:166
+#: internal/service/firewall.go:173
 msgid "firewall rule updated"
 msgstr ""
 
-#: internal/service/firewall.go:211
+#: internal/service/firewall.go:218
 msgid "firewall rules exported"
 msgstr ""
 
-#: internal/service/firewall.go:293
+#: internal/service/firewall.go:300
 msgid "firewall rules imported"
 msgstr ""
 
@@ -5798,7 +5798,7 @@ msgstr ""
 msgid "invalid channel config: %v"
 msgstr ""
 
-#: internal/service/firewall.go:254
+#: internal/service/firewall.go:261
 msgid "invalid file: missing port_start column"
 msgstr ""
 
@@ -6257,7 +6257,7 @@ msgstr ""
 msgid "no records selected"
 msgstr ""
 
-#: internal/service/firewall.go:244
+#: internal/service/firewall.go:251
 msgid "no rules found in file"
 msgstr ""
 
