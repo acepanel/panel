@@ -4,6 +4,7 @@ import { useThemeVars } from 'naive-ui'
 
 import { useThemeStore } from '@/stores'
 import { getMonaco } from '@/utils/monaco'
+import { getEditorTheme } from '@/utils/monaco/theme'
 
 const value = defineModel<string>('value', { type: String, required: true })
 const props = defineProps({
@@ -32,15 +33,15 @@ const themeStore = useThemeStore()
 const themeVars = useThemeVars()
 
 async function initEditor() {
-  if (!containerRef.value) return
-
   const monaco = await getMonaco(themeStore.locale)
+  // 加载期间组件可能已卸载
+  if (!containerRef.value) return
   monacoRef.value = monaco
 
   editorRef.value = monaco.editor.create(containerRef.value, {
     value: value.value,
     language: props.lang,
-    theme: 'vs' + (themeStore.darkMode ? '-dark' : ''),
+    theme: getEditorTheme(props.lang, themeStore.darkMode),
     readOnly: props.readOnly,
     automaticLayout: true,
     smoothScrolling: true,
@@ -84,6 +85,14 @@ watch(
     }
   },
 )
+
+function applyTheme() {
+  monacoRef.value?.editor.setTheme(getEditorTheme(props.lang, themeStore.darkMode))
+}
+
+watch([() => props.lang, () => themeStore.darkMode], applyTheme)
+// Monaco 主题是全局的，从 keep-alive 回来时可能已被别的编辑器改掉
+onActivated(applyTheme)
 
 onMounted(() => {
   initEditor()

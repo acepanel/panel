@@ -17,7 +17,11 @@ type DatabaseServerService struct {
 	databaseServerRepo *biz.DatabaseServerUsecase
 }
 
-func NewDatabaseServerService(databaseServerUsecase *biz.DatabaseServerUsecase, t *gotext.Locale, log *slog.Logger) *DatabaseServerService {
+func NewDatabaseServerService(
+	databaseServerUsecase *biz.DatabaseServerUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *DatabaseServerService {
 	return &DatabaseServerService{
 		t:                  t,
 		log:                log,

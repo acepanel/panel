@@ -2,18 +2,11 @@
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+
+import { useStatQuery } from './useStatQuery'
 
 const { $gettext } = useGettext()
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const items = ref<any[]>([])
-const total = ref(0)
-const page = ref(1)
-const limit = ref(50)
-const pagination = useTablePagination(page, limit, total, [20, 50, 100])
 const statusFilter = ref<number>(0)
 
 const statusOptions = [
@@ -30,40 +23,12 @@ const statusOptions = [
   { label: '504', value: 504 },
 ]
 
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statErrors(
-      ctx.dateRange.value.start,
-      ctx.dateRange.value.end,
-      ctx.sitesParam.value,
-      statusFilter.value || undefined,
-      page.value,
-      limit.value,
-    ),
-  )
-    .onSuccess(({ data }: any) => {
-      items.value = data.items || []
-      total.value = data.total || 0
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
+const { loading, items, total, pagination, reload } = useStatQuery(
+  ({ start, end, sites, page, limit }) =>
+    website.statErrors(start, end, sites, statusFilter.value || undefined, page, limit),
+)
 
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  page.value = 1
-  loadData()
-})
-
-watch(statusFilter, () => {
-  page.value = 1
-  loadData()
-})
-
-onMounted(() => {
-  loadData()
-})
+watch(statusFilter, reload)
 
 function formatTime(t: string): string {
   if (!t) return '-'
@@ -98,17 +63,6 @@ const columns = computed<any[]>(() => [
   { title: 'IP', key: 'ip', width: 140 },
   { title: 'User-Agent', key: 'ua', ellipsis: { tooltip: true } },
 ])
-
-const handlePageChange = (p: number) => {
-  page.value = p
-  loadData()
-}
-
-const handlePageSizeChange = (s: number) => {
-  limit.value = s
-  page.value = 1
-  loadData()
-}
 </script>
 
 <template>
@@ -128,12 +82,7 @@ const handlePageSizeChange = (s: number) => {
         :row-key="(row: any) => row.id"
       />
       <n-flex justify="end" class="mt-3" v-if="total > 0">
-        <n-pagination
-          v-model:page="page"
-          v-bind="pagination"
-          @update:page="handlePageChange"
-          @update:page-size="handlePageSizeChange"
-        />
+        <n-pagination v-bind="pagination" />
       </n-flex>
     </n-spin>
   </n-flex>

@@ -11,6 +11,8 @@ import website from '@/api/panel/website'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { formatBytes } from '@/utils/file'
 
+import { useStatQuery } from './useStatQuery'
+
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
 
@@ -80,32 +82,26 @@ const emptyTotals: StatTotals = {
   status_5xx: 0,
 }
 
-const overview = ref<OverviewData>({
-  current: { ...emptyTotals },
-  previous: { ...emptyTotals },
+const emptyOverview: OverviewData = {
+  current: emptyTotals,
+  previous: emptyTotals,
   series: [],
   previous_series: [],
   sites: [],
-})
-const loading = ref(false)
-
-const loadOverview = () => {
-  loading.value = true
-  useRequest(
-    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
-  )
-    .onSuccess(({ data }: any) => {
-      overview.value = data
-      // 回填站点选项到父组件
-      ctx.siteOptions.value = (data.sites || []).map((s: any) => ({
-        label: s.name,
-        value: s.name,
-      }))
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
 }
+
+const { loading, data: latest } = useStatQuery(({ start, end, sites }) =>
+  website.statOverview(start, end, sites),
+)
+const overview = computed<OverviewData>(() => latest.value ?? emptyOverview)
+
+// 回填站点选项到父组件
+watch(latest, (res) => {
+  ctx.siteOptions.value = (res.sites || []).map((s: any) => ({
+    label: s.name,
+    value: s.name,
+  }))
+})
 
 // 实时数据
 const realtime = ref({ bandwidth: 0, bandwidth_in: 0, rps: 0 })
@@ -117,12 +113,7 @@ const loadRealtime = () => {
   })
 }
 
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadOverview()
-})
-
 onMounted(() => {
-  loadOverview()
   loadRealtime()
   pollTimer = setInterval(loadRealtime, 5000)
 })

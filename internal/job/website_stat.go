@@ -34,7 +34,13 @@ type WebsiteStat struct {
 }
 
 // NewWebsiteStat 构造网站统计任务
-func NewWebsiteStat(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, aggregator *websitestat.Aggregator) Job {
+func NewWebsiteStat(
+	settingUsecase *biz.SettingUsecase,
+	websiteStatUsecase *biz.WebsiteStatUsecase,
+	aggregator *websitestat.Aggregator,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &WebsiteStat{
@@ -48,10 +54,6 @@ func NewWebsiteStat(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.
 }
 
 func (r *WebsiteStat) Run(_ context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	r.ensureListener()
 	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.t, r.log)
 	r.flush()
@@ -124,59 +126,39 @@ func (r *WebsiteStat) flush() {
 	now := time.Now()
 	var stats []*biz.WebsiteStat
 
+	// 每日汇总行 hour = -1，每小时行 hour = 0-23
+	add := func(site, date string, hour int, c websitestat.Counters) {
+		if c == (websitestat.Counters{}) {
+			return
+		}
+		stats = append(stats, &biz.WebsiteStat{
+			Site:             site,
+			Date:             date,
+			Hour:             hour,
+			PV:               c.PV,
+			UV:               c.UV,
+			IP:               c.IP,
+			Bandwidth:        c.Bandwidth,
+			BandwidthIn:      c.BandwidthIn,
+			Requests:         c.Requests,
+			Errors:           c.Errors,
+			Spiders:          c.Spiders,
+			RequestTimeSum:   c.RequestTimeSum,
+			RequestTimeCount: c.RequestTimeCount,
+			Status2xx:        c.Status2xx,
+			Status3xx:        c.Status3xx,
+			Status4xx:        c.Status4xx,
+			Status5xx:        c.Status5xx,
+			UpdatedAt:        now,
+		})
+	}
 	for date, snapshots := range snapshotsByDate {
 		for site, snap := range snapshots {
-			siteHasData := !isZeroSiteSnapshot(snap)
-
-			// 每日汇总行 (hour = -1)
-			if siteHasData {
-				stats = append(stats, &biz.WebsiteStat{
-					Site:             site,
-					Date:             date,
-					Hour:             -1,
-					PV:               snap.PV,
-					UV:               snap.UV,
-					IP:               snap.IP,
-					Bandwidth:        snap.Bandwidth,
-					BandwidthIn:      snap.BandwidthIn,
-					Requests:         snap.Requests,
-					Errors:           snap.Errors,
-					Spiders:          snap.Spiders,
-					RequestTimeSum:   snap.RequestTimeSum,
-					RequestTimeCount: snap.RequestTimeCount,
-					Status2xx:        snap.Status2xx,
-					Status3xx:        snap.Status3xx,
-					Status4xx:        snap.Status4xx,
-					Status5xx:        snap.Status5xx,
-					UpdatedAt:        now,
-				})
-			}
-
-			// 每小时行 (hour = 0-23)
+			add(site, date, -1, snap.Counters)
 			for h, hs := range snap.Hours {
-				if hs == nil || isZeroHourSnapshot(hs) {
-					continue
+				if hs != nil {
+					add(site, date, h, hs.Counters)
 				}
-				stats = append(stats, &biz.WebsiteStat{
-					Site:             site,
-					Date:             date,
-					Hour:             h,
-					PV:               hs.PV,
-					UV:               hs.UV,
-					IP:               hs.IP,
-					Bandwidth:        hs.Bandwidth,
-					BandwidthIn:      hs.BandwidthIn,
-					Requests:         hs.Requests,
-					Errors:           hs.Errors,
-					Spiders:          hs.Spiders,
-					RequestTimeSum:   hs.RequestTimeSum,
-					RequestTimeCount: hs.RequestTimeCount,
-					Status2xx:        hs.Status2xx,
-					Status3xx:        hs.Status3xx,
-					Status4xx:        hs.Status4xx,
-					Status5xx:        hs.Status5xx,
-					UpdatedAt:        now,
-				})
 			}
 		}
 	}
@@ -366,40 +348,4 @@ func (r *WebsiteStat) cleanup() {
 	if err = r.statRepo.ClearURIsBefore(cutoff); err != nil {
 		r.log.Warn(r.t.Get("failed to clear expired uri stats"), slog.Any("err", err))
 	}
-}
-
-// isZeroSiteSnapshot 判断站点快照是否全为零
-func isZeroSiteSnapshot(s *websitestat.SiteSnapshot) bool {
-	return s.PV == 0 &&
-		s.UV == 0 &&
-		s.IP == 0 &&
-		s.Bandwidth == 0 &&
-		s.BandwidthIn == 0 &&
-		s.Requests == 0 &&
-		s.Errors == 0 &&
-		s.Spiders == 0 &&
-		s.RequestTimeSum == 0 &&
-		s.RequestTimeCount == 0 &&
-		s.Status2xx == 0 &&
-		s.Status3xx == 0 &&
-		s.Status4xx == 0 &&
-		s.Status5xx == 0
-}
-
-// isZeroHourSnapshot 判断小时快照是否全为零
-func isZeroHourSnapshot(h *websitestat.HourSnapshot) bool {
-	return h.PV == 0 &&
-		h.UV == 0 &&
-		h.IP == 0 &&
-		h.Bandwidth == 0 &&
-		h.BandwidthIn == 0 &&
-		h.Requests == 0 &&
-		h.Errors == 0 &&
-		h.Spiders == 0 &&
-		h.RequestTimeSum == 0 &&
-		h.RequestTimeCount == 0 &&
-		h.Status2xx == 0 &&
-		h.Status3xx == 0 &&
-		h.Status4xx == 0 &&
-		h.Status5xx == 0
 }

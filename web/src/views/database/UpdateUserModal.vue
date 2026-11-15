@@ -3,7 +3,6 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
-import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })

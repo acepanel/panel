@@ -1,16 +1,13 @@
 package service
 
 import (
-	"crypto/x509"
+	"context"
+	"errors"
 	"log/slog"
-	"net"
 	"net/http"
-	"slices"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/lo"
-	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -22,18 +19,25 @@ import (
 type SettingService struct {
 	t               *gotext.Locale
 	log             *slog.Logger
-	db              *gorm.DB
 	settingRepo     *biz.SettingUsecase
+	userRepo        *biz.UserUsecase
 	certRepo        *biz.CertUsecase
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) *SettingService {
+func NewSettingService(
+	certAccountUsecase *biz.CertAccountUsecase,
+	certUsecase *biz.CertUsecase,
+	settingUsecase *biz.SettingUsecase,
+	userUsecase *biz.UserUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *SettingService {
 	return &SettingService{
 		t:               t,
 		log:             log,
-		db:              db,
 		settingRepo:     settingUsecase,
+		userRepo:        userUsecase,
 		certRepo:        certUsecase,
 		certAccountRepo: certAccountUsecase,
 	}
@@ -95,24 +99,13 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		info, _ := cert.ParseCert(crt)
-		s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", certNames(info)))
+		s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", cert.SANs(info)))
 		Success(w, nil)
 		return
 	}
 
 	// ACME 模式
-	var user biz.User
-	if err = s.db.First(&user).Error; err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	account, err := s.certAccountRepo.GetDefault(r.Context(), user.ID)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	crt, key, err := s.certRepo.ObtainPanel(r.Context(), account, conf.HTTP.BindDomain)
+	crt, key, err := obtainPanelACME(r.Context(), s.t, s.userRepo, s.certAccountRepo, s.certRepo, conf.HTTP.BindDomain)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -127,7 +120,7 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	info, _ := cert.ParseCert(crt)
-	s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", certNames(info)))
+	s.log.Info(s.t.Get("panel certificate obtained"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("tls", conf.HTTP.TLS), slog.Any("domains", cert.SANs(info)))
 
 	Success(w, nil)
 }
@@ -146,7 +139,7 @@ func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	info, _ := cert.ParseCert([]byte(req.Cert))
-	s.log.Info(s.t.Get("panel certificate updated"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Any("domains", certNames(info)), slog.Time("not_after", info.NotAfter))
+	s.log.Info(s.t.Get("panel certificate updated"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Any("domains", cert.SANs(info)), slog.Time("not_after", info.NotAfter))
 
 	Success(w, nil)
 }
@@ -182,8 +175,22 @@ func (s *SettingService) UpdateMemo(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func certNames(info x509.Certificate) []string {
-	return slices.Concat(info.DNSNames, lo.Map(info.IPAddresses, func(ip net.IP, _ int) string {
-		return ip.String()
-	}))
+// obtainPanelACME 用首个用户的默认 ACME 账户为面板签发证书
+func obtainPanelACME(
+	ctx context.Context,
+	t *gotext.Locale,
+	userRepo *biz.UserUsecase,
+	certAccountRepo *biz.CertAccountUsecase,
+	certRepo *biz.CertUsecase,
+	domains []string,
+) ([]byte, []byte, error) {
+	user, err := userRepo.First()
+	if err != nil {
+		return nil, nil, errors.New(t.Get("Failed to get a panel user: %v", err))
+	}
+	account, err := certAccountRepo.GetDefault(ctx, user.ID)
+	if err != nil {
+		return nil, nil, errors.New(t.Get("Failed to get ACME account: %v", err))
+	}
+	return certRepo.ObtainPanel(ctx, account, domains)
 }

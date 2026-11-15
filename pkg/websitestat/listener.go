@@ -47,7 +47,7 @@ func (l *Listener) Read() (string, []byte, error) {
 		return "", nil, err
 	}
 
-	tag, data := ParseSyslog(l.buf[:n])
+	tag, data := parseSyslog(l.buf[:n])
 	return tag, data, nil
 }
 

@@ -57,7 +57,7 @@ func (r *logRepo) List(logType string, limit int, date, level, keyword string) (
 		if files[i].date != date {
 			continue
 		}
-		lines, err := readLines(files[i].path)
+		lines, err := r.readLines(files[i].path)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +158,7 @@ func (r *logRepo) files(logType string) ([]logFile, error) {
 }
 
 // readLines 读取文件中的非空行
-func readLines(path string) ([]string, error) {
+func (r *logRepo) readLines(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		// 列出后可能刚被轮转清理掉
@@ -180,41 +180,6 @@ func readLines(path string) ([]string, error) {
 	}
 
 	return lines, scanner.Err()
-}
-
-// fillOperatorNames 填充操作员用户名
-func (r *logRepo) fillOperatorNames(entries []biz.LogEntry) {
-	// 收集所有用户ID
-	userIDs := make(map[uint]bool)
-	for _, entry := range entries {
-		if entry.OperatorID > 0 {
-			userIDs[entry.OperatorID] = true
-		}
-	}
-
-	if len(userIDs) == 0 {
-		return
-	}
-
-	// 批量查询用户名
-	ids := lo.Keys(userIDs)
-
-	var users []biz.User
-	r.db.Select("id", "username").Where("id IN ?", ids).Find(&users)
-
-	// 构建ID到用户名的映射
-	userMap := lo.SliceToMap(users, func(user biz.User) (uint, string) {
-		return user.ID, user.Username
-	})
-
-	// 填充用户名
-	for i := range entries {
-		if entries[i].OperatorID > 0 {
-			if username, ok := userMap[entries[i].OperatorID]; ok {
-				entries[i].OperatorName = username
-			}
-		}
-	}
 }
 
 // parseLine 解析日志行
@@ -262,4 +227,39 @@ func (r *logRepo) parseLine(line string, logType string) (biz.LogEntry, error) {
 	}
 
 	return entry, nil
+}
+
+// fillOperatorNames 填充操作员用户名
+func (r *logRepo) fillOperatorNames(entries []biz.LogEntry) {
+	// 收集所有用户ID
+	userIDs := make(map[uint]bool)
+	for _, entry := range entries {
+		if entry.OperatorID > 0 {
+			userIDs[entry.OperatorID] = true
+		}
+	}
+
+	if len(userIDs) == 0 {
+		return
+	}
+
+	// 批量查询用户名
+	ids := lo.Keys(userIDs)
+
+	var users []biz.User
+	r.db.Select("id", "username").Where("id IN ?", ids).Find(&users)
+
+	// 构建ID到用户名的映射
+	userMap := lo.SliceToMap(users, func(user biz.User) (uint, string) {
+		return user.ID, user.Username
+	})
+
+	// 填充用户名
+	for i := range entries {
+		if entries[i].OperatorID > 0 {
+			if username, ok := userMap[entries[i].OperatorID]; ok {
+				entries[i].OperatorName = username
+			}
+		}
+	}
 }

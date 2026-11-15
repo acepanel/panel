@@ -1,12 +1,16 @@
+import { readFileSync } from 'node:fs'
+
 import { globalIgnores } from 'eslint/config'
-import { FlatCompat } from '@eslint/eslintrc'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 import pluginOxlint from 'eslint-plugin-oxlint'
 import unocss from '@unocss/eslint-config/flat'
 import skipFormatting from 'eslint-config-prettier/flat'
 
-const compat = new FlatCompat()
+// unplugin-auto-import 生成的全局变量清单
+const autoImport = JSON.parse(
+  readFileSync(new URL('.eslintrc-auto-import.json', import.meta.url), 'utf8'),
+)
 
 export default defineConfigWithVueTs(
   {
@@ -19,7 +23,10 @@ export default defineConfigWithVueTs(
   ...pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
   unocss,
-  ...compat.extends('./.eslintrc-auto-import.json'),
+  {
+    name: 'app/auto-import-globals',
+    languageOptions: { globals: autoImport.globals },
+  },
 
   {
     name: 'app/rules',

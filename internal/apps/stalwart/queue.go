@@ -16,44 +16,6 @@ import (
 
 var queueProps = []string{"createdAt", "nextRetry", "returnPath", "recipients", "size"}
 
-func toQueueMessage(m swQueuedMessage) QueueMessage {
-	recipients := lo.MapToSlice(m.Recipients, func(address string, rcpt swRecipient) QueueRecipient {
-		status := strings.ToLower(rcpt.Status.Type)
-		switch rcpt.Status.Type {
-		case "TemporaryFailure":
-			status = "temporary_failure"
-		case "PermanentFailure":
-			status = "permanent_failure"
-		}
-		var details []string
-		if rcpt.Status.ErrorType != "" {
-			details = append(details, rcpt.Status.ErrorType)
-		}
-		if msg := deref(rcpt.Status.ErrorMessage); msg != "" {
-			details = append(details, msg)
-		}
-		if msg := deref(rcpt.Status.ResponseMessage); msg != "" {
-			details = append(details, msg)
-		}
-		return QueueRecipient{
-			Address:    address,
-			Status:     status,
-			Error:      strings.Join(details, ": "),
-			RetryCount: rcpt.RetryCount,
-			RetryDue:   rcpt.RetryDue,
-		}
-	})
-	slices.SortFunc(recipients, func(a, b QueueRecipient) int { return strings.Compare(a.Address, b.Address) })
-	return QueueMessage{
-		ID:         m.ID,
-		CreatedAt:  m.CreatedAt,
-		NextRetry:  m.NextRetry,
-		ReturnPath: m.ReturnPath,
-		Size:       m.Size,
-		Recipients: recipients,
-	}
-}
-
 // QueueList 待投递队列
 func (s *App) QueueList(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[QueueList](r)
@@ -154,4 +116,42 @@ func (s *App) QueueDelete(w http.ResponseWriter, r *http.Request) {
 
 	s.log.Warn(s.t.Get("mail queue message deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("message_id", req.ID), slog.String("return_path", message.ReturnPath), slog.Any("recipients", lo.Keys(message.Recipients)))
 	service.Success(w, nil)
+}
+
+func toQueueMessage(m swQueuedMessage) QueueMessage {
+	recipients := lo.MapToSlice(m.Recipients, func(address string, rcpt swRecipient) QueueRecipient {
+		status := strings.ToLower(rcpt.Status.Type)
+		switch rcpt.Status.Type {
+		case "TemporaryFailure":
+			status = "temporary_failure"
+		case "PermanentFailure":
+			status = "permanent_failure"
+		}
+		var details []string
+		if rcpt.Status.ErrorType != "" {
+			details = append(details, rcpt.Status.ErrorType)
+		}
+		if msg := deref(rcpt.Status.ErrorMessage); msg != "" {
+			details = append(details, msg)
+		}
+		if msg := deref(rcpt.Status.ResponseMessage); msg != "" {
+			details = append(details, msg)
+		}
+		return QueueRecipient{
+			Address:    address,
+			Status:     status,
+			Error:      strings.Join(details, ": "),
+			RetryCount: rcpt.RetryCount,
+			RetryDue:   rcpt.RetryDue,
+		}
+	})
+	slices.SortFunc(recipients, func(a, b QueueRecipient) int { return strings.Compare(a.Address, b.Address) })
+	return QueueMessage{
+		ID:         m.ID,
+		CreatedAt:  m.CreatedAt,
+		NextRetry:  m.NextRetry,
+		ReturnPath: m.ReturnPath,
+		Size:       m.Size,
+		Recipients: recipients,
+	}
 }

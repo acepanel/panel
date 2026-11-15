@@ -36,6 +36,9 @@ location / {
 }
 `
 
+// tcpReuseportRe 只看 80 端口的 TCP 监听，quic 监听始终带 reuseport
+var tcpReuseportRe = regexp.MustCompile(`(?m)^\s*listen\s+80\b[^;]*\breuseport\b`)
+
 type Dialect struct{}
 
 func (Dialect) Service() string {
@@ -47,7 +50,7 @@ func (Dialect) ConfigTest() string {
 }
 
 func (Dialect) HTMLDir() string {
-	return HTMLDir
+	return htmlDir
 }
 
 func (Dialect) ConfigFile() string {
@@ -84,7 +87,7 @@ func (Dialect) LSCacheConf(string) string {
 
 // StatConf 站点名经 SafeName 才能做 log_format 名与 syslog tag
 func (Dialect) StatConf(name string) (string, string) {
-	safe := SafeName(name)
+	safe := types.SafeName(name)
 	shared := fmt.Sprintf(`log_format ace_stat_%s escape=json
   '{"site":"%s",'
   '"uri":"$request_uri",'
@@ -110,56 +113,12 @@ func (Dialect) StatConf(name string) (string, string) {
 }
 
 func (Dialect) DefaultSiteConf() string {
-	return DefaultSiteConf
+	return defaultSiteConf
 }
 
 // WriteDefaultSite asDefault 为 false 时 default_server 由某个站点持有
 func (Dialect) WriteDefaultSite(asDefault bool) error {
-	return os.WriteFile(DefaultSiteConf, []byte(defaultSiteContent(asDefault, DefaultSiteReuseport())), 0600)
-}
-
-// tcpReuseportRe 只看 80 端口的 TCP 监听，quic 监听始终带 reuseport
-var tcpReuseportRe = regexp.MustCompile(`(?m)^\s*listen\s+80\b[^;]*\breuseport\b`)
-
-// DefaultSiteReuseport 内置默认站点的 TCP 监听是否带 reuseport
-func DefaultSiteReuseport() bool {
-	content, _ := os.ReadFile(DefaultSiteConf)
-	return tcpReuseportRe.Match(content)
-}
-
-func SetDefaultSiteReuseport(enable bool) error {
-	content, err := os.ReadFile(DefaultSiteConf)
-	if err != nil {
-		return err
-	}
-	asDefault := bytes.Contains(content, []byte("default_server"))
-	return os.WriteFile(DefaultSiteConf, []byte(defaultSiteContent(asDefault, enable)), 0600)
-}
-
-// defaultSiteContent quic 必须带 reuseport，否则多个 worker 共用一个 UDP socket，同一连接的包会被别的 worker 读走
-func defaultSiteContent(asDefault, reuseport bool) string {
-	flag := ""
-	if asDefault {
-		flag = " default_server"
-	}
-	tcp := flag
-	if reuseport {
-		tcp += " reuseport"
-	}
-	return fmt.Sprintf(`server
-{
-    listen 80%[1]s;
-    listen [::]:80%[1]s;
-    listen 443 ssl%[1]s;
-    listen [::]:443 ssl%[1]s;
-    listen 443 quic%[2]s reuseport;
-    listen [::]:443 quic%[2]s reuseport;
-    server_name _;
-    index index.html;
-    root %[3]s;
-    ssl_reject_handshake on;
-}
-`, tcp, flag, HTMLDir)
+	return os.WriteFile(defaultSiteConf, []byte(defaultSiteContent(asDefault, DefaultSiteReuseport())), 0600)
 }
 
 func (Dialect) HTPasswdLine(username, password string) string {
@@ -175,7 +134,7 @@ func (Dialect) BeforeReload() error {
 }
 
 func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
-	vhost, err := NewStaticVhost(configDir)
+	vhost, err := newStaticVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +142,7 @@ func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
 }
 
 func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
-	vhost, err := NewPHPVhost(configDir)
+	vhost, err := newPHPVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +150,7 @@ func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
 }
 
 func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
-	vhost, err := NewProxyVhost(configDir)
+	vhost, err := newProxyVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -251,6 +210,47 @@ func (Dialect) RemovePanelChallenge(conf string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// DefaultSiteReuseport 内置默认站点的 TCP 监听是否带 reuseport
+func DefaultSiteReuseport() bool {
+	content, _ := os.ReadFile(defaultSiteConf)
+	return tcpReuseportRe.Match(content)
+}
+
+func SetDefaultSiteReuseport(enable bool) error {
+	content, err := os.ReadFile(defaultSiteConf)
+	if err != nil {
+		return err
+	}
+	asDefault := bytes.Contains(content, []byte("default_server"))
+	return os.WriteFile(defaultSiteConf, []byte(defaultSiteContent(asDefault, enable)), 0600)
+}
+
+// defaultSiteContent quic 必须带 reuseport，否则多个 worker 共用一个 UDP socket，同一连接的包会被别的 worker 读走
+func defaultSiteContent(asDefault, reuseport bool) string {
+	var flag string
+	if asDefault {
+		flag = " default_server"
+	}
+	tcp := flag
+	if reuseport {
+		tcp += " reuseport"
+	}
+	return fmt.Sprintf(`server
+{
+    listen 80%[1]s;
+    listen [::]:80%[1]s;
+    listen 443 ssl%[1]s;
+    listen [::]:443 ssl%[1]s;
+    listen 443 quic%[2]s reuseport;
+    listen [::]:443 quic%[2]s reuseport;
+    server_name _;
+    index index.html;
+    root %[3]s;
+    ssl_reject_handshake on;
+}
+`, tcp, flag, htmlDir)
 }
 
 // challengeConf 单个 HTTP-01 验证的 location 片段

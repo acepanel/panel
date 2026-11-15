@@ -4,11 +4,11 @@ import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
-import UpdateServerModal from '@/views/database/UpdateServerModal.vue'
+import ServerModal from '@/views/database/ServerModal.vue'
 
 const props = defineProps<{
   type?: string
@@ -253,16 +253,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => database.serverList(page, pageSize, props.type),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  database.serverList(page, pageSize, props.type),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (id: number) => {
   useRequest(database.serverDelete(id)).onSuccess(() => {
@@ -278,16 +271,7 @@ const handleRemark = (row: any) => {
   })
 }
 
-// 具名监听器,卸载时只解绑自身,避免移除其他组件的监听
-const onServerRefresh = () => refresh()
-
-onMounted(() => {
-  window.$bus.on('database-server:refresh', onServerRefresh)
-})
-
-onUnmounted(() => {
-  window.$bus.off('database-server:refresh', onServerRefresh)
-})
+useBus('database-server:refresh', refresh)
 </script>
 
 <template>
@@ -303,7 +287,7 @@ onUnmounted(() => {
     :row-key="(row: any) => row.name"
     :pagination="pagination"
   />
-  <update-server-modal v-model:id="updateID" v-model:show="updateModal" />
+  <server-modal v-model:show="updateModal" :edit-id="updateID" />
   <!-- 终端弹窗 -->
   <pty-terminal-modal
     v-model:show="terminalModal"

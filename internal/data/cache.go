@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/api"
 )
@@ -16,9 +15,9 @@ type cacheRepo struct {
 	db  *gorm.DB
 }
 
-func NewCacheRepo(db *gorm.DB) biz.CacheRepo {
+func NewCacheRepo(apiClient *api.API, db *gorm.DB) biz.CacheRepo {
 	return &cacheRepo{
-		api: api.NewAPI(app.Version, app.Locale),
+		api: apiClient,
 		db:  db,
 	}
 }
@@ -59,4 +58,12 @@ func (r *cacheRepo) FetchEnvironments() (*api.Environments, error) {
 
 func (r *cacheRepo) FetchTemplates() (*api.Templates, error) {
 	return r.api.Templates()
+}
+
+func (r *cacheRepo) FetchLatestVersion(channel string) (*api.Version, error) {
+	return r.api.LatestVersion(channel)
+}
+
+func (r *cacheRepo) FetchIntermediateVersions(channel string) (*api.Versions, error) {
+	return r.api.IntermediateVersions(channel)
 }

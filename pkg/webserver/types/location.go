@@ -1,6 +1,10 @@
 package types
 
-import "strings"
+import (
+	"cmp"
+	"slices"
+	"strings"
+)
 
 // LocationKind location 的匹配方式，面板统一用 nginx 的写法表达，各方言自行渲染
 type LocationKind uint8
@@ -38,4 +42,43 @@ func NormalizePath(path string) string {
 		return "/" + path
 	}
 	return path
+}
+
+// ProxyOrder 代理规则按 nginx 的 location 优先级排出的下标：精确匹配、^~ 前缀（长者优先）、正则（书写顺序）、普通前缀（长者优先）。
+// 按首个命中生效的方言照这个顺序写出规则，匹配结果就不依赖用户添加的先后
+func ProxyOrder(proxies []Proxy) []int {
+	rank := func(location string) (int, int) {
+		switch kind, rest := ParseLocation(location); {
+		case kind == LocationExact:
+			return 0, 0
+		case kind == LocationRegex, kind == LocationRegexAny:
+			return 2, 0
+		case strings.HasPrefix(strings.TrimSpace(location), "^~"):
+			return 1, -len(rest)
+		default:
+			return 3, -len(rest)
+		}
+	}
+	order := make([]int, len(proxies))
+	for i := range order {
+		order[i] = i
+	}
+	slices.SortStableFunc(order, func(a, b int) int {
+		ra, la := rank(proxies[a].Location)
+		rb, lb := rank(proxies[b].Location)
+		return cmp.Or(ra-rb, la-lb)
+	})
+	return order
+}
+
+// UnquoteMeta 还原 regexp.QuoteMeta 转义过的字面量
+func UnquoteMeta(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\\' && i+1 < len(s) {
+			i++
+		}
+		b.WriteByte(s[i])
+	}
+	return b.String()
 }

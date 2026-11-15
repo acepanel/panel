@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -35,11 +35,24 @@ type App struct {
 	slug               string
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return New("mysql", t, log, databaseServerRepo, settingRepo, taskRepo)
 }
 
-func New(slug string, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func New(
+	slug string,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -100,125 +113,18 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var load []map[string]string
-	expressions := []struct {
-		regex string
-		name  string
-	}{
-		{`Uptime\s+\|\s+(\d+)\s+\|`, s.t.Get("Uptime")},
-		{`Queries\s+\|\s+(\d+)\s+\|`, s.t.Get("Total Queries")},
-		{`Connections\s+\|\s+(\d+)\s+\|`, s.t.Get("Total Connections")},
-		{`Com_commit\s+\|\s+(\d+)\s+\|`, s.t.Get("Transactions per Second")},
-		{`Com_rollback\s+\|\s+(\d+)\s+\|`, s.t.Get("Rollbacks per Second")},
-		{`Bytes_sent\s+\|\s+(\d+)\s+\|`, s.t.Get("Bytes Sent")},
-		{`Bytes_received\s+\|\s+(\d+)\s+\|`, s.t.Get("Bytes Received")},
-		{`Threads_connected\s+\|\s+(\d+)\s+\|`, s.t.Get("Active Connections")},
-		{`Max_used_connections\s+\|\s+(\d+)\s+\|`, s.t.Get("Peak Connections")},
-		{`Key_read_requests\s+\|\s+(\d+)\s+\|`, s.t.Get("Index Hit Rate")},
-		{`Innodb_buffer_pool_reads\s+\|\s+(\d+)\s+\|`, s.t.Get("Innodb Index Hit Rate")},
-		{`Created_tmp_disk_tables\s+\|\s+(\d+)\s+\|`, s.t.Get("Temporary Tables Created on Disk")},
-		{`Open_tables\s+\|\s+(\d+)\s+\|`, s.t.Get("Open Tables")},
-		{`Select_full_join\s+\|\s+(\d+)\s+\|`, s.t.Get("Full Joins without Index")},
-		{`Select_full_range_join\s+\|\s+(\d+)\s+\|`, s.t.Get("Full Range Joins without Index")},
-		{`Select_range_check\s+\|\s+(\d+)\s+\|`, s.t.Get("Subqueries without Index")},
-		{`Sort_merge_passes\s+\|\s+(\d+)\s+\|`, s.t.Get("Sort Merge Passes")},
-		{`Table_locks_waited\s+\|\s+(\d+)\s+\|`, s.t.Get("Table Locks Waited")},
-	}
-
-	for _, expression := range expressions {
-		re := regexp.MustCompile(expression.regex)
-		matches := re.FindStringSubmatch(raw)
-		if len(matches) > 1 {
-			d := map[string]string{"name": expression.name, "value": matches[1]}
-			if expression.name == s.t.Get("Bytes Sent") || expression.name == s.t.Get("Bytes Received") {
-				d["value"] = tools.FormatBytes(cast.ToFloat64(matches[1]))
-			}
-
-			load = append(load, d)
-		}
-	}
-
-	// 索引命中率
-	readRequests := cast.ToFloat64(load[9]["value"])
-	reads := cast.ToFloat64(load[10]["value"])
-	load[9]["value"] = fmt.Sprintf("%.2f%%", readRequests/(reads+readRequests)*100)
-	// Innodb 索引命中率
-	bufferPoolReads := cast.ToFloat64(load[11]["value"])
-	bufferPoolReadRequests := cast.ToFloat64(load[12]["value"])
-	load[10]["value"] = fmt.Sprintf("%.2f%%", bufferPoolReadRequests/(bufferPoolReads+bufferPoolReadRequests)*100)
-
-	// 查询缓存命中率
-	// MySQL 8.0+ 删除了查询缓存功能
-	qcacheHitsRe := regexp.MustCompile(`Qcache_hits\s+\|\s+(\d+)\s+\|`)
-	qcacheHitsMatches := qcacheHitsRe.FindStringSubmatch(raw)
-	qcacheInsertsRe := regexp.MustCompile(`Qcache_inserts\s+\|\s+(\d+)\s+\|`)
-	qcacheInsertsMatches := qcacheInsertsRe.FindStringSubmatch(raw)
-	qcacheNotCachedRe := regexp.MustCompile(`Qcache_not_cached\s+\|\s+(\d+)\s+\|`)
-	qcacheNotCachedMatches := qcacheNotCachedRe.FindStringSubmatch(raw)
-	if len(qcacheHitsMatches) > 1 && len(qcacheInsertsMatches) > 1 && len(qcacheNotCachedMatches) > 1 {
-		qcacheHits := cast.ToFloat64(qcacheHitsMatches[1])
-		qcacheInserts := cast.ToFloat64(qcacheInsertsMatches[1])
-		qcacheNotCached := cast.ToFloat64(qcacheNotCachedMatches[1])
-		var qcacheHitRate float64
-		denominator := qcacheHits + qcacheInserts + qcacheNotCached
-		if denominator > 0 {
-			qcacheHitRate = qcacheHits / denominator * 100
-		}
-		load = append(load, map[string]string{
-			"name":  s.t.Get("Query Cache Hits"),
-			"value": qcacheHitsMatches[1],
-		})
-		load = append(load, map[string]string{
-			"name":  s.t.Get("Query Cache Inserts"),
-			"value": qcacheInsertsMatches[1],
-		})
-		load = append(load, map[string]string{
-			"name":  s.t.Get("Query Cache Not Cached"),
-			"value": qcacheNotCachedMatches[1],
-		})
-		load = append(load, map[string]string{
-			"name":  s.t.Get("Query Cache Hit Rate"),
-			"value": fmt.Sprintf("%.2f%%", qcacheHitRate),
-		})
-	}
-
-	service.Success(w, load)
+	service.Success(w, s.loadItems(s.parseStatus(raw)))
 }
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(configPath())
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
-
-	service.Success(w, config)
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.configPath()))
+	common.ServeConfig(w, s.configPath())
 }
 
 // UpdateConfig 保存配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(r.Context(), "mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, s.slug, s.configPath(), 0644, common.Restart("mysqld"))
 }
 
 // SlowLog 获取慢查询日志
@@ -279,46 +185,16 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 MySQL 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(configPath())
+	config, err := io.Read(s.configPath())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	tune := ConfigTune{
-		// 常规设置
-		Port:                 confval.INI.Get(config, "port"),
-		MaxConnections:       confval.INI.Get(config, "max_connections"),
-		MaxConnectErrors:     confval.INI.Get(config, "max_connect_errors"),
-		DefaultStorageEngine: confval.INI.Get(config, "default_storage_engine"),
-		TableOpenCache:       confval.INI.Get(config, "table_open_cache"),
-		MaxAllowedPacket:     confval.INI.Get(config, "max_allowed_packet"),
-		OpenFilesLimit:       confval.INI.Get(config, "open_files_limit"),
-		// 性能调整
-		KeyBufferSize:        confval.INI.Get(config, "key_buffer_size"),
-		SortBufferSize:       confval.INI.Get(config, "sort_buffer_size"),
-		ReadBufferSize:       confval.INI.Get(config, "read_buffer_size"),
-		ReadRndBufferSize:    confval.INI.Get(config, "read_rnd_buffer_size"),
-		JoinBufferSize:       confval.INI.Get(config, "join_buffer_size"),
-		ThreadCacheSize:      confval.INI.Get(config, "thread_cache_size"),
-		ThreadStack:          confval.INI.Get(config, "thread_stack"),
-		TmpTableSize:         confval.INI.Get(config, "tmp_table_size"),
-		MaxHeapTableSize:     confval.INI.Get(config, "max_heap_table_size"),
-		MyisamSortBufferSize: confval.INI.Get(config, "myisam_sort_buffer_size"),
-		// InnoDB
-		InnodbBufferPoolSize:      confval.INI.Get(config, "innodb_buffer_pool_size"),
-		InnodbLogBufferSize:       confval.INI.Get(config, "innodb_log_buffer_size"),
-		InnodbFlushLogAtTrxCommit: confval.INI.Get(config, "innodb_flush_log_at_trx_commit"),
-		InnodbLockWaitTimeout:     confval.INI.Get(config, "innodb_lock_wait_timeout"),
-		InnodbMaxDirtyPagesPct:    confval.INI.Get(config, "innodb_max_dirty_pages_pct"),
-		InnodbReadIoThreads:       confval.INI.Get(config, "innodb_read_io_threads"),
-		InnodbWriteIoThreads:      confval.INI.Get(config, "innodb_write_io_threads"),
-		// 日志
-		SlowQueryLog:  confval.INI.Get(config, "slow_query_log"),
-		LongQueryTime: confval.INI.Get(config, "long_query_time"),
-	}
+	tune := new(ConfigTune)
+	confval.SectionINI.Read(config, s.tuneFields(tune))
 
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", configPath()))
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
@@ -331,43 +207,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := configPath()
+	confPath := s.configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	// 更新常规设置
-	config = confval.INI.Set(config, "port", req.Port)
-	config = confval.INI.Set(config, "max_connections", req.MaxConnections)
-	config = confval.INI.Set(config, "max_connect_errors", req.MaxConnectErrors)
-	config = confval.INI.Set(config, "default_storage_engine", req.DefaultStorageEngine)
-	config = confval.INI.Set(config, "table_open_cache", req.TableOpenCache)
-	config = confval.INI.Set(config, "max_allowed_packet", req.MaxAllowedPacket)
-	config = confval.INI.Set(config, "open_files_limit", req.OpenFilesLimit)
-	// 更新性能调整
-	config = confval.INI.Set(config, "key_buffer_size", req.KeyBufferSize)
-	config = confval.INI.Set(config, "sort_buffer_size", req.SortBufferSize)
-	config = confval.INI.Set(config, "read_buffer_size", req.ReadBufferSize)
-	config = confval.INI.Set(config, "read_rnd_buffer_size", req.ReadRndBufferSize)
-	config = confval.INI.Set(config, "join_buffer_size", req.JoinBufferSize)
-	config = confval.INI.Set(config, "thread_cache_size", req.ThreadCacheSize)
-	config = confval.INI.Set(config, "thread_stack", req.ThreadStack)
-	config = confval.INI.Set(config, "tmp_table_size", req.TmpTableSize)
-	config = confval.INI.Set(config, "max_heap_table_size", req.MaxHeapTableSize)
-	config = confval.INI.Set(config, "myisam_sort_buffer_size", req.MyisamSortBufferSize)
-	// 更新 InnoDB
-	config = confval.INI.Set(config, "innodb_buffer_pool_size", req.InnodbBufferPoolSize)
-	config = confval.INI.Set(config, "innodb_log_buffer_size", req.InnodbLogBufferSize)
-	config = confval.INI.Set(config, "innodb_flush_log_at_trx_commit", req.InnodbFlushLogAtTrxCommit)
-	config = confval.INI.Set(config, "innodb_lock_wait_timeout", req.InnodbLockWaitTimeout)
-	config = confval.INI.Set(config, "innodb_max_dirty_pages_pct", req.InnodbMaxDirtyPagesPct)
-	config = confval.INI.Set(config, "innodb_read_io_threads", req.InnodbReadIoThreads)
-	config = confval.INI.Set(config, "innodb_write_io_threads", req.InnodbWriteIoThreads)
-	// 更新日志
-	config = confval.INI.Set(config, "slow_query_log", req.SlowQueryLog)
-	config = confval.INI.Set(config, "long_query_time", req.LongQueryTime)
+	config = confval.SectionINI.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -532,7 +379,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	if enabled == 0 {
 		// 检查是否已配置等待重启
-		config, _ := io.Read(configPath())
+		config, _ := io.Read(s.configPath())
 		pending := strings.EqualFold(confval.SectionINI.GetIn(config, "mysqld", "performance_schema"), "on")
 		service.Success(w, TopSQL{Supported: true, Enabled: false, PendingRestart: pending, Items: []TopSQLItem{}})
 		return
@@ -583,7 +430,7 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := configPath()
+	confPath := s.configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -896,8 +743,126 @@ func (s *App) ReplicationStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func configPath() string {
+// parseStatus 把 mysqladmin extended-status 的表格输出解析成变量名到值的映射
+func (s *App) parseStatus(raw string) map[string]string {
+	status := make(map[string]string)
+	for line := range strings.SplitSeq(raw, "\n") {
+		cols := strings.Split(line, "|")
+		if len(cols) < 4 {
+			continue
+		}
+		status[strings.TrimSpace(cols[1])] = strings.TrimSpace(cols[2])
+	}
+
+	return status
+}
+
+// loadItems 从状态变量整理出负载页的展示项，实例没有的变量不展示
+func (s *App) loadItems(status map[string]string) []types.NV {
+	// 命中率由多个变量算出，先并入 status 再统一按表取值
+	status["Key_hit_rate"] = s.hitRate(status, "Key_reads", "Key_read_requests")
+	status["Innodb_buffer_pool_hit_rate"] = s.hitRate(status, "Innodb_buffer_pool_reads", "Innodb_buffer_pool_read_requests")
+	// MySQL 8.0+ 删除了查询缓存功能
+	if hits, ok := status["Qcache_hits"]; ok {
+		rate := 0.0
+		if total := cast.ToFloat64(hits) + cast.ToFloat64(status["Qcache_inserts"]) + cast.ToFloat64(status["Qcache_not_cached"]); total > 0 {
+			rate = cast.ToFloat64(hits) / total * 100
+		}
+		status["Qcache_hit_rate"] = fmt.Sprintf("%.2f%%", rate)
+	}
+
+	items := []struct {
+		key   string
+		name  string
+		bytes bool
+	}{
+		{"Uptime", s.t.Get("Uptime"), false},
+		{"Queries", s.t.Get("Total Queries"), false},
+		{"Connections", s.t.Get("Total Connections"), false},
+		{"Com_commit", s.t.Get("Transactions per Second"), false},
+		{"Com_rollback", s.t.Get("Rollbacks per Second"), false},
+		{"Bytes_sent", s.t.Get("Bytes Sent"), true},
+		{"Bytes_received", s.t.Get("Bytes Received"), true},
+		{"Threads_connected", s.t.Get("Active Connections"), false},
+		{"Max_used_connections", s.t.Get("Peak Connections"), false},
+		{"Key_hit_rate", s.t.Get("Index Hit Rate"), false},
+		{"Innodb_buffer_pool_hit_rate", s.t.Get("Innodb Index Hit Rate"), false},
+		{"Created_tmp_disk_tables", s.t.Get("Temporary Tables Created on Disk"), false},
+		{"Open_tables", s.t.Get("Open Tables"), false},
+		{"Select_full_join", s.t.Get("Full Joins without Index"), false},
+		{"Select_full_range_join", s.t.Get("Full Range Joins without Index"), false},
+		{"Select_range_check", s.t.Get("Subqueries without Index"), false},
+		{"Sort_merge_passes", s.t.Get("Sort Merge Passes"), false},
+		{"Table_locks_waited", s.t.Get("Table Locks Waited"), false},
+		{"Qcache_hits", s.t.Get("Query Cache Hits"), false},
+		{"Qcache_inserts", s.t.Get("Query Cache Inserts"), false},
+		{"Qcache_not_cached", s.t.Get("Query Cache Not Cached"), false},
+		{"Qcache_hit_rate", s.t.Get("Query Cache Hit Rate"), false},
+	}
+
+	load := make([]types.NV, 0, len(items))
+	for _, item := range items {
+		value, ok := status[item.key]
+		if !ok {
+			continue
+		}
+		if item.bytes {
+			value = tools.FormatBytes(cast.ToFloat64(value))
+		}
+		load = append(load, types.NV{Name: item.name, Value: value})
+	}
+
+	return load
+}
+
+// hitRate 命中率 = 1 - 未命中 / 总请求，没有请求也就没有未命中，按 100% 计
+func (s *App) hitRate(status map[string]string, missKey, totalKey string) string {
+	total := cast.ToFloat64(status[totalKey])
+	if total == 0 {
+		return "100.00%"
+	}
+
+	return fmt.Sprintf("%.2f%%", (1-cast.ToFloat64(status[missKey])/total)*100)
+}
+
+func (s *App) configPath() string {
 	return app.Root + "/server/mysql/conf/my.cnf"
+}
+
+// tuneFields 调优参数全部属于 [mysqld] 段，[client]、[mysqldump] 里的同名项不能动
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		// 常规设置
+		{Section: "mysqld", Key: "port", Value: &t.Port},
+		{Section: "mysqld", Key: "max_connections", Value: &t.MaxConnections},
+		{Section: "mysqld", Key: "max_connect_errors", Value: &t.MaxConnectErrors},
+		{Section: "mysqld", Key: "default_storage_engine", Value: &t.DefaultStorageEngine},
+		{Section: "mysqld", Key: "table_open_cache", Value: &t.TableOpenCache},
+		{Section: "mysqld", Key: "max_allowed_packet", Value: &t.MaxAllowedPacket},
+		{Section: "mysqld", Key: "open_files_limit", Value: &t.OpenFilesLimit},
+		// 性能调整
+		{Section: "mysqld", Key: "key_buffer_size", Value: &t.KeyBufferSize},
+		{Section: "mysqld", Key: "sort_buffer_size", Value: &t.SortBufferSize},
+		{Section: "mysqld", Key: "read_buffer_size", Value: &t.ReadBufferSize},
+		{Section: "mysqld", Key: "read_rnd_buffer_size", Value: &t.ReadRndBufferSize},
+		{Section: "mysqld", Key: "join_buffer_size", Value: &t.JoinBufferSize},
+		{Section: "mysqld", Key: "thread_cache_size", Value: &t.ThreadCacheSize},
+		{Section: "mysqld", Key: "thread_stack", Value: &t.ThreadStack},
+		{Section: "mysqld", Key: "tmp_table_size", Value: &t.TmpTableSize},
+		{Section: "mysqld", Key: "max_heap_table_size", Value: &t.MaxHeapTableSize},
+		{Section: "mysqld", Key: "myisam_sort_buffer_size", Value: &t.MyisamSortBufferSize},
+		// InnoDB
+		{Section: "mysqld", Key: "innodb_buffer_pool_size", Value: &t.InnodbBufferPoolSize},
+		{Section: "mysqld", Key: "innodb_log_buffer_size", Value: &t.InnodbLogBufferSize},
+		{Section: "mysqld", Key: "innodb_flush_log_at_trx_commit", Value: &t.InnodbFlushLogAtTrxCommit},
+		{Section: "mysqld", Key: "innodb_lock_wait_timeout", Value: &t.InnodbLockWaitTimeout},
+		{Section: "mysqld", Key: "innodb_max_dirty_pages_pct", Value: &t.InnodbMaxDirtyPagesPct},
+		{Section: "mysqld", Key: "innodb_read_io_threads", Value: &t.InnodbReadIoThreads},
+		{Section: "mysqld", Key: "innodb_write_io_threads", Value: &t.InnodbWriteIoThreads},
+		// 日志
+		{Section: "mysqld", Key: "slow_query_log", Value: &t.SlowQueryLog},
+		{Section: "mysqld", Key: "long_query_time", Value: &t.LongQueryTime},
+	}
 }
 
 // connect 以 root 用户通过 unix socket 连接

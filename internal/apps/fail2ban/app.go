@@ -15,6 +15,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
+	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -28,13 +29,15 @@ type App struct {
 	t           *gotext.Locale
 	log         *slog.Logger
 	websiteRepo biz.WebsiteRepo
+	pureftpd    *pureftpd.App
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, websiteRepo biz.WebsiteRepo) *App {
+func NewApp(t *gotext.Locale, log *slog.Logger, websiteRepo biz.WebsiteRepo, pureftpdApp *pureftpd.App) *App {
 	return &App{
 		t:           t,
 		log:         log,
 		websiteRepo: websiteRepo,
+		pureftpd:    pureftpdApp,
 	}
 }
 
@@ -56,7 +59,7 @@ func (s *App) Status(ctx context.Context) string {
 
 // List 所有规则
 func (s *App) List(w http.ResponseWriter, r *http.Request) {
-	jails, err := listJails()
+	jails, err := s.listJails()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -113,10 +116,15 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 			port, err = shell.Execf(r.Context(), "cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}' | paste -sd ','")
 		case "mysql":
 			filter = "mysqld-auth"
-			port, err = shell.Execf(r.Context(), "cat %s/server/mysql/conf/my.cnf | grep 'port' | head -n 1 | awk '{print $3}'", app.Root)
+			var config string
+			config, err = io.Read(app.Root + "/server/mysql/conf/my.cnf")
+			// [client] 段也有 port，服务端口只认 [mysqld] 段
+			port = confval.SectionINI.GetIn(config, "mysqld", "port")
 		case "pure-ftpd":
 			filter = "pure-ftpd"
-			port, err = shell.Execf(r.Context(), `cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
+			var config string
+			config, err = io.Read(s.pureftpd.ConfPath())
+			port = strconv.Itoa(s.pureftpd.Port(config))
 		default:
 			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown service"))
 			return
@@ -131,7 +139,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		jail.Port = port
 	}
 
-	if io.Exists(jailPath(jail.Name)) {
+	if io.Exists(s.jailPath(jail.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule already exists"))
 		return
 	}
@@ -143,13 +151,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 			failRegex = `^<HOST>\s-.*\s` + req.WebsitePath + `.*HTTP/.*$`
 		}
 		filter := "[Definition]\nfailregex = " + failRegex + "\nignoreregex =\n"
-		if err = io.Write(filterPath(jail.Filter), filter, 0644); err != nil {
+		if err = io.Write(s.filterPath(jail.Filter), filter, 0644); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
 
-	if err = writeJail(jail); err != nil {
+	if err = s.writeJail(jail); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -171,7 +179,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jail, err := readJail(req.Name)
+	jail, err := s.readJail(req.Name)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule not found"))
 		return
@@ -182,7 +190,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 	jail.FindTime = req.FindTime
 	jail.BanTime = req.BanTime
 
-	if err = writeJail(jail); err != nil {
+	if err = s.writeJail(jail); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -204,7 +212,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jail, err := readJail(req.Name)
+	jail, err := s.readJail(req.Name)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule not found"))
 		return
@@ -212,13 +220,13 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// 规则与配套过滤器要一起删掉，中途取消会留下孤立的过滤器文件
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(jailPath(jail.Name)); err != nil {
+	if err = io.Remove(s.jailPath(jail.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	// 面板生成的过滤器随规则一起删除，fail2ban 自带的保留
 	if strings.HasPrefix(jail.Filter, panelFilterPrefix) {
-		if err = io.Remove(filterPath(jail.Filter)); err != nil {
+		if err = io.Remove(s.filterPath(jail.Filter)); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}

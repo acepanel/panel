@@ -33,26 +33,9 @@ type AppCustom struct {
 	Args      string `json:"args"`
 }
 
-// 支持自定义编译参数的应用与环境类型(源码编译类)
-var (
-	customCompileApps     = []string{"apache", "memcached", "nginx", "openresty", "pureftpd", "s3fs"}
-	customCompileEnvTypes = []string{"php", "python"}
-)
-
-// CustomCompileApp 判断应用是否支持自定义编译参数
-func CustomCompileApp(slug string) bool {
-	return slices.Contains(customCompileApps, slug)
-}
-
-// CustomCompileEnv 判断环境类型是否支持自定义编译参数
-func CustomCompileEnv(typ string) bool {
-	return slices.Contains(customCompileEnvTypes, typ)
-}
-
 type AppRepo interface {
 	Installed() ([]*App, error)
 	GetInstalled(slug string) (*App, error)
-	GetInstalledAll(query string, cond ...string) ([]*App, error)
 	ListHomeShow() ([]*App, error)
 	IsInstalled(query string, cond ...any) (bool, error)
 	UpdateShow(slug string, show bool) error
@@ -74,7 +57,13 @@ type AppUsecase struct {
 	log   *slog.Logger
 }
 
-func NewAppUsecase(t *gotext.Locale, log *slog.Logger, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) *AppUsecase {
+func NewAppUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	appRepo AppRepo,
+	cacheRepo CacheRepo,
+	taskRepo TaskRepo,
+) *AppUsecase {
 	return &AppUsecase{
 		repo:  appRepo,
 		cache: cacheRepo,
@@ -125,37 +114,12 @@ func (uc *AppUsecase) Get(slug string) (*api.App, error) {
 	return nil, errors.New(uc.t.Get("app %s not found", slug))
 }
 
-func (uc *AppUsecase) UpdateExist(slug string) bool {
-	item, err := uc.Get(slug)
-	if err != nil {
-		return false
-	}
-	installed, err := uc.repo.GetInstalled(slug)
-	if err != nil {
-		return false
-	}
-
-	for channel := range slices.Values(item.Channels) {
-		if channel.Slug == installed.Channel {
-			if channel.Version != installed.Version {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 func (uc *AppUsecase) Installed() ([]*App, error) {
 	return uc.repo.Installed()
 }
 
 func (uc *AppUsecase) GetInstalled(slug string) (*App, error) {
 	return uc.repo.GetInstalled(slug)
-}
-
-func (uc *AppUsecase) GetInstalledAll(query string, cond ...string) ([]*App, error) {
-	return uc.repo.GetInstalledAll(query, cond...)
 }
 
 func (uc *AppUsecase) GetHomeShow() ([]map[string]string, error) {
@@ -188,89 +152,33 @@ func (uc *AppUsecase) IsInstalled(query string, cond ...any) (bool, error) {
 	return uc.repo.IsInstalled(query, cond...)
 }
 
+func (uc *AppUsecase) UpdateShow(ctx context.Context, slug string, show bool) error {
+	if err := uc.repo.UpdateShow(slug, show); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("app home show updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.Bool("show", show))
+
+	return nil
+}
+
+func (uc *AppUsecase) UpdateOrder(slugs []string) error {
+	return uc.repo.UpdateOrder(slugs)
+}
+
 func (uc *AppUsecase) Install(ctx context.Context, channel, slug string) error {
-	item, err := uc.Get(slug)
+	item, _, err := uc.do(ctx, slug, "install", channel)
 	if err != nil {
 		return err
 	}
 
-	// 恢复原编排：非法面板版本应在存在性检查前报错
-	if err = uc.repo.CheckPanelVersion(); err != nil {
-		return err
-	}
-
-	if installed, _ := uc.repo.IsInstalled(slug); installed {
-		return errors.New(uc.t.Get("app %s already installed", slug))
-	}
-
-	script, err := uc.repo.ResolveScript(item, channel, "install", "")
-	if err != nil {
-		return err
-	}
-
-	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
-		return err
-	}
-
-	uc.repo.DownloadCallback(slug)
-
-	if app.IsCli {
-		err = uc.repo.ExecScript(ctx, script)
-	} else {
-		task := new(Task)
-		task.Key = "app:" + slug
-		task.Name = uc.t.Get("Install app %s", item.Name)
-		task.Status = TaskStatusWaiting
-		task.Shell = script
-		err = uc.task.Push(task)
-	}
-	if err != nil {
-		return err
-	}
-
-	uc.log.Info(uc.t.Get("app installed"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", channel), slog.String("version", channelVersion(item, channel)))
+	uc.log.Info(uc.t.Get("app installed"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", channel), slog.String("version", uc.channelVersion(item, channel)))
 
 	return nil
 }
 
 func (uc *AppUsecase) UnInstall(ctx context.Context, slug string) error {
-	item, err := uc.Get(slug)
-	if err != nil {
-		return err
-	}
-
-	// 恢复原编排：非法面板版本应在存在性检查前报错
-	if err = uc.repo.CheckPanelVersion(); err != nil {
-		return err
-	}
-
-	if installed, _ := uc.repo.IsInstalled(slug); !installed {
-		return errors.New(uc.t.Get("app %s not installed", item.Name))
-	}
-	installed, err := uc.repo.GetInstalled(slug)
-	if err != nil {
-		return err
-	}
-
-	script, err := uc.repo.ResolveScript(item, installed.Channel, "uninstall", installed.Version)
-	if err != nil {
-		return err
-	}
-
-	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		err = uc.repo.ExecScript(ctx, script)
-	} else {
-		task := new(Task)
-		task.Key = "app:" + slug
-		task.Name = uc.t.Get("Uninstall app %s", item.Name)
-		task.Status = TaskStatusWaiting
-		task.Shell = script
-		err = uc.task.Push(task)
-	}
+	item, installed, err := uc.do(ctx, slug, "uninstall", "")
 	if err != nil {
 		return err
 	}
@@ -281,60 +189,12 @@ func (uc *AppUsecase) UnInstall(ctx context.Context, slug string) error {
 }
 
 func (uc *AppUsecase) Update(ctx context.Context, slug string) error {
-	item, err := uc.Get(slug)
+	item, installed, err := uc.do(ctx, slug, "update", "")
 	if err != nil {
 		return err
 	}
 
-	// 恢复原编排：非法面板版本应在存在性检查前报错
-	if err = uc.repo.CheckPanelVersion(); err != nil {
-		return err
-	}
-
-	if installed, _ := uc.repo.IsInstalled(slug); !installed {
-		return errors.New(uc.t.Get("app %s not installed", item.Name))
-	}
-	installed, err := uc.repo.GetInstalled(slug)
-	if err != nil {
-		return err
-	}
-
-	script, err := uc.repo.ResolveScript(item, installed.Channel, "update", "")
-	if err != nil {
-		return err
-	}
-
-	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
-		return err
-	}
-
-	uc.repo.DownloadCallback(slug)
-
-	if app.IsCli {
-		err = uc.repo.ExecScript(ctx, script)
-	} else {
-		task := new(Task)
-		task.Key = "app:" + slug
-		task.Name = uc.t.Get("Update app %s", item.Name)
-		task.Status = TaskStatusWaiting
-		task.Shell = script
-		err = uc.task.Push(task)
-	}
-	if err != nil {
-		return err
-	}
-
-	uc.log.Info(uc.t.Get("app updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(installed.ID)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", installed.Channel), slog.String("from_version", installed.Version), slog.String("to_version", channelVersion(item, installed.Channel)))
-
-	return nil
-}
-
-func (uc *AppUsecase) UpdateShow(ctx context.Context, slug string, show bool) error {
-	if err := uc.repo.UpdateShow(slug, show); err != nil {
-		return err
-	}
-
-	uc.log.Info(uc.t.Get("app home show updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("slug", slug), slog.Bool("show", show))
+	uc.log.Info(uc.t.Get("app updated"), slog.String("type", OperationTypeApp), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(installed.ID)), slog.String("slug", slug), slog.String("name", item.Name), slog.String("channel", installed.Channel), slog.String("from_version", installed.Version), slog.String("to_version", uc.channelVersion(item, installed.Channel)))
 
 	return nil
 }
@@ -353,15 +213,92 @@ func (uc *AppUsecase) SaveCustom(ctx context.Context, slug string, custom *AppCu
 	return nil
 }
 
-func (uc *AppUsecase) UpdateOrder(slugs []string) error {
-	return uc.repo.UpdateOrder(slugs)
+// do 安装时 channel 由调用方指定，卸载和更新沿用已安装的渠道
+func (uc *AppUsecase) do(ctx context.Context, slug, action, channel string) (*api.App, *App, error) {
+	item, err := uc.Get(slug)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 恢复原编排：非法面板版本应在存在性检查前报错
+	if err = uc.repo.CheckPanelVersion(); err != nil {
+		return nil, nil, err
+	}
+
+	var installed *App
+	var name, execVersion string
+	exist, _ := uc.repo.IsInstalled(slug)
+	if action == "install" {
+		if exist {
+			return nil, nil, errors.New(uc.t.Get("app %s already installed", slug))
+		}
+	} else {
+		if !exist {
+			return nil, nil, errors.New(uc.t.Get("app %s not installed", item.Name))
+		}
+		if installed, err = uc.repo.GetInstalled(slug); err != nil {
+			return nil, nil, err
+		}
+		channel = installed.Channel
+	}
+
+	switch action {
+	case "install":
+		name = uc.t.Get("Install app %s", item.Name)
+	case "uninstall":
+		name = uc.t.Get("Uninstall app %s", item.Name)
+		execVersion = installed.Version
+	case "update":
+		name = uc.t.Get("Update app %s", item.Name)
+	}
+
+	script, err := uc.repo.ResolveScript(item, channel, action, execVersion)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
+		return nil, nil, err
+	}
+
+	if action != "uninstall" {
+		uc.repo.DownloadCallback(slug)
+	}
+
+	if app.IsCli {
+		err = uc.repo.ExecScript(ctx, script)
+	} else {
+		task := new(Task)
+		task.Key = "app:" + slug
+		task.Name = name
+		task.Status = TaskStatusWaiting
+		task.Shell = script
+		err = uc.task.Push(task)
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return item, installed, nil
 }
 
-func channelVersion(item *api.App, channel string) string {
+func (uc *AppUsecase) channelVersion(item *api.App, channel string) string {
 	for ch := range slices.Values(item.Channels) {
 		if ch.Slug == channel {
 			return ch.Version
 		}
 	}
 	return ""
+}
+
+// CustomCompileApp 判断应用是否支持自定义编译参数
+func CustomCompileApp(slug string) bool {
+	// 支持自定义编译参数的应用(源码编译类)
+	return slices.Contains([]string{"apache", "memcached", "nginx", "openresty", "pureftpd", "s3fs"}, slug)
+}
+
+// CustomCompileEnv 判断环境类型是否支持自定义编译参数
+func CustomCompileEnv(typ string) bool {
+	// 支持自定义编译参数的环境类型(源码编译类)
+	return slices.Contains([]string{"php", "python"}, typ)
 }

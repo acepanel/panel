@@ -68,9 +68,7 @@ func (r *Runner) Cancel(id uint) bool {
 
 // Run 启动运行器
 func (r *Runner) Run(ctx context.Context) {
-	r.wg.Add(1)
-	go func() {
-		defer r.wg.Done()
+	r.wg.Go(func() {
 		r.clearZombie()
 
 		// 启动时先尝试处理积压的 waiting 任务
@@ -89,7 +87,7 @@ func (r *Runner) Run(ctx context.Context) {
 				r.drain(ctx)
 			}
 		}
-	}()
+	})
 }
 
 // Wait 等待运行协程收尾，ctx 到期则放弃等待
@@ -107,6 +105,13 @@ func (r *Runner) Wait(ctx context.Context) {
 	}
 }
 
+// clearZombie 启动时将残留的 running 任务标记为 failed
+func (r *Runner) clearZombie() {
+	if err := r.db.Model(&biz.Task{}).Where("status = ?", biz.TaskStatusRunning).Update("status", biz.TaskStatusFailed).Error; err != nil {
+		r.log.Error(r.t.Get("failed to clear zombie tasks"), slog.Any("err", err))
+	}
+}
+
 // drain 持续处理 waiting 任务直到队列为空或 ctx 取消
 func (r *Runner) drain(ctx context.Context) {
 	for {
@@ -121,26 +126,18 @@ func (r *Runner) drain(ctx context.Context) {
 	}
 }
 
-// clearZombie 启动时将残留的 running 任务标记为 failed
-func (r *Runner) clearZombie() {
-	if err := r.db.Model(&biz.Task{}).Where("status = ?", biz.TaskStatusRunning).Update("status", biz.TaskStatusFailed).Error; err != nil {
-		r.log.Error(r.t.Get("failed to clear zombie tasks"), slog.Any("err", err))
-	}
-}
-
-// processNext 取一条 waiting 任务执行，返回是否有任务被处理
+// processNext 取一条 waiting 任务执行，返回是否继续取下一条
 func (r *Runner) processNext(ctx context.Context) bool {
 	task := new(biz.Task)
 	if err := r.db.Where("status = ?", biz.TaskStatusWaiting).Order("id asc").First(task).Error; err != nil {
 		return false
 	}
 
-	r.execute(ctx, task)
-	return true
+	return r.execute(ctx, task)
 }
 
-// execute 执行单个任务
-func (r *Runner) execute(ctx context.Context, task *biz.Task) {
+// execute 执行单个任务，返回是否继续取下一条
+func (r *Runner) execute(ctx context.Context, task *biz.Task) bool {
 	// 先登记再抢占：状态一旦变成 running，Cancel 就必须能命中，
 	// 反过来会让刚开始跑的任务取消落空，取出后、抢占前的取消也会被忽略
 	taskCtx, cancel := context.WithCancel(ctx)
@@ -154,23 +151,19 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 		cancel()
 	}()
 
-	// 原子抢占，任务可能在取出后被取消
-	result := r.db.Model(task).Where("status = ?", biz.TaskStatusWaiting).Update("status", biz.TaskStatusRunning)
-	if result.Error != nil {
-		r.log.Error(r.t.Get("failed to update task status to running"), slog.Any("task_id", task.ID), slog.Any("err", result.Error))
-		return
-	}
-	if result.RowsAffected == 0 {
-		return
-	}
-
-	// 计算日志路径并保存
 	logDir := filepath.Join(app.Root, "panel/storage/logs/task")
 	_ = os.MkdirAll(logDir, 0o700)
 	logFile := filepath.Join(logDir, fmt.Sprintf("%d.log", task.ID))
-	if err := r.db.Model(task).Update("log", logFile).Error; err != nil {
-		r.log.Error(r.t.Get("failed to update task log path"), slog.Any("task_id", task.ID), slog.Any("err", err))
-		return
+
+	// 原子抢占，任务可能在取出后被取消；日志路径分开写的话，写失败会留下永不执行的 running
+	result := r.db.Model(task).Where("status = ?", biz.TaskStatusWaiting).Updates(map[string]any{"status": biz.TaskStatusRunning, "log": logFile})
+	if result.Error != nil {
+		r.log.Error(r.t.Get("failed to update task status to running"), slog.Any("task_id", task.ID), slog.Any("err", result.Error))
+		// 任务仍是 waiting，立刻重取只会原地空转，留给下个 tick
+		return false
+	}
+	if result.RowsAffected == 0 {
+		return true
 	}
 
 	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
@@ -196,12 +189,13 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 				{r.t.Get("Time"), time.Now().Format(time.DateTime)},
 			}))
 		}
-		return
+		return true
 	}
 
 	if err := r.db.Model(task).Update("status", biz.TaskStatusSuccess).Error; err != nil {
 		r.log.Error(r.t.Get("failed to update task status to success"), slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
+	return true
 }
 
 // runCancelShell 任务被取消后执行清理命令，输出追加到任务日志

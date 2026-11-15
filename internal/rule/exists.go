@@ -6,23 +6,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// Exists 验证一个值在某个表中的字段中存在，支持同时判断多个字段
+// exists 验证一个值在某个表中的字段中存在，支持同时判断多个字段
 // 用法：exists:表名称,字段名称,字段名称
 // 例子：exists:users,phone,email
-type Exists struct {
+type exists struct {
 	db *gorm.DB
 	t  *gotext.Locale
 }
 
-func NewExists(db *gorm.DB, t *gotext.Locale) *Exists {
-	return &Exists{db: db, t: t}
+func newExists(db *gorm.DB, t *gotext.Locale) *exists {
+	return &exists{db: db, t: t}
 }
 
-func (r *Exists) Signature() string { return "exists" }
+func (r *exists) Signature() string { return "exists" }
 
-func (r *Exists) Message() string { return r.t.Get("{field} does not exist") }
+func (r *exists) Message() string { return r.t.Get("{field} does not exist") }
 
-func (r *Exists) Validate(f *validator.Field) (bool, error) {
+func (r *exists) Validate(f *validator.Field) (bool, error) {
 	rv := f.Reflect()
 	if validator.IsEmptyValue(rv) {
 		return true, nil

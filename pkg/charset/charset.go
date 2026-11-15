@@ -37,15 +37,6 @@ var encodings = map[string]encoding.Encoding{
 	"windows-1251": charmap.Windows1251,
 }
 
-var boms = []struct {
-	prefix []byte
-	name   string
-}{
-	{[]byte{0xEF, 0xBB, 0xBF}, "utf-8-bom"},
-	{[]byte{0xFF, 0xFE}, "utf-16le"},
-	{[]byte{0xFE, 0xFF}, "utf-16be"},
-}
-
 // UnsupportedRuneError 目标编码无法表示某个字符
 type UnsupportedRuneError struct {
 	Rune rune
@@ -92,6 +83,15 @@ func Encode(data []byte, name string) ([]byte, error) {
 
 // Detect 检测字节的编码，依次判断 BOM 与 UTF-8 合法性，都不匹配时回退 GB18030
 func Detect(data []byte) string {
+	boms := []struct {
+		prefix []byte
+		name   string
+	}{
+		{[]byte{0xEF, 0xBB, 0xBF}, "utf-8-bom"},
+		{[]byte{0xFF, 0xFE}, "utf-16le"},
+		{[]byte{0xFE, 0xFF}, "utf-16be"},
+	}
+
 	for _, bom := range boms {
 		if bytes.HasPrefix(data, bom.prefix) {
 			return bom.name

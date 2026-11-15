@@ -6,6 +6,7 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import { useBus } from '@/components/system/composables/useBus'
 import ForwardView from '@/views/firewall/ForwardView.vue'
 import IpRuleView from '@/views/firewall/IpRuleView.vue'
 import RuleView from '@/views/firewall/RuleView.vue'
@@ -33,13 +34,7 @@ const { send: refreshStatus } = useRequest(firewall.status)
     ready.value = true
   })
 
-onMounted(() => {
-  window.$bus.on('firewall:refresh', refreshStatus)
-})
-
-onUnmounted(() => {
-  window.$bus.off('firewall:refresh', refreshStatus)
-})
+useBus('firewall:refresh', refreshStatus)
 </script>
 
 <template>

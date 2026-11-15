@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"golang.org/x/sys/unix"
@@ -17,62 +16,17 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
+var grubCmdlineRe = regexp.MustCompile(`(?m)^(GRUB_CMDLINE_LINUX(?:_DEFAULT)?=)"([^"]*)"`)
+
 // Supported 当前平台是否支持防篡改(Linux 即支持 chattr 模式)
 func Supported() bool {
 	return true
-}
-
-func kernelVersion() string {
-	var uts unix.Utsname
-	if err := unix.Uname(&uts); err != nil {
-		return ""
-	}
-	return string(uts.Release[:bytes.IndexByte(uts.Release[:], 0)])
-}
-
-func kernelAtLeast(major, minor int) bool {
-	v := kernelVersion()
-	parts := strings.SplitN(v, ".", 3)
-	if len(parts) < 2 {
-		return false
-	}
-	majNum, err1 := strconv.Atoi(parts[0])
-	// 次版本号可能带后缀,截断非数字部分
-	minStr := parts[1]
-	for i, c := range minStr {
-		if c < '0' || c > '9' {
-			minStr = minStr[:i]
-			break
-		}
-	}
-	minNum, err2 := strconv.Atoi(minStr)
-	if err1 != nil || err2 != nil {
-		return false
-	}
-	if majNum != major {
-		return majNum > major
-	}
-	return minNum >= minor
-}
-
-func activeLSM() string {
-	data, err := os.ReadFile("/sys/kernel/security/lsm")
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(data))
 }
 
 func DetectEBPF() EBPFStatus {
 	st := EBPFStatus{
 		KernelVersion: kernelVersion(),
 		ActiveLSM:     activeLSM(),
-	}
-
-	// bpf LSM 需内核 5.7+
-	if !kernelAtLeast(5, 7) {
-		st.Reason = "kernel too old, eBPF-LSM requires 5.7+"
-		return st
 	}
 
 	// bpf 必须在激活的 LSM 列表中
@@ -91,7 +45,42 @@ func DetectEBPF() EBPFStatus {
 	return st
 }
 
-var grubCmdlineRe = regexp.MustCompile(`(?m)^(GRUB_CMDLINE_LINUX(?:_DEFAULT)?=)"([^"]*)"`)
+// EnableBPFLSMGrub 修改 grub 激活 bpf LSM,需重启系统生效
+func EnableBPFLSMGrub(ctx context.Context) error {
+	const grubFile = "/etc/default/grub"
+	data, err := os.ReadFile(grubFile)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", grubFile, err)
+	}
+
+	newContent, changed := injectLSMBpf(string(data), activeLSM())
+	if changed {
+		if err = os.WriteFile(grubFile, []byte(newContent), 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", grubFile, err)
+		}
+	}
+
+	if err = regenerateGrub(ctx); err != nil {
+		return fmt.Errorf("failed to regenerate grub config: %w", err)
+	}
+	return nil
+}
+
+func kernelVersion() string {
+	var uts unix.Utsname
+	if err := unix.Uname(&uts); err != nil {
+		return ""
+	}
+	return string(uts.Release[:bytes.IndexByte(uts.Release[:], 0)])
+}
+
+func activeLSM() string {
+	data, err := os.ReadFile("/sys/kernel/security/lsm")
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
+}
 
 // injectLSMBpf 在 grub 内核命令行中注入 bpf LSM
 // 已有 lsm= 则向其追加 bpf,否则新增 lsm=<当前激活列表>,bpf
@@ -132,32 +121,11 @@ func regenerateGrub(ctx context.Context) error {
 	if _, err := exec.LookPath("update-grub"); err == nil {
 		return shell.Command(ctx, "update-grub").Run()
 	}
-	candidates := []string{"/boot/grub2/grub.cfg", "/boot/grub/grub.cfg", "/boot/efi/EFI/centos/grub.cfg", "/boot/efi/EFI/redhat/grub.cfg"}
+	candidates := []string{"/boot/grub2/grub.cfg", "/boot/grub/grub.cfg"}
 	for _, out := range candidates {
 		if _, err := os.Stat(out); err == nil {
 			return shell.Command(ctx, "grub2-mkconfig", "-o", out).Run()
 		}
 	}
 	return shell.Command(ctx, "grub2-mkconfig", "-o", "/boot/grub2/grub.cfg").Run()
-}
-
-// EnableBPFLSMGrub 修改 grub 激活 bpf LSM,需重启系统生效
-func EnableBPFLSMGrub(ctx context.Context) error {
-	const grubFile = "/etc/default/grub"
-	data, err := os.ReadFile(grubFile)
-	if err != nil {
-		return fmt.Errorf("failed to read %s: %w", grubFile, err)
-	}
-
-	newContent, changed := injectLSMBpf(string(data), activeLSM())
-	if changed {
-		if err = os.WriteFile(grubFile, []byte(newContent), 0644); err != nil {
-			return fmt.Errorf("failed to write %s: %w", grubFile, err)
-		}
-	}
-
-	if err = regenerateGrub(ctx); err != nil {
-		return fmt.Errorf("failed to regenerate grub config: %w", err)
-	}
-	return nil
 }

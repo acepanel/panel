@@ -5,9 +5,10 @@ import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
-import type { EditorTab } from '@/stores'
+import type { EditorSettings, EditorTab } from '@/stores'
 import { useEditorStore, useThemeStore } from '@/stores'
 import { getMonaco } from '@/utils/monaco'
+import { getEditorTheme } from '@/utils/monaco/theme'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
@@ -38,9 +39,35 @@ function handleTabsWheel(e: WheelEvent) {
   }
 }
 
-// 获取编辑器主题（nginx 特殊处理）
-function getEditorTheme(language: string) {
-  return (language === 'nginx' ? 'nginx-theme' : 'vs') + (themeStore.darkMode ? '-dark' : '')
+// 编辑器设置到 Monaco 选项的映射
+function toMonacoOptions(
+  settings: EditorSettings,
+): Monaco.editor.IEditorOptions & Monaco.editor.IGlobalEditorOptions {
+  return {
+    // Basic settings
+    tabSize: settings.tabSize,
+    insertSpaces: settings.insertSpaces,
+    wordWrap: settings.wordWrap,
+    fontSize: settings.fontSize,
+    minimap: { enabled: settings.minimap },
+    // Display settings
+    lineNumbers: settings.lineNumbers,
+    renderWhitespace: settings.renderWhitespace,
+    bracketPairColorization: { enabled: settings.bracketPairColorization },
+    guides: {
+      indentation: settings.guides,
+      bracketPairs: settings.guides,
+    },
+    folding: settings.folding,
+    // Cursor settings
+    cursorStyle: settings.cursorStyle,
+    cursorBlinking: settings.cursorBlinking,
+    smoothScrolling: settings.smoothScrolling,
+    // Behavior settings
+    mouseWheelZoom: settings.mouseWheelZoom,
+    formatOnPaste: settings.formatOnPaste,
+    formatOnType: settings.formatOnType,
+  }
 }
 
 // 获取或创建 tab 对应的 model
@@ -99,44 +126,21 @@ function applyActiveTab() {
   const state = viewStates.get(tab.path)
   if (state) editorRef.value.restoreViewState(state)
 
-  monacoRef.value.editor.setTheme(getEditorTheme(tab.language))
+  monacoRef.value.editor.setTheme(getEditorTheme(tab.language, themeStore.darkMode))
 }
 
 // 初始化编辑器
 async function initEditor() {
-  if (!containerRef.value) return
-
   const monaco = await getMonaco(themeStore.locale)
+  // 加载期间组件可能已卸载
+  if (!containerRef.value) return
   monacoRef.value = monaco
 
-  const settings = editorStore.settings
   editorRef.value = monaco.editor.create(containerRef.value, {
-    theme: 'vs' + (themeStore.darkMode ? '-dark' : ''),
+    theme: getEditorTheme(editorStore.activeTab?.language ?? '', themeStore.darkMode),
     readOnly: props.readOnly,
     automaticLayout: true,
-    // Basic settings
-    tabSize: settings.tabSize,
-    insertSpaces: settings.insertSpaces,
-    wordWrap: settings.wordWrap,
-    fontSize: settings.fontSize,
-    minimap: { enabled: settings.minimap },
-    // Display settings
-    lineNumbers: settings.lineNumbers,
-    renderWhitespace: settings.renderWhitespace,
-    bracketPairColorization: { enabled: settings.bracketPairColorization },
-    guides: {
-      indentation: settings.guides,
-      bracketPairs: settings.guides,
-    },
-    folding: settings.folding,
-    // Cursor settings
-    cursorStyle: settings.cursorStyle,
-    cursorBlinking: settings.cursorBlinking,
-    smoothScrolling: settings.smoothScrolling,
-    // Behavior settings
-    mouseWheelZoom: settings.mouseWheelZoom,
-    formatOnPaste: settings.formatOnPaste,
-    formatOnType: settings.formatOnType,
+    ...toMonacoOptions(editorStore.settings),
   })
 
   // 监听光标位置变化
@@ -350,7 +354,7 @@ watch(
     if (!model) return
     monacoRef.value.editor.setModelLanguage(model, newLanguage)
     if (editorRef.value?.getModel() === model) {
-      monacoRef.value.editor.setTheme(getEditorTheme(newLanguage))
+      monacoRef.value.editor.setTheme(getEditorTheme(newLanguage, themeStore.darkMode))
     }
   },
 )
@@ -400,9 +404,9 @@ watch(
 // 监听主题变化
 watch(
   () => themeStore.darkMode,
-  () => {
+  (dark) => {
     if (!monacoRef.value || !editorStore.activeTab) return
-    monacoRef.value.editor.setTheme(getEditorTheme(editorStore.activeTab.language))
+    monacoRef.value.editor.setTheme(getEditorTheme(editorStore.activeTab.language, dark))
   },
 )
 
@@ -410,32 +414,7 @@ watch(
 watch(
   () => editorStore.settings,
   (settings) => {
-    if (!editorRef.value) return
-    editorRef.value.updateOptions({
-      // Basic settings
-      tabSize: settings.tabSize,
-      insertSpaces: settings.insertSpaces,
-      wordWrap: settings.wordWrap,
-      fontSize: settings.fontSize,
-      minimap: { enabled: settings.minimap },
-      // Display settings
-      lineNumbers: settings.lineNumbers,
-      renderWhitespace: settings.renderWhitespace,
-      bracketPairColorization: { enabled: settings.bracketPairColorization },
-      guides: {
-        indentation: settings.guides,
-        bracketPairs: settings.guides,
-      },
-      folding: settings.folding,
-      // Cursor settings
-      cursorStyle: settings.cursorStyle,
-      cursorBlinking: settings.cursorBlinking,
-      smoothScrolling: settings.smoothScrolling,
-      // Behavior settings
-      mouseWheelZoom: settings.mouseWheelZoom,
-      formatOnPaste: settings.formatOnPaste,
-      formatOnType: settings.formatOnType,
-    })
+    editorRef.value?.updateOptions(toMonacoOptions(settings))
   },
   { deep: true },
 )

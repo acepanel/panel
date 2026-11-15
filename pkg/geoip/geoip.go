@@ -16,6 +16,15 @@ type GeoIP struct {
 	idxISP         int
 }
 
+// GeoResult 地理位置查询结果
+type GeoResult struct {
+	Country     string
+	Region      string
+	City        string
+	CountryCode string
+	ISP         string
+}
+
 // NewGeoIP 加载 .ipdb 文件，返回 GeoIP 实例
 func NewGeoIP(path string) (*GeoIP, error) {
 	db, err := ipdb.Open(path)
@@ -25,38 +34,6 @@ func NewGeoIP(path string) (*GeoIP, error) {
 	g := &GeoIP{db: db}
 	g.cacheFieldIndices()
 	return g, nil
-}
-
-// cacheFieldIndices 缓存字段索引，避免每次查询遍历
-func (g *GeoIP) cacheFieldIndices() {
-	g.idxCountry = -1
-	g.idxRegion = -1
-	g.idxCity = -1
-	g.idxCountryCode = -1
-	g.idxISP = -1
-	for i, f := range g.db.Fields() {
-		switch f {
-		case "country_name":
-			g.idxCountry = i
-		case "region_name":
-			g.idxRegion = i
-		case "city_name":
-			g.idxCity = i
-		case "country_code":
-			g.idxCountryCode = i
-		case "isp_domain":
-			g.idxISP = i
-		}
-	}
-}
-
-// GeoResult 地理位置查询结果
-type GeoResult struct {
-	Country     string
-	Region      string
-	City        string
-	CountryCode string
-	ISP         string
 }
 
 // Reload 重新加载 IP 数据库文件
@@ -105,4 +82,27 @@ func (g *GeoIP) Lookup(ip string) GeoResult {
 		r.ISP = fields[g.idxISP]
 	}
 	return r
+}
+
+// cacheFieldIndices 缓存字段索引，避免每次查询遍历
+func (g *GeoIP) cacheFieldIndices() {
+	g.idxCountry = -1
+	g.idxRegion = -1
+	g.idxCity = -1
+	g.idxCountryCode = -1
+	g.idxISP = -1
+	for i, f := range g.db.Fields() {
+		switch f {
+		case "country_name":
+			g.idxCountry = i
+		case "region_name":
+			g.idxRegion = i
+		case "city_name":
+			g.idxCity = i
+		case "country_code":
+			g.idxCountryCode = i
+		case "isp_domain":
+			g.idxISP = i
+		}
+	}
 }

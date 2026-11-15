@@ -16,15 +16,17 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type containerNetworkRepo struct{}
+type containerNetworkRepo struct {
+	dockerRepo
+}
 
-func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
-	return &containerNetworkRepo{}
+func NewContainerNetworkRepo(setting biz.SettingRepo) biz.ContainerNetworkRepo {
+	return &containerNetworkRepo{dockerRepo{setting}}
 }
 
 // List 列出网络
-func (r *containerNetworkRepo) List(ctx context.Context, sock string) ([]types.ContainerNetwork, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerNetworkRepo) List(ctx context.Context) ([]types.ContainerNetwork, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return nil, err
 	}
@@ -74,54 +76,39 @@ func (r *containerNetworkRepo) List(ctx context.Context, sock string) ([]types.C
 }
 
 // Create 创建网络
-func (r *containerNetworkRepo) Create(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerNetworkRepo) Create(ctx context.Context, req *request.ContainerNetworkCreate) (string, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return "", err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
 	var ipamConfigs []network.IPAMConfig
-	if req.Ipv4.Enabled && (req.Ipv4.Subnet != "" || req.Ipv4.Gateway != "" || req.Ipv4.IPRange != "") {
+	for _, item := range []struct {
+		family string
+		conf   types.ContainerContainerNetwork
+	}{{"ipv4", req.Ipv4}, {"ipv6", req.Ipv6}} {
+		conf := item.conf
+		if !conf.Enabled || (conf.Subnet == "" && conf.Gateway == "" && conf.IPRange == "") {
+			continue
+		}
 		var config network.IPAMConfig
-		if req.Ipv4.Subnet != "" {
-			config.Subnet, err = netip.ParsePrefix(req.Ipv4.Subnet)
+		if conf.Subnet != "" {
+			config.Subnet, err = netip.ParsePrefix(conf.Subnet)
 			if err != nil {
-				return "", fmt.Errorf("invalid ipv4 subnet: %w", err)
+				return "", fmt.Errorf("invalid %s subnet: %w", item.family, err)
 			}
 		}
-		if req.Ipv4.Gateway != "" {
-			config.Gateway, err = netip.ParseAddr(req.Ipv4.Gateway)
+		if conf.Gateway != "" {
+			config.Gateway, err = netip.ParseAddr(conf.Gateway)
 			if err != nil {
-				return "", fmt.Errorf("invalid ipv4 gateway: %w", err)
+				return "", fmt.Errorf("invalid %s gateway: %w", item.family, err)
 			}
 		}
-		if req.Ipv4.IPRange != "" {
-			config.IPRange, err = netip.ParsePrefix(req.Ipv4.IPRange)
+		if conf.IPRange != "" {
+			config.IPRange, err = netip.ParsePrefix(conf.IPRange)
 			if err != nil {
-				return "", fmt.Errorf("invalid ipv4 ip range: %w", err)
-			}
-		}
-		ipamConfigs = append(ipamConfigs, config)
-	}
-	if req.Ipv6.Enabled && (req.Ipv6.Subnet != "" || req.Ipv6.Gateway != "" || req.Ipv6.IPRange != "") {
-		var config network.IPAMConfig
-		if req.Ipv6.Subnet != "" {
-			config.Subnet, err = netip.ParsePrefix(req.Ipv6.Subnet)
-			if err != nil {
-				return "", fmt.Errorf("invalid ipv6 subnet: %w", err)
-			}
-		}
-		if req.Ipv6.Gateway != "" {
-			config.Gateway, err = netip.ParseAddr(req.Ipv6.Gateway)
-			if err != nil {
-				return "", fmt.Errorf("invalid ipv6 gateway: %w", err)
-			}
-		}
-		if req.Ipv6.IPRange != "" {
-			config.IPRange, err = netip.ParsePrefix(req.Ipv6.IPRange)
-			if err != nil {
-				return "", fmt.Errorf("invalid ipv6 ip range: %w", err)
+				return "", fmt.Errorf("invalid %s ip range: %w", item.family, err)
 			}
 		}
 		ipamConfigs = append(ipamConfigs, config)
@@ -149,8 +136,8 @@ func (r *containerNetworkRepo) Create(ctx context.Context, sock string, req *req
 }
 
 // Remove 删除网络
-func (r *containerNetworkRepo) Remove(ctx context.Context, sock string, id string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerNetworkRepo) Remove(ctx context.Context, id string) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}
@@ -171,8 +158,8 @@ func (r *containerNetworkRepo) Remove(ctx context.Context, sock string, id strin
 }
 
 // Prune 清理未使用的网络
-func (r *containerNetworkRepo) Prune(ctx context.Context, sock string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerNetworkRepo) Prune(ctx context.Context) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}

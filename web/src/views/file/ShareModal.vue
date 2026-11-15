@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import copy2clipboard from '@vavt/copy2clipboard'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 const formLayout = useFormLayout('auto', true)
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -67,7 +69,12 @@ const handleCopy = (row: any) => {
   })
 }
 
-const handleDelete = (row: any) => {
+const handleDelete = async (row: any) => {
+  const ok = await confirmAction({
+    title: $gettext('Cancel Share'),
+    content: $gettext('Are you sure you want to cancel this share?'),
+  })
+  if (!ok) return
   useRequest(file.shareDelete(row.id)).onSuccess(() => {
     window.$message.success($gettext('Share cancelled successfully'))
     refresh()
@@ -112,17 +119,9 @@ const columns = computed<DataTableColumns<any>>(() => [
           { default: () => $gettext('Copy Link') },
         ),
         h(
-          NPopconfirm,
-          { onPositiveClick: () => handleDelete(row) },
-          {
-            default: () => $gettext('Are you sure you want to cancel this share?'),
-            trigger: () =>
-              h(
-                NButton,
-                { size: 'tiny', type: 'error', tertiary: true },
-                { default: () => $gettext('Cancel Share') },
-              ),
-          },
+          NButton,
+          { size: 'tiny', type: 'error', tertiary: true, onClick: () => handleDelete(row) },
+          { default: () => $gettext('Cancel Share') },
         ),
       ]),
   },

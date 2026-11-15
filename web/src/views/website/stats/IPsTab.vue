@@ -8,72 +8,23 @@ import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatBytes } from '@/utils/file'
 
 import { codeToName } from './country-name-map'
+import { useStatQuery } from './useStatQuery'
 
 const { $gettext } = useGettext()
 
 use([CanvasRenderer, BarChart, TooltipComponent, GridComponent])
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const items = ref<any[]>([])
-const total = ref(0)
-const page = ref(1)
-const limit = ref(50)
-const pagination = useTablePagination(page, limit, total, [20, 50, 100])
+const { loading, items, total, pagination } = useStatQuery(({ start, end, sites, page, limit }) =>
+  website.statIPs(start, end, sites, page, limit),
+)
 
 // ISP 分布数据
-const ispItems = ref<any[]>([])
-
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statIPs(
-      ctx.dateRange.value.start,
-      ctx.dateRange.value.end,
-      ctx.sitesParam.value,
-      page.value,
-      limit.value,
-    ),
-  )
-    .onSuccess(({ data }: any) => {
-      items.value = data.items || []
-      total.value = data.total || 0
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
-
-const loadISPs = () => {
-  useRequest(
-    website.statGeos(
-      ctx.dateRange.value.start,
-      ctx.dateRange.value.end,
-      ctx.sitesParam.value,
-      'isp',
-      undefined,
-      15,
-    ),
-  ).onSuccess(({ data }: any) => {
-    ispItems.value = data.items || []
-  })
-}
-
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  page.value = 1
-  loadData()
-  loadISPs()
-})
-
-onMounted(() => {
-  loadData()
-  loadISPs()
-})
+const { items: ispItems } = useStatQuery(({ start, end, sites }) =>
+  website.statGeos(start, end, sites, 'isp', undefined, 15),
+)
 
 // ========== ISP 分布柱状图 ==========
 
@@ -144,17 +95,6 @@ const columns = computed(() => [
     sorter: (a: any, b: any) => a.bandwidth - b.bandwidth,
   },
 ])
-
-const handlePageChange = (p: number) => {
-  page.value = p
-  loadData()
-}
-
-const handlePageSizeChange = (s: number) => {
-  limit.value = s
-  page.value = 1
-  loadData()
-}
 </script>
 
 <template>
@@ -171,12 +111,7 @@ const handlePageSizeChange = (s: number) => {
         :scroll-x="700"
       />
       <n-flex justify="end" class="mt-3" v-if="total > 0">
-        <n-pagination
-          v-model:page="page"
-          v-bind="pagination"
-          @update:page="handlePageChange"
-          @update:page-size="handlePageSizeChange"
-        />
+        <n-pagination v-bind="pagination" />
       </n-flex>
     </n-spin>
   </n-flex>

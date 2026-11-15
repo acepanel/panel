@@ -18,6 +18,51 @@ const (
 	singleton    = "singleton"
 )
 
+// setError 是 /set 响应里 notCreated、notUpdated、notDestroyed 的条目
+type setError struct {
+	Type             string `json:"type"`
+	Description      string `json:"description"`
+	ValidationErrors []struct {
+		Type     string `json:"type"`
+		Property string `json:"property"`
+	} `json:"validationErrors"`
+	LinkedObjects []struct {
+		Object string `json:"object"`
+		ID     string `json:"id"`
+	} `json:"linkedObjects"`
+}
+
+func (e setError) Error() string {
+	var parts []string
+	if e.Description != "" {
+		parts = append(parts, e.Description)
+	}
+	for _, v := range e.ValidationErrors {
+		parts = append(parts, fmt.Sprintf("%s: %s", v.Property, v.Type))
+	}
+	for _, l := range e.LinkedObjects {
+		parts = append(parts, fmt.Sprintf("linked %s %s", l.Object, l.ID))
+	}
+	if len(parts) == 0 {
+		return e.Type
+	}
+	return e.Type + ": " + strings.Join(parts, ", ")
+}
+
+type setResponse struct {
+	Created      map[string]struct{ ID string }
+	Updated      map[string]json.RawMessage
+	Destroyed    []string
+	NotCreated   map[string]setError
+	NotUpdated   map[string]setError
+	NotDestroyed map[string]setError
+}
+
+type queryResult struct {
+	IDs   []string `json:"ids"`
+	Total uint     `json:"total"`
+}
+
 type client struct {
 	url      string
 	username string
@@ -100,46 +145,6 @@ func (c *client) call(ctx context.Context, method string, args any) (json.RawMes
 	return tuple[1], nil
 }
 
-// setError 是 /set 响应里 notCreated、notUpdated、notDestroyed 的条目
-type setError struct {
-	Type             string `json:"type"`
-	Description      string `json:"description"`
-	ValidationErrors []struct {
-		Type     string `json:"type"`
-		Property string `json:"property"`
-	} `json:"validationErrors"`
-	LinkedObjects []struct {
-		Object string `json:"object"`
-		ID     string `json:"id"`
-	} `json:"linkedObjects"`
-}
-
-func (e setError) Error() string {
-	var parts []string
-	if e.Description != "" {
-		parts = append(parts, e.Description)
-	}
-	for _, v := range e.ValidationErrors {
-		parts = append(parts, fmt.Sprintf("%s: %s", v.Property, v.Type))
-	}
-	for _, l := range e.LinkedObjects {
-		parts = append(parts, fmt.Sprintf("linked %s %s", l.Object, l.ID))
-	}
-	if len(parts) == 0 {
-		return e.Type
-	}
-	return e.Type + ": " + strings.Join(parts, ", ")
-}
-
-type setResponse struct {
-	Created      map[string]struct{ ID string }
-	Updated      map[string]json.RawMessage
-	Destroyed    []string
-	NotCreated   map[string]setError
-	NotUpdated   map[string]setError
-	NotDestroyed map[string]setError
-}
-
 func (c *client) set(ctx context.Context, typ string, args map[string]any) (*setResponse, error) {
 	raw, err := c.call(ctx, "x:"+typ+"/set", args)
 	if err != nil {
@@ -193,12 +198,56 @@ func (c *client) action(ctx context.Context, name string) error {
 	return err
 }
 
+// query 按条件分页查询对象 id，limit 为 0 时不分页
+func (c *client) query(
+	ctx context.Context,
+	typ string,
+	filter map[string]any,
+	position, limit uint,
+) (*queryResult, error) {
+	args := map[string]any{"calculateTotal": true}
+	if len(filter) > 0 {
+		args["filter"] = filter
+	}
+	if limit > 0 {
+		args["position"] = position
+		args["limit"] = limit
+	}
+	raw, err := c.call(ctx, "x:"+typ+"/query", args)
+	if err != nil {
+		return nil, err
+	}
+	var result queryResult
+	if err = json.Unmarshal(raw, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// waitReady 轮询直到管理接口可用，服务启动与重启后都需要等待
+func (c *client) waitReady(ctx context.Context, method string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	for {
+		callCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		_, err := c.call(callCtx, method, map[string]any{"ids": []string{singleton}})
+		cancel()
+		if err == nil {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("mail server did not become ready in %s: %w", timeout, err)
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Second):
+		}
+	}
+}
+
 // get 按 id 读取对象，ids 为 nil 时读取全部
 func get[T any](ctx context.Context, c *client, typ string, ids []string, properties []string) ([]T, error) {
 	args := map[string]any{"ids": ids}
-	if ids == nil {
-		args["ids"] = nil
-	}
 	if len(properties) > 0 {
 		args["properties"] = properties
 	}
@@ -227,34 +276,15 @@ func getOne[T any](ctx context.Context, c *client, typ, id string) (*T, error) {
 	return &list[0], nil
 }
 
-type queryResult struct {
-	IDs   []string `json:"ids"`
-	Total uint     `json:"total"`
-}
-
-// query 按条件分页查询对象 id，limit 为 0 时不分页
-func (c *client) query(ctx context.Context, typ string, filter map[string]any, position, limit uint) (*queryResult, error) {
-	args := map[string]any{"calculateTotal": true}
-	if len(filter) > 0 {
-		args["filter"] = filter
-	}
-	if limit > 0 {
-		args["position"] = position
-		args["limit"] = limit
-	}
-	raw, err := c.call(ctx, "x:"+typ+"/query", args)
-	if err != nil {
-		return nil, err
-	}
-	var result queryResult
-	if err = json.Unmarshal(raw, &result); err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
 // queryGet 查询后直接取回对象，分页由 JMAP 完成
-func queryGet[T any](ctx context.Context, c *client, typ string, filter map[string]any, position, limit uint, properties []string) ([]T, uint, error) {
+func queryGet[T any](
+	ctx context.Context,
+	c *client,
+	typ string,
+	filter map[string]any,
+	position, limit uint,
+	properties []string,
+) ([]T, uint, error) {
 	result, err := c.query(ctx, typ, filter, position, limit)
 	if err != nil {
 		return nil, 0, err
@@ -267,25 +297,4 @@ func queryGet[T any](ctx context.Context, c *client, typ string, filter map[stri
 		return nil, 0, err
 	}
 	return list, result.Total, nil
-}
-
-// waitReady 轮询直到管理接口可用，服务启动与重启后都需要等待
-func (c *client) waitReady(ctx context.Context, method string, timeout time.Duration) error {
-	deadline := time.Now().Add(timeout)
-	for {
-		callCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		_, err := c.call(callCtx, method, map[string]any{"ids": []string{singleton}})
-		cancel()
-		if err == nil {
-			return nil
-		}
-		if time.Now().After(deadline) {
-			return fmt.Errorf("mail server did not become ready in %s: %w", timeout, err)
-		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(time.Second):
-		}
-	}
 }

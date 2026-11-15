@@ -6,7 +6,6 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import AccountView from './AccountView.vue'
 import DomainView from './DomainView.vue'

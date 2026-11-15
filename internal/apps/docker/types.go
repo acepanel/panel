@@ -1,6 +1,6 @@
 package docker
 
-// DaemonConfig Docker daemon.json 完整配置结构
+// DaemonConfig daemon.json 中由面板管理的配置项
 type DaemonConfig struct {
 	RegistryMirrors    []string          `json:"registry-mirrors,omitempty"`
 	InsecureRegistries []string          `json:"insecure-registries,omitempty"`
@@ -18,6 +18,4 @@ type DaemonConfig struct {
 	IpForward          *bool             `json:"ip-forward,omitempty"`
 	IPv6               *bool             `json:"ipv6,omitempty"`
 	Bip                string            `json:"bip,omitempty"`
-	// 其他原有配置字段保留
-	Extra map[string]any `json:"-"`
 }

@@ -9,7 +9,13 @@ import (
 )
 
 // ContainerRoutes 容器路由
-func ContainerRoutes(containerComposeService *service.ContainerComposeService, containerImageService *service.ContainerImageService, containerNetworkService *service.ContainerNetworkService, containerService *service.ContainerService, containerVolumeService *service.ContainerVolumeService) Endpoints {
+func ContainerRoutes(
+	containerComposeService *service.ContainerComposeService,
+	containerImageService *service.ContainerImageService,
+	containerNetworkService *service.ContainerNetworkService,
+	containerService *service.ContainerService,
+	containerVolumeService *service.ContainerVolumeService,
+) Endpoints {
 	container := containerService
 	compose := containerComposeService
 	network := containerNetworkService

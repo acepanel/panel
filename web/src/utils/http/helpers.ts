@@ -1,31 +1,36 @@
 import { useUserStore } from '@/stores'
+import { $gettext } from '@/utils/gettext'
 
 export function resolveResError(code: number | string | undefined, msg = ''): string {
   switch (code) {
     case 400:
     case 422:
-      msg = msg ?? '请求参数错误'
-      break
+      return msg || $gettext('Invalid request parameters')
     case 401:
-      msg = msg ?? '登录已过期'
       useUserStore().logout()
-      break
+      return msg || $gettext('Login expired')
     case 418:
-      msg = msg ?? '登录已过期'
       useUserStore().refresh()
-      break
+      return msg || $gettext('Login expired')
     case 403:
-      msg = msg ?? '没有权限'
-      break
+      return msg || $gettext('Permission denied')
     case 404:
-      msg = msg ?? '资源或接口不存在'
-      break
+      return msg || $gettext('Resource not found')
     case 500:
-      msg = msg ?? '服务器异常'
-      break
+      return msg || $gettext('Server error')
     default:
-      msg = msg ?? `【${code}】: 未知异常!`
-      break
+      return msg || $gettext('Unknown error') + ` (${code})`
   }
-  return msg
+}
+
+// 适配器对断网和超时抛的是固定的英文原文，换成可翻译的文案
+export function resolveNetworkError(error: any): string {
+  switch (error?.message) {
+    case 'Network Error':
+      return $gettext('Network error, please check your connection')
+    case 'Network Timeout':
+      return $gettext('Request timed out')
+    default:
+      return error?.message || $gettext('Unknown error')
+  }
 }

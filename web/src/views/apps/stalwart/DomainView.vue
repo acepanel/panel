@@ -4,14 +4,14 @@ defineOptions({
 })
 
 import copy2clipboard from '@vavt/copy2clipboard'
-import { NButton, NDataTable, NFlex, NTag, NText, NTooltip } from 'naive-ui'
+import { NButton, NFlex, NTag, NText, NTooltip } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
 import cert from '@/api/panel/cert'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -36,16 +36,9 @@ const dnsSelected = ref<string[]>([])
 const dnsAccounts = ref<any[]>([])
 const dnsAccountID = ref<number | null>(null)
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => stalwart.domains(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  stalwart.domains(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const columns: any = [
   {
@@ -332,10 +325,6 @@ const handleDelete = (id: string) => {
     window.$message.success($gettext('Deleted successfully'))
   })
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

@@ -9,37 +9,15 @@ import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 
+import { useStatQuery } from './useStatQuery'
+
 const { $gettext } = useGettext()
 
 use([CanvasRenderer, BarChart, TooltipComponent, LegendComponent, GridComponent])
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const items = ref<any[]>([])
-const total = ref(0)
-
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statSpiders(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
-  )
-    .onSuccess(({ data }: any) => {
-      items.value = data.items || []
-      total.value = data.total || 0
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
-
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadData()
-})
-
-onMounted(() => {
-  loadData()
-})
+const { loading, items } = useStatQuery(({ start, end, sites }) =>
+  website.statSpiders(start, end, sites),
+)
 
 const chartOption = computed<EChartsOption>(() => {
   const data = items.value.slice(0, 20)

@@ -12,53 +12,12 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/crypt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/notify"
 )
-
-// NotifyChannel 通知渠道
-type NotifyChannel struct {
-	ID        uint            `gorm:"primaryKey" json:"id"`
-	Name      string          `gorm:"not null;default:''" json:"name"`
-	Type      string          `gorm:"not null;default:''" json:"type"`   // smtp
-	Config    json.RawMessage `gorm:"not null;default:''" json:"config"` // 渠道配置，含凭据，落库前整体加密
-	Enabled   bool            `gorm:"not null;default:true" json:"enabled"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-}
-
-func (r *NotifyChannel) BeforeSave(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	encrypted, err := crypter.Encrypt(r.Config)
-	if err != nil {
-		return err
-	}
-	r.Config = json.RawMessage(encrypted)
-
-	return nil
-}
-
-func (r *NotifyChannel) AfterFind(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	if config, err := crypter.Decrypt(string(r.Config)); err == nil {
-		r.Config = config
-	}
-
-	return nil
-}
 
 // NotifyEvent 系统事件类型
 type NotifyEvent string
@@ -77,6 +36,25 @@ const (
 	NotifyEventSSHBruteforce NotifyEvent = "ssh_bruteforce" // SSH 爆破
 )
 
+// NotifyChannel 通知渠道
+type NotifyChannel struct {
+	ID        uint            `gorm:"primaryKey" json:"id"`
+	Name      string          `gorm:"not null;default:''" json:"name"`
+	Type      string          `gorm:"not null;default:''" json:"type"`   // smtp
+	Config    json.RawMessage `gorm:"not null;default:''" json:"config"` // 渠道配置，含凭据，落库前整体加密
+	Enabled   bool            `gorm:"not null;default:true" json:"enabled"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+}
+
+func (r *NotifyChannel) BeforeSave(tx *gorm.DB) error {
+	return encryptFields(&r.Config)
+}
+
+func (r *NotifyChannel) AfterFind(tx *gorm.DB) error {
+	return decryptFields(&r.Config)
+}
+
 type NotifyChannelRepo interface {
 	List(page, limit uint) ([]*NotifyChannel, int64, error)
 	All() ([]*NotifyChannel, error)
@@ -87,9 +65,6 @@ type NotifyChannelRepo interface {
 	Delete(id uint) error
 }
 
-// notifyMaxPending 异步事件通知的并发上限，防止高频事件堆积 goroutine
-const notifyMaxPending = 32
-
 type NotifyUsecase struct {
 	repo    NotifyChannelRepo
 	setting SettingRepo
@@ -98,7 +73,15 @@ type NotifyUsecase struct {
 	pending chan struct{}
 }
 
-func NewNotifyUsecase(t *gotext.Locale, log *slog.Logger, notifyChannelRepo NotifyChannelRepo, settingRepo SettingRepo) *NotifyUsecase {
+func NewNotifyUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	notifyChannelRepo NotifyChannelRepo,
+	settingRepo SettingRepo,
+) *NotifyUsecase {
+	// notifyMaxPending 异步事件通知的并发上限，防止高频事件堆积 goroutine
+	const notifyMaxPending = 32
+
 	return &NotifyUsecase{
 		repo:    notifyChannelRepo,
 		setting: settingRepo,
@@ -261,19 +244,6 @@ func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 	}()
 }
 
-// EventEnabled 判断给定事件中是否有已订阅且配好渠道的
-// 供调用方在采集前提前跳过，避免为没人接收的通知付出采集开销
-func (uc *NotifyUsecase) EventEnabled(events ...NotifyEvent) bool {
-	setting, err := uc.getSetting()
-	if err != nil || len(setting.Channels) == 0 {
-		return false
-	}
-
-	return lo.SomeBy(events, func(event NotifyEvent) bool {
-		return slices.Contains(setting.Events, string(event))
-	})
-}
-
 // SendEventSync 同步发送系统事件通知，未订阅该事件或未配置渠道时静默跳过
 // 供 CLI 等短生命周期进程使用，异步发送会随进程退出丢失
 func (uc *NotifyUsecase) SendEventSync(ctx context.Context, event NotifyEvent, subject, body string) error {
@@ -287,6 +257,19 @@ func (uc *NotifyUsecase) SendEventSync(ctx context.Context, event NotifyEvent, s
 	return err
 }
 
+// EventEnabled 判断给定事件中是否有已订阅且配好渠道的
+// 供调用方在采集前提前跳过，避免为没人接收的通知付出采集开销
+func (uc *NotifyUsecase) EventEnabled(events ...NotifyEvent) bool {
+	setting, err := uc.getSetting()
+	if err != nil || len(setting.Channels) == 0 {
+		return false
+	}
+
+	return lo.SomeBy(events, func(event NotifyEvent) bool {
+		return slices.Contains(setting.Events, string(event))
+	})
+}
+
 func (uc *NotifyUsecase) GetSetting(ctx context.Context) (*request.NotifySetting, error) {
 	setting, err := uc.getSetting()
 	if err != nil {
@@ -296,27 +279,6 @@ func (uc *NotifyUsecase) GetSetting(ctx context.Context) (*request.NotifySetting
 	uc.log.Info(uc.t.Get("notify setting viewed"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)))
 
 	return setting, nil
-}
-
-func (uc *NotifyUsecase) getSetting() (*request.NotifySetting, error) {
-	events, err := uc.setting.GetSlice(SettingKeyNotifyEvents)
-	if err != nil {
-		return nil, err
-	}
-	channelsStr, err := uc.setting.Get(SettingKeyNotifyEventChannels)
-	if err != nil {
-		return nil, err
-	}
-
-	channels := make([]uint, 0)
-	if channelsStr != "" {
-		_ = json.Unmarshal([]byte(channelsStr), &channels)
-	}
-
-	return &request.NotifySetting{
-		Events:   events,
-		Channels: channels,
-	}, nil
 }
 
 func (uc *NotifyUsecase) UpdateSetting(ctx context.Context, setting *request.NotifySetting) error {
@@ -338,6 +300,27 @@ func (uc *NotifyUsecase) UpdateSetting(ctx context.Context, setting *request.Not
 	uc.log.Info(uc.t.Get("notify setting updated"), slog.String("type", OperationTypeMonitor), slog.Uint64("operator_id", OperatorID(ctx)), slog.Any("events", setting.Events), slog.Any("channel_ids", setting.Channels), slog.Any("channels", names))
 
 	return nil
+}
+
+func (uc *NotifyUsecase) getSetting() (*request.NotifySetting, error) {
+	events, err := uc.setting.GetSlice(SettingKeyNotifyEvents)
+	if err != nil {
+		return nil, err
+	}
+	channelsStr, err := uc.setting.Get(SettingKeyNotifyEventChannels)
+	if err != nil {
+		return nil, err
+	}
+
+	channels := make([]uint, 0)
+	if channelsStr != "" {
+		_ = json.Unmarshal([]byte(channelsStr), &channels)
+	}
+
+	return &request.NotifySetting{
+		Events:   events,
+		Channels: channels,
+	}, nil
 }
 
 func (uc *NotifyUsecase) dispatch(ctx context.Context, channel *NotifyChannel, subject, body string) error {

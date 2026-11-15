@@ -20,11 +20,11 @@ func (Dialect) ConfigTest() string {
 }
 
 func (Dialect) HTMLDir() string {
-	return HTMLDir
+	return htmlDir
 }
 
 func (Dialect) ConfigFile() string {
-	return ConfName
+	return confName
 }
 
 func (Dialect) PanelACMEConf() string {
@@ -84,7 +84,7 @@ func (Dialect) BeforeReload() error {
 }
 
 func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
-	vhost, err := NewStaticVhost(configDir)
+	vhost, err := newStaticVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
 }
 
 func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
-	vhost, err := NewPHPVhost(configDir)
+	vhost, err := newPHPVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
 }
 
 func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
-	vhost, err := NewProxyVhost(configDir)
+	vhost, err := newProxyVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (Dialect) RemovePanelChallenge(conf string) (bool, error) {
 }
 
 func tokenFile(path string) string {
-	return filepath.Join(ACMEDir, acmeURI, filepath.Base(path))
+	return filepath.Join(acmeDir, acmeURI, filepath.Base(path))
 }
 
 func writeToken(path, token string) error {

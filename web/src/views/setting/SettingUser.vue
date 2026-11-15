@@ -3,8 +3,9 @@ import { NButton, NDataTable, NFlex, NInput, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 import PasskeyModal from '@/views/setting/PasskeyModal.vue'
 import PasswordModal from '@/views/setting/PasswordModal.vue'
@@ -152,16 +153,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => user.list(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  user.list(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleUsername = (row: any) => {
   useRequest(user.updateUsername(row.id, row.username)).onSuccess(() => {
@@ -182,9 +176,7 @@ const handleDelete = (id: number) => {
   })
 }
 
-onMounted(() => {
-  window.$bus.on('user:refresh', refresh)
-})
+useBus('user:refresh', refresh)
 </script>
 
 <template>

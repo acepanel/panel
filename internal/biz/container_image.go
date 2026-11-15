@@ -2,54 +2,62 @@ package biz
 
 import (
 	"context"
+	"iter"
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/moby/moby/api/types/jsonstream"
 
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+// ImagePullProgress 拉取镜像时 Docker 推送的一条进度
+type ImagePullProgress = jsonstream.Message
+
 type ContainerImageRepo interface {
-	List(ctx context.Context, sock string) ([]types.ContainerImage, error)
-	Exist(ctx context.Context, sock string, name string) (bool, error)
-	Pull(ctx context.Context, sock string, req *request.ContainerImagePull) error
-	Remove(ctx context.Context, sock string, id string) error
-	Prune(ctx context.Context, sock string) error
+	List(ctx context.Context) ([]types.ContainerImage, error)
+	Exist(ctx context.Context, name string) (bool, error)
+	Pull(ctx context.Context, req *request.ContainerImagePull) error
+	// PullStream 发起镜像拉取并返回进度流，发起失败直接返回错误，开始后的失败在流里给出
+	PullStream(ctx context.Context, req *request.ContainerImagePull) (iter.Seq2[ImagePullProgress, error], error)
+	// PullShell 生成后台拉取镜像的命令，需要认证时一并返回清理凭据的命令
+	PullShell(req *request.ContainerImagePull) (shell, cancelShell string, err error)
+	Remove(ctx context.Context, id string) error
+	Prune(ctx context.Context) error
 }
 
 type ContainerImageUsecase struct {
-	repo    ContainerImageRepo
-	setting SettingRepo
-	task    TaskRepo
-	t       *gotext.Locale
-	log     *slog.Logger
+	repo ContainerImageRepo
+	task TaskRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewContainerImageUsecase(t *gotext.Locale, log *slog.Logger, containerImageRepo ContainerImageRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerImageUsecase {
+func NewContainerImageUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	containerImageRepo ContainerImageRepo,
+	taskRepo TaskRepo,
+) *ContainerImageUsecase {
 	return &ContainerImageUsecase{
-		repo:    containerImageRepo,
-		setting: settingRepo,
-		task:    taskRepo,
-		t:       t,
-		log:     log,
+		repo: containerImageRepo,
+		task: taskRepo,
+		t:    t,
+		log:  log,
 	}
 }
 
 func (uc *ContainerImageUsecase) List(ctx context.Context) ([]types.ContainerImage, error) {
-	sock := containerSock(uc.setting)
-	return uc.repo.List(ctx, sock)
+	return uc.repo.List(ctx)
 }
 
 func (uc *ContainerImageUsecase) Exist(ctx context.Context, name string) (bool, error) {
-	sock := containerSock(uc.setting)
-	return uc.repo.Exist(ctx, sock, name)
+	return uc.repo.Exist(ctx, name)
 }
 
 func (uc *ContainerImageUsecase) Pull(ctx context.Context, req *request.ContainerImagePull) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Pull(ctx, sock, req); err != nil {
+	if err := uc.repo.Pull(ctx, req); err != nil {
 		return err
 	}
 
@@ -57,8 +65,15 @@ func (uc *ContainerImageUsecase) Pull(ctx context.Context, req *request.Containe
 	return nil
 }
 
+func (uc *ContainerImageUsecase) PullStream(
+	ctx context.Context,
+	req *request.ContainerImagePull,
+) (iter.Seq2[ImagePullProgress, error], error) {
+	return uc.repo.PullStream(ctx, req)
+}
+
 func (uc *ContainerImageUsecase) PullBackground(ctx context.Context, req *request.ContainerImagePull) error {
-	shell, cancelShell, err := docker.ImagePullShell(containerSock(uc.setting), req)
+	shell, cancelShell, err := uc.repo.PullShell(req)
 	if err != nil {
 		return err
 	}
@@ -79,8 +94,7 @@ func (uc *ContainerImageUsecase) PullBackground(ctx context.Context, req *reques
 }
 
 func (uc *ContainerImageUsecase) Remove(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+	if err := uc.repo.Remove(ctx, id); err != nil {
 		return err
 	}
 
@@ -89,6 +103,5 @@ func (uc *ContainerImageUsecase) Remove(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerImageUsecase) Prune(ctx context.Context) error {
-	sock := containerSock(uc.setting)
-	return uc.repo.Prune(ctx, sock)
+	return uc.repo.Prune(ctx)
 }

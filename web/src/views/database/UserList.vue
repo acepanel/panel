@@ -4,8 +4,9 @@ import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 import UpdateUserModal from '@/views/database/UpdateUserModal.vue'
 
@@ -170,16 +171,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => database.userList(page, pageSize, props.type),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  database.userList(page, pageSize, props.type),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (id: number) => {
   useRequest(database.userDelete(id)).onSuccess(() => {
@@ -194,15 +188,7 @@ const handleRemark = (row: any) => {
   })
 }
 
-onMounted(() => {
-  window.$bus.on('database-user:refresh', () => {
-    refresh()
-  })
-})
-
-onUnmounted(() => {
-  window.$bus.off('database-user:refresh')
-})
+useBus('database-user:refresh', refresh)
 </script>
 
 <template>

@@ -23,14 +23,14 @@ var _ biz.DatabaseUserRepo = &DatabaseUserRepo{}
 //
 //		// make and configure a mocked biz.DatabaseUserRepo
 //		mockedDatabaseUserRepo := &DatabaseUserRepo{
-//			CountFunc: func() (int64, error) {
-//				panic("mock out the Count method")
-//			},
 //			DeleteByIDFunc: func(id uint) error {
 //				panic("mock out the DeleteByID method")
 //			},
 //			DeleteByServerNamesFunc: func(serverID uint, names []string) error {
 //				panic("mock out the DeleteByServerNames method")
+//			},
+//			FindFunc: func(id uint) (*biz.DatabaseUser, error) {
+//				panic("mock out the Find method")
 //			},
 //			GetFunc: func(ctx context.Context, id uint) (*biz.DatabaseUser, error) {
 //				panic("mock out the Get method")
@@ -47,7 +47,7 @@ var _ biz.DatabaseUserRepo = &DatabaseUserRepo{}
 //			SaveFunc: func(user *biz.DatabaseUser) error {
 //				panic("mock out the Save method")
 //			},
-//			UpdateRemarkFunc: func(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
+//			UpdateRemarkFunc: func(req *request.DatabaseUserUpdateRemark) error {
 //				panic("mock out the UpdateRemark method")
 //			},
 //			UpsertFunc: func(user *biz.DatabaseUser) error {
@@ -60,14 +60,14 @@ var _ biz.DatabaseUserRepo = &DatabaseUserRepo{}
 //
 //	}
 type DatabaseUserRepo struct {
-	// CountFunc mocks the Count method.
-	CountFunc func() (int64, error)
-
 	// DeleteByIDFunc mocks the DeleteByID method.
 	DeleteByIDFunc func(id uint) error
 
 	// DeleteByServerNamesFunc mocks the DeleteByServerNames method.
 	DeleteByServerNamesFunc func(serverID uint, names []string) error
+
+	// FindFunc mocks the Find method.
+	FindFunc func(id uint) (*biz.DatabaseUser, error)
 
 	// GetFunc mocks the Get method.
 	GetFunc func(ctx context.Context, id uint) (*biz.DatabaseUser, error)
@@ -85,16 +85,13 @@ type DatabaseUserRepo struct {
 	SaveFunc func(user *biz.DatabaseUser) error
 
 	// UpdateRemarkFunc mocks the UpdateRemark method.
-	UpdateRemarkFunc func(ctx context.Context, req *request.DatabaseUserUpdateRemark) error
+	UpdateRemarkFunc func(req *request.DatabaseUserUpdateRemark) error
 
 	// UpsertFunc mocks the Upsert method.
 	UpsertFunc func(user *biz.DatabaseUser) error
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// Count holds details about calls to the Count method.
-		Count []struct {
-		}
 		// DeleteByID holds details about calls to the DeleteByID method.
 		DeleteByID []struct {
 			// ID is the id argument value.
@@ -106,6 +103,11 @@ type DatabaseUserRepo struct {
 			ServerID uint
 			// Names is the names argument value.
 			Names []string
+		}
+		// Find holds details about calls to the Find method.
+		Find []struct {
+			// ID is the id argument value.
+			ID uint
 		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
@@ -146,8 +148,6 @@ type DatabaseUserRepo struct {
 		}
 		// UpdateRemark holds details about calls to the UpdateRemark method.
 		UpdateRemark []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.DatabaseUserUpdateRemark
 		}
@@ -157,9 +157,9 @@ type DatabaseUserRepo struct {
 			User *biz.DatabaseUser
 		}
 	}
-	lockCount               sync.RWMutex
 	lockDeleteByID          sync.RWMutex
 	lockDeleteByServerNames sync.RWMutex
+	lockFind                sync.RWMutex
 	lockGet                 sync.RWMutex
 	lockList                sync.RWMutex
 	lockListByNames         sync.RWMutex
@@ -167,33 +167,6 @@ type DatabaseUserRepo struct {
 	lockSave                sync.RWMutex
 	lockUpdateRemark        sync.RWMutex
 	lockUpsert              sync.RWMutex
-}
-
-// Count calls CountFunc.
-func (mock *DatabaseUserRepo) Count() (int64, error) {
-	if mock.CountFunc == nil {
-		panic("DatabaseUserRepo.CountFunc: method is nil but DatabaseUserRepo.Count was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockCount.Lock()
-	mock.calls.Count = append(mock.calls.Count, callInfo)
-	mock.lockCount.Unlock()
-	return mock.CountFunc()
-}
-
-// CountCalls gets all the calls that were made to Count.
-// Check the length with:
-//
-//	len(mockedDatabaseUserRepo.CountCalls())
-func (mock *DatabaseUserRepo) CountCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockCount.RLock()
-	calls = mock.calls.Count
-	mock.lockCount.RUnlock()
-	return calls
 }
 
 // DeleteByID calls DeleteByIDFunc.
@@ -261,6 +234,38 @@ func (mock *DatabaseUserRepo) DeleteByServerNamesCalls() []struct {
 	mock.lockDeleteByServerNames.RLock()
 	calls = mock.calls.DeleteByServerNames
 	mock.lockDeleteByServerNames.RUnlock()
+	return calls
+}
+
+// Find calls FindFunc.
+func (mock *DatabaseUserRepo) Find(id uint) (*biz.DatabaseUser, error) {
+	if mock.FindFunc == nil {
+		panic("DatabaseUserRepo.FindFunc: method is nil but DatabaseUserRepo.Find was just called")
+	}
+	callInfo := struct {
+		ID uint
+	}{
+		ID: id,
+	}
+	mock.lockFind.Lock()
+	mock.calls.Find = append(mock.calls.Find, callInfo)
+	mock.lockFind.Unlock()
+	return mock.FindFunc(id)
+}
+
+// FindCalls gets all the calls that were made to Find.
+// Check the length with:
+//
+//	len(mockedDatabaseUserRepo.FindCalls())
+func (mock *DatabaseUserRepo) FindCalls() []struct {
+	ID uint
+} {
+	var calls []struct {
+		ID uint
+	}
+	mock.lockFind.RLock()
+	calls = mock.calls.Find
+	mock.lockFind.RUnlock()
 	return calls
 }
 
@@ -449,21 +454,19 @@ func (mock *DatabaseUserRepo) SaveCalls() []struct {
 }
 
 // UpdateRemark calls UpdateRemarkFunc.
-func (mock *DatabaseUserRepo) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
+func (mock *DatabaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
 	if mock.UpdateRemarkFunc == nil {
 		panic("DatabaseUserRepo.UpdateRemarkFunc: method is nil but DatabaseUserRepo.UpdateRemark was just called")
 	}
 	callInfo := struct {
-		Ctx context.Context
 		Req *request.DatabaseUserUpdateRemark
 	}{
-		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockUpdateRemark.Lock()
 	mock.calls.UpdateRemark = append(mock.calls.UpdateRemark, callInfo)
 	mock.lockUpdateRemark.Unlock()
-	return mock.UpdateRemarkFunc(ctx, req)
+	return mock.UpdateRemarkFunc(req)
 }
 
 // UpdateRemarkCalls gets all the calls that were made to UpdateRemark.
@@ -471,11 +474,9 @@ func (mock *DatabaseUserRepo) UpdateRemark(ctx context.Context, req *request.Dat
 //
 //	len(mockedDatabaseUserRepo.UpdateRemarkCalls())
 func (mock *DatabaseUserRepo) UpdateRemarkCalls() []struct {
-	Ctx context.Context
 	Req *request.DatabaseUserUpdateRemark
 } {
 	var calls []struct {
-		Ctx context.Context
 		Req *request.DatabaseUserUpdateRemark
 	}
 	mock.lockUpdateRemark.RLock()

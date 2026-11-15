@@ -9,39 +9,19 @@ import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 
+import { useStatQuery } from './useStatQuery'
+
 const { $gettext } = useGettext()
 
 use([CanvasRenderer, BarChart, PieChart, TooltipComponent, LegendComponent, GridComponent])
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const browsers = ref<any[]>([])
-const oss = ref<any[]>([])
-const items = ref<any[]>([])
-
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statClients(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
-  )
-    .onSuccess(({ data }: any) => {
-      browsers.value = data.browsers || []
-      oss.value = data.os || []
-      items.value = data.items || []
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
-
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadData()
-})
-
-onMounted(() => {
-  loadData()
-})
+const {
+  loading,
+  data: clients,
+  items,
+} = useStatQuery(({ start, end, sites }) => website.statClients(start, end, sites))
+const browsers = computed<any[]>(() => clients.value?.browsers || [])
+const oss = computed<any[]>(() => clients.value?.os || [])
 
 const browserChartOption = computed<EChartsOption>(() => {
   const data = browsers.value.slice(0, 10)

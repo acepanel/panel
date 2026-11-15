@@ -4,8 +4,8 @@ import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
-import RealtimeLog from '@/components/common/RealtimeLog.vue'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { useBus } from '@/components/system/composables/useBus'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 import { useFileStore } from '@/stores'
 
@@ -231,18 +231,13 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => project.list(type.value, page, pageSize, keyword.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [type, keyword],
     debounce: [0, 300],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleToggleStatus = (row: any) => {
   if (row.status === 'active') {
@@ -319,10 +314,7 @@ const bulkDelete = async () => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
-onMounted(() => {
-  refresh()
-  window.$bus.on('project:refresh', refresh)
-})
+useBus('project:refresh', refresh)
 </script>
 
 <template>

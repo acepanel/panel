@@ -29,51 +29,12 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-// migrationChunkSize 分片上传的单片大小
-const migrationChunkSize = 10 << 20
-
 type migrationRemoteRepo struct {
 	t *gotext.Locale
 }
 
 func NewMigrationRemoteRepo(t *gotext.Locale) biz.MigrationRemoteRepo {
 	return &migrationRemoteRepo{t: t}
-}
-
-// client 构造带 HMAC 签名的目标面板客户端
-func (r *migrationRemoteRepo) client(conn *request.ToolboxMigrationConnection, timeout time.Duration) *resty.Client {
-	client := resty.New().
-		SetBaseURL(strings.TrimRight(conn.URL, "/")).
-		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). //nolint:gosec
-		SetHeader("Content-Type", "application/json")
-	if timeout > 0 {
-		client.SetTimeout(timeout)
-	}
-
-	// 签名中间件放在 MiddlewareRequestCreate 之后，此时 RawRequest 已构建完毕
-	sign := resty.RequestMiddleware(func(_ *resty.Client, req *resty.Request) error {
-		raw := req.RawRequest
-		var body []byte
-		if raw.Body != nil {
-			body, _ = io.ReadAll(raw.Body)
-			raw.Body = io.NopCloser(bytes.NewReader(body))
-		}
-
-		// 签名路径必须是 /api/... 部分（服务端验签时入口前缀已被 strip）
-		path := raw.URL.Path
-		if index := strings.Index(path, "/api/"); index > 0 {
-			path = path[index:]
-		}
-		canonical := fmt.Sprintf("%s\n%s\n%s\n%s", raw.Method, path, raw.URL.Query().Encode(), r.sha256Hex(body))
-		timestamp := time.Now().Unix()
-		signature := r.hmacSHA256(fmt.Sprintf("HMAC-SHA256\n%d\n%s", timestamp, r.sha256Hex([]byte(canonical))), conn.Token)
-
-		raw.Header.Set("X-Timestamp", strconv.FormatInt(timestamp, 10))
-		raw.Header.Set("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
-		return nil
-	})
-	client.SetRequestMiddlewares(resty.MiddlewareRequestCreate, sign)
-	return client
 }
 
 func (r *migrationRemoteRepo) Request(
@@ -110,6 +71,9 @@ func (r *migrationRemoteRepo) Upload(
 	local, remote string,
 	progress types.MigrationProgress,
 ) error {
+	// migrationChunkSize 分片上传的单片大小
+	const migrationChunkSize = 10 << 20
+
 	file, err := os.Open(local)
 	if err != nil {
 		return err
@@ -169,38 +133,12 @@ func (r *migrationRemoteRepo) Upload(
 	return nil
 }
 
-// uploadChunk 以 multipart 提交单个分片
-func (r *migrationRemoteRepo) uploadChunk(
+// Exec 调用目标面板的 SSE 接口执行命令，直到收到完成或错误事件
+func (r *migrationRemoteRepo) Exec(
 	ctx context.Context,
 	conn *request.ToolboxMigrationConnection,
-	meta map[string]any,
-	index int,
-	hash string,
-	chunk []byte,
+	command string,
 ) error {
-	client := r.client(conn, 30*time.Minute)
-	defer func() { _ = client.Close() }()
-
-	name := cast.ToString(meta["file_name"])
-	resp, err := client.R().
-		SetContext(ctx).
-		SetFormData(map[string]string{
-			"path": cast.ToString(meta["path"]), "file_name": name, "file_hash": cast.ToString(meta["file_hash"]),
-			"chunk_index": strconv.Itoa(index), "chunk_hash": hash,
-		}).
-		SetFileReader("file", name, bytes.NewReader(chunk)).
-		Post("/api/file/chunk/upload")
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode() != http.StatusOK {
-		return fmt.Errorf("status %d: %s", resp.StatusCode(), strings.TrimSpace(resp.String()))
-	}
-	return nil
-}
-
-// Exec 调用目标面板的 SSE 接口执行命令，直到收到完成或错误事件
-func (r *migrationRemoteRepo) Exec(ctx context.Context, conn *request.ToolboxMigrationConnection, command string) error {
 	client := r.client(conn, 0)
 	defer func() { _ = client.Close() }()
 
@@ -238,6 +176,42 @@ func (r *migrationRemoteRepo) Exec(ctx context.Context, conn *request.ToolboxMig
 	return errors.New(r.t.Get("the connection to the target server was interrupted"))
 }
 
+// client 构造带 HMAC 签名的目标面板客户端
+func (r *migrationRemoteRepo) client(conn *request.ToolboxMigrationConnection, timeout time.Duration) *resty.Client {
+	client := resty.New().
+		SetBaseURL(strings.TrimRight(conn.URL, "/")).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). //nolint:gosec
+		SetHeader("Content-Type", "application/json")
+	if timeout > 0 {
+		client.SetTimeout(timeout)
+	}
+
+	// 签名中间件放在 MiddlewareRequestCreate 之后，此时 RawRequest 已构建完毕
+	sign := resty.RequestMiddleware(func(_ *resty.Client, req *resty.Request) error {
+		raw := req.RawRequest
+		var body []byte
+		if raw.Body != nil {
+			body, _ = io.ReadAll(raw.Body)
+			raw.Body = io.NopCloser(bytes.NewReader(body))
+		}
+
+		// 签名路径必须是 /api/... 部分（服务端验签时入口前缀已被 strip）
+		path := raw.URL.Path
+		if index := strings.Index(path, "/api/"); index > 0 {
+			path = path[index:]
+		}
+		canonical := fmt.Sprintf("%s\n%s\n%s\n%s", raw.Method, path, raw.URL.Query().Encode(), r.sha256Hex(body))
+		timestamp := time.Now().Unix()
+		signature := r.hmacSHA256(fmt.Sprintf("HMAC-SHA256\n%d\n%s", timestamp, r.sha256Hex([]byte(canonical))), conn.Token)
+
+		raw.Header.Set("X-Timestamp", strconv.FormatInt(timestamp, 10))
+		raw.Header.Set("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
+		return nil
+	})
+	client.SetRequestMiddlewares(resty.MiddlewareRequestCreate, sign)
+	return client
+}
+
 // uploadedChunks 解析已上传的分片下标
 func (r *migrationRemoteRepo) uploadedChunks(body []byte) []int {
 	var response struct {
@@ -249,6 +223,36 @@ func (r *migrationRemoteRepo) uploadedChunks(body []byte) []int {
 		return nil
 	}
 	return response.Data.UploadedChunks
+}
+
+// uploadChunk 以 multipart 提交单个分片
+func (r *migrationRemoteRepo) uploadChunk(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+	meta map[string]any,
+	index int,
+	hash string,
+	chunk []byte,
+) error {
+	client := r.client(conn, 30*time.Minute)
+	defer func() { _ = client.Close() }()
+
+	name := cast.ToString(meta["file_name"])
+	resp, err := client.R().
+		SetContext(ctx).
+		SetFormData(map[string]string{
+			"path": cast.ToString(meta["path"]), "file_name": name, "file_hash": cast.ToString(meta["file_hash"]),
+			"chunk_index": strconv.Itoa(index), "chunk_hash": hash,
+		}).
+		SetFileReader("file", name, bytes.NewReader(chunk)).
+		Post("/api/file/chunk/upload")
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return fmt.Errorf("status %d: %s", resp.StatusCode(), strings.TrimSpace(resp.String()))
+	}
+	return nil
 }
 
 func (r *migrationRemoteRepo) sha256Hex(data []byte) string {

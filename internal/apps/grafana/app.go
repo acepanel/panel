@@ -105,45 +105,15 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "grafana", s.configPath(), 0644, "grafana")
+	common.SaveConfig(w, r, s.log, s.t, "grafana", s.configPath(), 0644, common.Restart("grafana"))
 }
 
 // GetConfigTune 获取 Grafana 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	config, _ := io.Read(s.configPath())
 
-	get := func(section, key string) string {
-		return confval.SectionINI.GetIn(config, section, key)
-	}
-
-	tune := ConfigTune{
-		// [server]
-		HTTPPort: get("server", "http_port"),
-		Domain:   get("server", "domain"),
-		RootURL:  get("server", "root_url"),
-		Protocol: get("server", "protocol"),
-		// [database]
-		DBType:     get("database", "type"),
-		DBHost:     get("database", "host"),
-		DBName:     get("database", "name"),
-		DBUser:     get("database", "user"),
-		DBPassword: get("database", "password"),
-		// [security]
-		AdminUser:     get("security", "admin_user"),
-		AdminPassword: get("security", "admin_password"),
-		// [users]
-		AllowSignUp:       get("users", "allow_sign_up"),
-		AutoAssignOrgRole: get("users", "auto_assign_org_role"),
-		// [smtp]
-		SMTPEnabled:     get("smtp", "enabled"),
-		SMTPHost:        get("smtp", "host"),
-		SMTPUser:        get("smtp", "user"),
-		SMTPPassword:    get("smtp", "password"),
-		SMTPFromAddress: get("smtp", "from_address"),
-		// [log]
-		LogMode:  get("log", "mode"),
-		LogLevel: get("log", "level"),
-	}
+	tune := new(ConfigTune)
+	confval.SectionINI.Read(config, s.tuneFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "grafana"), slog.String("path", s.configPath()))
 
@@ -160,32 +130,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	config, _ := io.Read(s.configPath())
 
-	// [server]
-	config = confval.SectionINI.SetIn(config, "server", "http_port", req.HTTPPort)
-	config = confval.SectionINI.SetIn(config, "server", "domain", req.Domain)
-	config = confval.SectionINI.SetIn(config, "server", "root_url", req.RootURL)
-	config = confval.SectionINI.SetIn(config, "server", "protocol", req.Protocol)
-	// [database]
-	config = confval.SectionINI.SetIn(config, "database", "type", req.DBType)
-	config = confval.SectionINI.SetIn(config, "database", "host", req.DBHost)
-	config = confval.SectionINI.SetIn(config, "database", "name", req.DBName)
-	config = confval.SectionINI.SetIn(config, "database", "user", req.DBUser)
-	config = confval.SectionINI.SetIn(config, "database", "password", req.DBPassword)
-	// [security]
-	config = confval.SectionINI.SetIn(config, "security", "admin_user", req.AdminUser)
-	config = confval.SectionINI.SetIn(config, "security", "admin_password", req.AdminPassword)
-	// [users]
-	config = confval.SectionINI.SetIn(config, "users", "allow_sign_up", req.AllowSignUp)
-	config = confval.SectionINI.SetIn(config, "users", "auto_assign_org_role", req.AutoAssignOrgRole)
-	// [smtp]
-	config = confval.SectionINI.SetIn(config, "smtp", "enabled", req.SMTPEnabled)
-	config = confval.SectionINI.SetIn(config, "smtp", "host", req.SMTPHost)
-	config = confval.SectionINI.SetIn(config, "smtp", "user", req.SMTPUser)
-	config = confval.SectionINI.SetIn(config, "smtp", "password", req.SMTPPassword)
-	config = confval.SectionINI.SetIn(config, "smtp", "from_address", req.SMTPFromAddress)
-	// [log]
-	config = confval.SectionINI.SetIn(config, "log", "mode", req.LogMode)
-	config = confval.SectionINI.SetIn(config, "log", "level", req.LogLevel)
+	config = confval.SectionINI.Write(config, s.tuneFields(req))
 
 	if err = io.Write(s.configPath(), config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -285,6 +230,13 @@ func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s not found", oldName))
 		return
 	}
+	if oldName != req.Name && lo.ContainsBy(list, func(item any) bool {
+		ds, ok := item.(map[string]any)
+		return ok && ds["name"] == req.Name
+	}) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s already exists", req.Name))
+		return
+	}
 	ds, _ := list[idx].(map[string]any)
 	newDs := s.buildDatasourceMap(req)
 	// 密码为空时保留原有 secureJsonData
@@ -366,6 +318,37 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 // configPath 返回 Grafana 主配置文件路径
 func (s *App) configPath() string {
 	return app.Root + "/server/grafana/conf/defaults.ini"
+}
+
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		// [server]
+		{Section: "server", Key: "http_port", Value: &t.HTTPPort},
+		{Section: "server", Key: "domain", Value: &t.Domain},
+		{Section: "server", Key: "root_url", Value: &t.RootURL},
+		{Section: "server", Key: "protocol", Value: &t.Protocol},
+		// [database]
+		{Section: "database", Key: "type", Value: &t.DBType},
+		{Section: "database", Key: "host", Value: &t.DBHost},
+		{Section: "database", Key: "name", Value: &t.DBName},
+		{Section: "database", Key: "user", Value: &t.DBUser},
+		{Section: "database", Key: "password", Value: &t.DBPassword},
+		// [security]
+		{Section: "security", Key: "admin_user", Value: &t.AdminUser},
+		{Section: "security", Key: "admin_password", Value: &t.AdminPassword},
+		// [users]
+		{Section: "users", Key: "allow_sign_up", Value: &t.AllowSignUp},
+		{Section: "users", Key: "auto_assign_org_role", Value: &t.AutoAssignOrgRole},
+		// [smtp]
+		{Section: "smtp", Key: "enabled", Value: &t.SMTPEnabled},
+		{Section: "smtp", Key: "host", Value: &t.SMTPHost},
+		{Section: "smtp", Key: "user", Value: &t.SMTPUser},
+		{Section: "smtp", Key: "password", Value: &t.SMTPPassword},
+		{Section: "smtp", Key: "from_address", Value: &t.SMTPFromAddress},
+		// [log]
+		{Section: "log", Key: "mode", Value: &t.LogMode},
+		{Section: "log", Key: "level", Value: &t.LogLevel},
+	}
 }
 
 // datasourcePath 返回 provisioning 数据源文件路径

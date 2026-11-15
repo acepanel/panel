@@ -6,6 +6,7 @@ package biz
 
 import (
 	"sync"
+	"time"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -20,11 +21,23 @@ var _ biz.ScanEventRepo = &ScanEventRepo{}
 //
 //		// make and configure a mocked biz.ScanEventRepo
 //		mockedScanEventRepo := &ScanEventRepo{
+//			AddBlocksFunc: func(blocks []*biz.ScanBlock) error {
+//				panic("mock out the AddBlocks method")
+//			},
+//			BlockedIPsFunc: func(ips []string) ([]string, error) {
+//				panic("mock out the BlockedIPs method")
+//			},
 //			ClearFunc: func() error {
 //				panic("mock out the Clear method")
 //			},
 //			ClearBeforeFunc: func(date string) error {
 //				panic("mock out the ClearBefore method")
+//			},
+//			DeleteBlocksFunc: func(ips []string) error {
+//				panic("mock out the DeleteBlocks method")
+//			},
+//			ExpiredBlocksFunc: func(now time.Time) ([]*biz.ScanBlock, error) {
+//				panic("mock out the ExpiredBlocks method")
 //			},
 //			ListFunc: func(start string, end string, sourceIP string, port uint, location string, page uint, limit uint) ([]*biz.ScanEvent, uint, error) {
 //				panic("mock out the List method")
@@ -54,11 +67,23 @@ var _ biz.ScanEventRepo = &ScanEventRepo{}
 //
 //	}
 type ScanEventRepo struct {
+	// AddBlocksFunc mocks the AddBlocks method.
+	AddBlocksFunc func(blocks []*biz.ScanBlock) error
+
+	// BlockedIPsFunc mocks the BlockedIPs method.
+	BlockedIPsFunc func(ips []string) ([]string, error)
+
 	// ClearFunc mocks the Clear method.
 	ClearFunc func() error
 
 	// ClearBeforeFunc mocks the ClearBefore method.
 	ClearBeforeFunc func(date string) error
+
+	// DeleteBlocksFunc mocks the DeleteBlocks method.
+	DeleteBlocksFunc func(ips []string) error
+
+	// ExpiredBlocksFunc mocks the ExpiredBlocks method.
+	ExpiredBlocksFunc func(now time.Time) ([]*biz.ScanBlock, error)
 
 	// ListFunc mocks the List method.
 	ListFunc func(start string, end string, sourceIP string, port uint, location string, page uint, limit uint) ([]*biz.ScanEvent, uint, error)
@@ -83,6 +108,16 @@ type ScanEventRepo struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddBlocks holds details about calls to the AddBlocks method.
+		AddBlocks []struct {
+			// Blocks is the blocks argument value.
+			Blocks []*biz.ScanBlock
+		}
+		// BlockedIPs holds details about calls to the BlockedIPs method.
+		BlockedIPs []struct {
+			// Ips is the ips argument value.
+			Ips []string
+		}
 		// Clear holds details about calls to the Clear method.
 		Clear []struct {
 		}
@@ -90,6 +125,16 @@ type ScanEventRepo struct {
 		ClearBefore []struct {
 			// Date is the date argument value.
 			Date string
+		}
+		// DeleteBlocks holds details about calls to the DeleteBlocks method.
+		DeleteBlocks []struct {
+			// Ips is the ips argument value.
+			Ips []string
+		}
+		// ExpiredBlocks holds details about calls to the ExpiredBlocks method.
+		ExpiredBlocks []struct {
+			// Now is the now argument value.
+			Now time.Time
 		}
 		// List holds details about calls to the List method.
 		List []struct {
@@ -149,15 +194,83 @@ type ScanEventRepo struct {
 		VacuumDB []struct {
 		}
 	}
-	lockClear        sync.RWMutex
-	lockClearBefore  sync.RWMutex
-	lockList         sync.RWMutex
-	lockSummary      sync.RWMutex
-	lockTopPorts     sync.RWMutex
-	lockTopSourceIPs sync.RWMutex
-	lockTrend        sync.RWMutex
-	lockUpsert       sync.RWMutex
-	lockVacuumDB     sync.RWMutex
+	lockAddBlocks     sync.RWMutex
+	lockBlockedIPs    sync.RWMutex
+	lockClear         sync.RWMutex
+	lockClearBefore   sync.RWMutex
+	lockDeleteBlocks  sync.RWMutex
+	lockExpiredBlocks sync.RWMutex
+	lockList          sync.RWMutex
+	lockSummary       sync.RWMutex
+	lockTopPorts      sync.RWMutex
+	lockTopSourceIPs  sync.RWMutex
+	lockTrend         sync.RWMutex
+	lockUpsert        sync.RWMutex
+	lockVacuumDB      sync.RWMutex
+}
+
+// AddBlocks calls AddBlocksFunc.
+func (mock *ScanEventRepo) AddBlocks(blocks []*biz.ScanBlock) error {
+	if mock.AddBlocksFunc == nil {
+		panic("ScanEventRepo.AddBlocksFunc: method is nil but ScanEventRepo.AddBlocks was just called")
+	}
+	callInfo := struct {
+		Blocks []*biz.ScanBlock
+	}{
+		Blocks: blocks,
+	}
+	mock.lockAddBlocks.Lock()
+	mock.calls.AddBlocks = append(mock.calls.AddBlocks, callInfo)
+	mock.lockAddBlocks.Unlock()
+	return mock.AddBlocksFunc(blocks)
+}
+
+// AddBlocksCalls gets all the calls that were made to AddBlocks.
+// Check the length with:
+//
+//	len(mockedScanEventRepo.AddBlocksCalls())
+func (mock *ScanEventRepo) AddBlocksCalls() []struct {
+	Blocks []*biz.ScanBlock
+} {
+	var calls []struct {
+		Blocks []*biz.ScanBlock
+	}
+	mock.lockAddBlocks.RLock()
+	calls = mock.calls.AddBlocks
+	mock.lockAddBlocks.RUnlock()
+	return calls
+}
+
+// BlockedIPs calls BlockedIPsFunc.
+func (mock *ScanEventRepo) BlockedIPs(ips []string) ([]string, error) {
+	if mock.BlockedIPsFunc == nil {
+		panic("ScanEventRepo.BlockedIPsFunc: method is nil but ScanEventRepo.BlockedIPs was just called")
+	}
+	callInfo := struct {
+		Ips []string
+	}{
+		Ips: ips,
+	}
+	mock.lockBlockedIPs.Lock()
+	mock.calls.BlockedIPs = append(mock.calls.BlockedIPs, callInfo)
+	mock.lockBlockedIPs.Unlock()
+	return mock.BlockedIPsFunc(ips)
+}
+
+// BlockedIPsCalls gets all the calls that were made to BlockedIPs.
+// Check the length with:
+//
+//	len(mockedScanEventRepo.BlockedIPsCalls())
+func (mock *ScanEventRepo) BlockedIPsCalls() []struct {
+	Ips []string
+} {
+	var calls []struct {
+		Ips []string
+	}
+	mock.lockBlockedIPs.RLock()
+	calls = mock.calls.BlockedIPs
+	mock.lockBlockedIPs.RUnlock()
+	return calls
 }
 
 // Clear calls ClearFunc.
@@ -216,6 +329,70 @@ func (mock *ScanEventRepo) ClearBeforeCalls() []struct {
 	mock.lockClearBefore.RLock()
 	calls = mock.calls.ClearBefore
 	mock.lockClearBefore.RUnlock()
+	return calls
+}
+
+// DeleteBlocks calls DeleteBlocksFunc.
+func (mock *ScanEventRepo) DeleteBlocks(ips []string) error {
+	if mock.DeleteBlocksFunc == nil {
+		panic("ScanEventRepo.DeleteBlocksFunc: method is nil but ScanEventRepo.DeleteBlocks was just called")
+	}
+	callInfo := struct {
+		Ips []string
+	}{
+		Ips: ips,
+	}
+	mock.lockDeleteBlocks.Lock()
+	mock.calls.DeleteBlocks = append(mock.calls.DeleteBlocks, callInfo)
+	mock.lockDeleteBlocks.Unlock()
+	return mock.DeleteBlocksFunc(ips)
+}
+
+// DeleteBlocksCalls gets all the calls that were made to DeleteBlocks.
+// Check the length with:
+//
+//	len(mockedScanEventRepo.DeleteBlocksCalls())
+func (mock *ScanEventRepo) DeleteBlocksCalls() []struct {
+	Ips []string
+} {
+	var calls []struct {
+		Ips []string
+	}
+	mock.lockDeleteBlocks.RLock()
+	calls = mock.calls.DeleteBlocks
+	mock.lockDeleteBlocks.RUnlock()
+	return calls
+}
+
+// ExpiredBlocks calls ExpiredBlocksFunc.
+func (mock *ScanEventRepo) ExpiredBlocks(now time.Time) ([]*biz.ScanBlock, error) {
+	if mock.ExpiredBlocksFunc == nil {
+		panic("ScanEventRepo.ExpiredBlocksFunc: method is nil but ScanEventRepo.ExpiredBlocks was just called")
+	}
+	callInfo := struct {
+		Now time.Time
+	}{
+		Now: now,
+	}
+	mock.lockExpiredBlocks.Lock()
+	mock.calls.ExpiredBlocks = append(mock.calls.ExpiredBlocks, callInfo)
+	mock.lockExpiredBlocks.Unlock()
+	return mock.ExpiredBlocksFunc(now)
+}
+
+// ExpiredBlocksCalls gets all the calls that were made to ExpiredBlocks.
+// Check the length with:
+//
+//	len(mockedScanEventRepo.ExpiredBlocksCalls())
+func (mock *ScanEventRepo) ExpiredBlocksCalls() []struct {
+	Now time.Time
+} {
+	var calls []struct {
+		Now time.Time
+	}
+	mock.lockExpiredBlocks.RLock()
+	calls = mock.calls.ExpiredBlocks
+	mock.lockExpiredBlocks.RUnlock()
 	return calls
 }
 

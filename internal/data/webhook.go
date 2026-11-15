@@ -91,10 +91,8 @@ func (r *webhookRepo) UpdateWithScript(webhook *biz.WebHook, req *request.WebHoo
 	return nil
 }
 
-func (r *webhookRepo) RemoveScript(key string) error {
-	scriptFile := r.scriptPath(key)
-	_ = os.Remove(scriptFile)
-	return nil
+func (r *webhookRepo) RemoveScript(key string) {
+	_ = os.Remove(r.scriptPath(key))
 }
 
 func (r *webhookRepo) Delete(id uint) error {

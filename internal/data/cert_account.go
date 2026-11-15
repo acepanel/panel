@@ -60,7 +60,12 @@ func (r certAccountRepo) Delete(id uint) error {
 }
 
 // RegisterAccount 注册 ACME 账户
-func (r certAccountRepo) RegisterAccount(ctx context.Context, email, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
+func (r certAccountRepo) RegisterAccount(
+	ctx context.Context,
+	email, ca string,
+	eab *acme.EAB,
+	keyType acme.KeyType,
+) (*acme.Client, error) {
 	return acme.NewRegisterAccount(ctx, email, ca, eab, keyType, r.log)
 }
 
@@ -79,7 +84,11 @@ func (r certAccountRepo) GetGoogleEAB() (*acme.EAB, error) {
 	client.SetRetryCount(3)
 
 	resp, err := client.R().SetResult(&data{}).Get("https://gts.rat.dev/eab")
-	if err != nil || !resp.IsStatusSuccess() {
+	// 请求通了但状态码不对时 err 是 nil，报错里要带上状态
+	if err == nil && !resp.IsStatusSuccess() {
+		err = errors.New(resp.Status())
+	}
+	if err != nil {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %v", err))
 	}
 	eab, ok := resp.Result().(*data)
@@ -108,7 +117,11 @@ func (r certAccountRepo) GetZeroSSLEAB(email string) (*acme.EAB, error) {
 	resp, err := client.R().SetFormData(map[string]string{
 		"email": email,
 	}).SetResult(&data{}).Post("https://api.zerossl.com/acme/eab-credentials-email")
-	if err != nil || !resp.IsStatusSuccess() {
+	// 请求通了但状态码不对时 err 是 nil，报错里要带上状态
+	if err == nil && !resp.IsStatusSuccess() {
+		err = errors.New(resp.Status())
+	}
+	if err != nil {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get ZeroSSL EAB: %v", err))
 	}
 	eab, ok := resp.Result().(*data)

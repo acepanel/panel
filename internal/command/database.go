@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -54,9 +52,7 @@ func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 						Usage: t.Get("Server remark"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.DatabaseAddServer(ctx, cmd)
-				},
+				Action: cliService.DatabaseAddServer,
 			},
 			{
 				Name:  "delete-server",
@@ -69,16 +65,12 @@ func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.DatabaseDeleteServer(ctx, cmd)
-				},
+				Action: cliService.DatabaseDeleteServer,
 			},
 			{
-				Name:  "list-server",
-				Usage: t.Get("List all database servers"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.DatabaseListServer(ctx, cmd)
-				},
+				Name:   "list-server",
+				Usage:  t.Get("List all database servers"),
+				Action: cliService.DatabaseListServer,
 			},
 		},
 	}

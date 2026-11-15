@@ -6,7 +6,6 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
-import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
 
 const { $gettext } = useGettext()
 

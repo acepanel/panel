@@ -3,26 +3,19 @@ package service
 import (
 	"bufio"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/collect"
-	"github.com/moby/moby/api/types/registry"
-	"github.com/moby/moby/client"
 	stdssh "golang.org/x/crypto/ssh"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -31,33 +24,46 @@ import (
 )
 
 type WsService struct {
-	t           *gotext.Locale
-	conf        *config.Config
-	log         *slog.Logger
-	api         *api.API
-	sshRepo     *biz.SSHUsecase
-	settingRepo *biz.SettingUsecase
-	certRepo    *biz.CertUsecase
-	backupRepo  *biz.BackupUsecase
-	taskRepo    *biz.TaskUsecase
+	t                  *gotext.Locale
+	conf               *config.Config
+	log                *slog.Logger
+	sshRepo            *biz.SSHUsecase
+	settingRepo        *biz.SettingUsecase
+	certRepo           *biz.CertUsecase
+	backupRepo         *biz.BackupUsecase
+	taskRepo           *biz.TaskUsecase
+	containerRepo      *biz.ContainerUsecase
+	containerImageRepo *biz.ContainerImageUsecase
 }
 
-func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase, sshUsecase *biz.SSHUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *WsService {
+func NewWsService(
+	backupUsecase *biz.BackupUsecase,
+	certUsecase *biz.CertUsecase,
+	containerImageUsecase *biz.ContainerImageUsecase,
+	containerUsecase *biz.ContainerUsecase,
+	sshUsecase *biz.SSHUsecase,
+	settingUsecase *biz.SettingUsecase,
+	taskUsecase *biz.TaskUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *WsService {
 	return &WsService{
-		t:           t,
-		conf:        conf,
-		log:         log,
-		api:         api.NewAPI(app.Version, app.Locale),
-		sshRepo:     sshUsecase,
-		settingRepo: settingUsecase,
-		certRepo:    certUsecase,
-		backupRepo:  backupUsecase,
-		taskRepo:    taskUsecase,
+		t:                  t,
+		conf:               conf,
+		log:                log,
+		sshRepo:            sshUsecase,
+		settingRepo:        settingUsecase,
+		certRepo:           certUsecase,
+		backupRepo:         backupUsecase,
+		taskRepo:           taskUsecase,
+		containerRepo:      containerUsecase,
+		containerImageRepo: containerImageUsecase,
 	}
 }
 
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade exec ws error"), slog.Any("err", err))
 		return
@@ -115,7 +121,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade follow ws error"), slog.Any("err", err))
 		return
@@ -187,7 +193,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 // PTY 通用 PTY 命令执行
 // 前端发送第一条消息为要执行的命令，后端通过 PTY 执行并实时返回输出
 func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade pty ws error"), slog.Any("err", err))
 		return
@@ -239,7 +245,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade session ws error"), slog.Any("err", err))
 		return
@@ -275,7 +281,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 // SSHTransfer 通过 WebSocket 在主机间传输文件并实时推送进度
 // 连接后发送 JSON 参数,断开连接即取消传输
 func (s *WsService) SSHTransfer(w http.ResponseWriter, r *http.Request) {
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade ssh transfer ws error"), slog.Any("err", err))
 		return
@@ -286,16 +292,9 @@ func (s *WsService) SSHTransfer(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// 读取参数,10 秒超时防止连接后不发消息
-	readCtx, readCancel := context.WithTimeout(ctx, 10*time.Second)
-	_, message, err := ws.Read(readCtx)
-	readCancel()
+	req, err := readJSON[request.SSHTransfer](ctx, ws, 10*time.Second)
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
-		return
-	}
-	var req request.SSHTransfer
-	if err = json.Unmarshal(message, &req); err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
 		return
 	}
 	if req.SrcPath == "" || req.DstPath == "" {
@@ -352,7 +351,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade container terminal ws error"), slog.Any("err", err))
 		return
@@ -362,10 +361,8 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	sock := s.getContainerSock()
-
 	// 通过 /bin/sh 启动，优先切换到 bash 并强制交互模式；只对存在性探测静默 stderr，不影响实际运行的 Shell
-	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh", "-c", "if command -v bash >/dev/null 2>&1; then exec bash -i; else exec sh -i; fi"}, sock)
+	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh", "-c", "if command -v bash >/dev/null 2>&1; then exec bash -i; else exec sh -i; fi"}, biz.ContainerSock(s.settingRepo))
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
 		return
@@ -384,7 +381,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 
 // ContainerImagePull 镜像拉取
 func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade image pull ws error"), slog.Any("err", err))
 		return
@@ -394,50 +391,26 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	_, message, err := ws.Read(ctx)
+	req, err := readJSON[request.ContainerImagePull](ctx, ws, 0)
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
 		return
 	}
-	var req request.ContainerImagePull
-	if err = json.Unmarshal(message, &req); err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
-		return
-	}
-
-	// 创建 Docker 客户端
-	apiClient, err := client.New(client.WithHost(s.getContainerSock()))
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to create docker client: %v", err))
-		return
-	}
-	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
-
-	// 构建拉取选项
-	options := client.ImagePullOptions{}
-	if req.Auth {
-		authConfig := registry.AuthConfig{
-			Username: req.Username,
-			Password: req.Password,
-		}
-		//nolint:gosec
-		encodedJSON, err := json.Marshal(authConfig)
-		if err != nil {
-			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to encode auth: %v", err))
-			return
-		}
-		options.RegistryAuth = base64.URLEncoding.EncodeToString(encodedJSON)
-	}
 
 	// 拉取镜像
-	resp, err := apiClient.ImagePull(ctx, req.Name, options)
+	stream, err := s.containerImageRepo.PullStream(ctx, &req)
 	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to pull image: %v", err))
+		// 关闭原因前端读不到，且超长时关闭帧发不出去，所以走消息
+		_ = s.writeJSON(ctx, ws, map[string]any{
+			"status": "error",
+			"error":  s.t.Get("failed to pull image: %v", err),
+		})
+		_ = ws.Close(websocket.StatusNormalClosure, "")
 		return
 	}
 
 	// 迭代进度
-	for msg, err := range resp.JSONMessages(ctx) {
+	for msg, err := range stream {
 		if err != nil {
 			s.log.Warn(s.t.Get("image pull error"), slog.Any("err", err))
 			_ = s.writeJSON(ctx, ws, map[string]any{
@@ -499,21 +472,17 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, updating is prohibited, please try again later"))
 		return
 	}
-	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
-	panel, err := s.api.LatestVersion(channel)
+	release, err := s.backupRepo.LatestPanel()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
 	}
-	download := collect.First(panel.Downloads)
-	if download == nil {
+	if release.URL == "" {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
 		return
 	}
-	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
-	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
-	ws, err := s.upgrade(w, r)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade panel update ws error"), slog.Any("err", err))
 		return
@@ -528,7 +497,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 		_ = s.writeJSON(ctx, ws, map[string]any{"status": status, "msg": msg})
 	}
 
-	if err = s.backupRepo.UpdatePanel(r.Context(), panel.Version, url, checksum, func(msg string) { write("progress", msg) }); err != nil {
+	if err = s.backupRepo.UpdatePanel(r.Context(), release, func(msg string) { write("progress", msg) }); err != nil {
 		write("error", err.Error())
 		_ = ws.Close(websocket.StatusNormalClosure, "")
 		return
@@ -541,9 +510,36 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 	tools.RestartPanel(r.Context())
 }
 
+// followContainer 实时跟踪容器日志并转发到 WebSocket
+func (s *WsService) followContainer(ctx context.Context, ws *websocket.Conn, id string) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// 客户端断开时取消跟踪
+	go func() {
+		for {
+			if _, _, rerr := ws.Read(ctx); rerr != nil {
+				cancel()
+				return
+			}
+		}
+	}()
+	s.keepalive(ctx, ws, cancel)
+
+	// 历史日志由 HTTP /file/tail 反向分页加载，这里只推送新增部分；日志流结束(如容器停止)即返回断开
+	if err := s.containerRepo.FollowLogs(ctx, id, &wsBinaryWriter{ctx: ctx, ws: ws}); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+	}
+}
+
 // handleCertWs 证书操作的公共 WebSocket 处理逻辑
-func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action string, fn func(ctx context.Context, id uint, cb func(string)) error) {
-	ws, err := s.upgrade(w, r)
+func (s *WsService) handleCertWs(
+	w http.ResponseWriter,
+	r *http.Request,
+	action string,
+	fn func(ctx context.Context, id uint, cb func(string)) error,
+) {
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("upgrade cert ws error"), slog.String("action", action), slog.Any("err", err))
 		return
@@ -555,18 +551,9 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 	ctx := context.WithoutCancel(r.Context())
 
 	// 读取参数，10 秒超时防止连接后不发消息
-	readCtx, readCancel := context.WithTimeout(ctx, 10*time.Second)
-	_, message, err := ws.Read(readCtx)
-	readCancel()
+	req, err := readJSON[request.ID](ctx, ws, 10*time.Second)
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
-		return
-	}
-	var req struct {
-		ID uint `json:"id"`
-	}
-	if err = json.Unmarshal(message, &req); err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
 		return
 	}
 
@@ -600,98 +587,6 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 		"data":   nil,
 	})
 	_ = ws.Close(websocket.StatusNormalClosure, "")
-}
-
-// getContainerSock 获取容器 socket 路径
-func (s *WsService) getContainerSock() string {
-	sock, _ := s.settingRepo.Get(biz.SettingKeyContainerSock)
-	if sock == "" {
-		sock = "/var/run/docker.sock"
-	}
-	if !strings.Contains(sock, "://") {
-		sock = "unix://" + sock
-	}
-	return sock
-}
-
-// wsBinaryWriter 将写入转发为 WebSocket 二进制帧
-type wsBinaryWriter struct {
-	ctx context.Context
-	ws  *websocket.Conn
-}
-
-func (w *wsBinaryWriter) Write(p []byte) (int, error) {
-	if err := w.ws.Write(w.ctx, websocket.MessageBinary, p); err != nil {
-		return 0, err
-	}
-	return len(p), nil
-}
-
-// followContainer 通过 Docker SDK 实时跟踪容器日志并转发到 WebSocket
-func (s *WsService) followContainer(ctx context.Context, ws *websocket.Conn, id string) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	apiClient, err := client.New(client.WithHost(s.getContainerSock()))
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
-		return
-	}
-	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
-
-	// 非 TTY 容器日志为多路复用流，需按 TTY 设置决定是否解复用
-	inspect, err := apiClient.ContainerInspect(ctx, id, client.ContainerInspectOptions{})
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
-		return
-	}
-	tty := inspect.Container.Config != nil && inspect.Container.Config.Tty
-
-	// Tail "0" 表示只推送新增日志，历史由 HTTP /file/tail 反向分页加载
-	reader, err := apiClient.ContainerLogs(ctx, id, client.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Follow:     true,
-		Tail:       "0",
-	})
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
-		return
-	}
-
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		defer cancel() // 日志流结束(如容器停止)时取消，促使下方读取循环退出
-		_ = docker.CopyLogs(&wsBinaryWriter{ctx: ctx, ws: ws}, reader, tty)
-	}()
-
-	// 连接结束时取消 ctx 并关闭日志流，待拷贝协程退出后返回，避免泄漏
-	defer func() {
-		cancel()
-		_ = reader.Close()
-		<-done
-	}()
-
-	s.keepalive(ctx, ws, cancel)
-	for {
-		if _, _, rerr := ws.Read(ctx); rerr != nil {
-			return
-		}
-	}
-}
-
-func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-	opts := &websocket.AcceptOptions{
-		CompressionMode: websocket.CompressionContextTakeover,
-	}
-
-	// debug 模式下不校验 origin，方便 vite 代理调试
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	return websocket.Accept(w, r, opts)
 }
 
 // writeJSON 序列化后写入一条文本消息
@@ -737,4 +632,47 @@ func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
 			break
 		}
 	}
+}
+
+// wsBinaryWriter 将写入转发为 WebSocket 二进制帧
+type wsBinaryWriter struct {
+	ctx context.Context
+	ws  *websocket.Conn
+}
+
+func (w *wsBinaryWriter) Write(p []byte) (int, error) {
+	if err := w.ws.Write(w.ctx, websocket.MessageBinary, p); err != nil {
+		return 0, err
+	}
+	return len(p), nil
+}
+
+func upgradeWS(w http.ResponseWriter, r *http.Request, conf *config.Config) (*websocket.Conn, error) {
+	opts := &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionContextTakeover,
+	}
+
+	// debug 模式下不校验 origin，方便 vite 代理调试
+	if conf.App.Debug {
+		opts.InsecureSkipVerify = true
+	}
+
+	return websocket.Accept(w, r, opts)
+}
+
+// readJSON 读取一条消息并反序列化，timeout 为 0 时不限时
+func readJSON[T any](ctx context.Context, c *websocket.Conn, timeout time.Duration) (T, error) {
+	var v T
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+
+	_, message, err := c.Read(ctx)
+	if err != nil {
+		return v, err
+	}
+
+	return v, json.Unmarshal(message, &v)
 }

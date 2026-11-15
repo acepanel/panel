@@ -19,8 +19,8 @@ const (
 	StatusDisconnected = "disconnected"
 )
 
-// JournalPattern 供 journalctl -g 预过滤，必须覆盖下面四条规则能识别的全部消息
-const JournalPattern = `Accepted \S+ for|Failed \S+ for|Invalid user|Disconnected from`
+// journalPattern 供 journalctl -g 预过滤，必须覆盖下面四条规则能识别的全部消息
+const journalPattern = `Accepted \S+ for|Failed \S+ for|Invalid user|Disconnected from`
 
 var (
 	accepted    = regexp.MustCompile(`Accepted\s+(\S+)\s+for\s+(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)
@@ -71,8 +71,8 @@ func ParseMessage(msg string) *types.SSHLoginLog {
 	return nil
 }
 
-// ParseChunk 从连续日志字节中解析 SSH 登录记录
-func ParseChunk(data []byte) []types.SSHLoginLog {
+// parseChunk 从连续日志字节中解析 SSH 登录记录
+func parseChunk(data []byte) []types.SSHLoginLog {
 	if len(data) == 0 {
 		return nil
 	}
@@ -82,35 +82,33 @@ func ParseChunk(data []byte) []types.SSHLoginLog {
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if !strings.Contains(line, "sshd[") {
-			continue
-		}
 		record := ParseMessage(line)
 		if record == nil {
 			continue
 		}
-		record.Time = ParseTime(line)
+		record.Time = parseTime(line)
 		logs = append(logs, *record)
 	}
 
 	return logs
 }
 
-// ParseTime 从 syslog 格式行中解析时间，失败返回 "-"
-func ParseTime(line string) string {
-	// syslog 格式：Mon DD HH:MM:SS（前 15 个字符）
-	if len(line) < 15 {
-		return "-"
+// parseTime 从日志行首解析时间，失败返回 "-"
+func parseTime(line string) string {
+	// Debian 12 起 rsyslog 默认写 RFC 3339 时间戳
+	if stamp, _, ok := strings.Cut(line, " "); ok {
+		if t, err := time.Parse(time.RFC3339, stamp); err == nil {
+			return t.Local().Format(time.DateTime)
+		}
 	}
 
-	ts := line[:15]
-	// 使用当前年份补全
-	t, err := time.Parse("Jan  2 15:04:05", ts)
+	// 传统 syslog 时间戳定长且不带年份，用当前年份补全
+	if len(line) < len(time.Stamp) {
+		return "-"
+	}
+	t, err := time.Parse(time.Stamp, line[:len(time.Stamp)])
 	if err != nil {
-		t, err = time.Parse("Jan 2 15:04:05", ts)
-		if err != nil {
-			return "-"
-		}
+		return "-"
 	}
 
 	return t.AddDate(time.Now().Year(), 0, 0).Format(time.DateTime)

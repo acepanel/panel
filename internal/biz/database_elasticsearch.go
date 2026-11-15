@@ -27,11 +27,18 @@ type DatabaseElasticsearchUsecase struct {
 	repo DatabaseElasticsearchRepo
 }
 
-func NewDatabaseElasticsearchUsecase(t *gotext.Locale, log *slog.Logger, repo DatabaseElasticsearchRepo) *DatabaseElasticsearchUsecase {
+func NewDatabaseElasticsearchUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	repo DatabaseElasticsearchRepo,
+) *DatabaseElasticsearchUsecase {
 	return &DatabaseElasticsearchUsecase{t: t, log: log, repo: repo}
 }
 
-func (uc *DatabaseElasticsearchUsecase) Indices(ctx context.Context, req *request.DatabaseESIndices) ([]db.ESIndex, error) {
+func (uc *DatabaseElasticsearchUsecase) Indices(
+	ctx context.Context,
+	req *request.DatabaseESIndices,
+) ([]db.ESIndex, error) {
 	indices, err := uc.repo.Indices(ctx, req)
 	if err != nil {
 		return nil, err
@@ -59,7 +66,10 @@ func (uc *DatabaseElasticsearchUsecase) IndexDelete(ctx context.Context, req *re
 	return nil
 }
 
-func (uc *DatabaseElasticsearchUsecase) Data(ctx context.Context, req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
+func (uc *DatabaseElasticsearchUsecase) Data(
+	ctx context.Context,
+	req *request.DatabaseESData,
+) ([]db.ESDocument, int64, error) {
 	items, total, err := uc.repo.Data(ctx, req)
 	if err != nil {
 		return nil, 0, err
@@ -69,7 +79,10 @@ func (uc *DatabaseElasticsearchUsecase) Data(ctx context.Context, req *request.D
 	return items, total, nil
 }
 
-func (uc *DatabaseElasticsearchUsecase) DocumentGet(ctx context.Context, req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
+func (uc *DatabaseElasticsearchUsecase) DocumentGet(
+	ctx context.Context,
+	req *request.DatabaseESDocumentGet,
+) (*db.ESDocument, error) {
 	doc, err := uc.repo.DocumentGet(ctx, req)
 	if err != nil {
 		return nil, err
@@ -88,7 +101,10 @@ func (uc *DatabaseElasticsearchUsecase) DocumentSet(ctx context.Context, req *re
 	return nil
 }
 
-func (uc *DatabaseElasticsearchUsecase) DocumentDelete(ctx context.Context, req *request.DatabaseESDocumentDelete) error {
+func (uc *DatabaseElasticsearchUsecase) DocumentDelete(
+	ctx context.Context,
+	req *request.DatabaseESDocumentDelete,
+) error {
 	if err := uc.repo.DocumentDelete(ctx, req); err != nil {
 		return err
 	}

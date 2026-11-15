@@ -8,7 +8,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
@@ -22,7 +21,13 @@ type WebsiteExpire struct {
 }
 
 // NewWebsiteExpire 构造网站到期检查任务
-func NewWebsiteExpire(notifyUsecase *biz.NotifyUsecase, websiteUsecase *biz.WebsiteUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
+func NewWebsiteExpire(
+	notifyUsecase *biz.NotifyUsecase,
+	websiteUsecase *biz.WebsiteUsecase,
+	db *gorm.DB,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &WebsiteExpire{
@@ -36,10 +41,6 @@ func NewWebsiteExpire(notifyUsecase *biz.NotifyUsecase, websiteUsecase *biz.Webs
 }
 
 func (r *WebsiteExpire) Run(ctx context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	var websites []biz.Website
 	now := time.Now()
 	// 直接查询已到期且仍在运行的网站

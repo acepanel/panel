@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -16,32 +14,24 @@ func FirewallCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 		Usage: t.Get("Firewall management"),
 		Commands: []*cli.Command{
 			{
-				Name:  "status",
-				Usage: t.Get("Get firewall status"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.FirewallStatus(ctx, cmd)
-				},
+				Name:   "status",
+				Usage:  t.Get("Get firewall status"),
+				Action: cliService.FirewallStatus,
 			},
 			{
-				Name:  "on",
-				Usage: t.Get("Enable firewall"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.FirewallOn(ctx, cmd)
-				},
+				Name:   "on",
+				Usage:  t.Get("Enable firewall"),
+				Action: cliService.FirewallOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable firewall"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.FirewallOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable firewall"),
+				Action: cliService.FirewallOff,
 			},
 			{
-				Name:  "list",
-				Usage: t.Get("List all firewall rules"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.FirewallList(ctx, cmd)
-				},
+				Name:   "list",
+				Usage:  t.Get("List all firewall rules"),
+				Action: cliService.FirewallList,
 			},
 			{
 				Name:      "port",
@@ -59,9 +49,7 @@ func FirewallCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 						Usage: t.Get("Remove the rule instead of adding it"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.FirewallPort(ctx, cmd)
-				},
+				Action: cliService.FirewallPort,
 			},
 		},
 	}

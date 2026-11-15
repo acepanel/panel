@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/libtnb/utils/collect"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -32,10 +31,12 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+// goroutineHeaderRe 匹配 goroutine 头部行
+var goroutineHeaderRe = regexp.MustCompile(`^goroutine (\d+) \[([^\]]+)\]:$`)
+
 type HomeService struct {
 	t                  *gotext.Locale
 	log                *slog.Logger
-	api                *api.API
 	conf               *config.Config
 	taskRepo           *biz.TaskUsecase
 	websiteRepo        *biz.WebsiteUsecase
@@ -49,11 +50,24 @@ type HomeService struct {
 	containerRepo      *biz.ContainerUsecase
 }
 
-func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *HomeService {
+func NewHomeService(
+	appUsecase *biz.AppUsecase,
+	backupUsecase *biz.BackupUsecase,
+	containerUsecase *biz.ContainerUsecase,
+	cronUsecase *biz.CronUsecase,
+	databaseServerUsecase *biz.DatabaseServerUsecase,
+	environmentUsecase *biz.EnvironmentUsecase,
+	projectUsecase *biz.ProjectUsecase,
+	settingUsecase *biz.SettingUsecase,
+	taskUsecase *biz.TaskUsecase,
+	websiteUsecase *biz.WebsiteUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *HomeService {
 	return &HomeService{
 		t:                  t,
 		log:                log,
-		api:                api.NewAPI(app.Version, app.Locale),
 		conf:               conf,
 		taskRepo:           taskUsecase,
 		websiteRepo:        websiteUsecase,
@@ -126,7 +140,7 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	osSupported := true
 	if os.IsRHEL() {
 		minVer := version.Must(version.NewVersion("9.0"))
-		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVerStr, _, _ := strings.Cut(hostInfo.PlatformVersion, " ")
 		currentVer, err := version.NewVersion(currentVerStr)
 		if err != nil || currentVer.LessThan(minVer) {
 			osSupported = false
@@ -134,7 +148,7 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	if os.IsDebian() {
 		minVer := version.Must(version.NewVersion("12.0"))
-		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVerStr, _, _ := strings.Cut(hostInfo.PlatformVersion, " ")
 		currentVer, err := version.NewVersion(currentVerStr)
 		if err != nil || currentVer.LessThan(minVer) {
 			osSupported = false
@@ -142,7 +156,7 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	if os.IsUbuntu() {
 		minVer := version.Must(version.NewVersion("22.04"))
-		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVerStr, _, _ := strings.Cut(hostInfo.PlatformVersion, " ")
 		currentVer, err := version.NewVersion(currentVerStr)
 		if err != nil || currentVer.LessThan(minVer) {
 			osSupported = false
@@ -193,7 +207,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if postgresqlInstalled {
-		if server, err := s.databaseServerRepo.GetByName(r.Context(), "local_postgresql"); err == nil {
+		if server, err := s.databaseServerRepo.FindByName("local_postgresql"); err == nil {
 			if postgres, err := db.NewPostgres(r.Context(), server.Username, server.Password, server.Host, server.Port); err == nil {
 				defer postgres.Close()
 				if databases, err := postgres.Databases(r.Context()); err == nil {
@@ -299,33 +313,19 @@ func (s *HomeService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current := app.Version
-	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
-	latest, err := s.api.LatestVersion(channel)
+	latest, err := s.backupRepo.LatestPanel()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
 	}
-
-	v1, err := version.NewVersion(current)
+	newer, err := latest.Newer()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
-	}
-	v2, err := version.NewVersion(latest.Version)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
-	}
-	if v1.GreaterThanOrEqual(v2) {
-		Success(w, chix.M{
-			"update": false,
-		})
 		return
 	}
 
 	Success(w, chix.M{
-		"update": true,
+		"update": newer,
 	})
 }
 
@@ -335,30 +335,22 @@ func (s *HomeService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current := app.Version
-	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
-	latest, err := s.api.LatestVersion(channel)
+	latest, err := s.backupRepo.LatestPanel()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
 	}
-
-	v1, err := version.NewVersion(current)
+	newer, err := latest.Newer()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 		return
 	}
-	v2, err := version.NewVersion(latest.Version)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
-		return
-	}
-	if v1.GreaterThanOrEqual(v2) {
+	if !newer {
 		Error(w, http.StatusInternalServerError, s.t.Get("the current version is the latest version"))
 		return
 	}
 
-	versions, err := s.api.IntermediateVersions(channel)
+	versions, err := s.backupRepo.PanelChangelog()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the update information: %v", err))
 		return
@@ -378,24 +370,18 @@ func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
-	panel, err := s.api.LatestVersion(channel)
+	release, err := s.backupRepo.LatestPanel()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
 	}
-
-	download := collect.First(panel.Downloads)
-	if download == nil {
+	if release.URL == "" {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
 		return
 	}
 
-	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
-	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
-
 	// UpdatePanel 内部管理升级锁与 app.Status（失败自动恢复 Normal，不锁死 UI）
-	if err = s.backupRepo.UpdatePanel(r.Context(), panel.Version, url, checksum, nil); err != nil {
+	if err = s.backupRepo.UpdatePanel(r.Context(), release, nil); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -488,18 +474,14 @@ func (s *HomeService) RuntimeInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GoroutineInfo Goroutine 信息
-type GoroutineInfo struct {
-	ID    int    `json:"id"`
-	State string `json:"state"`
-	Stack string `json:"stack"`
-}
-
-// goroutineHeaderRe 匹配 goroutine 头部行
-var goroutineHeaderRe = regexp.MustCompile(`^goroutine (\d+) \[([^\]]+)\]:$`)
-
 // Goroutines 返回所有 Goroutine 堆栈信息
 func (s *HomeService) Goroutines(w http.ResponseWriter, r *http.Request) {
+	type goroutineInfo struct {
+		ID    int    `json:"id"`
+		State string `json:"state"`
+		Stack string `json:"stack"`
+	}
+
 	buf := make([]byte, 1<<16) // 64KB 起步
 	for {
 		n := runtime.Stack(buf, true)
@@ -511,22 +493,22 @@ func (s *HomeService) Goroutines(w http.ResponseWriter, r *http.Request) {
 	}
 
 	raw := string(buf)
-	goroutines := lo.FilterMap(strings.Split(raw, "\n\n"), func(block string, _ int) (GoroutineInfo, bool) {
+	goroutines := lo.FilterMap(strings.Split(raw, "\n\n"), func(block string, _ int) (goroutineInfo, bool) {
 		block = strings.TrimSpace(block)
 		if block == "" {
-			return GoroutineInfo{}, false
+			return goroutineInfo{}, false
 		}
 		lines := strings.SplitN(block, "\n", 2)
 		matches := goroutineHeaderRe.FindStringSubmatch(lines[0])
 		if matches == nil {
-			return GoroutineInfo{}, false
+			return goroutineInfo{}, false
 		}
 		id, _ := strconv.Atoi(matches[1])
 		stack := ""
 		if len(lines) > 1 {
 			stack = lines[1]
 		}
-		return GoroutineInfo{ID: id, State: matches[2], Stack: stack}, true
+		return goroutineInfo{ID: id, State: matches[2], Stack: stack}, true
 	})
 
 	s.log.Info(s.t.Get("panel goroutines viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())))

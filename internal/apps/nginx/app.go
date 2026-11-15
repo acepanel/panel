@@ -2,11 +2,8 @@ package nginx
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
 	"regexp"
 	"time"
 
@@ -16,6 +13,7 @@ import (
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -29,6 +27,7 @@ import (
 )
 
 type App struct {
+	*common.WebServer
 	t    *gotext.Locale
 	log  *slog.Logger
 	slug string
@@ -40,9 +39,10 @@ func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 
 func New(slug string, t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t:    t,
-		log:  log,
-		slug: slug,
+		WebServer: common.NewWebServer(t, log, slug, webserver.TypeNginx, configPath(), app.Root+"/server/nginx/nginx-error.log"),
+		t:         t,
+		log:       log,
+		slug:      slug,
 	}
 }
 
@@ -68,57 +68,6 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Status(ctx context.Context) string {
 	ok, _ := systemctl.Status(ctx, "nginx")
 	return types.AggregateAppStatus(ok)
-}
-
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	path := app.Root + "/server/nginx/conf/nginx.conf"
-	config, err := io.Read(path)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", path))
-
-	service.Success(w, config)
-}
-
-func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	path := app.Root + "/server/nginx/conf/nginx.conf"
-	if err = io.Write(path, req.Config, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = s.reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", path))
-
-	service.Success(w, nil)
-}
-
-func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/%s", app.Root, "server/nginx/nginx-error.log"))
-}
-
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/%s", app.Root, "server/nginx/nginx-error.log"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", app.Root+"/server/nginx/nginx-error.log"))
-
-	service.Success(w, nil)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
@@ -199,44 +148,15 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Nginx 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	confPath := app.Root + "/server/nginx/conf/nginx.conf"
+	confPath := configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	tune := ConfigTune{
-		// 常规设置
-		WorkerProcesses:           confval.Nginx.Get(config, "worker_processes"),
-		WorkerConnections:         confval.Nginx.Get(config, "worker_connections"),
-		KeepaliveTimeout:          confval.Nginx.Get(config, "keepalive_timeout"),
-		ClientMaxBodySize:         confval.Nginx.Get(config, "client_max_body_size"),
-		ClientBodyBufferSize:      confval.Nginx.Get(config, "client_body_buffer_size"),
-		ClientHeaderBufferSize:    confval.Nginx.Get(config, "client_header_buffer_size"),
-		ServerNamesHashBucketSize: confval.Nginx.Get(config, "server_names_hash_bucket_size"),
-		ServerTokens:              confval.Nginx.Get(config, "server_tokens"),
-		Reuseport:                 webserverNginx.DefaultSiteReuseport(),
-		// Gzip 压缩
-		Gzip:          confval.Nginx.Get(config, "gzip"),
-		GzipMinLength: confval.Nginx.Get(config, "gzip_min_length"),
-		GzipCompLevel: confval.Nginx.Get(config, "gzip_comp_level"),
-		GzipTypes:     confval.Nginx.Get(config, "gzip_types"),
-		GzipVary:      confval.Nginx.Get(config, "gzip_vary"),
-		GzipProxied:   confval.Nginx.Get(config, "gzip_proxied"),
-		// Brotli 压缩
-		Brotli:          confval.Nginx.Get(config, "brotli"),
-		BrotliMinLength: confval.Nginx.Get(config, "brotli_min_length"),
-		BrotliCompLevel: confval.Nginx.Get(config, "brotli_comp_level"),
-		BrotliTypes:     confval.Nginx.Get(config, "brotli_types"),
-		BrotliStatic:    confval.Nginx.Get(config, "brotli_static"),
-		// Zstd 压缩
-		Zstd:          confval.Nginx.Get(config, "zstd"),
-		ZstdMinLength: confval.Nginx.Get(config, "zstd_min_length"),
-		ZstdCompLevel: confval.Nginx.Get(config, "zstd_comp_level"),
-		ZstdTypes:     confval.Nginx.Get(config, "zstd_types"),
-		ZstdStatic:    confval.Nginx.Get(config, "zstd_static"),
-	}
+	tune := &ConfigTune{Reuseport: webserverNginx.DefaultSiteReuseport()}
+	confval.Nginx.Read(config, s.tuneFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", confPath))
 
@@ -251,41 +171,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := app.Root + "/server/nginx/conf/nginx.conf"
+	confPath := configPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	// 更新常规设置
-	config = confval.Nginx.Set(config, "worker_processes", req.WorkerProcesses)
-	config = confval.Nginx.Set(config, "worker_connections", req.WorkerConnections)
-	config = confval.Nginx.Set(config, "keepalive_timeout", req.KeepaliveTimeout)
-	config = confval.Nginx.Set(config, "client_max_body_size", req.ClientMaxBodySize)
-	config = confval.Nginx.Set(config, "client_body_buffer_size", req.ClientBodyBufferSize)
-	config = confval.Nginx.Set(config, "client_header_buffer_size", req.ClientHeaderBufferSize)
-	config = confval.Nginx.Set(config, "server_names_hash_bucket_size", req.ServerNamesHashBucketSize)
-	config = confval.Nginx.Set(config, "server_tokens", req.ServerTokens)
-	// 更新 Gzip 压缩
-	config = confval.Nginx.Set(config, "gzip", req.Gzip)
-	config = confval.Nginx.Set(config, "gzip_min_length", req.GzipMinLength)
-	config = confval.Nginx.Set(config, "gzip_comp_level", req.GzipCompLevel)
-	config = confval.Nginx.Set(config, "gzip_types", req.GzipTypes)
-	config = confval.Nginx.Set(config, "gzip_vary", req.GzipVary)
-	config = confval.Nginx.Set(config, "gzip_proxied", req.GzipProxied)
-	// 更新 Brotli 压缩
-	config = confval.Nginx.Set(config, "brotli", req.Brotli)
-	config = confval.Nginx.Set(config, "brotli_min_length", req.BrotliMinLength)
-	config = confval.Nginx.Set(config, "brotli_comp_level", req.BrotliCompLevel)
-	config = confval.Nginx.Set(config, "brotli_types", req.BrotliTypes)
-	config = confval.Nginx.Set(config, "brotli_static", req.BrotliStatic)
-	// 更新 Zstd 压缩
-	config = confval.Nginx.Set(config, "zstd", req.Zstd)
-	config = confval.Nginx.Set(config, "zstd_min_length", req.ZstdMinLength)
-	config = confval.Nginx.Set(config, "zstd_comp_level", req.ZstdCompLevel)
-	config = confval.Nginx.Set(config, "zstd_types", req.ZstdTypes)
-	config = confval.Nginx.Set(config, "zstd_static", req.ZstdStatic)
+	config = confval.Nginx.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -298,7 +191,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = s.reload(r.Context()); err != nil {
+	if err = s.Reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -321,20 +214,39 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// reload 重载 nginx，失败时删除 rollback 指定的配置文件
-// 走方言的 Reload，错误里已带配置检查输出
-func (s *App) reload(ctx context.Context, rollback ...string) error {
-	d, err := webserver.Get(webserver.TypeNginx)
-	if err != nil {
-		return err
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		// 常规设置
+		{Key: "worker_processes", Value: &t.WorkerProcesses},
+		{Key: "worker_connections", Value: &t.WorkerConnections},
+		{Key: "keepalive_timeout", Value: &t.KeepaliveTimeout},
+		{Key: "client_max_body_size", Value: &t.ClientMaxBodySize},
+		{Key: "client_body_buffer_size", Value: &t.ClientBodyBufferSize},
+		{Key: "client_header_buffer_size", Value: &t.ClientHeaderBufferSize},
+		{Key: "server_names_hash_bucket_size", Value: &t.ServerNamesHashBucketSize},
+		{Key: "server_tokens", Value: &t.ServerTokens},
+		// Gzip 压缩
+		{Key: "gzip", Value: &t.Gzip},
+		{Key: "gzip_min_length", Value: &t.GzipMinLength},
+		{Key: "gzip_comp_level", Value: &t.GzipCompLevel},
+		{Key: "gzip_types", Value: &t.GzipTypes},
+		{Key: "gzip_vary", Value: &t.GzipVary},
+		{Key: "gzip_proxied", Value: &t.GzipProxied},
+		// Brotli 压缩
+		{Key: "brotli", Value: &t.Brotli},
+		{Key: "brotli_min_length", Value: &t.BrotliMinLength},
+		{Key: "brotli_comp_level", Value: &t.BrotliCompLevel},
+		{Key: "brotli_types", Value: &t.BrotliTypes},
+		{Key: "brotli_static", Value: &t.BrotliStatic},
+		// Zstd 压缩
+		{Key: "zstd", Value: &t.Zstd},
+		{Key: "zstd_min_length", Value: &t.ZstdMinLength},
+		{Key: "zstd_comp_level", Value: &t.ZstdCompLevel},
+		{Key: "zstd_types", Value: &t.ZstdTypes},
+		{Key: "zstd_static", Value: &t.ZstdStatic},
 	}
+}
 
-	if err = d.Reload(ctx); err != nil {
-		for _, path := range rollback {
-			_ = os.Remove(path)
-		}
-		return errors.New(s.t.Get("failed to reload nginx: %v", err))
-	}
-
-	return nil
+func configPath() string {
+	return app.Root + "/server/nginx/conf/nginx.conf"
 }

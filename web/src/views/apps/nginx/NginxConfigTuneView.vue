@@ -5,475 +5,223 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { useResponsive } from '@/components/system/composables/useResponsive'
-import { nginxPreset, type TuneProfile } from '@/utils/tunepreset'
+import { toOptions, type TuneField, type TuneGroup, type TunePreset } from '@/utils/tune'
+import { nginxPreset } from '@/utils/tunepreset'
 
-const props = defineProps<{
+defineProps<{
   api: any
 }>()
 
 const { $gettext } = useGettext()
-const { isMobile } = useResponsive()
-const currentTab = ref('general')
 
-// 常规设置
-const workerProcesses = ref('')
-const workerConnections = ref<number | null>(null)
-const keepaliveTimeout = ref<number | null>(null)
-const clientMaxBodySizeNum = ref<number | null>(null)
-const clientMaxBodySizeUnit = ref('m')
-const clientBodyBufferSizeNum = ref<number | null>(null)
-const clientBodyBufferSizeUnit = ref('k')
-const clientHeaderBufferSizeNum = ref<number | null>(null)
-const clientHeaderBufferSizeUnit = ref('k')
-const serverNamesHashBucketSize = ref<number | null>(null)
-const serverTokens = ref('')
-const reuseport = ref(false)
+const onOffOptions = toOptions(['on', 'off'])
+const onOffAlwaysOptions = toOptions(['on', 'off', 'always'])
+// Nginx 的容量单位是小写
+const size = {
+  type: 'size',
+  min: 0,
+  units: ['k', 'm', 'g'],
+  defaultUnit: 'k',
+} satisfies Partial<TuneField>
 
-// Gzip
-const gzip = ref('')
-const gzipMinLengthNum = ref<number | null>(null)
-const gzipMinLengthUnit = ref('k')
-const gzipCompLevel = ref<number | null>(null)
-const gzipTypes = ref('')
-const gzipVary = ref('')
-const gzipProxied = ref('')
-
-// Brotli
-const brotli = ref('')
-const brotliMinLengthNum = ref<number | null>(null)
-const brotliMinLengthUnit = ref('k')
-const brotliCompLevel = ref<number | null>(null)
-const brotliTypes = ref('')
-const brotliStatic = ref('')
-
-// Zstd
-const zstd = ref('')
-const zstdMinLengthNum = ref<number | null>(null)
-const zstdMinLengthUnit = ref('k')
-const zstdCompLevel = ref<number | null>(null)
-const zstdTypes = ref('')
-const zstdStatic = ref('')
-
-const saveLoading = ref(false)
-const showPresetModal = ref(false)
-
-const handlePreset = (profile: TuneProfile) => {
-  const r = nginxPreset(profile)
-  workerProcesses.value = r.workerProcesses
-  workerConnections.value = r.workerConnections
-  keepaliveTimeout.value = r.keepaliveTimeout
-  gzip.value = r.gzip
-  gzipCompLevel.value = r.gzipCompLevel
-  brotli.value = r.brotli
-  brotliCompLevel.value = r.brotliCompLevel
-  brotliStatic.value = r.brotliStatic
-  zstd.value = r.zstd
-  zstdCompLevel.value = r.zstdCompLevel
-  zstdStatic.value = r.zstdStatic
-  window.$message.success($gettext('Generated, review the values and save'))
-}
-
-const onOffOptions = [
-  { label: 'on', value: 'on' },
-  { label: 'off', value: 'off' },
+const groups: TuneGroup[] = [
+  {
+    name: 'general',
+    tab: $gettext('General'),
+    tip: $gettext('Common Nginx general settings.'),
+    fields: [
+      {
+        key: 'worker_processes',
+        label: $gettext('Worker Processes (worker_processes)'),
+        type: 'text',
+        placeholder: $gettext('e.g. auto or number'),
+      },
+      {
+        key: 'worker_connections',
+        label: $gettext('Worker Connections (worker_connections)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 65535'),
+        min: 1,
+      },
+      {
+        key: 'keepalive_timeout',
+        label: $gettext('Keepalive Timeout (keepalive_timeout)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 60'),
+        min: 0,
+      },
+      {
+        key: 'client_max_body_size',
+        label: $gettext('Client Max Body Size (client_max_body_size)'),
+        placeholder: $gettext('e.g. 200'),
+        ...size,
+      },
+      {
+        key: 'client_body_buffer_size',
+        label: $gettext('Client Body Buffer Size (client_body_buffer_size)'),
+        placeholder: $gettext('e.g. 10'),
+        ...size,
+      },
+      {
+        key: 'client_header_buffer_size',
+        label: $gettext('Client Header Buffer Size (client_header_buffer_size)'),
+        placeholder: $gettext('e.g. 32'),
+        ...size,
+      },
+      {
+        key: 'server_names_hash_bucket_size',
+        label: $gettext('Server Names Hash Bucket Size (server_names_hash_bucket_size)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 512'),
+        min: 1,
+      },
+      {
+        key: 'server_tokens',
+        label: $gettext('Server Tokens (server_tokens)'),
+        type: 'select',
+        options: onOffOptions,
+      },
+      { key: 'reuseport', label: $gettext('TCP Port Reuse (reuseport)'), type: 'switch' },
+    ],
+  },
+  {
+    name: 'gzip',
+    tab: 'Gzip',
+    tip: $gettext(
+      'Gzip compression settings. Gzip is the most widely supported compression method.',
+    ),
+    fields: [
+      { key: 'gzip', label: $gettext('Gzip (gzip)'), type: 'select', options: onOffOptions },
+      {
+        key: 'gzip_min_length',
+        label: $gettext('Min Length (gzip_min_length)'),
+        placeholder: $gettext('e.g. 1'),
+        ...size,
+      },
+      {
+        key: 'gzip_comp_level',
+        label: $gettext('Compression Level (gzip_comp_level)'),
+        type: 'number',
+        min: 1,
+        max: 9,
+      },
+      {
+        key: 'gzip_types',
+        label: $gettext('Types (gzip_types)'),
+        type: 'text',
+        placeholder: $gettext('e.g. *'),
+      },
+      {
+        key: 'gzip_vary',
+        label: $gettext('Vary (gzip_vary)'),
+        type: 'select',
+        options: onOffOptions,
+      },
+      {
+        key: 'gzip_proxied',
+        label: $gettext('Proxied (gzip_proxied)'),
+        type: 'text',
+        placeholder: $gettext('e.g. any'),
+      },
+    ],
+  },
+  {
+    name: 'brotli',
+    tab: 'Brotli',
+    tip: $gettext(
+      'Brotli compression settings. Brotli provides better compression ratio than Gzip.',
+    ),
+    fields: [
+      { key: 'brotli', label: $gettext('Brotli (brotli)'), type: 'select', options: onOffOptions },
+      {
+        key: 'brotli_min_length',
+        label: $gettext('Min Length (brotli_min_length)'),
+        placeholder: $gettext('e.g. 1'),
+        ...size,
+      },
+      {
+        key: 'brotli_comp_level',
+        label: $gettext('Compression Level (brotli_comp_level)'),
+        type: 'number',
+        min: 0,
+        max: 11,
+      },
+      {
+        key: 'brotli_types',
+        label: $gettext('Types (brotli_types)'),
+        type: 'text',
+        placeholder: $gettext('e.g. *'),
+      },
+      {
+        key: 'brotli_static',
+        label: $gettext('Static (brotli_static)'),
+        type: 'select',
+        options: onOffAlwaysOptions,
+      },
+    ],
+  },
+  {
+    name: 'zstd',
+    tab: 'Zstd',
+    tip: $gettext('Zstd compression settings. Zstd provides fast compression with high ratio.'),
+    fields: [
+      { key: 'zstd', label: $gettext('Zstd (zstd)'), type: 'select', options: onOffOptions },
+      {
+        key: 'zstd_min_length',
+        label: $gettext('Min Length (zstd_min_length)'),
+        placeholder: $gettext('e.g. 1'),
+        ...size,
+      },
+      {
+        key: 'zstd_comp_level',
+        label: $gettext('Compression Level (zstd_comp_level)'),
+        type: 'number',
+        min: 1,
+        max: 22,
+      },
+      {
+        key: 'zstd_types',
+        label: $gettext('Types (zstd_types)'),
+        type: 'text',
+        placeholder: $gettext('e.g. *'),
+      },
+      {
+        key: 'zstd_static',
+        label: $gettext('Static (zstd_static)'),
+        type: 'select',
+        options: onOffAlwaysOptions,
+      },
+    ],
+  },
 ]
 
-const onOffAlwaysOptions = [
-  { label: 'on', value: 'on' },
-  { label: 'off', value: 'off' },
-  { label: 'always', value: 'always' },
-]
-
-// Nginx 容量单位选项（小写）
-const sizeUnitOptions = [
-  { label: 'k', value: 'k' },
-  { label: 'm', value: 'm' },
-  { label: 'g', value: 'g' },
-]
-
-// 解析带单位的值，如 "200m" -> { num: 200, unit: "m" }
-const parseSizeValue = (val: string): { num: number | null; unit: string } => {
-  if (!val) return { num: null, unit: 'k' }
-  const match = val.match(/^(\d+)\s*([kmg])$/i)
-  if (match) {
-    return { num: Number(match[1]), unit: match[2]!.toLowerCase() }
-  }
-  return { num: Number(val) || null, unit: 'k' }
-}
-
-// 组合数值和单位
-const composeSizeValue = (num: number | null, unit: string): string => {
-  if (num == null) return ''
-  return `${num}${unit}`
-}
-
-useRequest(props.api.configTune()).onSuccess(({ data }: any) => {
-  workerProcesses.value = data.worker_processes ?? ''
-  workerConnections.value = Number(data.worker_connections) || null
-  keepaliveTimeout.value = Number(data.keepalive_timeout) || null
-  const cmbs = parseSizeValue(data.client_max_body_size ?? '')
-  clientMaxBodySizeNum.value = cmbs.num
-  clientMaxBodySizeUnit.value = cmbs.unit
-  const cbbs = parseSizeValue(data.client_body_buffer_size ?? '')
-  clientBodyBufferSizeNum.value = cbbs.num
-  clientBodyBufferSizeUnit.value = cbbs.unit
-  const chbs = parseSizeValue(data.client_header_buffer_size ?? '')
-  clientHeaderBufferSizeNum.value = chbs.num
-  clientHeaderBufferSizeUnit.value = chbs.unit
-  serverNamesHashBucketSize.value = Number(data.server_names_hash_bucket_size) || null
-  serverTokens.value = data.server_tokens || null
-  reuseport.value = data.reuseport
-  gzip.value = data.gzip || null
-  const gml = parseSizeValue(data.gzip_min_length ?? '')
-  gzipMinLengthNum.value = gml.num
-  gzipMinLengthUnit.value = gml.unit
-  gzipCompLevel.value = Number(data.gzip_comp_level) || null
-  gzipTypes.value = data.gzip_types ?? ''
-  gzipVary.value = data.gzip_vary || null
-  gzipProxied.value = data.gzip_proxied ?? ''
-  brotli.value = data.brotli || null
-  const bml = parseSizeValue(data.brotli_min_length ?? '')
-  brotliMinLengthNum.value = bml.num
-  brotliMinLengthUnit.value = bml.unit
-  brotliCompLevel.value = Number(data.brotli_comp_level) || null
-  brotliTypes.value = data.brotli_types ?? ''
-  brotliStatic.value = data.brotli_static || null
-  zstd.value = data.zstd || null
-  const zml = parseSizeValue(data.zstd_min_length ?? '')
-  zstdMinLengthNum.value = zml.num
-  zstdMinLengthUnit.value = zml.unit
-  zstdCompLevel.value = Number(data.zstd_comp_level) || null
-  zstdTypes.value = data.zstd_types ?? ''
-  zstdStatic.value = data.zstd_static || null
-})
-
-const getConfigData = () => ({
-  worker_processes: workerProcesses.value,
-  worker_connections: String(workerConnections.value ?? ''),
-  keepalive_timeout: String(keepaliveTimeout.value ?? ''),
-  client_max_body_size: composeSizeValue(clientMaxBodySizeNum.value, clientMaxBodySizeUnit.value),
-  client_body_buffer_size: composeSizeValue(
-    clientBodyBufferSizeNum.value,
-    clientBodyBufferSizeUnit.value,
-  ),
-  client_header_buffer_size: composeSizeValue(
-    clientHeaderBufferSizeNum.value,
-    clientHeaderBufferSizeUnit.value,
-  ),
-  server_names_hash_bucket_size: String(serverNamesHashBucketSize.value ?? ''),
-  server_tokens: serverTokens.value ?? '',
-  reuseport: reuseport.value,
-  gzip: gzip.value ?? '',
-  gzip_min_length: composeSizeValue(gzipMinLengthNum.value, gzipMinLengthUnit.value),
-  gzip_comp_level: String(gzipCompLevel.value ?? ''),
-  gzip_types: gzipTypes.value,
-  gzip_vary: gzipVary.value ?? '',
-  gzip_proxied: gzipProxied.value,
-  brotli: brotli.value ?? '',
-  brotli_min_length: composeSizeValue(brotliMinLengthNum.value, brotliMinLengthUnit.value),
-  brotli_comp_level: String(brotliCompLevel.value ?? ''),
-  brotli_types: brotliTypes.value,
-  brotli_static: brotliStatic.value ?? '',
-  zstd: zstd.value ?? '',
-  zstd_min_length: composeSizeValue(zstdMinLengthNum.value, zstdMinLengthUnit.value),
-  zstd_comp_level: String(zstdCompLevel.value ?? ''),
-  zstd_types: zstdTypes.value,
-  zstd_static: zstdStatic.value ?? '',
-})
-
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(props.api.saveConfigTune(getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+const preset: TunePreset = {
+  fields: ['memory', 'cpu'],
+  memoryRatio: 1,
+  apply: (profile) => {
+    const r = nginxPreset(profile)
+    return {
+      worker_processes: r.workerProcesses,
+      worker_connections: r.workerConnections,
+      keepalive_timeout: r.keepaliveTimeout,
+      gzip: r.gzip,
+      gzip_comp_level: r.gzipCompLevel,
+      brotli: r.brotli,
+      brotli_comp_level: r.brotliCompLevel,
+      brotli_static: r.brotliStatic,
+      zstd: r.zstd,
+      zstd_comp_level: r.zstdCompLevel,
+      zstd_static: r.zstdStatic,
+    }
+  },
 }
 </script>
 
 <template>
-  <n-flex vertical>
-    <n-tabs v-model:value="currentTab" type="line" :placement="isMobile ? 'top' : 'left'" animated>
-      <n-tab-pane name="general" :tab="$gettext('General')">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{ $gettext('Common Nginx general settings.') }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Worker Processes (worker_processes)')">
-              <n-input
-                v-model:value="workerProcesses"
-                :placeholder="$gettext('e.g. auto or number')"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Worker Connections (worker_connections)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="workerConnections"
-                :placeholder="$gettext('e.g. 65535')"
-                :min="1"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Keepalive Timeout (keepalive_timeout)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="keepaliveTimeout"
-                :placeholder="$gettext('e.g. 60')"
-                :min="0"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Client Max Body Size (client_max_body_size)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="clientMaxBodySizeNum"
-                  :placeholder="$gettext('e.g. 200')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="clientMaxBodySizeUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Client Body Buffer Size (client_body_buffer_size)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="clientBodyBufferSizeNum"
-                  :placeholder="$gettext('e.g. 10')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="clientBodyBufferSizeUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Client Header Buffer Size (client_header_buffer_size)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="clientHeaderBufferSizeNum"
-                  :placeholder="$gettext('e.g. 32')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="clientHeaderBufferSizeUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item
-              :label="$gettext('Server Names Hash Bucket Size (server_names_hash_bucket_size)')"
-            >
-              <n-input-number
-                class="w-full"
-                v-model:value="serverNamesHashBucketSize"
-                :placeholder="$gettext('e.g. 512')"
-                :min="1"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Server Tokens (server_tokens)')">
-              <n-select v-model:value="serverTokens" :options="onOffOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('TCP Port Reuse (reuseport)')">
-              <n-switch v-model:value="reuseport" />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="gzip" tab="Gzip">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext(
-                'Gzip compression settings. Gzip is the most widely supported compression method.',
-              )
-            }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Gzip (gzip)')">
-              <n-select v-model:value="gzip" :options="onOffOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="gzipMinLengthNum"
-                  :placeholder="$gettext('e.g. 1')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="gzipMinLengthUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
-              <n-input-number class="w-full" v-model:value="gzipCompLevel" :min="1" :max="9" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Types (gzip_types)')">
-              <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Vary (gzip_vary)')">
-              <n-select v-model:value="gzipVary" :options="onOffOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('Proxied (gzip_proxied)')">
-              <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="brotli" tab="Brotli">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext(
-                'Brotli compression settings. Brotli provides better compression ratio than Gzip.',
-              )
-            }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Brotli (brotli)')">
-              <n-select v-model:value="brotli" :options="onOffOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="brotliMinLengthNum"
-                  :placeholder="$gettext('e.g. 1')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="brotliMinLengthUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Compression Level (brotli_comp_level)')">
-              <n-input-number class="w-full" v-model:value="brotliCompLevel" :min="0" :max="11" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Types (brotli_types)')">
-              <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Static (brotli_static)')">
-              <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" clearable />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="zstd" tab="Zstd">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext('Zstd compression settings. Zstd provides fast compression with high ratio.')
-            }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Zstd (zstd)')">
-              <n-select v-model:value="zstd" :options="onOffOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="zstdMinLengthNum"
-                  :placeholder="$gettext('e.g. 1')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="zstdMinLengthUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">
-              <n-input-number class="w-full" v-model:value="zstdCompLevel" :min="1" :max="22" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Types (zstd_types)')">
-              <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Static (zstd_static)')">
-              <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" clearable />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-    </n-tabs>
-    <tune-preset-modal
-      v-model:show="showPresetModal"
-      :fields="['memory', 'cpu']"
-      :memory-ratio="1"
-      @generate="handlePreset"
-    />
-  </n-flex>
+  <config-tune-form
+    :fetch="api.configTune"
+    :save="api.saveConfigTune"
+    :groups="groups"
+    :preset="preset"
+  />
 </template>

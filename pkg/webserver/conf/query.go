@@ -4,6 +4,9 @@ import "strings"
 
 // 名称比较一律大小写不敏感：apache 与 OLS 本身不区分，nginx 与 Caddy 的指令名全小写
 
+// customMarker 子块内分隔面板生成的指令与用户追加的原生指令
+const customMarker = "ace:custom"
+
 func (b *Block) Append(nodes ...Node) {
 	b.Nodes = append(b.Nodes, nodes...)
 }
@@ -93,7 +96,7 @@ func (b *Block) RemoveFunc(name string, pred func(*Directive) bool) int {
 		return 0
 	}
 	kept := b.Nodes[:0]
-	count := 0
+	var count int
 	for _, n := range b.Nodes {
 		if d, ok := n.(*Directive); ok && strings.EqualFold(d.Name, name) && pred(d) {
 			count++
@@ -178,6 +181,14 @@ func (b *Block) FindBlocks(path string) []*Directive {
 	return out
 }
 
+// Walk 深度优先遍历全部指令，含嵌套子块
+func (b *Block) Walk(fn func(*Directive)) {
+	for _, d := range b.All() {
+		fn(d)
+		d.Walk(fn)
+	}
+}
+
 // Comments 全部注释文本，去掉首尾空白
 func (b *Block) Comments() []string {
 	if b == nil {
@@ -205,9 +216,6 @@ func (b *Block) Meta(key string) string {
 func (b *Block) AddMeta(key, value string) {
 	b.Nodes = append(b.Nodes, &Comment{Text: " ace:" + key + " " + value})
 }
-
-// customMarker 子块内分隔面板生成的指令与用户追加的原生指令
-const customMarker = "ace:custom"
 
 // AppendCustom 在子块末尾写分隔注释与用户原生指令，没有指令时不写注释
 func (d *Directive) AppendCustom(nodes []Node) {
@@ -240,12 +248,4 @@ func argsEqual(args []Arg, want []string) bool {
 		}
 	}
 	return true
-}
-
-// Walk 深度优先遍历全部指令，含嵌套子块
-func (b *Block) Walk(fn func(*Directive)) {
-	for _, d := range b.All() {
-		fn(d)
-		d.Walk(fn)
-	}
 }

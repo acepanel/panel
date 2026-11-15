@@ -8,5 +8,5 @@ import NginxIndex from '@/views/apps/nginx/NginxIndex.vue'
 </script>
 
 <template>
-  <nginx-index :api="openresty" service="openresty" />
+  <nginx-index :api="openresty" name="OpenResty" />
 </template>

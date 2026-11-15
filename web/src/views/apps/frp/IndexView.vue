@@ -6,7 +6,6 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import FrpcConfigTuneView from './FrpcConfigTuneView.vue'
 import FrpProxyView from './FrpProxyView.vue'
@@ -19,35 +18,21 @@ const frpsTab = ref('status')
 const frpcTab = ref('status')
 const saveUserFrpsLoading = ref(false)
 const saveUserFrpcLoading = ref(false)
-const config = ref({
-  frpc: '',
-  frps: '',
-})
 const userInfo = ref({
   frpc: { user: '', group: '' },
   frps: { user: '', group: '' },
 })
 
-const getConfig = async () => {
-  ;[config.value.frps, config.value.frpc] = await Promise.all([
-    frp.config('frps'),
-    frp.config('frpc'),
-  ])
-}
+const fetchFrpsConfig = () => frp.config('frps')
+const saveFrpsConfig = (content: string) => frp.saveConfig('frps', content)
+const fetchFrpcConfig = () => frp.config('frpc')
+const saveFrpcConfig = (content: string) => frp.saveConfig('frpc', content)
 
 const getUser = async () => {
   ;[userInfo.value.frps, userInfo.value.frpc] = await Promise.all([
     frp.user('frps'),
     frp.user('frpc'),
   ])
-}
-
-const handleSaveConfig = (service: string) => {
-  useRequest(frp.saveConfig(service, config.value[service as keyof typeof config.value])).onSuccess(
-    () => {
-      window.$message.success($gettext('Saved successfully'))
-    },
-  )
 }
 
 const handleSaveUser = (service: string) => {
@@ -64,7 +49,6 @@ const handleSaveUser = (service: string) => {
 }
 
 onMounted(() => {
-  getConfig()
   getUser()
 })
 </script>
@@ -81,21 +65,15 @@ onMounted(() => {
             <frps-config-tune-view />
           </n-tab-pane>
           <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-            <n-flex vertical>
-              <n-alert type="warning">
-                {{
-                  $gettext(
-                    'This modifies the Frps main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                  )
-                }}
-              </n-alert>
-              <common-editor v-model:value="config.frps" height="60vh" />
-              <n-flex>
-                <n-button type="primary" @click="handleSaveConfig('frps')">
-                  {{ $gettext('Save') }}
-                </n-button>
-              </n-flex>
-            </n-flex>
+            <config-editor-pane
+              :fetch="fetchFrpsConfig"
+              :save="saveFrpsConfig"
+              :tip="
+                $gettext(
+                  'This modifies the Frps main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                )
+              "
+            />
           </n-tab-pane>
           <n-tab-pane name="user" :tab="$gettext('Run User')">
             <n-flex vertical>
@@ -139,21 +117,15 @@ onMounted(() => {
             <frp-visitor-view />
           </n-tab-pane>
           <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-            <n-flex vertical>
-              <n-alert type="warning">
-                {{
-                  $gettext(
-                    'This modifies the Frpc main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                  )
-                }}
-              </n-alert>
-              <common-editor v-model:value="config.frpc" height="60vh" />
-              <n-flex>
-                <n-button type="primary" @click="handleSaveConfig('frpc')">
-                  {{ $gettext('Save') }}
-                </n-button>
-              </n-flex>
-            </n-flex>
+            <config-editor-pane
+              :fetch="fetchFrpcConfig"
+              :save="saveFrpcConfig"
+              :tip="
+                $gettext(
+                  'This modifies the Frpc main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                )
+              "
+            />
           </n-tab-pane>
           <n-tab-pane name="user" :tab="$gettext('Run User')">
             <n-flex vertical>

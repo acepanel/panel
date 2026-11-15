@@ -3,12 +3,12 @@ defineOptions({
   name: 'stalwart-queue',
 })
 
-import { NButton, NDataTable, NFlex, NTag, NText, NTooltip } from 'naive-ui'
+import { NButton, NFlex, NTag, NText, NTooltip } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatBytes, formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -17,16 +17,9 @@ const { confirmDelete } = useConfirm()
 const keyword = ref('')
 const retrying = reactive(new Set<string>())
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => stalwart.queue(page, pageSize, keyword.value),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  stalwart.queue(page, pageSize, keyword.value),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const statusType = (status: string) => {
   switch (status) {
@@ -169,10 +162,6 @@ const handleDelete = (id: string) => {
     window.$message.success($gettext('Deleted successfully'))
   })
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

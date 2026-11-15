@@ -1,25 +1,7 @@
 import type { GlobalTheme, GlobalThemeOverrides, NDateLocale, NLocale } from 'naive-ui'
-import {
-  darkTheme,
-  dateEnUS,
-  dateJaJP,
-  dateZhCN,
-  dateZhTW,
-  enUS,
-  jaJP,
-  lightTheme,
-  zhCN,
-  zhTW,
-} from 'naive-ui'
+import { darkTheme, dateEnUS, dateZhCN, dateZhTW, enUS, lightTheme, zhCN, zhTW } from 'naive-ui'
 
-import {
-  darkSemantic,
-  darkThemeOverrides,
-  lightSemantic,
-  lightThemeOverrides,
-  mobileThemeOverrides,
-  type SemanticPalette,
-} from '@/design'
+import { darkThemeOverrides, lightThemeOverrides, mobileThemeOverrides } from '@/design'
 
 import { defaultSettings } from './helpers'
 
@@ -29,7 +11,6 @@ const locales: Record<string, { locale: NLocale; dateLocale: NDateLocale }> = {
   en: { locale: enUS, dateLocale: dateEnUS },
   zh_CN: { locale: zhCN, dateLocale: dateZhCN },
   zh_TW: { locale: zhTW, dateLocale: dateZhTW },
-  ja_JP: { locale: jaJP, dateLocale: dateJaJP },
 }
 
 export const useThemeStore = defineStore('theme', {
@@ -41,9 +22,6 @@ export const useThemeStore = defineStore('theme', {
     naiveThemeOverrides(): GlobalThemeOverrides {
       const base = this.darkMode ? darkThemeOverrides : lightThemeOverrides
       return this.isMobile ? { ...base, ...mobileThemeOverrides } : base
-    },
-    semanticColors(state): SemanticPalette {
-      return state.darkMode ? darkSemantic : lightSemantic
     },
     naiveLocale(): NLocale {
       return locales[this.locale]?.locale ?? enUS

@@ -13,7 +13,9 @@ type DatabaseElasticsearchService struct {
 	repo *biz.DatabaseElasticsearchUsecase
 }
 
-func NewDatabaseElasticsearchService(databaseElasticsearchUsecase *biz.DatabaseElasticsearchUsecase) *DatabaseElasticsearchService {
+func NewDatabaseElasticsearchService(
+	databaseElasticsearchUsecase *biz.DatabaseElasticsearchUsecase,
+) *DatabaseElasticsearchService {
 	return &DatabaseElasticsearchService{repo: databaseElasticsearchUsecase}
 }
 

@@ -26,7 +26,12 @@ type WebsiteService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale, log *slog.Logger) *WebsiteService {
+func NewWebsiteService(
+	settingUsecase *biz.SettingUsecase,
+	websiteUsecase *biz.WebsiteUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *WebsiteService {
 	return &WebsiteService{
 		t:           t,
 		log:         log,
@@ -85,39 +90,6 @@ func (s *WebsiteService) UpdateDefaultConfig(w http.ResponseWriter, r *http.Requ
 	Success(w, nil)
 }
 
-// dialect 取当前 Web 服务器方言
-func (s *WebsiteService) dialect() (webserver.Dialect, error) {
-	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
-	if err != nil {
-		return webserver.Dialect{}, err
-	}
-
-	return webserver.Get(webserver.Type(webServer))
-}
-
-// filterDefaultHolders 过滤出持有默认站点标志的网站
-func filterDefaultHolders(d webserver.Dialect, websites []*biz.Website) []*biz.Website {
-	var holders []*biz.Website
-	for _, website := range websites {
-		if vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", website.Name, "config")); err == nil && vhost.Default() {
-			holders = append(holders, website)
-		}
-	}
-	return holders
-}
-
-// setWebsiteDefault 增删网站的默认站点标志
-func setWebsiteDefault(d webserver.Dialect, name string, isDefault bool) error {
-	vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", name, "config"))
-	if err != nil {
-		return err
-	}
-	if err = vhost.SetDefault(isDefault); err != nil {
-		return err
-	}
-	return vhost.Save()
-}
-
 // GetDefaultSite 获取当前默认站点,0 表示面板内置默认页
 func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) {
 	var id uint
@@ -127,13 +99,13 @@ func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
+	websites, err := s.websiteRepo.All()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if holders := filterDefaultHolders(d, websites); len(holders) > 0 {
+	if holders := s.filterDefaultHolders(d, websites); len(holders) > 0 {
 		id = holders[0].ID
 	}
 
@@ -155,7 +127,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
+	websites, err := s.websiteRepo.All()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -176,7 +148,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	holders := filterDefaultHolders(d, websites)
+	holders := s.filterDefaultHolders(d, websites)
 
 	// 备份待改文件,校验失败时整体回滚
 	backups := make(map[string]string)
@@ -205,14 +177,14 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		if target != nil && website.ID == target.ID {
 			continue
 		}
-		if err = setWebsiteDefault(d, website.Name, false); err != nil {
+		if err = s.setWebsiteDefault(d, website.Name, false); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
 	if target != nil {
-		if err = setWebsiteDefault(d, target.Name, true); err != nil {
+		if err = s.setWebsiteDefault(d, target.Name, true); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
@@ -469,4 +441,37 @@ func (s *WebsiteService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+// dialect 取当前 Web 服务器方言
+func (s *WebsiteService) dialect() (webserver.Dialect, error) {
+	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return webserver.Dialect{}, err
+	}
+
+	return webserver.Get(webserver.Type(webServer))
+}
+
+// filterDefaultHolders 过滤出持有默认站点标志的网站
+func (s *WebsiteService) filterDefaultHolders(d webserver.Dialect, websites []*biz.Website) []*biz.Website {
+	var holders []*biz.Website
+	for _, website := range websites {
+		if vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", website.Name, "config")); err == nil && vhost.Default() {
+			holders = append(holders, website)
+		}
+	}
+	return holders
+}
+
+// setWebsiteDefault 增删网站的默认站点标志
+func (s *WebsiteService) setWebsiteDefault(d webserver.Dialect, name string, isDefault bool) error {
+	vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", name, "config"))
+	if err != nil {
+		return err
+	}
+	if err = vhost.SetDefault(isDefault); err != nil {
+		return err
+	}
+	return vhost.Save()
 }

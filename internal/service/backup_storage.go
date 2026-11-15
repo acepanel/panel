@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-	"errors"
 	"log/slog"
 	"net/http"
 
@@ -11,8 +9,6 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/storage"
-	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type BackupStorageService struct {
@@ -21,7 +17,11 @@ type BackupStorageService struct {
 	backupAccountRepo *biz.BackupAccountUsecase
 }
 
-func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale, log *slog.Logger) *BackupStorageService {
+func NewBackupStorageService(
+	backupAccountUsecase *biz.BackupAccountUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *BackupStorageService {
 	return &BackupStorageService{
 		t:                 t,
 		log:               log,
@@ -57,14 +57,9 @@ func (s *BackupStorageService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateStorage(r.Context(), req.Type, req.Info); err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
 	account, err := s.backupAccountRepo.Create(r.Context(), req)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
@@ -78,13 +73,8 @@ func (s *BackupStorageService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateStorage(r.Context(), req.Type, req.Info); err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
 	if err = s.backupAccountRepo.Update(r.Context(), req); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
@@ -122,54 +112,4 @@ func (s *BackupStorageService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
-}
-
-// validateStorage 验证存储配置是否正确
-func (s *BackupStorageService) validateStorage(ctx context.Context, accountType string, info types.BackupStorageInfo) error {
-	var err error
-	var client storage.Storage
-
-	switch biz.BackupStorageType(accountType) {
-	case biz.BackupStorageTypeS3:
-		client = storage.NewS3(storage.S3Config{
-			Region:          info.Region,
-			Bucket:          info.Bucket,
-			AccessKey:       info.AccessKey,
-			SecretKey:       info.SecretKey,
-			Endpoint:        info.Endpoint,
-			Scheme:          info.Scheme,
-			BasePath:        info.Path,
-			AddressingStyle: storage.S3AddressingStyle(info.Style),
-		})
-	case biz.BackupStorageTypeSFTP:
-		client, err = storage.NewSFTP(storage.SFTPConfig{
-			Host:       info.Host,
-			Port:       info.Port,
-			Username:   info.Username,
-			Password:   info.Password,
-			PrivateKey: info.PrivateKey,
-			BasePath:   info.Path,
-		})
-		if err != nil {
-			return errors.New(s.t.Get("sftp configuration error: %v", err))
-		}
-	case biz.BackupStorageTypeWebDAV:
-		client, err = storage.NewWebDav(storage.WebDavConfig{
-			URL:      info.URL,
-			Username: info.Username,
-			Password: info.Password,
-			BasePath: info.Path,
-		})
-		if err != nil {
-			return errors.New(s.t.Get("webdav configuration error: %v", err))
-		}
-	default:
-		return nil
-	}
-
-	if _, err = client.List(ctx, ""); err != nil {
-		return errors.New(s.t.Get("storage connection error: %v", err))
-	}
-
-	return nil
 }

@@ -1,7 +1,6 @@
 package nginx
 
 import (
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -10,7 +9,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-const AuthConfName = "011-auth.conf"
+const authConfName = "011-auth.conf"
 
 // 基本认证 map 变量名前缀
 const (
@@ -18,37 +17,28 @@ const (
 	authFileVarPrefix  = "$ace_auth_file_"
 )
 
-// SafeName 将名称转换为 nginx 标识符安全形式，编码可逆以免 demo.com 与 demo-com 撞名
-func SafeName(name string) string {
-	var b strings.Builder
-	for _, char := range name {
-		switch {
-		case char >= 'a' && char <= 'z', char >= 'A' && char <= 'Z', char >= '0' && char <= '9':
-			b.WriteRune(char)
-		case char == '_':
-			b.WriteString("__")
-		default:
-			_, _ = fmt.Fprintf(&b, "_%02x", char)
+func parseAuthMaps(content string) []types.BasicAuth {
+	cfg, err := Parse(content)
+	if err != nil {
+		return nil
+	}
+	var auths []types.BasicAuth
+	for _, m := range cfg.Blocks("map") {
+		if !strings.HasPrefix(m.Arg(1), authFileVarPrefix) {
+			continue
+		}
+		for _, d := range m.All() {
+			if d.Arg(0) == "" {
+				continue
+			}
+			if d.Name == "default" {
+				auths = append(auths, types.BasicAuth{Path: "/", UserFile: d.Arg(0)})
+			} else {
+				auths = append(auths, types.BasicAuth{Path: authPatternPath(d.Name), UserFile: d.Arg(0)})
+			}
 		}
 	}
-	return b.String()
-}
-
-// authVarNames 返回站点专属的 realm/file map 变量名
-func authVarNames(siteName string) (string, string) {
-	suffix := SafeName(siteName)
-	return authRealmVarPrefix + suffix, authFileVarPrefix + suffix
-}
-
-// authPathPattern 将路径转换为 map 正则，如 /admin -> ~^/admin(/.*)?$
-func authPathPattern(path string) string {
-	return "~^" + regexp.QuoteMeta(path) + "(/.*)?$"
-}
-
-func authPatternPath(pattern string) string {
-	path := strings.TrimPrefix(pattern, "~^")
-	path = strings.TrimSuffix(path, "(/.*)?$")
-	return strings.ReplaceAll(path, `\`, "")
+	return auths
 }
 
 // generateAuthMaps 用 realm/file 两个 map 按 $uri 匹配实现目录级认证，对所有 location 统一生效，值为 off 即不认证
@@ -81,28 +71,21 @@ func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 	return Export(cfg)
 }
 
-func parseAuthMaps(content string) []types.BasicAuth {
-	cfg, err := Parse(content)
-	if err != nil {
-		return nil
-	}
-	var auths []types.BasicAuth
-	for _, m := range cfg.Blocks("map") {
-		if !strings.HasPrefix(m.Arg(1), authFileVarPrefix) {
-			continue
-		}
-		for _, d := range m.All() {
-			if d.Arg(0) == "" {
-				continue
-			}
-			if d.Name == "default" {
-				auths = append(auths, types.BasicAuth{Path: "/", UserFile: d.Arg(0)})
-			} else {
-				auths = append(auths, types.BasicAuth{Path: authPatternPath(d.Name), UserFile: d.Arg(0)})
-			}
-		}
-	}
-	return auths
+// authVarNames 返回站点专属的 realm/file map 变量名
+func authVarNames(siteName string) (string, string) {
+	suffix := types.SafeName(siteName)
+	return authRealmVarPrefix + suffix, authFileVarPrefix + suffix
+}
+
+// authPathPattern 将路径转换为 map 正则，如 /admin -> ~^/admin(/.*)?$
+func authPathPattern(path string) string {
+	return "~^" + regexp.QuoteMeta(path) + "(/.*)?$"
+}
+
+func authPatternPath(pattern string) string {
+	path := strings.TrimPrefix(pattern, "~^")
+	path = strings.TrimSuffix(path, "(/.*)?$")
+	return strings.ReplaceAll(path, `\`, "")
 }
 
 func quoted(value string) conf.Arg {

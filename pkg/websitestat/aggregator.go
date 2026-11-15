@@ -27,17 +27,6 @@ type Aggregator struct {
 	rtSlots [60]rtSlot
 }
 
-type hourBucket struct {
-	pv, requests, errors, spiders, bandwidth      uint64
-	bandwidthIn, requestTimeSum, requestTimeCount uint64
-	status2xx, status3xx, status4xx, status5xx    uint64
-	ips                                           map[string]struct{}
-	uvs                                           map[string]struct{}
-
-	// drain 后记录 set 大小，用于计算增量
-	lastUVCount, lastIPCount uint64
-}
-
 type siteDay struct {
 	pv, requests, errors, spiders, bandwidth      uint64
 	bandwidthIn, requestTimeSum, requestTimeCount uint64
@@ -54,6 +43,17 @@ type siteDay struct {
 	clientCounts map[string]*clientCount // "browser|os" → count
 	ipCounts     map[string]*ipCount     // ip → count
 	uriCounts    map[string]*uriCount    // uri → count
+}
+
+type hourBucket struct {
+	pv, requests, errors, spiders, bandwidth      uint64
+	bandwidthIn, requestTimeSum, requestTimeCount uint64
+	status2xx, status3xx, status4xx, status5xx    uint64
+	ips                                           map[string]struct{}
+	uvs                                           map[string]struct{}
+
+	// drain 后记录 set 大小，用于计算增量
+	lastUVCount, lastIPCount uint64
 }
 
 type clientCount struct {
@@ -74,10 +74,10 @@ type uriCount struct {
 }
 
 type rtSlot struct {
-	sec         int64
-	bandwidth   uint64
-	bandwidthIn uint64
-	requests    uint64
+	sec         atomic.Int64
+	bandwidth   atomic.Uint64
+	bandwidthIn atomic.Uint64
+	requests    atomic.Uint64
 }
 
 // NewAggregator 创建聚合器实例
@@ -110,11 +110,11 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	hour := now.Hour()
 
 	// 锁外预计算 CPU 密集操作
-	spiderName, browser, os := ClassifyUA(entry.UA)
+	spiderName, browser, os := classifyUA(entry.UA)
 	uvKey := entry.IP + "|" + entry.UA
 	isErr := entry.Status >= 400 && entry.Status < 600
-	isPV := IsPageView(entry)
-	isStatic := IsStaticResource(entry.URI)
+	isPV := isPageView(entry)
+	isStatic := isStaticResource(entry.URI)
 	clientKey := browser + "|" + os
 
 	a.mu.Lock()
@@ -292,7 +292,7 @@ func (a *Aggregator) SiteStats() map[string]*SiteSnapshot {
 
 	result := make(map[string]*SiteSnapshot, len(sites))
 	for name, sd := range sites {
-		result[name] = snapshotSite(sd)
+		result[name] = sd.snapshot()
 	}
 	return result
 }
@@ -308,7 +308,7 @@ func (a *Aggregator) DrainSnapshot() (snapshotsByDate map[string]map[string]*Sit
 	for date, sites := range a.days {
 		snapshots := make(map[string]*SiteSnapshot, len(sites))
 		for name, sd := range sites {
-			snapshots[name] = snapshotSite(sd)
+			snapshots[name] = sd.snapshot()
 		}
 		snapshotsByDate[date] = snapshots
 	}
@@ -374,37 +374,6 @@ func (a *Aggregator) DrainSnapshot() (snapshotsByDate map[string]map[string]*Sit
 	}
 
 	return snapshotsByDate, commit
-}
-
-// DrainErrors 取出错误缓冲快照
-// 返回 commit 函数，写库成功后调用以移除已消费的条目
-func (a *Aggregator) DrainErrors() (entries []*ErrorEntry, commit func()) {
-	a.mu.Lock()
-	n := len(a.errBuf)
-	entries = make([]*ErrorEntry, n)
-	copy(entries, a.errBuf)
-	a.mu.Unlock()
-
-	commit = func() {
-		a.mu.Lock()
-		defer a.mu.Unlock()
-		// 只移除已快照的前 n 条，保留期间新增的
-		if n >= len(a.errBuf) {
-			a.errBuf = nil
-		} else {
-			a.errBuf = a.errBuf[n:]
-		}
-	}
-	return
-}
-
-// Reset 清空所有内存聚合数据（配合 DB 清空使用）
-func (a *Aggregator) Reset() {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	a.days = make(map[string]map[string]*siteDay)
-	a.errBuf = nil
 }
 
 // DrainDetailStats 导出详细统计增量（蜘蛛/客户端/IP/URI）
@@ -501,6 +470,37 @@ func (a *Aggregator) DrainDetailStats() (detailsByDate map[string]map[string]*Si
 	return detailsByDate, commit
 }
 
+// DrainErrors 取出错误缓冲快照
+// 返回 commit 函数，写库成功后调用以移除已消费的条目
+func (a *Aggregator) DrainErrors() (entries []*ErrorEntry, commit func()) {
+	a.mu.Lock()
+	n := len(a.errBuf)
+	entries = make([]*ErrorEntry, n)
+	copy(entries, a.errBuf)
+	a.mu.Unlock()
+
+	commit = func() {
+		a.mu.Lock()
+		defer a.mu.Unlock()
+		// 只移除已快照的前 n 条，保留期间新增的
+		if n >= len(a.errBuf) {
+			a.errBuf = nil
+		} else {
+			a.errBuf = a.errBuf[n:]
+		}
+	}
+	return entries, commit
+}
+
+// Reset 清空所有内存聚合数据（配合 DB 清空使用）
+func (a *Aggregator) Reset() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	a.days = make(map[string]map[string]*siteDay)
+	a.errBuf = nil
+}
+
 // Realtime 返回最近一段时间的实时流量和 RPS
 func (a *Aggregator) Realtime() RealtimeStats {
 	now := time.Now().Unix()
@@ -512,10 +512,10 @@ func (a *Aggregator) Realtime() RealtimeStats {
 		sec := now - i
 		idx := ((sec % 60) + 60) % 60
 		// 校验槽位秒戳，只读取确实属于目标秒的数据
-		if atomic.LoadInt64(&a.rtSlots[idx].sec) == sec {
-			totalBw += atomic.LoadUint64(&a.rtSlots[idx].bandwidth)
-			totalBwIn += atomic.LoadUint64(&a.rtSlots[idx].bandwidthIn)
-			totalReq += atomic.LoadUint64(&a.rtSlots[idx].requests)
+		if a.rtSlots[idx].sec.Load() == sec {
+			totalBw += a.rtSlots[idx].bandwidth.Load()
+			totalBwIn += a.rtSlots[idx].bandwidthIn.Load()
+			totalReq += a.rtSlots[idx].requests.Load()
 			count++
 		}
 	}
@@ -540,7 +540,7 @@ func (a *Aggregator) gcDrainedPastDaysLocked() {
 		}
 		canDrop := true
 		for _, sd := range sites {
-			if hasPending(sd) {
+			if sd.hasPending() {
 				canDrop = false
 				break
 			}
@@ -558,11 +558,11 @@ func (a *Aggregator) addRealtime(sec int64, bytes, bytesIn uint64) {
 	initMark := -sec
 
 	for {
-		cur := atomic.LoadInt64(&slot.sec)
+		cur := slot.sec.Load()
 		if cur == sec {
-			atomic.AddUint64(&slot.bandwidth, bytes)
-			atomic.AddUint64(&slot.bandwidthIn, bytesIn)
-			atomic.AddUint64(&slot.requests, 1)
+			slot.bandwidth.Add(bytes)
+			slot.bandwidthIn.Add(bytesIn)
+			slot.requests.Add(1)
 			return
 		}
 
@@ -573,21 +573,65 @@ func (a *Aggregator) addRealtime(sec int64, bytes, bytesIn uint64) {
 		}
 
 		// 抢到初始化权后，先清零，再发布秒戳，最后写入当前请求
-		if atomic.CompareAndSwapInt64(&slot.sec, cur, initMark) {
-			atomic.StoreUint64(&slot.bandwidth, 0)
-			atomic.StoreUint64(&slot.bandwidthIn, 0)
-			atomic.StoreUint64(&slot.requests, 0)
-			atomic.StoreInt64(&slot.sec, sec)
-			atomic.AddUint64(&slot.bandwidth, bytes)
-			atomic.AddUint64(&slot.bandwidthIn, bytesIn)
-			atomic.AddUint64(&slot.requests, 1)
+		if slot.sec.CompareAndSwap(cur, initMark) {
+			slot.bandwidth.Store(0)
+			slot.bandwidthIn.Store(0)
+			slot.requests.Store(0)
+			slot.sec.Store(sec)
+			slot.bandwidth.Add(bytes)
+			slot.bandwidthIn.Add(bytesIn)
+			slot.requests.Add(1)
 			return
 		}
 	}
 }
 
-// snapshotHour 从 hourBucket 生成增量快照
-func snapshotHour(hb *hourBucket) *HourSnapshot {
+// snapshot 从 siteDay 生成增量快照
+func (sd *siteDay) snapshot() *SiteSnapshot {
+	snap := &SiteSnapshot{
+		PV:               sd.pv,
+		UV:               uint64(len(sd.uvs)) - sd.lastUVCount,
+		IP:               uint64(len(sd.ips)) - sd.lastIPCount,
+		Bandwidth:        sd.bandwidth,
+		BandwidthIn:      sd.bandwidthIn,
+		Requests:         sd.requests,
+		Errors:           sd.errors,
+		Spiders:          sd.spiders,
+		RequestTimeSum:   sd.requestTimeSum,
+		RequestTimeCount: sd.requestTimeCount,
+		Status2xx:        sd.status2xx,
+		Status3xx:        sd.status3xx,
+		Status4xx:        sd.status4xx,
+		Status5xx:        sd.status5xx,
+	}
+	for h := range 24 {
+		snap.Hours[h] = sd.hours[h].snapshot()
+	}
+	return snap
+}
+
+// hasPending 判断站点是否仍有未落库增量
+func (sd *siteDay) hasPending() bool {
+	if sd.pv > 0 || sd.requests > 0 || sd.errors > 0 || sd.spiders > 0 || sd.bandwidth > 0 ||
+		sd.bandwidthIn > 0 || sd.requestTimeSum > 0 || sd.requestTimeCount > 0 ||
+		sd.status2xx > 0 || sd.status3xx > 0 || sd.status4xx > 0 || sd.status5xx > 0 {
+		return true
+	}
+	for _, hb := range sd.hours {
+		if hb == nil {
+			continue
+		}
+		if hb.pv > 0 || hb.requests > 0 || hb.errors > 0 || hb.spiders > 0 || hb.bandwidth > 0 ||
+			hb.bandwidthIn > 0 || hb.requestTimeSum > 0 || hb.requestTimeCount > 0 ||
+			hb.status2xx > 0 || hb.status3xx > 0 || hb.status4xx > 0 || hb.status5xx > 0 {
+			return true
+		}
+	}
+	return len(sd.spiderCounts) > 0 || len(sd.clientCounts) > 0 || len(sd.ipCounts) > 0 || len(sd.uriCounts) > 0
+}
+
+// snapshot 从 hourBucket 生成增量快照
+func (hb *hourBucket) snapshot() *HourSnapshot {
 	if hb == nil {
 		return nil
 	}
@@ -607,50 +651,6 @@ func snapshotHour(hb *hourBucket) *HourSnapshot {
 		Status4xx:        hb.status4xx,
 		Status5xx:        hb.status5xx,
 	}
-}
-
-// snapshotSite 从 siteDay 生成增量快照
-func snapshotSite(sd *siteDay) *SiteSnapshot {
-	snap := &SiteSnapshot{
-		PV:               sd.pv,
-		UV:               uint64(len(sd.uvs)) - sd.lastUVCount,
-		IP:               uint64(len(sd.ips)) - sd.lastIPCount,
-		Bandwidth:        sd.bandwidth,
-		BandwidthIn:      sd.bandwidthIn,
-		Requests:         sd.requests,
-		Errors:           sd.errors,
-		Spiders:          sd.spiders,
-		RequestTimeSum:   sd.requestTimeSum,
-		RequestTimeCount: sd.requestTimeCount,
-		Status2xx:        sd.status2xx,
-		Status3xx:        sd.status3xx,
-		Status4xx:        sd.status4xx,
-		Status5xx:        sd.status5xx,
-	}
-	for h := range 24 {
-		snap.Hours[h] = snapshotHour(sd.hours[h])
-	}
-	return snap
-}
-
-// hasPending 判断站点是否仍有未落库增量
-func hasPending(sd *siteDay) bool {
-	if sd.pv > 0 || sd.requests > 0 || sd.errors > 0 || sd.spiders > 0 || sd.bandwidth > 0 ||
-		sd.bandwidthIn > 0 || sd.requestTimeSum > 0 || sd.requestTimeCount > 0 ||
-		sd.status2xx > 0 || sd.status3xx > 0 || sd.status4xx > 0 || sd.status5xx > 0 {
-		return true
-	}
-	for _, hb := range sd.hours {
-		if hb == nil {
-			continue
-		}
-		if hb.pv > 0 || hb.requests > 0 || hb.errors > 0 || hb.spiders > 0 || hb.bandwidth > 0 ||
-			hb.bandwidthIn > 0 || hb.requestTimeSum > 0 || hb.requestTimeCount > 0 ||
-			hb.status2xx > 0 || hb.status3xx > 0 || hb.status4xx > 0 || hb.status5xx > 0 {
-			return true
-		}
-	}
-	return len(sd.spiderCounts) > 0 || len(sd.clientCounts) > 0 || len(sd.ipCounts) > 0 || len(sd.uriCounts) > 0
 }
 
 // saturatingSub 无符号减法（防止下溢）

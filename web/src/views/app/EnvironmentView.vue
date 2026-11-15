@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NTag } from 'naive-ui'
+import { NDataTable, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import environment from '@/api/panel/environment'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
-import { router } from '@/router'
-import { renderLocalIcon } from '@/utils'
 import CustomForm from '@/views/app/CustomForm.vue'
 
+import { useEnvColumns } from './composables/useEnvColumns'
+
 const { $gettext } = useGettext()
-const { confirmDelete, confirmAction } = useConfirm()
+const { confirmAction } = useConfirm()
 
 const selectedType = ref<string>('')
 const searchQuery = ref<string>('')
@@ -25,160 +24,31 @@ const { data: types } = useRequest(environment.types, {
   initialData: [],
 })
 
-const columns: any = [
-  {
-    key: 'icon',
-    fixed: 'left',
-    width: 80,
-    align: 'center',
-    render(row: any) {
-      return renderLocalIcon('environment', row.type, { size: 26 })()
-    },
+const columns = useEnvColumns({
+  showLatest: true,
+  onInstall: async (row) => {
+    // 编译型环境走带编译参数输入的安装弹窗
+    if (row.custom_supported) {
+      installModalRow.value = row
+      installModalShow.value = true
+      return
+    }
+    const ok = await confirmAction({
+      type: 'info',
+      title: $gettext('Confirm Install'),
+      content: $gettext('Are you sure to install environment %{ environment }?', {
+        environment: row.name,
+      }),
+    })
+    if (ok) handleInstall(row.type, row.slug)
   },
-  {
-    title: $gettext('Name'),
-    key: 'name',
-    width: 200,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Description'),
-    key: 'description',
-    minWidth: 300,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Latest Version'),
-    key: 'version',
-    width: 160,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Installed Version'),
-    key: 'installed_version',
-    width: 160,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Actions'),
-    key: 'actions',
-    width: 320,
-    hideInExcel: true,
-    render(row: any) {
-      return h(NFlex, null, {
-        default: () => {
-          const items: any[] = []
-          if (row.installed && row.has_update) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'warning',
-                  onClick: async () => {
-                    const ok = await confirmAction({
-                      type: 'warning',
-                      title: $gettext('Confirm Update'),
-                      content: $gettext('Are you sure to update environment %{ environment }?', {
-                        environment: row.name,
-                      }),
-                    })
-                    if (ok) handleUpdate(row.type, row.slug)
-                  },
-                },
-                { default: () => $gettext('Update') },
-              ),
-            )
-          }
-          if (row.installed) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'info',
-                  onClick: () => handleManage(row.type, row.slug),
-                },
-                { default: () => $gettext('Manage') },
-              ),
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'error',
-                  onClick: async () => {
-                    const ok = await confirmDelete({
-                      title: $gettext('Confirm Uninstall'),
-                      content: $gettext('Are you sure to uninstall environment %{ environment }?', {
-                        environment: row.name,
-                      }),
-                      positiveText: $gettext('Uninstall'),
-                      countdown: 5,
-                    })
-                    if (ok) handleUninstall(row.type, row.slug)
-                  },
-                },
-                { default: () => $gettext('Uninstall') },
-              ),
-            )
-          } else {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'success',
-                  onClick: async () => {
-                    // 编译型环境走带编译参数输入的安装弹窗
-                    if (row.custom_supported) {
-                      installModalRow.value = row
-                      installModalShow.value = true
-                      return
-                    }
-                    const ok = await confirmAction({
-                      type: 'info',
-                      title: $gettext('Confirm Install'),
-                      content: $gettext('Are you sure to install environment %{ environment }?', {
-                        environment: row.name,
-                      }),
-                    })
-                    if (ok) handleInstall(row.type, row.slug)
-                  },
-                },
-                { default: () => $gettext('Install') },
-              ),
-            )
-          }
-          return items
-        },
-      })
-    },
-  },
-]
+})
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) =>
-    environment.list(
-      page,
-      pageSize,
-      selectedType.value || undefined,
-      searchQuery.value || undefined,
-    ),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-    watchingStates: [selectedType, searchQuery],
-  },
+const { loading, data } = useWatcher(
+  () => environment.list(selectedType.value || undefined, searchQuery.value || undefined),
+  [selectedType, searchQuery],
+  { initialData: [], immediate: true },
 )
-const pagination = useTablePagination(page, pageSize, total)
-
-// 处理类型切换
-const handleTypeChange = (type: string) => {
-  selectedType.value = type
-  page.value = 1
-}
 
 const handleInstall = (type: string, slug: string) => {
   useRequest(environment.install(type, slug)).onSuccess(() => {
@@ -212,30 +82,6 @@ const handleInstallWithCustom = async () => {
       installSubmitting.value = false
     })
 }
-
-const handleUpdate = (type: string, slug: string) => {
-  useRequest(environment.update(type, slug)).onSuccess(() => {
-    window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks'),
-    )
-  })
-}
-
-const handleUninstall = (type: string, slug: string) => {
-  useRequest(environment.uninstall(type, slug)).onSuccess(() => {
-    window.$message.success(
-      $gettext('Task submitted, please check the progress in background tasks'),
-    )
-  })
-}
-
-const handleManage = (type: string, slug: string) => {
-  router.push({ name: 'environment-' + type, params: { slug } })
-}
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>
@@ -246,7 +92,7 @@ onMounted(() => {
           :type="selectedType === '' ? 'primary' : 'default'"
           :bordered="selectedType !== ''"
           class="cursor-pointer"
-          @click="handleTypeChange('')"
+          @click="selectedType = ''"
         >
           {{ $gettext('All') }}
         </n-tag>
@@ -256,7 +102,7 @@ onMounted(() => {
           :type="selectedType === type.value ? 'primary' : 'default'"
           :bordered="selectedType !== type.value"
           class="cursor-pointer"
-          @click="handleTypeChange(type.value)"
+          @click="selectedType = type.value"
         >
           {{ type.label }}
         </n-tag>
@@ -269,16 +115,12 @@ onMounted(() => {
       />
     </n-flex>
     <n-data-table
-      v-model:page="page"
-      v-model:pageSize="pageSize"
       striped
-      remote
       :scroll-x="1280"
       :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.slug"
-      :pagination="pagination"
     />
   </n-flex>
   <app-modal

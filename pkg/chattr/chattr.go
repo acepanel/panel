@@ -64,16 +64,6 @@ const (
 	FS_IOC_SETFLAGS uintptr = 0x40086602
 )
 
-func ioctl(f *os.File, request uintptr, attrp *uint32) error {
-	argp := uintptr(unsafe.Pointer(attrp)) //nolint:gosec
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), request, argp)
-	if errno != 0 {
-		return os.NewSyscallError("ioctl", errno)
-	}
-
-	return nil
-}
-
 // GetAttrs retrieves the attributes of a file.
 func GetAttrs(f *os.File) (uint32, error) {
 	attr := uint32(1)
@@ -118,4 +108,14 @@ func IsAttr(f *os.File, attr uint32) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func ioctl(f *os.File, request uintptr, attrp *uint32) error {
+	argp := uintptr(unsafe.Pointer(attrp)) //nolint:gosec
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), request, argp)
+	if errno != 0 {
+		return os.NewSyscallError("ioctl", errno)
+	}
+
+	return nil
 }

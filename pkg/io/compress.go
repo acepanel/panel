@@ -69,7 +69,13 @@ func CompressShell(dir string, src []string, dst string, verbose bool) (string, 
 	case SevenZip:
 		cmd = fmt.Sprintf("{ 7z a -y%s %s -- %s || [ $? -eq 1 ]; }", lo.Ternary(verbose, " -bb1", ""), target, sources)
 	case Tar, TGz, TBz2, TXz, TZst:
-		cmd = fmt.Sprintf("{ tar -c%s %s -f %s -- %s || [ $? -eq 1 ]; }", lo.Ternary(verbose, " -v", ""), tarFilter(format), target, sources)
+		cmd = fmt.Sprintf(
+			"{ tar -c%s %s -f %s -- %s || [ $? -eq 1 ]; }",
+			lo.Ternary(verbose, " -v", ""),
+			tarFilter(format),
+			target,
+			sources,
+		)
 	case Gz, Bz2, Xz, Zst:
 		// 单文件压缩格式仅支持压缩单个文件
 		if len(src) != 1 {
@@ -80,7 +86,13 @@ func CompressShell(dir string, src []string, dst string, verbose bool) (string, 
 		return "", errors.New("unsupported format")
 	}
 
-	return fmt.Sprintf("mkdir -p %s && cd %s && rm -f %s && %s", shell.Quote(filepath.Dir(dst)), shell.Quote(dir), target, cmd), nil
+	return fmt.Sprintf(
+		"mkdir -p %s && cd %s && rm -f %s && %s",
+		shell.Quote(filepath.Dir(dst)),
+		shell.Quote(dir),
+		target,
+		cmd,
+	), nil
 }
 
 func UnCompressShell(src, dst string, verbose bool) (string, error) {
@@ -101,7 +113,13 @@ func UnCompressShell(src, dst string, verbose bool) (string, error) {
 		cmd = fmt.Sprintf("tar -x%s %s -f %s -C %s", lo.Ternary(verbose, " -v", ""), tarFilter(format), source, target)
 	case Gz, Bz2, Xz, Zst:
 		name := strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))
-		cmd = fmt.Sprintf("%s%s -dc -- %s > %s", compressor(format), lo.Ternary(verbose, " -v", ""), source, shell.Quote(filepath.Join(dst, name)))
+		cmd = fmt.Sprintf(
+			"%s%s -dc -- %s > %s",
+			compressor(format),
+			lo.Ternary(verbose, " -v", ""),
+			source,
+			shell.Quote(filepath.Join(dst, name)),
+		)
 	default:
 		return "", errors.New("unsupported format")
 	}

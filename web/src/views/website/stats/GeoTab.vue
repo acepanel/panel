@@ -17,6 +17,7 @@ import { useThemeStore } from '@/stores'
 import { formatBytes } from '@/utils/file'
 
 import { codeToGeoName, codeToName } from './country-name-map'
+import { useStatQuery } from './useStatQuery'
 
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()
@@ -31,10 +32,6 @@ use([
   GeoComponent,
 ])
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const items = ref<any[]>([])
 const groupBy = ref('country')
 const mapReady = ref(false)
 
@@ -51,38 +48,13 @@ const loadMap = async () => {
   }
 }
 
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statGeos(
-      ctx.dateRange.value.start,
-      ctx.dateRange.value.end,
-      ctx.sitesParam.value,
-      groupBy.value,
-      undefined,
-      100,
-    ),
-  )
-    .onSuccess(({ data }: any) => {
-      items.value = data.items || []
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
+onMounted(loadMap)
 
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadData()
-})
+const { loading, items, reload } = useStatQuery(({ start, end, sites }) =>
+  website.statGeos(start, end, sites, groupBy.value, undefined, 100),
+)
 
-watch(groupBy, () => {
-  loadData()
-})
-
-onMounted(() => {
-  loadMap()
-  loadData()
-})
+watch(groupBy, reload)
 
 // ========== 表格 ==========
 

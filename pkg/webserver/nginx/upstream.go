@@ -3,7 +3,6 @@ package nginx
 import (
 	"fmt"
 	"maps"
-	"math"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -16,12 +15,11 @@ import (
 
 var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
-// upstreamAlgos 能直接当指令写的算法，nginx 的 hash 必须带参数，裸写会拒载
-var upstreamAlgos = []string{types.AlgoLeastConn, types.AlgoIPHash, types.AlgoRandom}
-
 func parseUpstreamFiles(sharedDir string) []types.Upstream {
+	// upstreamAlgos 能直接当指令写的算法，nginx 的 hash 必须带参数，裸写会拒载
+	upstreamAlgos := []string{types.AlgoLeastConn, types.AlgoIPHash, types.AlgoRandom}
 	var upstreams []types.Upstream
-	for _, file := range listFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt) {
+	for _, file := range conf.ListFiles(sharedDir, upstreamFilePattern, upstreamStartNum, upstreamEndNum) {
 		cfg, err := ParseFile(file)
 		if err != nil {
 			continue
@@ -57,20 +55,19 @@ func parseUpstreamFiles(sharedDir string) []types.Upstream {
 }
 
 func writeUpstreamFiles(sharedDir string, upstreams []types.Upstream) error {
-	if err := clearFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt); err != nil {
+	if len(upstreams) > upstreamEndNum-upstreamStartNum+1 {
+		return fmt.Errorf("upstreams exceed limit (%d)", upstreamEndNum-upstreamStartNum+1)
+	}
+	if err := conf.ClearFiles(sharedDir, upstreamFilePattern, upstreamStartNum, upstreamEndNum); err != nil {
 		return err
 	}
 	for i, upstream := range upstreams {
-		path := filepath.Join(sharedDir, fmt.Sprintf("%03d-%s.conf", UpstreamStartNum+i, upstream.Name))
+		path := filepath.Join(sharedDir, fmt.Sprintf("%03d-%s.conf", upstreamStartNum+i, upstream.Name))
 		if err := writeFragment(path, conf.Cmt("Upstream: "+upstream.Name), upstreamNode(upstream)); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func clearUpstreamFiles(sharedDir string) error {
-	return clearFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt)
 }
 
 func upstreamNode(u types.Upstream) *conf.Directive {

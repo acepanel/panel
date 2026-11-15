@@ -5,280 +5,152 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import redis from '@/api/apps/redis'
-import { useResponsive } from '@/components/system/composables/useResponsive'
-import { mbToPair, redisPreset, type TuneProfile } from '@/utils/tunepreset'
+import { composeSize, toOptions, type TuneGroup, type TunePreset } from '@/utils/tune'
+import { mbToPair, redisPreset } from '@/utils/tunepreset'
+
+const props = defineProps<{
+  api: { configTune: () => any; saveConfigTune: (data: any) => any }
+  // Redis 或 Valkey
+  name: string
+}>()
 
 const { $gettext } = useGettext()
-const { isMobile } = useResponsive()
-const currentTab = ref('general')
+const isValkey = props.name === 'Valkey'
 
-// 常规设置
-const bind = ref('')
-const port = ref<number | null>(null)
-const databases = ref<number | null>(null)
-const requirepass = ref('')
-const timeout = ref<number | null>(null)
-const tcpKeepalive = ref<number | null>(null)
-
-// 内存
-const maxmemoryNum = ref<number | null>(null)
-const maxmemoryUnit = ref('mb')
-const maxmemoryPolicy = ref('')
-
-// 持久化
-const appendonly = ref('')
-const appendfsync = ref('')
-
-const saveLoading = ref(false)
-const showPresetModal = ref(false)
-const presetScenarios = computed(() => [
-  { label: $gettext('Cache only'), value: 'cache' },
-  { label: $gettext('Cache and storage mixed'), value: 'mixed' },
-  { label: $gettext('Persistent storage'), value: 'persistent' },
-])
-
-const handlePreset = (profile: TuneProfile) => {
-  const r = redisPreset(profile)
-  const maxmemory = mbToPair(r.maxmemoryMB, ['mb', 'gb'])
-  maxmemoryNum.value = maxmemory.num
-  maxmemoryUnit.value = maxmemory.unit
-  maxmemoryPolicy.value = r.maxmemoryPolicy
-  appendonly.value = r.appendonly
-  appendfsync.value = r.appendfsync
-  window.$message.success($gettext('Generated, review the values and save'))
-}
-
-// Redis 容量单位选项
-const sizeUnitOptions = [
-  { label: 'kb', value: 'kb' },
-  { label: 'mb', value: 'mb' },
-  { label: 'gb', value: 'gb' },
+const groups: TuneGroup[] = [
+  {
+    name: 'general',
+    tab: $gettext('General'),
+    tip: isValkey
+      ? $gettext('Common Valkey general settings.')
+      : $gettext('Common Redis general settings.'),
+    fields: [
+      {
+        key: 'bind',
+        label: $gettext('Bind (bind)'),
+        type: 'text',
+        placeholder: $gettext('e.g. 127.0.0.1'),
+      },
+      {
+        key: 'port',
+        label: $gettext('Port (port)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 6379'),
+        min: 1,
+        max: 65535,
+      },
+      {
+        key: 'databases',
+        label: $gettext('Databases (databases)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 16'),
+        min: 1,
+      },
+      {
+        key: 'requirepass',
+        label: $gettext('Password (requirepass)'),
+        type: 'text',
+        placeholder: $gettext('Leave empty for no password'),
+        password: true,
+      },
+      {
+        key: 'timeout',
+        label: $gettext('Timeout (timeout)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 0 (disabled) or seconds'),
+        min: 0,
+      },
+      {
+        key: 'tcp_keepalive',
+        label: $gettext('TCP Keepalive (tcp-keepalive)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 300'),
+        min: 0,
+      },
+    ],
+  },
+  {
+    name: 'memory',
+    tab: $gettext('Memory'),
+    tip: isValkey
+      ? $gettext('Valkey memory management settings.')
+      : $gettext('Redis memory management settings.'),
+    fields: [
+      {
+        key: 'maxmemory',
+        label: $gettext('Max Memory (maxmemory)'),
+        type: 'size',
+        placeholder: $gettext('e.g. 256'),
+        min: 0,
+        units: ['kb', 'mb', 'gb'],
+        defaultUnit: 'mb',
+      },
+      {
+        key: 'maxmemory_policy',
+        label: $gettext('Maxmemory Policy (maxmemory-policy)'),
+        type: 'select',
+        options: toOptions([
+          'noeviction',
+          'allkeys-lru',
+          'allkeys-lfu',
+          'allkeys-random',
+          'volatile-lru',
+          'volatile-lfu',
+          'volatile-random',
+          'volatile-ttl',
+        ]),
+      },
+    ],
+  },
+  {
+    name: 'persistence',
+    tab: $gettext('Persistence'),
+    tip: isValkey
+      ? $gettext('Valkey AOF persistence settings.')
+      : $gettext('Redis AOF persistence settings.'),
+    fields: [
+      {
+        key: 'appendonly',
+        label: $gettext('Append Only (appendonly)'),
+        type: 'select',
+        options: toOptions(['yes', 'no']),
+      },
+      {
+        key: 'appendfsync',
+        label: $gettext('Append Fsync (appendfsync)'),
+        type: 'select',
+        options: toOptions(['always', 'everysec', 'no']),
+      },
+    ],
+  },
 ]
 
-// 解析带单位的值，如 "256mb" -> { num: 256, unit: "mb" }
-const parseSizeValue = (val: string): { num: number | null; unit: string } => {
-  if (!val) return { num: null, unit: 'mb' }
-  const match = val.match(/^(\d+)\s*(kb|mb|gb)$/i)
-  if (match) {
-    return { num: Number(match[1]), unit: match[2]!.toLowerCase() }
-  }
-  return { num: Number(val) || null, unit: 'mb' }
-}
-
-// 组合数值和单位
-const composeSizeValue = (num: number | null, unit: string): string => {
-  if (num == null) return ''
-  return `${num}${unit}`
-}
-
-const maxmemoryPolicyOptions = [
-  { label: 'noeviction', value: 'noeviction' },
-  { label: 'allkeys-lru', value: 'allkeys-lru' },
-  { label: 'allkeys-lfu', value: 'allkeys-lfu' },
-  { label: 'allkeys-random', value: 'allkeys-random' },
-  { label: 'volatile-lru', value: 'volatile-lru' },
-  { label: 'volatile-lfu', value: 'volatile-lfu' },
-  { label: 'volatile-random', value: 'volatile-random' },
-  { label: 'volatile-ttl', value: 'volatile-ttl' },
-]
-
-const appendfsyncOptions = [
-  { label: 'always', value: 'always' },
-  { label: 'everysec', value: 'everysec' },
-  { label: 'no', value: 'no' },
-]
-
-const yesNoOptions = [
-  { label: 'yes', value: 'yes' },
-  { label: 'no', value: 'no' },
-]
-
-useRequest(redis.configTune()).onSuccess(({ data }: any) => {
-  bind.value = data.bind ?? ''
-  port.value = Number(data.port) || null
-  databases.value = Number(data.databases) || null
-  requirepass.value = data.requirepass ?? ''
-  timeout.value = Number(data.timeout) || null
-  tcpKeepalive.value = Number(data.tcp_keepalive) || null
-  const mm = parseSizeValue(data.maxmemory ?? '')
-  maxmemoryNum.value = mm.num
-  maxmemoryUnit.value = mm.unit
-  maxmemoryPolicy.value = data.maxmemory_policy || null
-  appendonly.value = data.appendonly || null
-  appendfsync.value = data.appendfsync || null
-})
-
-const getConfigData = () => ({
-  bind: bind.value,
-  port: String(port.value ?? ''),
-  databases: String(databases.value ?? ''),
-  requirepass: requirepass.value,
-  timeout: String(timeout.value ?? ''),
-  tcp_keepalive: String(tcpKeepalive.value ?? ''),
-  maxmemory: composeSizeValue(maxmemoryNum.value, maxmemoryUnit.value),
-  maxmemory_policy: maxmemoryPolicy.value ?? '',
-  appendonly: appendonly.value ?? '',
-  appendfsync: appendfsync.value ?? '',
-})
-
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(redis.saveConfigTune(getConfigData()))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+const preset: TunePreset = {
+  fields: ['memory'],
+  scenarioOptions: [
+    { label: $gettext('Cache only'), value: 'cache' },
+    { label: $gettext('Cache and storage mixed'), value: 'mixed' },
+    { label: $gettext('Persistent storage'), value: 'persistent' },
+  ],
+  memoryRatio: 0.5,
+  apply: (profile) => {
+    const r = redisPreset(profile)
+    const maxmemory = mbToPair(r.maxmemoryMB, ['mb', 'gb'])
+    return {
+      maxmemory: composeSize(maxmemory.num, maxmemory.unit),
+      maxmemory_policy: r.maxmemoryPolicy,
+      appendonly: r.appendonly,
+      appendfsync: r.appendfsync,
+    }
+  },
 }
 </script>
 
 <template>
-  <n-flex vertical>
-    <n-tabs v-model:value="currentTab" type="line" :placement="isMobile ? 'top' : 'left'" animated>
-      <n-tab-pane name="general" :tab="$gettext('General')">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{ $gettext('Common Redis general settings.') }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Bind (bind)')">
-              <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Port (port)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="port"
-                :placeholder="$gettext('e.g. 6379')"
-                :min="1"
-                :max="65535"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Databases (databases)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="databases"
-                :placeholder="$gettext('e.g. 16')"
-                :min="1"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Password (requirepass)')">
-              <n-input
-                v-model:value="requirepass"
-                type="password"
-                show-password-on="click"
-                :placeholder="$gettext('Leave empty for no password')"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Timeout (timeout)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="timeout"
-                :placeholder="$gettext('e.g. 0 (disabled) or seconds')"
-                :min="0"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('TCP Keepalive (tcp-keepalive)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="tcpKeepalive"
-                :placeholder="$gettext('e.g. 300')"
-                :min="0"
-              />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="memory" :tab="$gettext('Memory')">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{ $gettext('Redis memory management settings.') }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Max Memory (maxmemory)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="maxmemoryNum"
-                  :placeholder="$gettext('e.g. 256')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" class="w-20" />
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
-              <n-select
-                v-model:value="maxmemoryPolicy"
-                :options="maxmemoryPolicyOptions"
-                clearable
-              />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="persistence" :tab="$gettext('Persistence')">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{ $gettext('Redis AOF persistence settings.') }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Append Only (appendonly)')">
-              <n-select v-model:value="appendonly" :options="yesNoOptions" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('Append Fsync (appendfsync)')">
-              <n-select v-model:value="appendfsync" :options="appendfsyncOptions" clearable />
-            </n-form-item>
-          </n-form>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveLoading"
-              :disabled="saveLoading"
-              @click="handleSave"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="info" @click="showPresetModal = true">
-              {{ $gettext('Generate Recommended Configuration') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-    </n-tabs>
-    <tune-preset-modal
-      v-model:show="showPresetModal"
-      :fields="['memory']"
-      :scenario-options="presetScenarios"
-      :memory-ratio="0.5"
-      @generate="handlePreset"
-    />
-  </n-flex>
+  <config-tune-form
+    :fetch="api.configTune"
+    :save="api.saveConfigTune"
+    :groups="groups"
+    :preset="preset"
+  />
 </template>

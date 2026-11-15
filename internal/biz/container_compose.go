@@ -25,7 +25,11 @@ type ContainerComposeUsecase struct {
 	log  *slog.Logger
 }
 
-func NewContainerComposeUsecase(t *gotext.Locale, log *slog.Logger, repo ContainerComposeRepo) *ContainerComposeUsecase {
+func NewContainerComposeUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	repo ContainerComposeRepo,
+) *ContainerComposeUsecase {
 	return &ContainerComposeUsecase{repo: repo, t: t, log: log}
 }
 

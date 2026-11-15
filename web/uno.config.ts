@@ -96,9 +96,6 @@ const config: UserConfig = {
 
     /* 页面骨架 */
     ['page-container', 'flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-6 min-h-full'],
-    ['page-header', 'flex items-start justify-between gap-4 flex-wrap'],
-    ['page-title', 'text-xl font-semibold text-text-primary leading-tight'],
-    ['page-subtitle', 'text-sm text-text-secondary mt-1'],
 
     /* 区块 */
     ['section-card', 'bg-bg-elevated rounded-lg border border-border-subtle p-5 shadow-xs'],

@@ -3,99 +3,11 @@ defineOptions({
   name: 'apps-redis-index',
 })
 
-import { NButton, NDataTable } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
-
 import redis from '@/api/apps/redis'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import RedisPerformanceView from '@/views/apps/redis/RedisPerformanceView.vue'
 
-import RedisConfigTuneView from './RedisConfigTuneView.vue'
-
-const { $gettext } = useGettext()
-const currentTab = ref('status')
-const saveConfigLoading = ref(false)
-
-const { data: config, send: refreshConfig } = useRequest(redis.config, {
-  initialData: '',
-})
-
-watch(currentTab, (val) => {
-  if (val === 'config') {
-    refreshConfig()
-  }
-})
-const { data: load } = useRequest(redis.load, {
-  initialData: [],
-})
-
-const loadColumns: any = [
-  {
-    title: $gettext('Property'),
-    key: 'name',
-    minWidth: 200,
-    resizable: true,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Current Value'),
-    key: 'value',
-    ellipsis: { tooltip: true },
-  },
-]
-
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(redis.saveConfig(config.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
-}
+import RedisIndex from './RedisIndex.vue'
 </script>
 
 <template>
-  <PageContainer :show-footer="true">
-    <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <service-status service="redis" />
-      </n-tab-pane>
-      <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
-        <redis-config-tune-view />
-      </n-tab-pane>
-      <n-tab-pane name="performance" :tab="$gettext('Performance')">
-        <redis-performance-view :api="redis" />
-      </n-tab-pane>
-      <n-tab-pane name="load" :tab="$gettext('Load Status')">
-        <n-data-table striped remote :loading="false" :columns="loadColumns" :data="load" />
-      </n-tab-pane>
-      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log service="redis" />
-      </n-tab-pane>
-    </n-tabs>
-  </PageContainer>
+  <redis-index :api="redis" name="Redis" service="redis" />
 </template>

@@ -18,6 +18,7 @@ import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
 import monitor from '@/api/panel/monitor'
+import { formatBytes } from '@/utils/file'
 import TimeRangePicker, { type TimePreset } from '@/views/monitor/TimeRangePicker.vue'
 
 const { $gettext } = useGettext()
@@ -236,18 +237,6 @@ function formatMemory(value: number | string): string {
     return `${(num / 1024).toFixed(2)} GB`
   }
   return `${num.toFixed(2)} MB`
-}
-
-// 格式化字节大小 (B -> KB -> MB -> GB)
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024 * 1024) {
-    return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
-  } else if (bytes >= 1024 * 1024) {
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`
-  } else if (bytes >= 1024) {
-    return `${(bytes / 1024).toFixed(2)} KB`
-  }
-  return `${bytes.toFixed(0)} B`
 }
 
 // 截断字符串

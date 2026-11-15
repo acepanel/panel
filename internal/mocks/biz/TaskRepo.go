@@ -44,12 +44,6 @@ var _ biz.TaskRepo = &TaskRepo{}
 //			PushFunc: func(task *biz.Task) error {
 //				panic("mock out the Push method")
 //			},
-//			UpdateLogFunc: func(id uint, log string) error {
-//				panic("mock out the UpdateLog method")
-//			},
-//			UpdateStatusFunc: func(id uint, status biz.TaskStatus) error {
-//				panic("mock out the UpdateStatus method")
-//			},
 //		}
 //
 //		// use mockedTaskRepo in code that requires biz.TaskRepo
@@ -80,12 +74,6 @@ type TaskRepo struct {
 
 	// PushFunc mocks the Push method.
 	PushFunc func(task *biz.Task) error
-
-	// UpdateLogFunc mocks the UpdateLog method.
-	UpdateLogFunc func(id uint, log string) error
-
-	// UpdateStatusFunc mocks the UpdateStatus method.
-	UpdateStatusFunc func(id uint, status biz.TaskStatus) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -127,20 +115,6 @@ type TaskRepo struct {
 			// Task is the task argument value.
 			Task *biz.Task
 		}
-		// UpdateLog holds details about calls to the UpdateLog method.
-		UpdateLog []struct {
-			// ID is the id argument value.
-			ID uint
-			// Log is the log argument value.
-			Log string
-		}
-		// UpdateStatus holds details about calls to the UpdateStatus method.
-		UpdateStatus []struct {
-			// ID is the id argument value.
-			ID uint
-			// Status is the status argument value.
-			Status biz.TaskStatus
-		}
 	}
 	lockCancel         sync.RWMutex
 	lockDelete         sync.RWMutex
@@ -150,8 +124,6 @@ type TaskRepo struct {
 	lockList           sync.RWMutex
 	lockListActive     sync.RWMutex
 	lockPush           sync.RWMutex
-	lockUpdateLog      sync.RWMutex
-	lockUpdateStatus   sync.RWMutex
 }
 
 // Cancel calls CancelFunc.
@@ -401,77 +373,5 @@ func (mock *TaskRepo) PushCalls() []struct {
 	mock.lockPush.RLock()
 	calls = mock.calls.Push
 	mock.lockPush.RUnlock()
-	return calls
-}
-
-// UpdateLog calls UpdateLogFunc.
-func (mock *TaskRepo) UpdateLog(id uint, log string) error {
-	if mock.UpdateLogFunc == nil {
-		panic("TaskRepo.UpdateLogFunc: method is nil but TaskRepo.UpdateLog was just called")
-	}
-	callInfo := struct {
-		ID  uint
-		Log string
-	}{
-		ID:  id,
-		Log: log,
-	}
-	mock.lockUpdateLog.Lock()
-	mock.calls.UpdateLog = append(mock.calls.UpdateLog, callInfo)
-	mock.lockUpdateLog.Unlock()
-	return mock.UpdateLogFunc(id, log)
-}
-
-// UpdateLogCalls gets all the calls that were made to UpdateLog.
-// Check the length with:
-//
-//	len(mockedTaskRepo.UpdateLogCalls())
-func (mock *TaskRepo) UpdateLogCalls() []struct {
-	ID  uint
-	Log string
-} {
-	var calls []struct {
-		ID  uint
-		Log string
-	}
-	mock.lockUpdateLog.RLock()
-	calls = mock.calls.UpdateLog
-	mock.lockUpdateLog.RUnlock()
-	return calls
-}
-
-// UpdateStatus calls UpdateStatusFunc.
-func (mock *TaskRepo) UpdateStatus(id uint, status biz.TaskStatus) error {
-	if mock.UpdateStatusFunc == nil {
-		panic("TaskRepo.UpdateStatusFunc: method is nil but TaskRepo.UpdateStatus was just called")
-	}
-	callInfo := struct {
-		ID     uint
-		Status biz.TaskStatus
-	}{
-		ID:     id,
-		Status: status,
-	}
-	mock.lockUpdateStatus.Lock()
-	mock.calls.UpdateStatus = append(mock.calls.UpdateStatus, callInfo)
-	mock.lockUpdateStatus.Unlock()
-	return mock.UpdateStatusFunc(id, status)
-}
-
-// UpdateStatusCalls gets all the calls that were made to UpdateStatus.
-// Check the length with:
-//
-//	len(mockedTaskRepo.UpdateStatusCalls())
-func (mock *TaskRepo) UpdateStatusCalls() []struct {
-	ID     uint
-	Status biz.TaskStatus
-} {
-	var calls []struct {
-		ID     uint
-		Status biz.TaskStatus
-	}
-	mock.lockUpdateStatus.RLock()
-	calls = mock.calls.UpdateStatus
-	mock.lockUpdateStatus.RUnlock()
 	return calls
 }

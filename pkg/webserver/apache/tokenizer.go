@@ -41,7 +41,7 @@ func tokenizeLine(s string) []conf.Arg {
 }
 
 // readQuoted 从 start（引号内首字符）读到匹配的结束引号
-// unescape 为 true 时按双引号语义处理 \" 与 \\ 转义；返回解引号值与结束后位置
+// unescape 为 true 时按双引号语义把 \" 还原成引号；返回解引号值与结束后位置
 func readQuoted(s string, start int, quote byte, unescape bool) (string, int) {
 	var b strings.Builder
 	i, n := start, len(s)
@@ -49,8 +49,14 @@ func readQuoted(s string, start int, quote byte, unescape bool) (string, int) {
 	for i < n {
 		c := s[i]
 		if unescape && c == '\\' && i+1 < n {
-			if next := s[i+1]; next == quote || next == '\\' {
-				b.WriteByte(next)
+			switch s[i+1] {
+			case quote:
+				b.WriteByte(quote)
+				i += 2
+				continue
+			case '\\':
+				// 写回时不转义反斜杠，这里两个都留着，否则每保存一次就少一半
+				b.WriteString(`\\`)
 				i += 2
 				continue
 			}

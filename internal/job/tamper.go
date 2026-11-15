@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
@@ -33,16 +32,13 @@ func NewTamper(tamperUsecase *biz.TamperUsecase, t *gotext.Locale, log *slog.Log
 }
 
 func (r *Tamper) Run(_ context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
-	// 首次运行按持久化设置恢复保护(面板重启后 eBPF 程序需重新挂载)
+	// 按持久化设置恢复保护(面板重启后 eBPF 程序需重新挂载),失败则下一分钟重试
 	if !r.reconciled {
 		if err := r.tamperRepo.Reconcile(); err != nil {
 			r.log.Warn(r.t.Get("failed to reconcile tamper protection"), slog.Any("err", err))
+		} else {
+			r.reconciled = true
 		}
-		r.reconciled = true
 	}
 
 	// 落库拦截日志并清理过期

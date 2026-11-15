@@ -2,11 +2,9 @@ package shell
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"os/exec"
 	"sync/atomic"
@@ -17,21 +15,8 @@ import (
 	"github.com/creack/pty"
 )
 
-// MessageResize 终端大小调整消息
-type MessageResize struct {
-	Resize  bool `json:"resize"`
-	Columns uint `json:"columns"`
-	Rows    uint `json:"rows"`
-}
-
-// MessagePing ping 消息
-type MessagePing struct {
-	Ping bool `json:"ping"`
-}
-
 // Turn PTY 终端
 type Turn struct {
-	ctx  context.Context
 	ws   *websocket.Conn
 	ptmx *os.File
 	cmd  *exec.Cmd
@@ -52,7 +37,6 @@ func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string) (*Turn, e
 	}
 
 	return &Turn{
-		ctx:  ctx,
 		ws:   ws,
 		ptmx: ptmx,
 		cmd:  cmd,
@@ -62,15 +46,6 @@ func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string) (*Turn, e
 // Write 写入 PTY 输入
 func (t *Turn) Write(data []byte) (int, error) {
 	return t.ptmx.Write(data)
-}
-
-// Wait 等待命令完成
-func (t *Turn) Wait() {
-	_ = t.cmd.Wait()
-	// 进程已回收，不必再等定时器到点去杀一个已经不存在的进程
-	if timer := t.kill.Swap(nil); timer != nil {
-		timer.Stop()
-	}
 }
 
 // Close 关闭 PTY 并终止子进程
@@ -87,43 +62,9 @@ func (t *Turn) Close() {
 
 // Handle 从 WebSocket 读取输入写入 PTY
 func (t *Turn) Handle(ctx context.Context) error {
-	var resize MessageResize
-	var ping MessagePing
-
 	go func() { _ = t.Pipe(ctx) }()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			_, data, err := t.ws.Read(ctx)
-			if err != nil {
-				// 通常是客户端关闭连接
-				return fmt.Errorf("failed to read ws message: %w", err)
-			}
-
-			// 判断是否是 ping 消息
-			if err = json.Unmarshal(data, &ping); err == nil && ping.Ping {
-				_ = t.ws.Write(ctx, websocket.MessageText, []byte(`{"pong":true}`))
-				continue
-			}
-
-			// 判断是否是 resize 消息
-			if err = json.Unmarshal(data, &resize); err == nil {
-				if resize.Resize && resize.Columns > 0 && resize.Rows > 0 && resize.Columns <= math.MaxUint16 && resize.Rows <= math.MaxUint16 {
-					if err = t.Resize(uint16(resize.Rows), uint16(resize.Columns)); err != nil {
-						return fmt.Errorf("failed to resize terminal: %w", err)
-					}
-				}
-				continue
-			}
-
-			if _, err = t.Write(data); err != nil {
-				return fmt.Errorf("failed to write to pty stdin: %w", err)
-			}
-		}
-	}
+	return RelayInput(ctx, t.ws, t, t.Resize)
 }
 
 // Pipe 从 PTY 读取输出写入 WebSocket
@@ -158,13 +99,22 @@ func (t *Turn) Resize(rows, cols uint16) error {
 	})
 }
 
+// Wait 等待命令完成
+func (t *Turn) Wait() {
+	_ = t.cmd.Wait()
+	// 进程已回收，不必再等定时器到点去杀一个已经不存在的进程
+	if timer := t.kill.Swap(nil); timer != nil {
+		timer.Stop()
+	}
+}
+
 // isPTYError Linux kernel return EIO when attempting to read from a master pseudo
 // terminal which no longer has an open slave. So ignore error here.
 // See https://github.com/creack/pty/issues/21
 func isPTYError(err error) error {
-	if pathErr, ok := errors.AsType[*os.PathError](err); !ok || !errors.Is(pathErr.Err, syscall.EIO) || !errors.Is(err, io.EOF) {
-		return err
+	if errors.Is(err, syscall.EIO) || errors.Is(err, io.EOF) {
+		return nil
 	}
 
-	return nil
+	return err
 }

@@ -37,9 +37,6 @@ var _ biz.AppRepo = &AppRepo{}
 //			GetInstalledFunc: func(slug string) (*biz.App, error) {
 //				panic("mock out the GetInstalled method")
 //			},
-//			GetInstalledAllFunc: func(query string, cond ...string) ([]*biz.App, error) {
-//				panic("mock out the GetInstalledAll method")
-//			},
 //			InstalledFunc: func() ([]*biz.App, error) {
 //				panic("mock out the Installed method")
 //			},
@@ -85,9 +82,6 @@ type AppRepo struct {
 
 	// GetInstalledFunc mocks the GetInstalled method.
 	GetInstalledFunc func(slug string) (*biz.App, error)
-
-	// GetInstalledAllFunc mocks the GetInstalledAll method.
-	GetInstalledAllFunc func(query string, cond ...string) ([]*biz.App, error)
 
 	// InstalledFunc mocks the Installed method.
 	InstalledFunc func() ([]*biz.App, error)
@@ -139,13 +133,6 @@ type AppRepo struct {
 		GetInstalled []struct {
 			// Slug is the slug argument value.
 			Slug string
-		}
-		// GetInstalledAll holds details about calls to the GetInstalledAll method.
-		GetInstalledAll []struct {
-			// Query is the query argument value.
-			Query string
-			// Cond is the cond argument value.
-			Cond []string
 		}
 		// Installed holds details about calls to the Installed method.
 		Installed []struct {
@@ -205,7 +192,6 @@ type AppRepo struct {
 	lockExecScript        sync.RWMutex
 	lockGetCustom         sync.RWMutex
 	lockGetInstalled      sync.RWMutex
-	lockGetInstalledAll   sync.RWMutex
 	lockInstalled         sync.RWMutex
 	lockIsInstalled       sync.RWMutex
 	lockListHomeShow      sync.RWMutex
@@ -372,42 +358,6 @@ func (mock *AppRepo) GetInstalledCalls() []struct {
 	mock.lockGetInstalled.RLock()
 	calls = mock.calls.GetInstalled
 	mock.lockGetInstalled.RUnlock()
-	return calls
-}
-
-// GetInstalledAll calls GetInstalledAllFunc.
-func (mock *AppRepo) GetInstalledAll(query string, cond ...string) ([]*biz.App, error) {
-	if mock.GetInstalledAllFunc == nil {
-		panic("AppRepo.GetInstalledAllFunc: method is nil but AppRepo.GetInstalledAll was just called")
-	}
-	callInfo := struct {
-		Query string
-		Cond  []string
-	}{
-		Query: query,
-		Cond:  cond,
-	}
-	mock.lockGetInstalledAll.Lock()
-	mock.calls.GetInstalledAll = append(mock.calls.GetInstalledAll, callInfo)
-	mock.lockGetInstalledAll.Unlock()
-	return mock.GetInstalledAllFunc(query, cond...)
-}
-
-// GetInstalledAllCalls gets all the calls that were made to GetInstalledAll.
-// Check the length with:
-//
-//	len(mockedAppRepo.GetInstalledAllCalls())
-func (mock *AppRepo) GetInstalledAllCalls() []struct {
-	Query string
-	Cond  []string
-} {
-	var calls []struct {
-		Query string
-		Cond  []string
-	}
-	mock.lockGetInstalledAll.RLock()
-	calls = mock.calls.GetInstalledAll
-	mock.lockGetInstalledAll.RUnlock()
 	return calls
 }
 

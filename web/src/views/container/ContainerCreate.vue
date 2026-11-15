@@ -288,10 +288,8 @@ const checkImageAndSubmit = () => {
         showPullModal.value = true
       }
     })
-    .onComplete(() => {
-      if (!showPullModal.value) {
-        doSubmit.value = false
-      }
+    .onError(() => {
+      doSubmit.value = false
     })
 }
 

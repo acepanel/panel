@@ -2,6 +2,7 @@ package taskqueue
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -9,6 +10,8 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 	"github.com/libtnb/sqlite"
 	"gorm.io/gorm"
 
@@ -156,4 +159,50 @@ func TestRunnerWaitingCanceledNotExecuted(t *testing.T) {
 	if got.Status != biz.TaskStatusCanceled {
 		t.Fatalf("canceled task should stay canceled, got %s", got.Status)
 	}
+}
+
+// 抢占写库失败时任务应原样留在 waiting 并让出本轮，不能停在 running，也不能原地重取
+func TestRunnerPreemptFailedLeavesWaiting(t *testing.T) {
+	r := newRunnerForTest(t)
+
+	task := &biz.Task{Name: "noop", Status: biz.TaskStatusWaiting, Shell: "true"}
+	must.NoError(t, r.db.Create(task).Error)
+
+	// 只让带日志路径的写入失败：状态与日志路径分两次写时，状态会先一步变成 running
+	failing := true
+	must.NoError(t, r.db.Callback().Update().Before("gorm:update").Register("test:fail_log", func(tx *gorm.DB) {
+		if dest, ok := tx.Statement.Dest.(map[string]any); ok && failing {
+			if _, ok = dest["log"]; ok {
+				_ = tx.AddError(errors.New("disk full"))
+			}
+		}
+	}))
+
+	must.False(t, r.processNext(t.Context()))
+	got := new(biz.Task)
+	must.NoError(t, r.db.First(got, task.ID).Error)
+	check.Equal(t, got.Status, biz.TaskStatusWaiting)
+	check.Empty(t, got.Log)
+
+	// 写库恢复后同一条任务照常执行
+	failing = false
+	must.True(t, r.processNext(t.Context()))
+	must.NoError(t, r.db.First(got, task.ID).Error)
+	check.Equal(t, got.Status, biz.TaskStatusSuccess)
+	check.NotEmpty(t, got.Log)
+}
+
+// 取出后、抢占前被取消的任务跳过即可，队列继续往下取
+func TestRunnerPreemptMissContinues(t *testing.T) {
+	r := newRunnerForTest(t)
+
+	task := &biz.Task{Name: "noop", Status: biz.TaskStatusWaiting, Shell: "true"}
+	must.NoError(t, r.db.Create(task).Error)
+	must.NoError(t, r.db.Model(&biz.Task{}).Where("id = ?", task.ID).Update("status", biz.TaskStatusCanceled).Error)
+
+	must.True(t, r.execute(t.Context(), task))
+	got := new(biz.Task)
+	must.NoError(t, r.db.First(got, task.ID).Error)
+	check.Equal(t, got.Status, biz.TaskStatusCanceled)
+	check.Empty(t, got.Log)
 }

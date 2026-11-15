@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -20,9 +18,7 @@ func WebserverCommand(t *gotext.Locale, cliService *service.CliService) *cli.Com
 				Name:   "reload",
 				Usage:  t.Get("Reload the web server (use only under guidance)"),
 				Hidden: true,
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.ReloadWebserver(ctx, cmd)
-				},
+				Action: cliService.ReloadWebserver,
 			},
 		},
 	}

@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -21,27 +19,21 @@ func SettingCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 				Usage:     t.Get("Get panel setting (use only under guidance)"),
 				Arguments: []cli.Argument{arg("key", t.Get("Key"))},
 				Hidden:    true,
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.GetSetting(ctx, cmd)
-				},
+				Action:    cliService.GetSetting,
 			},
 			{
 				Name:      "write",
 				Usage:     t.Get("Write panel setting (use only under guidance)"),
 				Arguments: []cli.Argument{arg("key", t.Get("Key")), arg("value", t.Get("Value"))},
 				Hidden:    true,
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WriteSetting(ctx, cmd)
-				},
+				Action:    cliService.WriteSetting,
 			},
 			{
 				Name:      "remove",
 				Usage:     t.Get("Remove panel setting (use only under guidance)"),
 				Arguments: []cli.Argument{arg("key", t.Get("Key"))},
 				Hidden:    true,
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.RemoveSetting(ctx, cmd)
-				},
+				Action:    cliService.RemoveSetting,
 			},
 		},
 	}

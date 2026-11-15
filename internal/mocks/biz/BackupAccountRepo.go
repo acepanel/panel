@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -20,6 +21,9 @@ var _ biz.BackupAccountRepo = &BackupAccountRepo{}
 //
 //		// make and configure a mocked biz.BackupAccountRepo
 //		mockedBackupAccountRepo := &BackupAccountRepo{
+//			CheckFunc: func(ctx context.Context, account *biz.BackupStorage) error {
+//				panic("mock out the Check method")
+//			},
 //			CreateFunc: func(account *biz.BackupStorage) error {
 //				panic("mock out the Create method")
 //			},
@@ -42,6 +46,9 @@ var _ biz.BackupAccountRepo = &BackupAccountRepo{}
 //
 //	}
 type BackupAccountRepo struct {
+	// CheckFunc mocks the Check method.
+	CheckFunc func(ctx context.Context, account *biz.BackupStorage) error
+
 	// CreateFunc mocks the Create method.
 	CreateFunc func(account *biz.BackupStorage) error
 
@@ -59,6 +66,13 @@ type BackupAccountRepo struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// Check holds details about calls to the Check method.
+		Check []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Account is the account argument value.
+			Account *biz.BackupStorage
+		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
 			// Account is the account argument value.
@@ -87,11 +101,48 @@ type BackupAccountRepo struct {
 			Account *biz.BackupStorage
 		}
 	}
+	lockCheck     sync.RWMutex
 	lockCreate    sync.RWMutex
 	lockDelete    sync.RWMutex
 	lockGetByID   sync.RWMutex
 	lockListPaged sync.RWMutex
 	lockUpdate    sync.RWMutex
+}
+
+// Check calls CheckFunc.
+func (mock *BackupAccountRepo) Check(ctx context.Context, account *biz.BackupStorage) error {
+	if mock.CheckFunc == nil {
+		panic("BackupAccountRepo.CheckFunc: method is nil but BackupAccountRepo.Check was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Account *biz.BackupStorage
+	}{
+		Ctx:     ctx,
+		Account: account,
+	}
+	mock.lockCheck.Lock()
+	mock.calls.Check = append(mock.calls.Check, callInfo)
+	mock.lockCheck.Unlock()
+	return mock.CheckFunc(ctx, account)
+}
+
+// CheckCalls gets all the calls that were made to Check.
+// Check the length with:
+//
+//	len(mockedBackupAccountRepo.CheckCalls())
+func (mock *BackupAccountRepo) CheckCalls() []struct {
+	Ctx     context.Context
+	Account *biz.BackupStorage
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Account *biz.BackupStorage
+	}
+	mock.lockCheck.RLock()
+	calls = mock.calls.Check
+	mock.lockCheck.RUnlock()
+	return calls
 }
 
 // Create calls CreateFunc.

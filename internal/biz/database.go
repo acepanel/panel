@@ -49,7 +49,13 @@ type DatabaseUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Locale, log *slog.Logger, databaseRepo DatabaseRepo, databaseServerRepo DatabaseServerRepo) *DatabaseUsecase {
+func NewDatabaseUsecase(
+	databaseUserUsecase *DatabaseUserUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseRepo DatabaseRepo,
+	databaseServerRepo DatabaseServerRepo,
+) *DatabaseUsecase {
 	return &DatabaseUsecase{
 		repo:   databaseRepo,
 		server: databaseServerRepo,
@@ -60,7 +66,11 @@ func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Loca
 }
 
 // List 按名称或备注关键字筛选数据库，关键字为空时返回全部
-func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ, keyword string) ([]*Database, int64, error) {
+func (uc *DatabaseUsecase) List(
+	ctx context.Context,
+	page, limit uint,
+	typ, keyword string,
+) ([]*Database, int64, error) {
 	servers, err := uc.repo.ListServers(typ)
 	if err != nil {
 		return nil, 0, err
@@ -86,7 +96,7 @@ func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ, keyw
 }
 
 func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCreate) error {
-	server, err := uc.server.Get(ctx, req.ServerID)
+	server, err := uc.server.Find(req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -114,80 +124,42 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 	// 建用户 → 建库 → 授权是一个整体，中途取消会留下空库或没有权限的用户
 	ctx = context.WithoutCancel(ctx)
 
-	switch server.Type {
-	case DatabaseTypeMysql:
-		if req.CreateUser {
-			if err = uc.user.Create(ctx, &request.DatabaseUserCreate{
-				ServerID: req.ServerID,
-				Username: req.Username,
-				Password: req.Password,
-				Host:     req.Host,
-			}); err != nil {
-				return err
-			}
+	if req.CreateUser {
+		user := &request.DatabaseUserCreate{
+			ServerID: req.ServerID,
+			Username: req.Username,
+			Password: req.Password,
+			Host:     req.Host,
 		}
-		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
+		// ClickHouse 建库附带创建的用户不记 host
+		if server.Type == DatabaseTypeClickHouse {
+			user.Host = ""
+		}
+		if err = uc.user.Create(ctx, user); err != nil {
 			return err
 		}
-		if req.Username != "" {
-			// 授权已有用户时按其实际 host 授权，MySQL 8 起 GRANT 不再隐式创建用户
-			hosts := []string{req.Host}
-			if !req.CreateUser {
-				if hosts = uc.mysqlUserHosts(ctx, operator, req.Username); len(hosts) == 0 {
-					return errors.New(uc.t.Get("database user %s does not exist", req.Username))
-				}
-			}
-			for _, host := range hosts {
-				if err = operator.PrivilegesGrant(ctx, req.Username, req.Name, host); err != nil {
-					return err
-				}
+	}
+	if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
+		return err
+	}
+	if req.Username != "" {
+		// 授权已有用户时按其实际 host 授权，MySQL 8 起 GRANT 不再隐式创建用户
+		hosts := []string{req.Host}
+		if server.Type == DatabaseTypeMysql && !req.CreateUser {
+			if hosts = uc.mysqlUserHosts(ctx, operator, req.Username); len(hosts) == 0 {
+				return errors.New(uc.t.Get("database user %s does not exist", req.Username))
 			}
 		}
-	case DatabaseTypePostgresql:
-		if req.CreateUser {
-			if err = uc.user.Create(ctx, &request.DatabaseUserCreate{
-				ServerID: req.ServerID,
-				Username: req.Username,
-				Password: req.Password,
-				Host:     req.Host,
-			}); err != nil {
+		for _, host := range hosts {
+			if err = operator.PrivilegesGrant(ctx, req.Username, req.Name, host); err != nil {
 				return err
 			}
 		}
-		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
-			return err
-		}
-		if req.Username != "" {
-			if err = operator.PrivilegesGrant(ctx, req.Username, req.Name); err != nil {
-				return err
-			}
-		}
-		pg, ok := operator.(*db.Postgres)
-		if !ok {
-			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
-		}
+	}
+	if pg, ok := operator.(*db.Postgres); ok {
 		if err = pg.DatabaseComment(ctx, req.Name, req.Comment); err != nil {
 			return err
 		}
-	case DatabaseTypeClickHouse:
-		if req.CreateUser {
-			if err = uc.user.Create(ctx, &request.DatabaseUserCreate{
-				ServerID: req.ServerID,
-				Username: req.Username,
-				Password: req.Password,
-			}); err != nil {
-				return err
-			}
-		}
-		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
-			return err
-		}
-		if req.Username != "" {
-			if err = operator.PrivilegesGrant(ctx, req.Username, req.Name); err != nil {
-				return err
-			}
-		}
-	default:
 	}
 
 	uc.log.Info(uc.t.Get("database created"), slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)), slog.String("server", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", req.Username))
@@ -195,26 +167,8 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 	return nil
 }
 
-// mysqlUserHosts 查询 MySQL 用户实际存在的 host 列表
-func (uc *DatabaseUsecase) mysqlUserHosts(ctx context.Context, operator db.Operator, user string) []string {
-	rows, err := operator.Query(ctx, "SELECT host FROM mysql.user WHERE user = ?", user)
-	if err != nil {
-		return nil
-	}
-	defer func() { _ = rows.Close() }()
-
-	var hosts []string
-	for rows.Next() {
-		var host string
-		if rows.Scan(&host) == nil {
-			hosts = append(hosts, host)
-		}
-	}
-	return hosts
-}
-
 func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name string) error {
-	server, err := uc.server.Get(ctx, serverID)
+	server, err := uc.server.Find(serverID)
 	if err != nil {
 		return err
 	}
@@ -251,7 +205,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 }
 
 func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseComment) error {
-	server, err := uc.server.Get(ctx, req.ServerID)
+	server, err := uc.server.Find(req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -275,4 +229,22 @@ func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseCom
 	default:
 		return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 	}
+}
+
+// mysqlUserHosts 查询 MySQL 用户实际存在的 host 列表
+func (uc *DatabaseUsecase) mysqlUserHosts(ctx context.Context, operator db.Operator, user string) []string {
+	rows, err := operator.Query(ctx, "SELECT host FROM mysql.user WHERE user = ?", user)
+	if err != nil {
+		return nil
+	}
+	defer func() { _ = rows.Close() }()
+
+	var hosts []string
+	for rows.Next() {
+		var host string
+		if rows.Scan(&host) == nil {
+			hosts = append(hosts, host)
+		}
+	}
+	return hosts
 }

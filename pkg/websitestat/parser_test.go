@@ -28,7 +28,7 @@ func TestParseLogEntry(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			tag, data := ParseSyslog([]byte(test.msg))
+			tag, data := parseSyslog([]byte(test.msg))
 			must.Equal(t, tag, test.wantTag)
 			entry, err := ParseLogEntry(tag, data)
 			must.NoError(t, err)

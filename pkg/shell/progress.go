@@ -57,7 +57,12 @@ func ExecWithStdinProgress(
 	err := cmd.Wait()
 	close(done)
 	if err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", name, err, strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf(
+			"run %s failed, err: %w, stderr: %s",
+			name,
+			err,
+			strings.TrimSpace(stderr.String()),
+		)
 	}
 	return strings.TrimSpace(stdout.String()), nil
 }

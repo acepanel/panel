@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/libtnb/sqlite"
-	"github.com/moby/moby/client"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -20,15 +19,6 @@ var (
 	sharedDBMu sync.Mutex
 	sharedDBs  = make(map[string]*gorm.DB)
 )
-
-func getDockerClient(sock string) (*client.Client, error) {
-	apiClient, err := client.New(client.WithHost(sock))
-	if err != nil {
-		return nil, err
-	}
-
-	return apiClient, nil
-}
 
 // openSharedDB 打开长期持有的辅助数据库
 func openSharedDB(name string) (*gorm.DB, error) {
@@ -67,15 +57,6 @@ func openDB(name string) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetMaxIdleConns(1)
 	return db, nil
-}
-
-// quickCheck 用 PRAGMA quick_check 检测 SQLite 数据库是否损坏
-func quickCheck(db *gorm.DB) bool {
-	var result string
-	if err := db.Raw("PRAGMA quick_check").Row().Scan(&result); err != nil {
-		return false
-	}
-	return result == "ok"
 }
 
 // batchUpsert 通用分批 upsert 辅助函数

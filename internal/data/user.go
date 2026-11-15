@@ -44,6 +44,24 @@ func (r *userRepo) Get(id uint) (*biz.User, error) {
 	return user, nil
 }
 
+func (r *userRepo) GetByUsername(username string) (*biz.User, error) {
+	user := new(biz.User)
+	if err := r.db.Where("username = ?", username).First(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *userRepo) First() (*biz.User, error) {
+	user := new(biz.User)
+	if err := r.db.First(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (r *userRepo) Count() (int64, error) {
 	var count int64
 	if err := r.db.Model(&biz.User{}).Count(&count).Error; err != nil {
@@ -139,13 +157,12 @@ func (r *userRepo) Delete(id uint) (string, error) {
 }
 
 func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {
-	user := new(biz.User)
-	if err := r.db.Where("username = ?", username).First(user).Error; err != nil {
+	user, err := r.GetByUsername(username)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New(r.t.Get("username or password error"))
-		} else {
-			return nil, err
 		}
+		return nil, err
 	}
 
 	if !r.hasher.Check(password, user.Password) {
@@ -156,13 +173,12 @@ func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {
 }
 
 func (r *userRepo) IsTwoFA(username string) (bool, error) {
-	user := new(biz.User)
-	if err := r.db.Where("username = ?", username).First(user).Error; err != nil {
+	user, err := r.GetByUsername(username)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, errors.New(r.t.Get("username or password error"))
-		} else {
-			return false, err
 		}
+		return false, err
 	}
 
 	return user.TwoFA != "", nil

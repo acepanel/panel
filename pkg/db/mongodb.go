@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -14,6 +15,19 @@ type MongoDB struct {
 	username string
 	password string
 	address  string // host:port
+}
+
+// MongoDatabase MongoDB 数据库信息
+type MongoDatabase struct {
+	Name       string `json:"name"`
+	SizeOnDisk int64  `json:"size_on_disk"`
+}
+
+// MongoUser MongoDB 用户信息
+type MongoUser struct {
+	User  string   `json:"user"`
+	DB    string   `json:"db"`
+	Roles []string `json:"roles"`
 }
 
 // NewMongoDB 创建 MongoDB 连接
@@ -40,13 +54,13 @@ func (r *MongoDB) Ping(ctx context.Context) error {
 
 // DatabaseCreate 创建数据库（MongoDB 通过创建集合来显式创建数据库）
 func (r *MongoDB) DatabaseCreate(ctx context.Context, name string) error {
-	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').createCollection('_init')`, name))
+	_, err := r.mongosh(ctx, `db.getSiblingDB(%s).createCollection('_init')`, name)
 	return err
 }
 
 // DatabaseDrop 删除数据库
 func (r *MongoDB) DatabaseDrop(ctx context.Context, name string) error {
-	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').dropDatabase()`, name))
+	_, err := r.mongosh(ctx, `db.getSiblingDB(%s).dropDatabase()`, name)
 	return err
 }
 
@@ -74,42 +88,35 @@ func (r *MongoDB) Databases(ctx context.Context) ([]MongoDatabase, error) {
 		}
 		databases = append(databases, MongoDatabase{
 			Name:       db.Name,
-			SizeOnDisk: mongoLongToInt64(db.SizeOnDisk),
+			SizeOnDisk: r.longToInt64(db.SizeOnDisk),
 		})
 	}
 
 	return databases, nil
 }
 
-// mongoLongToInt64 将 MongoDB Long 对象 {"high":0,"low":8192,"unsigned":false} 转换为 int64
-func mongoLongToInt64(v any) int64 {
-	switch val := v.(type) {
-	case float64:
-		return int64(val)
-	case map[string]any:
-		high, _ := val["high"].(float64)
-		low, _ := val["low"].(float64)
-		return int64(high)*4294967296 + int64(low)
-	default:
-		return 0
-	}
-}
-
 // UserCreate 创建用户
 func (r *MongoDB) UserCreate(ctx context.Context, user, password, database string) error {
-	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').createUser({user:'%s',pwd:'%s',roles:[{role:'readWrite',db:'%s'}]})`, database, user, password, database))
+	_, err := r.mongosh(
+		ctx,
+		`db.getSiblingDB(%s).createUser({user:%s,pwd:%s,roles:[{role:'readWrite',db:%s}]})`,
+		database,
+		user,
+		password,
+		database,
+	)
 	return err
 }
 
 // UserDrop 删除用户
 func (r *MongoDB) UserDrop(ctx context.Context, user, database string) error {
-	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').dropUser('%s')`, database, user))
+	_, err := r.mongosh(ctx, `db.getSiblingDB(%s).dropUser(%s)`, database, user)
 	return err
 }
 
 // UserPassword 修改用户密码
 func (r *MongoDB) UserPassword(ctx context.Context, user, password string) error {
-	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('admin').changeUserPassword('%s','%s')`, user, password))
+	_, err := r.mongosh(ctx, `db.getSiblingDB('admin').changeUserPassword(%s,%s)`, user, password)
 	return err
 }
 
@@ -148,14 +155,22 @@ func (r *MongoDB) Users(ctx context.Context) ([]MongoUser, error) {
 	return users, nil
 }
 
-// mongosh 执行 mongosh 命令，ctx 取消时终止进程
-func (r *MongoDB) mongosh(ctx context.Context, eval string) (string, error) {
+// mongosh 执行 mongosh 命令，ctx 取消时终止进程；args 填进 format 的 %s
+func (r *MongoDB) mongosh(ctx context.Context, format string, args ...string) (string, error) {
+	eval, err := r.script(format, args...)
+	if err != nil {
+		return "", err
+	}
+
 	// serverSelectionTimeoutMS 限制建连耗时，避免不可达地址长时间挂起
-	raw, err := shell.Execf(ctx,
-		`mongosh --quiet --eval "%s" "mongodb://%s:%s@%s/admin?serverSelectionTimeoutMS=10000" 2>/dev/null`,
-		strings.ReplaceAll(eval, `"`, `\"`),
-		r.username, r.password, r.address,
-	)
+	uri := url.URL{
+		Scheme:   "mongodb",
+		User:     url.UserPassword(r.username, r.password),
+		Host:     r.address,
+		Path:     "/admin",
+		RawQuery: "serverSelectionTimeoutMS=10000",
+	}
+	raw, err := shell.Execf(ctx, "mongosh --quiet --eval %s %s 2>/dev/null", shell.Quote(eval), shell.Quote(uri.String()))
 	if err != nil {
 		return "", fmt.Errorf("mongosh error: %w", err)
 	}
@@ -163,15 +178,31 @@ func (r *MongoDB) mongosh(ctx context.Context, eval string) (string, error) {
 	return strings.TrimSpace(raw), nil
 }
 
-// MongoDatabase MongoDB 数据库信息
-type MongoDatabase struct {
-	Name       string `json:"name"`
-	SizeOnDisk int64  `json:"size_on_disk"`
+// script 把 args 按 JS 字符串字面量填进 format，名字与密码里的引号、反斜杠不会把脚本截断
+func (r *MongoDB) script(format string, args ...string) (string, error) {
+	literals := make([]any, 0, len(args))
+	for _, arg := range args {
+		literal, err := json.Marshal(arg)
+		if err != nil {
+			return "", err
+		}
+		literals = append(literals, string(literal))
+	}
+
+	return fmt.Sprintf(format, literals...), nil
 }
 
-// MongoUser MongoDB 用户信息
-type MongoUser struct {
-	User  string   `json:"user"`
-	DB    string   `json:"db"`
-	Roles []string `json:"roles"`
+// longToInt64 将 MongoDB Long 对象 {"high":0,"low":8192,"unsigned":false} 转换为 int64
+func (r *MongoDB) longToInt64(v any) int64 {
+	switch val := v.(type) {
+	case float64:
+		return int64(val)
+	case map[string]any:
+		high, _ := val["high"].(float64)
+		low, _ := val["low"].(float64)
+		// low 是有符号 32 位，最高位为 1 时是负数，要按无符号拼回去
+		return int64(high)<<32 | int64(low)&0xFFFFFFFF
+	default:
+		return 0
+	}
 }

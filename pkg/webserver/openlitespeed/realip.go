@@ -8,7 +8,7 @@ import (
 )
 
 // realIPConf OLS 只能在服务器级信任代理头，对所有站点生效
-const realIPConf = PanelConfDir + "/realip.conf"
+const realIPConf = panelConfDir + "/realip.conf"
 
 // RealIP 从 X-Forwarded-For 取客户端 IP 的配置
 type RealIP struct {

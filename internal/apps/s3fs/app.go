@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -69,8 +70,10 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查下地域节点中是否包含bucket，如果包含了，肯定是错误的
-	if strings.Contains(req.URL, req.Bucket) {
+	// 检查下地域节点中是否包含bucket，如果包含了，肯定是错误的；只看主机名前缀与路径，
+	// 子串匹配会把名字恰好是地址片段（如 oss、cn）的存储桶拒掉
+	if endpoint, _ := url.Parse(req.URL); endpoint != nil &&
+		(strings.HasPrefix(endpoint.Hostname(), req.Bucket+".") || strings.Trim(endpoint.Path, "/") == req.Bucket) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("endpoint should not contain bucket"))
 		return
 	}
@@ -116,7 +119,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf(ctx, `df -h | grep '%s'`, req.Path); err != nil {
+	if _, err = shell.Execf(ctx, "mountpoint -q %s", shell.Quote(req.Path)); err != nil {
 		_, _ = shell.Execf(ctx, `sed -E -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, regexp.QuoteMeta(req.Bucket), regexp.QuoteMeta(req.Path))
 		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, s.t.Get("mount failed: %v", err))
@@ -152,7 +155,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	_, _ = shell.Execf(ctx, `fusermount3 -uz '%s'`, mount.Path)
 	_, err2 := shell.Execf(ctx, `umount -lf '%s'`, mount.Path)
 	// 卸载之后再检查下是否还有挂载
-	if _, err = shell.Execf(ctx, `df -h | grep '%s'`, mount.Path); err == nil {
+	if _, err = shell.Execf(ctx, "mountpoint -q %s", shell.Quote(mount.Path)); err == nil {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("failed to unmount: %v", err2))
 		return
 	}
@@ -189,11 +192,7 @@ func (s *App) mounts(ctx context.Context) ([]Mount, error) {
 		return nil, err
 	}
 	for id := range strings.SplitSeq(ids, "\n") {
-		if id == "" {
-			continue
-		}
 		id = strings.TrimPrefix(id, "/etc/passwd-s3fs-")
-		id = strings.TrimSuffix(id, "\n")
 		id = strings.TrimSpace(id)
 		if id == "" {
 			continue

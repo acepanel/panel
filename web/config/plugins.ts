@@ -4,16 +4,16 @@ import unocss from 'unocss/vite'
 import { compression } from 'vite-plugin-compression2'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-import { setupHtmlPlugin } from './html.ts'
+import { setupMdiIcons } from './icons.ts'
 import unplugins from './unplugin.ts'
 
-export function setupVitePlugins(viteEnv: ViteEnv): PluginOption[] {
+export function setupVitePlugins(): PluginOption[] {
   return [
     vue(),
     vueDevTools(),
     ...unplugins,
     unocss(),
-    setupHtmlPlugin(viteEnv),
+    setupMdiIcons(),
     compression({
       algorithms: ['brotliCompress'],
       deleteOriginalAssets: true,

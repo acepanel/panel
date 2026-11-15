@@ -14,15 +14,17 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type containerVolumeRepo struct{}
+type containerVolumeRepo struct {
+	dockerRepo
+}
 
-func NewContainerVolumeRepo() biz.ContainerVolumeRepo {
-	return &containerVolumeRepo{}
+func NewContainerVolumeRepo(setting biz.SettingRepo) biz.ContainerVolumeRepo {
+	return &containerVolumeRepo{dockerRepo{setting}}
 }
 
 // List 列出存储卷
-func (r *containerVolumeRepo) List(ctx context.Context, sock string) ([]types.ContainerVolume, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerVolumeRepo) List(ctx context.Context) ([]types.ContainerVolume, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +65,8 @@ func (r *containerVolumeRepo) List(ctx context.Context, sock string) ([]types.Co
 }
 
 // Create 创建存储卷
-func (r *containerVolumeRepo) Create(ctx context.Context, sock string, req *request.ContainerVolumeCreate) (string, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerVolumeRepo) Create(ctx context.Context, req *request.ContainerVolumeCreate) (string, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return "", err
 	}
@@ -84,8 +86,8 @@ func (r *containerVolumeRepo) Create(ctx context.Context, sock string, req *requ
 }
 
 // Remove 删除存储卷
-func (r *containerVolumeRepo) Remove(ctx context.Context, sock string, id string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerVolumeRepo) Remove(ctx context.Context, id string) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}
@@ -99,8 +101,8 @@ func (r *containerVolumeRepo) Remove(ctx context.Context, sock string, id string
 }
 
 // Prune 清理未使用的存储卷
-func (r *containerVolumeRepo) Prune(ctx context.Context, sock string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerVolumeRepo) Prune(ctx context.Context) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}

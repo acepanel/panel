@@ -22,10 +22,10 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
@@ -41,7 +41,13 @@ type App struct {
 	settingRepo        biz.SettingRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -49,16 +55,6 @@ func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, databaseSer
 		databaseServerRepo: databaseServerRepo,
 		settingRepo:        settingRepo,
 	}
-}
-
-// dialect 取当前 Web 服务器方言
-func (s *App) dialect() (webserver.Dialect, error) {
-	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
-	if err != nil {
-		return webserver.Dialect{}, err
-	}
-
-	return webserver.Get(webserver.Type(webServer))
 }
 
 func (s *App) Route(r chi.Router) {
@@ -79,39 +75,6 @@ func (s *App) Status(ctx context.Context) string {
 	return types.AggregateAppStatus(ok)
 }
 
-// info 获取 phpMyAdmin 的访问目录与端口
-func (s *App) info() (string, int, error) {
-	files, err := os.ReadDir(app.Root + "/server/phpmyadmin")
-	if err != nil {
-		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
-	}
-
-	var phpmyadmin string
-	for _, f := range files {
-		if strings.HasPrefix(f.Name(), "phpmyadmin_") {
-			phpmyadmin = f.Name()
-		}
-	}
-	if len(phpmyadmin) == 0 {
-		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
-	}
-
-	d, err := s.dialect()
-	if err != nil {
-		return "", 0, err
-	}
-	vhost, err := d.NewPHPVhost(app.Root + "/sites/phpmyadmin/config")
-	if err != nil {
-		return "", 0, err
-	}
-	listens := vhost.Listen()
-	if len(listens) == 0 {
-		return "", 0, errors.New(s.t.Get("phpMyAdmin port not found"))
-	}
-
-	return phpmyadmin, cast.ToInt(listens[0].Address[strings.LastIndex(listens[0].Address, ":")+1:]), nil
-}
-
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 	path, port, err := s.info()
 	if err != nil {
@@ -125,21 +88,6 @@ func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ensureConfig 为存量安装补写 config.inc.php,允许登录到任意 MySQL 服务器
-func (s *App) ensureConfig(path string) error {
-	config := fmt.Sprintf("%s/server/phpmyadmin/%s/config.inc.php", app.Root, path)
-	if io.Exists(config) {
-		return nil
-	}
-
-	content := fmt.Sprintf(`<?php
-declare(strict_types=1);
-$cfg['blowfish_secret'] = '%s';
-$cfg['AllowArbitraryServer'] = true;
-`, str.Random(32))
-	return io.Write(config, content, 0644)
-}
-
 // Login 代理登录 phpMyAdmin 并将会话 Cookie 转发给浏览器
 // 面板与 phpMyAdmin 同主机不同端口,Cookie 按主机共享,浏览器凭转发的 Cookie 即为已登录态
 func (s *App) Login(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +97,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server, err := s.databaseServerRepo.Get(r.Context(), req.ServerID)
+	server, err := s.databaseServerRepo.Find(req.ServerID)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -297,23 +245,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 站点配置已落盘，放行与重载不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall()
-	running, err := fw.Status(ctx)
+	running, err := common.OpenPort(ctx, req.Port, "")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
-	}
-	if running {
-		if err = fw.Port(ctx, firewall.FireInfo{
-			Type:      firewall.TypeNormal,
-			PortStart: req.Port,
-			PortEnd:   req.Port,
-			Strategy:  firewall.StrategyAccept,
-			Direction: firewall.DirectionIn,
-		}, firewall.OperationAdd); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
-		}
 	}
 
 	if err = d.Reload(ctx); err != nil {
@@ -332,41 +267,80 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	path := filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile())
-	config, err := io.Read(path)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
 
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.String("path", path))
-
-	service.Success(w, config)
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.String("path", s.configPath(d)))
+	common.ServeConfig(w, s.configPath(d))
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
 	d, err := s.dialect()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	path := filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile())
-	if err = io.Write(path, req.Config, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if err = d.Reload(context.WithoutCancel(r.Context())); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
+
+	common.SaveConfig(w, r, s.log, s.t, "phpmyadmin", s.configPath(d), 0600, d.Reload)
+}
+
+// dialect 取当前 Web 服务器方言
+func (s *App) dialect() (webserver.Dialect, error) {
+	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return webserver.Dialect{}, err
 	}
 
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "phpmyadmin"), slog.String("path", path))
+	return webserver.Get(webserver.Type(webServer))
+}
 
-	service.Success(w, nil)
+// info 获取 phpMyAdmin 的访问目录与端口
+func (s *App) info() (string, int, error) {
+	files, err := os.ReadDir(app.Root + "/server/phpmyadmin")
+	if err != nil {
+		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
+	}
+
+	var phpmyadmin string
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), "phpmyadmin_") {
+			phpmyadmin = f.Name()
+		}
+	}
+	if len(phpmyadmin) == 0 {
+		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
+	}
+
+	d, err := s.dialect()
+	if err != nil {
+		return "", 0, err
+	}
+	vhost, err := d.NewPHPVhost(app.Root + "/sites/phpmyadmin/config")
+	if err != nil {
+		return "", 0, err
+	}
+	listens := vhost.Listen()
+	if len(listens) == 0 {
+		return "", 0, errors.New(s.t.Get("phpMyAdmin port not found"))
+	}
+
+	return phpmyadmin, cast.ToInt(listens[0].Address[strings.LastIndex(listens[0].Address, ":")+1:]), nil
+}
+
+// ensureConfig 为存量安装补写 config.inc.php,允许登录到任意 MySQL 服务器
+func (s *App) ensureConfig(path string) error {
+	config := fmt.Sprintf("%s/server/phpmyadmin/%s/config.inc.php", app.Root, path)
+	if io.Exists(config) {
+		return nil
+	}
+
+	content := fmt.Sprintf(`<?php
+declare(strict_types=1);
+$cfg['blowfish_secret'] = '%s';
+$cfg['AllowArbitraryServer'] = true;
+`, str.Random(32))
+	return io.Write(config, content, 0644)
+}
+
+// configPath phpMyAdmin 站点在当前 Web 服务器下的配置文件
+func (s *App) configPath(d webserver.Dialect) string {
+	return filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile())
 }

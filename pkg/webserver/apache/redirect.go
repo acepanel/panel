@@ -12,58 +12,39 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
+// keepURISuffix URL 重定向保留 URI 时接在目标后面的原始路径
+const keepURISuffix = "%{REQUEST_URI}"
+
+// 404 重定向：ErrorDocument 只能内部转到本站的一个路径，再由这个路径上的规则按状态码跳出去。
+// 转过去以后 REQUEST_URI 已经是这个路径，原始地址要从请求行里取，路径与查询串分开捕获：
+// 替换串里的 ? 由反向引用带进来会被 mod_rewrite 当成不安全的地址拒绝，必须是字面量
+const (
+	notFoundPath    = "/.ace-404"
+	requestLineCond = `^\S+\s([^?\s]*)\??(\S*)`
+	requestTarget   = "%1?%2"
+)
+
 // redirectFilePattern 匹配重定向配置文件名 (100-199)
 var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
 
-func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
-	entries, err := os.ReadDir(siteDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
+func parseRedirectFiles(siteDir string) []types.Redirect {
 	var redirects []types.Redirect
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		matches := redirectFilePattern.FindStringSubmatch(entry.Name())
-		if matches == nil {
-			continue
-		}
-
-		num, _ := strconv.Atoi(matches[1])
-		if num < RedirectStartNum || num > RedirectEndNum {
-			continue
-		}
-
-		redirect, err := parseRedirectFile(filepath.Join(siteDir, entry.Name()))
-		if err != nil {
-			continue // 跳过解析失败的文件
-		}
-		if redirect != nil {
+	for _, file := range conf.ListFiles(siteDir, redirectFilePattern, redirectStartNum, redirectEndNum) {
+		if redirect := parseRedirectFile(file); redirect != nil {
 			redirects = append(redirects, *redirect)
 		}
 	}
-
-	return redirects, nil
+	return redirects
 }
 
-func parseRedirectFile(filePath string) (*types.Redirect, error) {
-	content, err := os.ReadFile(filePath)
+// parseRedirectFile 读不出重定向的文件返回 nil
+func parseRedirectFile(filePath string) *types.Redirect {
+	cfg, err := ParseFile(filePath)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
-	cfg, err := ParseFragment(string(content))
-	if err != nil {
-		return nil, err
-	}
-
-	// Redirect 308 /old /new
+	// 旧版用 mod_alias：Redirect 308 /old /new
 	if d := cfg.FindOne("Redirect"); d != nil {
 		vals := d.Values()
 		if len(vals) >= 3 {
@@ -73,11 +54,11 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 				From:       vals[1],
 				To:         vals[2],
 				StatusCode: code,
-			}, nil
+			}
 		}
 	}
 
-	// RedirectMatch 308 ^/old(.*)$ /new$1
+	// 旧版用 mod_alias：RedirectMatch 308 ^/old(.*)$ /new$1
 	if d := cfg.FindOne("RedirectMatch"); d != nil {
 		vals := d.Values()
 		if len(vals) >= 3 {
@@ -94,52 +75,48 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 				To:         to,
 				KeepURI:    keepURI,
 				StatusCode: code,
-			}, nil
-		}
-	}
-
-	// RewriteCond %{HTTP_HOST} ^host$ [NC] + RewriteRule ^(.*)$ to$1 [R=308,L]
-	cond := cfg.FindOne("RewriteCond")
-	rule := cfg.FindOne("RewriteRule")
-	if cond != nil && rule != nil {
-		condVals := cond.Values()
-		ruleVals := rule.Values()
-		if len(condVals) >= 2 && len(ruleVals) >= 2 {
-			host := strings.TrimPrefix(condVals[1], "^")
-			host = strings.TrimSuffix(host, "$")
-			host = strings.ReplaceAll(host, `\.`, ".")
-			to := ruleVals[1]
-			keepURI := strings.Contains(to, "$1")
-			to = strings.TrimSuffix(to, "$1")
-			code := 308
-			for _, v := range ruleVals[2:] {
-				if c := parseRewriteStatus(v); c > 0 {
-					code = c
-				}
 			}
-			return &types.Redirect{
-				Type:       types.RedirectTypeHost,
-				From:       host,
-				To:         to,
-				KeepURI:    keepURI,
-				StatusCode: code,
-			}, nil
 		}
 	}
 
-	// ErrorDocument 404 /custom
+	// 主机名：RewriteCond %{HTTP_HOST} ^host$ [NC] + RewriteRule ^(.*)$ to$1 [R=308,L]
+	// URL：RewriteRule ^/old$ to%{REQUEST_URI} [R=308,L]
+	// 404：ErrorDocument 404 /.ace-404 + RewriteRule ^/\.ace-404$ to%1?%2 [R=308,L,NE]
+	if rule := cfg.FindOne("RewriteRule"); rule != nil && len(rule.Args) >= 2 {
+		r := &types.Redirect{Type: types.RedirectTypeURL, StatusCode: types.DefaultRedirectStatus}
+		switch cond := cfg.FindOne("RewriteCond"); {
+		case cfg.FindOne("ErrorDocument") != nil:
+			r.Type = types.RedirectType404
+			r.To, r.KeepURI = strings.CutSuffix(rule.Arg(1), requestTarget)
+		case cond != nil:
+			r.Type = types.RedirectTypeHost
+			r.From = types.UnquoteMeta(strings.TrimSuffix(strings.TrimPrefix(cond.Arg(1), "^"), "$"))
+			r.To, r.KeepURI = strings.CutSuffix(rule.Arg(1), "$1")
+		default:
+			r.From = types.UnquoteMeta(strings.TrimSuffix(strings.TrimPrefix(rule.Arg(0), "^"), "$"))
+			r.To, r.KeepURI = strings.CutSuffix(rule.Arg(1), keepURISuffix)
+		}
+		for _, flag := range rule.ArgsFrom(2) {
+			if code := parseRewriteStatus(flag); code > 0 {
+				r.StatusCode = code
+			}
+		}
+		return r
+	}
+
+	// 旧版把目标当成错误页：ErrorDocument 404 /custom
 	if d := cfg.FindOne("ErrorDocument"); d != nil {
 		vals := d.Values()
 		if len(vals) >= 2 && vals[0] == "404" {
 			return &types.Redirect{
 				Type:       types.RedirectType404,
 				To:         vals[1],
-				StatusCode: 308,
-			}, nil
+				StatusCode: types.DefaultRedirectStatus,
+			}
 		}
 	}
 
-	return nil, nil
+	return nil
 }
 
 // parseRewriteStatus 从 RewriteRule 的 flag（如 [R=308,L]）提取状态码
@@ -154,17 +131,15 @@ func parseRewriteStatus(flag string) int {
 }
 
 func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
-	if err := clearRedirectFiles(siteDir); err != nil {
+	if len(redirects) > redirectEndNum-redirectStartNum+1 {
+		return fmt.Errorf("redirect rules exceed limit (%d)", redirectEndNum-redirectStartNum+1)
+	}
+	if err := conf.ClearFiles(siteDir, redirectFilePattern, redirectStartNum, redirectEndNum); err != nil {
 		return err
 	}
 
 	for i, redirect := range redirects {
-		num := RedirectStartNum + i
-		if num > RedirectEndNum {
-			return fmt.Errorf("redirect rules exceed limit (%d)", RedirectEndNum-RedirectStartNum+1)
-		}
-
-		filePath := filepath.Join(siteDir, fmt.Sprintf("%03d-redirect.conf", num))
+		filePath := filepath.Join(siteDir, fmt.Sprintf("%03d-redirect.conf", redirectStartNum+i))
 		if err := os.WriteFile(filePath, []byte(generateRedirectConfig(redirect)), 0600); err != nil {
 			return fmt.Errorf("failed to write redirect config: %w", err)
 		}
@@ -173,79 +148,53 @@ func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 	return nil
 }
 
-func clearRedirectFiles(siteDir string) error {
-	entries, err := os.ReadDir(siteDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		matches := redirectFilePattern.FindStringSubmatch(entry.Name())
-		if matches == nil {
-			continue
-		}
-
-		num, _ := strconv.Atoi(matches[1])
-		if num >= RedirectStartNum && num <= RedirectEndNum {
-			if err := os.Remove(filepath.Join(siteDir, entry.Name())); err != nil && !os.IsNotExist(err) {
-				return fmt.Errorf("failed to delete redirect config: %w", err)
-			}
-		}
-	}
-
-	return nil
-}
-
 func generateRedirectConfig(redirect types.Redirect) string {
-	statusCode := redirect.StatusCode
-	if statusCode == 0 {
-		statusCode = 308
-	}
+	statusCode := redirect.Status()
 
 	cfg := &conf.Config{}
 	cfg.Append(conf.Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"))
 
+	// 与 nginx 一致：保留 URI 即接上原始路径，查询串由 mod_rewrite 自动带上；不保留时连查询串一起丢掉
+	flags := fmt.Sprintf("[R=%d,L,QSD]", statusCode)
+	if redirect.KeepURI {
+		flags = fmt.Sprintf("[R=%d,L]", statusCode)
+	}
+
 	switch redirect.Type {
 	case types.RedirectTypeURL:
 		cfg.Append(conf.Cmt(fmt.Sprintf("URL redirect: %s -> %s", redirect.From, redirect.To)))
+		cfg.Append(conf.Dir("RewriteEngine", "on"))
+		to := redirect.To
 		if redirect.KeepURI {
-			from := redirect.From
-			if !strings.HasPrefix(from, "^") {
-				from = "^" + from
-			}
-			if !strings.HasSuffix(from, "(.*)$") && !strings.HasSuffix(from, "$") {
-				from += "(.*)$"
-			}
-			to := redirect.To
-			if !strings.HasSuffix(to, "$1") {
-				to += "$1"
-			}
-			cfg.Append(conf.Dir("RedirectMatch", strconv.Itoa(statusCode), from, to))
-		} else {
-			cfg.Append(conf.Dir("Redirect", strconv.Itoa(statusCode), redirect.From, redirect.To))
+			to += keepURISuffix
 		}
+		// 只匹配这一个路径，同 nginx 的 location =
+		cfg.Append(conf.Dir("RewriteRule", "^"+regexp.QuoteMeta(redirect.From)+"$", to, flags))
 
 	case types.RedirectTypeHost:
 		cfg.Append(conf.Cmt(fmt.Sprintf("Host redirect: %s -> %s", redirect.From, redirect.To)))
 		cfg.Append(conf.Dir("RewriteEngine", "on"))
-		escapedHost := strings.ReplaceAll(redirect.From, ".", `\.`)
-		cfg.Append(conf.Dir("RewriteCond", "%{HTTP_HOST}", "^"+escapedHost+"$", "[NC]"))
+		cfg.Append(conf.Dir("RewriteCond", "%{HTTP_HOST}", "^"+regexp.QuoteMeta(redirect.From)+"$", "[NC]"))
 		to := redirect.To
 		if redirect.KeepURI {
 			to += "$1"
 		}
-		cfg.Append(conf.Dir("RewriteRule", "^(.*)$", to, fmt.Sprintf("[R=%d,L]", statusCode)))
+		cfg.Append(conf.Dir("RewriteRule", "^(.*)$", to, flags))
 
 	case types.RedirectType404:
 		cfg.Append(conf.Cmt("404 redirect -> " + redirect.To))
-		cfg.Append(conf.Dir("ErrorDocument", "404", redirect.To))
+		cfg.Append(conf.Dir("ErrorDocument", "404", notFoundPath))
+		cfg.Append(conf.Dir("RewriteEngine", "on"))
+		to := redirect.To
+		if redirect.KeepURI {
+			cfg.Append(conf.Dir("RewriteCond", "%{THE_REQUEST}", requestLineCond))
+			to += requestTarget
+			// 请求行里的地址已经是编码过的，不能再转义一遍
+			flags = fmt.Sprintf("[R=%d,L,NE]", statusCode)
+		}
+		cfg.Append(conf.Dir("RewriteRule", "^"+regexp.QuoteMeta(notFoundPath)+"$", to, flags))
+		// php-fpm 发回来的 404 默认原样透传，不走 ErrorDocument；nginx 那边开着 fastcgi_intercept_errors，同样会跳
+		cfg.Append(conf.Blk("FilesMatch", `\.php$`).Append(conf.Dir("ProxyErrorOverride", "On", "404")))
 	}
 
 	return Export(cfg) + "\n"

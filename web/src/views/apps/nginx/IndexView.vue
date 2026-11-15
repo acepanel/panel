@@ -9,5 +9,5 @@ import NginxIndex from './NginxIndex.vue'
 </script>
 
 <template>
-  <nginx-index :api="nginx" service="nginx" />
+  <nginx-index :api="nginx" name="Nginx" />
 </template>

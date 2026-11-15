@@ -13,37 +13,6 @@ import (
 
 // 主机名与 URL 重定向各写一个匹配器加 redir，404 重定向写在 handle_errors 块里
 
-func redirectStatus(r types.Redirect) int {
-	if r.StatusCode == 0 {
-		return 308
-	}
-	return r.StatusCode
-}
-
-func (v *baseVhost) buildRedirects(body *conf.Block) {
-	for i, r := range v.redirects {
-		name := fmt.Sprintf("@ace_redirect_%d", i)
-		to := r.To
-		if r.KeepURI {
-			to += "{uri}"
-		}
-		code := strconv.Itoa(redirectStatus(r))
-		switch r.Type {
-		case types.RedirectTypeHost:
-			body.Add(name, "host", r.From)
-			body.Add("redir", name, to, code)
-		case types.RedirectTypeURL:
-			body.Add(name, "path", r.From)
-			body.Add("redir", name, to, code)
-		case types.RedirectType404:
-			// redir 的首参以 / 开头会被当成路径匹配器，必须显式带通配匹配器
-			h := body.AddBlock("handle_errors", "404")
-			h.AddMeta("redirect", strconv.Itoa(i))
-			h.Add("redir", "*", to, code)
-		}
-	}
-}
-
 // loadRedirects 按写入时的序号还原顺序，否则重新保存会打乱匹配器编号、产生无意义的 diff
 func (v *baseVhost) loadRedirects(body *conf.Block) {
 	indexed := make(map[int]types.Redirect)
@@ -71,7 +40,31 @@ func (v *baseVhost) loadRedirects(body *conf.Block) {
 		}
 	}
 	for _, i := range slices.Sorted(maps.Keys(indexed)) {
-		v.redirects = append(v.redirects, indexed[i])
+		v.RedirectRules = append(v.RedirectRules, indexed[i])
+	}
+}
+
+func (v *baseVhost) buildRedirects(body *conf.Block) {
+	for i, r := range v.RedirectRules {
+		name := fmt.Sprintf("@ace_redirect_%d", i)
+		to := r.To
+		if r.KeepURI {
+			to += "{uri}"
+		}
+		code := strconv.Itoa(r.Status())
+		switch r.Type {
+		case types.RedirectTypeHost:
+			body.Add(name, "host", r.From)
+			body.Add("redir", name, to, code)
+		case types.RedirectTypeURL:
+			body.Add(name, "path", r.From)
+			body.Add("redir", name, to, code)
+		case types.RedirectType404:
+			// redir 的首参以 / 开头会被当成路径匹配器，必须显式带通配匹配器
+			h := body.AddBlock("handle_errors", "404")
+			h.AddMeta("redirect", strconv.Itoa(i))
+			h.Add("redir", "*", to, code)
+		}
 	}
 }
 

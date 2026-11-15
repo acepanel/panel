@@ -20,6 +20,9 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+// servicePath Memcached 没有独立配置文件，参数都在 systemd 单元的 ExecStart 里
+const servicePath = "/etc/systemd/system/memcached.service"
+
 type App struct {
 	t   *gotext.Locale
 	log *slog.Logger
@@ -56,8 +59,14 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	config, _ := io.Read(servicePath)
+	port := s.getExecStartArg(config, "-p")
+	if port == "" {
+		port = "11211"
+	}
+
 	var dialer net.Dialer
-	conn, err := dialer.DialContext(r.Context(), "tcp", "127.0.0.1:11211")
+	conn, err := dialer.DialContext(r.Context(), "tcp", net.JoinHostPort("127.0.0.1", port))
 	if err != nil {
 		service.Success(w, []types.NV{})
 		return
@@ -97,17 +106,17 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", "/etc/systemd/system/memcached.service"))
-	common.ServeConfig(w, "/etc/systemd/system/memcached.service")
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", servicePath))
+	common.ServeConfig(w, servicePath)
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "memcached", "/etc/systemd/system/memcached.service", 0644, "memcached")
+	common.SaveConfig(w, r, s.log, s.t, "memcached", servicePath, 0644, s.restart)
 }
 
 // GetConfigTune 获取 Memcached 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read("/etc/systemd/system/memcached.service")
+	config, err := io.Read(servicePath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -122,7 +131,7 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		Threads:        s.getExecStartArg(config, "-t"),
 	}
 
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", "/etc/systemd/system/memcached.service"))
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "memcached"), slog.String("path", servicePath))
 
 	service.Success(w, tune)
 }
@@ -135,7 +144,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := io.Read("/etc/systemd/system/memcached.service")
+	config, err := io.Read(servicePath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -148,12 +157,12 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	config = s.setExecStartArg(config, "-c", req.MaxConnections)
 	config = s.setExecStartArg(config, "-t", req.Threads)
 
-	if err = io.Write("/etc/systemd/system/memcached.service", config, 0644); err != nil {
+	if err = io.Write(servicePath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart(r.Context(), "memcached"); err != nil {
+	if err = s.restart(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -196,7 +205,7 @@ func (s *App) setExecStartArg(content string, flag string, value string) string 
 		}
 		args := strings.Fields(trimmed)
 		newArgs := make([]string, 0, len(args))
-		found := false
+		var found bool
 		for i := 0; i < len(args); i++ {
 			if args[i] == flag && i+1 < len(args) {
 				i++ // 跳过旧值
@@ -215,4 +224,13 @@ func (s *App) setExecStartArg(content string, flag string, value string) string 
 		result = append(result, strings.Join(newArgs, " "))
 	}
 	return strings.Join(result, "\n")
+}
+
+// restart 单元文件改动后必须先 daemon-reload，否则 systemd 仍按旧的 ExecStart 启动
+func (s *App) restart(ctx context.Context) error {
+	if err := systemctl.DaemonReload(ctx); err != nil {
+		return err
+	}
+
+	return systemctl.Restart(ctx, "memcached")
 }

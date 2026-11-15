@@ -2,7 +2,6 @@
 import { useGettext } from 'vue3-gettext'
 
 import task from '@/api/panel/task'
-import TaskWindow from '@/components/common/TaskWindow.vue'
 import { type QueueTask, useTaskQueueStore } from '@/stores'
 
 const { $gettext, $ngettext } = useGettext()

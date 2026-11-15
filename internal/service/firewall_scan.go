@@ -19,7 +19,11 @@ type FirewallScanService struct {
 	scanRepo *biz.ScanEventUsecase
 }
 
-func NewFirewallScanService(t *gotext.Locale, log *slog.Logger, scanEventUsecase *biz.ScanEventUsecase) *FirewallScanService {
+func NewFirewallScanService(
+	t *gotext.Locale,
+	log *slog.Logger,
+	scanEventUsecase *biz.ScanEventUsecase,
+) *FirewallScanService {
 	return &FirewallScanService{
 		t:        t,
 		log:      log,

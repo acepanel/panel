@@ -1,3 +1,4 @@
+import type { VNodeChild } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 interface DeleteOptions {
@@ -11,7 +12,7 @@ interface DeleteOptions {
 interface ActionOptions {
   type?: 'info' | 'warning' | 'success' | 'error'
   title: string
-  content: string
+  content: string | (() => VNodeChild)
   positiveText?: string
   negativeText?: string
 }

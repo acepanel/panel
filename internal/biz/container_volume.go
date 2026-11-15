@@ -11,26 +11,24 @@ import (
 )
 
 type ContainerVolumeRepo interface {
-	List(ctx context.Context, sock string) ([]types.ContainerVolume, error)
-	Create(ctx context.Context, sock string, req *request.ContainerVolumeCreate) (string, error)
-	Remove(ctx context.Context, sock string, id string) error
-	Prune(ctx context.Context, sock string) error
+	List(ctx context.Context) ([]types.ContainerVolume, error)
+	Create(ctx context.Context, req *request.ContainerVolumeCreate) (string, error)
+	Remove(ctx context.Context, id string) error
+	Prune(ctx context.Context) error
 }
 
 type ContainerVolumeUsecase struct {
-	repo    ContainerVolumeRepo
-	setting SettingRepo
-	t       *gotext.Locale
-	log     *slog.Logger
+	repo ContainerVolumeRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewContainerVolumeUsecase(t *gotext.Locale, log *slog.Logger, repo ContainerVolumeRepo, setting SettingRepo) *ContainerVolumeUsecase {
-	return &ContainerVolumeUsecase{repo: repo, setting: setting, t: t, log: log}
+func NewContainerVolumeUsecase(t *gotext.Locale, log *slog.Logger, repo ContainerVolumeRepo) *ContainerVolumeUsecase {
+	return &ContainerVolumeUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *ContainerVolumeUsecase) List(ctx context.Context) ([]types.ContainerVolume, error) {
-	sock := containerSock(uc.setting)
-	volumes, err := uc.repo.List(ctx, sock)
+	volumes, err := uc.repo.List(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +38,7 @@ func (uc *ContainerVolumeUsecase) List(ctx context.Context) ([]types.ContainerVo
 }
 
 func (uc *ContainerVolumeUsecase) Create(ctx context.Context, req *request.ContainerVolumeCreate) (string, error) {
-	sock := containerSock(uc.setting)
-	name, err := uc.repo.Create(ctx, sock, req)
+	name, err := uc.repo.Create(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -51,8 +48,7 @@ func (uc *ContainerVolumeUsecase) Create(ctx context.Context, req *request.Conta
 }
 
 func (uc *ContainerVolumeUsecase) Remove(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+	if err := uc.repo.Remove(ctx, id); err != nil {
 		return err
 	}
 
@@ -61,8 +57,7 @@ func (uc *ContainerVolumeUsecase) Remove(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerVolumeUsecase) Prune(ctx context.Context) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Prune(ctx, sock); err != nil {
+	if err := uc.repo.Prune(ctx); err != nil {
 		return err
 	}
 

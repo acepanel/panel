@@ -5,7 +5,6 @@ import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useEditorStore, useThemeStore } from '@/stores'
 
 import EditorPane from './EditorPane.vue'
-import EditorStatusBar from './EditorStatusBar.vue'
 import EditorToolbar from './EditorToolbar.vue'
 import FileTree from './FileTree.vue'
 

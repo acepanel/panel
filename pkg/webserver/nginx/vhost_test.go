@@ -36,38 +36,42 @@ func confFiles(t *testing.T, configDir, scope, prefix, suffix string) []string {
 	return out
 }
 
-func newPHPVhost(t *testing.T) (*PHPVhost, string) {
+func setupPHPVhost(t *testing.T) (*phpVhost, string) {
 	t.Helper()
 	configDir := newConfigDir(t)
-	vhost, err := NewPHPVhost(configDir)
+	vhost, err := newPHPVhost(configDir)
 	must.NoError(t, err)
 	must.NotNil(t, vhost)
 	return vhost, configDir
 }
 
-func newProxyVhost(t *testing.T) (*ProxyVhost, string) {
+func setupProxyVhost(t *testing.T) (*proxyVhost, string) {
 	t.Helper()
 	configDir := newConfigDir(t)
-	vhost, err := NewProxyVhost(configDir)
+	vhost, err := newProxyVhost(configDir)
 	must.NoError(t, err)
 	return vhost, configDir
 }
 
 func TestNewVhost(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
-	check.Equal(t, vhost.configDir, configDir)
+	vhost, configDir := setupPHPVhost(t)
+	check.Equal(t, vhost.ConfigDir, configDir)
 	check.NotNil(t, vhost.cfg)
 }
 
 func TestEnable(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 默认应该是启用状态
 	check.True(t, vhost.Enable())
 
-	// 禁用网站
+	// 禁用网站，证书验证路径不能被改写到停用页
 	check.NoError(t, vhost.SetEnable(false))
 	check.False(t, vhost.Enable())
+	disable := vhost.Config("00-disable.conf", types.ScopeSite)
+	check.Contains(t, disable, `rewrite ^(?!/\.well-known/acme-challenge/) /stop.html last;`)
+	// 整站认证不能拦住停用页
+	check.Contains(t, disable, "location = /stop.html {\n    root "+htmlDir+";\n    auth_basic off;\n}")
 
 	// 重新启用
 	check.NoError(t, vhost.SetEnable(true))
@@ -75,7 +79,7 @@ func TestEnable(t *testing.T) {
 }
 
 func TestServerName(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	names := []string{"example.com", "www.example.com", "api.example.com"}
 	check.NoError(t, vhost.SetServerName(names))
@@ -83,13 +87,13 @@ func TestServerName(t *testing.T) {
 }
 
 func TestServerNameEmpty(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 	check.NoError(t, vhost.SetServerName([]string{}))
 	check.Empty(t, vhost.ServerName())
 }
 
 func TestRoot(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	root := "/var/www/html"
 	check.NoError(t, vhost.SetRoot(root))
@@ -97,7 +101,7 @@ func TestRoot(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	index := []string{"index.html", "index.php", "default.html"}
 	check.NoError(t, vhost.SetIndex(index))
@@ -105,13 +109,13 @@ func TestIndex(t *testing.T) {
 }
 
 func TestIndexEmpty(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 	check.NoError(t, vhost.SetIndex([]string{}))
 	check.Empty(t, vhost.Index())
 }
 
 func TestListen(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	listens := []types.Listen{
 		{Address: "80"},
@@ -122,7 +126,7 @@ func TestListen(t *testing.T) {
 }
 
 func TestListenWithHTTP3(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	listens := []types.Listen{
 		{Address: "443", Args: []string{"quic"}},
@@ -132,7 +136,7 @@ func TestListenWithHTTP3(t *testing.T) {
 }
 
 func TestListenWithSSLAndQUIC(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 测试 ssl 和 quic 同时存在时，应该分成两行 listen 指令
 	// 但读取时应该合并为一个 Listen 对象
@@ -162,13 +166,13 @@ func TestListenWithSSLAndQUIC(t *testing.T) {
 }
 
 func TestSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 	check.False(t, vhost.SSL())
 	check.Nil(t, vhost.SSLConfig())
 }
 
 func TestSetSSLConfig(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
@@ -189,12 +193,12 @@ func TestSetSSLConfig(t *testing.T) {
 }
 
 func TestSetSSLConfigNil(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 	check.Error(t, vhost.SetSSLConfig(nil))
 }
 
 func TestClearSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert: "/etc/ssl/cert.pem",
@@ -209,7 +213,7 @@ func TestClearSSL(t *testing.T) {
 }
 
 func TestPHP(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Equal(t, vhost.PHP(), uint(0))
 
@@ -221,7 +225,7 @@ func TestPHP(t *testing.T) {
 }
 
 func TestAccessLog(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	accessLog := "/var/log/nginx/access.log"
 	check.NoError(t, vhost.SetAccessLog(accessLog))
@@ -229,26 +233,15 @@ func TestAccessLog(t *testing.T) {
 }
 
 func TestErrorLog(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	errorLog := "/var/log/nginx/error.log"
 	check.NoError(t, vhost.SetErrorLog(errorLog))
 	check.Equal(t, vhost.ErrorLog(), errorLog)
 }
 
-func TestIncludes(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
-
-	includes := []types.IncludeFile{
-		{Path: "/etc/nginx/conf.d/ssl.conf"},
-		{Path: "/etc/nginx/conf.d/php.conf"},
-	}
-	check.NoError(t, vhost.SetIncludes(includes))
-	check.DeepEqual(t, vhost.Includes(), includes)
-}
-
 func TestBasicAuth(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Nil(t, vhost.BasicAuth())
 
@@ -260,16 +253,16 @@ func TestBasicAuth(t *testing.T) {
 	check.DeepEqual(t, vhost.BasicAuth(), auths)
 
 	// map 片段应包含目录正则与整站 default
-	content := vhost.Config(AuthConfName, types.ScopeShared)
+	content := vhost.Config(authConfName, types.ScopeShared)
 	check.Contains(t, content, `~^/admin(/.*)?$ "Restricted";`)
 	check.Contains(t, content, `default "/etc/nginx/htpasswd_0";`)
 
-	check.NoError(t, vhost.ClearBasicAuth())
+	check.NoError(t, vhost.SetBasicAuth(nil))
 	check.Nil(t, vhost.BasicAuth())
 }
 
 func TestBasicAuthDirOnly(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 仅目录规则时整站不认证
 	auths := []types.BasicAuth{
@@ -277,7 +270,7 @@ func TestBasicAuthDirOnly(t *testing.T) {
 	}
 	check.NoError(t, vhost.SetBasicAuth(auths))
 
-	content := vhost.Config(AuthConfName, types.ScopeShared)
+	content := vhost.Config(authConfName, types.ScopeShared)
 	check.Contains(t, content, "default off;")
 	check.Contains(t, content, `default "";`)
 
@@ -285,7 +278,7 @@ func TestBasicAuthDirOnly(t *testing.T) {
 }
 
 func TestBasicAuthNestedDir(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 嵌套目录时更精确的路径优先命中（map 按声明顺序取首个匹配）
 	check.NoError(t, vhost.SetBasicAuth([]types.BasicAuth{
@@ -299,7 +292,7 @@ func TestBasicAuthNestedDir(t *testing.T) {
 }
 
 func TestRateLimit(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Nil(t, vhost.RateLimit())
 
@@ -316,20 +309,20 @@ func TestRateLimit(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 重置后应完全回到初始模板，而不只是丢掉改动值
 	names, root := vhost.ServerName(), vhost.Root()
 	check.NoError(t, vhost.SetServerName([]string{"modified.com"}))
 	check.NoError(t, vhost.SetRoot("/modified/path"))
 
-	check.NoError(t, vhost.Reset())
+	check.NoError(t, vhost.reset())
 	check.DeepEqual(t, vhost.ServerName(), names)
 	check.Equal(t, vhost.Root(), root)
 }
 
 func TestSave(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 	configFile := filepath.Join(configDir, "nginx.conf")
 
 	check.NoError(t, vhost.SetServerName([]string{"save-test.com"}))
@@ -342,7 +335,7 @@ func TestSave(t *testing.T) {
 }
 
 func TestDump(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.NoError(t, vhost.SetServerName([]string{"dump-test.com"}))
 	check.NoError(t, vhost.SetRoot("/var/www/dump-test"))
@@ -354,7 +347,7 @@ func TestDump(t *testing.T) {
 }
 
 func TestDumpWithSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
@@ -369,7 +362,7 @@ func TestDumpWithSSL(t *testing.T) {
 }
 
 func TestHTTPSRedirect(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:         "/etc/ssl/cert.pem",
@@ -384,7 +377,7 @@ func TestHTTPSRedirect(t *testing.T) {
 }
 
 func TestAltSvc(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:   "/etc/ssl/cert.pem",
@@ -401,12 +394,12 @@ func TestAltSvc(t *testing.T) {
 
 func TestDefaultConfIncludesServerD(t *testing.T) {
 	// 验证默认配置包含 site 的 include
-	check.Contains(t, DefaultConf, "site")
-	check.Contains(t, DefaultConf, "include")
+	check.Contains(t, defaultConf, "site")
+	check.Contains(t, defaultConf, "include")
 }
 
 func TestRedirects(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	// 初始应该没有重定向
 	check.Empty(t, vhost.Redirects())
@@ -436,7 +429,7 @@ func TestRedirects(t *testing.T) {
 }
 
 func TestRedirectURL(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	redirects := []types.Redirect{
 		{
@@ -459,7 +452,7 @@ func TestRedirectURL(t *testing.T) {
 }
 
 func TestRedirectHost(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	redirects := []types.Redirect{
 		{
@@ -484,7 +477,7 @@ func TestRedirectHost(t *testing.T) {
 }
 
 func TestRedirect404(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	redirects := []types.Redirect{
 		{
@@ -505,7 +498,7 @@ func TestRedirect404(t *testing.T) {
 }
 
 func TestProxies(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 初始应该没有代理配置
 	check.Empty(t, vhost.Proxies())
@@ -536,7 +529,7 @@ func TestProxies(t *testing.T) {
 }
 
 func TestProxyConfig(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	proxies := []types.Proxy{
 		{
@@ -563,7 +556,7 @@ func TestProxyConfig(t *testing.T) {
 }
 
 func TestClearProxies(t *testing.T) {
-	vhost, _ := newProxyVhost(t)
+	vhost, _ := setupProxyVhost(t)
 
 	proxies := []types.Proxy{
 		{Location: "/", Pass: "http://backend"},
@@ -571,12 +564,12 @@ func TestClearProxies(t *testing.T) {
 	check.NoError(t, vhost.SetProxies(proxies))
 	check.Len(t, vhost.Proxies(), 1)
 
-	check.NoError(t, vhost.ClearProxies())
+	check.NoError(t, vhost.SetProxies(nil))
 	check.Empty(t, vhost.Proxies())
 }
 
 func TestUpstreams(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 初始应该没有上游服务器配置
 	check.Empty(t, vhost.Upstreams())
@@ -602,7 +595,7 @@ func TestUpstreams(t *testing.T) {
 }
 
 func TestUpstreamConfig(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	upstreams := []types.Upstream{
 		{
@@ -630,7 +623,7 @@ func TestUpstreamConfig(t *testing.T) {
 }
 
 func TestClearUpstreams(t *testing.T) {
-	vhost, _ := newProxyVhost(t)
+	vhost, _ := setupProxyVhost(t)
 
 	upstreams := []types.Upstream{
 		{
@@ -641,12 +634,12 @@ func TestClearUpstreams(t *testing.T) {
 	check.NoError(t, vhost.SetUpstreams(upstreams))
 	check.Len(t, vhost.Upstreams(), 1)
 
-	check.NoError(t, vhost.ClearUpstreams())
+	check.NoError(t, vhost.SetUpstreams(nil))
 	check.Empty(t, vhost.Upstreams())
 }
 
 func TestProxyWithUpstream(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 先创建 upstream
 	upstreams := []types.Upstream{
@@ -682,7 +675,7 @@ func TestProxyWithUpstream(t *testing.T) {
 }
 
 func TestDefaultWithSSLAndQUIC(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 	must.NoError(t, vhost.SetListen([]types.Listen{
 		{Address: "80"},
 		{Address: "443", Args: []string{"ssl", "quic"}},
@@ -692,7 +685,7 @@ func TestDefaultWithSSLAndQUIC(t *testing.T) {
 		must.NoError(t, vhost.SetDefault(enabled))
 		must.NoError(t, vhost.Save())
 		var err error
-		vhost, err = NewPHPVhost(configDir)
+		vhost, err = newPHPVhost(configDir)
 		must.NoError(t, err)
 		must.Equal(t, vhost.Default(), enabled)
 
@@ -710,16 +703,45 @@ func TestDefaultWithSSLAndQUIC(t *testing.T) {
 // 静态与 PHP 站点也能把子路径交给后端
 func TestStaticProxies(t *testing.T) {
 	configDir := newConfigDir(t)
-	vhost, err := NewStaticVhost(configDir)
+	vhost, err := newStaticVhost(configDir)
 	must.NoError(t, err)
 	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://127.0.0.1:3000"}}))
 	check.Len(t, confFiles(t, configDir, "site", "200", "-proxy.conf"), 1)
 	check.Len(t, vhost.Proxies(), 1)
 	check.Equal(t, vhost.Proxies()[0].Location, "^~ /api")
 
-	php, _ := newPHPVhost(t)
+	php, _ := setupPHPVhost(t)
 	check.NoError(t, php.SetUpstreams([]types.Upstream{{Name: "api", Servers: map[string]string{"127.0.0.1:3000": ""}}}))
 	check.NoError(t, php.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://api"}}))
 	check.Len(t, php.Upstreams(), 1)
 	check.Len(t, php.Proxies(), 1)
+}
+
+// shared 目录的 800-999 是用户自定义配置，保存上游不能把它当上游清掉
+func TestUpstreamsKeepSharedCustom(t *testing.T) {
+	vhost, _ := setupProxyVhost(t)
+	custom := "upstream mine {\n    server 127.0.0.1:1;\n}"
+	must.NoError(t, vhost.SetRawConfig("800-custom.conf", types.ScopeShared, custom+"\n"))
+	must.NoError(t, vhost.SetUpstreams([]types.Upstream{{Name: "backend", Servers: map[string]string{"127.0.0.1:8080": ""}}}))
+	check.Equal(t, vhost.Config("800-custom.conf", types.ScopeShared), custom)
+	must.Len(t, vhost.Upstreams(), 1)
+	check.Equal(t, vhost.Upstreams()[0].Name, "backend")
+
+	tooMany := make([]types.Upstream, upstreamEndNum-upstreamStartNum+2)
+	check.Error(t, vhost.SetUpstreams(tooMany))
+	check.Len(t, vhost.Upstreams(), 1)
+}
+
+// 超限要在动现有文件之前报出来
+func TestRedirectLimit(t *testing.T) {
+	vhost, _ := setupPHPVhost(t)
+	redirects := []types.Redirect{{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 301}}
+	must.NoError(t, vhost.SetRedirects(redirects))
+
+	tooMany := make([]types.Redirect, redirectEndNum-redirectStartNum+2)
+	for i := range tooMany {
+		tooMany[i] = types.Redirect{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 301}
+	}
+	check.Error(t, vhost.SetRedirects(tooMany))
+	check.DeepEqual(t, vhost.Redirects(), redirects)
 }

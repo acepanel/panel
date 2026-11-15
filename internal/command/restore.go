@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -32,9 +30,7 @@ func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.RestoreWebsite(ctx, cmd)
-				},
+				Action: cliService.RestoreWebsite,
 			},
 			{
 				Name:  "database",
@@ -59,9 +55,7 @@ func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.RestoreDatabase(ctx, cmd)
-				},
+				Action: cliService.RestoreDatabase,
 			},
 			{
 				Name:  "panel",
@@ -74,9 +68,7 @@ func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.RestorePanel(ctx, cmd)
-				},
+				Action: cliService.RestorePanel,
 			},
 		},
 	}

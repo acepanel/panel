@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useGettext } from 'vue3-gettext'
 
-import RealtimeLog from './RealtimeLog.vue'
-
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({

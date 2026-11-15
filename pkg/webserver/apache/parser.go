@@ -8,14 +8,20 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
-type ParseOptions struct {
+type parseOptions struct {
 	// Tolerant 容错模式：遇到结构错误（孤立闭合标签、未闭合块）记录后尽力继续，不致命
 	Tolerant bool
 }
 
-// ParseString 从字符串解析配置（容错模式）
+type parser struct {
+	lines []string
+	pos   int
+	opts  parseOptions
+}
+
+// ParseString 从字符串解析配置或片段（容错模式）
 func ParseString(content string) (*conf.Config, error) {
-	return parse(content, ParseOptions{Tolerant: true})
+	return parse(content, parseOptions{Tolerant: true})
 }
 
 // ParseFile 从文件解析配置（容错模式）
@@ -24,27 +30,16 @@ func ParseFile(filename string) (*conf.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
-	return parse(string(content), ParseOptions{Tolerant: true})
+	return parse(string(content), parseOptions{Tolerant: true})
 }
 
-// ParseFragment 解析片段文件内容（裸指令/块列表，容错模式）
-func ParseFragment(content string) (*conf.Config, error) {
-	return parse(content, ParseOptions{Tolerant: true})
-}
-
-func parse(content string, opts ParseOptions) (*conf.Config, error) {
+func parse(content string, opts parseOptions) (*conf.Config, error) {
 	p := &parser{lines: scanLogicalLines(content), opts: opts}
 	nodes, err := p.parseNodes("")
 	if err != nil {
 		return nil, err
 	}
-	return &conf.Config{Block: conf.Block{Nodes: nodes}}, nil
-}
-
-type parser struct {
-	lines []string
-	pos   int
-	opts  ParseOptions
+	return &conf.Config{Nodes: nodes}, nil
 }
 
 // parseNodes 解析一段节点，直到遇到 closeName 的闭合标签或输入耗尽

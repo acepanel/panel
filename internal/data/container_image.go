@@ -4,11 +4,17 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"iter"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
 
 	cerrdefs "github.com/containerd/errdefs"
+	"github.com/distribution/reference"
+	"github.com/libtnb/utils/str"
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
@@ -16,19 +22,22 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type containerImageRepo struct{}
+type containerImageRepo struct {
+	dockerRepo
+}
 
-func NewContainerImageRepo() biz.ContainerImageRepo {
-	return &containerImageRepo{}
+func NewContainerImageRepo(setting biz.SettingRepo) biz.ContainerImageRepo {
+	return &containerImageRepo{dockerRepo{setting}}
 }
 
 // List 列出镜像
-func (r *containerImageRepo) List(ctx context.Context, sock string) ([]types.ContainerImage, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerImageRepo) List(ctx context.Context) ([]types.ContainerImage, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +70,8 @@ func (r *containerImageRepo) List(ctx context.Context, sock string) ([]types.Con
 }
 
 // Exist 检查镜像是否存在
-func (r *containerImageRepo) Exist(ctx context.Context, sock string, name string) (bool, error) {
-	apiClient, err := getDockerClient(sock)
+func (r *containerImageRepo) Exist(ctx context.Context, name string) (bool, error) {
+	apiClient, err := r.client()
 	if err != nil {
 		return false, err
 	}
@@ -80,12 +89,42 @@ func (r *containerImageRepo) Exist(ctx context.Context, sock string, name string
 }
 
 // Pull 拉取镜像
-func (r *containerImageRepo) Pull(ctx context.Context, sock string, req *request.ContainerImagePull) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerImageRepo) Pull(ctx context.Context, req *request.ContainerImagePull) error {
+	apiClient, out, err := r.pull(ctx, req)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
+
+	return out.Wait(ctx)
+}
+
+// PullStream 发起镜像拉取并返回进度流，流读到结束时释放连接
+func (r *containerImageRepo) PullStream(
+	ctx context.Context,
+	req *request.ContainerImagePull,
+) (iter.Seq2[biz.ImagePullProgress, error], error) {
+	apiClient, out, err := r.pull(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return func(yield func(biz.ImagePullProgress, error) bool) {
+		defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+		out.JSONMessages(ctx)(yield)
+	}, nil
+}
+
+// pull 发起镜像拉取，成功时调用方负责关闭返回的客户端
+func (r *containerImageRepo) pull(
+	ctx context.Context,
+	req *request.ContainerImagePull,
+) (*client.Client, client.ImagePullResponse, error) {
+	apiClient, err := r.client()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	options := client.ImagePullOptions{}
 	if req.Auth {
@@ -95,24 +134,48 @@ func (r *containerImageRepo) Pull(ctx context.Context, sock string, req *request
 		}
 		encodedJSON, err := json.Marshal(authConfig) //nolint:gosec
 		if err != nil {
-			return err
+			_ = apiClient.Close()
+			return nil, nil, err
 		}
-		authStr := base64.URLEncoding.EncodeToString(encodedJSON)
-		options.RegistryAuth = authStr
+		options.RegistryAuth = base64.URLEncoding.EncodeToString(encodedJSON)
 	}
 
 	out, err := apiClient.ImagePull(ctx, req.Name, options)
 	if err != nil {
-		return err
+		_ = apiClient.Close()
+		return nil, nil, err
 	}
-	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
 
-	return out.Wait(ctx)
+	return apiClient, out, nil
+}
+
+// PullShell 生成拉取镜像的命令，需要认证时返回配套的清理命令
+func (r *containerImageRepo) PullShell(req *request.ContainerImagePull) (string, string, error) {
+	if !req.Auth {
+		return r.command("pull", req.Name), "", nil
+	}
+
+	named, err := reference.ParseNormalizedNamed(req.Name)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid image reference: %w", err)
+	}
+
+	configDir := filepath.Join(os.TempDir(), "ace-docker-task-"+str.Random(16))
+	cleanup := "rm -rf " + shell.Quote(configDir)
+	shell := strings.Join([]string{
+		"set -e",
+		"mkdir -p " + shell.Quote(configDir),
+		"trap " + shell.Quote(cleanup) + " EXIT",
+		"printf %s " + shell.Quote(req.Password) + " | " + r.command("--config", configDir, "login", "--username", req.Username, "--password-stdin", reference.Domain(named)),
+		r.command("--config", configDir, "pull", req.Name),
+	}, "\n")
+
+	return shell, cleanup, nil
 }
 
 // Remove 删除镜像
-func (r *containerImageRepo) Remove(ctx context.Context, sock string, id string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerImageRepo) Remove(ctx context.Context, id string) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}
@@ -127,8 +190,8 @@ func (r *containerImageRepo) Remove(ctx context.Context, sock string, id string)
 }
 
 // Prune 清理未使用的镜像
-func (r *containerImageRepo) Prune(ctx context.Context, sock string) error {
-	apiClient, err := getDockerClient(sock)
+func (r *containerImageRepo) Prune(ctx context.Context) error {
+	apiClient, err := r.client()
 	if err != nil {
 		return err
 	}

@@ -3,14 +3,13 @@ defineOptions({
   name: 'stalwart-accounts',
 })
 
-import { NButton, NDataTable, NFlex, NTag } from 'naive-ui'
+import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
-import ListInput from '@/components/common/ListInput.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatBytes, formatDateTime, generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -56,17 +55,12 @@ const domainOptions = computed(() =>
   domains.value.map((d: any) => ({ label: d.name, value: d.id })),
 )
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => stalwart.accounts(page, pageSize, domainID.value ?? '', keyword.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [domainID],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const columns: any = [
   {
@@ -259,7 +253,6 @@ const handleDelete = (id: string) => {
 
 onMounted(() => {
   loadDomains()
-  refresh()
 })
 </script>
 

@@ -2,12 +2,8 @@ package stalwart
 
 import "encoding/json"
 
-func jsonUnmarshal(raw json.RawMessage, v any) error {
-	return json.Unmarshal(raw, v)
-}
-
 // listenerSpec 返回面板支持开关的 STARTTLS 监听器定义
-func listenerSpec(name string) map[string]any {
+func (s *App) listenerSpec(name string) map[string]any {
 	spec := map[string]any{
 		"name":        name,
 		"useTls":      true,
@@ -28,7 +24,7 @@ func listenerSpec(name string) map[string]any {
 }
 
 // listenerPort 是可开关监听器对应的端口
-func listenerPort(name string) uint {
+func (s *App) listenerPort(name string) uint {
 	switch name {
 	case "submission":
 		return 587
@@ -38,6 +34,10 @@ func listenerPort(name string) uint {
 		return 110
 	}
 	return 0
+}
+
+func jsonUnmarshal(raw json.RawMessage, v any) error {
+	return json.Unmarshal(raw, v)
 }
 
 func deref(v *string) string {

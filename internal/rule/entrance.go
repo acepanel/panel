@@ -10,26 +10,26 @@ import (
 	"github.com/spf13/cast"
 )
 
-// Entrance 校验面板访问入口
-type Entrance struct {
+// entrance 校验面板访问入口
+type entrance struct {
 	t  *gotext.Locale
 	re *regexp.Regexp
 }
 
-func NewEntrance(t *gotext.Locale) *Entrance {
-	return &Entrance{
+func newEntrance(t *gotext.Locale) *entrance {
+	return &entrance{
 		t:  t,
 		re: regexp.MustCompile(`^[\w.~-]+(/[\w.~-]+)*$`),
 	}
 }
 
-func (r *Entrance) Signature() string { return "entrance" }
+func (r *entrance) Signature() string { return "entrance" }
 
-func (r *Entrance) Message() string {
+func (r *entrance) Message() string {
 	return r.t.Get("{field} can only contain letters, numbers, -, _, . and ~ separated by /, and cannot start with /api, /login, /webhook or /download")
 }
 
-func (r *Entrance) Passes(f *validator.Field) bool {
+func (r *entrance) Passes(f *validator.Field) bool {
 	entrance := strings.Trim(cast.ToString(f.Reflect().Interface()), "/")
 	if entrance == "" {
 		return true

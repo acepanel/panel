@@ -7,6 +7,8 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import { useResponsive } from '@/components/system/composables/useResponsive'
+import { formatDuration } from '@/utils/common'
+import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
@@ -41,29 +43,6 @@ const loadGoroutines = () => {
     .onComplete(() => {
       goroutineLoading.value = false
     })
-}
-
-// 格式化字节
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-}
-
-// 格式化运行时间
-const formatDuration = (seconds: number): string => {
-  const d = Math.floor(seconds / 86400)
-  const h = Math.floor((seconds % 86400) / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-  const parts: string[] = []
-  if (d > 0) parts.push(`${d} ${$gettext('days')}`)
-  if (h > 0) parts.push(`${h} ${$gettext('hours')}`)
-  if (m > 0) parts.push(`${m} ${$gettext('min')}`)
-  parts.push(`${s} ${$gettext('sec')}`)
-  return parts.join(' ')
 }
 
 // 格式化纳秒
@@ -252,7 +231,9 @@ watch(currentTab, (val) => {
                   <n-text depth="3">goroutine {{ g.id }}</n-text>
                 </n-flex>
               </template>
-              <n-code :code="g.stack" language="go" word-wrap />
+              <pre class="font-mono m-0 max-h-[60vh] whitespace-pre-wrap break-all overflow-auto">{{
+                g.stack
+              }}</pre>
             </n-collapse-item>
           </n-collapse>
         </n-spin>

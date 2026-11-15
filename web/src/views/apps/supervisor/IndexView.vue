@@ -3,35 +3,24 @@ defineOptions({
   name: 'apps-supervisor-index',
 })
 
-import { NButton, NDataTable, NFlex } from 'naive-ui'
+import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import supervisor from '@/api/apps/supervisor'
 import file from '@/api/panel/file'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 const currentTab = ref('status')
-const saveConfigLoading = ref(false)
 const saveProcessConfigLoading = ref(false)
-const clearLogLoading = ref(false)
 const createProcessLoading = ref(false)
 const processLog = ref('')
 const processLogModalRef = ref<{ clear: () => void } | null>(null)
-const daemonLogRef = ref<{ clear: () => void } | null>(null)
 const daemonLogPath = '/var/log/supervisor/supervisord.log'
 
 const { data: serviceName } = useRequest(supervisor.service, {
-  initialData: '',
-}).onSuccess(() => {
-  refresh()
-  config.value = supervisor.config()
-})
-
-const { data: config } = useRequest(supervisor.config, {
   initialData: '',
 })
 
@@ -217,40 +206,11 @@ const processColumns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => supervisor.processes(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  supervisor.processes(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(supervisor.saveConfig(config.value))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
-}
-
-const handleClearLog = () => {
-  clearLogLoading.value = true
-  useRequest(file.truncate(daemonLogPath))
-    .onSuccess(() => {
-      daemonLogRef.value?.clear()
-      window.$message.success($gettext('Cleared successfully'))
-    })
-    .onComplete(() => {
-      clearLogLoading.value = false
-    })
-}
+const clearDaemonLog = () => file.truncate(daemonLogPath)
 
 const handleCreateProcess = () => {
   createProcessLoading.value = true
@@ -348,12 +308,6 @@ const handleSaveProcessConfig = () => {
       saveProcessConfigLoading.value = false
     })
 }
-
-const timer: any = null
-
-onUnmounted(() => {
-  clearInterval(timer)
-})
 </script>
 
 <template>
@@ -384,44 +338,22 @@ onUnmounted(() => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="supervisor.config"
+          :save="supervisor.saveConfig"
+          :tip="
+            $gettext(
+              'This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+            )
+          "
+          @saved="refresh"
+        />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log service="supervisor" />
+        <realtime-log :service="serviceName" />
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Daemon Logs')">
-        <n-flex vertical>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="clearLogLoading"
-              :disabled="clearLogLoading"
-              @click="handleClearLog"
-            >
-              {{ $gettext('Clear Log') }}
-            </n-button>
-          </n-flex>
-          <realtime-log ref="daemonLogRef" :path="daemonLogPath" />
-        </n-flex>
+        <clearable-log :path="daemonLogPath" :clear="clearDaemonLog" />
       </n-tab-pane>
     </n-tabs>
   </PageContainer>

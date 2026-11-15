@@ -17,6 +17,7 @@ import (
 
 	"github.com/libtnb/assert/must"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/internal/golden"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -51,12 +52,12 @@ func TestValidateWithApache(t *testing.T) {
 		must.NoError(t, v.Save())
 		path := filepath.Join(configDir, "apache.conf")
 		name := filepath.Base(filepath.Dir(configDir))
-		content := strings.ReplaceAll(readFile(t, path), filepath.Join(SitesPath, name, "config"), configDir)
+		content := strings.ReplaceAll(readFile(t, path), filepath.Join(sitesPath, name, "config"), configDir)
 		must.NoError(t, os.WriteFile(path, []byte(content), 0600))
 	}
 
 	phpDir := newSite("php")
-	php, err := NewPHPVhost(phpDir)
+	php, err := newPHPVhost(phpDir)
 	must.NoError(t, err)
 	must.NoError(t, php.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
 	must.NoError(t, php.SetServerName([]string{"php.example.com", "www.php.example.com"}))
@@ -71,7 +72,7 @@ func TestValidateWithApache(t *testing.T) {
 	must.NoError(t, php.SetRedirects([]types.Redirect{
 		{Type: types.RedirectTypeHost, From: "old.example.com", To: "https://php.example.com", KeepURI: true, StatusCode: 301},
 		{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 302},
-		{Type: types.RedirectType404, To: "/", StatusCode: 308},
+		{Type: types.RedirectType404, To: "https://php.example.com", KeepURI: true, StatusCode: 302},
 	}))
 	must.NoError(t, php.SetConfig("010-error-404.conf", types.ScopeSite, d.ErrorPageConf()))
 	must.NoError(t, php.SetConfig("010-cache.conf", types.ScopeSite, d.PHPCacheConf()))
@@ -85,7 +86,7 @@ func TestValidateWithApache(t *testing.T) {
 			content, err := os.ReadFile(preset)
 			must.NoError(t, err)
 			presetDir := newSite("preset-" + name)
-			site, err := NewPHPVhost(presetDir)
+			site, err := newPHPVhost(presetDir)
 			must.NoError(t, err)
 			must.NoError(t, site.SetServerName([]string{name + ".preset.test"}))
 			must.NoError(t, site.SetRoot(filepath.Join(sites, "preset-"+name, "public")))
@@ -96,7 +97,7 @@ func TestValidateWithApache(t *testing.T) {
 	}
 
 	proxyDir := newSite("proxy")
-	proxy, err := NewProxyVhost(proxyDir)
+	proxy, err := newProxyVhost(proxyDir)
 	must.NoError(t, err)
 	must.NoError(t, proxy.SetListen([]types.Listen{{Address: "80"}, {Address: "8443", Args: []string{"ssl"}}}))
 	must.NoError(t, proxy.SetServerName([]string{"proxy.example.com"}))
@@ -104,7 +105,7 @@ func TestValidateWithApache(t *testing.T) {
 	must.NoError(t, proxy.SetSSLConfig(&types.SSLConfig{Cert: certPath, Key: keyPath, Protocols: []string{"TLSv1.2"}}))
 	must.NoError(t, proxy.SetUpstreams([]types.Upstream{
 		{Name: "backend", Servers: map[string]string{"http://127.0.0.1:3001": "weight=5", "http://127.0.0.1:3002": ""}},
-		{Name: "pool", Servers: map[string]string{"http://10.0.0.2:80": ""}, Algo: "least_conn"},
+		{Name: "pool", Servers: map[string]string{"http://10.0.0.2:80": "", "unix:/tmp/a.sock": "", "unix:/tmp/b.sock": ""}, Algo: "least_conn"},
 	}))
 	must.NoError(t, proxy.SetProxies([]types.Proxy{
 		{Location: "/", Pass: "http://backend", Host: "$proxy_host", Buffering: true, Headers: map[string]string{"X-Real-IP": "$remote_addr"}, Replaces: map[string]string{"http://old": "https://new"}},
@@ -116,15 +117,16 @@ func TestValidateWithApache(t *testing.T) {
 			ResponseHeaders: &types.ResponseHeaderConfig{Hide: []string{"Server"}, Add: map[string]string{"X-Proxy": "apache"}},
 			AccessControl:   &types.AccessControlConfig{Allow: []string{"10.0.0.0/8"}, Deny: []string{"10.0.0.99"}},
 		},
-		{Location: "~* \\.(jpg|png)$", Pass: "http://pool", Buffering: true},
+		{Location: "~* \\.(jpg|png)$", Pass: "http://pool", Buffering: true, Cache: &types.CacheConfig{Valid: map[string]string{"200": "1h"}}},
 		{Location: "= /health", Pass: "http://127.0.0.1:9000", Buffering: true},
 		{Location: "/ws", Pass: "https://backend.example.com", Buffering: false},
+		{Location: "/sock/", Pass: "http://unix:/tmp/a.sock:/v2/", Cache: &types.CacheConfig{}},
 	}))
 	must.NoError(t, proxy.SetConfig("010-error-404.conf", types.ScopeSite, d.ErrorPageConf()))
 	save(proxy, proxyDir)
 
 	staticDir := newSite("static")
-	static, err := NewStaticVhost(staticDir)
+	static, err := newStaticVhost(staticDir)
 	must.NoError(t, err)
 	must.NoError(t, static.SetListen([]types.Listen{{Address: "127.0.0.1:80"}, {Address: "127.0.0.1:443", Args: []string{"ssl"}}}))
 	must.NoError(t, static.SetServerName([]string{"static.example.com"}))
@@ -136,7 +138,7 @@ func TestValidateWithApache(t *testing.T) {
 
 	// 冒烟站点用高位端口，可在本机启动后用 curl 验证
 	smokeDir := newSite("smoke")
-	smoke, err := NewProxyVhost(smokeDir)
+	smoke, err := newProxyVhost(smokeDir)
 	must.NoError(t, err)
 	must.NoError(t, smoke.SetListen([]types.Listen{{Address: "18080"}, {Address: "18443", Args: []string{"ssl"}}}))
 	must.NoError(t, smoke.SetServerName([]string{"localhost"}))
@@ -152,6 +154,13 @@ func TestValidateWithApache(t *testing.T) {
 	}))
 	must.NoError(t, smoke.SetBasicAuth([]types.BasicAuth{{Path: "/admin", UserFile: htpasswd}}))
 	save(smoke, smokeDir)
+
+	// 快照测试的全功能站点也交给真实 httpd 校验；macOS 自带 httpd 的 mod_ssl 不认 TLSv1.3
+	for _, site := range golden.Build(t, d, root, "golden-", certPath, keyPath, goldenCustom) {
+		path := filepath.Join(site.ConfigDir, "apache.conf")
+		content := strings.NewReplacer(filepath.Join(sitesPath, site.Name, "config"), site.ConfigDir, "+TLSv1.3", "+TLSv1.2").Replace(readFile(t, path))
+		must.NoError(t, os.WriteFile(path, []byte(content), 0600))
+	}
 
 	mainPath := filepath.Join(root, "httpd.conf")
 	must.NoError(t, os.WriteFile(mainPath, []byte(mainConf(t, root, sites, certPath, keyPath)), 0600))
@@ -204,6 +213,9 @@ ErrorLog {root}/error.log
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 SSLCertificateFile {cert}
 SSLCertificateKeyFile {key}
+SSLStaplingCache "shmcb:{root}/ssl_stapling(32768)"
+CacheRoot {root}
+CacheQuickHandler off
 <Directory />
     AllowOverride none
     Require all denied

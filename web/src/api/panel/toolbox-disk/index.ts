@@ -3,8 +3,6 @@ import { http } from '@/utils'
 export default {
   // 获取磁盘列表
   list: (): any => http.Get('/toolbox_disk/list'),
-  // 获取分区列表
-  partitions: (device: string): any => http.Post('/toolbox_disk/partitions', { device }),
   // 挂载分区
   mount: (
     device: string,

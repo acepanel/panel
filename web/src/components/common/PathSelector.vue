@@ -6,7 +6,7 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { checkName, checkPath, getExt, getIconByExt, joinPath } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -189,21 +189,13 @@ const columns: DataTableColumns<RowData> = [
   },
 ]
 
-const { loading, data, page, total, pageSize, reload } = usePagination(
-  (page, pageSize) =>
-    file.list(encodeURIComponent(currentPath.value), '', false, sort.value, page, pageSize),
+const { loading, data, page, pageSize, reload, pagination } = usePagedTable(
+  (page, pageSize) => file.list(currentPath.value, '', false, sort.value, page, pageSize),
   {
-    initialData: { total: 0, list: [] },
+    immediate: false,
     initialPageSize: 100,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
+    pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000],
   },
-)
-const pagination = useTablePagination(
-  page,
-  pageSize,
-  total,
-  [100, 200, 500, 1000, 1500, 2000, 5000],
 )
 
 // 新建时在列表顶部插入输入行
@@ -347,9 +339,9 @@ watch([crumbRef, currentPath], ([el]) => el?.scrollTo({ left: el.scrollWidth }),
   flush: 'post',
 })
 
-// 监听内部路径变化，刷新列表
-watch(currentPath, (value) => {
-  if (!value) return
+// 打开时、打开期间路径变化时刷新列表；并成一个 watch，打开时路径同时变了也只请求一次
+watch([show, currentPath], ([visible, value]) => {
+  if (!visible || !value) return
   input.value = value
   selected.value = []
   create.value = false

@@ -20,7 +20,6 @@ import draggable from 'vuedraggable'
 
 import app from '@/api/panel/app'
 import home from '@/api/panel/home'
-import TheIconLocal from '@/components/custom/TheIconLocal.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { router } from '@/router'
@@ -28,7 +27,8 @@ import { useTabStore } from '@/stores'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'
 import { formatBytes, formatPercent } from '@/utils/file'
 
-import type { ProcessStat, Realtime } from './types'
+import TopProcesses from './TopProcesses.vue'
+import type { Realtime } from './types'
 
 use([
   CanvasRenderer,
@@ -40,51 +40,12 @@ use([
   DataZoomComponent,
 ])
 
-const { current: locale, $gettext } = useGettext()
+const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const tabStore = useTabStore()
 const { isMobile } = useResponsive()
 const monitorFormLayout = useFormLayout('auto', true)
 const realtime = ref<Realtime | null>(null)
-
-const cpuTopProcesses = ref<ProcessStat[]>([])
-const memTopProcesses = ref<ProcessStat[]>([])
-const cpuTopLoading = ref(false)
-const memTopLoading = ref(false)
-const cpuTopVisible = ref(false)
-const memTopVisible = ref(false)
-
-const loadTopProcesses = (type: 'cpu' | 'memory') => {
-  if (type === 'cpu') {
-    if (cpuTopVisible.value) {
-      cpuTopVisible.value = false
-      return
-    }
-    cpuTopLoading.value = true
-    useRequest(home.topProcesses('cpu'))
-      .onSuccess(({ data }) => {
-        cpuTopProcesses.value = data
-        cpuTopVisible.value = true
-      })
-      .onComplete(() => {
-        cpuTopLoading.value = false
-      })
-  } else {
-    if (memTopVisible.value) {
-      memTopVisible.value = false
-      return
-    }
-    memTopLoading.value = true
-    useRequest(home.topProcesses('memory'))
-      .onSuccess(({ data }) => {
-        memTopProcesses.value = data
-        memTopVisible.value = true
-      })
-      .onComplete(() => {
-        memTopLoading.value = false
-      })
-  }
-}
 
 const { data: systemInfo } = useRequest(home.systemInfo, {
   initialData: {
@@ -144,7 +105,6 @@ const diskWriteBytes = ref<Array<number>>([])
 const netBytesSent = ref<Array<number>>([])
 const netBytesRecv = ref<Array<number>>([])
 const timeDiskData = ref<Array<string>>([])
-const timeNetData = ref<Array<string>>([])
 const total = reactive({
   diskReadBytes: 0,
   diskWriteBytes: 0,
@@ -358,10 +318,6 @@ const fetchCurrent = () => {
       if (timeDiskData.value.length > 10) {
         timeDiskData.value.splice(0, 1)
       }
-      timeNetData.value.push(formatDateTime(data.time))
-      if (timeNetData.value.length > 10) {
-        timeNetData.value.splice(0, 1)
-      }
 
       realtime.value = data
     })
@@ -457,22 +413,10 @@ const clearCurrent = () => {
   total.diskRWTime = 0
   netBytesSent.value = []
   netBytesRecv.value = []
-  timeNetData.value = []
   diskReadBytes.value = []
   diskWriteBytes.value = []
   timeDiskData.value = []
 }
-
-const quantifier = computed(() => {
-  switch (locale) {
-    case 'zh_CN':
-      return '个'
-    case 'zh_TW':
-      return '個'
-    default:
-      return ''
-  }
-})
 
 let homeInterval: any = null
 
@@ -543,28 +487,19 @@ if (import.meta.hot) {
               pb-10
             >
               <n-gi v-if="countInfo.container >= 0">
-                <n-statistic
-                  :label="$gettext('Container')"
-                  :value="countInfo.container + quantifier"
-                />
+                <n-statistic :label="$gettext('Container')" :value="countInfo.container" />
               </n-gi>
               <n-gi>
-                <n-statistic :label="$gettext('Website')" :value="countInfo.website + quantifier" />
+                <n-statistic :label="$gettext('Website')" :value="countInfo.website" />
               </n-gi>
               <n-gi>
-                <n-statistic
-                  :label="$gettext('Database')"
-                  :value="countInfo.database + quantifier"
-                />
+                <n-statistic :label="$gettext('Database')" :value="countInfo.database" />
               </n-gi>
               <n-gi>
-                <n-statistic :label="$gettext('Project')" :value="countInfo.project + quantifier" />
+                <n-statistic :label="$gettext('Project')" :value="countInfo.project" />
               </n-gi>
               <n-gi>
-                <n-statistic
-                  :label="$gettext('Scheduled Tasks')"
-                  :value="countInfo.cron + quantifier"
-                />
+                <n-statistic :label="$gettext('Scheduled Tasks')" :value="countInfo.cron" />
               </n-gi>
             </n-grid>
             <template #title>{{ $gettext('AcePanel') }}</template>
@@ -683,51 +618,7 @@ if (import.meta.hot) {
                   </n-descriptions-item>
                 </n-descriptions>
                 <n-divider style="margin: 8px 0" />
-                <n-flex justify="center">
-                  <n-button
-                    text
-                    type="primary"
-                    size="small"
-                    :loading="cpuTopLoading"
-                    @click="loadTopProcesses('cpu')"
-                  >
-                    {{ $gettext('CPU Top5 Processes') }} {{ cpuTopVisible ? '∧' : '>' }}
-                  </n-button>
-                </n-flex>
-                <n-table
-                  v-if="cpuTopVisible && cpuTopProcesses.length"
-                  :single-line="false"
-                  size="small"
-                  striped
-                  class="mt-2 whitespace-nowrap"
-                >
-                  <thead>
-                    <tr>
-                      <th>PID</th>
-                      <th>{{ $gettext('Name') }}</th>
-                      <th>CPU</th>
-                      <th>{{ $gettext('User') }}</th>
-                      <th>{{ $gettext('Command') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="proc in cpuTopProcesses" :key="proc.pid">
-                      <td>{{ proc.pid }}</td>
-                      <td>
-                        <n-ellipsis style="max-width: 120px">
-                          {{ proc.name }}
-                        </n-ellipsis>
-                      </td>
-                      <td>{{ proc.value.toFixed(1) }}%</td>
-                      <td>{{ proc.username }}</td>
-                      <td>
-                        <n-ellipsis style="max-width: 200px">
-                          {{ proc.command }}
-                        </n-ellipsis>
-                      </td>
-                    </tr>
-                  </tbody>
-                </n-table>
+                <top-processes type="cpu" />
               </n-scrollbar>
             </n-popover>
             <n-popover
@@ -797,51 +688,7 @@ if (import.meta.hot) {
                   </n-descriptions-item>
                 </n-descriptions>
                 <n-divider style="margin: 8px 0" />
-                <n-flex justify="center">
-                  <n-button
-                    text
-                    type="primary"
-                    size="small"
-                    :loading="memTopLoading"
-                    @click="loadTopProcesses('memory')"
-                  >
-                    {{ $gettext('Memory Top5 Processes') }} {{ memTopVisible ? '∧' : '>' }}
-                  </n-button>
-                </n-flex>
-                <n-table
-                  v-if="memTopVisible && memTopProcesses.length"
-                  :single-line="false"
-                  size="small"
-                  striped
-                  class="mt-2 whitespace-nowrap"
-                >
-                  <thead>
-                    <tr>
-                      <th>PID</th>
-                      <th>{{ $gettext('Name') }}</th>
-                      <th>{{ $gettext('Memory') }}</th>
-                      <th>{{ $gettext('User') }}</th>
-                      <th>{{ $gettext('Command') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="proc in memTopProcesses" :key="proc.pid">
-                      <td>{{ proc.pid }}</td>
-                      <td>
-                        <n-ellipsis style="max-width: 120px">
-                          {{ proc.name }}
-                        </n-ellipsis>
-                      </td>
-                      <td>{{ formatBytes(proc.value) }}</td>
-                      <td>{{ proc.username }}</td>
-                      <td>
-                        <n-ellipsis style="max-width: 200px">
-                          {{ proc.command }}
-                        </n-ellipsis>
-                      </td>
-                    </tr>
-                  </tbody>
-                </n-table>
+                <top-processes type="memory" />
               </n-scrollbar>
             </n-popover>
             <n-popover

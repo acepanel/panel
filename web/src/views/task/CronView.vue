@@ -5,9 +5,9 @@ import { useGettext } from 'vue3-gettext'
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { decodeBase64, formatDateTime } from '@/utils'
 import CreateModal from '@/views/task/CreateModal.vue'
 
@@ -175,16 +175,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => cron.list(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  cron.list(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const switching = reactive(new Set<number>())
 
@@ -221,7 +214,7 @@ const handleEdit = (row: any) => {
   } else {
     // shell 脚本编辑
     useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-      useRequest(file.content(encodeURIComponent(data.shell))).onSuccess(({ data: fileData }) => {
+      useRequest(file.content(data.shell)).onSuccess(({ data: fileData }) => {
         shellEditTask.value.id = row.id
         shellEditTask.value.name = row.name
         shellEditTask.value.type = row.type
@@ -272,16 +265,7 @@ const saveShellEdit = async () => {
     })
 }
 
-onMounted(() => {
-  refresh()
-  window.$bus.on('task:refresh-cron', () => {
-    refresh()
-  })
-})
-
-onUnmounted(() => {
-  window.$bus.off('task:refresh-cron')
-})
+useBus('task:refresh-cron', refresh)
 </script>
 
 <template>

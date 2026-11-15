@@ -26,7 +26,4 @@ export default {
   updateHostname: (hostname: string): any => http.Post('/toolbox_system/hostname', { hostname }),
   // 设置 Hosts
   updateHosts: (hosts: string): any => http.Post('/toolbox_system/hosts', { hosts }),
-  // 设置 Root 密码
-  updateRootPassword: (password: string): any =>
-    http.Post('/toolbox_system/root_password', { password }),
 }

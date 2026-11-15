@@ -11,26 +11,28 @@ import (
 )
 
 type ContainerNetworkRepo interface {
-	List(ctx context.Context, sock string) ([]types.ContainerNetwork, error)
-	Create(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error)
-	Remove(ctx context.Context, sock string, id string) error
-	Prune(ctx context.Context, sock string) error
+	List(ctx context.Context) ([]types.ContainerNetwork, error)
+	Create(ctx context.Context, req *request.ContainerNetworkCreate) (string, error)
+	Remove(ctx context.Context, id string) error
+	Prune(ctx context.Context) error
 }
 
 type ContainerNetworkUsecase struct {
-	repo    ContainerNetworkRepo
-	setting SettingRepo
-	t       *gotext.Locale
-	log     *slog.Logger
+	repo ContainerNetworkRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewContainerNetworkUsecase(t *gotext.Locale, log *slog.Logger, repo ContainerNetworkRepo, setting SettingRepo) *ContainerNetworkUsecase {
-	return &ContainerNetworkUsecase{repo: repo, setting: setting, t: t, log: log}
+func NewContainerNetworkUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	repo ContainerNetworkRepo,
+) *ContainerNetworkUsecase {
+	return &ContainerNetworkUsecase{repo: repo, t: t, log: log}
 }
 
 func (uc *ContainerNetworkUsecase) List(ctx context.Context) ([]types.ContainerNetwork, error) {
-	sock := containerSock(uc.setting)
-	networks, err := uc.repo.List(ctx, sock)
+	networks, err := uc.repo.List(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +42,7 @@ func (uc *ContainerNetworkUsecase) List(ctx context.Context) ([]types.ContainerN
 }
 
 func (uc *ContainerNetworkUsecase) Create(ctx context.Context, req *request.ContainerNetworkCreate) (string, error) {
-	sock := containerSock(uc.setting)
-	id, err := uc.repo.Create(ctx, sock, req)
+	id, err := uc.repo.Create(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -51,8 +52,7 @@ func (uc *ContainerNetworkUsecase) Create(ctx context.Context, req *request.Cont
 }
 
 func (uc *ContainerNetworkUsecase) Remove(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+	if err := uc.repo.Remove(ctx, id); err != nil {
 		return err
 	}
 
@@ -61,8 +61,7 @@ func (uc *ContainerNetworkUsecase) Remove(ctx context.Context, id string) error 
 }
 
 func (uc *ContainerNetworkUsecase) Prune(ctx context.Context) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Prune(ctx, sock); err != nil {
+	if err := uc.repo.Prune(ctx); err != nil {
 		return err
 	}
 

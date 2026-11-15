@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"net"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -70,10 +68,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			item.NotAfter = decode.NotAfter
 			item.Issuer = decode.Issuer.CommonName
 			item.OCSPServer = decode.OCSPServer
-			// 合并 DNSNames 和 IPAddresses
-			item.DNSNames = slices.Concat(decode.DNSNames, lo.Map(decode.IPAddresses, func(ip net.IP, _ int) string {
-				return ip.String()
-			}))
+			item.DNSNames = pkgcert.SANs(decode)
 		}
 		return item
 	})
@@ -152,11 +147,50 @@ func (r *certRepo) Save(cert *biz.Cert) error {
 	return r.db.Omit("Websites").Save(cert).Error
 }
 
+func (r *certRepo) GetClient(ctx context.Context, cert *biz.Cert) (*acme.Client, error) {
+	if cert.Account == nil {
+		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be obtained"))
+	}
+
+	return acme.NewPrivateKeyAccount(ctx, cert.Account.Email, cert.Account.PrivateKey, cert.Account.Directory(), cert.Account.EAB(), r.log)
+}
+
 func (r *certRepo) GenerateSelfSigned(domains []string) ([]byte, []byte, error) {
 	return pkgcert.GenerateSelfSigned(domains)
 }
 
-func (r *certRepo) ObtainPanel(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
+func (r *certRepo) RunScript(ctx context.Context, cert *biz.Cert) error {
+	if cert.Script == "" {
+		return nil
+	}
+
+	f, err := os.CreateTemp("", "cert-deploy-*.sh")
+	if err != nil {
+		return err
+	}
+	defer func() { _ = os.Remove(f.Name()) }()
+
+	// 替换变量
+	script := strings.ReplaceAll(cert.Script, "{cert}", cert.Cert)
+	script = strings.ReplaceAll(script, "{key}", cert.Key)
+
+	_, err = f.WriteString(script)
+	_ = f.Chmod(0755)
+	_ = f.Close()
+	if err != nil {
+		return err
+	}
+
+	_, err = shell.Execf(ctx, "bash %s", f.Name())
+	return err
+}
+
+func (r *certRepo) ObtainPanel(
+	ctx context.Context,
+	account *biz.CertAccount,
+	names []string,
+	webServer string,
+) ([]byte, []byte, error) {
 	client, err := acme.NewPrivateKeyAccount(ctx, account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
 	if err != nil {
 		return nil, nil, err
@@ -180,16 +214,6 @@ func (r *certRepo) ObtainPanel(ctx context.Context, account *biz.CertAccount, na
 	return ssl.ChainPEM, ssl.PrivateKey, nil
 }
 
-// BindWebsites 绑定证书的部署网站
-func (r *certRepo) BindWebsites(certID uint, websiteIDs []uint) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&biz.Website{}).Where("cert_id = ?", certID).Update("cert_id", 0).Error; err != nil {
-			return err
-		}
-		return tx.Model(&biz.Website{}).Where("id IN ?", websiteIDs).Update("cert_id", certID).Error
-	})
-}
-
 // LoadWebsites 根据 ID 列表加载网站
 func (r *certRepo) LoadWebsites(websiteIDs []uint) ([]*biz.Website, error) {
 	websiteIDs = lo.Uniq(websiteIDs)
@@ -206,6 +230,16 @@ func (r *certRepo) LoadWebsites(websiteIDs []uint) ([]*biz.Website, error) {
 	}
 
 	return websites, nil
+}
+
+// BindWebsites 绑定证书的部署网站
+func (r *certRepo) BindWebsites(certID uint, websiteIDs []uint) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&biz.Website{}).Where("cert_id = ?", certID).Update("cert_id", 0).Error; err != nil {
+			return err
+		}
+		return tx.Model(&biz.Website{}).Where("id IN ?", websiteIDs).Update("cert_id", certID).Error
+	})
 }
 
 // HTTPConfs 构建证书关联网站的「域名 → acme 配置文件」映射以及全部配置文件列表
@@ -245,7 +279,12 @@ func (r *certRepo) WriteCertFiles(cert *biz.Cert, certPath, keyPath string) erro
 }
 
 // EnableWebsiteSSL 为网站开启 HTTPS
-func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error {
+func (r *certRepo) EnableWebsiteSSL(
+	website *biz.Website,
+	certPath, keyPath, webServer string,
+	tlsVersions []string,
+	listenIPv6 bool,
+) error {
 	d, err := webserver.Get(webserver.Type(webServer))
 	if err != nil {
 		return err
@@ -289,59 +328,4 @@ func (r *certRepo) ReloadWebserver(ctx context.Context, webServer string) error 
 	}
 
 	return d.ReloadIfRunning(ctx)
-}
-
-func (r *certRepo) RunScript(ctx context.Context, cert *biz.Cert) error {
-	if cert.Script == "" {
-		return nil
-	}
-
-	f, err := os.CreateTemp("", "cert-deploy-*.sh")
-	if err != nil {
-		return err
-	}
-
-	// 替换变量
-	cert.Script = strings.ReplaceAll(cert.Script, "{cert}", cert.Cert)
-	cert.Script = strings.ReplaceAll(cert.Script, "{key}", cert.Key)
-
-	if _, err = f.WriteString(cert.Script); err != nil {
-		return err
-	}
-
-	_ = f.Chmod(0755)
-	_ = f.Close()
-	defer func(name string) { _ = os.Remove(name) }(f.Name())
-
-	_, err = shell.Execf(ctx, "bash %s", f.Name())
-	return err
-}
-
-func (r *certRepo) GetClient(ctx context.Context, cert *biz.Cert) (*acme.Client, error) {
-	if cert.Account == nil {
-		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be obtained"))
-	}
-
-	var ca string
-	var eab *acme.EAB
-	switch cert.Account.CA {
-	case "googlecn":
-		ca = acme.CAGoogleCN
-		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
-	case "google":
-		ca = acme.CAGoogle
-		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
-	case "letsencrypt":
-		ca = acme.CALetsEncrypt
-	case "litessl":
-		ca = acme.CALiteSSL
-	case "zerossl":
-		ca = acme.CAZeroSSL
-		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
-	case "sslcom":
-		ca = acme.CASSLcom
-		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
-	}
-
-	return acme.NewPrivateKeyAccount(ctx, cert.Account.Email, cert.Account.PrivateKey, ca, eab, r.log)
 }

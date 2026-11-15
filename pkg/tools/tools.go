@@ -46,7 +46,7 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 		res.DiskIO = append(res.DiskIO, info)
 	}
 	// 硬盘使用
-	var excludes = []string{"/dev", "/boot", "/sys", "/dev", "/run", "/proc", "/usr", "/var", "/snap"}
+	excludes := []string{"/dev", "/boot", "/sys", "/run", "/proc", "/usr", "/var", "/snap"}
 	excludes = append(excludes, "/mnt/cdrom") // CDROM
 	excludes = append(excludes, "/mnt/wsl")   // Windows WSL
 	res.Disk, _ = disk.Partitions(false)
@@ -54,10 +54,6 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 		for _, exclude := range excludes {
 			if strings.HasPrefix(d.Mountpoint, exclude) {
 				return true
-			}
-			// 去除内存盘和overlay容器盘
-			if slices.Contains([]string{"tmpfs", "overlay"}, d.Fstype) {
-				continue
 			}
 		}
 		return false
@@ -199,72 +195,14 @@ func RestartServer(ctx context.Context) {
 	_ = shell.ExecfAsync(ctx, "systemd-run --quiet --collect --on-active=1 systemctl reboot")
 }
 
-// IsChina 是否中国大陆
-func IsChina() bool {
-	client := resty.New()
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-	client.SetLogger(NoopLogger{})
-	client.SetLoggerWarnLevel(true)
-	client.SetTimeout(3 * time.Second)
-	client.SetRetryCount(3)
-	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //nolint:gosec
-
-	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsStatusSuccess() {
-		return false
-	}
-
-	if strings.Contains(resp.String(), "loc=CN") {
-		return true
-	}
-
-	return false
-}
-
 // GetPublicIPv4 获取公网IPv4
 func GetPublicIPv4() (string, error) {
-	client := resty.New()
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-	client.SetLogger(NoopLogger{})
-	client.SetLoggerWarnLevel(true)
-	client.SetTimeout(3 * time.Second)
-	client.SetRetryCount(3)
-	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //nolint:gosec
-	client.SetTransport(&http.Transport{
-		DialContext: func(ctx context.Context, network string, addr string) (stdnet.Conn, error) {
-			return (&stdnet.Dialer{}).DialContext(ctx, "tcp4", addr)
-		},
-	})
-
-	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsStatusSuccess() {
-		return "", errors.New("failed to get public ipv4 address")
-	}
-
-	return strings.TrimPrefix(strings.Split(resp.String(), "\n")[2], "ip="), nil
+	return publicIP("tcp4")
 }
 
 // GetPublicIPv6 获取公网IPv6
 func GetPublicIPv6() (string, error) {
-	client := resty.New()
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-	client.SetLogger(NoopLogger{})
-	client.SetLoggerWarnLevel(true)
-	client.SetTimeout(3 * time.Second)
-	client.SetRetryCount(3)
-	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //nolint:gosec
-	client.SetTransport(&http.Transport{
-		DialContext: func(ctx context.Context, network string, addr string) (stdnet.Conn, error) {
-			return (&stdnet.Dialer{}).DialContext(ctx, "tcp6", addr)
-		},
-	})
-
-	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
-	if err != nil || !resp.IsStatusSuccess() {
-		return "", errors.New("failed to get public ipv6 address")
-	}
-
-	return strings.TrimPrefix(strings.Split(resp.String(), "\n")[2], "ip="), nil
+	return publicIP("tcp6")
 }
 
 // GetLocalIPv4 获取本地IPv4
@@ -275,20 +213,6 @@ func GetLocalIPv4() (string, error) {
 // GetLocalIPv6 获取本地IPv6
 func GetLocalIPv6() (string, error) {
 	return localIPOf(context.Background(), "[2402:4e00::]:53")
-}
-
-func localIPOf(ctx context.Context, addr string) (string, error) {
-	conn, err := (&stdnet.Dialer{}).DialContext(ctx, "udp", addr)
-	if err != nil {
-		return "", err
-	}
-	defer func(conn stdnet.Conn) { _ = conn.Close() }(conn)
-
-	local, ok := conn.LocalAddr().(*stdnet.UDPAddr)
-	if !ok {
-		return "", errors.New("failed to get local address")
-	}
-	return local.IP.String(), nil
 }
 
 // CollectLocalNames 收集本机所有 IP 地址
@@ -321,16 +245,10 @@ func FormatBytes(size float64) string {
 	return fmt.Sprintf("%.2f %s", size, units[i])
 }
 
-// IsIPv6 判断 host 是否为 IPv6 地址（裸地址，不含方括号）
-func IsIPv6(host string) bool {
-	addr, err := netip.ParseAddr(host)
-	return err == nil && !addr.Is4()
-}
-
 // WrapIPv6 为裸 IPv6 地址套上方括号（如 ::1 → [::1]），用于 nginx server_name、URL 等语境
 // 非 IPv6 或已带方括号则原样返回
 func WrapIPv6(host string) string {
-	if IsIPv6(host) {
+	if isIPv6(host) {
 		return "[" + host + "]"
 	}
 	return host
@@ -339,9 +257,65 @@ func WrapIPv6(host string) string {
 // UnwrapIPv6 去除 IPv6 地址的方括号（如 [::1] → ::1），非此形式则原样返回
 func UnwrapIPv6(host string) string {
 	if inner, ok := strings.CutPrefix(host, "["); ok {
-		if inner, ok = strings.CutSuffix(inner, "]"); ok && IsIPv6(inner) {
+		if inner, ok = strings.CutSuffix(inner, "]"); ok && isIPv6(inner) {
 			return inner
 		}
 	}
 	return host
+}
+
+func publicIP(network string) (string, error) {
+	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
+	client.SetLogger(noopLogger{})
+	client.SetLoggerWarnLevel(true)
+	client.SetTimeout(3 * time.Second)
+	client.SetRetryCount(3)
+	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}) //nolint:gosec
+	client.SetTransport(&http.Transport{
+		DialContext: func(ctx context.Context, _ string, addr string) (stdnet.Conn, error) {
+			return (&stdnet.Dialer{}).DialContext(ctx, network, addr)
+		},
+	})
+
+	resp, err := client.R().Get("https://perfops.cloudflareperf.com/cdn-cgi/trace")
+	if err != nil || !resp.IsStatusSuccess() {
+		return "", fmt.Errorf("failed to get public address over %s", network)
+	}
+
+	return traceIP(resp.String())
+}
+
+// traceIP 从 cdn-cgi/trace 响应里取 ip 行
+func traceIP(body string) (string, error) {
+	for line := range strings.SplitSeq(body, "\n") {
+		if ip, ok := strings.CutPrefix(strings.TrimSpace(line), "ip="); ok {
+			if _, err := netip.ParseAddr(ip); err != nil {
+				return "", err
+			}
+			return ip, nil
+		}
+	}
+
+	return "", errors.New("no ip in trace response")
+}
+
+func localIPOf(ctx context.Context, addr string) (string, error) {
+	conn, err := (&stdnet.Dialer{}).DialContext(ctx, "udp", addr)
+	if err != nil {
+		return "", err
+	}
+	defer func(conn stdnet.Conn) { _ = conn.Close() }(conn)
+
+	local, ok := conn.LocalAddr().(*stdnet.UDPAddr)
+	if !ok {
+		return "", errors.New("failed to get local address")
+	}
+	return local.IP.String(), nil
+}
+
+// isIPv6 判断 host 是否为 IPv6 地址（裸地址，不含方括号）
+func isIPv6(host string) bool {
+	addr, err := netip.ParseAddr(host)
+	return err == nil && !addr.Is4()
 }

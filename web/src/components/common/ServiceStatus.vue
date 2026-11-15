@@ -2,7 +2,6 @@
 import { useGettext } from 'vue3-gettext'
 
 import systemctl from '@/api/panel/systemctl'
-import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 
 const { $gettext } = useGettext()
 const props = defineProps({
@@ -32,75 +31,45 @@ const statusStr = computed(() => {
 
 const fetchStatus = async () => {
   fetchingStatus.value = true
-  status.value = await systemctl.status(props.service)
-  fetchingStatus.value = false
+  try {
+    status.value = await systemctl.status(props.service)
+  } finally {
+    fetchingStatus.value = false
+  }
 }
 
 const fetchIsEnabled = async () => {
   fetchingIsEnabled.value = true
-  isEnabled.value = await systemctl.isEnabled(props.service)
-  fetchingIsEnabled.value = false
+  try {
+    isEnabled.value = await systemctl.isEnabled(props.service)
+  } finally {
+    fetchingIsEnabled.value = false
+  }
 }
 
-const handleStart = () => {
-  const messageReactive = window.$message.loading($gettext('Starting...'), {
+const act = (method: (service: string) => any, loadingText: string, okText: string) => {
+  const messageReactive = window.$message.loading(loadingText, {
     duration: 0,
   })
   fetchingStatus.value = true
-  useRequest(systemctl.start(props.service))
+  useRequest(method(props.service))
     .onSuccess(() => {
-      window.$message.success($gettext('Started successfully'))
-      fetchStatus()
+      window.$message.success(okText)
     })
     .onComplete(() => {
       messageReactive?.destroy()
+      fetchStatus()
     })
 }
 
-const handleStop = () => {
-  const messageReactive = window.$message.loading($gettext('Stopping...'), {
-    duration: 0,
-  })
-  fetchingStatus.value = true
-  useRequest(systemctl.stop(props.service))
-    .onSuccess(() => {
-      window.$message.success($gettext('Stopped successfully'))
-      fetchStatus()
-    })
-    .onComplete(() => {
-      messageReactive?.destroy()
-    })
-}
-
-const handleRestart = () => {
-  const messageReactive = window.$message.loading($gettext('Restarting...'), {
-    duration: 0,
-  })
-  fetchingStatus.value = true
-  useRequest(systemctl.restart(props.service))
-    .onSuccess(() => {
-      window.$message.success($gettext('Restarted successfully'))
-      fetchStatus()
-    })
-    .onComplete(() => {
-      messageReactive?.destroy()
-    })
-}
-
-const handleReload = () => {
-  const messageReactive = window.$message.loading($gettext('Reloading...'), {
-    duration: 0,
-  })
-  fetchingStatus.value = true
-  useRequest(systemctl.reload(props.service))
-    .onSuccess(() => {
-      window.$message.success($gettext('Reloaded successfully'))
-      fetchStatus()
-    })
-    .onComplete(() => {
-      messageReactive?.destroy()
-    })
-}
+const handleStart = () =>
+  act(systemctl.start, $gettext('Starting...'), $gettext('Started successfully'))
+const handleStop = () =>
+  act(systemctl.stop, $gettext('Stopping...'), $gettext('Stopped successfully'))
+const handleRestart = () =>
+  act(systemctl.restart, $gettext('Restarting...'), $gettext('Restarted successfully'))
+const handleReload = () =>
+  act(systemctl.reload, $gettext('Reloading...'), $gettext('Reloaded successfully'))
 
 const handleIsEnabled = async () => {
   const messageReactive = window.$message.loading($gettext('Setting autostart...'), {

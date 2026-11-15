@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -16,11 +14,9 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 		Usage: t.Get("Operate AcePanel users"),
 		Commands: []*cli.Command{
 			{
-				Name:  "list",
-				Usage: t.Get("List all users"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserList(ctx, cmd)
-				},
+				Name:   "list",
+				Usage:  t.Get("List all users"),
+				Action: cliService.UserList,
 			},
 			{
 				Name:  "create",
@@ -36,17 +32,13 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 						Aliases: []string{"e"},
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserCreate(ctx, cmd)
-				},
+				Action: cliService.UserCreate,
 			},
 			{
 				Name:      "delete",
 				Usage:     t.Get("Delete a user"),
 				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserDelete(ctx, cmd)
-				},
+				Action:    cliService.UserDelete,
 			},
 			{
 				Name:  "username",
@@ -55,9 +47,7 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 					arg("old-username", t.Get("Old username")),
 					arg("new-username", t.Get("New username")),
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserName(ctx, cmd)
-				},
+				Action: cliService.UserName,
 			},
 			{
 				Name:  "password",
@@ -66,25 +56,19 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 					arg("username", t.Get("Username")),
 					optArg("password", t.Get("Password")),
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserPassword(ctx, cmd)
-				},
+				Action: cliService.UserPassword,
 			},
 			{
 				Name:      "2fa",
 				Usage:     t.Get("Toggle two-factor authentication for a user"),
 				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserTwoFA(ctx, cmd)
-				},
+				Action:    cliService.UserTwoFA,
 			},
 			{
 				Name:      "passkey",
 				Usage:     t.Get("Clear all passkeys for a user"),
 				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.UserPasskey(ctx, cmd)
-				},
+				Action:    cliService.UserPasskey,
 			},
 		},
 	}

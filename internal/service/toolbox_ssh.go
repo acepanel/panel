@@ -1,9 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
@@ -43,48 +43,19 @@ func NewToolboxSSHService(t *gotext.Locale, log *slog.Logger) *ToolboxSSHService
 
 // GetInfo 获取 SSH 信息
 func (s *ToolboxSSHService) GetInfo(w http.ResponseWriter, r *http.Request) {
-	// 读取 sshd_config
-	sshdConfig, err := io.Read("/etc/ssh/sshd_config")
+	config, err := ssh.ReadServerConfig()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to read sshd_config: %v", err))
 		return
 	}
 
-	// 解析端口
-	port := 22
-	portMatch := regexp.MustCompile(`(?m)^Port\s+(\d+)`).FindStringSubmatch(sshdConfig)
-	if len(portMatch) >= 2 {
-		port = cast.ToInt(portMatch[1])
-	}
-
-	// 解析密码认证
-	passwordAuth := true
-	passwordAuthMatch := regexp.MustCompile(`(?m)^PasswordAuthentication\s+(\S+)`).FindStringSubmatch(sshdConfig)
-	if len(passwordAuthMatch) >= 2 {
-		passwordAuth = strings.ToLower(passwordAuthMatch[1]) == "yes"
-	}
-
-	// 解析密钥认证
-	pubKeyAuth := true
-	pubKeyAuthMatch := regexp.MustCompile(`(?m)^PubkeyAuthentication\s+(\S+)`).FindStringSubmatch(sshdConfig)
-	if len(pubKeyAuthMatch) >= 2 {
-		pubKeyAuth = strings.ToLower(pubKeyAuthMatch[1]) == "yes"
-	}
-
-	// 解析 Root 登录设置
-	rootLogin := "yes"
-	rootLoginMatch := regexp.MustCompile(`(?m)^PermitRootLogin\s+(\S+)`).FindStringSubmatch(sshdConfig)
-	if len(rootLoginMatch) >= 2 {
-		rootLogin = strings.ToLower(rootLoginMatch[1])
-	}
-
 	s.log.Info(s.t.Get("ssh server config viewed"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("service", s.service))
 	Success(w, chix.M{
 		"service":       s.service,
-		"port":          port,
-		"password_auth": passwordAuth,
-		"pubkey_auth":   pubKeyAuth,
-		"root_login":    rootLogin,
+		"port":          config.Port,
+		"password_auth": config.PasswordAuth,
+		"pubkey_auth":   config.PubkeyAuth,
+		"root_login":    config.RootLogin,
 	})
 }
 
@@ -116,7 +87,7 @@ func (s *ToolboxSSHService) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = s.updateSSHConfig("Port", cast.ToString(req.Port)); err != nil {
+	if err = ssh.SetServerOption("Port", cast.ToString(req.Port)); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update SSH port: %v", err))
 		return
 	}
@@ -143,7 +114,7 @@ func (s *ToolboxSSHService) UpdatePasswordAuth(w http.ResponseWriter, r *http.Re
 		value = "yes"
 	}
 
-	if err = s.updateSSHConfig("PasswordAuthentication", value); err != nil {
+	if err = ssh.SetServerOption("PasswordAuthentication", value); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update password authentication: %v", err))
 		return
 	}
@@ -170,7 +141,7 @@ func (s *ToolboxSSHService) UpdatePubKeyAuth(w http.ResponseWriter, r *http.Requ
 		value = "yes"
 	}
 
-	if err = s.updateSSHConfig("PubkeyAuthentication", value); err != nil {
+	if err = ssh.SetServerOption("PubkeyAuthentication", value); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update pubkey authentication: %v", err))
 		return
 	}
@@ -192,7 +163,7 @@ func (s *ToolboxSSHService) UpdateRootLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err = s.updateSSHConfig("PermitRootLogin", req.Mode); err != nil {
+	if err = ssh.SetServerOption("PermitRootLogin", req.Mode); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update root login setting: %v", err))
 		return
 	}
@@ -214,9 +185,11 @@ func (s *ToolboxSSHService) UpdateRootPassword(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	password := strings.ReplaceAll(req.Password, `'`, `\'`)
-	if _, err = shell.Execf(r.Context(), `yes '%s' | passwd root`, password); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to update root password: %v", err))
+	// 密码走标准输入，不经过 shell 也不进命令行，内容是什么都不影响执行
+	cmd := shell.Command(r.Context(), "chpasswd")
+	cmd.Stdin = strings.NewReader("root:" + req.Password + "\n")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to update root password: %v", fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))))
 		return
 	}
 
@@ -300,25 +273,4 @@ func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Reque
 
 	s.log.Info(s.t.Get("root ssh key generated"), slog.String("type", biz.OperationTypeSSH), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("key_type", keyType), slog.String("path", "/root/.ssh/id_"+keyType))
 	Success(w, privateKey)
-}
-
-// updateSSHConfig 更新 SSH 配置项
-func (s *ToolboxSSHService) updateSSHConfig(key, value string) error {
-	sshdConfig, err := io.Read("/etc/ssh/sshd_config")
-	if err != nil {
-		return err
-	}
-
-	// 检查配置项是否存在（包括注释的）
-	configRegex := regexp.MustCompile(`(?m)^#?\s*` + key + `\s+.*$`)
-
-	if configRegex.MatchString(sshdConfig) {
-		// 替换现有配置
-		sshdConfig = configRegex.ReplaceAllString(sshdConfig, key+" "+value)
-	} else {
-		// 添加新配置
-		sshdConfig = sshdConfig + "\n" + key + " " + value + "\n"
-	}
-
-	return io.Write("/etc/ssh/sshd_config", sshdConfig, 0600)
 }

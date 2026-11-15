@@ -5,9 +5,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var Migrations []*gormigrate.Migration
-
 const batchSize = 1000
+
+var Migrations []*gormigrate.Migration
 
 func vacuumDB(db *gorm.DB) error {
 	if err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {

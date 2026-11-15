@@ -1,9 +1,5 @@
 package prometheus
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // ConfigTune Prometheus 全局配置调整
 type ConfigTune struct {
 	ScrapeInterval     string `form:"scrape_interval" json:"scrape_interval"`

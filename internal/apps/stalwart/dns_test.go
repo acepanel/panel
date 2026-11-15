@@ -20,7 +20,7 @@ const sampleZone = "v1-ed25519-20261108._domainkey.acme.test. IN TXT \"v=DKIM1; 
 	"autoconfig.acme.test. IN CNAME mail.test.local.\n"
 
 func TestParseZoneFile(t *testing.T) {
-	records := parseZoneFile(sampleZone, "acme.test")
+	records := parseZoneFile(sampleZone)
 	assert.Len(t, records, 9)
 
 	byID := map[string]DNSRecord{}

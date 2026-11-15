@@ -24,6 +24,9 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //
 //		// make and configure a mocked biz.WebsiteRepo
 //		mockedWebsiteRepo := &WebsiteRepo{
+//			AllFunc: func() ([]*biz.Website, error) {
+//				panic("mock out the All method")
+//			},
 //			CountFunc: func() (int64, error) {
 //				panic("mock out the Count method")
 //			},
@@ -94,6 +97,9 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //
 //	}
 type WebsiteRepo struct {
+	// AllFunc mocks the All method.
+	AllFunc func() ([]*biz.Website, error)
+
 	// CountFunc mocks the Count method.
 	CountFunc func() (int64, error)
 
@@ -159,6 +165,9 @@ type WebsiteRepo struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// All holds details about calls to the All method.
+		All []struct {
+		}
 		// Count holds details about calls to the Count method.
 		Count []struct {
 		}
@@ -297,6 +306,7 @@ type WebsiteRepo struct {
 			Status bool
 		}
 	}
+	lockAll                 sync.RWMutex
 	lockCount               sync.RWMutex
 	lockCreate              sync.RWMutex
 	lockDelete              sync.RWMutex
@@ -318,6 +328,33 @@ type WebsiteRepo struct {
 	lockUpdateProject       sync.RWMutex
 	lockUpdateRemark        sync.RWMutex
 	lockUpdateStatus        sync.RWMutex
+}
+
+// All calls AllFunc.
+func (mock *WebsiteRepo) All() ([]*biz.Website, error) {
+	if mock.AllFunc == nil {
+		panic("WebsiteRepo.AllFunc: method is nil but WebsiteRepo.All was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockAll.Lock()
+	mock.calls.All = append(mock.calls.All, callInfo)
+	mock.lockAll.Unlock()
+	return mock.AllFunc()
+}
+
+// AllCalls gets all the calls that were made to All.
+// Check the length with:
+//
+//	len(mockedWebsiteRepo.AllCalls())
+func (mock *WebsiteRepo) AllCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockAll.RLock()
+	calls = mock.calls.All
+	mock.lockAll.RUnlock()
+	return calls
 }
 
 // Count calls CountFunc.

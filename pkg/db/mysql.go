@@ -12,10 +12,7 @@ import (
 )
 
 type MySQL struct {
-	db       *sql.DB
-	username string
-	password string
-	address  string
+	db *sql.DB
 }
 
 func NewMySQL(ctx context.Context, username, password, address string, typ ...string) (Operator, error) {
@@ -32,20 +29,11 @@ func NewMySQL(ctx context.Context, username, password, address string, typ ...st
 		_ = db.Close()
 		return nil, fmt.Errorf("connect to mysql failed: %w", err)
 	}
-	return &MySQL{
-		db:       db,
-		username: username,
-		password: password,
-		address:  address,
-	}, nil
+	return &MySQL{db: db}, nil
 }
 
 func (r *MySQL) Close() {
 	_ = r.db.Close()
-}
-
-func (r *MySQL) Ping(ctx context.Context) error {
-	return r.db.PingContext(ctx)
 }
 
 func (r *MySQL) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
@@ -58,10 +46,6 @@ func (r *MySQL) QueryRow(ctx context.Context, query string, args ...any) *sql.Ro
 
 func (r *MySQL) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	return r.db.ExecContext(ctx, query, args...)
-}
-
-func (r *MySQL) Prepare(ctx context.Context, query string) (*sql.Stmt, error) {
-	return r.db.PrepareContext(ctx, query)
 }
 
 func (r *MySQL) DatabaseCreate(ctx context.Context, name string) error {
@@ -95,12 +79,6 @@ func (r *MySQL) DatabaseExists(ctx context.Context, name string) (bool, error) {
 		}
 	}
 	return false, rows.Err()
-}
-
-func (r *MySQL) DatabaseSize(ctx context.Context, name string) (int64, error) {
-	var size int64
-	err := r.QueryRow(ctx, "SELECT COALESCE(SUM(data_length) + SUM(index_length), 0) FROM information_schema.tables WHERE table_schema = ?", name).Scan(&size)
-	return size, err
 }
 
 func (r *MySQL) UserCreate(ctx context.Context, user, password string, host ...string) error {

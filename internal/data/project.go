@@ -74,68 +74,6 @@ func (r *projectRepo) GetEntity(id uint) (*biz.Project, error) {
 	return project, nil
 }
 
-// NameExists 检查项目名是否已存在
-func (r *projectRepo) NameExists(name string) (bool, error) {
-	var count int64
-	if err := r.db.Model(&biz.Project{}).Where("name = ?", name).Count(&count).Error; err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
-func (r *projectRepo) Create(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		// 创建数据库记录
-		if err := tx.Create(project).Error; err != nil {
-			return err
-		}
-
-		// 创建项目目录
-		if err := os.MkdirAll(project.Path, 0755); err != nil {
-			return fmt.Errorf("%s: %w", r.t.Get("failed to create project directory"), err)
-		}
-
-		// 生成 systemd unit 文件
-		if err := r.generateUnitFile(ctx, req); err != nil {
-			return fmt.Errorf("%s: %w", r.t.Get("failed to generate systemd config"), err)
-		}
-
-		return nil
-	})
-}
-
-func (r *projectRepo) Save(project *biz.Project) error {
-	return r.db.Save(project).Error
-}
-
-// RenameUnitFile 重命名 systemd unit 文件
-func (r *projectRepo) RenameUnitFile(oldName, newName string) error {
-	oldPath := r.unitFilePath(oldName)
-	newPath := r.unitFilePath(newName)
-	if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("%s: %w", r.t.Get("failed to rename systemd config"), err)
-	}
-	return nil
-}
-
-// RemoveUnitFile 删除 systemd unit 文件
-func (r *projectRepo) RemoveUnitFile(name string) error {
-	unitPath := r.unitFilePath(name)
-	if err := os.Remove(unitPath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("%s: %w", r.t.Get("failed to delete systemd config"), err)
-	}
-	return nil
-}
-
-func (r *projectRepo) Delete(project *biz.Project) error {
-	return r.db.Delete(project).Error
-}
-
-// unitFilePath 返回 systemd unit 文件路径
-func (r *projectRepo) unitFilePath(name string) string {
-	return filepath.Join("/etc/systemd/system", name+".service")
-}
-
 // ParseDetail 从数据库记录和 systemd unit 文件解析项目详情
 func (r *projectRepo) ParseDetail(ctx context.Context, project *biz.Project) (*types.ProjectDetail, error) {
 	detail := &types.ProjectDetail{
@@ -256,7 +194,7 @@ func (r *projectRepo) parseServiceSection(detail *types.ProjectDetail, opt *unit
 		}
 	case "NoNewPrivileges":
 		detail.NoNewPrivileges = opt.Value == "true" || opt.Value == "yes"
-	case "ProtectTmp":
+	case "PrivateTmp", "ProtectTmp":
 		detail.ProtectTmp = opt.Value == "true" || opt.Value == "yes"
 	case "ProtectHome":
 		detail.ProtectHome = opt.Value == "true" || opt.Value == "yes"
@@ -276,12 +214,6 @@ func (r *projectRepo) parseEnvironment(value string) *types.KV {
 		return nil
 	}
 	return &types.KV{Key: parts[0], Value: r.unquoteEnvironment(parts[1])}
-}
-
-// quoteEnvironment 序列化环境变量，加双引号以支持值中包含空格
-func (r *projectRepo) quoteEnvironment(env types.KV) string {
-	value := strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(env.Value)
-	return fmt.Sprintf(`"%s=%s"`, env.Key, value)
 }
 
 // unquoteEnvironment 去除首尾双引号并反转义
@@ -316,6 +248,241 @@ func (r *projectRepo) parseBytes(value string) (float64, error) {
 	return cast.ToFloat64(value) * multiplier, nil
 }
 
+// parsePercent 解析百分比 (如 50%)
+func (r *projectRepo) parsePercent(value string) (float64, error) {
+	value = strings.TrimSuffix(value, "%")
+	return strconv.ParseFloat(value, 64)
+}
+
+// NameExists 检查项目名是否已存在
+func (r *projectRepo) NameExists(name string) (bool, error) {
+	var count int64
+	if err := r.db.Model(&biz.Project{}).Where("name = ?", name).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *projectRepo) Create(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// 创建数据库记录
+		if err := tx.Create(project).Error; err != nil {
+			return err
+		}
+
+		// 创建项目目录
+		if err := os.MkdirAll(project.Path, 0755); err != nil {
+			return fmt.Errorf("%s: %w", r.t.Get("failed to create project directory"), err)
+		}
+
+		// 生成 systemd unit 文件
+		if err := r.generateUnitFile(ctx, req); err != nil {
+			return fmt.Errorf("%s: %w", r.t.Get("failed to generate systemd config"), err)
+		}
+
+		return nil
+	})
+}
+
+// generateUnitFile 生成 systemd unit 文件
+func (r *projectRepo) generateUnitFile(ctx context.Context, req *request.ProjectCreate) error {
+	return r.writeUnit(ctx, req.Name, r.createUnitOptions(req))
+}
+
+func (r *projectRepo) createUnitOptions(req *request.ProjectCreate) []*unit.UnitOption {
+	options := r.unitOptions(&request.ProjectUpdate{
+		Description:  req.Description,
+		RootDir:      req.RootDir,
+		WorkingDir:   req.WorkingDir,
+		ExecStart:    req.ExecStart,
+		User:         req.User,
+		Restart:      req.Restart,
+		Environments: req.Environments,
+	}, nil)
+	if req.Type == types.ProjectTypeJava {
+		// JVM 捕获 SIGTERM 后主动以 143 (128+15) 退出，需视为正常退出
+		i := slices.IndexFunc(options, func(opt *unit.UnitOption) bool { return opt.Name == "Restart" })
+		options = slices.Insert(options, i+1, unit.NewUnitOption("Service", "SuccessExitStatus", "143"))
+	}
+	return options
+}
+
+func (r *projectRepo) Save(project *biz.Project) error {
+	return r.db.Save(project).Error
+}
+
+func (r *projectRepo) Delete(project *biz.Project) error {
+	return r.db.Delete(project).Error
+}
+
+// RenameUnitFile 重命名 systemd unit 文件
+func (r *projectRepo) RenameUnitFile(oldName, newName string) error {
+	oldPath := r.unitFilePath(oldName)
+	newPath := r.unitFilePath(newName)
+	if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("%s: %w", r.t.Get("failed to rename systemd config"), err)
+	}
+	return nil
+}
+
+// RemoveUnitFile 删除 systemd unit 文件
+func (r *projectRepo) RemoveUnitFile(name string) error {
+	unitPath := r.unitFilePath(name)
+	if err := os.Remove(unitPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("%s: %w", r.t.Get("failed to delete systemd config"), err)
+	}
+	return nil
+}
+
+// UpdateUnitFile 更新 systemd unit 文件
+func (r *projectRepo) UpdateUnitFile(ctx context.Context, name string, req *request.ProjectUpdate) error {
+	// 解析失败时直接重写
+	var existing []*unit.UnitOption
+	if file, err := os.Open(r.unitFilePath(name)); err == nil {
+		if parsed, errParse := unit.DeserializeOptions(file); errParse == nil {
+			existing = parsed
+		}
+		_ = file.Close()
+	}
+
+	return r.writeUnit(ctx, name, r.unitOptions(req, existing))
+}
+
+// unitOptions 生成 unit 配置项，existing 中面板未托管的配置项（如 SuccessExitStatus、LimitNOFILE 等）原样保留
+func (r *projectRepo) unitOptions(req *request.ProjectUpdate, existing []*unit.UnitOption) []*unit.UnitOption {
+	rootDir := lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
+	workingDir := cmp.Or(req.WorkingDir, rootDir)
+	workingDir = lo.If(!strings.HasPrefix(workingDir, "/"), filepath.Join("/", workingDir)).Else(workingDir)
+
+	var options []*unit.UnitOption
+	add := func(section, name string, values ...string) {
+		for _, value := range values {
+			options = append(options, unit.NewUnitOption(section, name, value))
+		}
+	}
+	// 空值不写入
+	set := func(name, value string) {
+		if value != "" {
+			add("Service", name, value)
+		}
+	}
+
+	add("Unit", "Description", req.Description)
+	add("Unit", "Requires", req.Requires...)
+	add("Unit", "Wants", req.Wants...)
+	add("Unit", "After", req.After...)
+	if len(req.After) == 0 {
+		add("Unit", "After", "network.target")
+	}
+	add("Unit", "Before", req.Before...)
+
+	add("Service", "Type", "simple")
+	add("Service", "WorkingDirectory", workingDir)
+	set("ExecStartPre", req.ExecStartPre)
+	set("ExecStart", req.ExecStart)
+	set("ExecStartPost", req.ExecStartPost)
+	set("ExecStop", req.ExecStop)
+	set("ExecReload", req.ExecReload)
+	set("User", req.User)
+	add("Service", "Restart", cmp.Or(req.Restart, "on-failure"))
+	set("RestartSec", req.RestartSec)
+	if req.RestartMax > 0 {
+		add("Service", "StartLimitBurst", strconv.Itoa(req.RestartMax))
+	}
+	if req.TimeoutStartSec > 0 {
+		add("Service", "TimeoutStartSec", strconv.Itoa(req.TimeoutStartSec))
+	}
+	if req.TimeoutStopSec > 0 {
+		add("Service", "TimeoutStopSec", strconv.Itoa(req.TimeoutStopSec))
+	}
+	for _, env := range req.Environments {
+		add("Service", "Environment", r.quoteEnvironment(env))
+	}
+	set("StandardOutput", req.StandardOutput)
+	set("StandardError", req.StandardError)
+
+	// 资源限制
+	if req.MemoryLimit > 0 {
+		add("Service", "MemoryLimit", r.formatBytes(req.MemoryLimit))
+	}
+	set("CPUQuota", req.CPUQuota)
+
+	// 安全选项
+	if req.NoNewPrivileges {
+		add("Service", "NoNewPrivileges", "true")
+	}
+	if req.ProtectTmp {
+		add("Service", "PrivateTmp", "true")
+	}
+	if req.ProtectHome {
+		add("Service", "ProtectHome", "true")
+	}
+	set("ProtectSystem", req.ProtectSystem)
+	add("Service", "ReadWritePaths", req.ReadWritePaths...)
+	add("Service", "ReadOnlyPaths", req.ReadOnlyPaths...)
+
+	add("Install", "WantedBy", "multi-user.target")
+
+	// managedUnitKeys 面板托管的 unit 配置项，更新时整体重写，文件中的其余配置项原样保留
+	managedUnitKeys := map[string]map[string]bool{
+		"Unit": {
+			"Description": true,
+			"Requires":    true,
+			"Wants":       true,
+			"After":       true,
+			"Before":      true,
+		},
+		"Service": {
+			"Type":             true,
+			"WorkingDirectory": true,
+			"ExecStartPre":     true,
+			"ExecStart":        true,
+			"ExecStartPost":    true,
+			"ExecStop":         true,
+			"ExecReload":       true,
+			"User":             true,
+			"Restart":          true,
+			"RestartSec":       true,
+			"StartLimitBurst":  true,
+			"TimeoutStartSec":  true,
+			"TimeoutStopSec":   true,
+			"Environment":      true,
+			"StandardOutput":   true,
+			"StandardError":    true,
+			"MemoryLimit":      true,
+			"CPUQuota":         true,
+			"NoNewPrivileges":  true,
+			"PrivateTmp":       true,
+			"ProtectTmp":       true, // 旧版本写入的无效项，保存时清掉
+			"ProtectHome":      true,
+			"ProtectSystem":    true,
+			"ReadWritePaths":   true,
+			"ReadOnlyPaths":    true,
+		},
+		"Install": {
+			"WantedBy": true,
+		},
+	}
+	for _, opt := range existing {
+		if !managedUnitKeys[opt.Section][opt.Name] {
+			options = append(options, opt)
+		}
+	}
+
+	// 按段落分组排序，避免序列化时段落交错
+	slices.SortStableFunc(options, func(a, b *unit.UnitOption) int {
+		return cmp.Compare(r.sectionOrder(a.Section), r.sectionOrder(b.Section))
+	})
+
+	return options
+}
+
+// quoteEnvironment 序列化环境变量，加双引号以支持值中包含空格
+func (r *projectRepo) quoteEnvironment(env types.KV) string {
+	value := strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(env.Value)
+	return fmt.Sprintf(`"%s=%s"`, env.Key, value)
+}
+
 // formatBytes 格式化字节大小
 func (r *projectRepo) formatBytes(bytes float64) string {
 	b := int64(bytes)
@@ -331,54 +498,8 @@ func (r *projectRepo) formatBytes(bytes float64) string {
 	return strconv.FormatInt(b, 10)
 }
 
-// parsePercent 解析百分比 (如 50%)
-func (r *projectRepo) parsePercent(value string) (float64, error) {
-	value = strings.TrimSuffix(value, "%")
-	return strconv.ParseFloat(value, 64)
-}
-
-// managedUnitKeys 面板托管的 unit 配置项，更新时整体重写，文件中的其余配置项原样保留
-var managedUnitKeys = map[string]map[string]bool{
-	"Unit": {
-		"Description": true,
-		"Requires":    true,
-		"Wants":       true,
-		"After":       true,
-		"Before":      true,
-	},
-	"Service": {
-		"Type":             true,
-		"WorkingDirectory": true,
-		"ExecStartPre":     true,
-		"ExecStart":        true,
-		"ExecStartPost":    true,
-		"ExecStop":         true,
-		"ExecReload":       true,
-		"User":             true,
-		"Restart":          true,
-		"RestartSec":       true,
-		"StartLimitBurst":  true,
-		"TimeoutStartSec":  true,
-		"TimeoutStopSec":   true,
-		"Environment":      true,
-		"StandardOutput":   true,
-		"StandardError":    true,
-		"MemoryLimit":      true,
-		"CPUQuota":         true,
-		"NoNewPrivileges":  true,
-		"ProtectTmp":       true,
-		"ProtectHome":      true,
-		"ProtectSystem":    true,
-		"ReadWritePaths":   true,
-		"ReadOnlyPaths":    true,
-	},
-	"Install": {
-		"WantedBy": true,
-	},
-}
-
 // sectionOrder 返回 unit 文件段落的排序权重
-func sectionOrder(section string) int {
+func (r *projectRepo) sectionOrder(section string) int {
 	switch section {
 	case "Unit":
 		return 0
@@ -391,201 +512,20 @@ func sectionOrder(section string) int {
 	}
 }
 
-// generateUnitFile 生成 systemd unit 文件
-func (r *projectRepo) generateUnitFile(ctx context.Context, req *request.ProjectCreate) error {
-	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
-	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
-	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
-	options := []*unit.UnitOption{
-		// [Unit] section
-		unit.NewUnitOption("Unit", "Description", req.Description),
-		unit.NewUnitOption("Unit", "After", "network.target"),
-
-		// [Service] section
-		unit.NewUnitOption("Service", "Type", "simple"),
-		unit.NewUnitOption("Service", "WorkingDirectory", req.WorkingDir),
-	}
-
-	if req.ExecStart != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecStart", req.ExecStart))
-	}
-	if req.User != "" {
-		options = append(options, unit.NewUnitOption("Service", "User", req.User))
-	}
-	if req.Restart != "" {
-		options = append(options, unit.NewUnitOption("Service", "Restart", req.Restart))
-	} else {
-		options = append(options, unit.NewUnitOption("Service", "Restart", "on-failure"))
-	}
-	if req.Type == types.ProjectTypeJava {
-		// JVM 捕获 SIGTERM 后主动以 143 (128+15) 退出，需视为正常退出
-		options = append(options, unit.NewUnitOption("Service", "SuccessExitStatus", "143"))
-	}
-
-	// 环境变量
-	for _, env := range req.Environments {
-		options = append(options, unit.NewUnitOption("Service", "Environment", r.quoteEnvironment(env)))
-	}
-
-	// [Install] section
-	options = append(options, unit.NewUnitOption("Install", "WantedBy", "multi-user.target"))
-
-	// 写入文件
-	unitPath := r.unitFilePath(req.Name)
-	reader := unit.Serialize(options)
-	content, err := io.ReadAll(reader)
+func (r *projectRepo) writeUnit(ctx context.Context, name string, options []*unit.UnitOption) error {
+	content, err := io.ReadAll(unit.Serialize(options))
 	if err != nil {
 		return err
 	}
 
-	if err = os.WriteFile(unitPath, content, 0644); err != nil {
+	if err = os.WriteFile(r.unitFilePath(name), content, 0644); err != nil {
 		return err
 	}
 
 	return systemctl.DaemonReload(ctx)
 }
 
-// UpdateUnitFile 更新 systemd unit 文件
-func (r *projectRepo) UpdateUnitFile(ctx context.Context, name string, req *request.ProjectUpdate) error {
-	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
-	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
-	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
-
-	options := []*unit.UnitOption{
-		// [Unit] section
-		unit.NewUnitOption("Unit", "Description", req.Description),
-	}
-
-	// Unit 依赖
-	for _, v := range req.Requires {
-		options = append(options, unit.NewUnitOption("Unit", "Requires", v))
-	}
-	for _, v := range req.Wants {
-		options = append(options, unit.NewUnitOption("Unit", "Wants", v))
-	}
-	for _, v := range req.After {
-		options = append(options, unit.NewUnitOption("Unit", "After", v))
-	}
-	if len(req.After) == 0 {
-		options = append(options, unit.NewUnitOption("Unit", "After", "network.target"))
-	}
-	for _, v := range req.Before {
-		options = append(options, unit.NewUnitOption("Unit", "Before", v))
-	}
-
-	// [Service] section
-	options = append(options, unit.NewUnitOption("Service", "Type", "simple"))
-	options = append(options, unit.NewUnitOption("Service", "WorkingDirectory", req.WorkingDir))
-
-	if req.ExecStartPre != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecStartPre", req.ExecStartPre))
-	}
-	if req.ExecStart != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecStart", req.ExecStart))
-	}
-	if req.ExecStartPost != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecStartPost", req.ExecStartPost))
-	}
-	if req.ExecStop != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecStop", req.ExecStop))
-	}
-	if req.ExecReload != "" {
-		options = append(options, unit.NewUnitOption("Service", "ExecReload", req.ExecReload))
-	}
-	if req.User != "" {
-		options = append(options, unit.NewUnitOption("Service", "User", req.User))
-	}
-	if req.Restart != "" {
-		options = append(options, unit.NewUnitOption("Service", "Restart", req.Restart))
-	} else {
-		options = append(options, unit.NewUnitOption("Service", "Restart", "on-failure"))
-	}
-	if req.RestartSec != "" {
-		options = append(options, unit.NewUnitOption("Service", "RestartSec", req.RestartSec))
-	}
-	if req.RestartMax > 0 {
-		options = append(options, unit.NewUnitOption("Service", "StartLimitBurst", strconv.Itoa(req.RestartMax)))
-	}
-	if req.TimeoutStartSec > 0 {
-		options = append(options, unit.NewUnitOption("Service", "TimeoutStartSec", strconv.Itoa(req.TimeoutStartSec)))
-	}
-	if req.TimeoutStopSec > 0 {
-		options = append(options, unit.NewUnitOption("Service", "TimeoutStopSec", strconv.Itoa(req.TimeoutStopSec)))
-	}
-
-	// 环境变量
-	for _, env := range req.Environments {
-		options = append(options, unit.NewUnitOption("Service", "Environment", r.quoteEnvironment(env)))
-	}
-
-	// 输出
-	if req.StandardOutput != "" {
-		options = append(options, unit.NewUnitOption("Service", "StandardOutput", req.StandardOutput))
-	}
-	if req.StandardError != "" {
-		options = append(options, unit.NewUnitOption("Service", "StandardError", req.StandardError))
-	}
-
-	// 资源限制
-	if req.MemoryLimit > 0 {
-		options = append(options, unit.NewUnitOption("Service", "MemoryLimit", r.formatBytes(req.MemoryLimit)))
-	}
-	if req.CPUQuota != "" {
-		options = append(options, unit.NewUnitOption("Service", "CPUQuota", req.CPUQuota))
-	}
-
-	// 安全选项
-	if req.NoNewPrivileges {
-		options = append(options, unit.NewUnitOption("Service", "NoNewPrivileges", "true"))
-	}
-	if req.ProtectTmp {
-		options = append(options, unit.NewUnitOption("Service", "ProtectTmp", "true"))
-	}
-	if req.ProtectHome {
-		options = append(options, unit.NewUnitOption("Service", "ProtectHome", "true"))
-	}
-	if req.ProtectSystem != "" {
-		options = append(options, unit.NewUnitOption("Service", "ProtectSystem", req.ProtectSystem))
-	}
-	for _, v := range req.ReadWritePaths {
-		options = append(options, unit.NewUnitOption("Service", "ReadWritePaths", v))
-	}
-	for _, v := range req.ReadOnlyPaths {
-		options = append(options, unit.NewUnitOption("Service", "ReadOnlyPaths", v))
-	}
-
-	// [Install] section
-	options = append(options, unit.NewUnitOption("Install", "WantedBy", "multi-user.target"))
-
-	// 保留现有文件中面板未托管的配置项（如 SuccessExitStatus、LimitNOFILE 等），解析失败时直接重写
-	unitPath := r.unitFilePath(name)
-	if file, err := os.Open(unitPath); err == nil {
-		existing, errParse := unit.DeserializeOptions(file)
-		_ = file.Close()
-		if errParse == nil {
-			for _, opt := range existing {
-				if !managedUnitKeys[opt.Section][opt.Name] {
-					options = append(options, opt)
-				}
-			}
-		}
-	}
-
-	// 按段落分组排序，避免序列化时段落交错
-	slices.SortStableFunc(options, func(a, b *unit.UnitOption) int {
-		return cmp.Compare(sectionOrder(a.Section), sectionOrder(b.Section))
-	})
-
-	// 写入文件
-	reader := unit.Serialize(options)
-	content, err := io.ReadAll(reader)
-	if err != nil {
-		return err
-	}
-
-	if err = os.WriteFile(unitPath, content, 0644); err != nil {
-		return err
-	}
-
-	return systemctl.DaemonReload(ctx)
+// unitFilePath 返回 systemd unit 文件路径
+func (r *projectRepo) unitFilePath(name string) string {
+	return filepath.Join("/etc/systemd/system", name+".service")
 }

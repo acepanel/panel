@@ -19,13 +19,19 @@ func Search(ctx context.Context, path, keyword string, sub bool) ([]Entry, error
 	if sub {
 		depth = ""
 	}
-	out, err := shell.Execf(ctx, "find %s -mindepth 1 %s -name %s -print0", shell.Quote(path), depth, shell.Quote("*"+globEscape(keyword)+"*"))
+	out, err := shell.Execf(
+		ctx,
+		"find %s -mindepth 1 %s -name %s -print0",
+		shell.Quote(path),
+		depth,
+		shell.Quote("*"+globEscape(keyword)+"*"),
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	var entries []Entry
-	for _, p := range strings.Split(out, "\x00") {
+	for p := range strings.SplitSeq(out, "\x00") {
 		if p == "" {
 			continue
 		}

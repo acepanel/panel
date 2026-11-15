@@ -15,7 +15,13 @@ type App struct {
 	mysql *mysql.App
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return &App{
 		mysql: mysql.New("percona", t, log, databaseServerRepo, settingRepo, taskRepo),
 	}

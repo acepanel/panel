@@ -3,7 +3,7 @@ defineOptions({
   name: 'postgresql-extensions',
 })
 
-import { NButton, NDataTable, NSpace, NTag } from 'naive-ui'
+import { NButton, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'

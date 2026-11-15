@@ -70,6 +70,7 @@ func (c *Client) UsePanel(conf string, writer HTTPChallengeWriter) {
 		acme.ChallengeTypeHTTP01: &panelSolver{
 			conf:   conf,
 			writer: writer,
+			tokens: make(map[string]string),
 		},
 	}
 }
@@ -128,16 +129,6 @@ func (c *Client) ObtainIPCertificate(ctx context.Context, sans []string, keyType
 	}
 
 	return Certificate{PrivateKey: pemPrivateKey, Certificate: certs[0]}, nil
-}
-
-// RenewCertificate 续签 SSL 证书
-func (c *Client) RenewCertificate(ctx context.Context, certUrl string, domains []string, keyType KeyType) (Certificate, error) {
-	_, err := c.zClient.GetCertificateChain(ctx, c.Account, certUrl)
-	if err != nil {
-		return Certificate{}, err
-	}
-
-	return c.ObtainCertificate(ctx, domains, keyType)
 }
 
 // GetRenewalInfo 获取续签建议

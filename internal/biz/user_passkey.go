@@ -31,8 +31,6 @@ type UserPasskeyRepo interface {
 	UpdateSignCount(credentialID []byte, signCount uint32) error
 	UpdateLastUsed(credentialID []byte) error
 	Delete(userID, id uint) error
-	GetByCredentialID(credentialID []byte) (*UserPasskey, *User, error)
-	HasPasskey(userID uint) (bool, error)
 	HasAny() (bool, error)
 	DeleteAllByUserID(userID uint) error
 }
@@ -88,14 +86,6 @@ func (uc *UserPasskeyUsecase) Delete(ctx context.Context, userID, id uint) error
 	uc.log.Warn(uc.t.Get("user passkey deleted"), slog.String("type", OperationTypeUser), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", passkey.Name), slog.Uint64("user_id", uint64(userID)))
 
 	return nil
-}
-
-func (uc *UserPasskeyUsecase) GetByCredentialID(credentialID []byte) (*UserPasskey, *User, error) {
-	return uc.repo.GetByCredentialID(credentialID)
-}
-
-func (uc *UserPasskeyUsecase) HasPasskey(userID uint) (bool, error) {
-	return uc.repo.HasPasskey(userID)
 }
 
 func (uc *UserPasskeyUsecase) HasAny() (bool, error) {

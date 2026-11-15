@@ -164,8 +164,10 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	}
 
 	publicIP := make([]string, 0)
-	if err = json.Unmarshal([]byte(values[biz.SettingKeyPublicIPs]), &publicIP); err != nil {
-		return nil, err
+	if raw := values[biz.SettingKeyPublicIPs]; raw != "" {
+		if err = json.Unmarshal([]byte(raw), &publicIP); err != nil {
+			return nil, err
+		}
 	}
 
 	crt, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))

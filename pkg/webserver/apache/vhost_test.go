@@ -13,12 +13,12 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-func newPHPVhost(t *testing.T) (*PHPVhost, string) {
+func setupPHPVhost(t *testing.T) (*phpVhost, string) {
 	t.Helper()
 	configDir := t.TempDir()
 	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
 
-	vhost, err := NewPHPVhost(configDir)
+	vhost, err := newPHPVhost(configDir)
 	must.NoError(t, err)
 	must.NotNil(t, vhost)
 	return vhost, configDir
@@ -38,34 +38,52 @@ func confFiles(t *testing.T, configDir, scope, prefix, suffix string) []string {
 	return out
 }
 
-func newProxyVhost(t *testing.T) (*ProxyVhost, string) {
+func setupProxyVhost(t *testing.T) (*proxyVhost, string) {
 	t.Helper()
 	configDir := t.TempDir()
 	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
 	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
 
-	vhost, err := NewProxyVhost(configDir)
+	vhost, err := newProxyVhost(configDir)
 	must.NoError(t, err)
 	return vhost, configDir
 }
 
-func TestPHPVhostNew(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+// withProxyDefaults 回读会把没写进配置的 Host 与 HTTP 版本按 mod_proxy 的实际行为补齐
+func withProxyDefaults(proxies []types.Proxy) []types.Proxy {
+	want := make([]types.Proxy, len(proxies))
+	for i, p := range proxies {
+		if p.Host == "" {
+			p.Host = "$proxy_host"
+		}
+		if p.HTTPVersion == "" {
+			p.HTTPVersion = "1.1"
+		}
+		want[i] = p
+	}
+	return want
+}
 
-	check.Equal(t, vhost.configDir, configDir)
+func TestPHPVhostNew(t *testing.T) {
+	vhost, configDir := setupPHPVhost(t)
+
+	check.Equal(t, vhost.ConfigDir, configDir)
 	check.NotNil(t, vhost.config)
 	check.NotNil(t, vhost.vhost)
 }
 
 func TestPHPVhostEnable(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 默认应该是启用状态
 	check.True(t, vhost.Enable())
 
-	// 禁用网站
+	// 禁用网站，证书验证路径不能被改写到停用页；停用页不要认证
 	check.NoError(t, vhost.SetEnable(false))
 	check.False(t, vhost.Enable())
+	disable := vhost.Config("00-disable.conf", types.ScopeSite)
+	check.Contains(t, disable, "RewriteCond %{REQUEST_URI} !^/\\.well-known/acme-challenge/\nRewriteRule ^ "+disablePage+" [L]")
+	check.Contains(t, disable, "<Directory "+htmlDir+">\n    <If \"true\">\n        Require all granted\n    </If>\n</Directory>")
 
 	// 重新启用
 	check.NoError(t, vhost.SetEnable(true))
@@ -73,7 +91,7 @@ func TestPHPVhostEnable(t *testing.T) {
 }
 
 func TestPHPVhostServerName(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	names := []string{"example.com", "www.example.com", "api.example.com"}
 	check.NoError(t, vhost.SetServerName(names))
@@ -81,7 +99,7 @@ func TestPHPVhostServerName(t *testing.T) {
 }
 
 func TestPHPVhostServerNameEmpty(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 空输入是空操作，原有域名保持不变
 	before := vhost.ServerName()
@@ -90,7 +108,7 @@ func TestPHPVhostServerNameEmpty(t *testing.T) {
 }
 
 func TestPHPVhostRoot(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	root := "/var/www/html"
 	check.NoError(t, vhost.SetRoot(root))
@@ -98,7 +116,7 @@ func TestPHPVhostRoot(t *testing.T) {
 }
 
 func TestPHPVhostIndex(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	index := []string{"index.html", "index.php", "default.html"}
 	check.NoError(t, vhost.SetIndex(index))
@@ -106,14 +124,14 @@ func TestPHPVhostIndex(t *testing.T) {
 }
 
 func TestPHPVhostIndexEmpty(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.NoError(t, vhost.SetIndex([]string{}))
 	check.Empty(t, vhost.Index())
 }
 
 func TestPHPVhostListen(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	listens := []types.Listen{
 		{Address: "*:80"},
@@ -124,14 +142,14 @@ func TestPHPVhostListen(t *testing.T) {
 }
 
 func TestPHPVhostSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.False(t, vhost.SSL())
 	check.Nil(t, vhost.SSLConfig())
 }
 
 func TestPHPVhostSetSSLConfig(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
@@ -143,17 +161,18 @@ func TestPHPVhostSetSSLConfig(t *testing.T) {
 	check.NoError(t, vhost.SetSSLConfig(sslConfig))
 
 	check.True(t, vhost.SSL())
+	check.Contains(t, Export(vhost.config), "SSLUseStapling on")
 	check.DeepEqual(t, vhost.SSLConfig(), sslConfig)
 }
 
 func TestPHPVhostSetSSLConfigNil(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Error(t, vhost.SetSSLConfig(nil))
 }
 
 func TestPHPVhostClearSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert: "/etc/ssl/cert.pem",
@@ -168,7 +187,7 @@ func TestPHPVhostClearSSL(t *testing.T) {
 }
 
 func TestPHPVhostClearHTTPSPreservesOtherHeaders(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 添加一个非 HSTS 的 Header
 	vhost.vhost.Add("Header", "set", "X-Custom-Header", "value")
@@ -190,7 +209,7 @@ func TestPHPVhostClearHTTPSPreservesOtherHeaders(t *testing.T) {
 }
 
 func TestPHPVhostPHP(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Equal(t, vhost.PHP(), uint(0))
 
@@ -202,7 +221,7 @@ func TestPHPVhostPHP(t *testing.T) {
 }
 
 func TestPHPVhostAccessLog(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	accessLog := "/var/log/apache/access.log"
 	check.NoError(t, vhost.SetAccessLog(accessLog))
@@ -210,26 +229,15 @@ func TestPHPVhostAccessLog(t *testing.T) {
 }
 
 func TestPHPVhostErrorLog(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	errorLog := "/var/log/apache/error.log"
 	check.NoError(t, vhost.SetErrorLog(errorLog))
 	check.Equal(t, vhost.ErrorLog(), errorLog)
 }
 
-func TestPHPVhostIncludes(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
-
-	includes := []types.IncludeFile{
-		{Path: "/etc/apache/conf.d/ssl.conf"},
-		{Path: "/etc/apache/conf.d/php.conf"},
-	}
-	check.NoError(t, vhost.SetIncludes(includes))
-	check.DeepEqual(t, vhost.Includes(), includes)
-}
-
 func TestPHPVhostBasicAuth(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Nil(t, vhost.BasicAuth())
 
@@ -239,13 +247,21 @@ func TestPHPVhostBasicAuth(t *testing.T) {
 	}
 	check.NoError(t, vhost.SetBasicAuth(auths))
 	check.DeepEqual(t, vhost.BasicAuth(), auths)
+	// 整站认证要放过证书验证路径
+	check.Contains(t, Export(vhost.config), "<LocationMatch ^/(?!\\.well-known/acme-challenge/)>\n        AuthType Basic\n")
+	check.Contains(t, Export(vhost.config), "<Location /admin>\n        AuthType Basic\n")
 
-	check.NoError(t, vhost.ClearBasicAuth())
+	check.NoError(t, vhost.SetBasicAuth(nil))
 	check.Nil(t, vhost.BasicAuth())
+	check.NotContains(t, Export(vhost.config), "AuthType")
+
+	// 旧版整站认证写成 <Location />
+	vhost.vhost.AddBlock("Location", "/").Add("AuthType", "Basic")
+	check.DeepEqual(t, vhost.BasicAuth(), []types.BasicAuth{{Path: "/"}})
 }
 
 func TestPHPVhostBasicAuthOrder(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// Location 后声明者覆盖先声明者，整站规则应排在目录规则之前声明
 	check.NoError(t, vhost.SetBasicAuth([]types.BasicAuth{
@@ -259,7 +275,7 @@ func TestPHPVhostBasicAuthOrder(t *testing.T) {
 }
 
 func TestPHPVhostBasicAuthLegacy(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	// 旧版 vhost 级整站配置应能读出并被清除
 	vhost.vhost.Set("AuthType", "Basic")
@@ -269,12 +285,12 @@ func TestPHPVhostBasicAuthLegacy(t *testing.T) {
 
 	check.DeepEqual(t, vhost.BasicAuth(), []types.BasicAuth{{Path: "/", UserFile: "/etc/htpasswd"}})
 
-	check.NoError(t, vhost.ClearBasicAuth())
+	check.NoError(t, vhost.SetBasicAuth(nil))
 	check.Nil(t, vhost.BasicAuth())
 }
 
 func TestPHPVhostRateLimit(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.Nil(t, vhost.RateLimit())
 
@@ -288,21 +304,8 @@ func TestPHPVhostRateLimit(t *testing.T) {
 	check.Nil(t, vhost.RateLimit())
 }
 
-func TestPHPVhostReset(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
-
-	// 重置后应完全回到初始模板，而不只是丢掉改动值
-	names, root := vhost.ServerName(), vhost.Root()
-	check.NoError(t, vhost.SetServerName([]string{"modified.com"}))
-	check.NoError(t, vhost.SetRoot("/modified/path"))
-
-	check.NoError(t, vhost.Reset())
-	check.DeepEqual(t, vhost.ServerName(), names)
-	check.Equal(t, vhost.Root(), root)
-}
-
 func TestPHPVhostSave(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	check.NoError(t, vhost.SetServerName([]string{"save-test.com"}))
 	check.NoError(t, vhost.Save())
@@ -315,7 +318,7 @@ func TestPHPVhostSave(t *testing.T) {
 }
 
 func TestPHPVhostExport(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.NoError(t, vhost.SetServerName([]string{"export-test.com"}))
 	check.NoError(t, vhost.SetRoot("/var/www/export-test"))
@@ -328,7 +331,7 @@ func TestPHPVhostExport(t *testing.T) {
 }
 
 func TestPHPVhostExportWithSSL(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
@@ -344,7 +347,7 @@ func TestPHPVhostExportWithSSL(t *testing.T) {
 }
 
 func TestPHPVhostListenProtocolDetection(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	listens := []types.Listen{
 		{Address: "*:443", Args: []string{"ssl"}},
@@ -362,7 +365,7 @@ func TestPHPVhostListenProtocolDetection(t *testing.T) {
 }
 
 func TestPHPVhostDirectoryBlock(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	root := "/var/www/test-dir"
 	check.NoError(t, vhost.SetRoot(root))
@@ -373,7 +376,7 @@ func TestPHPVhostDirectoryBlock(t *testing.T) {
 }
 
 func TestPHPVhostFilesMatchBlock(t *testing.T) {
-	vhost, _ := newPHPVhost(t)
+	vhost, _ := setupPHPVhost(t)
 
 	check.NoError(t, vhost.SetPHP(84))
 
@@ -383,12 +386,12 @@ func TestPHPVhostFilesMatchBlock(t *testing.T) {
 
 func TestDefaultVhostConfIncludesServerD(t *testing.T) {
 	// 验证默认配置包含 site 的 include
-	check.Contains(t, DefaultVhostConf, "site")
-	check.Contains(t, DefaultVhostConf, "IncludeOptional")
+	check.Contains(t, defaultVhostConf, "site")
+	check.Contains(t, defaultVhostConf, "IncludeOptional")
 }
 
 func TestPHPVhostRedirects(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	// 初始应该没有重定向
 	check.Empty(t, vhost.Redirects())
@@ -408,17 +411,19 @@ func TestPHPVhostRedirects(t *testing.T) {
 			KeepURI:    true,
 			StatusCode: 308,
 		},
+		{Type: types.RedirectTypeURL, From: "/docs/a.b", To: "https://docs.example.com", KeepURI: true, StatusCode: 302},
+		{Type: types.RedirectTypeHost, From: "www.example.com", To: "https://example.com/", StatusCode: 301},
 	}
 	check.NoError(t, vhost.SetRedirects(redirects))
 
 	// 验证重定向文件已创建
-	check.Len(t, confFiles(t, configDir, "site", "1", "-redirect.conf"), 2)
+	check.Len(t, confFiles(t, configDir, "site", "1", "-redirect.conf"), 4)
 
 	check.DeepEqual(t, vhost.Redirects(), redirects)
 }
 
 func TestPHPVhostRedirectURL(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	redirects := []types.Redirect{
 		{
@@ -435,13 +440,22 @@ func TestPHPVhostRedirectURL(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
 	must.NoError(t, err)
 
-	check.Contains(t, string(content), "Redirect 301")
-	check.Contains(t, string(content), "/old-page")
-	check.Contains(t, string(content), "/new-page")
+	// 只匹配这一个路径，不保留 URI 时连查询串一起丢掉
+	check.Contains(t, string(content), "RewriteEngine on\nRewriteRule ^/old-page$ /new-page [R=301,L,QSD]\n")
+
+	// 保留 URI 即接上原始路径，查询串由 mod_rewrite 自动带上
+	redirects[0].KeepURI = true
+	check.NoError(t, vhost.SetRedirects(redirects))
+	check.Contains(t, readFile(t, filepath.Join(siteDir, "100-redirect.conf")), "RewriteRule ^/old-page$ /new-page%{REQUEST_URI} [R=301,L]\n")
+	check.DeepEqual(t, vhost.Redirects(), redirects)
+
+	// 旧版用 mod_alias 写的也读得回来
+	must.NoError(t, os.WriteFile(filepath.Join(siteDir, "100-redirect.conf"), []byte("RedirectMatch 302 ^/old(.*)$ /new$1\n"), 0600))
+	check.DeepEqual(t, vhost.Redirects(), []types.Redirect{{Type: types.RedirectTypeURL, From: "/old", To: "/new", KeepURI: true, StatusCode: 302}})
 }
 
 func TestPHPVhostRedirectHost(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
 
 	redirects := []types.Redirect{
 		{
@@ -466,27 +480,37 @@ func TestPHPVhostRedirectHost(t *testing.T) {
 }
 
 func TestPHPVhostRedirect404(t *testing.T) {
-	vhost, configDir := newPHPVhost(t)
+	vhost, configDir := setupPHPVhost(t)
+	file := filepath.Join(configDir, "site", "100-redirect.conf")
 
-	redirects := []types.Redirect{
-		{
-			Type: types.RedirectType404,
-			To:   "/custom-404.html",
-		},
-	}
-	check.NoError(t, vhost.SetRedirects(redirects))
+	// 未指定状态码按 308，不保留 URI
+	must.NoError(t, vhost.SetRedirects([]types.Redirect{{Type: types.RedirectType404, To: "/custom-404.html"}}))
+	check.Contains(t, readFile(t, file), `ErrorDocument 404 /.ace-404
+RewriteEngine on
+RewriteRule ^/\.ace-404$ /custom-404.html [R=308,L,QSD]
+<FilesMatch \.php$>
+    ProxyErrorOverride On 404
+</FilesMatch>
+`)
+	check.DeepEqual(t, vhost.Redirects(), []types.Redirect{{Type: types.RedirectType404, To: "/custom-404.html", StatusCode: 308}})
 
-	// 读取配置文件内容
-	siteDir := filepath.Join(configDir, "site")
-	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
-	must.NoError(t, err)
+	// 保留 URI 即接上原始请求的路径与查询串
+	redirects := []types.Redirect{{Type: types.RedirectType404, To: "https://new.example.com", KeepURI: true, StatusCode: 302}}
+	must.NoError(t, vhost.SetRedirects(redirects))
+	check.Contains(t, readFile(t, file), `ErrorDocument 404 /.ace-404
+RewriteEngine on
+RewriteCond %{THE_REQUEST} ^\S+\s([^?\s]*)\??(\S*)
+RewriteRule ^/\.ace-404$ https://new.example.com%1?%2 [R=302,L,NE]
+`)
+	check.DeepEqual(t, vhost.Redirects(), redirects)
 
-	check.Contains(t, string(content), "ErrorDocument 404")
-	check.Contains(t, string(content), "/custom-404.html")
+	// 旧版把目标当错误页，读得回来，重新保存后换成真重定向
+	must.NoError(t, os.WriteFile(file, []byte("ErrorDocument 404 /\n"), 0600))
+	check.DeepEqual(t, vhost.Redirects(), []types.Redirect{{Type: types.RedirectType404, To: "/", StatusCode: 308}})
 }
 
 func TestProxyVhostProxies(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 初始应该没有代理配置
 	check.Empty(t, vhost.Proxies())
@@ -506,14 +530,14 @@ func TestProxyVhostProxies(t *testing.T) {
 	}
 	check.NoError(t, vhost.SetProxies(proxies))
 
-	// 验证代理文件已创建
-	check.Len(t, confFiles(t, configDir, "site", "2", "-proxy.conf"), 2)
+	// 全部规则写在一个文件里
+	check.Len(t, confFiles(t, configDir, "site", "2", "-proxy.conf"), 1)
 
 	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
 }
 
 func TestProxyVhostProxyConfig(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	proxies := []types.Proxy{
 		{
@@ -530,15 +554,13 @@ func TestProxyVhostProxyConfig(t *testing.T) {
 	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
 	must.NoError(t, err)
 
-	check.Contains(t, string(content), "ProxyPass /")
-	check.Contains(t, string(content), "ProxyPassReverse")
-	check.Contains(t, string(content), "http://backend:8080/")
-	check.Contains(t, string(content), "RequestHeader set Host")
-	check.Contains(t, string(content), "example.com")
+	check.Contains(t, string(content), "ProxyPassMatch ^/(.*)$ http://backend:8080/$1 upgrade=websocket\n")
+	check.Contains(t, string(content), "ProxyPassReverse / http://backend:8080/\n")
+	check.Contains(t, string(content), "RequestHeader set Host example.com\n")
 }
 
 func TestProxyVhostClearProxies(t *testing.T) {
-	vhost, _ := newProxyVhost(t)
+	vhost, _ := setupProxyVhost(t)
 
 	proxies := []types.Proxy{
 		{Location: "/", Pass: "http://backend/"},
@@ -546,12 +568,12 @@ func TestProxyVhostClearProxies(t *testing.T) {
 	check.NoError(t, vhost.SetProxies(proxies))
 	check.Len(t, vhost.Proxies(), 1)
 
-	check.NoError(t, vhost.ClearProxies())
+	check.NoError(t, vhost.SetProxies(nil))
 	check.Empty(t, vhost.Proxies())
 }
 
 func TestProxyVhostUpstreams(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 初始应该没有上游服务器配置
 	check.Empty(t, vhost.Upstreams())
@@ -564,8 +586,7 @@ func TestProxyVhostUpstreams(t *testing.T) {
 				"127.0.0.1:8080": "weight=5",
 				"127.0.0.1:8081": "weight=3",
 			},
-			Algo:      "least_conn",
-			Keepalive: 32,
+			Algo: "least_conn",
 		},
 	}
 	check.NoError(t, vhost.SetUpstreams(upstreams))
@@ -577,7 +598,7 @@ func TestProxyVhostUpstreams(t *testing.T) {
 }
 
 func TestProxyVhostBalancerConfig(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	upstreams := []types.Upstream{
 		{
@@ -604,7 +625,7 @@ func TestProxyVhostBalancerConfig(t *testing.T) {
 }
 
 func TestProxyVhostClearUpstreams(t *testing.T) {
-	vhost, _ := newProxyVhost(t)
+	vhost, _ := setupProxyVhost(t)
 
 	upstreams := []types.Upstream{
 		{
@@ -615,36 +636,12 @@ func TestProxyVhostClearUpstreams(t *testing.T) {
 	check.NoError(t, vhost.SetUpstreams(upstreams))
 	check.Len(t, vhost.Upstreams(), 1)
 
-	check.NoError(t, vhost.ClearUpstreams())
+	check.NoError(t, vhost.SetUpstreams(nil))
 	check.Empty(t, vhost.Upstreams())
 }
 
-func TestProxyVhostSNI(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
-
-	// 测试 SNI 配置的写入和解析
-	proxies := []types.Proxy{
-		{
-			Location: "/",
-			Pass:     "https://backend:443/",
-			SNI:      "backend.example.com",
-		},
-	}
-	check.NoError(t, vhost.SetProxies(proxies))
-
-	// 读取配置文件内容，验证 SNI 已写入
-	siteDir := filepath.Join(configDir, "site")
-	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
-	must.NoError(t, err)
-
-	check.Contains(t, string(content), "SSLProxyEngine On")
-	check.Contains(t, string(content), "# ace:sni backend.example.com")
-
-	check.DeepEqual(t, vhost.Proxies(), withProxyDefaults(proxies), cmpopts.EquateEmpty())
-}
-
 func TestProxyVhostSubstitute(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 测试内容替换的写入和解析
 	proxies := []types.Proxy{
@@ -671,7 +668,7 @@ func TestProxyVhostSubstitute(t *testing.T) {
 }
 
 func TestProxyVhostSubstituteWithSlash(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 
 	// 测试包含 / 的内容替换
 	proxies := []types.Proxy{
@@ -697,7 +694,7 @@ func TestProxyVhostSubstituteWithSlash(t *testing.T) {
 }
 
 func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
-	vhost, _ := newProxyVhost(t)
+	vhost, _ := setupProxyVhost(t)
 
 	// 测试多个 BalancerMember 的解析
 	upstreams := []types.Upstream{
@@ -708,7 +705,6 @@ func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
 				"127.0.0.1:8081": "",
 				"127.0.0.1:8082": "weight=5",
 			},
-			Keepalive: 32,
 		},
 	}
 	check.NoError(t, vhost.SetUpstreams(upstreams))
@@ -722,13 +718,13 @@ func TestSyncListen(t *testing.T) {
 	must.NoError(t, os.MkdirAll(filepath.Join(confDir, "extra"), 0755))
 	mainConf := filepath.Join(confDir, "httpd.conf")
 	must.NoError(t, os.WriteFile(mainConf, []byte("Listen 80\nListen 443\n"), 0644))
-	listenConf := filepath.Join(confDir, "extra", ListenConf)
+	listenConf := filepath.Join(confDir, "extra", listenConfName)
 
 	newSite := func(name string, addrs ...string) {
 		dir := filepath.Join(root, "sites", name, "config")
 		must.NoError(t, os.MkdirAll(dir, 0755))
 		content := "<VirtualHost " + strings.Join(addrs, " ") + ">\n    ServerName " + name + "\n</VirtualHost>\n"
-		must.NoError(t, os.WriteFile(filepath.Join(dir, ConfigName), []byte(content), 0600))
+		must.NoError(t, os.WriteFile(filepath.Join(dir, configName), []byte(content), 0600))
 	}
 	sites := filepath.Join(root, "sites")
 
@@ -736,7 +732,7 @@ func TestSyncListen(t *testing.T) {
 	newSite("a", "*:80", "*:443")
 	must.NoError(t, syncListen(sites, confDir))
 	check.NotContains(t, readFile(t, listenConf), "Listen")
-	check.Contains(t, readFile(t, mainConf), "IncludeOptional conf/extra/"+ListenConf)
+	check.Contains(t, readFile(t, mainConf), "IncludeOptional conf/extra/"+listenConfName)
 
 	// 非标端口去重后补齐
 	newSite("b", "*:8080", "[::]:8443")
@@ -757,14 +753,16 @@ func TestSyncListen(t *testing.T) {
 }
 
 func TestProxyVhostCustom(t *testing.T) {
-	vhost, configDir := newProxyVhost(t)
+	vhost, configDir := setupProxyVhost(t)
 	custom := "Header always set X-Custom value\n# 注释保留\nRequestHeader unset Accept-Encoding"
 	must.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/api", Pass: "http://backend:8080", Custom: custom}}))
 	cfg, err := ParseFile(filepath.Join(configDir, "site", "200-proxy.conf"))
 	must.NoError(t, err)
-	// 要落在 <Location> 里才只对该规则生效
-	must.NotNil(t, cfg.FindOne("IfModule.Location.RequestHeader"))
-	check.Equal(t, cfg.FindOne("IfModule.Location").Arg(0), "/api")
+	// 要落在这条规则自己那一节里才只对它生效
+	section := cfg.FindOne("IfModule.ElseIf")
+	must.NotNil(t, section)
+	check.Equal(t, section.Arg(0), "%{REQUEST_URI} =~ m#^/api#")
+	check.Len(t, section.GetAll("Header"), 1)
 
 	got := vhost.Proxies()
 	must.Len(t, got, 1)
@@ -783,29 +781,80 @@ func TestStaticVhostProxies(t *testing.T) {
 	configDir := t.TempDir()
 	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
 	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
-	vhost, err := NewStaticVhost(configDir)
+	vhost, err := newStaticVhost(configDir)
 	must.NoError(t, err)
 	check.NoError(t, vhost.SetUpstreams([]types.Upstream{{Name: "api", Servers: map[string]string{"127.0.0.1:3000": ""}}}))
 	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://api"}}))
 
 	content, err := os.ReadFile(filepath.Join(configDir, "site", "200-proxy.conf"))
 	must.NoError(t, err)
-	check.Contains(t, string(content), "ProxyPass /api balancer://api/api")
+	check.Contains(t, string(content), "ProxyPassMatch ^/api balancer://api\n")
 	check.Len(t, vhost.Upstreams(), 1)
 	check.Len(t, vhost.Proxies(), 1)
 }
 
-// withProxyDefaults 回读会把没写进配置的 Host 与 HTTP 版本按 mod_proxy 的实际行为补齐
-func withProxyDefaults(proxies []types.Proxy) []types.Proxy {
-	want := make([]types.Proxy, len(proxies))
-	for i, p := range proxies {
-		if p.Host == "" {
-			p.Host = "$proxy_host"
-		}
-		if p.HTTPVersion == "" {
-			p.HTTPVersion = "1.1"
-		}
-		want[i] = p
+// 手写的主文件保存后不能被打散或改写：RewriteCond 紧跟自己的 RewriteRule，If 条件链保持先后，
+// 限速只动自己那两条，双引号里的反斜杠不随保存次数减半
+func TestSaveKeepsHandwritten(t *testing.T) {
+	configDir := t.TempDir()
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
+	handwritten := `<VirtualHost *:80>
+    ServerName example.com
+    DocumentRoot /var/www/html
+    SetEnv APP_ENV production
+    SetOutputFilter DEFLATE
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/a
+    RewriteRule ^ /x [L]
+    RewriteCond %{REQUEST_URI} ^/b
+    RewriteRule ^ /y [L]
+    <If "%{HTTP_HOST} == 'a.example.com'">
+        Header set X-Site a
+    </If>
+    <ElseIf "%{HTTP_HOST} == 'b.example.com'">
+        Header set X-Site b
+    </ElseIf>
+    <Else>
+        Header set X-Site other
+    </Else>
+    LogFormat "%h \"%r\" C:\\dir" custom
+</VirtualHost>
+`
+	configFile := filepath.Join(configDir, configName)
+	must.NoError(t, os.WriteFile(configFile, []byte(handwritten), 0600))
+
+	vhost, err := newStaticVhost(configDir)
+	must.NoError(t, err)
+	check.Nil(t, vhost.RateLimit())
+	must.NoError(t, vhost.SetRateLimit(&types.RateLimit{Rate: 512}))
+	must.NoError(t, vhost.Save())
+	check.Contains(t, readFile(t, configFile), "    SetEnv APP_ENV production\n    SetEnv rate-limit 512\n    SetOutputFilter DEFLATE\n    SetOutputFilter RATE_LIMIT\n")
+
+	vhost, err = newStaticVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, vhost.RateLimit(), &types.RateLimit{Rate: 512})
+	must.NoError(t, vhost.ClearRateLimit())
+	must.NoError(t, vhost.Save())
+	check.Equal(t, readFile(t, configFile), handwritten)
+
+	for range 3 {
+		vhost, err = newStaticVhost(configDir)
+		must.NoError(t, err)
+		must.NoError(t, vhost.Save())
 	}
-	return want
+	check.Equal(t, readFile(t, configFile), handwritten)
+}
+
+// 超限要在动现有文件之前报出来
+func TestPHPVhostRedirectLimit(t *testing.T) {
+	vhost, _ := setupPHPVhost(t)
+	redirects := []types.Redirect{{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 301}}
+	must.NoError(t, vhost.SetRedirects(redirects))
+
+	tooMany := make([]types.Redirect, redirectEndNum-redirectStartNum+2)
+	for i := range tooMany {
+		tooMany[i] = types.Redirect{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 301}
+	}
+	check.Error(t, vhost.SetRedirects(tooMany))
+	check.DeepEqual(t, vhost.Redirects(), redirects)
 }

@@ -11,26 +11,16 @@ const show = ref(false)
 const content = ref('')
 const saved = ref('')
 
-const { loading } = useRequest(settingApi.getMemo(), {
-  initialData: '',
-  immediate: false,
-}).onSuccess(({ data }: any) => {
-  content.value = data || ''
-  saved.value = content.value
+const { loading, send } = useRequest(settingApi.getMemo, { immediate: false }).onSuccess(
+  ({ data }: any) => {
+    content.value = data || ''
+    saved.value = content.value
+  },
+)
+
+watch(show, (visible) => {
+  if (visible) send()
 })
-
-const handleShow = (visible: boolean) => {
-  if (visible) {
-    loading.value = true
-    useRequest(settingApi.getMemo()).onSuccess(({ data }: any) => {
-      content.value = data || ''
-      saved.value = content.value
-      loading.value = false
-    })
-  }
-}
-
-watch(show, handleShow)
 
 const handleBlur = () => {
   if (content.value === saved.value) return

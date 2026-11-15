@@ -15,7 +15,7 @@ var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
 
 func parseRedirectFiles(siteDir string) []types.Redirect {
 	var redirects []types.Redirect
-	for _, file := range listFiles(siteDir, redirectFilePattern, RedirectStartNum, RedirectEndNum) {
+	for _, file := range conf.ListFiles(siteDir, redirectFilePattern, redirectStartNum, redirectEndNum) {
 		cfg, err := ParseFile(file)
 		if err != nil {
 			continue
@@ -69,15 +69,14 @@ func parseRedirect(cfg *conf.Config) *types.Redirect {
 }
 
 func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
-	if err := clearFiles(siteDir, redirectFilePattern, RedirectStartNum, RedirectEndNum); err != nil {
+	if len(redirects) > redirectEndNum-redirectStartNum+1 {
+		return fmt.Errorf("redirect rules exceed limit (%d)", redirectEndNum-redirectStartNum+1)
+	}
+	if err := conf.ClearFiles(siteDir, redirectFilePattern, redirectStartNum, redirectEndNum); err != nil {
 		return err
 	}
 	for i, redirect := range redirects {
-		num := RedirectStartNum + i
-		if num > RedirectEndNum {
-			return fmt.Errorf("redirect rules exceed limit (%d)", RedirectEndNum-RedirectStartNum+1)
-		}
-		if err := writeFragment(filepath.Join(siteDir, fmt.Sprintf("%03d-redirect.conf", num)), redirectNodes(redirect)...); err != nil {
+		if err := writeFragment(filepath.Join(siteDir, fmt.Sprintf("%03d-redirect.conf", redirectStartNum+i)), redirectNodes(redirect)...); err != nil {
 			return err
 		}
 	}
@@ -85,10 +84,7 @@ func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 }
 
 func redirectNodes(r types.Redirect) []conf.Node {
-	status := strconv.Itoa(r.StatusCode)
-	if r.StatusCode == 0 {
-		status = "308"
-	}
+	status := strconv.Itoa(r.Status())
 	to := r.To
 	if r.KeepURI {
 		to += "$request_uri"

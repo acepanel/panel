@@ -19,12 +19,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
-// 出站 25 端口探测目标：国内外各取大厂 MX，任一可连通即认为未被封
-var outboundProbes = []string{"mx1.qq.com:25", "aspmx.l.google.com:25", "outlook-com.olc.protection.outlook.com:25"}
-
-// 常见 DNSBL，Spamhaus 对公共解析器返回 127.255.x 表示拒答
-var dnsbls = []string{"zen.spamhaus.org", "bl.spamcop.net", "b.barracudacentral.org"}
-
 // Check 自检：出站 25、主机名解析、PTR、黑名单、本机监听与冲突服务
 func (s *App) Check(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
@@ -48,14 +42,12 @@ func (s *App) Check(w http.ResponseWriter, r *http.Request) {
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	run := func(fn func() CheckItem) {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			item := fn()
 			mu.Lock()
 			items = append(items, item)
 			mu.Unlock()
-		}()
+		})
 	}
 
 	run(func() CheckItem { return s.checkOutbound(ctx) })
@@ -75,6 +67,8 @@ func (s *App) Check(w http.ResponseWriter, r *http.Request) {
 
 func (s *App) checkOutbound(ctx context.Context) CheckItem {
 	item := CheckItem{Key: "outbound_25", Title: s.t.Get("Outbound port 25")}
+	// 出站 25 端口探测目标：国内外各取大厂 MX，任一可连通即认为未被封
+	outboundProbes := []string{"mx1.qq.com:25", "aspmx.l.google.com:25", "outlook-com.olc.protection.outlook.com:25"}
 	dialer := net.Dialer{Timeout: 5 * time.Second}
 	var reached []string
 	for _, target := range outboundProbes {
@@ -160,6 +154,8 @@ func (s *App) checkDNSBL(ctx context.Context, ipv4 []string) CheckItem {
 		item.Detail = s.t.Get("No public IPv4 address to check")
 		return item
 	}
+	// 常见 DNSBL，Spamhaus 对公共解析器返回 127.255.x 表示拒答
+	dnsbls := []string{"zen.spamhaus.org", "bl.spamcop.net", "b.barracudacentral.org"}
 	var listed, unknown []string
 	for _, ip := range ipv4 {
 		parts := strings.Split(ip, ".")

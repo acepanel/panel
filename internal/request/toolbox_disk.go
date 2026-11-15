@@ -60,16 +60,6 @@ type ToolboxDiskInit struct {
 	FsType string `form:"fs_type" json:"fs_type" validate:"required && in:ext4,ext3,xfs,btrfs"`
 }
 
-// ToolboxDiskFstabEntry fstab 条目结构
-type ToolboxDiskFstabEntry struct {
-	Device     string `json:"device"`      // 设备（UUID=xxx 或 /dev/xxx）
-	MountPoint string `json:"mount_point"` // 挂载点
-	FsType     string `json:"fs_type"`     // 文件系统类型
-	Options    string `json:"options"`     // 挂载选项
-	Dump       string `json:"dump"`        // 备份标志
-	Pass       string `json:"pass"`        // 检查顺序
-}
-
 // ToolboxDiskFstabDelete 删除 fstab 条目请求
 type ToolboxDiskFstabDelete struct {
 	MountPoint string `form:"mount_point" json:"mount_point" validate:"required"`

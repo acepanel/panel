@@ -2,10 +2,14 @@ package service
 
 import (
 	"crypto/x509"
+	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
+	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,13 +20,12 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
-	"github.com/spf13/cast"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/passkey"
 )
 
 type UserPasskeyService struct {
@@ -35,7 +38,15 @@ type UserPasskeyService struct {
 	notifyRepo      *biz.NotifyUsecase
 }
 
-func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger, session *sessions.Manager) *UserPasskeyService {
+func NewUserPasskeyService(
+	notifyUsecase *biz.NotifyUsecase,
+	userPasskeyUsecase *biz.UserPasskeyUsecase,
+	userUsecase *biz.UserUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+	session *sessions.Manager,
+) *UserPasskeyService {
 	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
 	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
@@ -82,7 +93,7 @@ func (s *UserPasskeyService) BeginRegister(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	userID := uint(biz.OperatorID(r.Context()))
 	if userID == 0 {
 		ErrorSystem(w)
 		return
@@ -100,13 +111,13 @@ func (s *UserPasskeyService) BeginRegister(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	wa, err := passkey.NewWebAuthn(r)
+	wa, err := s.newWebAuthn(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	wUser := &passkey.User{Inner: u, Passkeys: passkeys}
+	wUser := &passkeyUser{Inner: u, Passkeys: passkeys}
 
 	// 排除已有凭据
 	var excludeCredentials []protocol.CredentialDescriptor
@@ -140,7 +151,7 @@ func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	userID := uint(biz.OperatorID(r.Context()))
 	if userID == 0 {
 		ErrorSystem(w)
 		return
@@ -165,13 +176,13 @@ func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	wa, err := passkey.NewWebAuthn(r)
+	wa, err := s.newWebAuthn(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	wUser := &passkey.User{Inner: u, Passkeys: passkeys}
+	wUser := &passkeyUser{Inner: u, Passkeys: passkeys}
 	credential, err := wa.FinishRegistration(wUser, sessionData, r)
 	if err != nil {
 		Error(w, http.StatusBadRequest, s.t.Get("passkey registration failed: %v", err))
@@ -219,7 +230,7 @@ func (s *UserPasskeyService) BeginLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	wa, err := passkey.NewWebAuthn(r)
+	wa, err := s.newWebAuthn(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -252,7 +263,7 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	}
 	sess.Forget("webauthn_login")
 
-	wa, err := passkey.NewWebAuthn(r)
+	wa, err := s.newWebAuthn(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -260,7 +271,7 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 
 	// discoverable login handler：根据 userHandle 找到用户
 	handler := func(rawID, userHandle []byte) (webauthn.User, error) {
-		userID, err := passkey.ParseUserID(userHandle)
+		userID, err := s.parsePasskeyUserID(userHandle)
 		if err != nil {
 			return nil, err
 		}
@@ -272,7 +283,7 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 		if err != nil {
 			return nil, err
 		}
-		return &passkey.User{Inner: u, Passkeys: pks}, nil
+		return &passkeyUser{Inner: u, Passkeys: pks}, nil
 	}
 
 	returnedUser, credential, err := wa.FinishPasskeyLogin(handler, sessionData, r)
@@ -285,7 +296,7 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	_ = s.userPasskeyRepo.UpdateSignCount(credential.ID, credential.Authenticator.SignCount)
 	_ = s.userPasskeyRepo.UpdateLastUsed(credential.ID)
 
-	wUser, ok := returnedUser.(*passkey.User)
+	wUser, ok := returnedUser.(*passkeyUser)
 	if !ok {
 		ErrorSystem(w)
 		return
@@ -299,7 +310,6 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 
 	// 设置登录状态
 	sess.Put("user_id", wUser.Inner.ID)
-	sess.Put("refresh_at", time.Now().Unix())
 	// 通行密钥登录已经过设备验证，无需 safe_login
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
@@ -329,7 +339,7 @@ func (s *UserPasskeyService) List(w http.ResponseWriter, r *http.Request) {
 	// 未指定 user_id 时默认查当前用户
 	userID := req.UserID
 	if userID == 0 {
-		userID = cast.ToUint(r.Context().Value("user_id"))
+		userID = uint(biz.OperatorID(r.Context()))
 	}
 	if userID == 0 {
 		ErrorSystem(w)
@@ -360,7 +370,7 @@ func (s *UserPasskeyService) Delete(w http.ResponseWriter, r *http.Request) {
 	// 未指定 user_id 时默认为当前用户
 	userID := req.UserID
 	if userID == 0 {
-		userID = cast.ToUint(r.Context().Value("user_id"))
+		userID = uint(biz.OperatorID(r.Context()))
 	}
 	if userID == 0 {
 		ErrorSystem(w)
@@ -400,4 +410,81 @@ func (s *UserPasskeyService) isCertTrusted() bool {
 
 	// 用自身公钥验证自身签名：成功 = 自签名，失败 = CA 签发
 	return cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature) != nil
+}
+
+// newWebAuthn 根据 HTTP 请求动态创建 WebAuthn 实例
+func (s *UserPasskeyService) newWebAuthn(r *http.Request) (*webauthn.WebAuthn, error) {
+	host := r.Host
+	hostname, _, err := net.SplitHostPort(host)
+	if err != nil {
+		hostname = host
+	}
+
+	scheme := "https"
+	if r.TLS == nil {
+		if fwd := r.Header.Get("X-Forwarded-Proto"); fwd != "" {
+			scheme = fwd
+		} else {
+			scheme = "http"
+		}
+	}
+
+	origin := fmt.Sprintf("%s://%s", scheme, host)
+
+	return webauthn.New(&webauthn.Config{
+		RPID:          hostname,
+		RPDisplayName: "AcePanel",
+		RPOrigins:     []string{origin},
+	})
+}
+
+// parsePasskeyUserID 从 WebAuthnID 字节还原 user ID
+func (s *UserPasskeyService) parsePasskeyUserID(userHandle []byte) (uint, error) {
+	if len(userHandle) != 8 {
+		return 0, errors.New("invalid user handle")
+	}
+	return uint(binary.BigEndian.Uint64(userHandle)), nil
+}
+
+// passkeyUser 适配 webauthn.User 接口
+type passkeyUser struct {
+	Inner    *biz.User
+	Passkeys []*biz.UserPasskey
+}
+
+func (u *passkeyUser) WebAuthnID() []byte {
+	buf := make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, uint64(u.Inner.ID))
+	return buf
+}
+
+func (u *passkeyUser) WebAuthnName() string { return u.Inner.Username }
+
+func (u *passkeyUser) WebAuthnDisplayName() string { return u.Inner.Username }
+
+func (u *passkeyUser) WebAuthnCredentials() []webauthn.Credential {
+	return lo.Map(u.Passkeys, func(p *biz.UserPasskey, _ int) webauthn.Credential {
+		var transports []protocol.AuthenticatorTransport
+		if p.Transports != "" {
+			var ts []string
+			if err := json.Unmarshal([]byte(p.Transports), &ts); err == nil {
+				transports = lo.Map(ts, func(t string, _ int) protocol.AuthenticatorTransport {
+					return protocol.AuthenticatorTransport(t)
+				})
+			}
+		}
+		return webauthn.Credential{
+			ID:        p.CredentialID,
+			PublicKey: p.PublicKey,
+			Transport: transports,
+			Flags: webauthn.CredentialFlags{
+				BackupEligible: p.BackupEligible,
+				BackupState:    p.BackupState,
+			},
+			Authenticator: webauthn.Authenticator{
+				AAGUID:    p.AAGUID,
+				SignCount: p.SignCount,
+			},
+		}
+	})
 }

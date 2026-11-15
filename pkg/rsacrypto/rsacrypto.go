@@ -19,22 +19,6 @@ func GenerateKey() (*rsa.PrivateKey, error) {
 	return rsa.GenerateKey(rand.Reader, keySize)
 }
 
-// EncryptData 加密数据
-func EncryptData(publicKey *rsa.PublicKey, data []byte) (string, error) {
-	ciphertext, err := rsa.EncryptOAEP(
-		sha512.New(),
-		rand.Reader,
-		publicKey,
-		data,
-		nil,
-	)
-	if err != nil {
-		return "", fmt.Errorf("encryption failed: %w", err)
-	}
-
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
-}
-
 // DecryptData 解密数据
 func DecryptData(privateKey *rsa.PrivateKey, ciphertext string) ([]byte, error) {
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
@@ -54,18 +38,6 @@ func DecryptData(privateKey *rsa.PrivateKey, ciphertext string) ([]byte, error) 
 	}
 
 	return plaintext, nil
-}
-
-// PrivateKeyToString 将RSA私钥转换为PEM格式的字符串
-func PrivateKeyToString(privateKey *rsa.PrivateKey) (string, error) {
-	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
-	privateKeyPEM := pem.EncodeToMemory(
-		&pem.Block{
-			Type:  "RSA PRIVATE KEY",
-			Bytes: privateKeyBytes,
-		},
-	)
-	return string(privateKeyPEM), nil
 }
 
 // PublicKeyToString 将RSA公钥转换为PEM格式的字符串

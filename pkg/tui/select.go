@@ -8,8 +8,8 @@ import (
 	"github.com/gookit/color"
 )
 
-// Item 列表项，Desc 以灰色显示在标签之后
-type Item struct {
+// item 列表项，Desc 以灰色显示在标签之后
+type item struct {
 	Label string
 	Desc  string
 }
@@ -19,7 +19,7 @@ type selector struct {
 	p       *prompt
 	label   string
 	meta    string
-	items   []Item
+	items   []item
 	matched []int
 	query   []rune
 	cursor  int
@@ -28,7 +28,7 @@ type selector struct {
 }
 
 // Select 方向键选择列表项，输入字符即时过滤，返回所选项在 items 中的下标
-func (p *prompt) Select(ctx context.Context, label, meta string, items []Item, def int) (int, error) {
+func (p *prompt) Select(ctx context.Context, label, meta string, items []item, def int) (int, error) {
 	restore, err := p.raw()
 	if err != nil {
 		return 0, err
@@ -84,10 +84,10 @@ func (p *prompt) Select(ctx context.Context, label, meta string, items []Item, d
 			return s.matched[s.cursor], nil
 		case keyEsc:
 			redraw(prev, nil)
-			return 0, ErrBack
+			return 0, errBack
 		case keyAbort:
 			redraw(prev, nil)
-			return 0, ErrAbort
+			return 0, errAbort
 		default:
 		}
 	}
@@ -129,7 +129,10 @@ func (s *selector) render() []string {
 			lines = append(lines, fit("  "+name+"  "+color.Gray.Sprint(item.Desc), cols))
 		}
 	}
-	lines = append(lines, fit(color.Gray.Sprint(s.p.t.Get("↑/↓ select · Enter confirm · type to filter · Esc back · Ctrl+C exit")), cols))
+	lines = append(lines, fit(
+		color.Gray.Sprint(s.p.t.Get("↑/↓ select · Enter confirm · type to filter · Esc back · Ctrl+C exit")),
+		cols,
+	))
 
 	return lines
 }

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"slices"
 	"strings"
 	"time"
 
@@ -79,7 +80,12 @@ func (r *scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	})
 }
 
-func (r *scanEventRepo) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
+func (r *scanEventRepo) List(
+	start, end, sourceIP string,
+	port uint,
+	location string,
+	page, limit uint,
+) ([]*biz.ScanEvent, uint, error) {
 	var total int64
 	var items []*biz.ScanEvent
 
@@ -144,6 +150,17 @@ func (r *scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.Scan
 	return ranks, err
 }
 
+// parseTimeStr 解析 Go time.String() 格式并转为 RFC3339
+func (r *scanEventRepo) parseTimeStr(s string) string {
+	if idx := strings.Index(s, " m="); idx > 0 {
+		s = s[:idx]
+	}
+	if t, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", s); err == nil {
+		return t.Format(time.RFC3339)
+	}
+	return s
+}
+
 func (r *scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPortRank, error) {
 	var ranks []*biz.ScanPortRank
 	err := r.db.Model(&biz.ScanEvent{}).
@@ -176,13 +193,35 @@ func (r *scanEventRepo) VacuumDB() error {
 	return vacuumDB(r.db)
 }
 
-// parseTimeStr 解析 Go time.String() 格式并转为 RFC3339
-func (r *scanEventRepo) parseTimeStr(s string) string {
-	if idx := strings.Index(s, " m="); idx > 0 {
-		s = s[:idx]
+func (r *scanEventRepo) AddBlocks(blocks []*biz.ScanBlock) error {
+	return batchUpsert(r.db, blocks, clause.OnConflict{DoNothing: true})
+}
+
+func (r *scanEventRepo) BlockedIPs(ips []string) ([]string, error) {
+	blocked := make([]string, 0)
+	for chunk := range slices.Chunk(ips, upsertBatchSize) {
+		var found []string
+		if err := r.db.Model(&biz.ScanBlock{}).Where("ip IN ?", chunk).Pluck("ip", &found).Error; err != nil {
+			return nil, err
+		}
+		blocked = append(blocked, found...)
 	}
-	if t, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", s); err == nil {
-		return t.Format(time.RFC3339)
+
+	return blocked, nil
+}
+
+func (r *scanEventRepo) ExpiredBlocks(now time.Time) ([]*biz.ScanBlock, error) {
+	blocks := make([]*biz.ScanBlock, 0)
+	err := r.db.Where("expires_at > 0 AND expires_at <= ?", now.Unix()).Find(&blocks).Error
+	return blocks, err
+}
+
+func (r *scanEventRepo) DeleteBlocks(ips []string) error {
+	for chunk := range slices.Chunk(ips, upsertBatchSize) {
+		if err := r.db.Where("ip IN ?", chunk).Delete(&biz.ScanBlock{}).Error; err != nil {
+			return err
+		}
 	}
-	return s
+
+	return nil
 }

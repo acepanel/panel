@@ -6,6 +6,7 @@ package biz
 
 import (
 	"context"
+	"iter"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -23,19 +24,25 @@ var _ biz.ContainerImageRepo = &ContainerImageRepo{}
 //
 //		// make and configure a mocked biz.ContainerImageRepo
 //		mockedContainerImageRepo := &ContainerImageRepo{
-//			ExistFunc: func(ctx context.Context, sock string, name string) (bool, error) {
+//			ExistFunc: func(ctx context.Context, name string) (bool, error) {
 //				panic("mock out the Exist method")
 //			},
-//			ListFunc: func(ctx context.Context, sock string) ([]types.ContainerImage, error) {
+//			ListFunc: func(ctx context.Context) ([]types.ContainerImage, error) {
 //				panic("mock out the List method")
 //			},
-//			PruneFunc: func(ctx context.Context, sock string) error {
+//			PruneFunc: func(ctx context.Context) error {
 //				panic("mock out the Prune method")
 //			},
-//			PullFunc: func(ctx context.Context, sock string, req *request.ContainerImagePull) error {
+//			PullFunc: func(ctx context.Context, req *request.ContainerImagePull) error {
 //				panic("mock out the Pull method")
 //			},
-//			RemoveFunc: func(ctx context.Context, sock string, id string) error {
+//			PullShellFunc: func(req *request.ContainerImagePull) (string, string, error) {
+//				panic("mock out the PullShell method")
+//			},
+//			PullStreamFunc: func(ctx context.Context, req *request.ContainerImagePull) (iter.Seq2[biz.ImagePullProgress, error], error) {
+//				panic("mock out the PullStream method")
+//			},
+//			RemoveFunc: func(ctx context.Context, id string) error {
 //				panic("mock out the Remove method")
 //			},
 //		}
@@ -46,19 +53,25 @@ var _ biz.ContainerImageRepo = &ContainerImageRepo{}
 //	}
 type ContainerImageRepo struct {
 	// ExistFunc mocks the Exist method.
-	ExistFunc func(ctx context.Context, sock string, name string) (bool, error)
+	ExistFunc func(ctx context.Context, name string) (bool, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(ctx context.Context, sock string) ([]types.ContainerImage, error)
+	ListFunc func(ctx context.Context) ([]types.ContainerImage, error)
 
 	// PruneFunc mocks the Prune method.
-	PruneFunc func(ctx context.Context, sock string) error
+	PruneFunc func(ctx context.Context) error
 
 	// PullFunc mocks the Pull method.
-	PullFunc func(ctx context.Context, sock string, req *request.ContainerImagePull) error
+	PullFunc func(ctx context.Context, req *request.ContainerImagePull) error
+
+	// PullShellFunc mocks the PullShell method.
+	PullShellFunc func(req *request.ContainerImagePull) (string, string, error)
+
+	// PullStreamFunc mocks the PullStream method.
+	PullStreamFunc func(ctx context.Context, req *request.ContainerImagePull) (iter.Seq2[biz.ImagePullProgress, error], error)
 
 	// RemoveFunc mocks the Remove method.
-	RemoveFunc func(ctx context.Context, sock string, id string) error
+	RemoveFunc func(ctx context.Context, id string) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -66,8 +79,6 @@ type ContainerImageRepo struct {
 		Exist []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Sock is the sock argument value.
-			Sock string
 			// Name is the name argument value.
 			Name string
 		}
@@ -75,22 +86,28 @@ type ContainerImageRepo struct {
 		List []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Sock is the sock argument value.
-			Sock string
 		}
 		// Prune holds details about calls to the Prune method.
 		Prune []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Sock is the sock argument value.
-			Sock string
 		}
 		// Pull holds details about calls to the Pull method.
 		Pull []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Sock is the sock argument value.
-			Sock string
+			// Req is the req argument value.
+			Req *request.ContainerImagePull
+		}
+		// PullShell holds details about calls to the PullShell method.
+		PullShell []struct {
+			// Req is the req argument value.
+			Req *request.ContainerImagePull
+		}
+		// PullStream holds details about calls to the PullStream method.
+		PullStream []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.ContainerImagePull
 		}
@@ -98,37 +115,35 @@ type ContainerImageRepo struct {
 		Remove []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Sock is the sock argument value.
-			Sock string
 			// ID is the id argument value.
 			ID string
 		}
 	}
-	lockExist  sync.RWMutex
-	lockList   sync.RWMutex
-	lockPrune  sync.RWMutex
-	lockPull   sync.RWMutex
-	lockRemove sync.RWMutex
+	lockExist      sync.RWMutex
+	lockList       sync.RWMutex
+	lockPrune      sync.RWMutex
+	lockPull       sync.RWMutex
+	lockPullShell  sync.RWMutex
+	lockPullStream sync.RWMutex
+	lockRemove     sync.RWMutex
 }
 
 // Exist calls ExistFunc.
-func (mock *ContainerImageRepo) Exist(ctx context.Context, sock string, name string) (bool, error) {
+func (mock *ContainerImageRepo) Exist(ctx context.Context, name string) (bool, error) {
 	if mock.ExistFunc == nil {
 		panic("ContainerImageRepo.ExistFunc: method is nil but ContainerImageRepo.Exist was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Sock string
 		Name string
 	}{
 		Ctx:  ctx,
-		Sock: sock,
 		Name: name,
 	}
 	mock.lockExist.Lock()
 	mock.calls.Exist = append(mock.calls.Exist, callInfo)
 	mock.lockExist.Unlock()
-	return mock.ExistFunc(ctx, sock, name)
+	return mock.ExistFunc(ctx, name)
 }
 
 // ExistCalls gets all the calls that were made to Exist.
@@ -137,12 +152,10 @@ func (mock *ContainerImageRepo) Exist(ctx context.Context, sock string, name str
 //	len(mockedContainerImageRepo.ExistCalls())
 func (mock *ContainerImageRepo) ExistCalls() []struct {
 	Ctx  context.Context
-	Sock string
 	Name string
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Sock string
 		Name string
 	}
 	mock.lockExist.RLock()
@@ -152,21 +165,19 @@ func (mock *ContainerImageRepo) ExistCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *ContainerImageRepo) List(ctx context.Context, sock string) ([]types.ContainerImage, error) {
+func (mock *ContainerImageRepo) List(ctx context.Context) ([]types.ContainerImage, error) {
 	if mock.ListFunc == nil {
 		panic("ContainerImageRepo.ListFunc: method is nil but ContainerImageRepo.List was just called")
 	}
 	callInfo := struct {
-		Ctx  context.Context
-		Sock string
+		Ctx context.Context
 	}{
-		Ctx:  ctx,
-		Sock: sock,
+		Ctx: ctx,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(ctx, sock)
+	return mock.ListFunc(ctx)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -174,12 +185,10 @@ func (mock *ContainerImageRepo) List(ctx context.Context, sock string) ([]types.
 //
 //	len(mockedContainerImageRepo.ListCalls())
 func (mock *ContainerImageRepo) ListCalls() []struct {
-	Ctx  context.Context
-	Sock string
+	Ctx context.Context
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Sock string
+		Ctx context.Context
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
@@ -188,21 +197,19 @@ func (mock *ContainerImageRepo) ListCalls() []struct {
 }
 
 // Prune calls PruneFunc.
-func (mock *ContainerImageRepo) Prune(ctx context.Context, sock string) error {
+func (mock *ContainerImageRepo) Prune(ctx context.Context) error {
 	if mock.PruneFunc == nil {
 		panic("ContainerImageRepo.PruneFunc: method is nil but ContainerImageRepo.Prune was just called")
 	}
 	callInfo := struct {
-		Ctx  context.Context
-		Sock string
+		Ctx context.Context
 	}{
-		Ctx:  ctx,
-		Sock: sock,
+		Ctx: ctx,
 	}
 	mock.lockPrune.Lock()
 	mock.calls.Prune = append(mock.calls.Prune, callInfo)
 	mock.lockPrune.Unlock()
-	return mock.PruneFunc(ctx, sock)
+	return mock.PruneFunc(ctx)
 }
 
 // PruneCalls gets all the calls that were made to Prune.
@@ -210,12 +217,10 @@ func (mock *ContainerImageRepo) Prune(ctx context.Context, sock string) error {
 //
 //	len(mockedContainerImageRepo.PruneCalls())
 func (mock *ContainerImageRepo) PruneCalls() []struct {
-	Ctx  context.Context
-	Sock string
+	Ctx context.Context
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Sock string
+		Ctx context.Context
 	}
 	mock.lockPrune.RLock()
 	calls = mock.calls.Prune
@@ -224,23 +229,21 @@ func (mock *ContainerImageRepo) PruneCalls() []struct {
 }
 
 // Pull calls PullFunc.
-func (mock *ContainerImageRepo) Pull(ctx context.Context, sock string, req *request.ContainerImagePull) error {
+func (mock *ContainerImageRepo) Pull(ctx context.Context, req *request.ContainerImagePull) error {
 	if mock.PullFunc == nil {
 		panic("ContainerImageRepo.PullFunc: method is nil but ContainerImageRepo.Pull was just called")
 	}
 	callInfo := struct {
-		Ctx  context.Context
-		Sock string
-		Req  *request.ContainerImagePull
+		Ctx context.Context
+		Req *request.ContainerImagePull
 	}{
-		Ctx:  ctx,
-		Sock: sock,
-		Req:  req,
+		Ctx: ctx,
+		Req: req,
 	}
 	mock.lockPull.Lock()
 	mock.calls.Pull = append(mock.calls.Pull, callInfo)
 	mock.lockPull.Unlock()
-	return mock.PullFunc(ctx, sock, req)
+	return mock.PullFunc(ctx, req)
 }
 
 // PullCalls gets all the calls that were made to Pull.
@@ -248,14 +251,12 @@ func (mock *ContainerImageRepo) Pull(ctx context.Context, sock string, req *requ
 //
 //	len(mockedContainerImageRepo.PullCalls())
 func (mock *ContainerImageRepo) PullCalls() []struct {
-	Ctx  context.Context
-	Sock string
-	Req  *request.ContainerImagePull
+	Ctx context.Context
+	Req *request.ContainerImagePull
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Sock string
-		Req  *request.ContainerImagePull
+		Ctx context.Context
+		Req *request.ContainerImagePull
 	}
 	mock.lockPull.RLock()
 	calls = mock.calls.Pull
@@ -263,24 +264,90 @@ func (mock *ContainerImageRepo) PullCalls() []struct {
 	return calls
 }
 
+// PullShell calls PullShellFunc.
+func (mock *ContainerImageRepo) PullShell(req *request.ContainerImagePull) (string, string, error) {
+	if mock.PullShellFunc == nil {
+		panic("ContainerImageRepo.PullShellFunc: method is nil but ContainerImageRepo.PullShell was just called")
+	}
+	callInfo := struct {
+		Req *request.ContainerImagePull
+	}{
+		Req: req,
+	}
+	mock.lockPullShell.Lock()
+	mock.calls.PullShell = append(mock.calls.PullShell, callInfo)
+	mock.lockPullShell.Unlock()
+	return mock.PullShellFunc(req)
+}
+
+// PullShellCalls gets all the calls that were made to PullShell.
+// Check the length with:
+//
+//	len(mockedContainerImageRepo.PullShellCalls())
+func (mock *ContainerImageRepo) PullShellCalls() []struct {
+	Req *request.ContainerImagePull
+} {
+	var calls []struct {
+		Req *request.ContainerImagePull
+	}
+	mock.lockPullShell.RLock()
+	calls = mock.calls.PullShell
+	mock.lockPullShell.RUnlock()
+	return calls
+}
+
+// PullStream calls PullStreamFunc.
+func (mock *ContainerImageRepo) PullStream(ctx context.Context, req *request.ContainerImagePull) (iter.Seq2[biz.ImagePullProgress, error], error) {
+	if mock.PullStreamFunc == nil {
+		panic("ContainerImageRepo.PullStreamFunc: method is nil but ContainerImageRepo.PullStream was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Req *request.ContainerImagePull
+	}{
+		Ctx: ctx,
+		Req: req,
+	}
+	mock.lockPullStream.Lock()
+	mock.calls.PullStream = append(mock.calls.PullStream, callInfo)
+	mock.lockPullStream.Unlock()
+	return mock.PullStreamFunc(ctx, req)
+}
+
+// PullStreamCalls gets all the calls that were made to PullStream.
+// Check the length with:
+//
+//	len(mockedContainerImageRepo.PullStreamCalls())
+func (mock *ContainerImageRepo) PullStreamCalls() []struct {
+	Ctx context.Context
+	Req *request.ContainerImagePull
+} {
+	var calls []struct {
+		Ctx context.Context
+		Req *request.ContainerImagePull
+	}
+	mock.lockPullStream.RLock()
+	calls = mock.calls.PullStream
+	mock.lockPullStream.RUnlock()
+	return calls
+}
+
 // Remove calls RemoveFunc.
-func (mock *ContainerImageRepo) Remove(ctx context.Context, sock string, id string) error {
+func (mock *ContainerImageRepo) Remove(ctx context.Context, id string) error {
 	if mock.RemoveFunc == nil {
 		panic("ContainerImageRepo.RemoveFunc: method is nil but ContainerImageRepo.Remove was just called")
 	}
 	callInfo := struct {
-		Ctx  context.Context
-		Sock string
-		ID   string
+		Ctx context.Context
+		ID  string
 	}{
-		Ctx:  ctx,
-		Sock: sock,
-		ID:   id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockRemove.Lock()
 	mock.calls.Remove = append(mock.calls.Remove, callInfo)
 	mock.lockRemove.Unlock()
-	return mock.RemoveFunc(ctx, sock, id)
+	return mock.RemoveFunc(ctx, id)
 }
 
 // RemoveCalls gets all the calls that were made to Remove.
@@ -288,14 +355,12 @@ func (mock *ContainerImageRepo) Remove(ctx context.Context, sock string, id stri
 //
 //	len(mockedContainerImageRepo.RemoveCalls())
 func (mock *ContainerImageRepo) RemoveCalls() []struct {
-	Ctx  context.Context
-	Sock string
-	ID   string
+	Ctx context.Context
+	ID  string
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Sock string
-		ID   string
+		Ctx context.Context
+		ID  string
 	}
 	mock.lockRemove.RLock()
 	calls = mock.calls.Remove

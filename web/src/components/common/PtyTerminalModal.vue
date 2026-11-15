@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import '@fontsource-variable/jetbrains-mono/wght-italic.css'
-import '@fontsource-variable/jetbrains-mono/wght.css'
-import { ClipboardAddon } from '@xterm/addon-clipboard'
-import { FitAddon } from '@xterm/addon-fit'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
-import { WebLinksAddon } from '@xterm/addon-web-links'
-import { WebglAddon } from '@xterm/addon-webgl'
-import { Terminal } from '@xterm/xterm'
-
-import '@xterm/xterm/css/xterm.css'
 import { useGettext } from 'vue3-gettext'
 
 import ws from '@/api/ws'
+import { createXterm } from '@/components/common/composables/useXterm'
+import type { Xterm } from '@/components/common/composables/useXterm'
 
 const { $gettext } = useGettext()
 
@@ -34,110 +26,26 @@ const emit = defineEmits<{
 
 const isRunning = ref(false)
 const terminalRef = ref<HTMLElement | null>(null)
-const term = shallowRef<Terminal | null>(null)
-let ptyWs: WebSocket | null = null
-let fitAddon: FitAddon | null = null
-let webglAddon: WebglAddon | null = null
+let xterm: Xterm | null = null
 
 // 初始化终端
 const initTerminal = async () => {
-  if (!terminalRef.value || !props.command) {
+  const el = terminalRef.value
+  if (!el || !props.command) {
     return
   }
 
   isRunning.value = true
 
   try {
-    ptyWs = await ws.pty(props.command)
-    ptyWs.binaryType = 'arraybuffer'
-
-    term.value = new Terminal({
-      allowProposedApi: true,
-      lineHeight: 1.2,
-      fontSize: 14,
-      fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: true,
-      cursorStyle: 'underline',
-      tabStopWidth: 4,
-      disableStdin: false,
+    xterm = createXterm(el, await ws.pty(props.command), {
       convertEol: true,
-      scrollOnEraseInDisplay: true,
-      theme: {
-        background:
-          getComputedStyle(document.documentElement)
-            .getPropertyValue('--color-bg-terminal')
-            .trim() || '#0a0e1a',
-        foreground: '#e6edf3',
+      onClose: () => {
+        isRunning.value = false
+        emit('complete')
       },
+      onError: () => emit('error', $gettext('Connection error')),
     })
-
-    fitAddon = new FitAddon()
-    webglAddon = new WebglAddon()
-
-    term.value.loadAddon(fitAddon)
-    term.value.loadAddon(new ClipboardAddon())
-    term.value.loadAddon(new WebLinksAddon())
-    term.value.loadAddon(new Unicode11Addon())
-    term.value.unicode.activeVersion = '11'
-    term.value.loadAddon(webglAddon)
-    webglAddon.onContextLoss(() => {
-      webglAddon?.dispose()
-    })
-    term.value.open(terminalRef.value)
-
-    ptyWs.onmessage = (ev) => {
-      const data: ArrayBuffer | string = ev.data
-      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
-    }
-
-    term.value?.onData((data) => {
-      if (ptyWs?.readyState === WebSocket.OPEN) {
-        ptyWs?.send(data)
-      }
-    })
-    term.value?.onBinary((data) => {
-      if (ptyWs?.readyState === WebSocket.OPEN) {
-        const buffer = new Uint8Array(data.length)
-        for (let i = 0; i < data.length; ++i) {
-          buffer[i] = data.charCodeAt(i) & 255
-        }
-        ptyWs?.send(buffer)
-      }
-    })
-    term.value.onResize(({ rows, cols }) => {
-      if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
-        ptyWs.send(
-          JSON.stringify({
-            resize: true,
-            columns: cols,
-            rows: rows,
-          }),
-        )
-      }
-    })
-
-    fitAddon.fit()
-    term.value.focus()
-    window.addEventListener('resize', onTerminalResize, false)
-
-    ptyWs.onclose = () => {
-      isRunning.value = false
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection closed.'))
-      }
-      window.removeEventListener('resize', onTerminalResize)
-      emit('complete')
-    }
-
-    ptyWs.onerror = (event) => {
-      isRunning.value = false
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection error.'))
-      }
-      console.error(event)
-      ptyWs?.close()
-      emit('error', $gettext('Connection error'))
-    }
   } catch (error) {
     console.error('Failed to start PTY:', error)
     isRunning.value = false
@@ -147,46 +55,8 @@ const initTerminal = async () => {
 
 // 关闭终端
 const closeTerminal = () => {
-  try {
-    if (ptyWs) {
-      ptyWs.close()
-      ptyWs = null
-    }
-    if (term.value) {
-      term.value.dispose()
-      term.value = null
-    }
-    fitAddon = null
-    webglAddon = null
-    if (terminalRef.value) {
-      terminalRef.value.innerHTML = ''
-    }
-    window.removeEventListener('resize', onTerminalResize)
-  } catch {
-    /* empty */
-  }
-}
-
-// 处理窗口大小变化
-const onTerminalResize = () => {
-  if (fitAddon && term.value) {
-    fitAddon.fit()
-  }
-}
-
-// 终端滚轮缩放
-const onTerminalWheel = (event: WheelEvent) => {
-  if (event.ctrlKey && term.value && fitAddon) {
-    event.preventDefault()
-    if (event.deltaY > 0) {
-      if (term.value.options.fontSize! > 12) {
-        term.value.options.fontSize = term.value.options.fontSize! - 1
-      }
-    } else {
-      term.value.options.fontSize = term.value.options.fontSize! + 1
-    }
-    fitAddon.fit()
-  }
+  xterm?.dispose()
+  xterm = null
 }
 
 // 模态框关闭后清理
@@ -272,7 +142,7 @@ defineExpose({
           <span class="terminal-title-text">{{ command }}</span>
         </div>
       </header>
-      <div ref="terminalRef" class="terminal-content" @wheel="onTerminalWheel"></div>
+      <div ref="terminalRef" class="terminal-content"></div>
     </div>
   </app-modal>
 </template>

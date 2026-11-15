@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -94,4 +95,102 @@ func TestPut(t *testing.T) {
 			t.Errorf("重组后内容不符: 收到 %d 字节, 期望 %d", len(got), len(data))
 		}
 	})
+}
+
+func TestPayloadHash(t *testing.T) {
+	type seen struct{ put, part, complete string }
+	handler := func(got *seen, mu *sync.Mutex) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			q := r.URL.Query()
+			_, _ = io.Copy(io.Discard, r.Body)
+			hash := r.Header.Get("x-amz-content-sha256")
+			mu.Lock()
+			defer mu.Unlock()
+			switch {
+			case r.Method == http.MethodPost && q.Has("uploads"):
+				_, _ = io.WriteString(w, `<InitiateMultipartUploadResult><UploadId>uid</UploadId></InitiateMultipartUploadResult>`)
+			case r.Method == http.MethodPut && q.Get("uploadId") != "":
+				got.part = hash
+				w.Header().Set("ETag", `"etag"`)
+			case r.Method == http.MethodPost && q.Get("uploadId") != "":
+				got.complete = hash
+				_, _ = io.WriteString(w, `<CompleteMultipartUploadResult></CompleteMultipartUploadResult>`)
+			case r.Method == http.MethodPut:
+				got.put = hash
+			}
+		})
+	}
+	upload := func(t *testing.T, c *S3) {
+		t.Helper()
+		if err := c.Put(t.Context(), "small.txt", bytes.NewReader([]byte("x")), ""); err != nil {
+			t.Fatal(err)
+		}
+		if err := c.Put(t.Context(), "big.bin", bytes.NewReader(make([]byte, minPartSize+1)), ""); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	t.Run("https", func(t *testing.T) {
+		var got seen
+		var mu sync.Mutex
+		srv := httptest.NewTLSServer(handler(&got, &mu))
+		defer srv.Close()
+		upload(t, New(Config{Region: "us-east-1", Bucket: "b", Endpoint: srv.URL, PathStyle: true, Client: srv.Client()}))
+		if got.put != unsignedPayload || got.part != unsignedPayload {
+			t.Errorf("put = %q, part = %q, want %s", got.put, got.part, unsignedPayload)
+		}
+		if got.complete == "" || got.complete == unsignedPayload {
+			t.Errorf("complete = %q, want payload hash", got.complete)
+		}
+	})
+
+	t.Run("http", func(t *testing.T) {
+		var got seen
+		var mu sync.Mutex
+		srv := httptest.NewServer(handler(&got, &mu))
+		defer srv.Close()
+		upload(t, New(Config{Region: "us-east-1", Bucket: "b", Endpoint: srv.URL, PathStyle: true}))
+		if got.put != sha256Hex([]byte("x")) {
+			t.Errorf("put = %q, want payload hash", got.put)
+		}
+		if got.part == "" || got.part == unsignedPayload {
+			t.Errorf("part = %q, want payload hash", got.part)
+		}
+	})
+}
+
+type sizedReader struct {
+	io.Reader
+	size int64
+}
+
+func (r sizedReader) Stat() (fs.FileInfo, error) { return sizedInfo{size: r.size}, nil }
+
+type sizedInfo struct {
+	fs.FileInfo
+	size int64
+}
+
+func (i sizedInfo) Size() int64 { return i.size }
+
+// TestPlanParts 已知大小的大文件要放大分片以装进 maxParts 片，并压低并发控制内存
+func TestPlanParts(t *testing.T) {
+	c := New(Config{Region: "us-east-1", Bucket: "b", Concurrency: 5})
+	const gb = int64(1) << 30
+
+	if size, n := c.planParts(bytes.NewReader(nil)); size != defaultPartSize || n != 5 {
+		t.Errorf("unknown size: got %d, %d", size, n)
+	}
+	if size, n := c.planParts(sizedReader{size: gb}); size != defaultPartSize || n != 5 {
+		t.Errorf("1GB: got %d, %d", size, n)
+	}
+	for _, total := range []int64{100 * gb, 1024 * gb, 5 * 1024 * gb} {
+		size, n := c.planParts(sizedReader{size: total})
+		if defaultPartSize+size*(maxParts-1) < total {
+			t.Errorf("%dGB: part size %d cannot hold the object", total/gb, size)
+		}
+		if n < 1 || n > 5 || (n > 1 && size*int64(n) > maxBuffered) {
+			t.Errorf("%dGB: part size %d with concurrency %d exceeds the budget", total/gb, size, n)
+		}
+	}
 }

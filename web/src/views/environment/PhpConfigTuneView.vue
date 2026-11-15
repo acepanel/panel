@@ -7,6 +7,7 @@ import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/panel/environment/php'
 import { useResponsive } from '@/components/system/composables/useResponsive'
+import { decodeNumber, decodeSize, encodeNumber, encodeSize, unitOptions } from '@/utils/tune'
 import { phpPreset, type TuneProfile } from '@/utils/tunepreset'
 
 const props = defineProps<{
@@ -15,36 +16,63 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
+const [DefineNumber, ReuseNumber] = createReusableTemplate<{
+  name: string
+  placeholder: string
+  suffix?: string
+}>()
+const [DefineSize, ReuseSize] = createReusableTemplate<{ name: string; placeholder: string }>()
 const currentTab = ref('general')
 
 // 常规设置
-const shortOpenTag = ref('')
+const shortOpenTag = ref<string | null>(null)
 const dateTimezone = ref('')
-const displayErrors = ref('')
+const displayErrors = ref<string | null>(null)
 const errorReporting = ref('')
 
 // 禁用函数
 const disableFunctions = ref('')
 
-// 上传限制
-const uploadMaxFilesizeNum = ref<number | null>(null)
-const uploadMaxFilesizeUnit = ref('M')
-const postMaxSizeNum = ref<number | null>(null)
-const postMaxSizeUnit = ref('M')
-const maxFileUploads = ref<number | null>(null)
-const memoryLimitNum = ref<number | null>(null)
-const memoryLimitUnit = ref('M')
+// 数字项与容量项，键同请求体，值为控件下限
+const numberMin: Record<string, number> = {
+  max_file_uploads: 0,
+  max_execution_time: -1,
+  max_input_time: -1,
+  max_input_vars: 0,
+  session_gc_maxlifetime: 0,
+  session_cookie_lifetime: 0,
+  pm_max_children: 1,
+  pm_start_servers: 1,
+  pm_min_spare_servers: 1,
+  pm_max_spare_servers: 1,
+  opcache_memory_consumption: 8,
+  opcache_interned_strings_buffer: 0,
+  opcache_max_accelerated_files: 200,
+  opcache_revalidate_freq: 0,
+}
+const sizeMin: Record<string, number> = {
+  upload_max_filesize: 0,
+  post_max_size: 0,
+  memory_limit: -1,
+  opcache_jit_buffer_size: 0,
+}
 
-// 超时限制
-const maxExecutionTime = ref<number | null>(null)
-const maxInputTime = ref<number | null>(null)
-const maxInputVars = ref<number | null>(null)
+// 数字项与容量项的控件值，控件表示不了的值存的是原文字符串，改用文本框编辑
+const decodeFields = (data: Record<string, any>) => ({
+  ...Object.fromEntries(
+    Object.entries(numberMin).map(([key, min]) => [key, decodeNumber(data[key], min)]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(sizeMin).map(([key, min]) => [key, decodeSize(data[key], 'M', min)]),
+  ),
+})
+const model = ref<Record<string, any>>(decodeFields({}))
 
 // Session
-const sessionSaveHandler = ref('')
+const sessionSaveHandler = ref<string | null>(null)
 const sessionSavePath = ref('')
-const sessionGcMaxlifetime = ref<number | null>(null)
-const sessionCookieLifetime = ref<number | null>(null)
+// 可视化字段拼不回原样的 save_path（多节点、unix socket、带额外参数等）改为直接编辑原文
+const sessionPathRaw = ref(false)
 
 // Redis/Memcached 可视化字段
 const sessionRedisHost = ref('127.0.0.1')
@@ -54,20 +82,10 @@ const sessionMemcachedHost = ref('127.0.0.1')
 const sessionMemcachedPort = ref('11211')
 
 // 性能调整
-const pm = ref('')
-const pmMaxChildren = ref<number | null>(null)
-const pmStartServers = ref<number | null>(null)
-const pmMinSpareServers = ref<number | null>(null)
-const pmMaxSpareServers = ref<number | null>(null)
+const pm = ref<string | null>(null)
 
 // OPcache
-const opcacheMemoryConsumption = ref<number | null>(null)
-const opcacheInternedStringsBuffer = ref<number | null>(null)
-const opcacheMaxAcceleratedFiles = ref<number | null>(null)
-const opcacheRevalidateFreq = ref<number | null>(null)
 const opcacheJit = ref<string | null>(null)
-const opcacheJitBufferSizeNum = ref<number | null>(null)
-const opcacheJitBufferSizeUnit = ref('M')
 
 // loading 状态
 const saveLoading = ref(false)
@@ -81,21 +99,21 @@ const presetScenarios = computed(() => [
 const handlePreset = (profile: TuneProfile) => {
   const r = phpPreset(profile)
   pm.value = r.pm
-  pmMaxChildren.value = r.pmMaxChildren
-  pmStartServers.value = r.pmStartServers
-  pmMinSpareServers.value = r.pmMinSpareServers
-  pmMaxSpareServers.value = r.pmMaxSpareServers
-  memoryLimitNum.value = r.memoryLimitM
-  memoryLimitUnit.value = 'M'
-  opcacheMemoryConsumption.value = r.opcacheMemoryConsumption
-  opcacheInternedStringsBuffer.value = r.opcacheInternedStringsBuffer
-  opcacheMaxAcceleratedFiles.value = r.opcacheMaxAcceleratedFiles
-  opcacheRevalidateFreq.value = r.opcacheRevalidateFreq
+  Object.assign(model.value, {
+    pm_max_children: r.pmMaxChildren,
+    pm_start_servers: r.pmStartServers,
+    pm_min_spare_servers: r.pmMinSpareServers,
+    pm_max_spare_servers: r.pmMaxSpareServers,
+    memory_limit: { num: r.memoryLimitM, unit: 'M' },
+    opcache_memory_consumption: r.opcacheMemoryConsumption,
+    opcache_interned_strings_buffer: r.opcacheInternedStringsBuffer,
+    opcache_max_accelerated_files: r.opcacheMaxAcceleratedFiles,
+    opcache_revalidate_freq: r.opcacheRevalidateFreq,
+  })
   // JIT 从 PHP 8.0 开始才有
   if (props.slug >= 80) {
     opcacheJit.value = r.opcacheJit
-    opcacheJitBufferSizeNum.value = r.opcacheJitBufferSizeM
-    opcacheJitBufferSizeUnit.value = 'M'
+    model.value.opcache_jit_buffer_size = { num: r.opcacheJitBufferSizeM, unit: 'M' }
   }
   window.$message.success($gettext('Generated, review the values and save'))
 }
@@ -130,7 +148,8 @@ const composeRedisSavePath = () => {
   const port = sessionRedisPort.value || '6379'
   const password = sessionRedisPassword.value
   if (password) {
-    return `tcp://${host}:${port}?auth=${password}`
+    // phpredis 按查询串解码 auth，特殊字符不转义会被截断或改写
+    return `tcp://${host}:${port}?auth=${encodeURIComponent(password)}`
   }
   return `tcp://${host}:${port}`
 }
@@ -142,6 +161,13 @@ const composeMemcachedSavePath = () => {
   return `${host}:${port}`
 }
 
+// 当前 handler 下由可视化字段拼出的 save_path，没有可视化字段的 handler 就是原文
+const composeSavePath = () => {
+  if (sessionSaveHandler.value === 'redis') return composeRedisSavePath()
+  if (sessionSaveHandler.value === 'memcached') return composeMemcachedSavePath()
+  return sessionSavePath.value
+}
+
 // 加载配置
 useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   shortOpenTag.value = data.short_open_tag || null
@@ -149,36 +175,11 @@ useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   displayErrors.value = data.display_errors || null
   errorReporting.value = data.error_reporting ?? ''
   disableFunctions.value = data.disable_functions ?? ''
-  const uploadParsed = parseSizeValue(data.upload_max_filesize ?? '')
-  uploadMaxFilesizeNum.value = uploadParsed.num
-  uploadMaxFilesizeUnit.value = uploadParsed.unit
-  const postParsed = parseSizeValue(data.post_max_size ?? '')
-  postMaxSizeNum.value = postParsed.num
-  postMaxSizeUnit.value = postParsed.unit
-  maxFileUploads.value = parseNumber(data.max_file_uploads)
-  const memParsed = parseSizeValue(data.memory_limit ?? '')
-  memoryLimitNum.value = memParsed.num
-  memoryLimitUnit.value = memParsed.unit
-  maxExecutionTime.value = parseNumber(data.max_execution_time)
-  maxInputTime.value = parseNumber(data.max_input_time)
-  maxInputVars.value = parseNumber(data.max_input_vars)
-  sessionSaveHandler.value = data.session_save_handler || 'files'
+  model.value = decodeFields(data)
+  sessionSaveHandler.value = data.session_save_handler || null
   sessionSavePath.value = data.session_save_path ?? ''
-  sessionGcMaxlifetime.value = parseNumber(data.session_gc_maxlifetime)
-  sessionCookieLifetime.value = parseNumber(data.session_cookie_lifetime)
-  pm.value = data.pm || 'dynamic'
-  pmMaxChildren.value = parseNumber(data.pm_max_children)
-  pmStartServers.value = parseNumber(data.pm_start_servers)
-  pmMinSpareServers.value = parseNumber(data.pm_min_spare_servers)
-  pmMaxSpareServers.value = parseNumber(data.pm_max_spare_servers)
-  opcacheMemoryConsumption.value = parseNumber(data.opcache_memory_consumption)
-  opcacheInternedStringsBuffer.value = parseNumber(data.opcache_interned_strings_buffer)
-  opcacheMaxAcceleratedFiles.value = parseNumber(data.opcache_max_accelerated_files)
-  opcacheRevalidateFreq.value = parseNumber(data.opcache_revalidate_freq)
-  opcacheJit.value = jitAliases[data.opcache_jit] ?? (data.opcache_jit || null)
-  const jitBufferParsed = parseSizeValue(data.opcache_jit_buffer_size ?? '')
-  opcacheJitBufferSizeNum.value = jitBufferParsed.num
-  opcacheJitBufferSizeUnit.value = jitBufferParsed.unit
+  pm.value = data.pm || null
+  opcacheJit.value = data.opcache_jit || null
 
   // 解析 save_path 到可视化字段
   if (sessionSaveHandler.value === 'redis' && sessionSavePath.value) {
@@ -186,51 +187,23 @@ useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   } else if (sessionSaveHandler.value === 'memcached' && sessionSavePath.value) {
     parseMemcachedSavePath(sessionSavePath.value)
   }
+  sessionPathRaw.value = composeSavePath() !== sessionSavePath.value
 })
 
 // 获取当前配置数据
-const getConfigData = () => {
-  // 根据 handler 类型组合 save_path
-  let savePath = sessionSavePath.value
-  if (sessionSaveHandler.value === 'redis') {
-    savePath = composeRedisSavePath()
-  } else if (sessionSaveHandler.value === 'memcached') {
-    savePath = composeMemcachedSavePath()
-  }
-
-  return {
-    short_open_tag: shortOpenTag.value ?? '',
-    date_timezone: dateTimezone.value,
-    display_errors: displayErrors.value ?? '',
-    error_reporting: errorReporting.value,
-    disable_functions: disableFunctions.value,
-    upload_max_filesize: composeSizeValue(uploadMaxFilesizeNum.value, uploadMaxFilesizeUnit.value),
-    post_max_size: composeSizeValue(postMaxSizeNum.value, postMaxSizeUnit.value),
-    max_file_uploads: String(maxFileUploads.value ?? ''),
-    memory_limit: composeSizeValue(memoryLimitNum.value, memoryLimitUnit.value),
-    max_execution_time: String(maxExecutionTime.value ?? ''),
-    max_input_time: String(maxInputTime.value ?? ''),
-    max_input_vars: String(maxInputVars.value ?? ''),
-    session_save_handler: sessionSaveHandler.value,
-    session_save_path: savePath,
-    session_gc_maxlifetime: String(sessionGcMaxlifetime.value ?? ''),
-    session_cookie_lifetime: String(sessionCookieLifetime.value ?? ''),
-    pm: pm.value,
-    pm_max_children: String(pmMaxChildren.value ?? ''),
-    pm_start_servers: String(pmStartServers.value ?? ''),
-    pm_min_spare_servers: String(pmMinSpareServers.value ?? ''),
-    pm_max_spare_servers: String(pmMaxSpareServers.value ?? ''),
-    opcache_memory_consumption: String(opcacheMemoryConsumption.value ?? ''),
-    opcache_interned_strings_buffer: String(opcacheInternedStringsBuffer.value ?? ''),
-    opcache_max_accelerated_files: String(opcacheMaxAcceleratedFiles.value ?? ''),
-    opcache_revalidate_freq: String(opcacheRevalidateFreq.value ?? ''),
-    opcache_jit: opcacheJit.value ?? '',
-    opcache_jit_buffer_size: composeSizeValue(
-      opcacheJitBufferSizeNum.value,
-      opcacheJitBufferSizeUnit.value,
-    ),
-  }
-}
+const getConfigData = () => ({
+  short_open_tag: shortOpenTag.value ?? '',
+  date_timezone: dateTimezone.value,
+  display_errors: displayErrors.value ?? '',
+  error_reporting: errorReporting.value,
+  disable_functions: disableFunctions.value,
+  ...Object.fromEntries(Object.keys(numberMin).map((key) => [key, encodeNumber(model.value[key])])),
+  ...Object.fromEntries(Object.keys(sizeMin).map((key) => [key, encodeSize(model.value[key])])),
+  session_save_handler: sessionSaveHandler.value ?? '',
+  session_save_path: sessionPathRaw.value ? sessionSavePath.value : composeSavePath(),
+  pm: pm.value ?? '',
+  opcache_jit: opcacheJit.value ?? '',
+})
 
 // 保存配置
 const handleSave = () => {
@@ -290,38 +263,51 @@ const jitAliases: Record<string, string> = {
   '1205': 'function',
 }
 
-// 容量单位选项
-const sizeUnitOptions = [
-  { label: 'K', value: 'K' },
-  { label: 'M', value: 'M' },
-  { label: 'G', value: 'G' },
-]
+// 等价写法按对应选项的名字显示，值保持原样，不改动就不会被改写
+const jitFallback = (value: string | number) => ({
+  label:
+    jitOptions.value.find((option) => option.value === jitAliases[value])?.label ?? String(value),
+  value,
+})
 
-// 0 是有效值，不能用 || null 判空，否则保存时会被当成未设置注释掉
-const parseNumber = (val?: string): number | null => {
-  const num = Number(val)
-  return val && !Number.isNaN(num) ? num : null
-}
-
-// 解析带单位的值，如 "50M" -> { num: 50, unit: "M" }
-const parseSizeValue = (val: string): { num: number | null; unit: string } => {
-  if (!val) return { num: null, unit: 'M' }
-  const match = val.match(/^(\d+)\s*([KMG])$/i)
-  if (match) {
-    return { num: Number(match[1]), unit: match[2]!.toUpperCase() }
-  }
-  return { num: parseNumber(val), unit: 'M' }
-}
-
-// 组合数值和单位，如 50 + "M" -> "50M"
-const composeSizeValue = (num: number | null, unit: string): string => {
-  if (num == null) return ''
-  return `${num}${unit}`
-}
+const sizeUnitOptions = unitOptions(['K', 'M', 'G'])
 </script>
 
 <template>
   <n-flex vertical>
+    <DefineNumber v-slot="{ name, placeholder, suffix }">
+      <n-input
+        v-if="typeof model[name] === 'string'"
+        v-model:value="model[name]"
+        :placeholder="placeholder"
+      />
+      <n-input-number
+        v-else
+        class="w-full"
+        v-model:value="model[name]"
+        :placeholder="placeholder"
+        :min="numberMin[name]"
+      >
+        <template v-if="suffix" #suffix>{{ suffix }}</template>
+      </n-input-number>
+    </DefineNumber>
+    <DefineSize v-slot="{ name, placeholder }">
+      <n-input
+        v-if="typeof model[name] === 'string'"
+        v-model:value="model[name]"
+        :placeholder="placeholder"
+      />
+      <n-input-group v-else>
+        <n-input-number
+          class="w-full"
+          v-model:value="model[name].num"
+          :placeholder="placeholder"
+          :min="sizeMin[name]"
+          style="flex: 1"
+        />
+        <n-select v-model:value="model[name].unit" :options="sizeUnitOptions" class="w-20" />
+      </n-input-group>
+    </DefineSize>
     <n-tabs v-model:value="currentTab" type="line" :placement="isMobile ? 'top' : 'left'" animated>
       <n-tab-pane name="general" :tab="$gettext('General')">
         <n-flex vertical>
@@ -402,52 +388,16 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           </n-alert>
           <n-form>
             <n-form-item :label="$gettext('Max Upload Size (upload_max_filesize)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="uploadMaxFilesizeNum"
-                  :placeholder="$gettext('e.g. 50')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="uploadMaxFilesizeUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
+              <ReuseSize name="upload_max_filesize" :placeholder="$gettext('e.g. 50')" />
             </n-form-item>
             <n-form-item :label="$gettext('Max POST Size (post_max_size)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="postMaxSizeNum"
-                  :placeholder="$gettext('e.g. 50')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select v-model:value="postMaxSizeUnit" :options="sizeUnitOptions" class="w-20" />
-              </n-input-group>
+              <ReuseSize name="post_max_size" :placeholder="$gettext('e.g. 50')" />
             </n-form-item>
             <n-form-item :label="$gettext('Max File Uploads (max_file_uploads)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="maxFileUploads"
-                :placeholder="$gettext('e.g. 20')"
-                :min="0"
-              />
+              <ReuseNumber name="max_file_uploads" :placeholder="$gettext('e.g. 20')" />
             </n-form-item>
             <n-form-item :label="$gettext('Memory Limit (memory_limit)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="memoryLimitNum"
-                  :placeholder="$gettext('e.g. 256')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select v-model:value="memoryLimitUnit" :options="sizeUnitOptions" class="w-20" />
-              </n-input-group>
+              <ReuseSize name="memory_limit" :placeholder="$gettext('e.g. 256')" />
             </n-form-item>
           </n-form>
           <n-flex>
@@ -476,28 +426,13 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           </n-alert>
           <n-form>
             <n-form-item :label="$gettext('Max Execution Time (max_execution_time)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="maxExecutionTime"
-                :placeholder="$gettext('e.g. 30')"
-                :min="-1"
-              />
+              <ReuseNumber name="max_execution_time" :placeholder="$gettext('e.g. 30')" />
             </n-form-item>
             <n-form-item :label="$gettext('Max Input Time (max_input_time)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="maxInputTime"
-                :placeholder="$gettext('e.g. 60')"
-                :min="-1"
-              />
+              <ReuseNumber name="max_input_time" :placeholder="$gettext('e.g. 60')" />
             </n-form-item>
             <n-form-item :label="$gettext('Max Input Vars (max_input_vars)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="maxInputVars"
-                :placeholder="$gettext('e.g. 1000')"
-                :min="0"
-              />
+              <ReuseNumber name="max_input_vars" :placeholder="$gettext('e.g. 1000')" />
             </n-form-item>
           </n-form>
           <n-flex>
@@ -529,45 +464,25 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               <n-select v-model:value="pm" :options="pmOptions" />
             </n-form-item>
             <n-form-item :label="$gettext('Max Children (pm.max_children)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="pmMaxChildren"
-                :placeholder="$gettext('e.g. 30')"
-                :min="1"
-              />
+              <ReuseNumber name="pm_max_children" :placeholder="$gettext('e.g. 30')" />
             </n-form-item>
             <n-form-item
               v-if="pm === 'dynamic'"
               :label="$gettext('Start Servers (pm.start_servers)')"
             >
-              <n-input-number
-                class="w-full"
-                v-model:value="pmStartServers"
-                :placeholder="$gettext('e.g. 5')"
-                :min="1"
-              />
+              <ReuseNumber name="pm_start_servers" :placeholder="$gettext('e.g. 5')" />
             </n-form-item>
             <n-form-item
               v-if="pm === 'dynamic'"
               :label="$gettext('Min Spare Servers (pm.min_spare_servers)')"
             >
-              <n-input-number
-                class="w-full"
-                v-model:value="pmMinSpareServers"
-                :placeholder="$gettext('e.g. 3')"
-                :min="1"
-              />
+              <ReuseNumber name="pm_min_spare_servers" :placeholder="$gettext('e.g. 3')" />
             </n-form-item>
             <n-form-item
               v-if="pm === 'dynamic'"
               :label="$gettext('Max Spare Servers (pm.max_spare_servers)')"
             >
-              <n-input-number
-                class="w-full"
-                v-model:value="pmMaxSpareServers"
-                :placeholder="$gettext('e.g. 10')"
-                :min="1"
-              />
+              <ReuseNumber name="pm_max_spare_servers" :placeholder="$gettext('e.g. 10')" />
             </n-form-item>
           </n-form>
           <n-flex>
@@ -592,61 +507,43 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           </n-alert>
           <n-form>
             <n-form-item :label="$gettext('Memory Size (opcache.memory_consumption)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="opcacheMemoryConsumption"
+              <ReuseNumber
+                name="opcache_memory_consumption"
                 :placeholder="$gettext('e.g. 256')"
-                :min="8"
-              >
-                <template #suffix>MB</template>
-              </n-input-number>
+                suffix="MB"
+              />
             </n-form-item>
             <n-form-item
               :label="$gettext('Interned Strings Buffer (opcache.interned_strings_buffer)')"
             >
-              <n-input-number
-                class="w-full"
-                v-model:value="opcacheInternedStringsBuffer"
+              <ReuseNumber
+                name="opcache_interned_strings_buffer"
                 :placeholder="$gettext('e.g. 32')"
-                :min="0"
-              >
-                <template #suffix>MB</template>
-              </n-input-number>
+                suffix="MB"
+              />
             </n-form-item>
             <n-form-item :label="$gettext('Max Cached Files (opcache.max_accelerated_files)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="opcacheMaxAcceleratedFiles"
+              <ReuseNumber
+                name="opcache_max_accelerated_files"
                 :placeholder="$gettext('e.g. 100000')"
-                :min="200"
               />
             </n-form-item>
             <n-form-item :label="$gettext('Revalidate Frequency (opcache.revalidate_freq)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="opcacheRevalidateFreq"
+              <ReuseNumber
+                name="opcache_revalidate_freq"
                 :placeholder="$gettext('e.g. 3 (seconds)')"
-                :min="0"
               />
             </n-form-item>
             <n-form-item :label="$gettext('JIT Mode (opcache.jit)')">
-              <n-select v-model:value="opcacheJit" :options="jitOptions" clearable />
+              <n-select
+                v-model:value="opcacheJit"
+                :options="jitOptions"
+                :fallback-option="jitFallback"
+                clearable
+              />
             </n-form-item>
             <n-form-item :label="$gettext('JIT Buffer Size (opcache.jit_buffer_size)')">
-              <n-input-group>
-                <n-input-number
-                  class="w-full"
-                  v-model:value="opcacheJitBufferSizeNum"
-                  :placeholder="$gettext('e.g. 128')"
-                  :min="0"
-                  style="flex: 1"
-                />
-                <n-select
-                  v-model:value="opcacheJitBufferSizeUnit"
-                  :options="sizeUnitOptions"
-                  class="w-20"
-                />
-              </n-input-group>
+              <ReuseSize name="opcache_jit_buffer_size" :placeholder="$gettext('e.g. 128')" />
             </n-form-item>
           </n-form>
           <n-flex>
@@ -675,17 +572,14 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           </n-alert>
           <n-form>
             <n-form-item :label="$gettext('Save Handler (session.save_handler)')">
-              <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
-            </n-form-item>
-            <!-- files 模式：显示路径 -->
-            <n-form-item
-              v-if="sessionSaveHandler === 'files'"
-              :label="$gettext('Save Path (session.save_path)')"
-            >
-              <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
+              <n-select
+                v-model:value="sessionSaveHandler"
+                :options="sessionHandlerOptions"
+                @update:value="sessionPathRaw = false"
+              />
             </n-form-item>
             <!-- redis 模式：显示主机、端口、密码 -->
-            <template v-if="sessionSaveHandler === 'redis'">
+            <template v-if="sessionSaveHandler === 'redis' && !sessionPathRaw">
               <n-form-item :label="$gettext('Redis Host')">
                 <n-input v-model:value="sessionRedisHost" placeholder="127.0.0.1" />
               </n-form-item>
@@ -702,7 +596,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               </n-form-item>
             </template>
             <!-- memcached 模式：显示主机、端口 -->
-            <template v-if="sessionSaveHandler === 'memcached'">
+            <template v-else-if="sessionSaveHandler === 'memcached' && !sessionPathRaw">
               <n-form-item :label="$gettext('Memcached Host')">
                 <n-input v-model:value="sessionMemcachedHost" placeholder="127.0.0.1" />
               </n-form-item>
@@ -710,20 +604,20 @@ const composeSizeValue = (num: number | null, unit: string): string => {
                 <n-input v-model:value="sessionMemcachedPort" placeholder="11211" />
               </n-form-item>
             </template>
+            <!-- 其余情况直接编辑路径原文 -->
+            <n-form-item v-else :label="$gettext('Save Path (session.save_path)')">
+              <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
+            </n-form-item>
             <n-form-item :label="$gettext('GC Max Lifetime (session.gc_maxlifetime)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="sessionGcMaxlifetime"
+              <ReuseNumber
+                name="session_gc_maxlifetime"
                 :placeholder="$gettext('e.g. 1440 (seconds)')"
-                :min="0"
               />
             </n-form-item>
             <n-form-item :label="$gettext('Cookie Lifetime (session.cookie_lifetime)')">
-              <n-input-number
-                class="w-full"
-                v-model:value="sessionCookieLifetime"
+              <ReuseNumber
+                name="session_cookie_lifetime"
                 :placeholder="$gettext('e.g. 0 (until browser closes)')"
-                :min="0"
               />
             </n-form-item>
           </n-form>
@@ -740,6 +634,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               {{ $gettext('Generate Recommended Configuration') }}
             </n-button>
             <ConfirmDialog
+              v-if="sessionSaveHandler === 'files'"
               type="danger"
               :content="$gettext('Are you sure you want to clean all session files?')"
               @confirm="handleCleanSession"

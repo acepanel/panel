@@ -1,10 +1,6 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-  readonly VITE_API_URL: string
-  // 更多环境变量...
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv
+declare module 'virtual:mdi-icons' {
+  const icons: import('@iconify/vue').IconifyJSON
+  export default icons
 }

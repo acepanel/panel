@@ -2,7 +2,7 @@ package job
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log/slog"
 	"math/rand/v2"
 	"os"
@@ -11,22 +11,16 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/collect"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/pkg/api"
-	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 // PanelTask 面板每日任务
 type PanelTask struct {
-	api         *api.API
-	conf        *config.Config
 	db          *gorm.DB
 	log         *slog.Logger
 	backupRepo  *biz.BackupUsecase
@@ -41,12 +35,24 @@ type PanelTask struct {
 }
 
 // NewPanelTask 构造面板每日任务
-func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, monitorUsecase *biz.MonitorUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
+func NewPanelTask(
+	backupUsecase *biz.BackupUsecase,
+	cacheUsecase *biz.CacheUsecase,
+	monitorUsecase *biz.MonitorUsecase,
+	scanEventUsecase *biz.ScanEventUsecase,
+	settingUsecase *biz.SettingUsecase,
+	tamperUsecase *biz.TamperUsecase,
+	taskUsecase *biz.TaskUsecase,
+	websiteStatUsecase *biz.WebsiteStatUsecase,
+	db *gorm.DB,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "0 2 * * *",
+		// 维护状态由本任务自己进出
+		AnyStatus: true,
 		Task: &PanelTask{
-			api:         api.NewAPI(app.Version, app.Locale),
-			conf:        conf,
 			db:          db,
 			log:         log,
 			backupRepo:  backupUsecase,
@@ -63,18 +69,47 @@ func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUseca
 }
 
 func (r *PanelTask) Run(ctx context.Context) error {
-	app.Status = app.StatusMaintain
+	r.maintain(ctx)
 
-	// 优化主数据库
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
-		app.Status = app.StatusFailed
-		r.log.Warn(r.t.Get("failed to wal checkpoint database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return nil
+	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
+		r.updateIPDB(ctx)
+		r.updateCaches()
+		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
+			r.updatePanel(ctx)
+		}
 	}
-	if err := r.db.Exec("VACUUM").Error; err != nil {
-		app.Status = app.StatusFailed
-		r.log.Warn(r.t.Get("failed to vacuum database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return nil
+
+	runtime.GC()
+	debug.FreeOSMemory()
+
+	return nil
+}
+
+// maintain 在维护状态下整理数据库并备份面板
+func (r *PanelTask) maintain(ctx context.Context) {
+	// healthKeyPanelDB 面板主数据库健康问题上报 key
+	const healthKeyPanelDB = "database:panel"
+
+	// 升级中不进维护，否则收尾时会把升级状态冲回正常
+	if !app.Status.CompareAndSwap(app.StatusNormal, app.StatusMaintain) {
+		return
+	}
+	// 中途 panic 也要恢复，否则面板会一直停在维护状态
+	defer app.Status.Store(app.StatusNormal)
+
+	// 优化主数据库，失败只上报，磁盘满时用户还要进面板清理
+	checkpointErr := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error
+	if checkpointErr != nil {
+		r.log.Warn(r.t.Get("failed to wal checkpoint database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", checkpointErr))
+	}
+	vacuumErr := r.db.Exec("VACUUM").Error
+	if vacuumErr != nil {
+		r.log.Warn(r.t.Get("failed to vacuum database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", vacuumErr))
+	}
+	if err := errors.Join(checkpointErr, vacuumErr); err != nil {
+		app.Health.Report(healthKeyPanelDB, app.HealthLevelError, err.Error())
+	} else {
+		app.Health.Clear(healthKeyPanelDB)
 	}
 	// 优化辅助数据库
 	if err := r.scanRepo.VacuumDB(); err != nil {
@@ -99,107 +134,6 @@ func (r *PanelTask) Run(ctx context.Context) error {
 	if err := r.backupRepo.ClearExpired(r.backupRepo.GetDefaultPath(biz.BackupTypePanel), "panel_", 10); err != nil {
 		r.log.Warn(r.t.Get("failed to clear backup"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
-
-	// 非离线模式下任务
-	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
-		// 更新 IPDB 订阅
-		r.updateIPDB(ctx)
-		// 同步云端数据
-		r.updateCategories()
-		r.updateApps()
-		r.updateEnvironments()
-		r.updateTemplates()
-		// 自动更新面板
-		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
-			r.updatePanel(ctx)
-		}
-	}
-
-	// 回收内存
-	runtime.GC()
-	debug.FreeOSMemory()
-
-	app.Status = app.StatusNormal
-	return nil
-}
-
-// 更新分类缓存
-func (r *PanelTask) updateCategories() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
-		if err := r.cacheRepo.UpdateCategories(); err != nil {
-			r.log.Warn(r.t.Get("failed to update categories cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
-	})
-}
-
-// 更新商店缓存
-func (r *PanelTask) updateApps() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
-		if err := r.cacheRepo.UpdateApps(); err != nil {
-			r.log.Warn(r.t.Get("failed to update apps cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
-	})
-}
-
-// 更新运行环境缓存
-func (r *PanelTask) updateEnvironments() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
-		if err := r.cacheRepo.UpdateEnvironments(); err != nil {
-			r.log.Warn(r.t.Get("failed to update environment cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
-	})
-}
-
-// 更新模版缓存
-func (r *PanelTask) updateTemplates() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
-		if err := r.cacheRepo.UpdateTemplates(); err != nil {
-			r.log.Warn(r.t.Get("failed to update template cache"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
-	})
-}
-
-// 更新面板
-func (r *PanelTask) updatePanel(ctx context.Context) {
-	if r.taskRepo.HasRunningTask() {
-		return
-	}
-
-	channel, _ := r.settingRepo.Get(biz.SettingKeyChannel)
-
-	// 延后触发且要熬过面板自杀重启，绑可取消 ctx 会让更新与重启中途被杀
-	ctx = context.WithoutCancel(ctx)
-
-	// 加 360 秒确保在缓存更新后才更新面板
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() { //nolint:gosec
-		panel, err := r.api.LatestVersion(channel)
-		if err != nil {
-			return
-		}
-		current, err := version.NewVersion(app.Version)
-		if err != nil {
-			return
-		}
-		latest, err := version.NewVersion(panel.Version)
-		if err != nil {
-			return
-		}
-		if current.GreaterThanOrEqual(latest) {
-			return
-		}
-		if download := collect.First(panel.Downloads); download != nil {
-			url := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.URL)
-			checksum := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.Checksum)
-			if err = r.backupRepo.UpdatePanel(ctx, panel.Version, url, checksum, func(msg string) {
-				r.log.Debug(r.t.Get("panel updating"), slog.String("type", biz.OperationTypePanel), slog.String("progress", msg))
-			}); err != nil {
-				r.log.Warn(r.t.Get("failed to update panel"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				return
-			}
-			// 新流程非破坏性、storage 原地不动，失败无需 FixPanel；成功后由本入口负责重启
-			tools.RestartPanel(ctx)
-		}
-	})
 }
 
 // updateIPDB 更新 IPDB 订阅文件
@@ -227,4 +161,51 @@ func (r *PanelTask) updateIPDB(ctx context.Context) {
 	}
 
 	r.log.Info(r.t.Get("ipdb updated"), slog.String("url", ipdbURL), slog.String("path", destPath))
+}
+
+// updateCaches 错峰同步云端数据
+func (r *PanelTask) updateCaches() {
+	failed := map[biz.CacheKey]string{
+		biz.CacheKeyCategories:  r.t.Get("failed to update categories cache"),
+		biz.CacheKeyApps:        r.t.Get("failed to update apps cache"),
+		biz.CacheKeyEnvironment: r.t.Get("failed to update environment cache"),
+		biz.CacheKeyTemplates:   r.t.Get("failed to update template cache"),
+	}
+
+	for _, update := range r.cacheRepo.Updates() {
+		time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
+			if err := update.Run(); err != nil {
+				r.log.Warn(failed[update.Key], slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			}
+		})
+	}
+}
+
+// updatePanel 更新面板
+func (r *PanelTask) updatePanel(ctx context.Context) {
+	// 延后触发且要熬过面板自杀重启，绑可取消 ctx 会让更新与重启中途被杀
+	ctx = context.WithoutCancel(ctx)
+
+	// 加 360 秒确保在缓存更新后才更新面板
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() { //nolint:gosec
+		// 到真正更新时再查，重启会杀掉这几分钟里新起的后台任务
+		if r.taskRepo.HasRunningTask() {
+			return
+		}
+		release, err := r.backupRepo.LatestPanel()
+		if err != nil || release.URL == "" {
+			return
+		}
+		if newer, err := release.Newer(); err != nil || !newer {
+			return
+		}
+		if err = r.backupRepo.UpdatePanel(ctx, release, func(msg string) {
+			r.log.Debug(r.t.Get("panel updating"), slog.String("type", biz.OperationTypePanel), slog.String("progress", msg))
+		}); err != nil {
+			r.log.Warn(r.t.Get("failed to update panel"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			return
+		}
+		// 成功后由本入口负责重启
+		tools.RestartPanel(ctx)
+	})
 }

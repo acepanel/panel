@@ -19,10 +19,10 @@ export function useFileOps() {
 
     // 关闭编辑器中已打开的对应标签页，并从选中中移除
     deleted.forEach((p) => editorStore.closePath(p))
-    if (fileStore.activeTab) {
-      const deletedSet = new Set(deleted)
-      fileStore.activeTab.selected = fileStore.activeTab.selected.filter((p) => !deletedSet.has(p))
-    }
+    const deletedSet = new Set(deleted)
+    fileStore.selected[fileStore.activeTabId] = fileStore.activeSelected.filter(
+      (p) => !deletedSet.has(p),
+    )
 
     window.$bus.emit('file:refresh')
     if (deleted.length === paths.length) {
@@ -48,9 +48,7 @@ export function useFileOps() {
       paths.map((p) => ({ name: lastDirectory(p), source: p, force: false })),
       type,
     )
-    if (fileStore.activeTab) {
-      fileStore.activeTab.selected = []
-    }
+    fileStore.selected[fileStore.activeTabId] = []
     window.$message.success(
       $gettext('Marked successfully, please navigate to the destination path to paste'),
     )

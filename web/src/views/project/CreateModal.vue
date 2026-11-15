@@ -4,7 +4,6 @@ import { useGettext } from 'vue3-gettext'
 import home from '@/api/panel/home'
 import project from '@/api/panel/project'
 import setting from '@/api/panel/setting'
-import PathSelector from '@/components/common/PathSelector.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { joinPath } from '@/utils'
 

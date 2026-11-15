@@ -1,14 +1,18 @@
 package firewall
 
 import (
+	"cmp"
 	"context"
 	"fmt"
-	"net"
+	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 // Firewall 防火墙统一接口
@@ -19,7 +23,7 @@ type Firewall interface {
 }
 
 // backend 各防火墙软件需实现的操作
-// 变更方法由 NewFirewall 返回的实现统一加锁并断开取消链，各后端实现内无需再处理
+// 变更方法由 NewFirewall 返回的实现统一加锁并断开取消链，列表也由它统一排序、合并协议，各后端实现内无需再处理
 type backend interface {
 	// Status 获取防火墙运行状态
 	Status(ctx context.Context) (bool, error)
@@ -34,6 +38,9 @@ type backend interface {
 	Port(ctx context.Context, rule FireInfo, operation Operation) error
 	// RichRules 添加/删除富规则（IP/高级规则）
 	RichRules(ctx context.Context, rule FireInfo, operation Operation) error
+	// RichRulesBatch 批量添加/删除富规则，整批只重载一次
+	// 返回错误时可能已有部分规则生效，调用方可用相反的操作撤回
+	RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error
 
 	// ListForward 列出所有转发规则
 	ListForward(ctx context.Context) ([]FireForwardInfo, error)
@@ -46,10 +53,14 @@ type backend interface {
 	UpdatePingStatus(ctx context.Context, status bool) error
 }
 
-// NewFirewall 返回当前系统的防火墙实现
-func NewFirewall() Firewall {
-	return lockedFirewall{}
-}
+// mu 串行化所有防火墙变更操作
+// ufw 在加锁前就已将 user.rules 读入内存，并发执行时后写入的进程会覆盖先写入的规则且都返回成功
+var mu sync.Mutex
+
+var (
+	firewalldBackend = newFirewalld()
+	ufwBackend       = newUFW()
+)
 
 // detected 探测到的防火墙后端及其软件名
 type detected struct {
@@ -57,15 +68,116 @@ type detected struct {
 	name string
 }
 
-var (
-	firewalldBackend = newFirewalld()
-	ufwBackend       = newUFW()
-)
+// lockedFirewall 变更操作加锁并断开取消链，列表统一排序，其余读操作直接透传
+// 每个变更都是「写永久配置 + reload」的组合，中途取消会让两者脱节：
+// firewalld 下规则进了永久配置却没进 runtime，ufw 下面板读的规则文件已改而内核里的规则还在跑
+type lockedFirewall struct{}
+
+// NewFirewall 返回当前系统的防火墙实现
+func NewFirewall() Firewall {
+	return lockedFirewall{}
+}
+
+func (f lockedFirewall) Status(ctx context.Context) (bool, error) {
+	return f.detectFirewall().Status(ctx)
+}
+
+func (f lockedFirewall) Enable(ctx context.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().Enable(context.WithoutCancel(ctx))
+}
+
+func (f lockedFirewall) Disable(ctx context.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().Disable(context.WithoutCancel(ctx))
+}
+
+func (f lockedFirewall) ListRule(ctx context.Context) ([]FireInfo, error) {
+	rules, err := f.detectFirewall().ListRule(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	slices.SortFunc(rules, func(a, b FireInfo) int {
+		return cmp.Or(
+			cmp.Compare(a.PortStart, b.PortStart),
+			cmp.Compare(a.PortEnd, b.PortEnd),
+			cmp.Compare(a.Protocol, b.Protocol),
+			cmp.Compare(a.Family, b.Family),
+			cmp.Compare(a.Strategy, b.Strategy),
+			cmp.Compare(a.Direction, b.Direction),
+			cmp.Compare(a.Type, b.Type),
+		)
+	})
+
+	return f.mergeRules(rules), nil
+}
+
+func (f lockedFirewall) Port(ctx context.Context, rule FireInfo, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().Port(context.WithoutCancel(ctx), rule, operation)
+}
+
+func (f lockedFirewall) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().RichRules(context.WithoutCancel(ctx), rule, operation)
+}
+
+func (f lockedFirewall) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
+	if len(rules) == 0 {
+		return nil
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().RichRulesBatch(context.WithoutCancel(ctx), rules, operation)
+}
+
+func (f lockedFirewall) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
+	forwards, err := f.detectFirewall().ListForward(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	slices.SortFunc(forwards, func(a, b FireForwardInfo) int {
+		return cmp.Or(
+			cmp.Compare(a.Port, b.Port),
+			cmp.Compare(a.TargetPort, b.TargetPort),
+			cmp.Compare(a.Protocol, b.Protocol),
+			cmp.Compare(a.TargetIP, b.TargetIP),
+		)
+	})
+
+	return forwards, nil
+}
+
+func (f lockedFirewall) Forward(ctx context.Context, rule Forward, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().Forward(context.WithoutCancel(ctx), rule, operation)
+}
+
+func (f lockedFirewall) PingStatus(ctx context.Context) (bool, error) {
+	return f.detectFirewall().PingStatus(ctx)
+}
+
+func (f lockedFirewall) UpdatePingStatus(ctx context.Context, status bool) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return f.detectFirewall().UpdatePingStatus(context.WithoutCancel(ctx), status)
+}
+
+func (f lockedFirewall) Name() string {
+	return f.detectFirewall().name
+}
 
 // detectFirewall 只查命令是否存在，不执行
 // firewall-cmd 连 --version 都要先连 D-Bus，firewalld 未运行时重试约 10 秒才失败，执行探测会卡住请求并误判为未安装
 // 查 PATH 足够便宜，每次都重新探测，装卸防火墙后无需重启面板
-func detectFirewall() detected {
+func (lockedFirewall) detectFirewall() detected {
 	if _, err := exec.LookPath("firewall-cmd"); err == nil {
 		return detected{firewalldBackend, "firewalld"}
 	}
@@ -76,94 +188,8 @@ func detectFirewall() detected {
 	return detected{firewalldBackend, ""}
 }
 
-// mu 串行化所有防火墙变更操作
-// ufw 在加锁前就已将 user.rules 读入内存，并发执行时后写入的进程会覆盖先写入的规则且都返回成功
-var mu sync.Mutex
-
-// lockedFirewall 变更操作加锁并断开取消链，读操作直接透传
-// 每个变更都是「写永久配置 + reload」的组合，中途取消会让两者脱节：
-// firewalld 下规则进了永久配置却没进 runtime，ufw 下面板读的规则文件已改而内核里的规则还在跑
-type lockedFirewall struct{}
-
-func (lockedFirewall) Name() string {
-	return detectFirewall().name
-}
-
-func (lockedFirewall) Status(ctx context.Context) (bool, error) {
-	return detectFirewall().Status(ctx)
-}
-
-func (lockedFirewall) ListRule(ctx context.Context) ([]FireInfo, error) {
-	return detectFirewall().ListRule(ctx)
-}
-
-func (lockedFirewall) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
-	return detectFirewall().ListForward(ctx)
-}
-
-func (lockedFirewall) PingStatus(ctx context.Context) (bool, error) {
-	return detectFirewall().PingStatus(ctx)
-}
-
-func (lockedFirewall) Enable(ctx context.Context) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().Enable(context.WithoutCancel(ctx))
-}
-
-func (lockedFirewall) Disable(ctx context.Context) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().Disable(context.WithoutCancel(ctx))
-}
-
-func (lockedFirewall) Port(ctx context.Context, rule FireInfo, operation Operation) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().Port(context.WithoutCancel(ctx), rule, operation)
-}
-
-func (lockedFirewall) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().RichRules(context.WithoutCancel(ctx), rule, operation)
-}
-
-func (lockedFirewall) Forward(ctx context.Context, rule Forward, operation Operation) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().Forward(context.WithoutCancel(ctx), rule, operation)
-}
-
-func (lockedFirewall) UpdatePingStatus(ctx context.Context, status bool) error {
-	mu.Lock()
-	defer mu.Unlock()
-	return detectFirewall().UpdatePingStatus(context.WithoutCancel(ctx), status)
-}
-
-// isLocalAddress 判断是否为本地地址
-func isLocalAddress(ip string) bool {
-	parsed := net.ParseIP(ip)
-	if parsed == nil {
-		return false
-	}
-	if parsed.IsLoopback() {
-		return true
-	}
-	if parsed.IsUnspecified() {
-		return true
-	}
-
-	return false
-}
-
-// buildProtocols 拆分协议字符串为列表
-func buildProtocols(protocol Protocol) []string {
-	return strings.Split(string(protocol), "/")
-}
-
 // mergeRules 将同端口/同地址/同策略/同方向、仅协议不同（tcp vs udp）的规则合并为 tcp/udp
-func mergeRules(rules []FireInfo) []FireInfo {
+func (lockedFirewall) mergeRules(rules []FireInfo) []FireInfo {
 	grouped := make(map[string]*FireInfo)
 	var order []string
 
@@ -186,4 +212,16 @@ func mergeRules(rules []FireInfo) []FireInfo {
 	return lo.Map(order, func(key string, _ int) FireInfo {
 		return *grouped[key]
 	})
+}
+
+// enableIPForward 打开内核转发并持久化
+func enableIPForward(ctx context.Context) {
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv4.ip_forward=1")
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv6.conf.all.forwarding=1")
+	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
+}
+
+// buildProtocols 拆分协议字符串为列表
+func buildProtocols(protocol Protocol) []string {
+	return strings.Split(string(protocol), "/")
 }

@@ -2,7 +2,6 @@ package data
 
 import (
 	"errors"
-	"log/slog"
 	"os"
 
 	"github.com/leonelquinteros/gotext"
@@ -15,15 +14,13 @@ import (
 type taskRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
-	log    *slog.Logger
 	runner types.TaskRunner
 }
 
-func NewTaskRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger, runner types.TaskRunner) biz.TaskRepo {
+func NewTaskRepo(db *gorm.DB, t *gotext.Locale, runner types.TaskRunner) biz.TaskRepo {
 	return &taskRepo{
 		t:      t,
 		db:     db,
-		log:    log,
 		runner: runner,
 	}
 }
@@ -100,14 +97,6 @@ func (r *taskRepo) Cancel(id uint) error {
 		return errors.New(r.t.Get("task has already finished"))
 	}
 	return nil
-}
-
-func (r *taskRepo) UpdateStatus(id uint, status biz.TaskStatus) error {
-	return r.db.Model(&biz.Task{}).Where("id = ?", id).Update("status", status).Error
-}
-
-func (r *taskRepo) UpdateLog(id uint, log string) error {
-	return r.db.Model(&biz.Task{}).Where("id = ?", id).Update("log", log).Error
 }
 
 func (r *taskRepo) Push(task *biz.Task) error {

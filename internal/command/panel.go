@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -12,33 +10,27 @@ import (
 // UpdateCommand 更新面板
 func UpdateCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 	return &cli.Command{
-		Name:  "update",
-		Usage: t.Get("Update AcePanel to the latest version"),
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Update(ctx, cmd)
-		},
+		Name:   "update",
+		Usage:  t.Get("Update AcePanel to the latest version"),
+		Action: cliService.Update,
 	}
 }
 
 // SyncCommand 同步云端缓存数据
 func SyncCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 	return &cli.Command{
-		Name:  "sync",
-		Usage: t.Get("Sync AcePanel cached data with cloud"),
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Sync(ctx, cmd)
-		},
+		Name:   "sync",
+		Usage:  t.Get("Sync AcePanel cached data with cloud"),
+		Action: cliService.Sync,
 	}
 }
 
 // FixCommand 修复升级问题
 func FixCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 	return &cli.Command{
-		Name:  "fix",
-		Usage: t.Get("Fix AcePanel upgrade issues"),
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Fix(ctx, cmd)
-		},
+		Name:   "fix",
+		Usage:  t.Get("Fix AcePanel upgrade issues"),
+		Action: cliService.Fix,
 	}
 }
 
@@ -59,9 +51,7 @@ func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 				Usage:   t.Get("Target username (the first user if not filled)"),
 			},
 		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Info(ctx, cmd)
-		},
+		Action: cliService.Info,
 	}
 }
 
@@ -78,20 +68,16 @@ func PortCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 				Required: true,
 			},
 		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Port(ctx, cmd)
-		},
+		Action: cliService.Port,
 	}
 }
 
 // SyncTimeCommand 通过 NTP 同步系统时间
 func SyncTimeCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 	return &cli.Command{
-		Name:  "sync-time",
-		Usage: t.Get("Sync server time with NTP"),
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.SyncTime(ctx, cmd)
-		},
+		Name:   "sync-time",
+		Usage:  t.Get("Sync server time with NTP"),
+		Action: cliService.SyncTime,
 	}
 }
 
@@ -101,9 +87,7 @@ func ClearTaskCommand(t *gotext.Locale, cliService *service.CliService) *cli.Com
 		Name:   "clear-task",
 		Usage:  t.Get("Clear all tasks in the task queue if they are stuck (use only under guidance)"),
 		Hidden: true,
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.ClearTask(ctx, cmd)
-		},
+		Action: cliService.ClearTask,
 	}
 }
 
@@ -113,8 +97,6 @@ func InitCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 		Name:   "init",
 		Usage:  t.Get("Initialize AcePanel (use only under guidance)"),
 		Hidden: true,
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return cliService.Init(ctx, cmd)
-		},
+		Action: cliService.Init,
 	}
 }

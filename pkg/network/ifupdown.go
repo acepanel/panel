@@ -11,13 +11,12 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/io"
 )
 
 // ifaceStanzaPattern 匹配 iface <name> <inet|inet6> <method> 声明
 var ifaceStanzaPattern = regexp.MustCompile(`^\s*iface\s+(\S+)\s+(inet6?)\s+(\S+)`)
-
-// ifupdownManaged 由面板生成的选项，其余选项原样保留
-var ifupdownManaged = []string{"address", "netmask", "gateway", "dns-nameservers", "mtu", "accept_ra", "autoconf", "dhcp"}
 
 type ifupdownBackend struct{}
 
@@ -36,7 +35,7 @@ type interfacesStanza struct {
 func (b *ifupdownBackend) Name() string { return "ifupdown" }
 
 func (b *ifupdownBackend) available(_ context.Context) bool {
-	return hasCommand("ifquery") && exists("/etc/network/interfaces")
+	return hasCommand("ifquery") && io.Exists("/etc/network/interfaces")
 }
 
 func (b *ifupdownBackend) Load(_ context.Context, items []Interface) error {
@@ -53,7 +52,7 @@ func (b *ifupdownBackend) Load(_ context.Context, items []Interface) error {
 		items[i].IPv4 = b.family(stanzas, "inet")
 		items[i].IPv6 = b.family(stanzas, "inet6")
 		for _, stanza := range stanzas {
-			if mtu := stanzaValue(stanza, "mtu"); mtu != "" {
+			if mtu := stanza.value("mtu"); mtu != "" {
 				items[i].ConfiguredMTU, _ = strconv.Atoi(mtu)
 				break
 			}
@@ -63,7 +62,11 @@ func (b *ifupdownBackend) Load(_ context.Context, items []Interface) error {
 	return nil
 }
 
-func (b *ifupdownBackend) Apply(ctx context.Context, item Interface, config Config) (func(context.Context) error, error) {
+func (b *ifupdownBackend) Apply(
+	ctx context.Context,
+	item Interface,
+	config Config,
+) (func(context.Context) error, error) {
 	files, err := b.read()
 	if err != nil {
 		return nil, err
@@ -95,41 +98,6 @@ func (b *ifupdownBackend) Apply(ctx context.Context, item Interface, config Conf
 		return nil, errors.Join(err, rollback(context.WithoutCancel(ctx)))
 	}
 	return rollback, nil
-}
-
-// write 先在同目录落临时文件并用 ifquery 校验语法，通过后原子替换
-func (b *ifupdownBackend) write(ctx context.Context, path, name, content string) error {
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".acepanel-interfaces-*")
-	if err != nil {
-		return err
-	}
-	defer func() { _ = os.Remove(tmp.Name()) }()
-
-	if _, err = tmp.WriteString(content); err == nil {
-		err = tmp.Chmod(0644)
-	}
-	if closeErr := tmp.Close(); err == nil {
-		err = closeErr
-	}
-	if err != nil {
-		return err
-	}
-	if _, err = run(ctx, "ifquery", "--interfaces", tmp.Name(), name); err != nil {
-		return err
-	}
-	return os.Rename(tmp.Name(), path)
-}
-
-func (b *ifupdownBackend) reload(ctx context.Context, name string) error {
-	if hasCommand("ifreload") {
-		_, err := run(ctx, "ifreload", "-c")
-		return err
-	}
-	if _, err := run(ctx, "ifdown", "--force", name); err != nil {
-		return err
-	}
-	_, err := run(ctx, "ifup", name)
-	return err
 }
 
 func (b *ifupdownBackend) read() ([]interfacesFile, error) {
@@ -201,7 +169,7 @@ func (b *ifupdownBackend) find(files []interfacesFile, name string) (*interfaces
 			if file != nil && file.path != files[i].path {
 				return nil, nil, "ifupdown interface is defined in multiple files"
 			}
-			if stanzaValue(stanza, "inherits") != "" {
+			if stanza.value("inherits") != "" {
 				return nil, nil, "ifupdown inheritance cannot be edited safely"
 			}
 			file = &files[i]
@@ -228,19 +196,19 @@ func (b *ifupdownBackend) family(stanzas []interfacesStanza, family string) Fami
 		}
 		switch {
 		case stanza.method == "dhcp" || stanza.method == "auto":
-			config.Mode = ModeAuto
-		case stanza.method == "static" && config.Mode != ModeAuto:
-			config.Mode = ModeManual
+			config.Mode = modeAuto
+		case stanza.method == "static" && config.Mode != modeAuto:
+			config.Mode = modeManual
 		}
-		if address := stanzaAddress(stanza); address != "" {
+		if address := stanza.address(); address != "" {
 			config.Addresses = append(config.Addresses, address)
 		}
 		if config.Gateway == "" {
-			config.Gateway = stanzaValue(stanza, "gateway")
+			config.Gateway = stanza.value("gateway")
 		}
-		config.DNS = append(config.DNS, strings.Fields(stanzaValue(stanza, "dns-nameservers"))...)
-		if family == "inet6" && config.Mode == ModeAuto {
-			config.AutoDNS = stanzaValue(stanza, "dhcp") != "0"
+		config.DNS = append(config.DNS, strings.Fields(stanza.value("dns-nameservers"))...)
+		if family == "inet6" && config.Mode == modeAuto {
+			config.AutoDNS = stanza.value("dhcp") != "0"
 		}
 	}
 	config.Addresses, config.DNS = unique(config.Addresses), unique(config.DNS)
@@ -256,19 +224,19 @@ func (b *ifupdownBackend) render(config Config, unmanaged4, unmanaged6 []string)
 func (b *ifupdownBackend) renderFamily(name, family string, config FamilyConfig, mtu int, unmanaged []string) []string {
 	method := "manual"
 	switch config.Mode {
-	case ModeAuto:
+	case modeAuto:
 		method = "dhcp"
 		if family == "inet6" {
 			method = "auto"
 		}
-	case ModeManual:
+	case modeManual:
 		method = "static"
 	}
 
 	lines := []string{fmt.Sprintf("iface %s %s %s\n", name, family, method)}
 	addresses := config.Addresses
 	// 一个段落只能声明一个地址，多余的地址各起一个 static 段落
-	if config.Mode == ModeManual && len(addresses) > 0 {
+	if config.Mode == modeManual && len(addresses) > 0 {
 		lines = append(lines, "    address "+addresses[0]+"\n")
 		addresses = addresses[1:]
 	}
@@ -280,13 +248,13 @@ func (b *ifupdownBackend) renderFamily(name, family string, config FamilyConfig,
 	}
 	if family == "inet6" {
 		switch config.Mode {
-		case ModeAuto:
+		case modeAuto:
 			dhcp := "0"
 			if config.AutoDNS {
 				dhcp = "1"
 			}
 			lines = append(lines, "    accept_ra 2\n", "    dhcp "+dhcp+"\n")
-		case ModeDisabled:
+		case modeDisabled:
 			lines = append(lines, "    accept_ra 0\n", "    autoconf 0\n")
 		}
 	}
@@ -303,13 +271,16 @@ func (b *ifupdownBackend) renderFamily(name, family string, config FamilyConfig,
 
 // unmanaged 提取面板不生成的选项，改写时原样保留
 func (b *ifupdownBackend) unmanaged(stanzas []interfacesStanza, family string) []string {
+	// managed 由面板生成的选项，其余选项原样保留
+	managed := []string{"address", "netmask", "gateway", "dns-nameservers", "mtu", "accept_ra", "autoconf", "dhcp"}
+
 	var result []string
 	for _, stanza := range stanzas {
 		if stanza.family != family {
 			continue
 		}
 		for _, line := range stanza.options {
-			if fields := strings.Fields(line); len(fields) > 0 && !slices.Contains(ifupdownManaged, fields[0]) {
+			if fields := strings.Fields(line); len(fields) > 0 && !slices.Contains(managed, fields[0]) {
 				result = append(result, line)
 			}
 		}
@@ -317,8 +288,43 @@ func (b *ifupdownBackend) unmanaged(stanzas []interfacesStanza, family string) [
 	return result
 }
 
-func stanzaValue(stanza interfacesStanza, key string) string {
-	for _, line := range stanza.options {
+// write 先在同目录落临时文件并用 ifquery 校验语法，通过后原子替换
+func (b *ifupdownBackend) write(ctx context.Context, path, name, content string) error {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".acepanel-interfaces-*")
+	if err != nil {
+		return err
+	}
+	defer func() { _ = os.Remove(tmp.Name()) }()
+
+	if _, err = tmp.WriteString(content); err == nil {
+		err = tmp.Chmod(0644)
+	}
+	if closeErr := tmp.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return err
+	}
+	if _, err = run(ctx, "ifquery", "--interfaces", tmp.Name(), name); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), path)
+}
+
+func (b *ifupdownBackend) reload(ctx context.Context, name string) error {
+	if hasCommand("ifreload") {
+		_, err := run(ctx, "ifreload", "-c")
+		return err
+	}
+	if _, err := run(ctx, "ifdown", "--force", name); err != nil {
+		return err
+	}
+	_, err := run(ctx, "ifup", name)
+	return err
+}
+
+func (s interfacesStanza) value(key string) string {
+	for _, line := range s.options {
 		if fields := strings.Fields(line); len(fields) > 1 && fields[0] == key {
 			return strings.Join(fields[1:], " ")
 		}
@@ -326,9 +332,9 @@ func stanzaValue(stanza interfacesStanza, key string) string {
 	return ""
 }
 
-// stanzaAddress 把 address 与 netmask 合并为 CIDR
-func stanzaAddress(stanza interfacesStanza) string {
-	address, mask := stanzaValue(stanza, "address"), stanzaValue(stanza, "netmask")
+// address 把 address 与 netmask 合并为 CIDR
+func (s interfacesStanza) address() string {
+	address, mask := s.value("address"), s.value("netmask")
 	if address == "" || mask == "" || strings.Contains(address, "/") {
 		return address
 	}

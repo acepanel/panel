@@ -1,5 +1,4 @@
-import type { RouteModule, RoutesType, RouteType } from '@/types/router'
-import { $gettext } from '@/utils/gettext'
+import type { RoutesType, RouteType } from '@/types/router'
 
 export const basicRoutes: RoutesType = [
   {
@@ -41,7 +40,7 @@ export const basicRoutes: RoutesType = [
     component: () => import('@/views/login/IndexView.vue'),
     isHidden: true,
     meta: {
-      title: $gettext('Login'),
+      title: 'Login',
     },
   },
 ]
@@ -53,19 +52,9 @@ export const NOT_FOUND_ROUTE: RouteType = {
   isHidden: true,
 }
 
-export const EMPTY_ROUTE: RouteType = {
-  name: 'Empty',
-  path: '/:pathMatch(.*)*',
-  component: () => {},
-}
-
-const modules = import.meta.glob('@/views/**/route.ts', {
+// 各模块 route.ts 的默认导出可以是单条路由，也可以是路由数组
+const modules = import.meta.glob<{ default?: RouteType | RoutesType }>('@/views/**/route.ts', {
   eager: true,
-}) as RouteModule
-const asyncRoutes: RoutesType = []
-Object.keys(modules).forEach((key) => {
-  const route = modules[key]?.default
-  if (route) asyncRoutes.push(route)
 })
 
-export { asyncRoutes }
+export const asyncRoutes: RoutesType = Object.values(modules).flatMap((m) => m.default ?? [])

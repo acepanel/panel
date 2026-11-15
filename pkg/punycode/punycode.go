@@ -7,20 +7,11 @@ import (
 	"golang.org/x/net/idna"
 )
 
-// EncodeDomain 将 Unicode 域名编码为 Punycode
-func EncodeDomain(domain string) (string, error) {
-	ascii, err := idna.ToASCII(domain)
-	if err != nil {
-		return "", fmt.Errorf("domain encode failed: %w", err)
-	}
-	return ascii, nil
-}
-
 // EncodeDomains 将 Unicode 域名列表编码为 Punycode
 func EncodeDomains(domain []string) (encoded []string, err error) {
 	var punycode string
 	for item := range slices.Values(domain) {
-		punycode, err = EncodeDomain(item)
+		punycode, err = encodeDomain(item)
 		if err != nil {
 			return nil, err
 		}
@@ -49,4 +40,13 @@ func DecodeDomains(punycode []string) (decoded []string, err error) {
 		decoded = append(decoded, unicode)
 	}
 	return decoded, nil
+}
+
+// encodeDomain 将 Unicode 域名编码为 Punycode
+func encodeDomain(domain string) (string, error) {
+	ascii, err := idna.ToASCII(domain)
+	if err != nil {
+		return "", fmt.Errorf("domain encode failed: %w", err)
+	}
+	return ascii, nil
 }

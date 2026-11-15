@@ -2,7 +2,6 @@ package docker
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"syscall"
@@ -10,14 +9,9 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/moby/moby/client"
-)
 
-// MessageResize 终端大小调整消息
-type MessageResize struct {
-	Resize  bool `json:"resize"`
-	Columns uint `json:"columns"`
-	Rows    uint `json:"rows"`
-}
+	"github.com/acepanel/panel/v3/pkg/shell"
+)
 
 // Turn 容器终端转发器
 type Turn struct {
@@ -29,7 +23,13 @@ type Turn struct {
 }
 
 // NewTurn 创建容器终端转发器
-func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, command []string, sock string) (*Turn, error) {
+func NewTurn(
+	ctx context.Context,
+	ws *websocket.Conn,
+	containerID string,
+	command []string,
+	sock string,
+) (*Turn, error) {
 	apiClient, err := client.New(client.WithHost(sock))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create docker client: %w", err)
@@ -70,7 +70,7 @@ func NewTurn(ctx context.Context, ws *websocket.Conn, containerID string, comman
 
 // Write 实现 io.Writer 接口，将容器输出写入 WebSocket
 func (t *Turn) Write(p []byte) (n int, err error) {
-	if err = t.ws.Write(t.ctx, websocket.MessageText, p); err != nil {
+	if err = t.ws.Write(t.ctx, websocket.MessageBinary, p); err != nil {
 		return 0, err
 	}
 	return len(p), nil
@@ -101,37 +101,13 @@ func (t *Turn) Close() {
 
 // Handle 处理 WebSocket 消息
 func (t *Turn) Handle(ctx context.Context) error {
-	var resize MessageResize
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			_, data, err := t.ws.Read(ctx)
-			if err != nil {
-				// 通常是客户端关闭连接
-				return fmt.Errorf("failed to read ws message: %w", err)
-			}
-
-			// 判断是否是 resize 消息
-			if err = json.Unmarshal(data, &resize); err == nil {
-				if resize.Resize && resize.Columns > 0 && resize.Rows > 0 {
-					if _, err = t.client.ExecResize(ctx, t.execID, client.ExecResizeOptions{
-						Height: resize.Rows,
-						Width:  resize.Columns,
-					}); err != nil {
-						return fmt.Errorf("failed to resize terminal: %w", err)
-					}
-				}
-				continue
-			}
-
-			if _, err = t.hijack.Conn.Write(data); err != nil {
-				return fmt.Errorf("failed to write to container stdin: %w", err)
-			}
-		}
-	}
+	return shell.RelayInput(ctx, t.ws, t.hijack.Conn, func(rows, cols uint16) error {
+		_, err := t.client.ExecResize(ctx, t.execID, client.ExecResizeOptions{
+			Height: uint(rows),
+			Width:  uint(cols),
+		})
+		return err
+	})
 }
 
 // Wait 等待容器输出并转发到 WebSocket

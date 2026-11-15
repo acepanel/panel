@@ -10,9 +10,9 @@ export function translateTitle(key: string): string {
     Container: $gettext('Container'),
     Database: $gettext('Database'),
     Files: $gettext('Files'),
-    Firewall: $gettext('Firewall'),
     Home: $gettext('Home'),
     Security: $gettext('Security'),
+    Login: $gettext('Login'),
     Logs: $gettext('Logs'),
     Monitoring: $gettext('Monitoring'),
     Project: $gettext('Project'),
@@ -22,7 +22,6 @@ export function translateTitle(key: string): string {
     Toolbox: $gettext('Toolbox'),
     Update: $gettext('Update'),
     Website: $gettext('Website'),
-    'Website Edit': $gettext('Website Edit'),
     // 应用标题
     'Fail2ban Manager': $gettext('Fail2ban Manager'),
     'S3fs Manager': $gettext('S3fs Manager'),

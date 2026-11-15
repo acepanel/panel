@@ -4,9 +4,8 @@ import { NAlert, NButton, NDataTable, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
-import ListInput from '@/components/common/ListInput.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -14,25 +13,21 @@ const { confirmDelete } = useConfirm()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
 
-const createModal = ref(false)
-const updateModal = ref(false)
-const createLoading = ref(false)
-const updateLoading = ref(false)
-
-const currentID = ref(0)
+// 创建与编辑共用一个弹窗，editId 为 0 表示创建
+const formModal = ref(false)
+const formLoading = ref(false)
+const editId = ref(0)
 const defaultTokenModel = () => ({
   ips: [] as Array<string>,
   expired_at: new Date().getTime() + 31536000 * 1000, // 1 year
 })
-const createModel = ref(defaultTokenModel())
-const updateModel = ref(defaultTokenModel())
+const model = ref(defaultTokenModel())
 
-// 创建弹窗复用同一实例，每次打开时重置表单，避免残留上次的 IP 白名单
-watch(createModal, (value) => {
-  if (value) {
-    createModel.value = defaultTokenModel()
-  }
-})
+const handleOpenCreate = () => {
+  editId.value = 0
+  model.value = defaultTokenModel()
+  formModal.value = true
+}
 
 const columns: any = [
   {
@@ -73,13 +68,12 @@ const columns: any = [
             size: 'small',
             type: 'primary',
             onClick: () => {
-              currentID.value = row.id
-              // 用当前令牌的数据回填，避免显示上次编辑的残留值
-              updateModel.value = {
+              editId.value = row.id
+              model.value = {
                 ips: [...(row.ips || [])],
                 expired_at: new Date(row.expired_at).getTime(),
               }
-              updateModal.value = true
+              formModal.value = true
             },
           },
           { default: () => $gettext('Modify') },
@@ -103,16 +97,10 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, reload, pagination } = usePagedTable(
   (page, pageSize) => user.tokenList(id.value, page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+  { immediate: false },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (id: number) => {
   useRequest(() => user.tokenDelete(id)).onSuccess(() => {
@@ -122,10 +110,10 @@ const handleDelete = (id: number) => {
 }
 
 const handleCreate = () => {
-  createLoading.value = true
-  useRequest(() => user.tokenCreate(id.value, createModel.value.ips, createModel.value.expired_at))
+  formLoading.value = true
+  useRequest(() => user.tokenCreate(id.value, model.value.ips, model.value.expired_at))
     .onSuccess(({ data }) => {
-      createModal.value = false
+      formModal.value = false
       window.$dialog.success({
         title: $gettext('Created successfully'),
         content: () => {
@@ -170,30 +158,25 @@ const handleCreate = () => {
             .catch(() => {
               window.$message.error($gettext('Copy failed'))
             })
-            .finally(() => {
-              createModal.value = false
-            })
         },
       })
       refresh()
     })
     .onComplete(() => {
-      createLoading.value = false
+      formLoading.value = false
     })
 }
 
 const handleUpdate = () => {
-  updateLoading.value = true
-  useRequest(() =>
-    user.tokenUpdate(currentID.value, updateModel.value.ips, updateModel.value.expired_at),
-  )
+  formLoading.value = true
+  useRequest(() => user.tokenUpdate(editId.value, model.value.ips, model.value.expired_at))
     .onSuccess(() => {
       window.$message.success($gettext('Updated successfully'))
-      updateModal.value = false
+      formModal.value = false
       refresh()
     })
     .onComplete(() => {
-      updateLoading.value = false
+      formLoading.value = false
     })
 }
 
@@ -201,7 +184,7 @@ watch(
   () => show.value,
   (val) => {
     if (val) {
-      refresh()
+      reload()
     }
   },
   { immediate: true },
@@ -212,7 +195,7 @@ watch(
   <app-modal v-model:show="show" :title="$gettext('Access Tokens')">
     <n-flex vertical>
       <n-flex>
-        <n-button type="primary" @click="createModal = true">
+        <n-button type="primary" @click="handleOpenCreate">
           {{ $gettext('Create Access Token') }}
         </n-button>
       </n-flex>
@@ -230,19 +213,22 @@ watch(
       />
     </n-flex>
   </app-modal>
-  <app-modal v-model:show="createModal" :title="$gettext('Create Access Token')">
+  <app-modal
+    v-model:show="formModal"
+    :title="editId ? $gettext('Modify Access Token') : $gettext('Create Access Token')"
+  >
     <n-flex vertical>
       <n-form>
         <n-form-item :label="$gettext('IP White List')">
           <ListInput
-            v-model:value="createModel.ips"
+            v-model:value="model.ips"
             :placeholder="$gettext('127.0.0.1')"
             show-sort-button
           />
         </n-form-item>
         <n-form-item :label="$gettext('Expiration Time')">
           <n-date-picker
-            v-model:value="createModel.expired_at"
+            v-model:value="model.expired_at"
             type="datetime"
             :placeholder="$gettext('Please select the expiration time')"
             w-full
@@ -251,40 +237,11 @@ watch(
       </n-form>
       <n-button
         type="primary"
-        :loading="createLoading"
-        :disabled="createLoading"
-        @click="handleCreate"
+        :loading="formLoading"
+        :disabled="formLoading"
+        @click="editId ? handleUpdate() : handleCreate()"
       >
-        {{ $gettext('Create') }}
-      </n-button>
-    </n-flex>
-  </app-modal>
-  <app-modal v-model:show="updateModal" :title="$gettext('Modify Access Token')">
-    <n-flex vertical>
-      <n-form>
-        <n-form-item :label="$gettext('IP White List')">
-          <ListInput
-            v-model:value="updateModel.ips"
-            :placeholder="$gettext('127.0.0.1')"
-            show-sort-button
-          />
-        </n-form-item>
-        <n-form-item :label="$gettext('Expiration Time')">
-          <n-date-picker
-            v-model:value="updateModel.expired_at"
-            type="datetime"
-            :placeholder="$gettext('Please select the expiration time')"
-            w-full
-          />
-        </n-form-item>
-      </n-form>
-      <n-button
-        type="primary"
-        :loading="updateLoading"
-        :disabled="updateLoading"
-        @click="handleUpdate"
-      >
-        {{ $gettext('Update') }}
+        {{ editId ? $gettext('Update') : $gettext('Create') }}
       </n-button>
     </n-flex>
   </app-modal>

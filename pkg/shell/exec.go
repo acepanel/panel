@@ -28,34 +28,6 @@ func Command(ctx context.Context, name string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func applyEnv(cmd *exec.Cmd) {
-	cmd.Env = append(os.Environ(), "LC_ALL=C")
-}
-
-func newCmd(ctx context.Context, shell string) *exec.Cmd {
-	return Command(ctx, "bash", "-c", shell)
-}
-
-func buildShell(format string, args ...any) string {
-	if len(args) == 0 {
-		return format
-	}
-	return fmt.Sprintf(format, args...)
-}
-
-// runBuffered 执行命令并返回 stdout，失败时附带 stderr
-func runBuffered(cmd *exec.Cmd, shell string) (string, error) {
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
-	}
-
-	return strings.TrimSpace(stdout.String()), nil
-}
-
 // Exec 执行已拼好的 shell 命令
 func Exec(ctx context.Context, shell string) (string, error) {
 	return runBuffered(newCmd(ctx, shell), shell)
@@ -149,6 +121,39 @@ func ExecWithLog(ctx context.Context, shell string, logFile string) error {
 
 func ExecWithLogAppend(ctx context.Context, shell string, logFile string) error {
 	return execWithLog(ctx, shell, logFile, os.O_APPEND)
+}
+
+func applyEnv(cmd *exec.Cmd) {
+	cmd.Env = append(os.Environ(), "LC_ALL=C")
+}
+
+func newCmd(ctx context.Context, shell string) *exec.Cmd {
+	return Command(ctx, "bash", "-c", shell)
+}
+
+func buildShell(format string, args ...any) string {
+	if len(args) == 0 {
+		return format
+	}
+	return fmt.Sprintf(format, args...)
+}
+
+// runBuffered 执行命令并返回 stdout，失败时附带 stderr
+func runBuffered(cmd *exec.Cmd, shell string) (string, error) {
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return strings.TrimSpace(stdout.String()), fmt.Errorf(
+			"run %s failed, err: %w, stderr: %s",
+			shell,
+			err,
+			strings.TrimSpace(stderr.String()),
+		)
+	}
+
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 func execWithLog(ctx context.Context, shell string, logFile string, flag int) error {

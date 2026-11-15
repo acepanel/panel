@@ -24,7 +24,12 @@ type Monitoring struct {
 }
 
 // NewMonitoring 构造系统监控任务
-func NewMonitoring(settingUsecase *biz.SettingUsecase, monitorUsecase *biz.MonitorUsecase, t *gotext.Locale, log *slog.Logger) Job {
+func NewMonitoring(
+	monitorUsecase *biz.MonitorUsecase,
+	settingUsecase *biz.SettingUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &Monitoring{
@@ -37,10 +42,6 @@ func NewMonitoring(settingUsecase *biz.SettingUsecase, monitorUsecase *biz.Monit
 }
 
 func (r *Monitoring) Run(_ context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	monitor, err := r.settingRepo.Get(biz.SettingKeyMonitor)
 	if err != nil || !cast.ToBool(monitor) {
 		return nil //nolint:nilerr
@@ -63,7 +64,8 @@ func (r *Monitoring) Run(_ context.Context) error {
 	info.Disk = nil
 	info.Cpus = nil
 
-	if app.Status != app.StatusNormal {
+	// 采样期间每日任务可能已进入维护并开始整理数据库
+	if app.Status.Load() != app.StatusNormal {
 		return nil
 	}
 
@@ -83,7 +85,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil //nolint:nilerr
 	}
 	day := cast.ToInt(dayStr)
-	if day <= 0 || app.Status != app.StatusNormal {
+	if day <= 0 || app.Status.Load() != app.StatusNormal {
 		return nil
 	}
 	if err = r.monitorRepo.ClearBefore(time.Now().AddDate(0, 0, -day)); err != nil {

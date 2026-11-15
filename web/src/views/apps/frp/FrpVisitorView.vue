@@ -8,7 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 import FrpVisitorModal from './FrpVisitorModal.vue'
 
@@ -99,16 +99,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => frp.visitors(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  frp.visitors(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (name: string) => {
   useRequest(frp.deleteVisitor(name)).onSuccess(() => {
@@ -121,10 +114,6 @@ const handleAdd = () => {
   current.value = undefined
   modalShow.value = true
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

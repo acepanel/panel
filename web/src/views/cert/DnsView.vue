@@ -3,8 +3,10 @@ import { NButton, NDataTable, NFlex, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
+import DnsModal from '@/views/cert/DnsModal.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
@@ -18,19 +20,8 @@ const props = defineProps({
 
 const { dnsProviders } = toRefs(props)
 
-const updateDNSModel = ref<any>({
-  data: {
-    ak: '',
-    sk: '',
-    dns_server: '8.8.8.8',
-    skip_verify: false,
-  },
-  type: 'aliyun',
-  name: '',
-})
-const updateDNSModal = ref(false)
-const updateDNSLoading = ref(false)
-const updateDNS = ref<any>()
+const editModal = ref(false)
+const editItem = ref<any>(null)
 
 const columns: any = [
   {
@@ -79,14 +70,8 @@ const columns: any = [
             size: 'small',
             type: 'primary',
             onClick: () => {
-              updateDNS.value = row.id
-              updateDNSModel.value.data.ak = row.dns_param.ak
-              updateDNSModel.value.data.sk = row.dns_param.sk
-              updateDNSModel.value.data.dns_server = row.dns_param.dns_server || '8.8.8.8'
-              updateDNSModel.value.data.skip_verify = row.dns_param.skip_verify || false
-              updateDNSModel.value.type = row.type
-              updateDNSModel.value.name = row.name
-              updateDNSModal.value = true
+              editItem.value = row
+              editModal.value = true
             },
           },
           { default: () => $gettext('Modify') },
@@ -114,45 +99,11 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => cert.dns(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  cert.dns(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
-const handleUpdateDNS = () => {
-  updateDNSLoading.value = true
-  useRequest(cert.dnsUpdate(updateDNS.value, updateDNSModel.value))
-    .onSuccess(() => {
-      refresh()
-      updateDNSModal.value = false
-      updateDNSModel.value.data.ak = ''
-      updateDNSModel.value.data.sk = ''
-      updateDNSModel.value.data.dns_server = '8.8.8.8'
-      updateDNSModel.value.data.skip_verify = false
-      updateDNSModel.value.name = ''
-      window.$message.success($gettext('Update successful'))
-    })
-    .onComplete(() => {
-      updateDNSLoading.value = false
-    })
-}
-
-onMounted(() => {
-  refresh()
-  window.$bus.on('cert:refresh-dns', () => {
-    refresh()
-  })
-})
-
-onUnmounted(() => {
-  window.$bus.off('cert:refresh-dns')
-})
+useBus('cert:refresh-dns', refresh)
 </script>
 
 <template>
@@ -170,154 +121,7 @@ onUnmounted(() => {
       :pagination="pagination"
     />
   </n-space>
-  <app-modal v-model:show="updateDNSModal" :title="$gettext('Modify DNS')">
-    <n-space vertical>
-      <n-form :model="updateDNSModel">
-        <n-form-item path="name" :label="$gettext('Note Name')">
-          <n-input
-            v-model:value="updateDNSModel.name"
-            type="text"
-            :placeholder="$gettext('Enter note name')"
-          />
-        </n-form-item>
-        <n-form-item path="type" :label="$gettext('DNS')">
-          <n-select
-            v-model:value="updateDNSModel.type"
-            :placeholder="$gettext('Select DNS')"
-            clearable
-            :options="dnsProviders"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'aliyun'" path="ak" label="Access Key">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Aliyun Access Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'aliyun'" path="sk" label="Secret Key">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Aliyun Secret Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'tencent'" path="ak" label="SecretId">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Tencent Cloud SecretId')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'tencent'" path="sk" label="SecretKey">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Tencent Cloud SecretKey')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'huawei'" path="ak" label="AccessKeyId">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Huawei Cloud AccessKeyId')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'huawei'" path="sk" label="SecretAccessKey">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Huawei Cloud SecretAccessKey')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'westcn'" path="sk" label="Username">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter West.cn Username')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'westcn'" path="ak" label="API Password">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter West.cn API Password')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'cloudflare'" path="ak" label="API Key">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Cloudflare API Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'gcore'" path="ak" label="API Key">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter G-Core API Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="ak" label="API Key">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Porkbun API Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="sk" label="Secret Key">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Porkbun Secret Key')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'namesilo'" path="ak" label="API Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter NameSilo API Token')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="ak" label="Auth ID">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="sk" label="Auth Password">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter ClouDNS Auth Password')"
-          />
-        </n-form-item>
-        <n-form-item path="dns_server" :label="$gettext('DNS Server')">
-          <n-input
-            v-model:value="updateDNSModel.data.dns_server"
-            type="text"
-            :placeholder="$gettext('DNS server for propagation check, e.g. 8.8.8.8')"
-          />
-        </n-form-item>
-        <n-form-item path="skip_verify" :label="$gettext('Skip DNS Verification')">
-          <n-switch v-model:value="updateDNSModel.data.skip_verify" />
-          <n-text depth="3" class="ml-2">
-            {{ $gettext('For intranet environments, will wait 60s instead of polling DNS') }}
-          </n-text>
-        </n-form-item>
-      </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="updateDNSLoading"
-        :disabled="updateDNSLoading"
-        @click="handleUpdateDNS"
-      >
-        {{ $gettext('Submit') }}
-      </n-button>
-    </n-space>
-  </app-modal>
+  <dns-modal v-model:show="editModal" :dns-providers="dnsProviders" :edit-item="editItem" />
 </template>
 
 <style scoped lang="scss"></style>

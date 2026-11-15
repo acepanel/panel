@@ -5,18 +5,24 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
+)
+
+const (
+	namesrvHeapKey = "ROCKETMQ_NAMESRV_HEAP"
+	brokerHeapKey  = "ROCKETMQ_BROKER_HEAP"
 )
 
 type App struct {
@@ -76,31 +82,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(s.configPath())
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
-	service.Success(w, conf)
+	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = s.restartServices(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "rocketmq", s.configPath(), 0644, s.restart)
 }
 
 // GetConfigTune 获取 RocketMQ 配置调整参数
@@ -108,23 +95,10 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	config, _ := io.Read(s.configPath())
 	heapRaw, _ := io.Read(s.heapEnvPath())
 
-	namesrvInit, namesrvMax := s.parseHeapLine(heapRaw, "ROCKETMQ_NAMESRV_HEAP")
-	brokerInit, brokerMax := s.parseHeapLine(heapRaw, "ROCKETMQ_BROKER_HEAP")
-
-	tune := ConfigTune{
-		BrokerName:          confval.Properties.Get(config, "brokerName"),
-		ListenPort:          confval.Properties.Get(config, "listenPort"),
-		NamesrvAddr:         confval.Properties.Get(config, "namesrvAddr"),
-		BrokerRole:          confval.Properties.Get(config, "brokerRole"),
-		FlushDiskType:       confval.Properties.Get(config, "flushDiskType"),
-		StorePathRootDir:    confval.Properties.Get(config, "storePathRootDir"),
-		StorePathCommitLog:  confval.Properties.Get(config, "storePathCommitLog"),
-		MaxMessageSize:      confval.Properties.Get(config, "maxMessageSize"),
-		NamesrvHeapInitSize: namesrvInit,
-		NamesrvHeapMaxSize:  namesrvMax,
-		BrokerHeapInitSize:  brokerInit,
-		BrokerHeapMaxSize:   brokerMax,
-	}
+	tune := new(ConfigTune)
+	confval.Properties.Read(config, s.tuneFields(tune))
+	tune.NamesrvHeapInitSize, tune.NamesrvHeapMaxSize = s.heapOpts(heapRaw, namesrvHeapKey)
+	tune.BrokerHeapInitSize, tune.BrokerHeapMaxSize = s.heapOpts(heapRaw, brokerHeapKey)
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "rocketmq"), slog.String("path", s.configPath()))
 
@@ -141,14 +115,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	config, _ := io.Read(s.configPath())
 
-	config = confval.Properties.Set(config, "brokerName", req.BrokerName)
-	config = confval.Properties.Set(config, "listenPort", req.ListenPort)
-	config = confval.Properties.Set(config, "namesrvAddr", req.NamesrvAddr)
-	config = confval.Properties.Set(config, "brokerRole", req.BrokerRole)
-	config = confval.Properties.Set(config, "flushDiskType", req.FlushDiskType)
-	config = confval.Properties.Set(config, "storePathRootDir", req.StorePathRootDir)
-	config = confval.Properties.Set(config, "storePathCommitLog", req.StorePathCommitLog)
-	config = confval.Properties.Set(config, "maxMessageSize", req.MaxMessageSize)
+	config = confval.Properties.Write(config, s.tuneFields(req))
 
 	if err = io.Write(s.configPath(), config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -158,14 +125,13 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	// 更新 JVM 堆内存
 	if req.NamesrvHeapInitSize != "" || req.NamesrvHeapMaxSize != "" || req.BrokerHeapInitSize != "" || req.BrokerHeapMaxSize != "" {
 		heapRaw, _ := io.Read(s.heapEnvPath())
-		heapRaw = s.setHeapEnv(heapRaw, *req)
-		if err = io.Write(s.heapEnvPath(), heapRaw, 0644); err != nil {
+		if err = io.Write(s.heapEnvPath(), s.setHeapEnv(heapRaw, req), 0644); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
 
-	if err = s.restartServices(r.Context()); err != nil {
+	if err = s.restart(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -186,16 +152,6 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// restartServices 重启 NameServer 和 Broker 服务
-func (s *App) restartServices(ctx context.Context) error {
-	// 配置已落盘，且 namesrv 与 broker 要一起重启，整段不跟随请求取消
-	ctx = context.WithoutCancel(ctx)
-	if err := systemctl.Restart(ctx, "rocketmq-namesrv"); err != nil {
-		return err
-	}
-	return systemctl.Restart(ctx, "rocketmq-broker")
-}
-
 // configPath 返回 broker 配置文件路径
 func (s *App) configPath() string {
 	return app.Root + "/server/rocketmq/conf/broker.conf"
@@ -206,58 +162,35 @@ func (s *App) heapEnvPath() string {
 	return app.Root + "/server/rocketmq/conf/heap.env"
 }
 
-// parseHeapLine 从 heap.env 中提取指定环境变量的堆内存配置
-func (s *App) parseHeapLine(content string, envKey string) (initSize, maxSize string) {
-	re := regexp.MustCompile(envKey + `=(.+)`)
-	m := re.FindStringSubmatch(content)
-	if len(m) != 2 {
-		return
-	}
-	opts := m[1]
-	if mi := regexp.MustCompile(`-Xms(\S+)`).FindStringSubmatch(opts); len(mi) == 2 {
-		initSize = mi[1]
-	}
-	if mx := regexp.MustCompile(`-Xmx(\S+)`).FindStringSubmatch(opts); len(mx) == 2 {
-		maxSize = mx[1]
-	}
-	return
+// restart 依次重启 NameServer 和 Broker
+func (s *App) restart(ctx context.Context) error {
+	return common.Restart("rocketmq-namesrv", "rocketmq-broker")(ctx)
 }
 
-// setHeapEnv 设置 heap.env 中的堆内存配置
-func (s *App) setHeapEnv(content string, req ConfigTune) string {
-	// 读取已有值作为默认
-	oldNsInit, oldNsMax := s.parseHeapLine(content, "ROCKETMQ_NAMESRV_HEAP")
-	oldBrInit, oldBrMax := s.parseHeapLine(content, "ROCKETMQ_BROKER_HEAP")
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		{Key: "brokerName", Value: &t.BrokerName},
+		{Key: "listenPort", Value: &t.ListenPort},
+		{Key: "namesrvAddr", Value: &t.NamesrvAddr},
+		{Key: "brokerRole", Value: &t.BrokerRole},
+		{Key: "flushDiskType", Value: &t.FlushDiskType},
+		{Key: "storePathRootDir", Value: &t.StorePathRootDir},
+		{Key: "storePathCommitLog", Value: &t.StorePathCommitLog},
+		{Key: "maxMessageSize", Value: &t.MaxMessageSize},
+	}
+}
 
-	nsInit := req.NamesrvHeapInitSize
-	if nsInit == "" {
-		nsInit = oldNsInit
-	}
-	if nsInit == "" {
-		nsInit = "512m"
-	}
-	nsMax := req.NamesrvHeapMaxSize
-	if nsMax == "" {
-		nsMax = oldNsMax
-	}
-	if nsMax == "" {
-		nsMax = "512m"
-	}
+// heapOpts 从 heap.env 中提取指定环境变量的堆内存配置
+func (s *App) heapOpts(content string, envKey string) (initSize, maxSize string) {
+	return confval.JVMHeap(confval.Properties.Get(content, envKey))
+}
 
-	brInit := req.BrokerHeapInitSize
-	if brInit == "" {
-		brInit = oldBrInit
-	}
-	if brInit == "" {
-		brInit = "1g"
-	}
-	brMax := req.BrokerHeapMaxSize
-	if brMax == "" {
-		brMax = oldBrMax
-	}
-	if brMax == "" {
-		brMax = "1g"
-	}
+// setHeapEnv 生成 heap.env 的内容，未填的项沿用已有值
+func (s *App) setHeapEnv(content string, req *ConfigTune) string {
+	nsInit, nsMax := s.heapOpts(content, namesrvHeapKey)
+	brInit, brMax := s.heapOpts(content, brokerHeapKey)
 
-	return fmt.Sprintf("ROCKETMQ_NAMESRV_HEAP=-Xms%s -Xmx%s\nROCKETMQ_BROKER_HEAP=-Xms%s -Xmx%s\n", nsInit, nsMax, brInit, brMax)
+	return fmt.Sprintf("%s=-Xms%s -Xmx%s\n%s=-Xms%s -Xmx%s\n",
+		namesrvHeapKey, lo.CoalesceOrEmpty(req.NamesrvHeapInitSize, nsInit, "512m"), lo.CoalesceOrEmpty(req.NamesrvHeapMaxSize, nsMax, "512m"),
+		brokerHeapKey, lo.CoalesceOrEmpty(req.BrokerHeapInitSize, brInit, "1g"), lo.CoalesceOrEmpty(req.BrokerHeapMaxSize, brMax, "1g"))
 }

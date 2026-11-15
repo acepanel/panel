@@ -92,28 +92,11 @@ func (r *databaseRepo) DatabasesOf(ctx context.Context, server *biz.DatabaseServ
 	return database, nil
 }
 
+func (r *databaseRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+	return newOperator(ctx, server)
+}
+
 // Mongo 构建 MongoDB 客户端
 func (r *databaseRepo) Mongo(ctx context.Context, server *biz.DatabaseServer) (*db.MongoDB, error) {
 	return db.NewMongoDB(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-}
-
-func (r *databaseRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
-	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
-	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
-		if err != nil {
-			return nil, err
-		}
-		return postgres, nil
-	case biz.DatabaseTypeClickHouse:
-		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return nil, err
-		}
-		return clickhouse, nil
-	default:
-		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
-	}
 }

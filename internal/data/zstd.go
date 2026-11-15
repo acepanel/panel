@@ -12,8 +12,6 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var zstdFrameMagic = []byte{0x28, 0xb5, 0x2f, 0xfd}
-
 type zstdSerializer struct {
 	encoder *zstd.Encoder
 	decoder *zstd.Decoder
@@ -36,6 +34,8 @@ var registerZstdSerializer = sync.OnceValue(func() error {
 })
 
 func (s *zstdSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue any) error {
+	zstdFrameMagic := []byte{0x28, 0xb5, 0x2f, 0xfd}
+
 	fieldValue := reflect.New(field.FieldType)
 	if dbValue == nil {
 		field.ReflectValueOf(ctx, dst).Set(fieldValue.Elem())

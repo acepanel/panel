@@ -14,6 +14,8 @@ import (
 // 顶层带块的行是站点块（Name 与 Args 为地址列表）、片段 `(name)` 或无名的全局选项块；
 // `#` 开头的 token 至行尾为注释；参数支持双引号、反引号与 heredoc，行尾反斜杠续行
 
+var heredocMarker = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
 type token struct {
 	text    string
 	line    int
@@ -21,7 +23,12 @@ type token struct {
 	comment bool
 }
 
-var heredocMarker = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+func (t token) quoteStyle() conf.Quote {
+	if t.quoted {
+		return conf.QuoteDouble
+	}
+	return conf.QuoteNone
+}
 
 func Parse(content string) (*conf.Config, error) {
 	tokens, err := lex(content)
@@ -33,7 +40,7 @@ func Parse(content string) (*conf.Config, error) {
 	stack := []*conf.Block{&cfg.Block}
 	for i := 0; i < len(tokens); {
 		var toks []token
-		trailing := ""
+		var trailing string
 		line := tokens[i].line
 		// 顶层地址列表以逗号结尾时跨行继续
 		for i < len(tokens) {
@@ -82,7 +89,7 @@ func Parse(content string) (*conf.Config, error) {
 		} else if len(toks) > 0 {
 			d.Name = toks[0].text
 			for _, t := range toks[1:] {
-				d.Args = append(d.Args, conf.Arg{Value: t.text, Quote: quoteOf(t)})
+				d.Args = append(d.Args, conf.Arg{Value: t.text, Quote: t.quoteStyle()})
 			}
 		}
 		cur.Append(d)
@@ -104,13 +111,6 @@ func ParseFile(path string) (*conf.Config, error) {
 		return nil, err
 	}
 	return Parse(string(content))
-}
-
-func quoteOf(t token) conf.Quote {
-	if t.quoted {
-		return conf.QuoteDouble
-	}
-	return conf.QuoteNone
 }
 
 // lex 切分 token，逻辑行号用于分组，续行、引号与 heredoc 内的换行不增加行号
@@ -188,11 +188,11 @@ func isHeredoc(rest string) bool {
 
 // readHeredoc 按结束标记的缩进去掉每行前导空白，返回正文与消费的字节数
 func readHeredoc(s, marker string) (string, int, error) {
-	consumed := 0
+	var consumed int
 	var lines []string
 	for consumed <= len(s) {
 		end := strings.IndexByte(s[consumed:], '\n')
-		physical := ""
+		var physical string
 		if end < 0 {
 			physical = s[consumed:]
 		} else {

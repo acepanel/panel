@@ -17,7 +17,11 @@ type ContainerImageService struct {
 	log                *slog.Logger
 }
 
-func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase, t *gotext.Locale, log *slog.Logger) *ContainerImageService {
+func NewContainerImageService(
+	containerImageUsecase *biz.ContainerImageUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *ContainerImageService {
 	return &ContainerImageService{
 		containerImageRepo: containerImageUsecase,
 		t:                  t,

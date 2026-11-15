@@ -4,8 +4,8 @@ import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import toolboxNetwork, { type NetworkListParams } from '@/api/panel/toolbox-network'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 
 import InterfaceView from './network/InterfaceView.vue'
 
@@ -118,7 +118,7 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
 }
 
 // 分页获取列表
-const { loading, data, page, total, pageSize, reload } = usePagination(
+const { loading, data, page, pageSize, reload, pagination } = usePagedTable(
   (page, pageSize) => {
     const sort = sortState.value?.columnKey as string | undefined
     const order = sortState.value?.order
@@ -139,16 +139,13 @@ const { loading, data, page, total, pageSize, reload } = usePagination(
     return toolboxNetwork.list(params)
   },
   {
-    initialData: { total: 0, list: [] },
     initialPageSize: 50,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [sortState, stateFilter, pidSearch, processSearch, portSearch],
     // 三个搜索框每敲一个字就请求一次，防抖避免刷接口与操作日志
     debounce: [0, 0, 300, 300, 300],
+    pageSizes: [50, 100, 200, 500],
   },
 )
-const pagination = useTablePagination(page, pageSize, total, [50, 100, 200, 500])
 </script>
 
 <template>

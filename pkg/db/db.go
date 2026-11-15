@@ -10,17 +10,14 @@ import (
 // 需要整体完成的多步操作由调用方（biz 用例层）在事务边界断开取消链
 type Operator interface {
 	Close()
-	Ping(ctx context.Context) error
 
 	Query(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	QueryRow(ctx context.Context, query string, args ...any) *sql.Row
 	Exec(ctx context.Context, query string, args ...any) (sql.Result, error)
-	Prepare(ctx context.Context, query string) (*sql.Stmt, error)
 
 	DatabaseCreate(ctx context.Context, name string) error
 	DatabaseDrop(ctx context.Context, name string) error
 	DatabaseExists(ctx context.Context, name string) (bool, error)
-	DatabaseSize(ctx context.Context, name string) (int64, error)
 
 	UserCreate(ctx context.Context, user, password string, host ...string) error
 	UserDrop(ctx context.Context, user string, host ...string) error

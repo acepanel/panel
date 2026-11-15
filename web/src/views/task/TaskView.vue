@@ -4,9 +4,8 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import task from '@/api/panel/task'
-import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -134,16 +133,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => task.list(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  task.list(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (id: number) => {
   useRequest(task.delete(id)).onSuccess(() => {
@@ -158,10 +150,6 @@ const handleCancel = (id: number) => {
     window.$message.success($gettext('Canceled successfully'))
   })
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

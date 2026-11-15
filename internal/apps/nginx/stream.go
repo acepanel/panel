@@ -3,11 +3,14 @@ package nginx
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
+	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,287 +24,292 @@ import (
 	webserverNginx "github.com/acepanel/panel/v3/pkg/webserver/nginx"
 )
 
+// upstreamPrefix Upstream 配置文件名的前缀，同目录下其余 .conf 都是 Server
+const upstreamPrefix = "upstream_"
+
+var (
+	nginxDurationRegexp = regexp.MustCompile(`(\d+)\s*(ms|[smhdwMy]?)`)
+	nginxDurationUnits  = map[string]time.Duration{
+		"":   time.Second,
+		"ms": time.Millisecond,
+		"s":  time.Second,
+		"m":  time.Minute,
+		"h":  time.Hour,
+		"d":  24 * time.Hour,
+		"w":  7 * 24 * time.Hour,
+		"M":  30 * 24 * time.Hour,
+		"y":  365 * 24 * time.Hour,
+	}
+)
+
+// streamKind 描述一类 stream 配置，Server 与 Upstream 的增删改查流程相同，只有文件名、读写方式与文案不同
+type streamKind[T any] struct {
+	prefix string
+	name   func(*T) string
+	// render 生成配置文件内容
+	render func(*T) string
+	parse  func(path, name string) (*T, error)
+	// attrs 创建与更新日志里的业务字段
+	attrs func(*T) []any
+
+	// 以下文案都是未带参数的翻译模板
+	listFailed, listViewed    string
+	exists, notFound          string
+	writeFailed, deleteFailed string
+	created, updated, deleted string
+}
+
+func (s *App) streamServer() streamKind[StreamServer] {
+	return streamKind[StreamServer]{
+		name:   func(server *StreamServer) string { return server.Name },
+		render: renderStreamServer,
+		parse:  parseStreamServerFile,
+		attrs: func(server *StreamServer) []any {
+			return []any{slog.String("listen", server.Listen), slog.String("proxy_pass", server.ProxyPass), slog.Bool("udp", server.UDP), slog.Bool("ssl", server.SSL)}
+		},
+		listFailed:   s.t.Get("failed to list stream servers: %v"),
+		listViewed:   s.t.Get("nginx stream server list viewed"),
+		exists:       s.t.Get("stream server config already exists: %s"),
+		notFound:     s.t.Get("stream server not found: %s"),
+		writeFailed:  s.t.Get("failed to write stream server config: %v"),
+		deleteFailed: s.t.Get("failed to delete stream server config: %v"),
+		created:      s.t.Get("nginx stream server created"),
+		updated:      s.t.Get("nginx stream server updated"),
+		deleted:      s.t.Get("nginx stream server deleted"),
+	}
+}
+
+func (s *App) streamUpstream() streamKind[StreamUpstream] {
+	return streamKind[StreamUpstream]{
+		prefix: upstreamPrefix,
+		name:   func(upstream *StreamUpstream) string { return upstream.Name },
+		render: renderStreamUpstream,
+		parse:  parseStreamUpstreamFile,
+		attrs: func(upstream *StreamUpstream) []any {
+			return []any{slog.String("algo", upstream.Algo), slog.Any("servers", lo.Keys(upstream.Servers))}
+		},
+		listFailed:   s.t.Get("failed to list stream upstreams: %v"),
+		listViewed:   s.t.Get("nginx stream upstream list viewed"),
+		exists:       s.t.Get("stream upstream config already exists: %s"),
+		notFound:     s.t.Get("stream upstream not found: %s"),
+		writeFailed:  s.t.Get("failed to write stream upstream config: %v"),
+		deleteFailed: s.t.Get("failed to delete stream upstream config: %v"),
+		created:      s.t.Get("nginx stream upstream created"),
+		updated:      s.t.Get("nginx stream upstream updated"),
+		deleted:      s.t.Get("nginx stream upstream deleted"),
+	}
+}
+
 // ListStreamServers 获取 Stream Server 列表
 func (s *App) ListStreamServers(w http.ResponseWriter, r *http.Request) {
-	servers, err := s.parseStreamServers()
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to list stream servers: %v", err))
-		return
-	}
-
-	s.log.Info(s.t.Get("nginx stream server list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.streamDir()))
-
-	service.Success(w, servers)
+	listStream(s, s.streamServer(), w, r)
 }
 
 // CreateStreamServer 创建 Stream Server
 func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[StreamServer](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), req.Name+".conf")
-	if _, statErr := os.Stat(configPath); statErr == nil {
-		service.Error(w, http.StatusConflict, s.t.Get("stream server config already exists: %s", req.Name))
-		return
-	}
-
-	if err = s.saveStreamServerConfig(configPath, req); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
-		return
-	}
-
-	if err = s.reload(r.Context(), configPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("nginx stream server created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("path", configPath), slog.String("listen", req.Listen), slog.String("proxy_pass", req.ProxyPass), slog.Bool("udp", req.UDP), slog.Bool("ssl", req.SSL))
-
-	service.Success(w, nil)
+	createStream(s, s.streamServer(), w, r)
 }
 
 // UpdateStreamServer 更新 Stream Server
 func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
-		return
-	}
-
-	req, err := service.Bind[StreamServer](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), name+".conf")
-	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
-		return
-	}
-
-	newConfigPath := configPath
-	if req.Name != name {
-		newConfigPath = filepath.Join(s.streamDir(), req.Name+".conf")
-		if _, statErr := os.Stat(newConfigPath); statErr == nil {
-			service.Error(w, http.StatusConflict, s.t.Get("stream server config already exists: %s", req.Name))
-			return
-		}
-	}
-
-	if err = s.saveStreamServerConfig(newConfigPath, req); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream server config: %v", err))
-		return
-	}
-
-	if newConfigPath != configPath {
-		_ = os.Remove(configPath)
-	}
-
-	if err = s.reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("nginx stream server updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("old_name", name), slog.String("path", newConfigPath), slog.String("listen", req.Listen), slog.String("proxy_pass", req.ProxyPass), slog.Bool("udp", req.UDP), slog.Bool("ssl", req.SSL))
-
-	service.Success(w, nil)
+	updateStream(s, s.streamServer(), w, r)
 }
 
 // DeleteStreamServer 删除 Stream Server
 func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), name+".conf")
-	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
-		return
-	}
-
-	if err := os.Remove(configPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete stream server config: %v", err))
-		return
-	}
-
-	if err := s.reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("nginx stream server deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", configPath))
-
-	service.Success(w, nil)
+	deleteStream(s, s.streamServer(), w, r)
 }
 
 // ListStreamUpstreams 获取 Stream Upstream 列表
 func (s *App) ListStreamUpstreams(w http.ResponseWriter, r *http.Request) {
-	upstreams, err := s.parseStreamUpstreams()
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to list stream upstreams: %v", err))
-		return
-	}
-
-	s.log.Info(s.t.Get("nginx stream upstream list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.streamDir()))
-
-	service.Success(w, upstreams)
+	listStream(s, s.streamUpstream(), w, r)
 }
 
 // CreateStreamUpstream 创建 Stream Upstream
 func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[StreamUpstream](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", req.Name))
-	if _, statErr := os.Stat(configPath); statErr == nil {
-		service.Error(w, http.StatusConflict, s.t.Get("stream upstream config already exists: %s", req.Name))
-		return
-	}
-
-	if err = s.saveStreamUpstreamConfig(configPath, req); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
-		return
-	}
-
-	if err = s.reload(r.Context(), configPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("nginx stream upstream created"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("path", configPath), slog.String("algo", req.Algo), slog.Any("servers", lo.Keys(req.Servers)))
-
-	service.Success(w, nil)
+	createStream(s, s.streamUpstream(), w, r)
 }
 
 // UpdateStreamUpstream 更新 Stream Upstream
 func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
+	updateStream(s, s.streamUpstream(), w, r)
+}
+
+// DeleteStreamUpstream 删除 Stream Upstream
+func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
+	deleteStream(s, s.streamUpstream(), w, r)
+}
+
+// path 返回该类配置下名为 name 的配置文件路径
+func (k streamKind[T]) path(name string) string {
+	return filepath.Join(streamDir(), k.prefix+name+".conf")
+}
+
+// list 解析目录下属于该类的全部配置，按名称排序，解析失败的文件跳过
+func (k streamKind[T]) list() ([]T, error) {
+	entries, err := os.ReadDir(streamDir())
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		fileName := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(fileName, ".conf") || strings.HasPrefix(fileName, upstreamPrefix) != (k.prefix == upstreamPrefix) {
+			continue
+		}
+		names = append(names, strings.TrimSuffix(strings.TrimPrefix(fileName, k.prefix), ".conf"))
+	}
+	slices.Sort(names)
+
+	items := make([]T, 0, len(names))
+	for _, name := range names {
+		if item, err := k.parse(k.path(name), name); err == nil {
+			items = append(items, *item)
+		}
+	}
+
+	return items, nil
+}
+
+func listStream[T any](s *App, k streamKind[T], w http.ResponseWriter, r *http.Request) {
+	items, err := k.list()
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, k.listFailed, err)
 		return
 	}
 
-	req, err := service.Bind[StreamUpstream](r)
+	s.log.Info(k.listViewed, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", streamDir()))
+
+	service.Success(w, items)
+}
+
+func createStream[T any](s *App, k streamKind[T], w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[T](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", name))
-	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream upstream not found: %s", name))
+	name := k.name(req)
+	path := k.path(name)
+	if _, statErr := os.Stat(path); statErr == nil {
+		service.Error(w, http.StatusConflict, k.exists, name)
 		return
 	}
 
-	newConfigPath := configPath
-	if req.Name != name {
-		newConfigPath = filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", req.Name))
-		if _, statErr := os.Stat(newConfigPath); statErr == nil {
-			service.Error(w, http.StatusConflict, s.t.Get("stream upstream config already exists: %s", req.Name))
-			return
-		}
-	}
-
-	if err = s.saveStreamUpstreamConfig(newConfigPath, req); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write stream upstream config: %v", err))
+	if err = os.WriteFile(path, []byte(k.render(req)), 0600); err != nil {
+		service.Error(w, http.StatusInternalServerError, k.writeFailed, err)
 		return
 	}
 
-	if newConfigPath != configPath {
-		_ = os.Remove(configPath)
-	}
-
-	if err = s.reload(r.Context()); err != nil {
+	if err = s.Reload(r.Context()); err != nil {
+		_ = os.Remove(path)
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("nginx stream upstream updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", req.Name), slog.String("old_name", name), slog.String("path", newConfigPath), slog.String("algo", req.Algo), slog.Any("servers", lo.Keys(req.Servers)))
+	attrs := []any{slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", path)}
+	s.log.Info(k.created, append(attrs, k.attrs(req)...)...)
 
 	service.Success(w, nil)
 }
 
-// DeleteStreamUpstream 删除 Stream Upstream
-func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
+func updateStream[T any](s *App, k streamKind[T], w http.ResponseWriter, r *http.Request) {
+	oldName := chi.URLParam(r, "name")
+	if oldName == "" {
+		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
+		return
+	}
+
+	req, err := service.Bind[T](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	oldPath := k.path(oldName)
+	old, err := os.ReadFile(oldPath)
+	if errors.Is(err, fs.ErrNotExist) {
+		service.Error(w, http.StatusNotFound, k.notFound, oldName)
+		return
+	}
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	name := k.name(req)
+	path := k.path(name)
+	renamed := path != oldPath
+	if renamed {
+		if _, statErr := os.Stat(path); statErr == nil {
+			service.Error(w, http.StatusConflict, k.exists, name)
+			return
+		}
+	}
+
+	if err = os.WriteFile(path, []byte(k.render(req)), 0600); err != nil {
+		service.Error(w, http.StatusInternalServerError, k.writeFailed, err)
+		return
+	}
+	if renamed {
+		_ = os.Remove(oldPath)
+	}
+
+	if err = s.Reload(r.Context()); err != nil {
+		// 新配置没通过检查，磁盘恢复成改动前的样子，否则其它模块的重载会一直被它拖垮
+		if renamed {
+			_ = os.Remove(path)
+		}
+		_ = os.WriteFile(oldPath, old, 0600)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	attrs := []any{slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("old_name", oldName), slog.String("path", path)}
+	s.log.Info(k.updated, append(attrs, k.attrs(req)...)...)
+
+	service.Success(w, nil)
+}
+
+func deleteStream[T any](s *App, k streamKind[T], w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 	if name == "" {
 		service.Error(w, http.StatusBadRequest, s.t.Get("name is required"))
 		return
 	}
 
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("upstream_%s.conf", name))
-	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
-		service.Error(w, http.StatusNotFound, s.t.Get("stream upstream not found: %s", name))
+	path := k.path(name)
+	old, err := os.ReadFile(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		service.Error(w, http.StatusNotFound, k.notFound, name)
 		return
 	}
-
-	if err := os.Remove(configPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete stream upstream config: %v", err))
-		return
-	}
-
-	if err := s.reload(r.Context()); err != nil {
+	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Warn(s.t.Get("nginx stream upstream deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", configPath))
+	if err = os.Remove(path); err != nil {
+		service.Error(w, http.StatusInternalServerError, k.deleteFailed, err)
+		return
+	}
+
+	if err = s.Reload(r.Context()); err != nil {
+		// 多半是删掉了仍被引用的 upstream，放回去，否则其它模块的重载会一直被它拖垮
+		_ = os.WriteFile(path, old, 0600)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Warn(k.deleted, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("name", name), slog.String("path", path))
 
 	service.Success(w, nil)
 }
 
-// parseStreamServers 解析所有 Stream Server 配置
-func (s *App) parseStreamServers() ([]StreamServer, error) {
-	entries, err := os.ReadDir(s.streamDir())
-	if err != nil {
-		return nil, err
-	}
-
-	servers := make([]StreamServer, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		fileName := entry.Name()
-		// 跳过 upstream 配置文件
-		if strings.HasPrefix(fileName, "upstream_") {
-			continue
-		}
-		if !strings.HasSuffix(fileName, ".conf") {
-			continue
-		}
-
-		name := strings.TrimSuffix(fileName, ".conf")
-		configPath := filepath.Join(s.streamDir(), fileName)
-		server, err := s.parseStreamServerFile(configPath, name)
-		if err != nil {
-			continue // 跳过解析失败的文件
-		}
-		if server != nil {
-			servers = append(servers, *server)
-		}
-	}
-
-	// 按名称排序
-	sort.Slice(servers, func(i, j int) bool {
-		return servers[i].Name < servers[j].Name
-	})
-
-	return servers, nil
-}
-
 // parseStreamServerFile 解析单个 Stream Server 配置文件
-func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer, error) {
+func parseStreamServerFile(filePath string, name string) (*StreamServer, error) {
 	cfg, err := webserverNginx.ParseFile(filePath)
 	if err != nil {
 		return nil, err
@@ -335,50 +343,8 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 	return server, nil
 }
 
-// parseStreamUpstreams 解析所有 Stream Upstream 配置
-func (s *App) parseStreamUpstreams() ([]StreamUpstream, error) {
-	entries, err := os.ReadDir(s.streamDir())
-	if err != nil {
-		return nil, err
-	}
-
-	upstreams := make([]StreamUpstream, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		fileName := entry.Name()
-		// 只处理 upstream 配置文件
-		if !strings.HasPrefix(fileName, "upstream_") {
-			continue
-		}
-		if !strings.HasSuffix(fileName, ".conf") {
-			continue
-		}
-
-		name := strings.TrimPrefix(fileName, "upstream_")
-		name = strings.TrimSuffix(name, ".conf")
-		configPath := filepath.Join(s.streamDir(), fileName)
-		upstream, err := s.parseStreamUpstreamFile(configPath, name)
-		if err != nil {
-			continue // 跳过解析失败的文件
-		}
-		if upstream != nil {
-			upstreams = append(upstreams, *upstream)
-		}
-	}
-
-	// 按名称排序
-	sort.Slice(upstreams, func(i, j int) bool {
-		return upstreams[i].Name < upstreams[j].Name
-	})
-
-	return upstreams, nil
-}
-
 // parseStreamUpstreamFile 解析单个 Stream Upstream 配置文件
-func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*StreamUpstream, error) {
+func parseStreamUpstreamFile(filePath string, expectedName string) (*StreamUpstream, error) {
 	cfg, err := webserverNginx.ParseFile(filePath)
 	if err != nil {
 		return nil, err
@@ -391,7 +357,7 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 	if name == "" {
 		return nil, errors.New("upstream name not found")
 	}
-	if expectedName != "" && name != expectedName {
+	if name != expectedName {
 		return nil, errors.New("upstream name mismatch")
 	}
 
@@ -429,8 +395,8 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 	return upstream, nil
 }
 
-// saveStreamServerConfig 生成并保存 Stream Server 配置
-func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) error {
+// renderStreamServer 生成 Stream Server 配置
+func renderStreamServer(server *StreamServer) string {
 	cfg := &conf.Config{}
 	srv := cfg.AddBlock("server")
 
@@ -461,11 +427,11 @@ func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) erro
 		}
 	}
 
-	return os.WriteFile(filePath, []byte(webserverNginx.Export(cfg)), 0600)
+	return webserverNginx.Export(cfg)
 }
 
-// saveStreamUpstreamConfig 生成并保存 Stream Upstream 配置
-func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream) error {
+// renderStreamUpstream 生成 Stream Upstream 配置
+func renderStreamUpstream(upstream *StreamUpstream) string {
 	var sb strings.Builder
 	_, _ = fmt.Fprintf(&sb, "upstream %s {\n", upstream.Name)
 
@@ -484,7 +450,7 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 
 	// 服务器列表
 	addrs := lo.Keys(upstream.Servers)
-	sort.Strings(addrs)
+	slices.Sort(addrs)
 
 	for _, addr := range addrs {
 		options := upstream.Servers[addr]
@@ -497,63 +463,35 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 
 	sb.WriteString("}\n")
 
-	return os.WriteFile(filePath, []byte(sb.String()), 0600)
+	return sb.String()
 }
 
-// parseNginxDuration 解析 Nginx 时间格式（如 10s, 1m, 1h）
+// parseNginxDuration 解析 Nginx 时间格式（如 500ms、10s、1h 30m），不带单位按秒计
 func parseNginxDuration(value string) time.Duration {
-	if value == "" {
-		return 0
+	var total time.Duration
+	for _, match := range nginxDurationRegexp.FindAllStringSubmatch(value, -1) {
+		n, _ := strconv.ParseInt(match[1], 10, 64)
+		total += time.Duration(n) * nginxDurationUnits[match[2]]
 	}
 
-	// 尝试解析带单位的时间
-	value = strings.TrimSpace(value)
-	if len(value) == 0 {
-		return 0
-	}
-	if len(value) == 1 {
-		value += "s" // 单个字符，默认为秒
-	}
-
-	unit := value[len(value)-1]
-	numStr := value[:len(value)-1]
-
-	var num int
-	_, _ = fmt.Sscanf(numStr, "%d", &num)
-
-	switch unit {
-	case 's':
-		return time.Duration(num) * time.Second
-	case 'm':
-		return time.Duration(num) * time.Minute
-	case 'h':
-		return time.Duration(num) * time.Hour
-	case 'd':
-		return time.Duration(num) * 24 * time.Hour
-	default:
-		// 没有单位，尝试直接解析为秒
-		_, _ = fmt.Sscanf(value, "%d", &num)
-		return time.Duration(num) * time.Second
-	}
+	return total
 }
 
-// formatNginxDuration 格式化时间为 Nginx 格式
+// formatNginxDuration 格式化时间为 Nginx 格式，取能整除的最大单位
 func formatNginxDuration(d time.Duration) string {
-	if d == 0 {
-		return "0s"
+	switch {
+	case d%time.Hour == 0:
+		return fmt.Sprintf("%dh", d/time.Hour)
+	case d%time.Minute == 0:
+		return fmt.Sprintf("%dm", d/time.Minute)
+	case d%time.Second == 0:
+		return fmt.Sprintf("%ds", d/time.Second)
+	default:
+		return fmt.Sprintf("%dms", d/time.Millisecond)
 	}
-
-	seconds := int(d.Seconds())
-	if seconds%3600 == 0 {
-		return fmt.Sprintf("%dh", seconds/3600)
-	}
-	if seconds%60 == 0 {
-		return fmt.Sprintf("%dm", seconds/60)
-	}
-	return fmt.Sprintf("%ds", seconds)
 }
 
 // streamDir 返回 stream 配置目录
-func (s *App) streamDir() string {
+func streamDir() string {
 	return filepath.Join(app.Root, "server/nginx/conf/stream")
 }

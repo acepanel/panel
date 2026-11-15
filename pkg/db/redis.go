@@ -22,10 +22,7 @@ type RedisKV struct {
 }
 
 type Redis struct {
-	conn     redis.Conn
-	username string
-	password string
-	address  string
+	conn redis.Conn
 }
 
 func NewRedis(ctx context.Context, username, password, address string) (*Redis, error) {
@@ -41,12 +38,7 @@ func NewRedis(ctx context.Context, username, password, address string) (*Redis, 
 		return nil, err
 	}
 
-	return &Redis{
-		conn:     conn,
-		username: username,
-		password: password,
-		address:  address,
-	}, nil
+	return &Redis{conn: conn}, nil
 }
 
 func (r *Redis) Close() {
@@ -78,30 +70,28 @@ func (r *Redis) Select(db int) error {
 	return err
 }
 
-func (r *Redis) Size() (int, error) {
-	return redis.Int(r.conn.Do("DBSIZE"))
-}
-
-func (r *Redis) Data(page, pageSize int) ([]RedisKV, int, error) {
-	return r.Search("", page, pageSize)
-}
-
 // Search 搜索匹配的 key，支持分页
 func (r *Redis) Search(pattern string, page, pageSize int) ([]RedisKV, int, error) {
-	keys, err := r.scanKeys(pattern)
+	start := (page - 1) * pageSize
+	end := start + pageSize
+
+	// 不过滤时总数直接取 DBSIZE，只需扫到当前页末尾；带过滤时总数只能靠扫完全库得到
+	matchAll := pattern == "" || pattern == "*"
+	keys, err := r.scanKeys(pattern, lo.Ternary(matchAll, end, 0))
 	if err != nil {
 		return nil, 0, err
 	}
-
 	total := len(keys)
-	start := (page - 1) * pageSize
-	end := start + pageSize
-	if start >= total {
+	if matchAll {
+		if total, err = redis.Int(r.conn.Do("DBSIZE")); err != nil {
+			return nil, 0, err
+		}
+	}
+
+	if start >= len(keys) {
 		return []RedisKV{}, total, nil
 	}
-	if end > total {
-		end = total
-	}
+	end = min(end, len(keys))
 
 	result := make([]RedisKV, 0, end-start)
 	for _, key := range keys[start:end] {
@@ -229,13 +219,13 @@ func (r *Redis) Clear() error {
 	return err
 }
 
-// scanKeys 使用 SCAN 遍历所有匹配的 key
-func (r *Redis) scanKeys(pattern string) ([]string, error) {
+// scanKeys 用 SCAN 遍历匹配的 key，limit 大于 0 时扫够即停
+func (r *Redis) scanKeys(pattern string, limit int) ([]string, error) {
 	var keys []string
 	cursor := 0
-	args := []any{cursor, "COUNT", 100}
+	args := []any{cursor, "COUNT", 1000}
 	if pattern != "" && pattern != "*" {
-		args = []any{cursor, "MATCH", pattern, "COUNT", 100}
+		args = []any{cursor, "MATCH", pattern, "COUNT", 1000}
 	}
 	for {
 		args[0] = cursor
@@ -248,66 +238,11 @@ func (r *Redis) scanKeys(pattern string) ([]string, error) {
 			return nil, fmt.Errorf("failed to parse SCAN result: %w", err)
 		}
 		keys = append(keys, batch...)
-		if cursor == 0 {
+		if cursor == 0 || (limit > 0 && len(keys) >= limit) {
 			break
 		}
 	}
 	return keys, nil
-}
-
-// fillKeyValue 填充 key 的值信息
-func (r *Redis) fillKeyValue(kv *RedisKV) error {
-	var value any
-	var err error
-	switch kv.Type {
-	case "string":
-		var str string
-		if str, err = redis.String(r.conn.Do("GET", kv.Key)); err == nil {
-			value = str
-			kv.Length = int64(len(str))
-		}
-	case "list":
-		if value, err = redis.Strings(r.conn.Do("LRANGE", kv.Key, 0, -1)); err == nil {
-			kv.Length, _ = redis.Int64(r.conn.Do("LLEN", kv.Key))
-		}
-	case "set":
-		if value, err = redis.Strings(r.conn.Do("SMEMBERS", kv.Key)); err == nil {
-			kv.Length, _ = redis.Int64(r.conn.Do("SCARD", kv.Key))
-		}
-	case "zset":
-		if members, e := redis.Strings(r.conn.Do("ZRANGE", kv.Key, 0, -1, "WITHSCORES")); e == nil {
-			kv.Length, _ = redis.Int64(r.conn.Do("ZCARD", kv.Key))
-			zsetMap := make(map[string]string)
-			for i := 0; i < len(members); i += 2 {
-				zsetMap[members[i]] = members[i+1]
-			}
-			value = zsetMap
-		} else {
-			err = e
-		}
-	case "hash":
-		if value, err = redis.StringMap(r.conn.Do("HGETALL", kv.Key)); err == nil {
-			kv.Length, _ = redis.Int64(r.conn.Do("HLEN", kv.Key))
-		}
-	default:
-		return fmt.Errorf("unsupported type: %s", kv.Type)
-	}
-	if err != nil {
-		return err
-	}
-	if kv.Length > 5000 {
-		value = "data is too long, can't display"
-	}
-	if str, ok := value.(string); ok {
-		kv.Value = str
-	} else {
-		encoded, err := json.Marshal(value)
-		if err != nil {
-			return err
-		}
-		kv.Value = string(encoded)
-	}
-	return nil
 }
 
 // fillKeyMeta 填充 key 的元信息（类型、TTL、大小）
@@ -329,4 +264,54 @@ func (r *Redis) fillKeyMeta(kv *RedisKV) {
 	if err == nil {
 		kv.Size = memory
 	}
+}
+
+// fillKeyValue 填充 key 的长度和值，先取长度，超长的值不取回
+func (r *Redis) fillKeyValue(kv *RedisKV) error {
+	// redisLengthCommands 各类型取长度的命令
+	redisLengthCommands := map[string]string{
+		"string": "STRLEN",
+		"list":   "LLEN",
+		"set":    "SCARD",
+		"zset":   "ZCARD",
+		"hash":   "HLEN",
+	}
+
+	lengthCommand, ok := redisLengthCommands[kv.Type]
+	if !ok {
+		return fmt.Errorf("unsupported type: %s", kv.Type)
+	}
+
+	var err error
+	if kv.Length, err = redis.Int64(r.conn.Do(lengthCommand, kv.Key)); err != nil {
+		return err
+	}
+	if kv.Length > 5000 {
+		kv.Value = "data is too long, can't display"
+		return nil
+	}
+
+	var value any
+	switch kv.Type {
+	case "string":
+		kv.Value, err = redis.String(r.conn.Do("GET", kv.Key))
+		return err
+	case "list":
+		value, err = redis.Strings(r.conn.Do("LRANGE", kv.Key, 0, -1))
+	case "set":
+		value, err = redis.Strings(r.conn.Do("SMEMBERS", kv.Key))
+	case "zset":
+		value, err = redis.StringMap(r.conn.Do("ZRANGE", kv.Key, 0, -1, "WITHSCORES"))
+	case "hash":
+		value, err = redis.StringMap(r.conn.Do("HGETALL", kv.Key))
+	}
+	if err != nil {
+		return err
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	kv.Value = string(encoded)
+	return nil
 }

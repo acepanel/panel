@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { NButton, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import tamper from '@/api/panel/tamper'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatDateTime } from '@/utils'
 import RuleModal from '@/views/tamper/RuleModal.vue'
 
@@ -94,16 +94,12 @@ const {
   loading: rulesLoading,
   data: rules,
   page: rulePage,
-  total: ruleTotal,
   pageSize: rulePageSize,
   refresh: refreshRules,
-} = usePagination((page, pageSize) => tamper.rules(page, pageSize), {
-  initialData: { total: 0, items: [] },
-  initialPageSize: 20,
-  total: (res: any) => res.total,
-  data: (res: any) => res.items,
+  pagination: rulePagination,
+} = usePagedTable((page, pageSize) => tamper.rules(page, pageSize), {
+  pageSizes: [20, 50, 100],
 })
-const rulePagination = useTablePagination(rulePage, rulePageSize, ruleTotal, [20, 50, 100])
 
 const handleAddRule = () => {
   editingRule.value = null
@@ -113,7 +109,11 @@ const handleEditRule = (row: any) => {
   editingRule.value = row
   ruleModalShow.value = true
 }
-const handleDeleteRule = (row: any) => {
+const handleDeleteRule = async (row: any) => {
+  const ok = await confirmDelete({
+    content: $gettext('Are you sure to delete this rule?'),
+  })
+  if (!ok) return
   useRequest(tamper.deleteRule(row.id)).onSuccess(() => {
     window.$message.success($gettext('Deleted successfully'))
     refreshRules()
@@ -154,15 +154,14 @@ const ruleColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NPopconfirm,
-          { onPositiveClick: () => handleDeleteRule(row) },
+          NButton,
           {
-            trigger: () =>
-              h(NButton, { size: 'small', type: 'error', secondary: true }, () =>
-                $gettext('Delete'),
-              ),
-            default: () => $gettext('Are you sure to delete this rule?'),
+            size: 'small',
+            type: 'error',
+            secondary: true,
+            onClick: () => handleDeleteRule(row),
           },
+          () => $gettext('Delete'),
         ),
       ])
     },
@@ -174,16 +173,10 @@ const {
   loading: logsLoading,
   data: logs,
   page: logPage,
-  total: logTotal,
   pageSize: logPageSize,
   refresh: refreshLogs,
-} = usePagination((page, pageSize) => tamper.logs(page, pageSize), {
-  initialData: { total: 0, items: [] },
-  initialPageSize: 20,
-  total: (res: any) => res.total,
-  data: (res: any) => res.items,
-})
-const logPagination = useTablePagination(logPage, logPageSize, logTotal)
+  pagination: logPagination,
+} = usePagedTable((page, pageSize) => tamper.logs(page, pageSize))
 
 const opTypeMap: Record<string, 'error' | 'warning' | 'info' | 'default'> = {
   write: 'error',

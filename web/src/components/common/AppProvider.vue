@@ -1,14 +1,7 @@
 <script lang="ts" setup>
-import hljs from 'highlight.js/lib/core'
-import log from 'highlight.js/lib/languages/accesslog'
-
 import { useWindowWidth } from '@/components/system/composables/useResponsive'
 import { naiveBreakpoints } from '@/design'
 import { useThemeStore } from '@/stores'
-import systemdlog from '@/utils/hljs/systemdlog'
-
-hljs.registerLanguage('accesslog', log)
-hljs.registerLanguage('systemdlog', systemdlog)
 
 const themeStore = useThemeStore()
 
@@ -30,7 +23,6 @@ watch(windowWidth, (width) => themeStore.setIsMobile(width < naiveBreakpoints.m)
 
 <template>
   <n-config-provider
-    :hljs="hljs"
     :theme="themeStore.naiveTheme"
     :theme-overrides="themeStore.naiveThemeOverrides"
     :locale="themeStore.naiveLocale"

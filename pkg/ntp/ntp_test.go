@@ -25,7 +25,7 @@ func TestNowWithCustomAddress(t *testing.T) {
 
 func TestNowWithInvalidAddress(t *testing.T) {
 	now, err := Now("invalid.address")
-	check.ErrorIs(t, err, ErrNotReachable)
+	check.ErrorIs(t, err, errNotReachable)
 	// 失败时回落到本地时间，不是零值
 	check.DeepEqual(t, now, time.Now(), cmpopts.EquateApproxTime(time.Minute))
 }
@@ -35,13 +35,5 @@ func TestUpdateSystemTime(t *testing.T) {
 		t.Skip("Skipping on Windows")
 	}
 	err := UpdateSystemTime(t.Context(), time.Now())
-	check.NoError(t, err)
-}
-
-func TestUpdateSystemTimeZone(t *testing.T) {
-	if env.IsWindows() {
-		t.Skip("Skipping on Windows")
-	}
-	err := UpdateSystemTimeZone(t.Context(), "UTC")
 	check.NoError(t, err)
 }

@@ -31,7 +31,7 @@ type WebHookRepo interface {
 	GetByKey(key string) (*WebHook, error)
 	CreateWithScript(webhook *WebHook, script string) error
 	UpdateWithScript(webhook *WebHook, req *request.WebHookUpdate) error
-	RemoveScript(key string) error
+	RemoveScript(key string)
 	Delete(id uint) error
 	Call(key string) (string, error)
 }
@@ -119,7 +119,7 @@ func (uc *WebHookUsecase) Delete(ctx context.Context, id uint) error {
 		return err
 	}
 
-	_ = uc.repo.RemoveScript(webhook.Key)
+	uc.repo.RemoveScript(webhook.Key)
 
 	if err = uc.repo.Delete(id); err != nil {
 		return err

@@ -3,15 +3,20 @@ package biz
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"log/slog"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"time"
 
+	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/collect"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/pkg/api"
+	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -28,9 +33,32 @@ const (
 	BackupTypePanel      BackupType = "panel"
 )
 
+// {目标}_{20060102150405}{扩展名}
+var backupNamePattern = regexp.MustCompile(`^(.+)_(\d{14})(\..*)?$`)
+
+// PanelRelease 更新渠道内最新的面板版本，本机架构没有安装包时 URL 与 Checksum 为空
+type PanelRelease struct {
+	Version  string
+	URL      string
+	Checksum string
+}
+
+// Newer 报告该版本是否比运行中的面板新
+func (r *PanelRelease) Newer() (bool, error) {
+	current, err := version.NewVersion(app.Version)
+	if err != nil {
+		return false, err
+	}
+	latest, err := version.NewVersion(r.Version)
+	if err != nil {
+		return false, err
+	}
+
+	return latest.GreaterThan(current), nil
+}
+
 type BackupRepo interface {
 	List(typ BackupType) ([]*types.BackupFile, error)
-	GetStorage(id uint) (*BackupStorage, error)
 	Create(ctx context.Context, typ BackupType, target string, account uint) error
 	CreatePanel(ctx context.Context) error
 	Delete(ctx context.Context, typ BackupType, name string) error
@@ -45,27 +73,38 @@ type BackupRepo interface {
 }
 
 type BackupUsecase struct {
-	repo   BackupRepo
-	log    *slog.Logger
-	notify *NotifyUsecase
-	t      *gotext.Locale
+	repo    BackupRepo
+	cache   CacheRepo
+	setting SettingRepo
+	conf    *config.Config
+	log     *slog.Logger
+	notify  *NotifyUsecase
+	t       *gotext.Locale
 }
 
-func NewBackupUsecase(notifyUsecase *NotifyUsecase, t *gotext.Locale, log *slog.Logger, backupRepo BackupRepo) *BackupUsecase {
+func NewBackupUsecase(
+	notifyUsecase *NotifyUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+	backupRepo BackupRepo,
+	cacheRepo CacheRepo,
+	settingRepo SettingRepo,
+) *BackupUsecase {
 	return &BackupUsecase{
-		repo:   backupRepo,
-		log:    log,
-		notify: notifyUsecase,
-		t:      t,
+		repo:    backupRepo,
+		cache:   cacheRepo,
+		setting: settingRepo,
+		conf:    conf,
+		log:     log,
+		notify:  notifyUsecase,
+		t:       t,
 	}
 }
 
 func (uc *BackupUsecase) List(typ BackupType) ([]*types.BackupFile, error) {
 	return uc.repo.List(typ)
 }
-
-// {目标}_{20060102150405}{扩展名}
-var backupNamePattern = regexp.MustCompile(`^(.+)_(\d{14})(\..*)?$`)
 
 // ListGroup 时间点取文件名中的时间，上传或拷贝来的旧备份修改时间不可信
 func (uc *BackupUsecase) ListGroup(typ BackupType) ([]*types.BackupGroup, error) {
@@ -77,7 +116,7 @@ func (uc *BackupUsecase) ListGroup(typ BackupType) ([]*types.BackupGroup, error)
 	var groups []*types.BackupGroup
 	targets := make(map[string]*types.BackupGroup)
 	for _, file := range files {
-		target, at, ok := parseBackupName(file.Name)
+		target, at, ok := uc.parseBackupName(file.Name)
 		if !ok {
 			groups = append(groups, &types.BackupGroup{Name: file.Name, Items: []*types.BackupFile{file}})
 			continue
@@ -103,18 +142,6 @@ func (uc *BackupUsecase) ListGroup(typ BackupType) ([]*types.BackupGroup, error)
 	})
 
 	return groups, nil
-}
-
-func parseBackupName(name string) (string, time.Time, bool) {
-	matches := backupNamePattern.FindStringSubmatch(name)
-	if matches == nil {
-		return "", time.Time{}, false
-	}
-	at, err := time.ParseInLocation("20060102150405", matches[2], time.Local)
-	if err != nil {
-		return "", time.Time{}, false
-	}
-	return matches[1], at, true
 }
 
 func (uc *BackupUsecase) Create(ctx context.Context, typ BackupType, target string, account uint) error {
@@ -180,7 +207,13 @@ func (uc *BackupUsecase) CutoffLog(ctx context.Context, path, target string) (st
 	return uc.repo.CutoffLog(ctx, path, target)
 }
 
-func (uc *BackupUsecase) CutoffUpload(ctx context.Context, account uint, typ BackupType, name string, files []string) error {
+func (uc *BackupUsecase) CutoffUpload(
+	ctx context.Context,
+	account uint,
+	typ BackupType,
+	name string,
+	files []string,
+) error {
 	return uc.repo.CutoffUpload(ctx, account, typ, name, files)
 }
 
@@ -192,13 +225,48 @@ func (uc *BackupUsecase) FixPanel(ctx context.Context) error {
 	return uc.repo.FixPanel(ctx)
 }
 
-func (uc *BackupUsecase) UpdatePanel(ctx context.Context, version, url, checksum string, progress func(string)) error {
+// LatestPanel 取更新渠道内最新的面板版本及其安装包地址
+func (uc *BackupUsecase) LatestPanel() (*PanelRelease, error) {
+	channel, _ := uc.setting.Get(SettingKeyChannel)
+	latest, err := uc.cache.FetchLatestVersion(channel)
+	if err != nil {
+		return nil, err
+	}
+
+	release := &PanelRelease{Version: latest.Version}
+	if download := collect.First(latest.Downloads); download != nil {
+		release.URL = fmt.Sprintf("https://%s%s", uc.conf.App.DownloadEndpoint, download.URL)
+		release.Checksum = fmt.Sprintf("https://%s%s", uc.conf.App.DownloadEndpoint, download.Checksum)
+	}
+
+	return release, nil
+}
+
+// PanelChangelog 取运行中的版本之后更新渠道内发布的全部版本
+func (uc *BackupUsecase) PanelChangelog() (*api.Versions, error) {
+	channel, _ := uc.setting.Get(SettingKeyChannel)
+	return uc.cache.FetchIntermediateVersions(channel)
+}
+
+func (uc *BackupUsecase) UpdatePanel(ctx context.Context, release *PanelRelease, progress func(string)) error {
 	fromVersion := app.Version
-	if err := uc.repo.UpdatePanel(ctx, version, url, checksum, progress); err != nil {
+	if err := uc.repo.UpdatePanel(ctx, release.Version, release.URL, release.Checksum, progress); err != nil {
 		return err
 	}
 
-	uc.log.Info(uc.t.Get("panel updated"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("from_version", fromVersion), slog.String("version", version))
+	uc.log.Info(uc.t.Get("panel updated"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("from_version", fromVersion), slog.String("version", release.Version))
 
 	return nil
+}
+
+func (uc *BackupUsecase) parseBackupName(name string) (string, time.Time, bool) {
+	matches := backupNamePattern.FindStringSubmatch(name)
+	if matches == nil {
+		return "", time.Time{}, false
+	}
+	at, err := time.ParseInLocation("20060102150405", matches[2], time.Local)
+	if err != nil {
+		return "", time.Time{}, false
+	}
+	return matches[1], at, true
 }

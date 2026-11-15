@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import ListInput from '@/components/common/ListInput.vue'
-
 import type { ProxyWebsiteForm } from './composables/useProxyWebsite'
 
 const form = defineModel<ProxyWebsiteForm>('value', { required: true })

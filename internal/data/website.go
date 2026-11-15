@@ -1,11 +1,9 @@
 package data
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
-	"net"
 	"os"
 	"path/filepath"
 	"slices"
@@ -167,11 +165,7 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 		setting.SSLNotAfter = decode.NotAfter.Format(time.DateTime)
 		setting.SSLIssuer = decode.Issuer.CommonName
 		setting.SSLOCSPServer = decode.OCSPServer
-		// 合并 DNSNames 和 IPAddresses
-		setting.SSLDNSNames = decode.DNSNames
-		for _, ip := range decode.IPAddresses {
-			setting.SSLDNSNames = append(setting.SSLDNSNames, ip.String())
-		}
+		setting.SSLDNSNames = cert.SANs(decode)
 	}
 	// 访问日志
 	if setting.AccessLog = vhost.AccessLog(); setting.AccessLog == "" {
@@ -279,6 +273,15 @@ func (r *websiteRepo) List(typ, keyword string, projectID, page, limit uint) ([]
 	return websites, total, nil
 }
 
+func (r *websiteRepo) All() ([]*biz.Website, error) {
+	websites := make([]*biz.Website, 0)
+	if err := r.db.Order("id DESC").Find(&websites).Error; err != nil {
+		return nil, err
+	}
+
+	return websites, nil
+}
+
 func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
 	w := &biz.Website{
 		Name:      req.Name,
@@ -312,10 +315,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 	}()
 
 	// 创建配置文件目录
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0600); err != nil {
-		return nil, err
-	}
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "shared"), 0600); err != nil {
+	if err = r.makeConfigDirs(filepath.Join(app.Root, "sites", req.Name, "config")); err != nil {
 		return nil, err
 	}
 	// 创建日志目录
@@ -361,7 +361,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		return nil, err
 	}
 	// 404 页面、PHP 缓存或静态 SPA 回退
-	if err = writeTypeConfigs(d, vhost, w.Type); err != nil {
+	if err = r.writeTypeConfigs(d, vhost, w.Type); err != nil {
 		return nil, err
 	}
 
@@ -507,299 +507,6 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) (*
 	return website, nil
 }
 
-func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error) {
-	website := new(biz.Website)
-	if err := r.db.Where("id", req.ID).First(website).Error; err != nil {
-		return nil, err
-	}
-
-	targetType := biz.WebsiteType(req.Type)
-	if targetType == website.Type {
-		return nil, errors.New(r.t.Get("website type is unchanged"))
-	}
-
-	setting, err := r.Get(req.ID)
-	if err != nil {
-		return nil, err
-	}
-	d, err := r.dialect()
-	if err != nil {
-		return nil, err
-	}
-
-	customConfigs := lo.Map(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) request.WebsiteCustomConfig {
-		return request.WebsiteCustomConfig{
-			Name:    config.Name,
-			Scope:   config.Scope,
-			Content: config.Content,
-		}
-	})
-
-	update := &request.WebsiteUpdate{
-		ID:            website.ID,
-		Listens:       setting.Listens,
-		Domains:       setting.Domains,
-		Path:          setting.Path,
-		Root:          setting.Root,
-		Index:         []string{"index.html"},
-		SSL:           setting.SSL,
-		SSLCert:       setting.SSLCert,
-		SSLKey:        setting.SSLKey,
-		HSTS:          setting.HSTS,
-		OCSP:          setting.OCSP,
-		HTTPRedirect:  setting.HTTPRedirect,
-		SSLProtocols:  setting.SSLProtocols,
-		Upstreams:     setting.Upstreams,
-		Redirects:     setting.Redirects,
-		StatEnabled:   setting.StatEnabled,
-		AccessLog:     setting.AccessLog,
-		ErrorLog:      setting.ErrorLog,
-		RateLimit:     setting.RateLimit,
-		RealIP:        setting.RealIP,
-		BasicAuth:     setting.BasicAuth,
-		CustomConfigs: customConfigs,
-	}
-	switch targetType {
-	case biz.WebsiteTypePHP:
-		update.Index = []string{"index.php", "index.html"}
-		update.PHP = req.PHP
-		update.OpenBasedir = true
-	case biz.WebsiteTypeProxy:
-		update.Proxies = []webservertypes.Proxy{{
-			Location: "^~ /",
-			Pass:     req.Proxy,
-			Host:     webservertypes.DefaultProxyHost(req.Proxy, setting.Upstreams),
-		}}
-	default:
-		// 静态站点沿用默认配置
-	}
-	// 整站反代是反代站点的类型本身：切入时只留新的根规则，切出时丢弃；静态与 PHP 互切时子路径反代随通用设置保留
-	if website.Type != biz.WebsiteTypeProxy && targetType != biz.WebsiteTypeProxy {
-		update.Proxies = setting.Proxies
-	}
-
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	backupDir := fmt.Sprintf("%s.switch-backup-%d", configDir, time.Now().UnixNano())
-	if err = os.Rename(configDir, backupDir); err != nil {
-		return nil, err
-	}
-	// 回滚需还原备份的配置目录，被取消会把站点配置留在中间态
-	restoreCtx := context.WithoutCancel(ctx)
-	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
-		_ = io.Remove(configDir)
-		_ = os.Rename(backupDir, configDir)
-		return nil, err
-	}
-	if err = os.MkdirAll(filepath.Join(configDir, "shared"), 0600); err != nil {
-		_ = io.Remove(configDir)
-		_ = os.Rename(backupDir, configDir)
-		return nil, err
-	}
-
-	oldType := website.Type
-	oldPath := website.Path
-	oldSSL := website.SSL
-	oldUpdatedAt := website.UpdatedAt
-	userIniPath := filepath.Join(setting.Root, ".user.ini")
-	oldUserIni, userIniErr := os.ReadFile(userIniPath)
-	if userIniErr != nil && !os.IsNotExist(userIniErr) {
-		_ = io.Remove(configDir)
-		_ = os.Rename(backupDir, configDir)
-		return nil, userIniErr
-	}
-	oldUserIniExists := userIniErr == nil
-	databaseUpdated := false
-	restore := func(switchErr error) (*biz.Website, error) {
-		var restoreErr error
-		restoreErr = errors.Join(restoreErr, io.Remove(configDir))
-		restoreErr = errors.Join(restoreErr, os.Rename(backupDir, configDir))
-		if databaseUpdated {
-			restoreErr = errors.Join(restoreErr, r.db.Model(&biz.Website{}).Where("id = ?", website.ID).UpdateColumns(map[string]any{
-				"type":       oldType,
-				"path":       oldPath,
-				"ssl":        oldSSL,
-				"updated_at": oldUpdatedAt,
-			}).Error)
-		}
-		restoreErr = errors.Join(restoreErr, io.Remove(userIniPath))
-		if oldUserIniExists {
-			restoreErr = errors.Join(restoreErr, io.Write(userIniPath, string(oldUserIni), 0644))
-			if setting.OpenBasedir {
-				_, attrErr := shell.Execf(restoreCtx, `chattr +i '%s'`, userIniPath)
-				restoreErr = errors.Join(restoreErr, attrErr)
-			}
-		}
-		return nil, errors.Join(switchErr, restoreErr)
-	}
-
-	website.Type = targetType
-	if err = r.applyUpdate(ctx, update, website); err != nil {
-		return restore(err)
-	}
-	databaseUpdated = true
-
-	vhost, err := newVhost(d, website)
-	if err != nil {
-		return restore(err)
-	}
-	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
-		return restore(err)
-	}
-	if err = writeTypeConfigs(d, vhost, targetType); err != nil {
-		return restore(err)
-	}
-	if err = vhost.SetEnable(website.Status); err != nil {
-		return restore(err)
-	}
-	if err = vhost.Save(); err != nil {
-		return restore(err)
-	}
-
-	if oldType == biz.WebsiteTypePHP && targetType != biz.WebsiteTypePHP && setting.OpenBasedir {
-		if err = io.Remove(userIniPath); err != nil {
-			return restore(err)
-		}
-	}
-	if err = r.ReloadWebServer(ctx); err != nil {
-		_, switchErr := restore(err)
-		if reloadErr := r.ReloadWebServer(restoreCtx); reloadErr != nil {
-			switchErr = errors.Join(switchErr, reloadErr)
-		}
-		return nil, switchErr
-	}
-
-	_ = io.Remove(backupDir)
-	return website, nil
-}
-
-// Rebuild 用上一个 Web 服务器留下的配置为当前 Web 服务器重建站点配置，返回是否重建及需人工处理的提示
-func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, []string, error) {
-	d, err := r.dialect()
-	if err != nil {
-		return false, nil, err
-	}
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	source, ok := sourceDialect(configDir)
-	if !ok || source.Type == d.Type {
-		return false, nil, nil
-	}
-
-	oldVhost, err := newVhost(source, website)
-	if err != nil {
-		return false, nil, err
-	}
-	setting, err := r.loadSetting(website, oldVhost)
-	if err != nil {
-		return false, nil, err
-	}
-
-	// 目标不支持的 IPv6 监听直接丢弃
-	listens := setting.Listens
-	if !d.Features().IPv6Listen {
-		listens = lo.Filter(listens, func(listen webservertypes.Listen, _ int) bool {
-			return !strings.HasPrefix(listen.Address, "[")
-		})
-	}
-	if len(listens) == 0 {
-		listens = []webservertypes.Listen{{Address: "80"}}
-	}
-	customProxy := false
-	for i := range setting.Proxies {
-		customProxy = customProxy || setting.Proxies[i].Custom != ""
-		setting.Proxies[i].Custom = ""
-	}
-	index := setting.Index
-	if len(index) == 0 {
-		index = []string{"index.html"}
-		if website.Type == biz.WebsiteTypePHP {
-			index = []string{"index.php", "index.html"}
-		}
-	}
-	update := &request.WebsiteUpdate{
-		ID:           website.ID,
-		Listens:      listens,
-		Domains:      setting.Domains,
-		Path:         setting.Path,
-		Root:         setting.Root,
-		Index:        index,
-		SSL:          setting.SSL,
-		SSLCert:      setting.SSLCert,
-		SSLKey:       setting.SSLKey,
-		HSTS:         setting.HSTS,
-		OCSP:         setting.OCSP,
-		HTTPRedirect: setting.HTTPRedirect,
-		SSLProtocols: setting.SSLProtocols,
-		PHP:          setting.PHP,
-		OpenBasedir:  setting.OpenBasedir,
-		Upstreams:    setting.Upstreams,
-		Proxies:      setting.Proxies,
-		Redirects:    setting.Redirects,
-		BasicAuth:    setting.BasicAuth,
-		StatEnabled:  d.Features().Stat,
-	}
-
-	// 只迁移各服务器通用的设置，伪静态、自定义配置（含代理规则的自定义指令）、限流与真实 IP 是各自的语法或语义，直接丢弃
-	var notes []string
-	if setting.Rewrite != "" || len(setting.CustomConfigs) > 0 || customProxy || setting.RateLimit != nil || setting.RealIP != nil {
-		notes = append(notes, r.t.Get("rewrite rules, custom configs, rate limit and real IP settings are not migrated"))
-	}
-
-	backupDir := fmt.Sprintf("%s.rebuild-backup-%d", configDir, time.Now().UnixNano())
-	if err = os.Rename(configDir, backupDir); err != nil {
-		return false, nil, err
-	}
-	restore := func(rebuildErr error) (bool, []string, error) {
-		removeErr := io.Remove(configDir)
-		return false, nil, errors.Join(rebuildErr, removeErr, os.Rename(backupDir, configDir))
-	}
-	for _, scope := range []string{"site", "shared"} {
-		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
-			return restore(err)
-		}
-	}
-	if err = r.applyUpdate(ctx, update, website); err != nil {
-		return restore(err)
-	}
-	vhost, err := newVhost(d, website)
-	if err != nil {
-		return restore(err)
-	}
-	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
-		return restore(err)
-	}
-	if err = writeTypeConfigs(d, vhost, website.Type); err != nil {
-		return restore(err)
-	}
-	if err = vhost.SetEnable(website.Status); err != nil {
-		return restore(err)
-	}
-	if err = vhost.Save(); err != nil {
-		return restore(err)
-	}
-
-	_ = io.Remove(backupDir)
-	return true, notes, nil
-}
-
-// sourceDialect 按站点目录里最新修改的主配置文件识别上一个 Web 服务器
-func sourceDialect(configDir string) (webserver.Dialect, bool) {
-	var latest webserver.Dialect
-	var modTime time.Time
-	for _, t := range webserver.Types() {
-		d, err := webserver.Get(t)
-		if err != nil {
-			continue
-		}
-		info, err := os.Stat(filepath.Join(configDir, d.ConfigFile()))
-		if err != nil || (!modTime.IsZero() && !info.ModTime().After(modTime)) {
-			continue
-		}
-		latest, modTime = d, info.ModTime()
-	}
-
-	return latest, !modTime.IsZero()
-}
-
 func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdate, website *biz.Website) error {
 	d, err := r.dialect()
 	if err != nil {
@@ -847,6 +554,8 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 	if !io.Exists(req.Root) {
 		return errors.New(r.t.Get("runtime directory does not exist"))
 	}
+	// .user.ini 的内容由运行目录与网站目录决定，趁两者还是旧值先比较
+	dirChanged := req.Root != vhost.Root() || req.Path != website.Path
 	if err = vhost.SetRoot(req.Root); err != nil {
 		return err
 	}
@@ -880,13 +589,9 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 				return err
 			}
 			certInfo, _ := cert.ParseCert([]byte(req.SSLCert))
-			sans := certInfo.DNSNames
-			for _, ip := range certInfo.IPAddresses {
-				sans = append(sans, ip.String())
-			}
 			existing = &biz.Cert{
 				Type:    "upload",
-				Domains: sans,
+				Domains: cert.SANs(certInfo),
 				Cert:    strings.TrimSpace(req.SSLCert),
 				Key:     strings.TrimSpace(req.SSLKey),
 			}
@@ -938,8 +643,8 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 		}
 		userIni := filepath.Join(req.Root, ".user.ini")
 		if req.OpenBasedir {
-			if !io.Exists(userIni) || req.Root != website.Path {
-				// 之前没有开启，或者修改了运行目录，重新写入
+			if content, _ := io.Read(userIni); dirChanged || !strings.Contains(content, "open_basedir") {
+				// 之前没有开启，或者修改了目录，重新写入
 				if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:%s:/tmp/", req.Root, req.Path), 0644); err != nil {
 					return err
 				}
@@ -1006,7 +711,7 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 	auths := make([]webservertypes.BasicAuth, 0, len(req.BasicAuth))
 	for i, rule := range req.BasicAuth {
 		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, fmt.Sprintf("htpasswd_%d", i))
-		if err = writeBasicAuthUsers(d, htpasswdPath, rule.Users); err != nil {
+		if err = r.writeBasicAuthUsers(d, htpasswdPath, rule.Users); err != nil {
 			return err
 		}
 		// 路径归一化：空 -> "/"，去尾部斜杠
@@ -1090,6 +795,16 @@ func (r *websiteRepo) Delete(website *biz.Website) error {
 	})
 }
 
+func (r *websiteRepo) ReloadWebServer(ctx context.Context) error {
+	d, err := r.dialect()
+	if err != nil {
+		return err
+	}
+
+	// 调用方都是配置已落盘、只差 reload 的临界区，断开取消链，否则磁盘配置与运行中的配置会不一致
+	return d.ReloadIfRunning(context.WithoutCancel(ctx))
+}
+
 func (r *websiteRepo) UpdateRemark(id uint, remark string) error {
 	website := new(biz.Website)
 	if err := r.db.Where("id", id).First(website).Error; err != nil {
@@ -1098,121 +813,6 @@ func (r *websiteRepo) UpdateRemark(id uint, remark string) error {
 
 	website.Remark = remark
 	return r.db.Save(website).Error
-}
-
-func (r *websiteRepo) UpdateProject(id, projectID uint) error {
-	return r.db.Model(&biz.Website{}).Where("id = ?", id).Update("project_id", projectID).Error
-}
-
-func (r *websiteRepo) UnbindProject(projectID uint) error {
-	return r.db.Model(&biz.Website{}).Where("project_id = ?", projectID).Update("project_id", 0).Error
-}
-
-func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
-	website := new(biz.Website)
-	if err := r.db.Where("id", id).First(&website).Error; err != nil {
-		return err
-	}
-
-	d, err := r.dialect()
-	if err != nil {
-		return err
-	}
-
-	setting, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-	listens := lo.Filter(setting.Listens, func(listen webservertypes.Listen, _ int) bool {
-		if slices.Contains(listen.Args, "ssl") || slices.Contains(listen.Args, "quic") {
-			return false
-		}
-		port := listen.Address
-		if strings.Contains(listen.Address, ":") {
-			if _, parsedPort, splitErr := net.SplitHostPort(listen.Address); splitErr == nil {
-				port = parsedPort
-			}
-		}
-		return !website.SSL || port != "443"
-	})
-	if len(listens) == 0 {
-		listens = []webservertypes.Listen{{Address: "80"}}
-	}
-
-	update := &request.WebsiteUpdate{
-		ID:          website.ID,
-		Listens:     listens,
-		Domains:     setting.Domains,
-		Path:        website.Path,
-		Root:        setting.Root,
-		Index:       []string{"index.html"},
-		SSL:         false,
-		StatEnabled: d.Features().Stat,
-		AccessLog:   filepath.Join(app.Root, "sites", website.Name, "log", "access.log"),
-		ErrorLog:    filepath.Join(app.Root, "sites", website.Name, "log", "error.log"),
-	}
-	switch website.Type {
-	case biz.WebsiteTypePHP:
-		update.Index = []string{"index.php", "index.html"}
-		update.PHP = setting.PHP
-		update.OpenBasedir = true
-	case biz.WebsiteTypeProxy:
-		update.Upstreams = setting.Upstreams
-		if len(setting.Proxies) > 0 && setting.Proxies[0].Pass != "" {
-			update.Proxies = []webservertypes.Proxy{{
-				Location: "^~ /",
-				Pass:     setting.Proxies[0].Pass,
-				Host:     webservertypes.DefaultProxyHost(setting.Proxies[0].Pass, setting.Upstreams),
-			}}
-		}
-	default:
-	}
-
-	// 配置目录是删掉重建的，中途取消会让站点配置凭空消失且无处可恢复，这段不可取消
-	resetCtx := context.WithoutCancel(ctx)
-	if website.Type == biz.WebsiteTypePHP {
-		if err = io.Remove(filepath.Join(setting.Root, ".user.ini")); err != nil {
-			return err
-		}
-	}
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	backupDir := fmt.Sprintf("%s.reset-backup-%d", configDir, time.Now().UnixNano())
-	if err = os.Rename(configDir, backupDir); err != nil {
-		return err
-	}
-	restore := func(resetErr error) error {
-		return errors.Join(resetErr, io.Remove(configDir), os.Rename(backupDir, configDir))
-	}
-	for _, scope := range []string{"site", "shared"} {
-		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
-			return restore(err)
-		}
-	}
-
-	website.Status = true
-	if err = r.applyUpdate(resetCtx, update, website); err != nil {
-		return restore(err)
-	}
-
-	vhost, err := newVhost(d, website)
-	if err != nil {
-		return restore(err)
-	}
-	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
-		return restore(err)
-	}
-	if err = writeTypeConfigs(d, vhost, website.Type); err != nil {
-		return restore(err)
-	}
-	if err = vhost.Save(); err != nil {
-		return restore(err)
-	}
-	if err = io.ChmodR(resetCtx, configDir, 0600); err != nil {
-		return restore(err)
-	}
-	_ = io.Remove(backupDir)
-
-	return r.ReloadWebServer(resetCtx)
 }
 
 func (r *websiteRepo) UpdateStatus(ctx context.Context, id uint, status bool) error {
@@ -1273,291 +873,10 @@ func (r *websiteRepo) UpdateCert(ctx context.Context, req *request.WebsiteUpdate
 	return nil
 }
 
-// customConfigStartNum 自定义配置起始序号
-const customConfigStartNum = 800
-
-// customConfigEndNum 自定义配置结束序号
-const customConfigEndNum = 999
-
-// getCustomConfigs 获取网站自定义配置列表
-func (r *websiteRepo) getCustomConfigs(configDir string) []types.WebsiteCustomConfig {
-	var configs []types.WebsiteCustomConfig
-
-	// 从 site 和 shared 目录读取自定义配置
-	for _, scope := range []string{"site", "shared"} {
-		scopeDir := filepath.Join(configDir, scope)
-		entries, err := os.ReadDir(scopeDir)
-		if err != nil {
-			continue
-		}
-
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
-			}
-			// 匹配文件名格式: 800-999-name.conf
-			name := entry.Name()
-			if !strings.HasSuffix(name, ".conf") {
-				continue
-			}
-			// 解析序号
-			parts := strings.SplitN(name, "-", 2)
-			if len(parts) < 2 {
-				continue
-			}
-			num, err := strconv.Atoi(parts[0])
-			if err != nil || num < customConfigStartNum || num > customConfigEndNum {
-				continue
-			}
-			// 提取配置名称（去掉序号前缀和.conf后缀）
-			configName := strings.TrimSuffix(parts[1], ".conf")
-			if configName == "" {
-				continue
-			}
-			// 读取配置内容
-			content, err := io.Read(filepath.Join(scopeDir, name))
-			if err != nil {
-				continue
-			}
-
-			configs = append(configs, types.WebsiteCustomConfig{
-				Name:    configName,
-				Scope:   scope,
-				Content: content,
-			})
-		}
-	}
-
-	return configs
+func (r *websiteRepo) UpdateProject(id, projectID uint) error {
+	return r.db.Model(&biz.Website{}).Where("id = ?", id).Update("project_id", projectID).Error
 }
 
-// saveCustomConfigs 保存网站自定义配置
-func (r *websiteRepo) saveCustomConfigs(configDir string, configs []request.WebsiteCustomConfig) error {
-	if err := r.clearCustomConfigs(configDir); err != nil {
-		return err
-	}
-
-	// 分别跟踪 site 和 shared 目录的序号
-	siteNum := customConfigStartNum
-	sharedNum := customConfigStartNum
-
-	for _, cfg := range configs {
-		var num int
-		switch cfg.Scope {
-		case "site":
-			num = siteNum
-			siteNum++
-		case "shared":
-			num = sharedNum
-			sharedNum++
-		default:
-			return fmt.Errorf("invalid config scope: %s", cfg.Scope)
-		}
-
-		if num > customConfigEndNum {
-			return errors.New(r.t.Get("maximum number of custom configurations reached (limit: %d)", customConfigEndNum-customConfigStartNum+1))
-		}
-
-		fileName := fmt.Sprintf("%03d-%s.conf", num, cfg.Name)
-		filePath := filepath.Join(configDir, cfg.Scope, fileName)
-
-		if err := io.Write(filePath, cfg.Content, 0600); err != nil {
-			return fmt.Errorf("failed to write custom config: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// clearCustomConfigs 清除网站自定义配置文件
-func (r *websiteRepo) clearCustomConfigs(configDir string) error {
-	for _, scope := range []string{"site", "shared"} {
-		scopeDir := filepath.Join(configDir, scope)
-		entries, err := os.ReadDir(scopeDir)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return err
-		}
-
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
-			}
-
-			name := entry.Name()
-			if !strings.HasSuffix(name, ".conf") {
-				continue
-			}
-			parts := strings.SplitN(name, "-", 2)
-			if len(parts) < 2 {
-				continue
-			}
-			num, err := strconv.Atoi(parts[0])
-			if err != nil || num < customConfigStartNum || num > customConfigEndNum {
-				continue
-			}
-			filePath := filepath.Join(scopeDir, name)
-			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
-				return fmt.Errorf("failed to remove custom config: %w", err)
-			}
-		}
-	}
-
-	return nil
-}
-
-// dialect 取当前 Web 服务器方言
-func (r *websiteRepo) dialect() (webserver.Dialect, error) {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
-	if err != nil {
-		return webserver.Dialect{}, err
-	}
-
-	return webserver.Get(webserver.Type(webServer))
-}
-
-// listenPorts 取监听端口，忽略 `80`、`0.0.0.0:80`、`[::]:80` 的地址形式差异
-func listenPorts(listens []webservertypes.Listen) []string {
-	return lo.Uniq(lo.Map(listens, func(listen webservertypes.Listen, _ int) string {
-		if _, port, err := net.SplitHostPort(listen.Address); err == nil {
-			return port
-		}
-		return listen.Address
-	}))
-}
-
-// newVhost 按网站类型构造站点 vhost
-func newVhost(d webserver.Dialect, website *biz.Website) (webservertypes.Vhost, error) {
-	return d.NewVhost(string(website.Type), filepath.Join(app.Root, "sites", website.Name, "config"))
-}
-
-func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
-	d, err := r.dialect()
-	if err != nil {
-		return nil, err
-	}
-
-	return newVhost(d, website)
-}
-
-// writeTypeConfigs 写入站点类型对应的默认片段：404 页面、PHP 缓存或静态 SPA 回退
-func writeTypeConfigs(d webserver.Dialect, vhost webservertypes.Vhost, typ biz.WebsiteType) error {
-	if err := vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, d.ErrorPageConf()); err != nil {
-		return err
-	}
-	switch typ {
-	case biz.WebsiteTypePHP:
-		return vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, d.PHPCacheConf())
-	case biz.WebsiteTypeStatic:
-		return vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, d.SPAConf())
-	default:
-		// 反代站点无需额外片段
-	}
-
-	return nil
-}
-
-func (r *websiteRepo) ReloadWebServer(ctx context.Context) error {
-	d, err := r.dialect()
-	if err != nil {
-		return err
-	}
-
-	// 调用方都是配置已落盘、只差 reload 的临界区，断开取消链，否则磁盘配置与运行中的配置会不一致
-	return d.ReloadIfRunning(context.WithoutCancel(ctx))
-}
-
-// readBasicAuthUsers 读取 htpasswd 文件中的用户列表
-func (r *websiteRepo) readBasicAuthUsers(htpasswdPath string) map[string]string {
-	if !io.Exists(htpasswdPath) {
-		return make(map[string]string)
-	}
-
-	file, err := os.Open(htpasswdPath)
-	if err != nil {
-		return make(map[string]string)
-	}
-	defer func(file *os.File) { _ = file.Close() }(file)
-
-	users := make(map[string]string)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		// htpasswd 格式: username:{PLAIN}password或直接username:password
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) == 2 {
-			users[parts[0]] = strings.TrimPrefix(parts[1], "{PLAIN}")
-		}
-	}
-	if scanner.Err() != nil {
-		return make(map[string]string)
-	}
-
-	return users
-}
-
-// removeBasicAuthFiles 删除站点的所有 htpasswd 文件
-func (r *websiteRepo) removeBasicAuthFiles(siteName string) {
-	matches, _ := filepath.Glob(filepath.Join(app.Root, "sites", siteName, "htpasswd*"))
-	for _, match := range matches {
-		_ = io.Remove(match)
-	}
-}
-
-// writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
-func writeBasicAuthUsers(d webserver.Dialect, htpasswdPath string, users map[string]string) error {
-	var lines []string
-	for username, password := range users {
-		if username == "" || password == "" {
-			continue
-		}
-		lines = append(lines, d.HTPasswdLine(username, password))
-	}
-
-	content := strings.Join(lines, "\n")
-	if content != "" {
-		content += "\n"
-	}
-	return io.Write(htpasswdPath, content, 0644) // 必须 0644，Nginx 在运行中以 www 用户读取
-}
-
-// enableStat 共享级片段只有部分服务器需要
-func (r *websiteRepo) enableStat(d webserver.Dialect, vhost webservertypes.Vhost, name string) error {
-	shared, site := d.StatConf(name)
-	if shared != "" {
-		if err := vhost.SetConfig("010-stat-format.conf", webservertypes.ScopeShared, shared); err != nil {
-			return err
-		}
-	}
-	return vhost.SetConfig("021-stats-log.conf", webservertypes.ScopeSite, site)
-}
-
-// checkDomains 域名与监听端口同时重叠才算被占用：nginx 只是警告，Caddy 会整份配置拒载
-func (r *websiteRepo) checkDomains(d webserver.Dialect, exclude string, domains []string, listens []webservertypes.Listen) error {
-	ports := listenPorts(listens)
-	var websites []*biz.Website
-	if err := r.db.Find(&websites).Error; err != nil {
-		return err
-	}
-	for _, website := range websites {
-		// 切换服务器重建途中，尚未重建的站点没有当前方言的配置，跳过以免拿默认域名误判
-		if website.Name == exclude || !io.Exists(filepath.Join(app.Root, "sites", website.Name, "config", d.ConfigFile())) {
-			continue
-		}
-		vhost, err := newVhost(d, website)
-		if err != nil || !lo.Some(listenPorts(vhost.Listen()), ports) {
-			continue
-		}
-		for _, domain := range vhost.ServerName() {
-			if slices.ContainsFunc(domains, func(d string) bool { return strings.EqualFold(d, domain) }) {
-				return errors.New(r.t.Get("domain %s is already used by website %s", domain, website.Name))
-			}
-		}
-	}
-	return nil
+func (r *websiteRepo) UnbindProject(projectID uint) error {
+	return r.db.Model(&biz.Website{}).Where("project_id = ?", projectID).Update("project_id", 0).Error
 }

@@ -9,7 +9,7 @@ import (
 
 // 通知渠道类型
 const (
-	TypeSMTP = "smtp"
+	typeSMTP = "smtp"
 )
 
 // Message 通知消息
@@ -26,8 +26,8 @@ type Notifier interface {
 // New 按渠道类型构造通知器，config 为渠道的 JSON 配置
 func New(typ string, config json.RawMessage) (Notifier, error) {
 	switch typ {
-	case TypeSMTP:
-		return NewSMTP(config)
+	case typeSMTP:
+		return newSMTP(config)
 	default:
 		return nil, fmt.Errorf("unsupported notify channel type: %s", typ)
 	}

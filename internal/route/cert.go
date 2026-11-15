@@ -10,7 +10,11 @@ import (
 )
 
 // CertRoutes 证书、DNS、账户路由
-func CertRoutes(certAccountService *service.CertAccountService, certDNSService *service.CertDNSService, certService *service.CertService) Endpoints {
+func CertRoutes(
+	certAccountService *service.CertAccountService,
+	certDNSService *service.CertDNSService,
+	certService *service.CertService,
+) Endpoints {
 	cert := certService
 	certDNS := certDNSService
 	certAccount := certAccountService

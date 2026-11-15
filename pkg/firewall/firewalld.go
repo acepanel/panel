@@ -1,11 +1,10 @@
 package firewall
 
 import (
-	"cmp"
 	"context"
 	"errors"
 	"fmt"
-	"os"
+	"net"
 	"regexp"
 	"slices"
 	"strings"
@@ -95,103 +94,7 @@ func (r *firewalld) ListRule(ctx context.Context) ([]FireInfo, error) {
 
 	wg.Wait()
 
-	data := make([]FireInfo, 0, len(portRules)+len(richRules))
-	data = append(data, portRules...)
-	data = append(data, richRules...)
-
-	slices.SortFunc(data, func(a FireInfo, b FireInfo) int {
-		if a.PortStart != b.PortStart {
-			return cmp.Compare(a.PortStart, b.PortStart)
-		}
-		if a.PortEnd != b.PortEnd {
-			return cmp.Compare(a.PortEnd, b.PortEnd)
-		}
-		if a.Protocol != b.Protocol {
-			return strings.Compare(string(a.Protocol), string(b.Protocol))
-		}
-		if a.Family != b.Family {
-			return strings.Compare(a.Family, b.Family)
-		}
-		if a.Strategy != b.Strategy {
-			return strings.Compare(string(a.Strategy), string(b.Strategy))
-		}
-		if a.Direction != b.Direction {
-			return strings.Compare(string(a.Direction), string(b.Direction))
-		}
-		if a.Type != b.Type {
-			return strings.Compare(string(a.Type), string(b.Type))
-		}
-		return 0
-	})
-
-	return mergeRules(data), nil
-}
-
-func (r *firewalld) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
-	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-forward-ports")
-	if err != nil {
-		return nil, err
-	}
-
-	var data []FireForwardInfo
-	for line := range strings.SplitSeq(out, "\n") {
-		line = strings.TrimFunc(line, func(r rune) bool {
-			return r <= 32
-		})
-		if r.forwardListRegex.MatchString(line) {
-			match := r.forwardListRegex.FindStringSubmatch(line)
-			if len(match) < 4 {
-				continue
-			}
-			if len(match[4]) == 0 {
-				match[4] = "127.0.0.1"
-			}
-			data = append(data, FireForwardInfo{
-				Port:       cast.ToUint(match[1]),
-				Protocol:   Protocol(match[2]),
-				TargetIP:   match[4],
-				TargetPort: cast.ToUint(match[3]),
-			})
-		}
-	}
-
-	slices.SortFunc(data, func(a FireForwardInfo, b FireForwardInfo) int {
-		if a.Port != b.Port {
-			return cmp.Compare(a.Port, b.Port)
-		}
-		if a.TargetPort != b.TargetPort {
-			return cmp.Compare(a.TargetPort, b.TargetPort)
-		}
-		if a.Protocol != b.Protocol {
-			return strings.Compare(string(a.Protocol), string(b.Protocol))
-		}
-		if a.TargetIP != b.TargetIP {
-			return strings.Compare(a.TargetIP, b.TargetIP)
-		}
-		return 0
-	})
-
-	return data, nil
-}
-
-func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
-	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
-	if err != nil {
-		return nil, err
-	}
-
-	var data []FireInfo
-	rules := strings.SplitSeq(out, "\n")
-	for rule := range rules {
-		if len(rule) == 0 {
-			continue
-		}
-		if richRules, err := r.parseRichRule(rule); err == nil {
-			data = append(data, richRules)
-		}
-	}
-
-	return data, nil
+	return slices.Concat(portRules, richRules), nil
 }
 
 func (r *firewalld) Port(ctx context.Context, rule FireInfo, operation Operation) error {
@@ -224,14 +127,27 @@ func (r *firewalld) Port(ctx context.Context, rule FireInfo, operation Operation
 }
 
 func (r *firewalld) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
-	// 出站规则下，必须指定具体的地址，否则会添加成入站规则
-	if rule.Direction == "out" && rule.Address == "" {
-		return errors.New("outbound rules must specify an address")
+	return r.RichRulesBatch(ctx, []FireInfo{rule}, operation)
+}
+
+func (r *firewalld) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
+	// richRuleChunk 单条 firewall-cmd 携带的规则数上限，避免命令行过长
+	const richRuleChunk = 200
+
+	var options []string
+	for _, rule := range rules {
+		// 出站规则下，必须指定具体的地址，否则会添加成入站规则
+		if rule.Direction == "out" && rule.Address == "" {
+			return errors.New("outbound rules must specify an address")
+		}
+		for _, protocol := range buildProtocols(rule.Protocol) {
+			options = append(options, fmt.Sprintf("--%s-rich-rule '%s'", operation, r.buildRichRuleStr(rule, protocol)))
+		}
 	}
 
-	for _, protocol := range buildProtocols(rule.Protocol) {
-		cmd := r.buildRichRuleStr(rule, protocol)
-		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --%s-rich-rule '%s' --permanent", operation, cmd)
+	// 删除时忽略错误（规则可能已不存在）
+	for chunk := range slices.Chunk(options, richRuleChunk) {
+		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --permanent %s", strings.Join(chunk, " "))
 		if err != nil && operation != OperationRemove {
 			return err
 		}
@@ -241,32 +157,35 @@ func (r *firewalld) RichRules(ctx context.Context, rule FireInfo, operation Oper
 	return err
 }
 
-// buildRichRuleStr 构建 firewalld 富规则字符串
-func (r *firewalld) buildRichRuleStr(rule FireInfo, protocol string) string {
-	var sb strings.Builder
-	_, _ = fmt.Fprintf(&sb, `rule family="%s" `, rule.Family)
-
-	if rule.Address != "" {
-		switch rule.Direction {
-		case "out":
-			_, _ = fmt.Fprintf(&sb, `destination address="%s" `, rule.Address)
-		default:
-			_, _ = fmt.Fprintf(&sb, `source address="%s" `, rule.Address)
-		}
-	}
-	if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535) {
-		_, _ = fmt.Fprintf(&sb, `port port="%d-%d" `, rule.PortStart, rule.PortEnd)
-	}
-	if protocol != "" {
-		sb.WriteString(`protocol`)
-		if rule.PortStart == 0 && rule.PortEnd == 0 { // IP 规则下，必须添加 value
-			sb.WriteString(` value`)
-		}
-		_, _ = fmt.Fprintf(&sb, `="%s" `, protocol)
+func (r *firewalld) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-forward-ports")
+	if err != nil {
+		return nil, err
 	}
 
-	sb.WriteString(string(rule.Strategy))
-	return sb.String()
+	var data []FireForwardInfo
+	for line := range strings.SplitSeq(out, "\n") {
+		line = strings.TrimFunc(line, func(r rune) bool {
+			return r <= 32
+		})
+		if r.forwardListRegex.MatchString(line) {
+			match := r.forwardListRegex.FindStringSubmatch(line)
+			if len(match) < 4 {
+				continue
+			}
+			if len(match[4]) == 0 {
+				match[4] = "127.0.0.1"
+			}
+			data = append(data, FireForwardInfo{
+				Port:       cast.ToUint(match[1]),
+				Protocol:   Protocol(match[2]),
+				TargetIP:   match[4],
+				TargetPort: cast.ToUint(match[3]),
+			})
+		}
+	}
+
+	return data, nil
 }
 
 func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operation) error {
@@ -274,14 +193,11 @@ func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operati
 		return err
 	}
 
-	// 启用 IP 转发
-	_, _ = shell.Execf(ctx, "sysctl -w net.ipv4.ip_forward=1")
-	_, _ = shell.Execf(ctx, "sysctl -w net.ipv6.conf.all.forwarding=1")
-	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
+	enableIPForward(ctx)
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		var toAddr string
-		if rule.TargetIP != "" && !isLocalAddress(rule.TargetIP) {
+		if rule.TargetIP != "" && !r.isLocalAddress(rule.TargetIP) {
 			toAddr = ":toaddr=" + rule.TargetIP
 		}
 		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d%s --permanent", operation, rule.Port, protocol, rule.TargetPort, toAddr)
@@ -325,6 +241,26 @@ func (r *firewalld) UpdatePingStatus(ctx context.Context, status bool) error {
 
 	_, err = shell.Execf(ctx, "firewall-cmd --reload")
 	return err
+}
+
+func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
+	if err != nil {
+		return nil, err
+	}
+
+	var data []FireInfo
+	rules := strings.SplitSeq(out, "\n")
+	for rule := range rules {
+		if len(rule) == 0 {
+			continue
+		}
+		if richRules, err := r.parseRichRule(rule); err == nil {
+			data = append(data, richRules)
+		}
+	}
+
+	return data, nil
 }
 
 func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
@@ -371,6 +307,34 @@ func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
 	return fireInfo, nil
 }
 
+// buildRichRuleStr 构建 firewalld 富规则字符串
+func (r *firewalld) buildRichRuleStr(rule FireInfo, protocol string) string {
+	var sb strings.Builder
+	_, _ = fmt.Fprintf(&sb, `rule family="%s" `, rule.Family)
+
+	if rule.Address != "" {
+		switch rule.Direction {
+		case "out":
+			_, _ = fmt.Fprintf(&sb, `destination address="%s" `, rule.Address)
+		default:
+			_, _ = fmt.Fprintf(&sb, `source address="%s" `, rule.Address)
+		}
+	}
+	if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535) {
+		_, _ = fmt.Fprintf(&sb, `port port="%d-%d" `, rule.PortStart, rule.PortEnd)
+	}
+	if protocol != "" {
+		sb.WriteString(`protocol`)
+		if rule.PortStart == 0 && rule.PortEnd == 0 { // IP 规则下，必须添加 value
+			sb.WriteString(` value`)
+		}
+		_, _ = fmt.Fprintf(&sb, `="%s" `, protocol)
+	}
+
+	sb.WriteString(string(rule.Strategy))
+	return sb.String()
+}
+
 func (r *firewalld) enableForward(ctx context.Context) error {
 	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --query-masquerade")
 	if err != nil {
@@ -386,4 +350,20 @@ func (r *firewalld) enableForward(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// isLocalAddress 判断是否为本地地址
+func (r *firewalld) isLocalAddress(ip string) bool {
+	parsed := net.ParseIP(ip)
+	if parsed == nil {
+		return false
+	}
+	if parsed.IsLoopback() {
+		return true
+	}
+	if parsed.IsUnspecified() {
+		return true
+	}
+
+	return false
 }

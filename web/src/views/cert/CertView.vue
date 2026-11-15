@@ -3,11 +3,12 @@ import { NButton, NDataTable, NFlex, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
-import ListInput from '@/components/common/ListInput.vue'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatDateTime } from '@/utils'
+import CertModal from '@/views/cert/CertModal.vue'
 import ObtainModal from '@/views/cert/ObtainModal.vue'
 
 const { $gettext } = useGettext()
@@ -35,37 +36,8 @@ const props = defineProps({
 
 const { algorithms, websites, accounts, dns } = toRefs(props)
 
-const updateModel = ref<any>({
-  domains: [],
-  alias: {},
-  type: 'P256',
-  dns_id: null,
-  account_id: null,
-  website_ids: [],
-  auto_renewal: true,
-  cert: '',
-  key: '',
-  script: '',
-})
-const updateAliasList = ref<{ key: string; value: string }[]>([])
-
-watch(
-  updateAliasList,
-  (list) => {
-    const map: Record<string, string> = {}
-    for (const item of list) {
-      if (item.key && item.value) {
-        map[item.key] = item.value
-      }
-    }
-    updateModel.value.alias = map
-  },
-  { deep: true },
-)
-
-const updateModal = ref(false)
-const updateCertLoading = ref(false)
-const updateCert = ref<any>()
+const editModal = ref(false)
+const editItem = ref<any>(null)
 const showModal = ref(false)
 const showModel = ref<any>({
   cert: '',
@@ -356,22 +328,8 @@ const columns: any = [
             size: 'small',
             type: 'primary',
             onClick: () => {
-              updateCert.value = row.id
-              updateModel.value.domains = row.domains
-              updateModel.value.alias = row.alias || {}
-              updateModel.value.type = row.type
-              updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
-              updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
-              updateModel.value.website_ids = row.website_ids || []
-              updateModel.value.auto_renewal = row.auto_renewal
-              updateModel.value.cert = row.cert
-              updateModel.value.key = row.key
-              updateModel.value.script = row.script
-              updateAliasList.value = Object.entries(row.alias || {}).map(([key, value]) => ({
-                key,
-                value: value as string,
-              }))
-              updateModal.value = true
+              editItem.value = row
+              editModal.value = true
             },
           },
           { default: () => $gettext('Modify') },
@@ -400,73 +358,34 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => cert.certs(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  cert.certs(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
-
-const handleUpdateCert = () => {
-  updateCertLoading.value = true
-  useRequest(cert.certUpdate(updateCert.value, updateModel.value))
-    .onSuccess(() => {
-      refresh()
-      updateModal.value = false
-      updateModel.value.domains = []
-      updateModel.value.alias = {}
-      updateModel.value.type = 'P256'
-      updateModel.value.dns_id = null
-      updateModel.value.account_id = null
-      updateModel.value.website_ids = []
-      updateModel.value.auto_renewal = true
-      updateModel.value.cert = ''
-      updateModel.value.key = ''
-      updateModel.value.script = ''
-      updateAliasList.value = []
-      window.$message.success($gettext('Update successful'))
-    })
-    .onComplete(() => {
-      updateCertLoading.value = false
-    })
-}
 
 const switching = reactive(new Set<number>())
 
 const handleAutoRenewalUpdate = (row: any) => {
   switching.add(row.id)
-  updateModel.value.domains = row.domains
-  updateModel.value.alias = row.alias
-  updateModel.value.type = row.type
-  updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
-  updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
-  updateModel.value.website_ids = row.website_ids || []
-  updateModel.value.auto_renewal = !row.auto_renewal
-  updateModel.value.cert = row.cert
-  updateModel.value.key = row.key
-  updateModel.value.script = row.script
-  useRequest(cert.certUpdate(row.id, updateModel.value))
+  useRequest(
+    cert.certUpdate(row.id, {
+      domains: row.domains,
+      alias: row.alias,
+      type: row.type,
+      dns_id: row.dns_id == 0 ? null : row.dns_id,
+      account_id: row.account_id == 0 ? null : row.account_id,
+      website_ids: row.website_ids || [],
+      auto_renewal: !row.auto_renewal,
+      cert: row.cert,
+      key: row.key,
+      script: row.script,
+    }),
+  )
     .onSuccess(() => {
       refresh()
       window.$message.success($gettext('Update successful'))
     })
     .onComplete(() => {
       switching.delete(row.id)
-      updateModel.value.domains = []
-      updateModel.value.alias = {}
-      updateModel.value.type = 'P256'
-      updateModel.value.dns_id = null
-      updateModel.value.account_id = null
-      updateModel.value.website_ids = []
-      updateModel.value.auto_renewal = true
-      updateModel.value.cert = ''
-      updateModel.value.key = ''
-      updateModel.value.script = ''
-      updateAliasList.value = []
     })
 }
 
@@ -489,16 +408,7 @@ const handleShowModalClose = () => {
   showModel.value.key = ''
 }
 
-onMounted(() => {
-  refresh()
-  window.$bus.on('cert:refresh-cert', () => {
-    refresh()
-  })
-})
-
-onUnmounted(() => {
-  window.$bus.off('cert:refresh-cert')
-})
+useBus('cert:refresh-cert', refresh)
 </script>
 
 <template>
@@ -516,138 +426,14 @@ onUnmounted(() => {
       :pagination="pagination"
     />
   </n-space>
-  <app-modal v-model:show="updateModal" :title="$gettext('Modify Certificate')">
-    <n-space vertical>
-      <n-alert v-if="updateModel.type != 'upload'" type="info">
-        {{
-          $gettext(
-            'You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates.',
-          )
-        }}
-      </n-alert>
-      <n-form :model="updateModel">
-        <n-form-item v-if="updateModel.type != 'upload'" path="domains" :label="$gettext('Domain')">
-          <ListInput
-            v-model:value="updateModel.domains"
-            placeholder="example.com"
-            :min="1"
-            show-sort-button
-          />
-        </n-form-item>
-        <n-form-item v-if="updateModel.type != 'upload'" path="type" :label="$gettext('Key Type')">
-          <n-select
-            v-model:value="updateModel.type"
-            :placeholder="$gettext('Select key type')"
-            clearable
-            :options="algorithms"
-          />
-        </n-form-item>
-        <n-form-item path="website_ids" :label="$gettext('Website')">
-          <n-select
-            v-model:value="updateModel.website_ids"
-            :placeholder="$gettext('Select websites for certificate deployment')"
-            multiple
-            clearable
-            :options="websites"
-          />
-        </n-form-item>
-        <n-form-item
-          v-if="updateModel.type != 'upload'"
-          path="account_id"
-          :label="$gettext('Account')"
-        >
-          <n-select
-            v-model:value="updateModel.account_id"
-            :placeholder="$gettext('Select account for certificate issuance')"
-            clearable
-            :options="accounts"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateModel.type != 'upload'" path="account_id" :label="$gettext('DNS')">
-          <n-select
-            v-model:value="updateModel.dns_id"
-            :placeholder="$gettext('Select DNS for certificate issuance')"
-            clearable
-            :options="dns"
-          />
-        </n-form-item>
-        <n-form-item
-          v-if="updateModel.type != 'upload' && updateModel.dns_id"
-          :label="$gettext('DNS Alias')"
-        >
-          <n-dynamic-input
-            v-model:value="updateAliasList"
-            :on-create="() => ({ key: '', value: '' })"
-          >
-            <template #default="{ value }">
-              <div class="flex gap-2 w-full items-center">
-                <n-input
-                  v-model:value="value.key"
-                  :placeholder="$gettext('Original domain, e.g. example.com')"
-                  class="flex-1"
-                />
-                <span>→</span>
-                <n-input
-                  v-model:value="value.value"
-                  :placeholder="$gettext('Alias record, e.g. _acme-challenge.delegated.com')"
-                  class="flex-1"
-                />
-              </div>
-            </template>
-          </n-dynamic-input>
-        </n-form-item>
-        <n-form-item
-          v-if="updateModel.type == 'upload'"
-          path="cert"
-          :label="$gettext('Certificate')"
-        >
-          <n-input
-            v-model:value="updateModel.cert"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the PEM certificate file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
-        <n-form-item
-          v-if="updateModel.type == 'upload'"
-          path="key"
-          :label="$gettext('Private Key')"
-        >
-          <n-input
-            v-model:value="updateModel.key"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the KEY private key file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
-        <n-form-item
-          v-if="updateModel.type != 'upload'"
-          path="key"
-          :label="$gettext('Deployment Script')"
-        >
-          <n-input
-            v-model:value="updateModel.script"
-            type="textarea"
-            :placeholder="
-              $gettext(
-                'The {cert} and {key} in the script will be replaced with the certificate and private key content',
-              )
-            "
-            :autosize="{ minRows: 5, maxRows: 10 }"
-          />
-        </n-form-item>
-      </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="updateCertLoading"
-        :disabled="updateCertLoading"
-        @click="handleUpdateCert"
-      >
-        {{ $gettext('Submit') }}
-      </n-button>
-    </n-space>
-  </app-modal>
+  <cert-modal
+    v-model:show="editModal"
+    :accounts="accounts"
+    :algorithms="algorithms"
+    :websites="websites"
+    :dns="dns"
+    :edit-item="editItem"
+  />
   <app-modal v-model:show="deployModal" :title="$gettext('Deploy Certificate')">
     <n-flex vertical>
       <n-form :model="deployModel">

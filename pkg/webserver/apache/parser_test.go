@@ -155,7 +155,7 @@ func TestCommentPreserveLeadingSpace(t *testing.T) {
 }
 
 func TestRoundTripDefaultVhostConf(t *testing.T) {
-	cfg, err := ParseString(DefaultVhostConf)
+	cfg, err := ParseString(defaultVhostConf)
 	must.NoError(t, err)
 
 	rendered := Render(cfg)

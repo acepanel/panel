@@ -32,14 +32,8 @@ var _ biz.UserPasskeyRepo = &UserPasskeyRepo{}
 //			GetFunc: func(userID uint, id uint) (*biz.UserPasskey, error) {
 //				panic("mock out the Get method")
 //			},
-//			GetByCredentialIDFunc: func(credentialID []byte) (*biz.UserPasskey, *biz.User, error) {
-//				panic("mock out the GetByCredentialID method")
-//			},
 //			HasAnyFunc: func() (bool, error) {
 //				panic("mock out the HasAny method")
-//			},
-//			HasPasskeyFunc: func(userID uint) (bool, error) {
-//				panic("mock out the HasPasskey method")
 //			},
 //			ListFunc: func(userID uint) ([]*biz.UserPasskey, error) {
 //				panic("mock out the List method")
@@ -69,14 +63,8 @@ type UserPasskeyRepo struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(userID uint, id uint) (*biz.UserPasskey, error)
 
-	// GetByCredentialIDFunc mocks the GetByCredentialID method.
-	GetByCredentialIDFunc func(credentialID []byte) (*biz.UserPasskey, *biz.User, error)
-
 	// HasAnyFunc mocks the HasAny method.
 	HasAnyFunc func() (bool, error)
-
-	// HasPasskeyFunc mocks the HasPasskey method.
-	HasPasskeyFunc func(userID uint) (bool, error)
 
 	// ListFunc mocks the List method.
 	ListFunc func(userID uint) ([]*biz.UserPasskey, error)
@@ -113,18 +101,8 @@ type UserPasskeyRepo struct {
 			// ID is the id argument value.
 			ID uint
 		}
-		// GetByCredentialID holds details about calls to the GetByCredentialID method.
-		GetByCredentialID []struct {
-			// CredentialID is the credentialID argument value.
-			CredentialID []byte
-		}
 		// HasAny holds details about calls to the HasAny method.
 		HasAny []struct {
-		}
-		// HasPasskey holds details about calls to the HasPasskey method.
-		HasPasskey []struct {
-			// UserID is the userID argument value.
-			UserID uint
 		}
 		// List holds details about calls to the List method.
 		List []struct {
@@ -148,9 +126,7 @@ type UserPasskeyRepo struct {
 	lockDelete            sync.RWMutex
 	lockDeleteAllByUserID sync.RWMutex
 	lockGet               sync.RWMutex
-	lockGetByCredentialID sync.RWMutex
 	lockHasAny            sync.RWMutex
-	lockHasPasskey        sync.RWMutex
 	lockList              sync.RWMutex
 	lockUpdateLastUsed    sync.RWMutex
 	lockUpdateSignCount   sync.RWMutex
@@ -292,38 +268,6 @@ func (mock *UserPasskeyRepo) GetCalls() []struct {
 	return calls
 }
 
-// GetByCredentialID calls GetByCredentialIDFunc.
-func (mock *UserPasskeyRepo) GetByCredentialID(credentialID []byte) (*biz.UserPasskey, *biz.User, error) {
-	if mock.GetByCredentialIDFunc == nil {
-		panic("UserPasskeyRepo.GetByCredentialIDFunc: method is nil but UserPasskeyRepo.GetByCredentialID was just called")
-	}
-	callInfo := struct {
-		CredentialID []byte
-	}{
-		CredentialID: credentialID,
-	}
-	mock.lockGetByCredentialID.Lock()
-	mock.calls.GetByCredentialID = append(mock.calls.GetByCredentialID, callInfo)
-	mock.lockGetByCredentialID.Unlock()
-	return mock.GetByCredentialIDFunc(credentialID)
-}
-
-// GetByCredentialIDCalls gets all the calls that were made to GetByCredentialID.
-// Check the length with:
-//
-//	len(mockedUserPasskeyRepo.GetByCredentialIDCalls())
-func (mock *UserPasskeyRepo) GetByCredentialIDCalls() []struct {
-	CredentialID []byte
-} {
-	var calls []struct {
-		CredentialID []byte
-	}
-	mock.lockGetByCredentialID.RLock()
-	calls = mock.calls.GetByCredentialID
-	mock.lockGetByCredentialID.RUnlock()
-	return calls
-}
-
 // HasAny calls HasAnyFunc.
 func (mock *UserPasskeyRepo) HasAny() (bool, error) {
 	if mock.HasAnyFunc == nil {
@@ -348,38 +292,6 @@ func (mock *UserPasskeyRepo) HasAnyCalls() []struct {
 	mock.lockHasAny.RLock()
 	calls = mock.calls.HasAny
 	mock.lockHasAny.RUnlock()
-	return calls
-}
-
-// HasPasskey calls HasPasskeyFunc.
-func (mock *UserPasskeyRepo) HasPasskey(userID uint) (bool, error) {
-	if mock.HasPasskeyFunc == nil {
-		panic("UserPasskeyRepo.HasPasskeyFunc: method is nil but UserPasskeyRepo.HasPasskey was just called")
-	}
-	callInfo := struct {
-		UserID uint
-	}{
-		UserID: userID,
-	}
-	mock.lockHasPasskey.Lock()
-	mock.calls.HasPasskey = append(mock.calls.HasPasskey, callInfo)
-	mock.lockHasPasskey.Unlock()
-	return mock.HasPasskeyFunc(userID)
-}
-
-// HasPasskeyCalls gets all the calls that were made to HasPasskey.
-// Check the length with:
-//
-//	len(mockedUserPasskeyRepo.HasPasskeyCalls())
-func (mock *UserPasskeyRepo) HasPasskeyCalls() []struct {
-	UserID uint
-} {
-	var calls []struct {
-		UserID uint
-	}
-	mock.lockHasPasskey.RLock()
-	calls = mock.calls.HasPasskey
-	mock.lockHasPasskey.RUnlock()
 	return calls
 }
 

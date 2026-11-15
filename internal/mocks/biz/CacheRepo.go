@@ -30,6 +30,12 @@ var _ biz.CacheRepo = &CacheRepo{}
 //			FetchEnvironmentsFunc: func() (*api.Environments, error) {
 //				panic("mock out the FetchEnvironments method")
 //			},
+//			FetchIntermediateVersionsFunc: func(channel string) (*api.Versions, error) {
+//				panic("mock out the FetchIntermediateVersions method")
+//			},
+//			FetchLatestVersionFunc: func(channel string) (*api.Version, error) {
+//				panic("mock out the FetchLatestVersion method")
+//			},
 //			FetchTemplatesFunc: func() (*api.Templates, error) {
 //				panic("mock out the FetchTemplates method")
 //			},
@@ -55,6 +61,12 @@ type CacheRepo struct {
 	// FetchEnvironmentsFunc mocks the FetchEnvironments method.
 	FetchEnvironmentsFunc func() (*api.Environments, error)
 
+	// FetchIntermediateVersionsFunc mocks the FetchIntermediateVersions method.
+	FetchIntermediateVersionsFunc func(channel string) (*api.Versions, error)
+
+	// FetchLatestVersionFunc mocks the FetchLatestVersion method.
+	FetchLatestVersionFunc func(channel string) (*api.Version, error)
+
 	// FetchTemplatesFunc mocks the FetchTemplates method.
 	FetchTemplatesFunc func() (*api.Templates, error)
 
@@ -75,6 +87,16 @@ type CacheRepo struct {
 		// FetchEnvironments holds details about calls to the FetchEnvironments method.
 		FetchEnvironments []struct {
 		}
+		// FetchIntermediateVersions holds details about calls to the FetchIntermediateVersions method.
+		FetchIntermediateVersions []struct {
+			// Channel is the channel argument value.
+			Channel string
+		}
+		// FetchLatestVersion holds details about calls to the FetchLatestVersion method.
+		FetchLatestVersion []struct {
+			// Channel is the channel argument value.
+			Channel string
+		}
 		// FetchTemplates holds details about calls to the FetchTemplates method.
 		FetchTemplates []struct {
 		}
@@ -93,12 +115,14 @@ type CacheRepo struct {
 			Value string
 		}
 	}
-	lockFetchApps         sync.RWMutex
-	lockFetchCategories   sync.RWMutex
-	lockFetchEnvironments sync.RWMutex
-	lockFetchTemplates    sync.RWMutex
-	lockGet               sync.RWMutex
-	lockSet               sync.RWMutex
+	lockFetchApps                 sync.RWMutex
+	lockFetchCategories           sync.RWMutex
+	lockFetchEnvironments         sync.RWMutex
+	lockFetchIntermediateVersions sync.RWMutex
+	lockFetchLatestVersion        sync.RWMutex
+	lockFetchTemplates            sync.RWMutex
+	lockGet                       sync.RWMutex
+	lockSet                       sync.RWMutex
 }
 
 // FetchApps calls FetchAppsFunc.
@@ -179,6 +203,70 @@ func (mock *CacheRepo) FetchEnvironmentsCalls() []struct {
 	mock.lockFetchEnvironments.RLock()
 	calls = mock.calls.FetchEnvironments
 	mock.lockFetchEnvironments.RUnlock()
+	return calls
+}
+
+// FetchIntermediateVersions calls FetchIntermediateVersionsFunc.
+func (mock *CacheRepo) FetchIntermediateVersions(channel string) (*api.Versions, error) {
+	if mock.FetchIntermediateVersionsFunc == nil {
+		panic("CacheRepo.FetchIntermediateVersionsFunc: method is nil but CacheRepo.FetchIntermediateVersions was just called")
+	}
+	callInfo := struct {
+		Channel string
+	}{
+		Channel: channel,
+	}
+	mock.lockFetchIntermediateVersions.Lock()
+	mock.calls.FetchIntermediateVersions = append(mock.calls.FetchIntermediateVersions, callInfo)
+	mock.lockFetchIntermediateVersions.Unlock()
+	return mock.FetchIntermediateVersionsFunc(channel)
+}
+
+// FetchIntermediateVersionsCalls gets all the calls that were made to FetchIntermediateVersions.
+// Check the length with:
+//
+//	len(mockedCacheRepo.FetchIntermediateVersionsCalls())
+func (mock *CacheRepo) FetchIntermediateVersionsCalls() []struct {
+	Channel string
+} {
+	var calls []struct {
+		Channel string
+	}
+	mock.lockFetchIntermediateVersions.RLock()
+	calls = mock.calls.FetchIntermediateVersions
+	mock.lockFetchIntermediateVersions.RUnlock()
+	return calls
+}
+
+// FetchLatestVersion calls FetchLatestVersionFunc.
+func (mock *CacheRepo) FetchLatestVersion(channel string) (*api.Version, error) {
+	if mock.FetchLatestVersionFunc == nil {
+		panic("CacheRepo.FetchLatestVersionFunc: method is nil but CacheRepo.FetchLatestVersion was just called")
+	}
+	callInfo := struct {
+		Channel string
+	}{
+		Channel: channel,
+	}
+	mock.lockFetchLatestVersion.Lock()
+	mock.calls.FetchLatestVersion = append(mock.calls.FetchLatestVersion, callInfo)
+	mock.lockFetchLatestVersion.Unlock()
+	return mock.FetchLatestVersionFunc(channel)
+}
+
+// FetchLatestVersionCalls gets all the calls that were made to FetchLatestVersion.
+// Check the length with:
+//
+//	len(mockedCacheRepo.FetchLatestVersionCalls())
+func (mock *CacheRepo) FetchLatestVersionCalls() []struct {
+	Channel string
+} {
+	var calls []struct {
+		Channel string
+	}
+	mock.lockFetchLatestVersion.RLock()
+	calls = mock.calls.FetchLatestVersion
+	mock.lockFetchLatestVersion.RUnlock()
 	return calls
 }
 

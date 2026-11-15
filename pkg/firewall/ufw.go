@@ -17,9 +17,24 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
+const (
+	beforeRulesPath = "/etc/ufw/before.rules"
+	natMarker       = "# acepanel-forward"
+)
+
 type ufw struct {
 	ruleRegex *regexp.Regexp
+	portRegex *regexp.Regexp
 	natRegex  *regexp.Regexp
+}
+
+// ufwEndpoint ufw status 一列（To 或 From）解析出的地址、端口与协议
+type ufwEndpoint struct {
+	address   string
+	portStart uint
+	portEnd   uint
+	protocol  string
+	v6        bool
 }
 
 func newUFW() *ufw {
@@ -29,6 +44,8 @@ func newUFW() *ufw {
 		// [ 2] 80/tcp                     DENY IN     192.168.1.0/24
 		// [ 3] 1.2.3.4 443/tcp            ALLOW OUT   Anywhere                   (out) # api
 		ruleRegex: regexp.MustCompile(`^\[\s*\d+\]\s+(.+?)\s+(ALLOW|DENY|REJECT|LIMIT)\s+(IN|OUT)\s+(.+)$`),
+		// 匹配列中的端口规格：22、80:443、22/tcp、80:443/udp
+		portRegex: regexp.MustCompile(`^(\d{1,5})(?::(\d{1,5}))?(?:/(tcp|udp))?$`),
 		// 匹配 before.rules 中的 NAT PREROUTING 规则
 		natRegex: regexp.MustCompile(`^-A PREROUTING -p (\w+) --dport (\d+) -j DNAT --to-destination (.+):(\d+)$`),
 	}
@@ -80,61 +97,166 @@ func (r *ufw) ListRule(ctx context.Context) ([]FireInfo, error) {
 		}
 	}
 
-	slices.SortFunc(data, func(a FireInfo, b FireInfo) int {
-		if a.PortStart != b.PortStart {
-			return cmp.Compare(a.PortStart, b.PortStart)
-		}
-		if a.PortEnd != b.PortEnd {
-			return cmp.Compare(a.PortEnd, b.PortEnd)
-		}
-		return strings.Compare(string(a.Protocol), string(b.Protocol))
-	})
-
-	return mergeRules(data), nil
+	return data, nil
 }
 
-// ufwPortRegex 匹配列中的端口规格：22、80:443、22/tcp、80:443/udp
-var ufwPortRegex = regexp.MustCompile(`^(\d{1,5})(?::(\d{1,5}))?(?:/(tcp|udp))?$`)
+func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) error {
+	if rule.PortEnd == 0 {
+		rule.PortEnd = rule.PortStart
+	}
+	if rule.PortStart > rule.PortEnd {
+		return fmt.Errorf("invalid port range: %d-%d", rule.PortStart, rule.PortEnd)
+	}
 
-// ufwEndpoint ufw status 一列（To 或 From）解析出的地址、端口与协议
-type ufwEndpoint struct {
-	address   string
-	portStart uint
-	portEnd   uint
-	protocol  string
-	v6        bool
-}
+	// 有地址或非默认策略，使用 RichRules
+	if rule.Address != "" || rule.Type == TypeRich {
+		return r.RichRules(ctx, rule, operation)
+	}
 
-// parseEndpoint 解析 ufw status numbered 的 To 或 From 列
-// 列形如 "Anywhere"、"22/tcp"、"1.2.3.4"、"10.0.0.8/tcp"、"1.2.3.4 443/tcp"，后面可能跟 (v6)、(out)、(log)、on eth0
-// 绑定网卡、应用配置名（如 "Nginx Full"）、多端口列表（如 80,443/tcp）面板无法表示，返回 false
-func parseEndpoint(col string) (ufwEndpoint, bool) {
-	var ep ufwEndpoint
-	for _, token := range strings.Fields(col) {
-		switch {
-		case token == "(v6)":
-			ep.v6 = true
-		case token == "(out)", token == "(log)", token == "(log-all)":
-		case token == "on":
-			return ep, false
-		case strings.HasPrefix(token, "Anywhere"):
-			_, proto := stripProtocolSuffix(token)
-			ep.protocol = cmp.Or(proto, ep.protocol)
-		case ufwPortRegex.MatchString(token):
-			m := ufwPortRegex.FindStringSubmatch(token)
-			ep.portStart = cast.ToUint(m[1])
-			ep.portEnd = cmp.Or(cast.ToUint(m[2]), ep.portStart)
-			ep.protocol = cmp.Or(m[3], ep.protocol)
-		default:
-			addr, proto := stripProtocolSuffix(token)
-			if !isIPOrCIDR(addr) {
-				return ep, false
-			}
-			ep.address = addr
-			ep.protocol = cmp.Or(proto, ep.protocol)
+	if rule.Protocol == "" {
+		rule.Protocol = ProtocolTCPUDP
+	}
+
+	if operation == OperationRemove {
+		return r.deletePort(ctx, rule)
+	}
+
+	// 添加规则：使用简单语法
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		cmd := r.buildSimplePortCmd(rule, protocol)
+		if _, err := shell.Exec(ctx, cmd); err != nil {
+			return err
 		}
 	}
-	return ep, true
+
+	return nil
+}
+
+func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
+	// 出站规则下，必须指定具体的地址
+	if rule.Direction == "out" && rule.Address == "" {
+		return errors.New("outbound rules must specify an address")
+	}
+
+	if rule.Protocol == "" {
+		rule.Protocol = ProtocolTCPUDP
+	}
+
+	// 删除时额外尝试无协议命令（匹配 ufw allow 8888 这种原生合并规则）
+	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
+		_, _ = shell.Exec(ctx, r.buildRichCmd(rule, "", operation))
+	}
+
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		_, err := shell.Exec(ctx, r.buildRichCmd(rule, protocol, operation))
+		if err != nil && operation != OperationRemove {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// RichRulesBatch ufw 每条规则即时生效，没有重载可合并，逐条执行
+func (r *ufw) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
+	for _, rule := range rules {
+		if err := r.RichRules(ctx, rule, operation); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *ufw) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
+	content, err := os.ReadFile(beforeRulesPath)
+	if err != nil {
+		return nil, nil //nolint:nilerr
+	}
+
+	var data []FireForwardInfo
+	lines := strings.Split(string(content), "\n")
+	inNat := false
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "*nat" {
+			inNat = true
+			continue
+		}
+		if trimmed == "COMMIT" && inNat {
+			break
+		}
+		if !inNat {
+			continue
+		}
+
+		if r.natRegex.MatchString(trimmed) {
+			match := r.natRegex.FindStringSubmatch(trimmed)
+			if len(match) < 5 {
+				continue
+			}
+			data = append(data, FireForwardInfo{
+				Protocol:   Protocol(match[1]),
+				Port:       cast.ToUint(match[2]),
+				TargetIP:   match[3],
+				TargetPort: cast.ToUint(match[4]),
+			})
+		}
+	}
+
+	return data, nil
+}
+
+func (r *ufw) Forward(ctx context.Context, rule Forward, operation Operation) error {
+	if operation == OperationAdd {
+		return r.addForward(ctx, rule)
+	}
+	return r.removeForward(ctx, rule)
+}
+
+func (r *ufw) PingStatus(ctx context.Context) (bool, error) {
+	content, err := os.ReadFile(beforeRulesPath)
+	if err != nil {
+		return true, nil //nolint:nilerr
+	}
+
+	// 检查 icmp echo-request 规则
+	// 默认 before.rules 包含: -A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT
+	text := string(content)
+	if strings.Contains(text, "-p icmp --icmp-type echo-request -j DROP") {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (r *ufw) UpdatePingStatus(ctx context.Context, status bool) error {
+	content, err := os.ReadFile(beforeRulesPath)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", beforeRulesPath, err)
+	}
+
+	text := string(content)
+
+	if status {
+		// 允许 Ping: 将 DROP 改回 ACCEPT
+		text = strings.ReplaceAll(text,
+			"-p icmp --icmp-type echo-request -j DROP",
+			"-p icmp --icmp-type echo-request -j ACCEPT")
+	} else {
+		// 禁止 Ping: 将 ACCEPT 改为 DROP
+		text = strings.ReplaceAll(text,
+			"-p icmp --icmp-type echo-request -j ACCEPT",
+			"-p icmp --icmp-type echo-request -j DROP")
+	}
+
+	if err = os.WriteFile(beforeRulesPath, []byte(text), 0644); err != nil {
+		return err
+	}
+
+	_, err = shell.Execf(ctx, "ufw reload")
+	return err
 }
 
 // parseRule 解析 ufw status numbered 的单行规则，To 列是目的地址/端口，From 列是来源地址/端口
@@ -143,11 +265,11 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 	// 行尾注释（如 Fail2Ban 的 "1.2.3.4  # by Fail2Ban ..."）会被正则并入 source，需先去掉
 	source, _, _ = strings.Cut(source, "#")
 
-	to, ok := parseEndpoint(target)
+	to, ok := r.parseEndpoint(target)
 	if !ok {
 		return nil
 	}
-	from, ok := parseEndpoint(source)
+	from, ok := r.parseEndpoint(source)
 	if !ok {
 		return nil
 	}
@@ -196,61 +318,61 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 	return info
 }
 
+// parseEndpoint 解析 ufw status numbered 的 To 或 From 列
+// 列形如 "Anywhere"、"22/tcp"、"1.2.3.4"、"10.0.0.8/tcp"、"1.2.3.4 443/tcp"，后面可能跟 (v6)、(out)、(log)、on eth0
+// 绑定网卡、应用配置名（如 "Nginx Full"）、多端口列表（如 80,443/tcp）面板无法表示，返回 false
+func (r *ufw) parseEndpoint(col string) (ufwEndpoint, bool) {
+	var ep ufwEndpoint
+	for token := range strings.FieldsSeq(col) {
+		switch {
+		case token == "(v6)":
+			ep.v6 = true
+		case token == "(out)", token == "(log)", token == "(log-all)":
+		case token == "on":
+			return ep, false
+		case strings.HasPrefix(token, "Anywhere"):
+			_, proto := r.stripProtocolSuffix(token)
+			ep.protocol = cmp.Or(proto, ep.protocol)
+		case r.portRegex.MatchString(token):
+			m := r.portRegex.FindStringSubmatch(token)
+			ep.portStart = cast.ToUint(m[1])
+			ep.portEnd = cmp.Or(cast.ToUint(m[2]), ep.portStart)
+			ep.protocol = cmp.Or(m[3], ep.protocol)
+		default:
+			addr, proto := r.stripProtocolSuffix(token)
+			if !r.isIPOrCIDR(addr) {
+				return ep, false
+			}
+			ep.address = addr
+			ep.protocol = cmp.Or(proto, ep.protocol)
+		}
+	}
+	return ep, true
+}
+
 // stripProtocolSuffix 从地址中剥离协议后缀（如 "8.8.8.8/tcp" → "8.8.8.8", "tcp"）
 // CIDR 格式（如 "192.168.1.0/24"）不受影响
-func stripProtocolSuffix(addr string) (string, string) {
-	idx := strings.LastIndex(addr, "/")
-	if idx == -1 {
+func (r *ufw) stripProtocolSuffix(addr string) (string, string) {
+	before, after, ok := strings.CutLast(addr, "/")
+	if !ok {
 		return addr, ""
 	}
-	suffix := strings.ToLower(addr[idx+1:])
+	suffix := strings.ToLower(after)
 	switch suffix {
 	case "tcp", "udp":
-		return addr[:idx], suffix
+		return before, suffix
 	default:
 		return addr, ""
 	}
 }
 
 // isIPOrCIDR 判断是否为 IP 或 CIDR
-func isIPOrCIDR(s string) bool {
+func (r *ufw) isIPOrCIDR(s string) bool {
 	if _, err := netip.ParseAddr(s); err == nil {
 		return true
 	}
 	_, err := netip.ParsePrefix(s)
 	return err == nil
-}
-
-func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) error {
-	if rule.PortEnd == 0 {
-		rule.PortEnd = rule.PortStart
-	}
-	if rule.PortStart > rule.PortEnd {
-		return fmt.Errorf("invalid port range: %d-%d", rule.PortStart, rule.PortEnd)
-	}
-
-	// 有地址或非默认策略，使用 RichRules
-	if rule.Address != "" || rule.Type == TypeRich {
-		return r.RichRules(ctx, rule, operation)
-	}
-
-	if rule.Protocol == "" {
-		rule.Protocol = ProtocolTCPUDP
-	}
-
-	if operation == OperationRemove {
-		return r.deletePort(ctx, rule)
-	}
-
-	// 添加规则：使用简单语法
-	for _, protocol := range buildProtocols(rule.Protocol) {
-		cmd := r.buildSimplePortCmd(rule, protocol)
-		if _, err := shell.Exec(ctx, cmd); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // deletePort 删除端口规则
@@ -264,18 +386,10 @@ func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 		// 简单语法: ufw delete allow 443/tcp
 		_, _ = shell.Execf(ctx, "ufw delete %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
 		// 扩展语法: ufw delete allow in proto tcp to any port 443
-		_, _ = shell.Exec(ctx, r.buildPortCmd(rule, protocol, OperationRemove))
+		_, _ = shell.Exec(ctx, r.buildDeletePortCmd(rule, protocol))
 	}
 
 	return nil
-}
-
-// formatPort 格式化端口（单端口或范围）
-func (r *ufw) formatPort(rule FireInfo) string {
-	if rule.PortStart == rule.PortEnd {
-		return strconv.FormatUint(uint64(rule.PortStart), 10)
-	}
-	return fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd)
 }
 
 // buildSimplePortCmd 构建简单语法命令: ufw allow 443/tcp
@@ -286,52 +400,14 @@ func (r *ufw) buildSimplePortCmd(rule FireInfo, protocol string) string {
 	return fmt.Sprintf("ufw %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
 }
 
-// buildPortCmd 构建扩展语法命令（带协议、方向）
-func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) string {
-	var sb strings.Builder
-
-	if operation == OperationRemove {
-		sb.WriteString("ufw delete ")
-	} else {
-		sb.WriteString("ufw ")
-	}
-
-	sb.WriteString(r.strategyToUFW(rule.Strategy))
-	sb.WriteString(" ")
-
+// buildDeletePortCmd 构建扩展语法的删除命令（带协议、方向）
+func (r *ufw) buildDeletePortCmd(rule FireInfo, protocol string) string {
+	direction := "in"
 	if strings.ToLower(string(rule.Direction)) == "out" {
-		sb.WriteString("out ")
-	} else {
-		sb.WriteString("in ")
+		direction = "out"
 	}
 
-	_, _ = fmt.Fprintf(&sb, "proto %s to any port %s", protocol, r.formatPort(rule))
-	return sb.String()
-}
-
-func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
-	// 出站规则下，必须指定具体的地址
-	if rule.Direction == "out" && rule.Address == "" {
-		return errors.New("outbound rules must specify an address")
-	}
-
-	if rule.Protocol == "" {
-		rule.Protocol = ProtocolTCPUDP
-	}
-
-	// 删除时额外尝试无协议命令（匹配 ufw allow 8888 这种原生合并规则）
-	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
-		_, _ = shell.Exec(ctx, r.buildRichCmd(rule, "", operation))
-	}
-
-	for _, protocol := range buildProtocols(rule.Protocol) {
-		_, err := shell.Exec(ctx, r.buildRichCmd(rule, protocol, operation))
-		if err != nil && operation != OperationRemove {
-			return err
-		}
-	}
-
-	return nil
+	return fmt.Sprintf("ufw delete %s %s proto %s to any port %s", r.strategyToUFW(rule.Strategy), direction, protocol, r.formatPort(rule))
 }
 
 // buildRichCmd 构建 ufw 富规则命令
@@ -375,6 +451,14 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 	return sb.String()
 }
 
+// formatPort 格式化端口（单端口或范围）
+func (r *ufw) formatPort(rule FireInfo) string {
+	if rule.PortStart == rule.PortEnd {
+		return strconv.FormatUint(uint64(rule.PortStart), 10)
+	}
+	return fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd)
+}
+
 // strategyToUFW 将内部策略映射到 ufw 命令关键字
 func (r *ufw) strategyToUFW(strategy Strategy) string {
 	switch strategy {
@@ -387,72 +471,8 @@ func (r *ufw) strategyToUFW(strategy Strategy) string {
 	}
 }
 
-const beforeRulesPath = "/etc/ufw/before.rules"
-
-const natMarker = "# acepanel-forward"
-
-func (r *ufw) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
-	content, err := os.ReadFile(beforeRulesPath)
-	if err != nil {
-		return nil, nil //nolint:nilerr
-	}
-
-	var data []FireForwardInfo
-	lines := strings.Split(string(content), "\n")
-	inNat := false
-
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "*nat" {
-			inNat = true
-			continue
-		}
-		if trimmed == "COMMIT" && inNat {
-			break
-		}
-		if !inNat {
-			continue
-		}
-
-		if r.natRegex.MatchString(trimmed) {
-			match := r.natRegex.FindStringSubmatch(trimmed)
-			if len(match) < 5 {
-				continue
-			}
-			data = append(data, FireForwardInfo{
-				Protocol:   Protocol(match[1]),
-				Port:       cast.ToUint(match[2]),
-				TargetIP:   match[3],
-				TargetPort: cast.ToUint(match[4]),
-			})
-		}
-	}
-
-	slices.SortFunc(data, func(a FireForwardInfo, b FireForwardInfo) int {
-		if a.Port != b.Port {
-			return cmp.Compare(a.Port, b.Port)
-		}
-		if a.TargetPort != b.TargetPort {
-			return cmp.Compare(a.TargetPort, b.TargetPort)
-		}
-		return strings.Compare(string(a.Protocol), string(b.Protocol))
-	})
-
-	return data, nil
-}
-
-func (r *ufw) Forward(ctx context.Context, rule Forward, operation Operation) error {
-	if operation == OperationAdd {
-		return r.addForward(ctx, rule)
-	}
-	return r.removeForward(ctx, rule)
-}
-
 func (r *ufw) addForward(ctx context.Context, rule Forward) error {
-	// 启用 IP 转发
-	_, _ = shell.Execf(ctx, "sysctl -w net.ipv4.ip_forward=1")
-	_, _ = shell.Execf(ctx, "sysctl -w net.ipv6.conf.all.forwarding=1")
-	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
+	enableIPForward(ctx)
 
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
@@ -496,54 +516,6 @@ func (r *ufw) addForward(ctx context.Context, rule Forward) error {
 	return err
 }
 
-func (r *ufw) removeForward(ctx context.Context, rule Forward) error {
-	content, err := os.ReadFile(beforeRulesPath)
-	if err != nil {
-		return nil //nolint:nilerr
-	}
-
-	lines := strings.Split(string(content), "\n")
-	var result []string
-
-	for _, protocol := range buildProtocols(rule.Protocol) {
-		dnatRule := fmt.Sprintf("-A PREROUTING -p %s --dport %d -j DNAT --to-destination %s:%d", protocol, rule.Port, rule.TargetIP, rule.TargetPort)
-		masqRule := fmt.Sprintf("-A POSTROUTING -d %s -p %s --dport %d -j MASQUERADE", rule.TargetIP, protocol, rule.TargetPort)
-
-		result = make([]string, 0, len(lines))
-		skipNextMarker := false
-		for i, line := range lines {
-			trimmed := strings.TrimSpace(line)
-			// 删除标记行（当下一行是要删除的规则时）
-			if trimmed == natMarker {
-				// 检查下一行是否是要删除的规则
-				if i+1 < len(lines) {
-					nextLine := strings.TrimSpace(lines[i+1])
-					if nextLine == dnatRule || nextLine == masqRule {
-						skipNextMarker = true
-						continue
-					}
-				}
-			}
-			if skipNextMarker {
-				skipNextMarker = false
-				continue
-			}
-			if trimmed == dnatRule || trimmed == masqRule {
-				continue
-			}
-			result = append(result, line)
-		}
-		lines = result
-	}
-
-	if err = os.WriteFile(beforeRulesPath, []byte(strings.Join(lines, "\n")), 0644); err != nil {
-		return err
-	}
-
-	_, err = shell.Execf(ctx, "ufw reload")
-	return err
-}
-
 // findNatCommit 找到 *nat 段中 COMMIT 的位置
 func (r *ufw) findNatCommit(text string) int {
 	natIdx := strings.Index(text, "*nat")
@@ -559,46 +531,51 @@ func (r *ufw) findNatCommit(text string) int {
 	return natIdx + commitIdx
 }
 
-func (r *ufw) PingStatus(ctx context.Context) (bool, error) {
+func (r *ufw) removeForward(ctx context.Context, rule Forward) error {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return true, nil //nolint:nilerr
+		return nil //nolint:nilerr
 	}
 
-	// 检查 icmp echo-request 规则
-	// 默认 before.rules 包含: -A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT
-	text := string(content)
-	if strings.Contains(text, "-p icmp --icmp-type echo-request -j DROP") {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func (r *ufw) UpdatePingStatus(ctx context.Context, status bool) error {
-	content, err := os.ReadFile(beforeRulesPath)
-	if err != nil {
-		return fmt.Errorf("failed to read %s: %w", beforeRulesPath, err)
-	}
-
-	text := string(content)
-
-	if status {
-		// 允许 Ping: 将 DROP 改回 ACCEPT
-		text = strings.ReplaceAll(text,
-			"-p icmp --icmp-type echo-request -j DROP",
-			"-p icmp --icmp-type echo-request -j ACCEPT")
-	} else {
-		// 禁止 Ping: 将 ACCEPT 改为 DROP
-		text = strings.ReplaceAll(text,
-			"-p icmp --icmp-type echo-request -j ACCEPT",
-			"-p icmp --icmp-type echo-request -j DROP")
-	}
-
-	if err = os.WriteFile(beforeRulesPath, []byte(text), 0644); err != nil {
+	lines := r.removeForwardLines(strings.Split(string(content), "\n"), rule)
+	if err = os.WriteFile(beforeRulesPath, []byte(strings.Join(lines, "\n")), 0644); err != nil {
 		return err
 	}
 
 	_, err = shell.Execf(ctx, "ufw reload")
 	return err
+}
+
+// removeForwardLines 从 before.rules 的各行中删掉一条转发的 DNAT、MASQUERADE 及标记行
+func (r *ufw) removeForwardLines(lines []string, rule Forward) []string {
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		dnatRule := fmt.Sprintf("-A PREROUTING -p %s --dport %d -j DNAT --to-destination %s:%d", protocol, rule.Port, rule.TargetIP, rule.TargetPort)
+		masqRule := fmt.Sprintf("-A POSTROUTING -d %s -p %s --dport %d -j MASQUERADE", rule.TargetIP, protocol, rule.TargetPort)
+
+		// MASQUERADE 只按目标区分，还有别的转发指向同一目标时要留着
+		dnatPrefix := fmt.Sprintf("-A PREROUTING -p %s --dport ", protocol)
+		dnatSuffix := fmt.Sprintf(" -j DNAT --to-destination %s:%d", rule.TargetIP, rule.TargetPort)
+		shared := slices.ContainsFunc(lines, func(line string) bool {
+			line = strings.TrimSpace(line)
+			return line != dnatRule && strings.HasPrefix(line, dnatPrefix) && strings.HasSuffix(line, dnatSuffix)
+		})
+		removed := func(line string) bool {
+			line = strings.TrimSpace(line)
+			return line == dnatRule || (line == masqRule && !shared)
+		}
+
+		result := make([]string, 0, len(lines))
+		for i, line := range lines {
+			// 标记行随它后面被删的规则一起删
+			if strings.TrimSpace(line) == natMarker && i+1 < len(lines) && removed(lines[i+1]) {
+				continue
+			}
+			if !removed(line) {
+				result = append(result, line)
+			}
+		}
+		lines = result
+	}
+
+	return lines
 }

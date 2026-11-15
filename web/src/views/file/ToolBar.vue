@@ -2,7 +2,6 @@
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { useFileStore, useTaskQueueStore, useUploadStore } from '@/stores'
@@ -30,7 +29,7 @@ const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
 const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
 const path = computed(() => tab.value.path)
 const marked = computed(() => fileStore.clipboard.marked)
-const selected = computed(() => tab.value.selected)
+const selected = computed(() => fileStore.selected[props.tabId] ?? [])
 
 // 终端弹窗
 const terminalModal = ref(false)

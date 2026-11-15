@@ -116,8 +116,8 @@ func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) erro
 	cron.Time = req.Time
 	cron.Name = req.Name
 
-	// 根据类型重新生成脚本
-	if req.Type != "shell" {
+	// 根据类型重新生成脚本，类型创建后不可改，以库里存的为准
+	if cron.Type != "shell" {
 		config := types.CronConfig{
 			Type:     req.SubType,
 			Flock:    req.Flock,
@@ -133,7 +133,7 @@ func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) erro
 			Retries:  req.Retries,
 		}
 		cron.Config = config
-		script := uc.repo.GenerateScript(req.Type, config, "")
+		script := uc.repo.GenerateScript(cron.Type, config, "")
 		if err = uc.repo.WriteScript(cron.Shell, script); err != nil {
 			return err
 		}

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useGettext } from 'vue3-gettext'
 
-import CronPreview from './CronPreview.vue'
+import type { CronType } from './cron'
+import { classifyCron } from './cron'
 
 const { $gettext } = useGettext()
 
@@ -12,7 +13,7 @@ const value = defineModel<string>('value', {
 })
 
 // 当前选择的周期类型
-const selectedOption = ref<string>('every-n-minutes')
+const selectedOption = ref<CronType>('every-n-minutes')
 
 // 表单数据
 const formData = ref({
@@ -36,143 +37,21 @@ const formData = ref({
 // 是否已初始化
 const initialized = ref(false)
 
+const STEP_FIELDS: Partial<Record<CronType, 'nSeconds' | 'nMinutes' | 'nHours' | 'nDays'>> = {
+  'every-n-seconds': 'nSeconds',
+  'every-n-minutes': 'nMinutes',
+  'every-n-hours': 'nHours',
+  'every-n-days': 'nDays',
+}
+
 // 解析 Cron 表达式，反向设置表单数据
 const parseCron = (cron: string) => {
-  if (!cron) return
-
-  // 特殊表达式
-  if (cron === '@reboot') {
-    selectedOption.value = 'reboot'
-    return
-  }
-
-  const parts = cron.split(' ')
-
-  // 6 字段表达式（秒级）
-  if (parts.length === 6) {
-    const second = parts[0]!
-    const rest = parts.slice(1)
-    // 后 5 个字段必须全是 *
-    if (rest.every((f) => f === '*')) {
-      if (second === '*') {
-        selectedOption.value = 'every-second'
-        return
-      }
-      if (second.startsWith('*/')) {
-        selectedOption.value = 'every-n-seconds'
-        formData.value.nSeconds = parseInt(second.slice(2)) || 5
-        return
-      }
-    }
-    // 无法匹配的 6 字段，降级到自定义
-    selectedOption.value = 'custom'
-    formData.value.customCron = cron
-    return
-  }
-
-  if (parts.length !== 5) {
-    // 无法解析，使用自定义模式
-    selectedOption.value = 'custom'
-    formData.value.customCron = cron
-    return
-  }
-
-  const minute = parts[0]!
-  const hour = parts[1]!
-  const day = parts[2]!
-  const month = parts[3]!
-  const weekday = parts[4]!
-
-  // 每分钟：* * * * *
-  if (minute === '*' && hour === '*' && day === '*' && month === '*' && weekday === '*') {
-    selectedOption.value = 'every-minute'
-    return
-  }
-
-  // 每 N 分钟：*/N * * * *
-  if (minute.startsWith('*/') && hour === '*' && day === '*' && month === '*' && weekday === '*') {
-    selectedOption.value = 'every-n-minutes'
-    formData.value.nMinutes = parseInt(minute.slice(2)) || 30
-    return
-  }
-
-  // 每 N 小时：M */N * * *
-  if (hour.startsWith('*/') && day === '*' && month === '*' && weekday === '*') {
-    selectedOption.value = 'every-n-hours'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.nHours = parseInt(hour.slice(2)) || 2
-    return
-  }
-
-  // 每 N 天：M H */N * *
-  if (day.startsWith('*/') && month === '*' && weekday === '*') {
-    selectedOption.value = 'every-n-days'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.hour = parseInt(hour) || 0
-    formData.value.nDays = parseInt(day.slice(2)) || 3
-    return
-  }
-
-  // 每小时：M * * * *（M 必须是具体数字，不能是 *）
-  if (
-    minute !== '*' &&
-    !minute.includes('/') &&
-    hour === '*' &&
-    day === '*' &&
-    month === '*' &&
-    weekday === '*'
-  ) {
-    selectedOption.value = 'every-hour'
-    formData.value.minute = parseInt(minute) || 0
-    return
-  }
-
-  // 每天：M H * * *（M 和 H 必须是具体数字）
-  if (
-    minute !== '*' &&
-    hour !== '*' &&
-    !hour.includes('/') &&
-    day === '*' &&
-    month === '*' &&
-    weekday === '*'
-  ) {
-    selectedOption.value = 'every-day'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.hour = parseInt(hour) || 0
-    return
-  }
-
-  // 每周：M H * * W
-  if (day === '*' && month === '*' && weekday !== '*') {
-    selectedOption.value = 'every-week'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.hour = parseInt(hour) || 0
-    formData.value.weekday = parseInt(weekday) || 0
-    return
-  }
-
-  // 每月：M H D * *
-  if (month === '*' && weekday === '*' && day !== '*' && !day.includes('/')) {
-    selectedOption.value = 'every-month'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.hour = parseInt(hour) || 0
-    formData.value.day = parseInt(day) || 1
-    return
-  }
-
-  // 每年：M H D Mon *
-  if (weekday === '*' && month !== '*' && day !== '*') {
-    selectedOption.value = 'every-year'
-    formData.value.minute = parseInt(minute) || 0
-    formData.value.hour = parseInt(hour) || 0
-    formData.value.day = parseInt(day) || 1
-    formData.value.month = parseInt(month) || 1
-    return
-  }
-
-  // 无法匹配，使用自定义模式
-  selectedOption.value = 'custom'
-  formData.value.customCron = cron
+  const { type, n, ...time } = classifyCron(cron)
+  selectedOption.value = type
+  Object.assign(formData.value, time)
+  if (type === 'custom') formData.value.customCron = cron
+  const stepField = STEP_FIELDS[type]
+  if (stepField && n) formData.value[stepField] = n
 }
 
 // 周期选项

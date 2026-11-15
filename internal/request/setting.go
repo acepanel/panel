@@ -9,7 +9,6 @@ type SettingPanel struct {
 	LoginCaptcha  bool     `json:"login_captcha"`                                // 登录验证码
 	OfflineMode   bool     `json:"offline_mode"`
 	AutoUpdate    bool     `json:"auto_update"`
-	TwoFA         bool     `json:"two_fa"`
 	Lifetime      uint     `json:"lifetime" validate:"required && min:10 && max:43200"` // 登录超时，单位：分
 	IPHeader      string   `json:"ip_header"`
 	BindDomain    []string `json:"bind_domain"`

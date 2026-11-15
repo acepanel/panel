@@ -3,6 +3,8 @@ package service
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/leonelquinteros/gotext"
 
@@ -12,14 +14,16 @@ import (
 )
 
 type SystemctlService struct {
-	t   *gotext.Locale
-	log *slog.Logger
+	t           *gotext.Locale
+	log         *slog.Logger
+	settingRepo *biz.SettingUsecase
 }
 
-func NewSystemctlService(t *gotext.Locale, log *slog.Logger) *SystemctlService {
+func NewSystemctlService(settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) *SystemctlService {
 	return &SystemctlService{
-		t:   t,
-		log: log,
+		t:           t,
+		log:         log,
+		settingRepo: settingUsecase,
 	}
 }
 
@@ -161,7 +165,8 @@ func (s *SystemctlService) Stop(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-// ClearLog 清空指定 systemd 服务的 journald 日志
+// ClearLog 清空服务的运行日志。journald 的日志不按服务分开存，删不掉单个服务的：--rotate 与 --vacuum-time
+// 带上 -u 清的也是整机的（252 上实测过）。所以只记下清空的时刻，读日志时不再返回早于它的
 func (s *SystemctlService) ClearLog(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.SystemctlService](r)
 	if err != nil {
@@ -169,7 +174,8 @@ func (s *SystemctlService) ClearLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.LogClear(r.Context(), req.Service); err != nil {
+	key := biz.SettingKeyServiceLogCleared + ":" + biz.SettingKey(req.Service)
+	if err = s.settingRepo.Set(key, strconv.FormatInt(time.Now().UnixMicro(), 10)); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to clear log for %s service: %v", req.Service, err))
 		return
 	}

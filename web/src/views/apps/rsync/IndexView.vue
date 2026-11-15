@@ -3,21 +3,18 @@ defineOptions({
   name: 'apps-rsync-index',
 })
 
-import { NButton, NDataTable, NFlex, NSwitch } from 'naive-ui'
+import { NButton, NFlex, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
-const saveConfigLoading = ref(false)
 const modelAddLoading = ref(false)
-const config = ref('')
 
 const addModuleModal = ref(false)
 const addModuleModel = ref({
@@ -116,39 +113,15 @@ const processColumns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => rsync.modules(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  rsync.modules(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
-
-const getConfig = async () => {
-  config.value = await rsync.config()
-}
-
-const handleSaveConfig = async () => {
-  saveConfigLoading.value = true
-  useRequest(rsync.saveConfig(config.value))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
-}
 
 const handleModelAdd = async () => {
   modelAddLoading.value = true
   useRequest(rsync.addModule(addModuleModel.value))
     .onSuccess(() => {
       refresh()
-      getConfig()
       addModuleModal.value = false
       addModuleModel.value = {
         name: '',
@@ -169,7 +142,6 @@ const handleModelAdd = async () => {
 const handleModelDelete = async (name: string) => {
   useRequest(rsync.deleteModule(name)).onSuccess(() => {
     refresh()
-    getConfig()
     window.$message.success($gettext('Deleted successfully'))
   })
 }
@@ -190,16 +162,10 @@ const handleSaveModuleConfig = async () => {
     () => {
       editModuleModal.value = false
       refresh()
-      getConfig()
       window.$message.success($gettext('Saved successfully'))
     },
   )
 }
-
-onMounted(() => {
-  refresh()
-  getConfig()
-})
 </script>
 
 <template>
@@ -230,26 +196,16 @@ onMounted(() => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="rsync.config"
+          :save="rsync.saveConfig"
+          :tip="
+            $gettext(
+              'This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+            )
+          "
+          @saved="refresh"
+        />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="rsyncd" />

@@ -8,11 +8,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 )
 
-const (
-	LogTypeApp  = "app"
-	LogTypeDB   = "db"
-	LogTypeHTTP = "http"
-)
+const LogTypeApp = "app"
 
 // 操作日志类型常量
 const (

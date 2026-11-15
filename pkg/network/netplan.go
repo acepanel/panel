@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -12,11 +13,6 @@ import (
 
 	"go.yaml.in/yaml/v4"
 )
-
-// netplanOverride 面板写入的配置片段，序号最大以覆盖系统默认配置
-const netplanOverride = "/etc/netplan/99-acepanel.yaml"
-
-var netplanGroups = []string{"ethernets", "wifis", "bonds", "bridges", "vlans"}
 
 type netplanBackend struct{}
 
@@ -56,14 +52,21 @@ func (b *netplanBackend) Load(ctx context.Context, items []Interface) error {
 		default:
 			items[i].IPv4 = b.family(matches[0].definition, true, items[i].CurrentIPv4.Addresses)
 			items[i].IPv6 = b.family(matches[0].definition, false, items[i].CurrentIPv6.Addresses)
-			items[i].ConfiguredMTU = valueInt(matches[0].definition["mtu"])
+			items[i].ConfiguredMTU = b.valueInt(matches[0].definition["mtu"])
 			items[i].Editable = true
 		}
 	}
 	return nil
 }
 
-func (b *netplanBackend) Apply(ctx context.Context, item Interface, config Config) (func(context.Context) error, error) {
+func (b *netplanBackend) Apply(
+	ctx context.Context,
+	item Interface,
+	config Config,
+) (func(context.Context) error, error) {
+	// netplanOverride 面板写入的配置片段，序号最大以覆盖系统默认配置
+	const netplanOverride = "/etc/netplan/99-acepanel.yaml"
+
 	document, err := b.get(ctx)
 	if err != nil {
 		return nil, err
@@ -75,6 +78,9 @@ func (b *netplanBackend) Apply(ctx context.Context, item Interface, config Confi
 
 	// 面板只写 99-acepanel.yaml，恢复该文件即可撤销本次变更
 	backup, readErr := os.ReadFile(netplanOverride)
+	if readErr != nil && !errors.Is(readErr, fs.ErrNotExist) {
+		return nil, readErr
+	}
 	rollback := func(ctx context.Context) error {
 		if readErr != nil {
 			// 变更前该文件不存在，删除即可还原
@@ -95,7 +101,13 @@ func (b *netplanBackend) Apply(ctx context.Context, item Interface, config Confi
 	if err != nil {
 		return nil, err
 	}
-	if _, err = run(ctx, "netplan", "set", "--origin-hint=99-acepanel", match.group+"="+strings.TrimSpace(string(data))); err != nil {
+	if _, err = run(
+		ctx,
+		"netplan",
+		"set",
+		"--origin-hint=99-acepanel",
+		match.group+"="+strings.TrimSpace(string(data)),
+	); err != nil {
 		return nil, err
 	}
 	_ = os.Chmod(netplanOverride, 0600)
@@ -115,20 +127,20 @@ func (b *netplanBackend) reload(ctx context.Context) error {
 
 // merge 把面板配置合并进 netplan 的接口定义，未建模的字段原样保留
 func (b *netplanBackend) merge(definition map[string]any, config Config) {
-	definition["dhcp4"] = config.IPv4.Mode == ModeAuto
-	definition["dhcp6"] = config.IPv6.Mode == ModeAuto
-	definition["accept-ra"] = config.IPv6.Mode == ModeAuto
+	definition["dhcp4"] = config.IPv4.Mode == modeAuto
+	definition["dhcp6"] = config.IPv6.Mode == modeAuto
+	definition["accept-ra"] = config.IPv6.Mode == modeAuto
 	definition["addresses"] = append(append([]string{}, config.IPv4.Addresses...), config.IPv6.Addresses...)
 	definition["routes"] = b.routes(definition["routes"], config)
 	// 旧式网关字段与 routes 冲突，netplan 已弃用
 	delete(definition, "gateway4")
 	delete(definition, "gateway6")
 
-	nameservers := valueMap(definition["nameservers"])
+	nameservers := b.valueMap(definition["nameservers"])
 	nameservers["addresses"] = append(append([]string{}, config.IPv4.DNS...), config.IPv6.DNS...)
 	definition["nameservers"] = nameservers
 	for suffix, family := range map[string]FamilyConfig{"4": config.IPv4, "6": config.IPv6} {
-		overrides := valueMap(definition["dhcp"+suffix+"-overrides"])
+		overrides := b.valueMap(definition["dhcp"+suffix+"-overrides"])
 		overrides["use-dns"] = family.AutoDNS
 		definition["dhcp"+suffix+"-overrides"] = overrides
 	}
@@ -153,16 +165,18 @@ func (b *netplanBackend) get(ctx context.Context) (map[string]any, error) {
 
 // find 按接口名、set-name、MAC 或匹配模式定位接口定义
 func (b *netplanBackend) find(config map[string]any, item Interface) []netplanMatch {
-	network := valueMap(config["network"])
+	groups := []string{"ethernets", "wifis", "bonds", "bridges", "vlans"}
+
+	network := b.valueMap(config["network"])
 	var result []netplanMatch
-	for _, group := range netplanGroups {
-		for id, raw := range valueMap(network[group]) {
-			definition := valueMap(raw)
-			match := valueMap(definition["match"])
-			mac := valueString(match["macaddress"])
-			matched := id == item.Name || valueString(definition["set-name"]) == item.Name ||
+	for _, group := range groups {
+		for id, raw := range b.valueMap(network[group]) {
+			definition := b.valueMap(raw)
+			match := b.valueMap(definition["match"])
+			mac := b.valueString(match["macaddress"])
+			matched := id == item.Name || b.valueString(definition["set-name"]) == item.Name ||
 				(mac != "" && strings.EqualFold(mac, item.MAC))
-			if pattern := valueString(match["name"]); !matched && pattern != "" {
+			if pattern := b.valueString(match["name"]); !matched && pattern != "" {
 				matched, _ = filepath.Match(pattern, item.Name)
 			}
 			if matched {
@@ -179,36 +193,39 @@ func (b *netplanBackend) family(definition map[string]any, ipv4 bool, current []
 		suffix = "4"
 	}
 	addresses := b.addresses(definition["addresses"], ipv4)
-	automatic := valueBool(definition["dhcp"+suffix])
+	automatic := b.valueBool(definition["dhcp"+suffix])
 	if !ipv4 {
-		automatic = automatic || valueBool(definition["accept-ra"])
+		automatic = automatic || b.valueBool(definition["accept-ra"])
 		// accept-ra 未显式配置时默认开启，此时有地址说明来自路由器通告
 		if _, configured := definition["accept-ra"]; !configured && len(addresses) == 0 && len(current) > 0 {
 			automatic = true
 		}
 	}
-	mode := ModeDisabled
+	mode := modeDisabled
 	switch {
 	case automatic:
-		mode = ModeAuto
+		mode = modeAuto
 	case len(addresses) > 0:
-		mode = ModeManual
+		mode = modeManual
 	}
 	autoDNS := true
-	if value, ok := valueMap(definition["dhcp"+suffix+"-overrides"])["use-dns"]; ok {
-		autoDNS = valueBool(value)
+	if value, ok := b.valueMap(definition["dhcp"+suffix+"-overrides"])["use-dns"]; ok {
+		autoDNS = b.valueBool(value)
 	}
 	return FamilyConfig{
-		Mode: mode, Addresses: addresses, Gateway: b.gateway(definition, ipv4),
-		AutoDNS: autoDNS, DNS: b.addresses(valueMap(definition["nameservers"])["addresses"], ipv4),
+		Mode:      mode,
+		Addresses: addresses,
+		Gateway:   b.gateway(definition, ipv4),
+		AutoDNS:   autoDNS,
+		DNS:       b.addresses(b.valueMap(definition["nameservers"])["addresses"], ipv4),
 	}
 }
 
 // routes 保留非默认路由，用配置中的网关重建默认路由
 func (b *netplanBackend) routes(raw any, config Config) []any {
 	result := make([]any, 0)
-	for _, current := range valueSlice(raw) {
-		if !isDefaultRoute(valueString(valueMap(current)["to"])) {
+	for _, current := range b.valueSlice(raw) {
+		if !b.isDefaultRoute(b.valueString(b.valueMap(current)["to"])) {
 			result = append(result, current)
 		}
 	}
@@ -225,14 +242,14 @@ func (b *netplanBackend) gateway(definition map[string]any, ipv4 bool) string {
 	if ipv4 {
 		key = "gateway4"
 	}
-	if gateway := valueString(definition[key]); gateway != "" {
+	if gateway := b.valueString(definition[key]); gateway != "" {
 		return gateway
 	}
-	for _, current := range valueSlice(definition["routes"]) {
-		route := valueMap(current)
-		gateway := valueString(route["via"])
+	for _, current := range b.valueSlice(definition["routes"]) {
+		route := b.valueMap(current)
+		gateway := b.valueString(route["via"])
 		address, err := netip.ParseAddr(gateway)
-		if isDefaultRoute(valueString(route["to"])) && err == nil && address.Is4() == ipv4 {
+		if b.isDefaultRoute(b.valueString(route["to"])) && err == nil && address.Is4() == ipv4 {
 			return gateway
 		}
 	}
@@ -241,7 +258,7 @@ func (b *netplanBackend) gateway(definition map[string]any, ipv4 bool) string {
 
 func (b *netplanBackend) addresses(raw any, ipv4 bool) []string {
 	result := make([]string, 0)
-	for _, current := range valueSlice(raw) {
+	for _, current := range b.valueSlice(raw) {
 		value := fmt.Sprint(current)
 		if prefix, err := netip.ParsePrefix(value); err == nil && prefix.Addr().Is4() == ipv4 {
 			result = append(result, value)
@@ -252,11 +269,11 @@ func (b *netplanBackend) addresses(raw any, ipv4 bool) []string {
 	return unique(result)
 }
 
-func isDefaultRoute(to string) bool {
+func (b *netplanBackend) isDefaultRoute(to string) bool {
 	return to == "default" || to == "0.0.0.0/0" || to == "::/0"
 }
 
-func valueMap(value any) map[string]any {
+func (b *netplanBackend) valueMap(value any) map[string]any {
 	result, _ := value.(map[string]any)
 	if result == nil {
 		result = make(map[string]any)
@@ -264,7 +281,7 @@ func valueMap(value any) map[string]any {
 	return result
 }
 
-func valueSlice(value any) []any {
+func (b *netplanBackend) valueSlice(value any) []any {
 	switch current := value.(type) {
 	case []any:
 		return current
@@ -279,17 +296,17 @@ func valueSlice(value any) []any {
 	}
 }
 
-func valueString(value any) string {
+func (b *netplanBackend) valueString(value any) string {
 	result, _ := value.(string)
 	return result
 }
 
-func valueBool(value any) bool {
+func (b *netplanBackend) valueBool(value any) bool {
 	result, _ := strconv.ParseBool(fmt.Sprint(value))
 	return result
 }
 
-func valueInt(value any) int {
+func (b *netplanBackend) valueInt(value any) int {
 	result, _ := strconv.Atoi(fmt.Sprint(value))
 	return result
 }

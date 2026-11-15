@@ -4,7 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -87,16 +87,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => container.volumeList(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  container.volumeList(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = async (row: any) => {
   useRequest(container.volumeRemove(row.name)).onSuccess(() => {
@@ -138,10 +131,6 @@ const handleCreate = () => {
       createModal.value = false
     })
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

@@ -1,4 +1,6 @@
-import { DateTime, Duration } from 'luxon'
+import { DateTime } from 'luxon'
+
+import { $gettext } from '@/utils/gettext'
 
 /** 格式化时间，默认格式：yyyy-MM-dd HH:mm:ss */
 export function formatDateTime(time: any, format = 'yyyy-MM-dd HH:mm:ss'): string {
@@ -6,20 +8,19 @@ export function formatDateTime(time: any, format = 'yyyy-MM-dd HH:mm:ss'): strin
   return dateTime.toFormat(format)
 }
 
-/** 格式化日期，默认格式：yyyy-MM-dd */
-export function formatDate(date: any, format = 'yyyy-MM-dd') {
-  return formatDateTime(date, format)
-}
-
-/** 格式化持续时间，转为 x天x小时x分钟x秒 */
+/** 格式化持续时间，为 0 的高位单位省略 */
 export function formatDuration(seconds: number) {
-  const duration = Duration.fromObject({ seconds }).shiftTo('days', 'hours', 'minutes', 'seconds')
-  const days = duration.days
-  const hours = duration.hours
-  const minutes = duration.minutes
-  const secs = duration.seconds
-
-  return `${days}天${hours}小时${minutes}分钟${secs}秒`
+  const d = Math.floor(seconds / 86400)
+  const h = Math.floor((seconds % 86400) / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  // 提取工具识别不到模板字符串里的 $gettext，所以用加号拼接
+  const parts: string[] = []
+  if (d > 0) parts.push(d + ' ' + $gettext('days'))
+  if (h > 0) parts.push(h + ' ' + $gettext('hours'))
+  if (m > 0) parts.push(m + ' ' + $gettext('min'))
+  parts.push(s + ' ' + $gettext('sec'))
+  return parts.join(' ')
 }
 
 /** 转时间戳 */

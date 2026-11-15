@@ -13,22 +13,15 @@ import (
 	"github.com/acepanel/panel/v3/pkg/geoip"
 )
 
-// resolveIPDBPath 根据设置返回 IPDB 文件路径
-func resolveIPDBPath(setting *biz.SettingUsecase) string {
-	ipdbType, _ := setting.Get(biz.SettingKeyIPDBType)
-	switch ipdbType {
-	case "subscribe":
-		return filepath.Join(app.Root, "panel/storage/geo.ipdb")
-	case "custom":
-		path, _ := setting.Get(biz.SettingKeyIPDBPath)
-		return path
-	default:
-		return ""
-	}
-}
-
 // refreshGeoIP 检查 IPDB 文件变化并热更新 GeoIP 实例
-func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath string, curModTime time.Time, t *gotext.Locale, log *slog.Logger) (*geoip.GeoIP, string, time.Time) {
+func refreshGeoIP(
+	setting *biz.SettingUsecase,
+	current *geoip.GeoIP,
+	curPath string,
+	curModTime time.Time,
+	t *gotext.Locale,
+	log *slog.Logger,
+) (*geoip.GeoIP, string, time.Time) {
 	path := resolveIPDBPath(setting)
 
 	// 禁用模式，释放内存
@@ -72,4 +65,18 @@ func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath str
 	}
 	log.Info(t.Get("ipdb loaded"), slog.String("path", path))
 	return g, path, modTime
+}
+
+// resolveIPDBPath 根据设置返回 IPDB 文件路径
+func resolveIPDBPath(setting *biz.SettingUsecase) string {
+	ipdbType, _ := setting.Get(biz.SettingKeyIPDBType)
+	switch ipdbType {
+	case "subscribe":
+		return filepath.Join(app.Root, "panel/storage/geo.ipdb")
+	case "custom":
+		path, _ := setting.Get(biz.SettingKeyIPDBPath)
+		return path
+	default:
+		return ""
+	}
 }

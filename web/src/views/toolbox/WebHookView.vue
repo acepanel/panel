@@ -5,33 +5,25 @@ import { useGettext } from 'vue3-gettext'
 
 import webhook from '@/api/panel/webhook'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 
-// 创建弹窗
-const createModal = ref(false)
-const createLoading = ref(false)
-const createModel = ref({
+const defaultModel = () => ({
   name: '',
   script: '#!/bin/bash\n\n',
   raw: false,
   user: 'root',
-})
-
-// 编辑弹窗
-const editModal = ref(false)
-const updateLoading = ref(false)
-const editModel = ref({
-  id: 0,
-  name: '',
-  script: '',
-  raw: false,
-  user: '',
   status: true,
 })
+
+// 创建与编辑共用一个弹窗，editId 为 0 表示创建
+const formModal = ref(false)
+const formLoading = ref(false)
+const editId = ref(0)
+const model = ref(defaultModel())
 
 const columns: any = [
   {
@@ -178,16 +170,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => webhook.list(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  webhook.list(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const switching = reactive(new Set<number>())
 
@@ -216,16 +201,22 @@ const handleCopyUrl = (row: any) => {
   })
 }
 
+const handleCreate = () => {
+  editId.value = 0
+  model.value = defaultModel()
+  formModal.value = true
+}
+
 const handleEdit = (row: any) => {
-  editModel.value = {
-    id: row.id,
+  editId.value = row.id
+  model.value = {
     name: row.name,
     script: row.script,
     raw: row.raw,
     user: row.user || 'root',
     status: row.status,
   }
-  editModal.value = true
+  formModal.value = true
 }
 
 const handleDelete = (id: number) => {
@@ -235,71 +226,38 @@ const handleDelete = (id: number) => {
   })
 }
 
-const handleCreate = () => {
-  if (!createModel.value.name) {
+const handleSubmit = () => {
+  const { name, script, raw, user, status } = model.value
+  if (!name) {
     window.$message.warning($gettext('Please enter a name'))
     return
   }
-  if (!createModel.value.script) {
+  if (!script) {
     window.$message.warning($gettext('Please enter a script'))
     return
   }
-  createLoading.value = true
-  useRequest(webhook.create(createModel.value))
+  formLoading.value = true
+  const req = editId.value
+    ? webhook.update(editId.value, { name, script, raw, user, status })
+    : webhook.create({ name, script, raw, user })
+  useRequest(req)
     .onSuccess(() => {
-      createModal.value = false
-      createModel.value = {
-        name: '',
-        script: '#!/bin/bash\n\n',
-        raw: false,
-        user: 'root',
-      }
-      window.$message.success($gettext('Created successfully'))
+      formModal.value = false
+      window.$message.success(
+        editId.value ? $gettext('Modified successfully') : $gettext('Created successfully'),
+      )
       refresh()
     })
     .onComplete(() => {
-      createLoading.value = false
+      formLoading.value = false
     })
 }
-
-const handleUpdate = () => {
-  if (!editModel.value.name) {
-    window.$message.warning($gettext('Please enter a name'))
-    return
-  }
-  if (!editModel.value.script) {
-    window.$message.warning($gettext('Please enter a script'))
-    return
-  }
-  updateLoading.value = true
-  useRequest(
-    webhook.update(editModel.value.id, {
-      name: editModel.value.name,
-      script: editModel.value.script,
-      raw: editModel.value.raw,
-      user: editModel.value.user,
-      status: editModel.value.status,
-    }),
-  )
-    .onSuccess(() => {
-      editModal.value = false
-      window.$message.success($gettext('Modified successfully'))
-      refresh()
-    })
-    .onComplete(() => {
-      updateLoading.value = false
-    })
-}
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>
   <n-flex vertical>
     <n-flex>
-      <n-button type="primary" @click="createModal = true">
+      <n-button type="primary" @click="handleCreate">
         {{ $gettext('Create WebHook') }}
       </n-button>
     </n-flex>
@@ -317,72 +275,41 @@ onMounted(() => {
     />
   </n-flex>
 
-  <!-- 创建弹窗 -->
-  <app-modal v-model:show="createModal" :title="$gettext('Create WebHook')">
-    <n-form :model="createModel">
+  <app-modal
+    v-model:show="formModal"
+    :title="editId ? $gettext('Edit WebHook') : $gettext('Create WebHook')"
+  >
+    <n-form :model="model">
       <n-form-item :label="$gettext('Name')">
-        <n-input v-model:value="createModel.name" :placeholder="$gettext('Enter WebHook name')" />
+        <n-input v-model:value="model.name" :placeholder="$gettext('Enter WebHook name')" />
       </n-form-item>
       <n-form-item :label="$gettext('User')">
         <n-input
-          v-model:value="createModel.user"
+          v-model:value="model.user"
           :placeholder="$gettext('User to run the script (default: root)')"
         />
       </n-form-item>
       <n-form-item :label="$gettext('Raw Output')">
-        <n-switch v-model:value="createModel.raw" />
+        <n-switch v-model:value="model.raw" />
         <span class="text-text-tertiary ml-2">
           {{ $gettext('Return script output as raw text instead of JSON') }}
         </span>
       </n-form-item>
+      <n-form-item v-if="editId" :label="$gettext('Enabled')">
+        <n-switch v-model:value="model.status" />
+      </n-form-item>
       <n-form-item :label="$gettext('Script')">
-        <common-editor v-model:value="createModel.script" lang="shell" height="40vh" />
+        <common-editor v-model:value="model.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
     <n-button
       type="info"
-      :loading="createLoading"
-      :disabled="createLoading"
-      @click="handleCreate"
+      :loading="formLoading"
+      :disabled="formLoading"
+      @click="handleSubmit"
       block
     >
-      {{ $gettext('Create') }}
-    </n-button>
-  </app-modal>
-
-  <!-- 编辑弹窗 -->
-  <app-modal v-model:show="editModal" :title="$gettext('Edit WebHook')">
-    <n-form :model="editModel">
-      <n-form-item :label="$gettext('Name')">
-        <n-input v-model:value="editModel.name" :placeholder="$gettext('Enter WebHook name')" />
-      </n-form-item>
-      <n-form-item :label="$gettext('User')">
-        <n-input
-          v-model:value="editModel.user"
-          :placeholder="$gettext('User to run the script (default: root)')"
-        />
-      </n-form-item>
-      <n-form-item :label="$gettext('Raw Output')">
-        <n-switch v-model:value="editModel.raw" />
-        <span class="text-text-tertiary ml-2">
-          {{ $gettext('Return script output as raw text instead of JSON') }}
-        </span>
-      </n-form-item>
-      <n-form-item :label="$gettext('Enabled')">
-        <n-switch v-model:value="editModel.status" />
-      </n-form-item>
-      <n-form-item :label="$gettext('Script')">
-        <common-editor v-model:value="editModel.script" lang="shell" height="40vh" />
-      </n-form-item>
-    </n-form>
-    <n-button
-      type="info"
-      :loading="updateLoading"
-      :disabled="updateLoading"
-      @click="handleUpdate"
-      block
-    >
-      {{ $gettext('Save') }}
+      {{ editId ? $gettext('Save') : $gettext('Create') }}
     </n-button>
   </app-modal>
 </template>

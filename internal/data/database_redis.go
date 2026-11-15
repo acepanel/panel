@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
@@ -17,14 +16,12 @@ import (
 type databaseRedisRepo struct {
 	t   *gotext.Locale
 	orm *gorm.DB
-	log *slog.Logger
 }
 
-func NewDatabaseRedisRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.DatabaseRedisRepo {
+func NewDatabaseRedisRepo(db *gorm.DB, t *gotext.Locale) biz.DatabaseRedisRepo {
 	return &databaseRedisRepo{
 		t:   t,
 		orm: db,
-		log: log,
 	}
 }
 

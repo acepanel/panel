@@ -23,8 +23,121 @@ import (
 
 var quotedRe = regexp.MustCompile(`"((?:[^"\\]|\\.)*)"`)
 
+// DomainDNS 返回域名需要发布的 DNS 记录及其当前解析状态
+func (s *App) DomainDNS(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[DomainID](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	c, err := s.adminClient()
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	domain, err := getOne[swDomain](r.Context(), c, "Domain", req.ID)
+	if err != nil {
+		service.Error(w, http.StatusNotFound, "%v", err)
+		return
+	}
+	records := checkRecords(r.Context(), parseZoneFile(domain.DNSZoneFile))
+	zone, err := publicsuffix.EffectiveTLDPlusOne(domain.Name)
+	if err != nil {
+		zone = domain.Name
+	}
+
+	s.log.Info(s.t.Get("mail domain dns viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("domain", domain.Name))
+	service.Success(w, DNSResult{Zone: zone, Records: records})
+}
+
+// DomainDNSPublish 用面板已配置的 DNS 账号把选中的记录写进解析商
+func (s *App) DomainDNSPublish(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[DomainDNSPublish](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	c, err := s.adminClient()
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	domain, err := getOne[swDomain](r.Context(), c, "Domain", req.ID)
+	if err != nil {
+		service.Error(w, http.StatusNotFound, "%v", err)
+		return
+	}
+	dns, err := s.certDNSRepo.Get(req.DNSID)
+	if err != nil {
+		service.Error(w, http.StatusNotFound, "%v", err)
+		return
+	}
+	provider, err := acme.NewDNSProvider(dns.Type, dns.Data)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	zone, err := publicsuffix.EffectiveTLDPlusOne(domain.Name)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	var recs []libdns.Record
+	for _, rec := range parseZoneFile(domain.DNSZoneFile) {
+		if !slices.Contains(req.Records, rec.ID) {
+			continue
+		}
+		name := libdns.RelativeName(rec.Name+".", zone+".")
+		switch rec.Type {
+		case "TXT":
+			recs = append(recs, libdns.TXT{Name: name, Text: rec.Value})
+		case "MX":
+			recs = append(recs, libdns.MX{Name: name, Preference: rec.priority, Target: rec.target})
+		case "CNAME":
+			recs = append(recs, libdns.CNAME{Name: name, Target: rec.target})
+		case "SRV":
+			// _imaps._tcp.example.com 拆成 service、transport 与所属名
+			parts := strings.SplitN(name, ".", 3)
+			if len(parts) < 2 {
+				continue
+			}
+			owner := "@"
+			if len(parts) == 3 {
+				owner = parts[2]
+			}
+			recs = append(recs, libdns.SRV{
+				Service:   strings.TrimPrefix(parts[0], "_"),
+				Transport: strings.TrimPrefix(parts[1], "_"),
+				Name:      owner,
+				Priority:  rec.priority,
+				Weight:    rec.weight,
+				Port:      rec.port,
+				Target:    rec.target,
+			})
+		}
+	}
+	if len(recs) == 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("no records selected"))
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
+	defer cancel()
+	created, err := provider.AppendRecords(ctx, zone+".", recs)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("mail domain dns records published"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("domain", domain.Name), slog.String("zone", zone), slog.Uint64("dns_id", uint64(req.DNSID)), slog.Any("records", req.Records), slog.Int("published", len(created)))
+	service.Success(w, map[string]int{"published": len(created)})
+}
+
 // parseZoneFile 解析 Stalwart 生成的 BIND 区域文本，括号包裹的多行 TXT 会先并成一行
-func parseZoneFile(zone string, domain string) []DNSRecord {
+func parseZoneFile(zone string) []DNSRecord {
 	var logical []string
 	var buf strings.Builder
 	depth := 0
@@ -94,7 +207,6 @@ func parseZoneFile(zone string, domain string) []DNSRecord {
 		}
 		seen[typ+":"+name]++
 		rec.ID = id
-		_ = domain
 		records = append(records, rec)
 	}
 	return records
@@ -125,7 +237,11 @@ func lookupRecord(ctx context.Context, resolver *net.Resolver, rec DNSRecord) (s
 			return lookupStatus(err), ""
 		}
 		want := strings.ReplaceAll(rec.Value, " ", "")
-		prefix, _, _ := strings.Cut(strings.ToLower(rec.Value), ";")
+		// 同类记录看开头的版本标记（v=spf1、v=DKIM1 等），SPF 里没有分号，按空格也要断开
+		prefix := strings.ToLower(rec.Value)
+		if i := strings.IndexAny(prefix, "; "); i >= 0 {
+			prefix = prefix[:i]
+		}
 		var similar []string
 		for _, v := range values {
 			if strings.ReplaceAll(v, " ", "") == want {
@@ -194,117 +310,4 @@ func lookupStatus(err error) string {
 		return "missing"
 	}
 	return "unknown"
-}
-
-// DomainDNS 返回域名需要发布的 DNS 记录及其当前解析状态
-func (s *App) DomainDNS(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[DomainID](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	c, err := s.adminClient()
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	domain, err := getOne[swDomain](r.Context(), c, "Domain", req.ID)
-	if err != nil {
-		service.Error(w, http.StatusNotFound, "%v", err)
-		return
-	}
-	records := checkRecords(r.Context(), parseZoneFile(domain.DNSZoneFile, domain.Name))
-	zone, err := publicsuffix.EffectiveTLDPlusOne(domain.Name)
-	if err != nil {
-		zone = domain.Name
-	}
-
-	s.log.Info(s.t.Get("mail domain dns viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("domain", domain.Name))
-	service.Success(w, DNSResult{Zone: zone, Records: records})
-}
-
-// DomainDNSPublish 用面板已配置的 DNS 账号把选中的记录写进解析商
-func (s *App) DomainDNSPublish(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[DomainDNSPublish](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	c, err := s.adminClient()
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	domain, err := getOne[swDomain](r.Context(), c, "Domain", req.ID)
-	if err != nil {
-		service.Error(w, http.StatusNotFound, "%v", err)
-		return
-	}
-	dns, err := s.certDNSRepo.Get(req.DNSID)
-	if err != nil {
-		service.Error(w, http.StatusNotFound, "%v", err)
-		return
-	}
-	provider, err := acme.NewDNSProvider(dns.Type, dns.Data)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	zone, err := publicsuffix.EffectiveTLDPlusOne(domain.Name)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	var recs []libdns.Record
-	for _, rec := range parseZoneFile(domain.DNSZoneFile, domain.Name) {
-		if !slices.Contains(req.Records, rec.ID) {
-			continue
-		}
-		name := libdns.RelativeName(rec.Name+".", zone+".")
-		switch rec.Type {
-		case "TXT":
-			recs = append(recs, libdns.TXT{Name: name, Text: rec.Value})
-		case "MX":
-			recs = append(recs, libdns.MX{Name: name, Preference: rec.priority, Target: rec.target})
-		case "CNAME":
-			recs = append(recs, libdns.CNAME{Name: name, Target: rec.target})
-		case "SRV":
-			// _imaps._tcp.example.com 拆成 service、transport 与所属名
-			parts := strings.SplitN(name, ".", 3)
-			if len(parts) < 2 {
-				continue
-			}
-			owner := "@"
-			if len(parts) == 3 {
-				owner = parts[2]
-			}
-			recs = append(recs, libdns.SRV{
-				Service:   strings.TrimPrefix(parts[0], "_"),
-				Transport: strings.TrimPrefix(parts[1], "_"),
-				Name:      owner,
-				Priority:  rec.priority,
-				Weight:    rec.weight,
-				Port:      rec.port,
-				Target:    rec.target,
-			})
-		}
-	}
-	if len(recs) == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("no records selected"))
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
-	defer cancel()
-	created, err := provider.AppendRecords(ctx, zone+".", recs)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("mail domain dns records published"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("domain", domain.Name), slog.String("zone", zone), slog.Uint64("dns_id", uint64(req.DNSID)), slog.Any("records", req.Records), slog.Int("published", len(created)))
-	service.Success(w, map[string]int{"published": len(created)})
 }

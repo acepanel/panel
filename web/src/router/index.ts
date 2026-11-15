@@ -5,7 +5,7 @@ import { usePermissionStore } from '@/stores'
 import type { RoutesType, RouteType } from '@/types/router'
 
 import { setupRouterGuard } from './guard'
-import { basicRoutes, EMPTY_ROUTE, NOT_FOUND_ROUTE } from './routes'
+import { basicRoutes, NOT_FOUND_ROUTE } from './routes'
 
 const isHash = import.meta.env.VITE_USE_HASH === 'true'
 export const router = createRouter({
@@ -29,7 +29,6 @@ export async function addDynamicRoutes() {
     accessRoutes.forEach((route: RouteType) => {
       if (!router.hasRoute(route.name)) router.addRoute(route)
     })
-    if (router.hasRoute(EMPTY_ROUTE.name)) router.removeRoute(EMPTY_ROUTE.name)
     router.addRoute(NOT_FOUND_ROUTE)
   } catch (error) {
     console.error(error)

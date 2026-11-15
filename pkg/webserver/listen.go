@@ -15,8 +15,9 @@ func WithIPv6Listens(listens []types.Listen) []types.Listen {
 	ipv6 := lo.FilterMap(listens, func(listen types.Listen, _ int) (types.Listen, bool) {
 		port := listen.Address
 		if strings.Contains(listen.Address, ":") {
-			_, parsedPort, err := net.SplitHostPort(listen.Address)
-			if err != nil {
+			host, parsedPort, err := net.SplitHostPort(listen.Address)
+			// 写了具体地址的是有意只听那个地址，补 [::] 会把它放开到全部 IPv6 地址
+			if err != nil || (host != "0.0.0.0" && host != "*") {
 				return types.Listen{}, false
 			}
 			port = parsedPort

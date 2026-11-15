@@ -10,7 +10,12 @@ import (
 )
 
 // Input 单行输入，secret 时以星号回显，内容超出宽度时只显示尾部，校验失败在下一行提示
-func (p *prompt) Input(ctx context.Context, label, meta, placeholder string, secret bool, validate func(string) error) (string, error) {
+func (p *prompt) Input(
+	ctx context.Context,
+	label, meta, placeholder string,
+	secret bool,
+	validate func(string) error,
+) (string, error) {
 	restore, err := p.raw()
 	if err != nil {
 		return "", err
@@ -48,10 +53,10 @@ func (p *prompt) Input(ctx context.Context, label, meta, placeholder string, sec
 			return value, nil
 		case keyEsc:
 			fmt.Print("\r\x1b[J")
-			return "", ErrBack
+			return "", errBack
 		case keyAbort:
 			fmt.Print("\r\x1b[J")
-			return "", ErrAbort
+			return "", errAbort
 		default:
 		}
 	}

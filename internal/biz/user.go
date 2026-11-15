@@ -23,6 +23,8 @@ type User struct {
 type UserRepo interface {
 	List(page, limit uint) ([]*User, int64, error)
 	Get(id uint) (*User, error)
+	GetByUsername(username string) (*User, error)
+	First() (*User, error)
 	Count() (int64, error)
 	Create(username, password, email string) (*User, error)
 	UpdateUsername(id uint, username string) error
@@ -62,6 +64,15 @@ func (uc *UserUsecase) List(ctx context.Context, page, limit uint) ([]*User, int
 
 func (uc *UserUsecase) Get(id uint) (*User, error) {
 	return uc.repo.Get(id)
+}
+
+func (uc *UserUsecase) GetByUsername(username string) (*User, error) {
+	return uc.repo.GetByUsername(username)
+}
+
+// First 取 ID 最小的用户，没有登录态的面板级操作用它代表管理员
+func (uc *UserUsecase) First() (*User, error) {
+	return uc.repo.First()
 }
 
 func (uc *UserUsecase) Create(ctx context.Context, username, password, email string) (*User, error) {

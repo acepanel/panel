@@ -5,13 +5,12 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
-// MustInstall 确保已安装应用
-func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http.Handler {
+// mustInstall 确保已安装应用
+func mustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var slugs []string
@@ -21,21 +20,16 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 			case strings.HasPrefix(r.URL.Path, "/api/container"):
 				slugs = append(slugs, "podman", "docker")
 			case strings.HasPrefix(r.URL.Path, "/api/apps/"):
-				pathArr := strings.Split(r.URL.Path, "/")
-				if len(pathArr) < 4 {
-					Abort(w, http.StatusForbidden, t.Get("app not found"))
-					return
+				if slug := strings.Split(r.URL.Path, "/")[3]; slug != "" {
+					slugs = append(slugs, slug)
 				}
-				slugs = append(slugs, pathArr[3])
 			}
 
-			flag := lo.SomeBy(slugs, func(s string) bool {
-				installed, _ := app.IsInstalled("slug = ?", s)
-				return installed
-			})
-			if !flag && len(slugs) > 0 {
-				Abort(w, http.StatusForbidden, t.Get("app %s not installed", slugs))
-				return
+			if len(slugs) > 0 {
+				if installed, _ := app.IsInstalled("slug IN ?", slugs); !installed {
+					abort(w, http.StatusForbidden, t.Get("app %s not installed", slugs))
+					return
+				}
 			}
 
 			next.ServeHTTP(w, r)

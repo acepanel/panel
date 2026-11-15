@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
@@ -17,14 +16,12 @@ import (
 type databaseElasticsearchRepo struct {
 	t   *gotext.Locale
 	orm *gorm.DB
-	log *slog.Logger
 }
 
-func NewDatabaseElasticsearchRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.DatabaseElasticsearchRepo {
+func NewDatabaseElasticsearchRepo(db *gorm.DB, t *gotext.Locale) biz.DatabaseElasticsearchRepo {
 	return &databaseElasticsearchRepo{
 		t:   t,
 		orm: db,
-		log: log,
 	}
 }
 
@@ -58,7 +55,10 @@ func (r *databaseElasticsearchRepo) IndexDelete(ctx context.Context, req *reques
 	return client.IndexDelete(ctx, req.Name)
 }
 
-func (r *databaseElasticsearchRepo) Data(ctx context.Context, req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
+func (r *databaseElasticsearchRepo) Data(
+	ctx context.Context,
+	req *request.DatabaseESData,
+) ([]db.ESDocument, int64, error) {
 	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return nil, 0, err
@@ -68,7 +68,10 @@ func (r *databaseElasticsearchRepo) Data(ctx context.Context, req *request.Datab
 	return client.Search(ctx, req.Index, req.Search, int(req.Page), int(req.Limit))
 }
 
-func (r *databaseElasticsearchRepo) DocumentGet(ctx context.Context, req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
+func (r *databaseElasticsearchRepo) DocumentGet(
+	ctx context.Context,
+	req *request.DatabaseESDocumentGet,
+) (*db.ESDocument, error) {
 	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return nil, err

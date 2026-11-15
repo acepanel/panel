@@ -54,9 +54,6 @@ var _ biz.WebsiteStatRepo = &WebsiteStatRepo{}
 //			InsertErrorsFunc: func(errors []*biz.WebsiteErrorLog) error {
 //				panic("mock out the InsertErrors method")
 //			},
-//			ListByDateRangeFunc: func(start string, end string, sites []string) ([]*biz.WebsiteStat, error) {
-//				panic("mock out the ListByDateRange method")
-//			},
 //			ListErrorsFunc: func(start string, end string, sites []string, status int, page uint, limit uint) ([]*biz.WebsiteErrorLog, uint, error) {
 //				panic("mock out the ListErrors method")
 //			},
@@ -138,9 +135,6 @@ type WebsiteStatRepo struct {
 
 	// InsertErrorsFunc mocks the InsertErrors method.
 	InsertErrorsFunc func(errors []*biz.WebsiteErrorLog) error
-
-	// ListByDateRangeFunc mocks the ListByDateRange method.
-	ListByDateRangeFunc func(start string, end string, sites []string) ([]*biz.WebsiteStat, error)
 
 	// ListErrorsFunc mocks the ListErrors method.
 	ListErrorsFunc func(start string, end string, sites []string, status int, page uint, limit uint) ([]*biz.WebsiteErrorLog, uint, error)
@@ -244,15 +238,6 @@ type WebsiteStatRepo struct {
 		InsertErrors []struct {
 			// Errors is the errors argument value.
 			Errors []*biz.WebsiteErrorLog
-		}
-		// ListByDateRange holds details about calls to the ListByDateRange method.
-		ListByDateRange []struct {
-			// Start is the start argument value.
-			Start string
-			// End is the end argument value.
-			End string
-			// Sites is the sites argument value.
-			Sites []string
 		}
 		// ListErrors holds details about calls to the ListErrors method.
 		ListErrors []struct {
@@ -396,7 +381,6 @@ type WebsiteStatRepo struct {
 	lockDeleteBySite       sync.RWMutex
 	lockHourlySeries       sync.RWMutex
 	lockInsertErrors       sync.RWMutex
-	lockListByDateRange    sync.RWMutex
 	lockListErrors         sync.RWMutex
 	lockListSiteStats      sync.RWMutex
 	lockTopClients         sync.RWMutex
@@ -769,46 +753,6 @@ func (mock *WebsiteStatRepo) InsertErrorsCalls() []struct {
 	mock.lockInsertErrors.RLock()
 	calls = mock.calls.InsertErrors
 	mock.lockInsertErrors.RUnlock()
-	return calls
-}
-
-// ListByDateRange calls ListByDateRangeFunc.
-func (mock *WebsiteStatRepo) ListByDateRange(start string, end string, sites []string) ([]*biz.WebsiteStat, error) {
-	if mock.ListByDateRangeFunc == nil {
-		panic("WebsiteStatRepo.ListByDateRangeFunc: method is nil but WebsiteStatRepo.ListByDateRange was just called")
-	}
-	callInfo := struct {
-		Start string
-		End   string
-		Sites []string
-	}{
-		Start: start,
-		End:   end,
-		Sites: sites,
-	}
-	mock.lockListByDateRange.Lock()
-	mock.calls.ListByDateRange = append(mock.calls.ListByDateRange, callInfo)
-	mock.lockListByDateRange.Unlock()
-	return mock.ListByDateRangeFunc(start, end, sites)
-}
-
-// ListByDateRangeCalls gets all the calls that were made to ListByDateRange.
-// Check the length with:
-//
-//	len(mockedWebsiteStatRepo.ListByDateRangeCalls())
-func (mock *WebsiteStatRepo) ListByDateRangeCalls() []struct {
-	Start string
-	End   string
-	Sites []string
-} {
-	var calls []struct {
-		Start string
-		End   string
-		Sites []string
-	}
-	mock.lockListByDateRange.RLock()
-	calls = mock.calls.ListByDateRange
-	mock.lockListByDateRange.RUnlock()
 	return calls
 }
 

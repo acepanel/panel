@@ -44,5 +44,5 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "codeserver", configPath, 0600, "code-server")
+	common.SaveConfig(w, r, s.log, s.t, "codeserver", configPath, 0600, common.Restart("code-server"))
 }

@@ -30,22 +30,6 @@ export function getLocal<T>(key: string) {
   return null
 }
 
-export function getLocalExpire(key: string): number | null {
-  const json = window.localStorage.getItem(key)
-  if (json) {
-    const storageData = JSON.parse(json)
-    if (storageData) {
-      return storageData.expire
-    }
-    return null
-  }
-  return null
-}
-
 export function removeLocal(key: string) {
   window.localStorage.removeItem(key)
-}
-
-export function clearLocal() {
-  window.localStorage.clear()
 }

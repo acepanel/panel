@@ -6,7 +6,6 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import toolboxSSH from '@/api/panel/toolbox-ssh'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { generateRandomString } from '@/utils'
 

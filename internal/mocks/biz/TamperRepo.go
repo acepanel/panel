@@ -39,9 +39,6 @@ var _ biz.TamperRepo = &TamperRepo{}
 //			GetRuleFunc: func(id uint) (*biz.TamperRule, error) {
 //				panic("mock out the GetRule method")
 //			},
-//			GetRuleByNameFunc: func(name string) (*biz.TamperRule, error) {
-//				panic("mock out the GetRuleByName method")
-//			},
 //			ListLogsFunc: func(page uint, limit uint) ([]*biz.TamperLog, int64, error) {
 //				panic("mock out the ListLogs method")
 //			},
@@ -78,9 +75,6 @@ type TamperRepo struct {
 
 	// GetRuleFunc mocks the GetRule method.
 	GetRuleFunc func(id uint) (*biz.TamperRule, error)
-
-	// GetRuleByNameFunc mocks the GetRuleByName method.
-	GetRuleByNameFunc func(name string) (*biz.TamperRule, error)
 
 	// ListLogsFunc mocks the ListLogs method.
 	ListLogsFunc func(page uint, limit uint) ([]*biz.TamperLog, int64, error)
@@ -124,11 +118,6 @@ type TamperRepo struct {
 			// ID is the id argument value.
 			ID uint
 		}
-		// GetRuleByName holds details about calls to the GetRuleByName method.
-		GetRuleByName []struct {
-			// Name is the name argument value.
-			Name string
-		}
 		// ListLogs holds details about calls to the ListLogs method.
 		ListLogs []struct {
 			// Page is the page argument value.
@@ -154,7 +143,6 @@ type TamperRepo struct {
 	lockCreateRule      sync.RWMutex
 	lockDeleteRule      sync.RWMutex
 	lockGetRule         sync.RWMutex
-	lockGetRuleByName   sync.RWMutex
 	lockListLogs        sync.RWMutex
 	lockListRules       sync.RWMutex
 	lockUpdateRule      sync.RWMutex
@@ -345,38 +333,6 @@ func (mock *TamperRepo) GetRuleCalls() []struct {
 	mock.lockGetRule.RLock()
 	calls = mock.calls.GetRule
 	mock.lockGetRule.RUnlock()
-	return calls
-}
-
-// GetRuleByName calls GetRuleByNameFunc.
-func (mock *TamperRepo) GetRuleByName(name string) (*biz.TamperRule, error) {
-	if mock.GetRuleByNameFunc == nil {
-		panic("TamperRepo.GetRuleByNameFunc: method is nil but TamperRepo.GetRuleByName was just called")
-	}
-	callInfo := struct {
-		Name string
-	}{
-		Name: name,
-	}
-	mock.lockGetRuleByName.Lock()
-	mock.calls.GetRuleByName = append(mock.calls.GetRuleByName, callInfo)
-	mock.lockGetRuleByName.Unlock()
-	return mock.GetRuleByNameFunc(name)
-}
-
-// GetRuleByNameCalls gets all the calls that were made to GetRuleByName.
-// Check the length with:
-//
-//	len(mockedTamperRepo.GetRuleByNameCalls())
-func (mock *TamperRepo) GetRuleByNameCalls() []struct {
-	Name string
-} {
-	var calls []struct {
-		Name string
-	}
-	mock.lockGetRuleByName.RLock()
-	calls = mock.calls.GetRuleByName
-	mock.lockGetRuleByName.RUnlock()
 	return calls
 }
 

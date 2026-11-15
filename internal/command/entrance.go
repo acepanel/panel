@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -19,24 +17,18 @@ func EntranceCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 				Name:      "on",
 				Usage:     t.Get("Enable access entrance"),
 				Arguments: []cli.Argument{optArg("entrance", t.Get("Entrance, e.g. /mypanel, random if omitted"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.EntranceOn(ctx, cmd)
-				},
+				Action:    cliService.EntranceOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable access entrance"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.EntranceOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable access entrance"),
+				Action: cliService.EntranceOff,
 			},
 			{
 				Name:      "error",
 				Usage:     t.Get("Set the error page for wrong entrance"),
 				Arguments: []cli.Argument{arg("type", t.Get("Error page type (418, nginx, close)"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.EntranceError(ctx, cmd)
-				},
+				Action:    cliService.EntranceError,
 			},
 		},
 	}
@@ -52,16 +44,12 @@ func BindDomainCommand(t *gotext.Locale, cliService *service.CliService) *cli.Co
 				Name:      "on",
 				Usage:     t.Get("Enable domain binding"),
 				Arguments: []cli.Argument{multiArg("domain", t.Get("Domain"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindDomainOn(ctx, cmd)
-				},
+				Action:    cliService.BindDomainOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable domain binding"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindDomainOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable domain binding"),
+				Action: cliService.BindDomainOff,
 			},
 		},
 	}
@@ -77,16 +65,12 @@ func BindIPCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 				Name:      "on",
 				Usage:     t.Get("Enable IP binding"),
 				Arguments: []cli.Argument{multiArg("ip", t.Get("IP"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindIPOn(ctx, cmd)
-				},
+				Action:    cliService.BindIPOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable IP binding"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindIPOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable IP binding"),
+				Action: cliService.BindIPOff,
 			},
 		},
 	}
@@ -102,16 +86,12 @@ func BindUACommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 				Name:      "on",
 				Usage:     t.Get("Enable UA binding"),
 				Arguments: []cli.Argument{multiArg("user-agent", t.Get("User-Agent"))},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindUAOn(ctx, cmd)
-				},
+				Action:    cliService.BindUAOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable UA binding"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BindUAOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable UA binding"),
+				Action: cliService.BindUAOff,
 			},
 		},
 	}

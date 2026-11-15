@@ -7,23 +7,14 @@ import { NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import openlitespeed from '@/api/apps/openlitespeed'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
 const { $gettext } = useGettext()
 const formLayout = useFormLayout(140)
 const currentTab = ref('status')
-const saveConfigLoading = ref(false)
-const clearErrorLogLoading = ref(false)
 
-const { data: config } = useRequest(openlitespeed.config, {
-  initialData: '',
-})
 const { data: errorLog } = useRequest(openlitespeed.errorLog, {
   initialData: '',
-})
-const { data: load } = useRequest(openlitespeed.load, {
-  initialData: [],
 })
 const { data: phpList, send: fetchPHP } = useRequest(openlitespeed.php, {
   initialData: [],
@@ -54,21 +45,6 @@ const handleSaveRealIP = () => {
       realIPLoading.value = false
     })
 }
-
-const columns: any = [
-  {
-    title: $gettext('Property'),
-    key: 'name',
-    minWidth: 200,
-    resizable: true,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Current Value'),
-    key: 'value',
-    ellipsis: { tooltip: true },
-  },
-]
 
 const phpColumns: any = [
   {
@@ -126,31 +102,6 @@ const handleSetPHP = (version: number, lsapi: boolean) => {
     })
     .onComplete(() => switching.delete(version))
 }
-
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(openlitespeed.saveConfig(config.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
-}
-
-const errorLogRef = ref<{ clear: () => void } | null>(null)
-
-const handleClearErrorLog = () => {
-  clearErrorLogLoading.value = true
-  useRequest(openlitespeed.clearErrorLog())
-    .onSuccess(() => {
-      errorLogRef.value?.clear()
-      window.$message.success($gettext('Cleared successfully'))
-    })
-    .onComplete(() => {
-      clearErrorLogLoading.value = false
-    })
-}
 </script>
 
 <template>
@@ -160,27 +111,17 @@ const handleClearErrorLog = () => {
         <service-status service="openlitespeed" show-reload />
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { name: 'OpenLiteSpeed' },
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" lang="plaintext" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="openlitespeed.config"
+          :save="openlitespeed.saveConfig"
+          :tip="
+            $gettext(
+              'This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+              { name: 'OpenLiteSpeed' },
+            )
+          "
+          lang="plaintext"
+        />
       </n-tab-pane>
       <n-tab-pane name="php" :tab="$gettext('PHP Protocol')">
         <n-flex vertical>
@@ -229,25 +170,13 @@ const handleClearErrorLog = () => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
-        <n-data-table striped remote :loading="false" :columns="columns" :data="load" />
+        <load-status-table :fetch="openlitespeed.load" />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="openlitespeed" />
       </n-tab-pane>
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
-        <n-flex vertical>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="clearErrorLogLoading"
-              :disabled="clearErrorLogLoading"
-              @click="handleClearErrorLog"
-            >
-              {{ $gettext('Clear Log') }}
-            </n-button>
-          </n-flex>
-          <realtime-log ref="errorLogRef" :path="errorLog" />
-        </n-flex>
+        <clearable-log :path="errorLog" :clear="openlitespeed.clearErrorLog" />
       </n-tab-pane>
     </n-tabs>
   </PageContainer>
