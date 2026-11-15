@@ -50,12 +50,14 @@ useBus('firewall:refresh', refreshStatus)
       </n-tabs>
     </template>
     <n-flex v-if="ready" vertical :size="20">
-      <n-alert v-if="firewallName" type="info" :bordered="false">
-        {{ $gettext('Current firewall: %{ name }', { name: firewallName }) }}
-      </n-alert>
-      <n-alert v-else type="warning" :bordered="false">
-        {{ $gettext('No supported firewall detected, please install firewalld or ufw') }}
-      </n-alert>
+      <template v-if="currentTab !== 'tamper'">
+        <n-alert v-if="firewallName" type="info" :bordered="false">
+          {{ $gettext('Current firewall: %{ name }', { name: firewallName }) }}
+        </n-alert>
+        <n-alert v-else type="warning" :bordered="false">
+          {{ $gettext('No supported firewall detected, please install firewalld or ufw') }}
+        </n-alert>
+      </template>
       <rule-view v-if="currentTab === 'rule'" />
       <ip-rule-view v-if="currentTab === 'ip-rule'" />
       <forward-view v-if="currentTab === 'forward'" />

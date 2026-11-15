@@ -1026,7 +1026,9 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col flex-1 gap-1 min-h-0" :style="themeStyles">
     <n-spin :show="loading" class="flex flex-col flex-1 min-h-0">
+      <!-- 切换视图时整块重建 -->
       <div
+        :key="fileStore.viewType"
         ref="gridContainerRef"
         class="file-container"
         :class="{
@@ -1360,7 +1362,7 @@ onUnmounted(() => {
           </n-button>
         </template>
         <template v-else>
-          <span class="text-base text-gray-400">{{
+          <span class="text-13px text-text-tertiary">{{
             $gettext('%{count} item(s)', { count: data.length })
           }}</span>
         </template>
@@ -1435,7 +1437,9 @@ onUnmounted(() => {
       padding: 12px 8px;
       border-radius: 4px;
       cursor: pointer;
-      transition: all 0.1s ease;
+      transition:
+        background-color 0.1s ease,
+        border-color 0.1s ease;
       border: 1px solid transparent;
 
       &:hover {
@@ -1483,7 +1487,7 @@ onUnmounted(() => {
       padding: 6px 16px 6px 8px;
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
-      transition: all 0.1s ease;
+      transition: background-color 0.1s ease;
 
       &:hover {
         background: var(--hover-bg);

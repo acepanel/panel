@@ -22,11 +22,9 @@ const currentTab = ref('system')
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>
     </template>
-    <div class="pt-4">
-      <system-view v-if="currentTab === 'system'" />
-      <alert-view v-if="currentTab === 'alert'" />
-      <setting-view v-if="currentTab === 'setting'" />
-    </div>
+    <system-view v-if="currentTab === 'system'" />
+    <alert-view v-if="currentTab === 'alert'" />
+    <setting-view v-if="currentTab === 'setting'" />
   </PageContainer>
 </template>
 

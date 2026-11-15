@@ -87,6 +87,16 @@ const { data: countInfo } = useRequest(home.countInfo, {
     container: -1,
   },
 })
+// 点数字直接去对应页面；容器引擎没装时后端给 -1，不显示这一项
+const countItems = computed(() =>
+  [
+    { label: $gettext('Container'), value: countInfo.value.container, route: 'container-index' },
+    { label: $gettext('Website'), value: countInfo.value.website, route: 'website-index' },
+    { label: $gettext('Database'), value: countInfo.value.database, route: 'database-index' },
+    { label: $gettext('Project'), value: countInfo.value.project, route: 'project-index' },
+    { label: $gettext('Scheduled Tasks'), value: countInfo.value.cron, route: 'task-index' },
+  ].filter((item) => item.value >= 0),
+)
 
 const nets = ref<Array<string>>([]) // 选择的网卡
 const disks = ref<Array<string>>([]) // 选择的硬盘
@@ -486,20 +496,13 @@ if (import.meta.hot) {
               :y-gap="12"
               pb-10
             >
-              <n-gi v-if="countInfo.container >= 0">
-                <n-statistic :label="$gettext('Container')" :value="countInfo.container" />
-              </n-gi>
-              <n-gi>
-                <n-statistic :label="$gettext('Website')" :value="countInfo.website" />
-              </n-gi>
-              <n-gi>
-                <n-statistic :label="$gettext('Database')" :value="countInfo.database" />
-              </n-gi>
-              <n-gi>
-                <n-statistic :label="$gettext('Project')" :value="countInfo.project" />
-              </n-gi>
-              <n-gi>
-                <n-statistic :label="$gettext('Scheduled Tasks')" :value="countInfo.cron" />
+              <n-gi v-for="item in countItems" :key="item.route">
+                <router-link
+                  :to="{ name: item.route }"
+                  class="px-2 py-1 rounded-md block transition-colors -mx-2 hover:bg-bg-subtle"
+                >
+                  <n-statistic :label="item.label" :value="item.value" />
+                </router-link>
               </n-gi>
             </n-grid>
             <template #title>{{ $gettext('AcePanel') }}</template>

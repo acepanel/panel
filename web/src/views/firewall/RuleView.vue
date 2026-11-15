@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NPopover, NRadioButton, NRadioGroup, NSpin, NTag } from 'naive-ui'
+import {
+  NButton,
+  NDataTable,
+  NFlex,
+  NPopover,
+  NRadioButton,
+  NRadioGroup,
+  NSpin,
+  NTag,
+} from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
@@ -50,6 +59,96 @@ const fetchPortUsage = async (port: number, protocol: string) => {
     portUsageLoading.value[key] = false
   }
 }
+
+// 使用中：点开看监听这个端口的进程
+const inUseTag = (row: any) => {
+  const key = `${row.protocol}:${row.port_start}`
+  return h(
+    NPopover,
+    {
+      trigger: 'click',
+      placement: 'bottom',
+      onUpdateShow: (show: boolean) => {
+        if (show) fetchPortUsage(row.port_start, row.protocol)
+      },
+    },
+    {
+      trigger: () =>
+        h(
+          NTag,
+          {
+            type: 'success',
+            style: 'cursor: pointer;',
+          },
+          { default: () => $gettext('In Use') },
+        ),
+      default: () => {
+        if (portUsageLoading.value[key]) {
+          return h(NSpin, { size: 'small', style: 'padding: 12px;' })
+        }
+        const processes = portUsageCache.value[key]
+        if (!processes || processes.length === 0) {
+          return h(
+            'div',
+            { style: 'padding: 4px; color: var(--n-text-color);' },
+            $gettext('No process information'),
+          )
+        }
+        return h(
+          'div',
+          { style: 'max-height: 300px; overflow-y: auto;' },
+          processes.map((p: any, i: number) => {
+            return h(
+              'div',
+              {
+                style:
+                  i > 0
+                    ? 'padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--n-border-color);'
+                    : '',
+              },
+              [
+                h('div', { style: 'font-size: 13px;' }, [
+                  h('span', { style: 'font-weight: bold;' }, `${p.name}`),
+                  h('span', { style: 'margin-left: 8px; opacity: 0.6;' }, `PID: ${p.pid}`),
+                ]),
+                h(
+                  'div',
+                  {
+                    style:
+                      'font-size: 12px; opacity: 0.8; margin-top: 4px; word-break: break-all; font-family: monospace;',
+                  },
+                  p.command,
+                ),
+              ],
+            )
+          }),
+        )
+      },
+    },
+  )
+}
+
+// 端口转发：悬停看转发到哪里，目标地址为空时是转到本机的另一个端口
+const forwardTag = (forwards: any[]) =>
+  h(
+    NPopover,
+    { trigger: 'hover', placement: 'bottom' },
+    {
+      trigger: () =>
+        h(NTag, { type: 'info', style: 'cursor: default;' }, () => $gettext('Port Forwarding')),
+      default: () =>
+        h(
+          'div',
+          { class: 'flex flex-col gap-1' },
+          forwards.map((forward) =>
+            h('div', { class: 'text-13px whitespace-nowrap' }, [
+              `${forward.port} → ${forward.target_ip || $gettext('Local')}:${forward.target_port}`,
+              h('span', { class: 'ml-2 text-text-tertiary' }, forward.protocol),
+            ]),
+          ),
+        ),
+    },
+  )
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -103,76 +202,16 @@ const columns: any = [
   {
     title: $gettext('Status'),
     key: 'in_use',
-    width: 150,
+    width: 200,
     render(row: any): any {
-      if (!row.in_use) {
+      const tags: VNode[] = []
+      if (row.in_use) tags.push(inUseTag(row))
+      // 转发走的端口没有进程监听，单看监听会显示成未使用
+      if (row.forwards?.length) tags.push(forwardTag(row.forwards))
+      if (tags.length === 0) {
         return h(NTag, { type: 'default' }, { default: () => $gettext('Not Used') })
       }
-
-      const key = `${row.protocol}:${row.port_start}`
-      return h(
-        NPopover,
-        {
-          trigger: 'click',
-          placement: 'bottom',
-          onUpdateShow: (show: boolean) => {
-            if (show) fetchPortUsage(row.port_start, row.protocol)
-          },
-        },
-        {
-          trigger: () =>
-            h(
-              NTag,
-              {
-                type: 'success',
-                style: 'cursor: pointer;',
-              },
-              { default: () => $gettext('In Use') },
-            ),
-          default: () => {
-            if (portUsageLoading.value[key]) {
-              return h(NSpin, { size: 'small', style: 'padding: 12px;' })
-            }
-            const processes = portUsageCache.value[key]
-            if (!processes || processes.length === 0) {
-              return h(
-                'div',
-                { style: 'padding: 4px; color: var(--n-text-color);' },
-                $gettext('No process information'),
-              )
-            }
-            return h(
-              'div',
-              { style: 'max-height: 300px; overflow-y: auto;' },
-              processes.map((p: any, i: number) => {
-                return h(
-                  'div',
-                  {
-                    style:
-                      i > 0
-                        ? 'padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--n-border-color);'
-                        : '',
-                  },
-                  [
-                    h('div', { style: 'font-size: 13px;' }, [
-                      h('span', { style: 'font-weight: bold;' }, `${p.name}`),
-                      h('span', { style: 'margin-left: 8px; opacity: 0.6;' }, `PID: ${p.pid}`),
-                    ]),
-                    h(
-                      'div',
-                      {
-                        style:
-                          'font-size: 12px; opacity: 0.8; margin-top: 4px; word-break: break-all; font-family: monospace;',
-                      },
-                      p.command,
-                    ),
-                  ],
-                )
-              }),
-            )
-          },
-        },
-      )
+      return h(NFlex, { size: 6 }, () => tags)
     },
   },
   {
@@ -304,7 +343,11 @@ const selectUnused = async () => {
         total = data.total
         unused.push(
           ...data.items.filter(
-            (row: any) => row.direction === 'in' && row.strategy === 'accept' && !row.in_use,
+            (row: any) =>
+              row.direction === 'in' &&
+              row.strategy === 'accept' &&
+              !row.in_use &&
+              !row.forwards?.length,
           ),
         )
       })
