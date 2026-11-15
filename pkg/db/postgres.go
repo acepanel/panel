@@ -13,27 +13,22 @@ import (
 type Postgres struct {
 	db       *sql.DB
 	username string
-	password string
-	address  string
-	port     uint
 }
 
-func NewPostgres(ctx context.Context, username, password, address string, port uint, database ...string) (Operator, error) {
-	username = strings.ReplaceAll(username, `'`, `\'`)
-	password = strings.ReplaceAll(password, `'`, `\'`)
+func NewPostgres(
+	ctx context.Context,
+	username, password, address string,
+	port uint,
+	database ...string,
+) (Operator, error) {
 	dbname := "postgres"
 	if len(database) > 0 && database[0] != "" {
-		dbname = strings.ReplaceAll(database[0], `'`, `\'`)
+		dbname = database[0]
 	}
-	// connect_timeout 限制建连耗时，避免不可达地址阻塞调用方
-	dsn := fmt.Sprintf(`host=%s port=%d user='%s' password='%s' dbname='%s' sslmode=disable connect_timeout=5`, address, port, username, password, dbname)
-	if password == "" {
-		if username == "" {
-			username = "postgres"
-		}
-		dsn = fmt.Sprintf(`host=%s port=%d user='%s' dbname='%s' sslmode=disable connect_timeout=5`, address, port, username, dbname)
+	if username == "" && password == "" {
+		username = "postgres"
 	}
-	db, err := sql.Open("postgres", dsn)
+	db, err := sql.Open("postgres", postgresDSN(username, password, address, port, dbname))
 	if err != nil {
 		return nil, fmt.Errorf("init postgres connection failed: %w", err)
 	}
@@ -41,21 +36,11 @@ func NewPostgres(ctx context.Context, username, password, address string, port u
 		_ = db.Close()
 		return nil, fmt.Errorf("connect to postgres failed: %w", err)
 	}
-	return &Postgres{
-		db:       db,
-		username: username,
-		password: password,
-		address:  address,
-		port:     port,
-	}, nil
+	return &Postgres{db: db, username: username}, nil
 }
 
 func (r *Postgres) Close() {
 	_ = r.db.Close()
-}
-
-func (r *Postgres) Ping(ctx context.Context) error {
-	return r.db.PingContext(ctx)
 }
 
 func (r *Postgres) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
@@ -68,10 +53,6 @@ func (r *Postgres) QueryRow(ctx context.Context, query string, args ...any) *sql
 
 func (r *Postgres) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	return r.db.ExecContext(ctx, query, args...)
-}
-
-func (r *Postgres) Prepare(ctx context.Context, query string) (*sql.Stmt, error) {
-	return r.db.PrepareContext(ctx, query)
 }
 
 func (r *Postgres) DatabaseCreate(ctx context.Context, name string) error {
@@ -100,14 +81,6 @@ func (r *Postgres) DatabaseExists(ctx context.Context, name string) (bool, error
 		return false, err
 	}
 	return count > 0, nil
-}
-
-func (r *Postgres) DatabaseSize(ctx context.Context, name string) (int64, error) {
-	var size int64
-	if err := r.QueryRow(ctx, "SELECT pg_database_size($1)", name).Scan(&size); err != nil {
-		return 0, err
-	}
-	return size, nil
 }
 
 func (r *Postgres) DatabaseComment(ctx context.Context, name, comment string) error {
@@ -230,16 +203,18 @@ func (r *Postgres) Users(ctx context.Context) ([]User, error) {
 			return nil, err
 		}
 
-		permissions := map[string]bool{
-			"Super":       super,
-			"CreateRole":  canCreateRole,
-			"CreateDB":    canCreateDb,
-			"Replication": replication,
-			"BypassRLS":   bypassRls,
-		}
-		for perm, enabled := range permissions {
-			if enabled {
-				user.Grants = append(user.Grants, perm)
+		for _, perm := range []struct {
+			name    string
+			enabled bool
+		}{
+			{"Super", super},
+			{"CreateRole", canCreateRole},
+			{"CreateDB", canCreateDb},
+			{"Replication", replication},
+			{"BypassRLS", bypassRls},
+		} {
+			if perm.enabled {
+				user.Grants = append(user.Grants, perm.name)
 			}
 		}
 
@@ -286,4 +261,16 @@ func (r *Postgres) Databases(ctx context.Context) ([]Database, error) {
 	}
 
 	return databases, rows.Err()
+}
+
+func postgresDSN(username, password, address string, port uint, dbname string) string {
+	// dsnEscaper 转义 DSN 引号值里的反斜杠和单引号
+	dsnEscaper := strings.NewReplacer(`\`, `\\`, `'`, `\'`)
+
+	// connect_timeout 限制建连耗时，避免不可达地址阻塞调用方
+	dsn := fmt.Sprintf(`host=%s port=%d user='%s' dbname='%s' sslmode=disable connect_timeout=5`, address, port, dsnEscaper.Replace(username), dsnEscaper.Replace(dbname))
+	if password != "" {
+		dsn += ` password='` + dsnEscaper.Replace(password) + `'`
+	}
+	return dsn
 }

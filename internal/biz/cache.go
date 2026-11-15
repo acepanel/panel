@@ -32,6 +32,14 @@ type CacheRepo interface {
 	FetchApps() (*api.Apps, error)
 	FetchEnvironments() (*api.Environments, error)
 	FetchTemplates() (*api.Templates, error)
+	FetchLatestVersion(channel string) (*api.Version, error)
+	FetchIntermediateVersions(channel string) (*api.Versions, error)
+}
+
+// CacheUpdate 一项云端数据缓存的刷新动作
+type CacheUpdate struct {
+	Key CacheKey
+	Run func() error
 }
 
 type CacheUsecase struct {
@@ -42,32 +50,31 @@ func NewCacheUsecase(repo CacheRepo) *CacheUsecase {
 	return &CacheUsecase{repo: repo}
 }
 
-func (uc *CacheUsecase) Get(key CacheKey, defaultValue ...string) (string, error) {
-	return uc.repo.Get(key, defaultValue...)
+// Updates 按刷新顺序列出全部云端数据缓存
+func (uc *CacheUsecase) Updates() []CacheUpdate {
+	return []CacheUpdate{
+		{Key: CacheKeyCategories, Run: func() error { return updateCache(uc.repo, CacheKeyCategories, uc.repo.FetchCategories) }},
+		{Key: CacheKeyApps, Run: func() error { return updateCache(uc.repo, CacheKeyApps, uc.fetchApps) }},
+		{Key: CacheKeyEnvironment, Run: func() error { return updateCache(uc.repo, CacheKeyEnvironment, uc.repo.FetchEnvironments) }},
+		{Key: CacheKeyTemplates, Run: func() error { return updateCache(uc.repo, CacheKeyTemplates, uc.repo.FetchTemplates) }},
+	}
 }
 
-func (uc *CacheUsecase) Set(key CacheKey, value string) error {
-	return uc.repo.Set(key, value)
-}
-
-func (uc *CacheUsecase) UpdateCategories() error {
-	categories, err := uc.repo.FetchCategories()
-	if err != nil {
-		return err
+// UpdateAll 依次刷新全部云端数据缓存，出错即停并返回出错的那一项
+func (uc *CacheUsecase) UpdateAll() (CacheKey, error) {
+	for _, update := range uc.Updates() {
+		if err := update.Run(); err != nil {
+			return update.Key, err
+		}
 	}
 
-	encoded, err := json.Marshal(categories)
-	if err != nil {
-		return err
-	}
-
-	return uc.repo.Set(CacheKeyCategories, string(encoded))
+	return "", nil
 }
 
-func (uc *CacheUsecase) UpdateApps() error {
+func (uc *CacheUsecase) fetchApps() (*api.Apps, error) {
 	remote, err := uc.repo.FetchApps()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// 去除本地不存在的应用
@@ -75,38 +82,19 @@ func (uc *CacheUsecase) UpdateApps() error {
 		return !slices.Contains(apploader.SupportedSlugs(), item.Slug)
 	}))
 
-	encoded, err := json.Marshal(remote)
-	if err != nil {
-		return err
-	}
-
-	return uc.repo.Set(CacheKeyApps, string(encoded))
+	return remote, nil
 }
 
-func (uc *CacheUsecase) UpdateEnvironments() error {
-	environments, err := uc.repo.FetchEnvironments()
+func updateCache[T any](repo CacheRepo, key CacheKey, fetch func() (T, error)) error {
+	data, err := fetch()
 	if err != nil {
 		return err
 	}
 
-	encoded, err := json.Marshal(environments)
+	encoded, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	return uc.repo.Set(CacheKeyEnvironment, string(encoded))
-}
-
-func (uc *CacheUsecase) UpdateTemplates() error {
-	templates, err := uc.repo.FetchTemplates()
-	if err != nil {
-		return err
-	}
-
-	encoded, err := json.Marshal(templates)
-	if err != nil {
-		return err
-	}
-
-	return uc.repo.Set(CacheKeyTemplates, string(encoded))
+	return repo.Set(key, string(encoded))
 }

@@ -6,85 +6,93 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import benchmark from '@/api/panel/toolbox-benchmark'
-import TheIcon from '@/components/custom/TheIcon.vue'
+import type { BenchmarkCpu, BenchmarkDisk, BenchmarkMemory } from '@/api/panel/toolbox-benchmark'
+import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
-const inTest = ref(false)
-const current = ref($gettext('CPU'))
-const progress = ref(0)
 
+const cpuTests = [
+  { name: 'image', title: $gettext('Image Processing') },
+  { name: 'matrix', title: $gettext('Matrix Multiplication') },
+  { name: 'sort', title: $gettext('Data Sorting') },
+  { name: 'encryption', title: $gettext('AES Encryption') },
+  { name: 'compression', title: $gettext('Compression/Decompression') },
+  { name: 'physics', title: $gettext('Physics Simulation') },
+  { name: 'json', title: $gettext('JSON Parsing') },
+]
 const tests = [
-  'image',
-  'machine',
-  'compile',
-  'encryption',
-  'compression',
-  'physics',
-  'json',
-  'memory',
-  'disk',
+  ...cpuTests,
+  { name: 'memory', title: $gettext('Memory') },
+  { name: 'disk', title: $gettext('Disk') },
 ]
 
-const cpu = ref({
-  image: 0,
-  machine: 0,
-  compile: 0,
-  encryption: 0,
-  compression: 0,
-  physics: 0,
-  json: 0,
-})
+const running = ref(false)
+const current = ref('')
+const progress = ref(0)
 
+const cpu = ref<Record<string, BenchmarkCpu>>({})
+const memory = ref<BenchmarkMemory>()
+const disk = ref<BenchmarkDisk>()
+// 没测出来的项目及原因，键为测试名
+const failures = ref<Record<string, string>>({})
+
+// 等权几何平均：各项分数量级一致，任何一项都压不倒总分
+const geomean = (scores: number[]) =>
+  Math.round(Math.exp(scores.reduce((sum, score) => sum + Math.log(score), 0) / scores.length))
+
+// 七项都测完才有总分
 const cpuTotal = computed(() => {
-  return Object.values(cpu.value).reduce((a, b) => a + b, 0)
+  const results = cpuTests.flatMap((test) => cpu.value[test.name] ?? [])
+  const [first] = results
+  if (!first || results.length < cpuTests.length) return undefined
+  return {
+    single: geomean(results.map((result) => result.single)),
+    multi: geomean(results.map((result) => result.multi)),
+    threads: first.threads,
+  }
 })
+const cpuFailure = computed(
+  () => cpuTests.map((test) => failures.value[test.name]).find((reason) => reason) ?? '',
+)
 
-const memory = ref({
-  score: 0,
-  bandwidth: $gettext('Pending benchmark'),
-  latency: $gettext('Pending benchmark'),
-})
+const formatScore = (score?: number) => (score === undefined ? '-' : score.toLocaleString())
+const formatSpeed = (speed?: number) => (speed === undefined ? '-' : `${formatBytes(speed)}/s`)
+const formatIops = (iops?: number) =>
+  iops === undefined ? '-' : `${Math.round(iops).toLocaleString()} IOPS`
 
-const disk = ref({
-  score: 0,
-  1024: {
-    read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark'),
-  },
-  4: {
-    read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark'),
-  },
-  64: {
-    read_speed: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark'),
-  },
+let mounted = true
+onBeforeUnmount(() => {
+  mounted = false
 })
 
 const handleTest = async () => {
-  inTest.value = true
+  running.value = true
   progress.value = 0
-  for (let i = 0; i < tests.length; i++) {
-    const test = tests[i] ?? ''
-    current.value = test
-    if (test != 'memory' && test != 'disk') {
-      cpu.value[test as keyof typeof cpu.value] = await benchmark.test(test)
-    } else {
-      const data = await benchmark.test(test)
-      if (test === 'memory') {
-        memory.value = data
-      } else {
-        disk.value = data
-      }
+  cpu.value = {}
+  memory.value = undefined
+  disk.value = undefined
+  failures.value = {}
+
+  for (const [index, test] of tests.entries()) {
+    // 离开页面后不再让服务器白跑剩下的项目
+    if (!mounted) break
+    current.value = test.title
+    try {
+      const data = await benchmark.test(test.name)
+      if (test.name === 'memory') memory.value = data
+      else if (test.name === 'disk') disk.value = data
+      else cpu.value[test.name] = data
+    } catch (error: any) {
+      failures.value[test.name] = error.message
     }
-    progress.value = Math.round(((i + 1) / tests.length) * 100)
+    progress.value = Math.round(((index + 1) / tests.length) * 100)
   }
-  inTest.value = false
+  running.value = false
 }
 </script>
 
 <template>
-  <n-flex vertical>
+  <n-flex vertical :size="16">
     <n-alert type="warning">
       {{
         $gettext(
@@ -92,170 +100,139 @@ const handleTest = async () => {
         )
       }}
     </n-alert>
-    <n-alert
-      v-if="inTest"
-      :title="$gettext('Benchmarking in progress, it may take some time...')"
-      type="info"
-    >
-      {{ $gettext('Current project: %{ current }', { current: current }) }}
-    </n-alert>
-    <n-progress v-if="inTest" :percentage="progress" processing />
-  </n-flex>
-  <n-flex vertical pt-10 items-center>
-    <div class="max-w-200 w-full">
-      <n-grid cols="1 m:3" responsive="screen" :y-gap="24">
-        <n-gi>
-          <n-popover trigger="hover">
-            <template #trigger>
-              <n-flex vertical items-center>
-                <div v-if="cpuTotal !== 0">
-                  <n-number-animation :from="0" :to="cpuTotal" show-separator />
-                </div>
-                <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="mdi:cpu-64-bit" />
-                </n-progress>
-                {{ $gettext('CPU') }}
-              </n-flex>
-            </template>
-            <n-table :single-line="false" striped>
-              <tr>
-                <th>{{ $gettext('Image Processing') }}</th>
-                <td>
-                  {{ cpu.image }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('Machine Learning') }}</th>
-                <td>
-                  {{ cpu.machine }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('Program Compilation') }}</th>
-                <td>
-                  {{ cpu.compile }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('AES Encryption') }}</th>
-                <td>
-                  {{ cpu.encryption }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('Compression/Decompression') }}</th>
-                <td>
-                  {{ cpu.compression }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('Physics Simulation') }}</th>
-                <td>
-                  {{ cpu.physics }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('JSON Parsing') }}</th>
-                <td>
-                  {{ cpu.json }}
-                </td>
-              </tr>
+    <template v-if="running">
+      <n-alert :title="$gettext('Benchmarking in progress, it may take some time...')" type="info">
+        {{ $gettext('Current project: %{ current }', { current: current }) }}
+      </n-alert>
+      <n-progress :percentage="progress" processing />
+    </template>
+
+    <n-card size="small" :title="$gettext('CPU')">
+      <template #header-extra>
+        <the-icon :size="22" icon="mdi:cpu-64-bit" />
+      </template>
+      <n-flex vertical :size="16">
+        <n-alert v-if="cpuFailure" type="error">{{ cpuFailure }}</n-alert>
+        <n-grid v-else :cols="2" :x-gap="16">
+          <n-gi>
+            <n-statistic :label="$gettext('Single-Core')">
+              <n-number-animation v-if="cpuTotal" :from="0" :to="cpuTotal.single" show-separator />
+              <span v-else class="text-base text-text-tertiary">
+                {{ $gettext('Pending benchmark') }}
+              </span>
+            </n-statistic>
+          </n-gi>
+          <n-gi>
+            <n-statistic
+              :label="
+                cpuTotal
+                  ? $gettext('Multi-Core (×%{ threads })', { threads: cpuTotal.threads })
+                  : $gettext('Multi-Core')
+              "
+            >
+              <n-number-animation v-if="cpuTotal" :from="0" :to="cpuTotal.multi" show-separator />
+              <span v-else class="text-base text-text-tertiary">
+                {{ $gettext('Pending benchmark') }}
+              </span>
+            </n-statistic>
+          </n-gi>
+        </n-grid>
+        <n-table :single-line="false" size="small" striped>
+          <thead>
+            <tr>
+              <th>{{ $gettext('Test') }}</th>
+              <th>{{ $gettext('Single-Core') }}</th>
+              <th>{{ $gettext('Multi-Core') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="test in cpuTests" :key="test.name">
+              <td>{{ test.title }}</td>
+              <td>{{ formatScore(cpu[test.name]?.single) }}</td>
+              <td>{{ formatScore(cpu[test.name]?.multi) }}</td>
+            </tr>
+          </tbody>
+        </n-table>
+      </n-flex>
+    </n-card>
+
+    <n-grid cols="1 m:2" responsive="screen" :x-gap="16" :y-gap="16">
+      <n-gi>
+        <n-card size="small" :title="$gettext('Memory')" h-full>
+          <template #header-extra>
+            <the-icon :size="22" icon="mdi:memory" />
+          </template>
+          <n-alert v-if="failures.memory" type="error">{{ failures.memory }}</n-alert>
+          <n-flex v-else vertical :size="16">
+            <n-statistic :label="$gettext('Score')">
+              <n-number-animation v-if="memory" :from="0" :to="memory.score" show-separator />
+              <span v-else class="text-base text-text-tertiary">
+                {{ $gettext('Pending benchmark') }}
+              </span>
+            </n-statistic>
+            <n-table :single-line="false" size="small" striped>
+              <tbody>
+                <tr>
+                  <td>{{ $gettext('Memory Bandwidth') }}</td>
+                  <td>{{ formatSpeed(memory?.bandwidth) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ $gettext('Memory Latency') }}</td>
+                  <td>{{ memory ? `${memory.latency.toFixed(1)} ns` : '-' }}</td>
+                </tr>
+              </tbody>
             </n-table>
-          </n-popover>
-        </n-gi>
-        <n-gi>
-          <n-popover trigger="hover">
-            <template #trigger>
-              <n-flex vertical items-center>
-                <div v-if="memory.score !== 0">
-                  <n-number-animation :from="0" :to="memory.score" show-separator />
-                </div>
-                <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="mdi:memory" />
-                </n-progress>
-                {{ $gettext('Memory') }}
-              </n-flex>
-            </template>
-            <n-table :single-line="false" striped>
-              <tr>
-                <th>{{ $gettext('Memory Bandwidth') }}</th>
-                <td>{{ memory.bandwidth }}</td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('Memory Latency') }}</th>
-                <td>{{ memory.latency }}</td>
-              </tr>
+          </n-flex>
+        </n-card>
+      </n-gi>
+      <n-gi>
+        <n-card size="small" :title="$gettext('Disk')" h-full>
+          <template #header-extra>
+            <the-icon :size="22" icon="mdi:harddisk" />
+          </template>
+          <n-alert v-if="failures.disk" type="error">{{ failures.disk }}</n-alert>
+          <n-flex v-else vertical :size="16">
+            <n-statistic :label="$gettext('Score')">
+              <n-number-animation v-if="disk" :from="0" :to="disk.score" show-separator />
+              <span v-else class="text-base text-text-tertiary">
+                {{ $gettext('Pending benchmark') }}
+              </span>
+            </n-statistic>
+            <n-table :single-line="false" size="small" striped>
+              <tbody>
+                <tr>
+                  <td>{{ $gettext('Sequential Read') }}</td>
+                  <td>{{ formatSpeed(disk?.seq_read) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ $gettext('Sequential Write') }}</td>
+                  <td>{{ formatSpeed(disk?.seq_write) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ $gettext('4K Random Read') }}</td>
+                  <td>{{ formatIops(disk?.rand_read) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ $gettext('4K Random Write') }}</td>
+                  <td>{{ formatIops(disk?.rand_write) }}</td>
+                </tr>
+              </tbody>
             </n-table>
-          </n-popover>
-        </n-gi>
-        <n-gi>
-          <n-popover trigger="hover">
-            <template #trigger>
-              <n-flex vertical items-center>
-                <div v-if="disk.score !== 0">
-                  <n-number-animation :from="0" :to="disk.score" show-separator />
-                </div>
-                <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="mdi:harddisk" />
-                </n-progress>
-                {{ $gettext('Disk') }}
-              </n-flex>
-            </template>
-            <n-table :single-line="false" striped>
-              <tr>
-                <th>{{ $gettext('4KB Read') }}</th>
-                <td>
-                  {{ disk['4'].read_speed }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('4KB Write') }}</th>
-                <td>
-                  {{ disk['4'].write_speed }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('64KB Read') }}</th>
-                <td>
-                  {{ disk['64'].read_speed }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('64KB Write') }}</th>
-                <td>
-                  {{ disk['64'].write_speed }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('1MB Read') }}</th>
-                <td>
-                  {{ disk['1024'].read_speed }}
-                </td>
-              </tr>
-              <tr>
-                <th>{{ $gettext('1MB Write') }}</th>
-                <td>
-                  {{ disk['1024'].write_speed }}
-                </td>
-              </tr>
-            </n-table>
-          </n-popover>
-        </n-gi>
-      </n-grid>
-    </div>
-    <n-button
-      type="primary"
-      size="large"
-      :disabled="inTest"
-      :loading="inTest"
-      @click="handleTest"
-      mt-10
-      w-50
-    >
-      {{ inTest ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
-    </n-button>
+          </n-flex>
+        </n-card>
+      </n-gi>
+    </n-grid>
+
+    <n-flex justify="center">
+      <n-button
+        type="primary"
+        size="large"
+        :disabled="running"
+        :loading="running"
+        @click="handleTest"
+      >
+        {{ running ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
+      </n-button>
+    </n-flex>
   </n-flex>
 </template>

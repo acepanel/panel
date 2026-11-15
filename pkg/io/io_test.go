@@ -10,6 +10,12 @@ import (
 	"github.com/libtnb/assert/must"
 )
 
+// archiveExts 归档格式，支持多文件
+var archiveExts = []string{".zip", ".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz", ".tar.zst", ".7z"}
+
+// singleExts 只能压缩单个文件的格式
+var singleExts = []string{".gz", ".bz2", ".xz", ".zst"}
+
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
@@ -18,6 +24,24 @@ func dirExists(path string) bool {
 func fileExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && !info.IsDir()
+}
+
+func writeTree(t *testing.T, root string, files map[string]string) {
+	t.Helper()
+	for name, data := range files {
+		path := filepath.Join(root, name)
+		must.NoError(t, os.MkdirAll(filepath.Dir(path), 0755))
+		must.NoError(t, Write(path, data, 0644))
+	}
+}
+
+func checkTree(t *testing.T, root string, files map[string]string) {
+	t.Helper()
+	for name, want := range files {
+		got, err := Read(filepath.Join(root, name))
+		check.NoError(t, err)
+		check.Equal(t, got, want, check.Msgf("文件内容不符: %s", name))
+	}
 }
 
 func TestWriteCreatesFileWithCorrectContent(t *testing.T) {
@@ -32,11 +56,14 @@ func TestWriteCreatesFileWithCorrectContent(t *testing.T) {
 	check.Equal(t, content, data)
 }
 
-// archiveExts 归档格式，支持多文件
-var archiveExts = []string{".zip", ".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz", ".tar.zst", ".7z"}
+func TestWriteCreatesTraversableParentDir(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "a", "b", "c.txt")
+	must.NoError(t, Write(path, "x", 0600))
 
-// singleExts 只能压缩单个文件的格式
-var singleExts = []string{".gz", ".bz2", ".xz", ".zst"}
+	info, err := os.Stat(filepath.Dir(path))
+	must.NoError(t, err)
+	check.True(t, info.Mode().Perm()&0o111 != 0, check.Msgf("父目录应可进入，实际 %o", info.Mode().Perm()))
+}
 
 func TestCompress(t *testing.T) {
 	abs := t.TempDir()
@@ -171,14 +198,6 @@ func TestCompressFailsWhenDirMissing(t *testing.T) {
 	check.False(t, Exists(archive), check.Msgf("不应产出归档"))
 }
 
-func TestMvRefusesAncestorTarget(t *testing.T) {
-	dir := t.TempDir()
-	writeTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
-
-	check.Error(t, Mv(t.Context(), filepath.Join(dir, "a", "b"), filepath.Join(dir, "a")))
-	checkTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
-}
-
 func TestFormatArchiveByPath(t *testing.T) {
 	for path, want := range map[string]ArchiveFormat{
 		"a.ZIP": Zip, "a.7z": SevenZip, "a.tar": Tar, "a.TAR.GZ": TGz, "a.tgz": TGz,
@@ -245,6 +264,18 @@ func TestEmptyReturnsFalseForNonEmptyDirectory(t *testing.T) {
 	check.False(t, Empty(path), check.Msgf("目录不应为空: %s", path))
 }
 
+func TestIsDirReturnsTrueForDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "isdir_test")
+	must.NoError(t, os.MkdirAll(path, 0755))
+	check.True(t, IsDir(path), check.Msgf("应识别为目录: %s", path))
+}
+
+func TestIsDirReturnsFalseForFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "isfile_test.txt")
+	must.NoError(t, Write(path, "test", 0644))
+	check.False(t, IsDir(path), check.Msgf("不应识别为目录: %s", path))
+}
+
 func TestMvMovesFile(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "mv_src.txt")
@@ -254,35 +285,6 @@ func TestMvMovesFile(t *testing.T) {
 	check.NoError(t, Mv(t.Context(), src, dst))
 	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
 	check.False(t, fileExists(src), check.Msgf("源文件应已移走: %s", src))
-}
-
-func TestCpCopiesFile(t *testing.T) {
-	dir := t.TempDir()
-	src := filepath.Join(dir, "cp_src.txt")
-	dst := filepath.Join(dir, "cp_dst.txt")
-	must.NoError(t, Write(src, "test", 0644))
-
-	check.NoError(t, Cp(t.Context(), src, dst))
-	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
-	check.True(t, fileExists(src), check.Msgf("源文件应保留: %s", src))
-}
-
-func writeTree(t *testing.T, root string, files map[string]string) {
-	t.Helper()
-	for name, data := range files {
-		path := filepath.Join(root, name)
-		must.NoError(t, os.MkdirAll(filepath.Dir(path), 0755))
-		must.NoError(t, Write(path, data, 0644))
-	}
-}
-
-func checkTree(t *testing.T, root string, files map[string]string) {
-	t.Helper()
-	for name, want := range files {
-		got, err := Read(filepath.Join(root, name))
-		check.NoError(t, err)
-		check.Equal(t, got, want, check.Msgf("文件内容不符: %s", name))
-	}
 }
 
 func TestMvMovesDirToNewPath(t *testing.T) {
@@ -308,6 +310,25 @@ func TestMvMergesIntoExistingDir(t *testing.T) {
 	checkTree(t, dst, map[string]string{"sub/f": "new", "g": "new", "keep/k": "old"})
 }
 
+func TestMvRefusesAncestorTarget(t *testing.T) {
+	dir := t.TempDir()
+	writeTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
+
+	check.Error(t, Mv(t.Context(), filepath.Join(dir, "a", "b"), filepath.Join(dir, "a")))
+	checkTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
+}
+
+func TestCpCopiesFile(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "cp_src.txt")
+	dst := filepath.Join(dir, "cp_dst.txt")
+	must.NoError(t, Write(src, "test", 0644))
+
+	check.NoError(t, Cp(t.Context(), src, dst))
+	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
+	check.True(t, fileExists(src), check.Msgf("源文件应保留: %s", src))
+}
+
 func TestCpMergesIntoExistingDir(t *testing.T) {
 	dir := t.TempDir()
 	src, dst := filepath.Join(dir, "src", "app"), filepath.Join(dir, "dst", "app")
@@ -318,15 +339,6 @@ func TestCpMergesIntoExistingDir(t *testing.T) {
 	checkTree(t, src, map[string]string{"sub/f": "new", "g": "new"})
 	check.False(t, dirExists(filepath.Join(dst, "app")), check.Msgf("不应嵌套进目标目录: %s", dst))
 	checkTree(t, dst, map[string]string{"sub/f": "new", "g": "new", "keep/k": "old"})
-}
-
-func TestWriteCreatesTraversableParentDir(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "a", "b", "c.txt")
-	must.NoError(t, Write(path, "x", 0600))
-
-	info, err := os.Stat(filepath.Dir(path))
-	must.NoError(t, err)
-	check.True(t, info.Mode().Perm()&0o111 != 0, check.Msgf("父目录应可进入，实际 %o", info.Mode().Perm()))
 }
 
 func TestCpReplacesSymlinkInsteadOfTarget(t *testing.T) {
@@ -344,28 +356,11 @@ func TestCpReplacesSymlinkInsteadOfTarget(t *testing.T) {
 	check.True(t, info.Mode().IsRegular(), check.Msgf("链接应被替换成普通文件"))
 }
 
-func TestSizeAndCount(t *testing.T) {
+func TestSize(t *testing.T) {
 	dir := t.TempDir()
 	writeTree(t, dir, map[string]string{"a.txt": "12345", "sub/b.txt": "123"})
 
 	size, err := Size(t.Context(), filepath.Join(dir, "a.txt"))
 	check.NoError(t, err)
 	check.Equal(t, size, int64(5))
-
-	// 根目录、sub、两个文件
-	count, err := Count(t.Context(), dir)
-	check.NoError(t, err)
-	check.Equal(t, count, int64(4))
-}
-
-func TestIsDirReturnsTrueForDirectory(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "isdir_test")
-	must.NoError(t, os.MkdirAll(path, 0755))
-	check.True(t, IsDir(path), check.Msgf("应识别为目录: %s", path))
-}
-
-func TestIsDirReturnsFalseForFile(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "isfile_test.txt")
-	must.NoError(t, Write(path, "test", 0644))
-	check.False(t, IsDir(path), check.Msgf("不应识别为目录: %s", path))
 }

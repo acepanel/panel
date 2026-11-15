@@ -13,7 +13,7 @@ export function useEditorOps() {
     editorStore.setLoading(path, true)
     try {
       const tab = editorStore.tabs.find((t) => t.path === path)
-      const data = await file.content(encodeURIComponent(path), encoding ?? tab?.encoding ?? 'auto')
+      const data = await file.content(path, encoding ?? tab?.encoding ?? 'auto')
       editorStore.reloadFile(path, decodeBase64(data.content), data.encoding)
       return true
     } catch {

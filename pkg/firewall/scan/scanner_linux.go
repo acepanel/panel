@@ -94,6 +94,305 @@ type Scanner struct {
 	lastPorts map[uint16]bool
 }
 
+// Supported 检测当前系统是否支持 eBPF
+// 程序可加载不代表可挂载（TCX 需内核 6.6+），在 lo 上试挂验证，避免误报支持
+func Supported() bool {
+	events, err := ebpf.NewMap(&ebpf.MapSpec{
+		Type:       ebpf.RingBuf,
+		MaxEntries: ringBufSize,
+	})
+	if err != nil {
+		return false
+	}
+	defer func() { _ = events.Close() }()
+
+	ports, err := newPortsMap()
+	if err != nil {
+		return false
+	}
+	defer func() { _ = ports.Close() }()
+
+	prog, err := buildDetector(events, ports)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = prog.Close() }()
+
+	iface, err := net.InterfaceByName("lo")
+	if err != nil {
+		return true // 无 lo 时退化为仅验证程序可加载
+	}
+	l, err := link.AttachTCX(link.TCXOptions{
+		Interface: iface.Index,
+		Program:   prog,
+		Attach:    ebpf.AttachTCXIngress,
+	})
+	if err != nil {
+		return false
+	}
+	_ = l.Close()
+	return true
+}
+
+// New 创建 Scanner，加载 eBPF 程序并挂载到指定网卡
+func New(ifaces []string, t *gotext.Locale, log *slog.Logger) (*Scanner, error) {
+	if len(ifaces) == 0 {
+		defaultIface := DefaultInterface()
+		if defaultIface == "" {
+			return nil, errors.New("no available network interface found")
+		}
+		ifaces = []string{defaultIface}
+	}
+
+	events, err := ebpf.NewMap(&ebpf.MapSpec{
+		Type:       ebpf.RingBuf,
+		MaxEntries: ringBufSize,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create ring buffer: %w", err)
+	}
+
+	ports, err := newPortsMap()
+	if err != nil {
+		_ = events.Close()
+		return nil, fmt.Errorf("failed to create ports whitelist map: %w", err)
+	}
+
+	prog, err := buildDetector(events, ports)
+	if err != nil {
+		_ = events.Close()
+		_ = ports.Close()
+		return nil, fmt.Errorf("failed to load eBPF program: %w", err)
+	}
+
+	s := &Scanner{
+		prog:      prog,
+		events:    events,
+		ports:     ports,
+		handles:   make(map[string]*ifaceHandle),
+		eventsCh:  make(chan Event, 4096),
+		stopCh:    make(chan struct{}),
+		t:         t,
+		log:       log,
+		lastPorts: make(map[uint16]bool),
+	}
+
+	// 单网卡失败仅跳过（网卡可能已改名/移除），全部失败才报错
+	for _, ifaceName := range ifaces {
+		if err := s.attach(ifaceName); err != nil {
+			log.Warn(t.Get("failed to attach scan detector, skip interface"),
+				slog.String("iface", ifaceName), slog.Any("err", err))
+		}
+	}
+	if len(s.handles) == 0 {
+		_ = s.Close()
+		return nil, errors.New("no interface attached")
+	}
+
+	reader, err := ringbuf.NewReader(events)
+	if err != nil {
+		_ = s.Close()
+		return nil, fmt.Errorf("failed to create ring buffer reader: %w", err)
+	}
+	s.reader = reader
+
+	// 初始同步监听端口白名单
+	s.syncPorts()
+
+	go s.readLoop()
+	go s.portsLoop()
+
+	return s, nil
+}
+
+// Events 返回事件通道
+func (s *Scanner) Events() <-chan Event {
+	return s.eventsCh
+}
+
+// Close 卸载 eBPF 程序并清理资源
+func (s *Scanner) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	select {
+	case <-s.stopCh:
+	default:
+		close(s.stopCh)
+	}
+
+	if s.reader != nil {
+		_ = s.reader.Close()
+	}
+
+	for name, h := range s.handles {
+		if err := h.link.Close(); err != nil {
+			s.log.Warn(s.t.Get("failed to detach eBPF program"), slog.String("iface", name), slog.Any("err", err))
+			continue
+		}
+		s.log.Info(s.t.Get("eBPF scan detector detached"), slog.String("iface", name))
+	}
+
+	if s.prog != nil {
+		_ = s.prog.Close()
+	}
+	if s.events != nil {
+		_ = s.events.Close()
+	}
+	if s.ports != nil {
+		_ = s.ports.Close()
+	}
+
+	return nil
+}
+
+// attach 挂载 eBPF 程序到指定网卡的 TC ingress
+func (s *Scanner) attach(ifaceName string) error {
+	iface, err := net.InterfaceByName(ifaceName)
+	if err != nil {
+		return fmt.Errorf("failed to get interface %s: %w", ifaceName, err)
+	}
+
+	l, err := link.AttachTCX(link.TCXOptions{
+		Interface: iface.Index,
+		Program:   s.prog,
+		Attach:    ebpf.AttachTCXIngress,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to attach TCX to %s: %w", ifaceName, err)
+	}
+
+	s.handles[ifaceName] = &ifaceHandle{link: l}
+	s.log.Info(s.t.Get("eBPF scan detector attached"), slog.String("iface", ifaceName))
+
+	return nil
+}
+
+// readLoop 持续读取 Ring Buffer 事件
+func (s *Scanner) readLoop() {
+	defer close(s.eventsCh)
+
+	for {
+		record, err := s.reader.Read()
+		if err != nil {
+			if errors.Is(err, ringbuf.ErrClosed) {
+				return
+			}
+			s.log.Warn(s.t.Get("failed to read ring buffer"), slog.Any("err", err))
+			continue
+		}
+
+		if len(record.RawSample) < eventSize {
+			continue
+		}
+
+		select {
+		case s.eventsCh <- s.parseEvent(record.RawSample):
+		default:
+		}
+	}
+}
+
+// portsLoop 定时同步监听端口白名单
+func (s *Scanner) portsLoop() {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-s.stopCh:
+			return
+		case <-ticker.C:
+			s.syncPorts()
+		}
+	}
+}
+
+// syncPorts 读取系统当前监听端口并同步到 BPF map
+func (s *Scanner) syncPorts() {
+	newPorts := s.readListeningPorts()
+
+	// 删除不再监听的端口
+	for port := range s.lastPorts {
+		if !newPorts[port] {
+			_ = s.ports.Delete(uint32(port))
+		}
+	}
+
+	// 添加新监听的端口
+	for port := range newPorts {
+		if !s.lastPorts[port] {
+			_ = s.ports.Put(uint32(port), uint8(1))
+		}
+	}
+
+	s.lastPorts = newPorts
+}
+
+// readListeningPorts 从 /proc 读取当前所有监听端口
+func (s *Scanner) readListeningPorts() map[uint16]bool {
+	ports := make(map[uint16]bool)
+	// TCP LISTEN (state 0A)
+	s.parseProcNet("/proc/net/tcp", "0A", ports)
+	s.parseProcNet("/proc/net/tcp6", "0A", ports)
+	// UDP 绑定端口 (state 07 = unconnected)
+	s.parseProcNet("/proc/net/udp", "07", ports)
+	s.parseProcNet("/proc/net/udp6", "07", ports)
+	return ports
+}
+
+// parseProcNet 解析 /proc/net/{tcp,tcp6,udp,udp6} 提取指定状态的本地端口
+func (s *Scanner) parseProcNet(path, state string, ports map[uint16]bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	for line := range strings.SplitSeq(string(data), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 4 || fields[3] != state {
+			continue
+		}
+		// local_address 格式: "00000000:0050" 或 "00000000000000000000000000000000:0050"
+		idx := strings.LastIndex(fields[1], ":")
+		if idx < 0 {
+			continue
+		}
+		port, err := strconv.ParseUint(fields[1][idx+1:], 16, 16)
+		if err != nil {
+			continue
+		}
+		ports[uint16(port)] = true
+	}
+}
+
+// parseEvent 解析原始事件数据
+// 栈布局：[src_ip(16) | dst_port(2) | protocol(1) | version(1)]
+func (s *Scanner) parseEvent(data []byte) Event {
+	version := data[19]
+
+	var ip net.IP
+	if version == 6 {
+		ip = make(net.IP, 16)
+		copy(ip, data[0:16])
+	} else {
+		ip = net.IPv4(data[0], data[1], data[2], data[3])
+	}
+
+	dstPort := binary.NativeEndian.Uint16(data[16:18])
+	proto := data[18]
+
+	protoStr := "tcp"
+	if proto == ipUDP {
+		protoStr = "udp"
+	}
+
+	return Event{
+		SourceIP:  ip.String(),
+		Port:      dstPort,
+		Protocol:  protoStr,
+		Timestamp: time.Now(),
+	}
+}
+
 // newPortsMap 创建监听端口白名单 BPF map（按需分配，避免 64K 条目预占数 MB 内核内存）
 func newPortsMap() (*ebpf.Map, error) {
 	return ebpf.NewMap(&ebpf.MapSpec{
@@ -415,302 +714,4 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 		Type:         ebpf.SchedCLS,
 		Instructions: insns,
 	})
-}
-
-// Supported 检测当前系统是否支持 eBPF
-// 程序可加载不代表可挂载（TCX 需内核 6.6+），在 lo 上试挂验证，避免误报支持
-func Supported() bool {
-	events, err := ebpf.NewMap(&ebpf.MapSpec{
-		Type:       ebpf.RingBuf,
-		MaxEntries: ringBufSize,
-	})
-	if err != nil {
-		return false
-	}
-	defer func() { _ = events.Close() }()
-
-	ports, err := newPortsMap()
-	if err != nil {
-		return false
-	}
-	defer func() { _ = ports.Close() }()
-
-	prog, err := buildDetector(events, ports)
-	if err != nil {
-		return false
-	}
-	defer func() { _ = prog.Close() }()
-
-	iface, err := net.InterfaceByName("lo")
-	if err != nil {
-		return true // 无 lo 时退化为仅验证程序可加载
-	}
-	l, err := link.AttachTCX(link.TCXOptions{
-		Interface: iface.Index,
-		Program:   prog,
-		Attach:    ebpf.AttachTCXIngress,
-	})
-	if err != nil {
-		return false
-	}
-	_ = l.Close()
-	return true
-}
-
-// New 创建 Scanner，加载 eBPF 程序并挂载到指定网卡
-func New(ifaces []string, t *gotext.Locale, log *slog.Logger) (*Scanner, error) {
-	if len(ifaces) == 0 {
-		defaultIface := DefaultInterface()
-		if defaultIface == "" {
-			return nil, errors.New("no available network interface found")
-		}
-		ifaces = []string{defaultIface}
-	}
-
-	events, err := ebpf.NewMap(&ebpf.MapSpec{
-		Type:       ebpf.RingBuf,
-		MaxEntries: ringBufSize,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create ring buffer: %w", err)
-	}
-
-	ports, err := newPortsMap()
-	if err != nil {
-		_ = events.Close()
-		return nil, fmt.Errorf("failed to create ports whitelist map: %w", err)
-	}
-
-	prog, err := buildDetector(events, ports)
-	if err != nil {
-		_ = events.Close()
-		_ = ports.Close()
-		return nil, fmt.Errorf("failed to load eBPF program: %w", err)
-	}
-
-	s := &Scanner{
-		prog:      prog,
-		events:    events,
-		ports:     ports,
-		handles:   make(map[string]*ifaceHandle),
-		eventsCh:  make(chan Event, 4096),
-		stopCh:    make(chan struct{}),
-		t:         t,
-		log:       log,
-		lastPorts: make(map[uint16]bool),
-	}
-
-	// 单网卡失败仅跳过（网卡可能已改名/移除），全部失败才报错
-	for _, ifaceName := range ifaces {
-		if err := s.attach(ifaceName); err != nil {
-			log.Warn(t.Get("failed to attach scan detector, skip interface"),
-				slog.String("iface", ifaceName), slog.Any("err", err))
-		}
-	}
-	if len(s.handles) == 0 {
-		_ = s.Close()
-		return nil, errors.New("no interface attached")
-	}
-
-	reader, err := ringbuf.NewReader(events)
-	if err != nil {
-		_ = s.Close()
-		return nil, fmt.Errorf("failed to create ring buffer reader: %w", err)
-	}
-	s.reader = reader
-
-	// 初始同步监听端口白名单
-	s.syncPorts()
-
-	go s.readLoop()
-	go s.portsLoop()
-
-	return s, nil
-}
-
-// Events 返回事件通道
-func (s *Scanner) Events() <-chan Event {
-	return s.eventsCh
-}
-
-// Close 卸载 eBPF 程序并清理资源
-func (s *Scanner) Close() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	select {
-	case <-s.stopCh:
-	default:
-		close(s.stopCh)
-	}
-
-	if s.reader != nil {
-		_ = s.reader.Close()
-	}
-
-	for name, h := range s.handles {
-		if err := h.link.Close(); err != nil {
-			s.log.Warn(s.t.Get("failed to detach eBPF program"), slog.String("iface", name), slog.Any("err", err))
-		}
-		s.log.Info(s.t.Get("eBPF scan detector detached"), slog.String("iface", name))
-	}
-
-	if s.prog != nil {
-		_ = s.prog.Close()
-	}
-	if s.events != nil {
-		_ = s.events.Close()
-	}
-	if s.ports != nil {
-		_ = s.ports.Close()
-	}
-
-	return nil
-}
-
-// attach 挂载 eBPF 程序到指定网卡的 TC ingress
-func (s *Scanner) attach(ifaceName string) error {
-	iface, err := net.InterfaceByName(ifaceName)
-	if err != nil {
-		return fmt.Errorf("failed to get interface %s: %w", ifaceName, err)
-	}
-
-	l, err := link.AttachTCX(link.TCXOptions{
-		Interface: iface.Index,
-		Program:   s.prog,
-		Attach:    ebpf.AttachTCXIngress,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to attach TCX to %s: %w", ifaceName, err)
-	}
-
-	s.handles[ifaceName] = &ifaceHandle{link: l}
-	s.log.Info(s.t.Get("eBPF scan detector attached"), slog.String("iface", ifaceName))
-
-	return nil
-}
-
-// readLoop 持续读取 Ring Buffer 事件
-func (s *Scanner) readLoop() {
-	defer close(s.eventsCh)
-
-	for {
-		record, err := s.reader.Read()
-		if err != nil {
-			if errors.Is(err, ringbuf.ErrClosed) {
-				return
-			}
-			s.log.Warn(s.t.Get("failed to read ring buffer"), slog.Any("err", err))
-			continue
-		}
-
-		if len(record.RawSample) < eventSize {
-			continue
-		}
-
-		select {
-		case s.eventsCh <- parseEvent(record.RawSample):
-		default:
-		}
-	}
-}
-
-// portsLoop 定时同步监听端口白名单
-func (s *Scanner) portsLoop() {
-	ticker := time.NewTicker(30 * time.Second)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-s.stopCh:
-			return
-		case <-ticker.C:
-			s.syncPorts()
-		}
-	}
-}
-
-// syncPorts 读取系统当前监听端口并同步到 BPF map
-func (s *Scanner) syncPorts() {
-	newPorts := readListeningPorts()
-
-	// 删除不再监听的端口
-	for port := range s.lastPorts {
-		if !newPorts[port] {
-			_ = s.ports.Delete(uint32(port))
-		}
-	}
-
-	// 添加新监听的端口
-	for port := range newPorts {
-		if !s.lastPorts[port] {
-			_ = s.ports.Put(uint32(port), uint8(1))
-		}
-	}
-
-	s.lastPorts = newPorts
-}
-
-// readListeningPorts 从 /proc 读取当前所有监听端口
-func readListeningPorts() map[uint16]bool {
-	ports := make(map[uint16]bool)
-	// TCP LISTEN (state 0A)
-	parseProcNet("/proc/net/tcp", "0A", ports)
-	parseProcNet("/proc/net/tcp6", "0A", ports)
-	// UDP 绑定端口 (state 07 = unconnected)
-	parseProcNet("/proc/net/udp", "07", ports)
-	parseProcNet("/proc/net/udp6", "07", ports)
-	return ports
-}
-
-// parseProcNet 解析 /proc/net/{tcp,tcp6,udp,udp6} 提取指定状态的本地端口
-func parseProcNet(path, state string, ports map[uint16]bool) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return
-	}
-	for line := range strings.SplitSeq(string(data), "\n") {
-		fields := strings.Fields(line)
-		if len(fields) < 4 || fields[3] != state {
-			continue
-		}
-		// local_address 格式: "00000000:0050" 或 "00000000000000000000000000000000:0050"
-		idx := strings.LastIndex(fields[1], ":")
-		if idx < 0 {
-			continue
-		}
-		port, err := strconv.ParseUint(fields[1][idx+1:], 16, 16)
-		if err != nil {
-			continue
-		}
-		ports[uint16(port)] = true
-	}
-}
-
-// parseEvent 解析原始事件数据
-// 栈布局：[src_ip(16) | dst_port(2) | protocol(1) | version(1)]
-func parseEvent(data []byte) Event {
-	version := data[19]
-
-	var ip net.IP
-	if version == 6 {
-		ip = make(net.IP, 16)
-		copy(ip, data[0:16])
-	} else {
-		ip = net.IPv4(data[0], data[1], data[2], data[3])
-	}
-
-	dstPort := binary.NativeEndian.Uint16(data[16:18])
-	proto := data[18]
-
-	protoStr := "tcp"
-	if proto == ipUDP {
-		protoStr = "udp"
-	}
-
-	return Event{
-		SourceIP:  ip.String(),
-		Port:      dstPort,
-		Protocol:  protoStr,
-		Timestamp: time.Now(),
-	}
 }

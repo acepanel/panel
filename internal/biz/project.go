@@ -10,6 +10,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -46,7 +47,12 @@ type ProjectUsecase struct {
 	t       *gotext.Locale
 }
 
-func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo, websiteUsecase *WebsiteUsecase) *ProjectUsecase {
+func NewProjectUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	projectRepo ProjectRepo,
+	websiteUsecase *WebsiteUsecase,
+) *ProjectUsecase {
 	return &ProjectUsecase{
 		repo:    projectRepo,
 		website: websiteUsecase,
@@ -59,13 +65,18 @@ func (uc *ProjectUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *ProjectUsecase) List(ctx context.Context, typ types.ProjectType, keyword string, page, limit uint) ([]*types.ProjectDetail, int64, error) {
+func (uc *ProjectUsecase) List(
+	ctx context.Context,
+	typ types.ProjectType,
+	keyword string,
+	page, limit uint,
+) ([]*types.ProjectDetail, int64, error) {
 	projects, total, err := uc.repo.List(typ, keyword, page, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	details := lo.Map(projects, func(p *Project, _ int) *types.ProjectDetail {
+	details := lop.Map(projects, func(p *Project, _ int) *types.ProjectDetail {
 		detail, err := uc.repo.ParseDetail(ctx, p)
 		if err != nil {
 			// 如果解析失败，返回基本信息
@@ -177,14 +188,20 @@ func (uc *ProjectUsecase) Delete(ctx context.Context, id uint, websites bool) er
 		return err
 	}
 
+	// 中途取消只会留下半删的项目
+	ctx = context.WithoutCancel(ctx)
+
 	if err = uc.website.ReleaseProject(ctx, id, websites); err != nil {
 		return err
 	}
 
-	// 删除 systemd unit 文件
+	// 先停服务并取消自启，否则进程继续跑且 wants 目录留下悬空链接
+	_ = systemctl.Stop(ctx, project.Name)
+	_ = systemctl.Disable(ctx, project.Name)
 	if err := uc.repo.RemoveUnitFile(project.Name); err != nil {
 		return err
 	}
+	_ = systemctl.DaemonReload(ctx)
 
 	if err := uc.repo.Delete(project); err != nil {
 		return err

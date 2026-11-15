@@ -55,6 +55,119 @@ func Open(path string) (*Reader, error) {
 	return r, nil
 }
 
+// Find 查询 IP 的记录
+func (r *Reader) Find(ip, language string) ([]string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	if r.closed {
+		return nil, ErrClosed
+	}
+
+	langOff, ok := r.meta.Languages[language]
+	if !ok {
+		return nil, ErrNoLanguage
+	}
+
+	addr, err := netip.ParseAddr(ip)
+	if err != nil {
+		return nil, ErrInvalidIP
+	}
+
+	var rawIP []byte
+	var bitCount int
+	if addr.Is4() {
+		ip4 := addr.As4()
+		rawIP = ip4[:]
+		bitCount = 32
+	} else {
+		ip6 := addr.As16()
+		rawIP = ip6[:]
+		bitCount = 128
+	}
+
+	node, err := r.search(rawIP, bitCount)
+	if err != nil {
+		return nil, err
+	}
+
+	record, err := r.resolve(node)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := strings.Split(record, "\t")
+	start := langOff
+	end := start + r.fieldLen
+	if end > len(fields) {
+		return nil, ErrInvalidFile
+	}
+
+	// 拷贝切片，不持有原始 record 引用
+	result := make([]string, r.fieldLen)
+	copy(result, fields[start:end])
+	return result, nil
+}
+
+// Fields 返回字段名列表
+func (r *Reader) Fields() []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.meta.Fields
+}
+
+// Reload 加载新文件替换当前数据
+func (r *Reader) Reload(path string) error {
+	m, err := mmapOpen(path)
+	if err != nil {
+		return err
+	}
+
+	// 先加载验证新文件
+	tmp := &Reader{}
+	if err = tmp.load(m); err != nil {
+		_ = m.Close()
+		return err
+	}
+
+	r.mu.Lock()
+	old := r.mmap
+	r.mmap = tmp.mmap
+	r.body = tmp.body
+	r.meta = tmp.meta
+	r.nodeCount = tmp.nodeCount
+	r.v4offset = tmp.v4offset
+	r.fieldLen = tmp.fieldLen
+	r.mu.Unlock()
+
+	// 关闭旧映射
+	if old != nil {
+		_ = old.Close()
+	}
+	return nil
+}
+
+// Close 释放资源
+func (r *Reader) Close() error {
+	if r == nil {
+		return nil
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.closed {
+		return nil
+	}
+	r.closed = true
+	r.body = nil
+
+	if r.mmap != nil {
+		return r.mmap.Close()
+	}
+	return nil
+}
+
 // load 解析 mmap 数据
 func (r *Reader) load(m *mmapFile) error {
 	data := m.data
@@ -150,117 +263,4 @@ func (r *Reader) resolve(node int) (string, error) {
 
 	// 拷贝到独立字符串，不持有 mmap 引用
 	return string(r.body[off : off+size]), nil
-}
-
-// Find 查询 IP 的记录
-func (r *Reader) Find(ip, language string) ([]string, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	if r.closed {
-		return nil, ErrClosed
-	}
-
-	langOff, ok := r.meta.Languages[language]
-	if !ok {
-		return nil, ErrNoLanguage
-	}
-
-	addr, err := netip.ParseAddr(ip)
-	if err != nil {
-		return nil, ErrInvalidIP
-	}
-
-	var rawIP []byte
-	var bitCount int
-	if addr.Is4() {
-		ip4 := addr.As4()
-		rawIP = ip4[:]
-		bitCount = 32
-	} else {
-		ip6 := addr.As16()
-		rawIP = ip6[:]
-		bitCount = 128
-	}
-
-	node, err := r.search(rawIP, bitCount)
-	if err != nil {
-		return nil, err
-	}
-
-	record, err := r.resolve(node)
-	if err != nil {
-		return nil, err
-	}
-
-	fields := strings.Split(record, "\t")
-	start := langOff * r.fieldLen
-	end := start + r.fieldLen
-	if end > len(fields) {
-		return nil, ErrInvalidFile
-	}
-
-	// 拷贝切片，不持有原始 record 引用
-	result := make([]string, r.fieldLen)
-	copy(result, fields[start:end])
-	return result, nil
-}
-
-// Fields 返回字段名列表
-func (r *Reader) Fields() []string {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return r.meta.Fields
-}
-
-// Reload 加载新文件替换当前数据
-func (r *Reader) Reload(path string) error {
-	m, err := mmapOpen(path)
-	if err != nil {
-		return err
-	}
-
-	// 先加载验证新文件
-	tmp := &Reader{}
-	if err = tmp.load(m); err != nil {
-		_ = m.Close()
-		return err
-	}
-
-	r.mu.Lock()
-	old := r.mmap
-	r.mmap = tmp.mmap
-	r.body = tmp.body
-	r.meta = tmp.meta
-	r.nodeCount = tmp.nodeCount
-	r.v4offset = tmp.v4offset
-	r.fieldLen = tmp.fieldLen
-	r.mu.Unlock()
-
-	// 关闭旧映射
-	if old != nil {
-		_ = old.Close()
-	}
-	return nil
-}
-
-// Close 释放资源
-func (r *Reader) Close() error {
-	if r == nil {
-		return nil
-	}
-
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	if r.closed {
-		return nil
-	}
-	r.closed = true
-	r.body = nil
-
-	if r.mmap != nil {
-		return r.mmap.Close()
-	}
-	return nil
 }

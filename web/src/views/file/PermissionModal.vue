@@ -8,7 +8,7 @@ import { useFileStore } from '@/stores'
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const selected = computed(() => fileStore.activeTab?.selected ?? [])
+const selected = computed(() => fileStore.activeSelected)
 const mode = ref('755')
 const owner = ref('www')
 const group = ref('www')
@@ -55,9 +55,7 @@ const handlePermission = async () => {
   if (results.some((r) => r.status === 'rejected')) return
 
   show.value = false
-  if (fileStore.activeTab) {
-    fileStore.activeTab.selected = []
-  }
+  fileStore.selected[fileStore.activeTabId] = []
   window.$message.success($gettext('Modified successfully'))
 }
 

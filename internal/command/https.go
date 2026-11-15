@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -16,25 +14,19 @@ func HttpsCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command
 		Usage: t.Get("Operate AcePanel HTTPS"),
 		Commands: []*cli.Command{
 			{
-				Name:  "on",
-				Usage: t.Get("Enable HTTPS"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.HTTPSOn(ctx, cmd)
-				},
+				Name:   "on",
+				Usage:  t.Get("Enable HTTPS"),
+				Action: cliService.HTTPSOn,
 			},
 			{
-				Name:  "off",
-				Usage: t.Get("Disable HTTPS"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.HTTPSOff(ctx, cmd)
-				},
+				Name:   "off",
+				Usage:  t.Get("Disable HTTPS"),
+				Action: cliService.HTTPSOff,
 			},
 			{
-				Name:  "generate",
-				Usage: t.Get("Obtain a free certificate or generate a self-signed certificate"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.HTTPSGenerate(ctx, cmd)
-				},
+				Name:   "generate",
+				Usage:  t.Get("Obtain a free certificate or generate a self-signed certificate"),
+				Action: cliService.HTTPSGenerate,
 			},
 		},
 	}

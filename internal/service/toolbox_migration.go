@@ -121,12 +121,7 @@ func (s *ToolboxMigrationService) DownloadLog(w http.ResponseWriter, r *http.Req
 
 // Progress 通过 WebSocket 推送迁移进度
 func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Request) {
-	opts := &websocket.AcceptOptions{CompressionMode: websocket.CompressionContextTakeover}
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	ws, err := websocket.Accept(w, r, opts)
+	ws, err := upgradeWS(w, r, s.conf)
 	if err != nil {
 		s.log.Warn(s.t.Get("websocket upgrade error"), slog.Any("err", err))
 		return

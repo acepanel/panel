@@ -9,7 +9,10 @@ import (
 )
 
 // FirewallRoutes 防火墙路由
-func FirewallRoutes(firewallScanService *service.FirewallScanService, firewallService *service.FirewallService) Endpoints {
+func FirewallRoutes(
+	firewallScanService *service.FirewallScanService,
+	firewallService *service.FirewallService,
+) Endpoints {
 	svc := firewallService
 	scan := firewallScanService
 

@@ -39,7 +39,13 @@ const (
 
 type EAB = acme.EAB
 
-func NewRegisterAccount(ctx context.Context, email, ca string, eab *EAB, keyType KeyType, log *slog.Logger) (*Client, error) {
+func NewRegisterAccount(
+	ctx context.Context,
+	email, ca string,
+	eab *EAB,
+	keyType KeyType,
+	log *slog.Logger,
+) (*Client, error) {
 	client := getClient(ca, log)
 
 	accountPrivateKey, err := generatePrivateKey(keyType)
@@ -66,7 +72,12 @@ func NewRegisterAccount(ctx context.Context, email, ca string, eab *EAB, keyType
 	return &Client{Account: account, zClient: client}, nil
 }
 
-func NewPrivateKeyAccount(ctx context.Context, email string, privateKey string, ca string, eab *EAB, log *slog.Logger) (*Client, error) {
+func NewPrivateKeyAccount(
+	ctx context.Context,
+	email, privateKey, ca string,
+	eab *EAB,
+	log *slog.Logger,
+) (*Client, error) {
 	client := getClient(ca, log)
 
 	key, err := cert.ParseKey([]byte(privateKey))

@@ -51,5 +51,5 @@ func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	common.WriteConfig(w, r, s.log, s.t, "minio", envPath, req.Env, 0600, "minio")
+	common.WriteConfig(w, r, s.log, s.t, "minio", envPath, req.Env, 0600, common.Restart("minio"))
 }

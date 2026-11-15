@@ -3,8 +3,6 @@ import { http } from '@/utils'
 export default {
   // 状态与环境检测
   status: (): any => http.Get('/tamper/status'),
-  // 获取全局设置
-  setting: (): any => http.Get('/tamper/setting'),
   // 保存全局设置(含开关)
   saveSetting: (data: any): any => http.Post('/tamper/setting', data),
   // 激活 eBPF(改 grub 并重启系统)

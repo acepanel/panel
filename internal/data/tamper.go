@@ -42,14 +42,6 @@ func (r *tamperRepo) GetRule(id uint) (*biz.TamperRule, error) {
 	return rule, nil
 }
 
-func (r *tamperRepo) GetRuleByName(name string) (*biz.TamperRule, error) {
-	rule := new(biz.TamperRule)
-	if err := r.db.Where("name = ?", name).First(rule).Error; err != nil {
-		return nil, err
-	}
-	return rule, nil
-}
-
 func (r *tamperRepo) CreateRule(rule *biz.TamperRule) error {
 	return r.db.Create(rule).Error
 }

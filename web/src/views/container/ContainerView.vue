@@ -1,21 +1,13 @@
 <script setup lang="ts">
-import '@fontsource-variable/jetbrains-mono/wght-italic.css'
-import '@fontsource-variable/jetbrains-mono/wght.css'
-import { ClipboardAddon } from '@xterm/addon-clipboard'
-import { FitAddon } from '@xterm/addon-fit'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
-import { WebLinksAddon } from '@xterm/addon-web-links'
-import { WebglAddon } from '@xterm/addon-webgl'
-import { Terminal } from '@xterm/xterm'
-
-import '@xterm/xterm/css/xterm.css'
 import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import ws from '@/api/ws'
+import { createXterm } from '@/components/common/composables/useXterm'
+import type { Xterm } from '@/components/common/composables/useXterm'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import ContainerCreate from '@/views/container/ContainerCreate.vue'
 import ContainerInfoModal from '@/views/container/ContainerInfoModal.vue'
 
@@ -39,10 +31,7 @@ const renameModel = ref({
 const terminalModal = ref(false)
 const terminalContainerName = ref('')
 const terminalRef = ref<HTMLElement | null>(null)
-const term = ref<Terminal | null>(null)
-let containerWs: WebSocket | null = null
-let fitAddon: FitAddon | null = null
-let webglAddon: WebglAddon | null = null
+let xterm: Xterm | null = null
 
 const containerCreateModal = ref(false)
 const pruneLoading = ref(false)
@@ -68,13 +57,7 @@ const columns: any = [
         rubberBand: false,
         value: row.state === 'running',
         loading: switching.has(row.id),
-        onUpdateValue: (value: boolean) => {
-          if (value) {
-            handleStart(row.id)
-          } else {
-            handleStop(row.id)
-          }
-        },
+        onUpdateValue: (value: boolean) => run(value ? 'start' : 'stop', [row.id]),
       })
     },
   },
@@ -186,72 +169,19 @@ const columns: any = [
           NDropdown,
           {
             options: [
-              {
-                label: $gettext('Edit'),
-                key: 'edit',
-              },
-              {
-                label: $gettext('Start'),
-                key: 'start',
-                disabled: row.state === 'running',
-              },
-              {
-                label: $gettext('Stop'),
-                key: 'stop',
-                disabled: row.state !== 'running',
-              },
-              {
-                label: $gettext('Restart'),
-                key: 'restart',
-                disabled: row.state !== 'running',
-              },
-              {
-                label: $gettext('Force Stop'),
-                key: 'forceStop',
-                disabled: row.state !== 'running',
-              },
-              {
-                label: $gettext('Pause'),
-                key: 'pause',
-                disabled: row.state !== 'running',
-              },
-              {
-                label: $gettext('Resume'),
-                key: 'unpause',
-                disabled: row.state === 'running',
-              },
-              {
-                label: $gettext('Delete'),
-                key: 'delete',
-              },
+              { label: $gettext('Edit'), key: 'edit' },
+              ...actions.map((item) => ({
+                label: item.label,
+                key: item.key,
+                disabled: item.running !== undefined && item.running !== (row.state === 'running'),
+              })),
             ],
             onSelect: (key: string) => {
-              switch (key) {
-                case 'edit':
-                  editContainerId.value = row.id
-                  editModal.value = true
-                  break
-                case 'start':
-                  handleStart(row.id)
-                  break
-                case 'stop':
-                  handleStop(row.id)
-                  break
-                case 'restart':
-                  handleRestart(row.id)
-                  break
-                case 'forceStop':
-                  handleForceStop(row.id)
-                  break
-                case 'pause':
-                  handlePause(row.id)
-                  break
-                case 'unpause':
-                  handleUnpause(row.id)
-                  break
-                case 'delete':
-                  handleDelete(row.id)
-                  break
+              if (key === 'edit') {
+                editContainerId.value = row.id
+                editModal.value = true
+              } else {
+                run(key, [row.id])
               }
             },
           },
@@ -275,18 +205,13 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => container.containerList(page, pageSize, keyword.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [keyword],
     debounce: [300],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleShowLog = (row: any) => {
   logId.value = row.id
@@ -306,61 +231,82 @@ const handleRename = () => {
     })
 }
 
+// 用 type 而非 interface：要能直接当作下拉选项传给 n-dropdown
+type ContainerAction = {
+  key: string
+  label: string
+  // 要求容器所处的运行状态，缺省不限
+  running?: boolean
+  request: (id: string) => any
+  success: string
+}
+
+// 行内开关与下拉、批量按钮组、手机批量下拉共用
+const actions: ContainerAction[] = [
+  {
+    key: 'start',
+    label: $gettext('Start'),
+    running: false,
+    request: container.containerStart,
+    success: $gettext('Start successful'),
+  },
+  {
+    key: 'stop',
+    label: $gettext('Stop'),
+    running: true,
+    request: container.containerStop,
+    success: $gettext('Stop successful'),
+  },
+  {
+    key: 'restart',
+    label: $gettext('Restart'),
+    running: true,
+    request: container.containerRestart,
+    success: $gettext('Restart successful'),
+  },
+  {
+    key: 'forceStop',
+    label: $gettext('Force Stop'),
+    running: true,
+    request: container.containerKill,
+    success: $gettext('Force stop successful'),
+  },
+  {
+    key: 'pause',
+    label: $gettext('Pause'),
+    running: true,
+    request: container.containerPause,
+    success: $gettext('Pause successful'),
+  },
+  {
+    key: 'unpause',
+    label: $gettext('Resume'),
+    running: false,
+    request: container.containerUnpause,
+    success: $gettext('Resume successful'),
+  },
+  {
+    key: 'delete',
+    label: $gettext('Delete'),
+    request: container.containerRemove,
+    success: $gettext('Delete successful'),
+  },
+]
+
+// 操作进行中的容器，行内开关显示加载态
 const switching = reactive(new Set<string>())
 
-const handleStart = (id: string) => {
-  switching.add(id)
-  useRequest(container.containerStart(id))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Start successful'))
-    })
-    .onComplete(() => switching.delete(id))
-}
-
-const handleStop = (id: string) => {
-  switching.add(id)
-  useRequest(container.containerStop(id))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Stop successful'))
-    })
-    .onComplete(() => switching.delete(id))
-}
-
-const handleRestart = (id: string) => {
-  useRequest(container.containerRestart(id)).onSuccess(() => {
+const run = async (key: string, ids: string[]) => {
+  const action = actions.find((item) => item.key === key)!
+  ids.forEach((id) => switching.add(id))
+  try {
+    await Promise.all(ids.map((id) => action.request(id)))
+    selectedRowKeys.value = []
     refresh()
-    window.$message.success($gettext('Restart successful'))
-  })
-}
-
-const handleForceStop = (id: string) => {
-  useRequest(container.containerKill(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Force stop successful'))
-  })
-}
-
-const handlePause = (id: string) => {
-  useRequest(container.containerPause(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Pause successful'))
-  })
-}
-
-const handleUnpause = (id: string) => {
-  useRequest(container.containerUnpause(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Resume successful'))
-  })
-}
-
-const handleDelete = (id: string) => {
-  useRequest(container.containerRemove(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Delete successful'))
-  })
+    window.$message.success(action.success)
+  } finally {
+    ids.forEach((id) => switching.delete(id))
+  }
 }
 
 const handlePrune = () => {
@@ -375,81 +321,8 @@ const handlePrune = () => {
     })
 }
 
-const bulkStart = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerStart(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Start successful'))
-}
-
-const bulkStop = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerStop(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Stop successful'))
-}
-
-const bulkRestart = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerRestart(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Restart successful'))
-}
-
-const bulkForceStop = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerKill(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Force stop successful'))
-}
-
-const bulkDelete = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerRemove(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Delete successful'))
-}
-
-const bulkPause = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerPause(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Pause successful'))
-}
-
-const bulkUnpause = async () => {
-  const promises = selectedRowKeys.value.map((id: any) => container.containerUnpause(id))
-  await Promise.all(promises)
-
-  selectedRowKeys.value = []
-  refresh()
-  window.$message.success($gettext('Resume successful'))
-}
-
 // 批量操作：桌面按钮组，手机七个按钮放不下改下拉
 const { isMobile } = useResponsive()
-const bulkActions = [
-  { label: $gettext('Start'), key: 'start', handler: bulkStart },
-  { label: $gettext('Stop'), key: 'stop', handler: bulkStop },
-  { label: $gettext('Restart'), key: 'restart', handler: bulkRestart },
-  { label: $gettext('Force Stop'), key: 'forceStop', handler: bulkForceStop },
-  { label: $gettext('Pause'), key: 'pause', handler: bulkPause },
-  { label: $gettext('Resume'), key: 'unpause', handler: bulkUnpause },
-  { label: $gettext('Delete'), key: 'delete', handler: bulkDelete },
-]
-const handleBulkSelect = (key: string) => bulkActions.find((item) => item.key === key)?.handler()
 
 const closeContainerCreateModal = () => {
   refresh()
@@ -463,89 +336,16 @@ const handleOpenTerminal = async (row: any) => {
   await nextTick()
 
   // 确保终端容器存在
-  if (!terminalRef.value) {
+  const el = terminalRef.value
+  if (!el) {
     window.$message.error($gettext('Terminal container not found'))
     return
   }
 
   try {
-    containerWs = await ws.container(row.id)
-    containerWs.binaryType = 'arraybuffer'
-
-    term.value = new Terminal({
-      allowProposedApi: true,
-      lineHeight: 1.2,
-      fontSize: 14,
-      fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: true,
-      cursorStyle: 'underline',
-      tabStopWidth: 4,
-      scrollOnEraseInDisplay: true,
+    xterm = createXterm(el, await ws.container(row.id), {
       theme: { background: '#111', foreground: '#fff' },
     })
-
-    fitAddon = new FitAddon()
-    webglAddon = new WebglAddon()
-
-    term.value.loadAddon(fitAddon)
-    term.value.loadAddon(new ClipboardAddon())
-    term.value.loadAddon(new WebLinksAddon())
-    term.value.loadAddon(new Unicode11Addon())
-    term.value.unicode.activeVersion = '11'
-    term.value.loadAddon(webglAddon)
-    webglAddon.onContextLoss(() => {
-      webglAddon?.dispose()
-    })
-    term.value.open(terminalRef.value)
-
-    containerWs.onmessage = (ev) => {
-      const data: ArrayBuffer | string = ev.data
-      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
-    }
-    term.value.onData((data) => {
-      if (containerWs?.readyState === WebSocket.OPEN) {
-        containerWs?.send(data)
-      }
-    })
-    term.value.onBinary((data) => {
-      if (containerWs?.readyState === WebSocket.OPEN) {
-        const buffer = new Uint8Array(data.length)
-        for (let i = 0; i < data.length; ++i) {
-          buffer[i] = data.charCodeAt(i) & 255
-        }
-        containerWs?.send(buffer)
-      }
-    })
-    term.value.onResize(({ rows, cols }) => {
-      if (containerWs && containerWs.readyState === WebSocket.OPEN) {
-        containerWs.send(
-          JSON.stringify({
-            resize: true,
-            columns: cols,
-            rows: rows,
-          }),
-        )
-      }
-    })
-
-    fitAddon.fit()
-    term.value.focus()
-    window.addEventListener('resize', onTerminalResize, false)
-
-    containerWs.onclose = () => {
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection closed.'))
-      }
-      window.removeEventListener('resize', onTerminalResize)
-    }
-
-    containerWs.onerror = (event) => {
-      if (term.value) {
-        term.value.write('\r\n' + $gettext('Connection error.'))
-      }
-      console.error(event)
-      containerWs?.close()
-    }
   } catch (error) {
     console.error('Failed to connect to container terminal:', error)
     window.$message.error($gettext('Failed to connect to container terminal'))
@@ -555,56 +355,9 @@ const handleOpenTerminal = async (row: any) => {
 
 // 关闭容器终端
 const closeTerminal = () => {
-  try {
-    if (containerWs) {
-      containerWs.close()
-      containerWs = null
-    }
-    if (term.value) {
-      term.value.dispose()
-      term.value = null
-    }
-    fitAddon = null
-    webglAddon = null
-    if (terminalRef.value) {
-      terminalRef.value.innerHTML = ''
-    }
-    window.removeEventListener('resize', onTerminalResize)
-  } catch {
-    /* empty */
-  }
+  xterm?.dispose()
+  xterm = null
 }
-
-// 终端大小调整
-const onTerminalResize = () => {
-  if (fitAddon && term.value) {
-    fitAddon.fit()
-  }
-}
-
-// 终端滚轮缩放
-const onTerminalWheel = (event: WheelEvent) => {
-  if (event.ctrlKey && term.value && fitAddon) {
-    event.preventDefault()
-    if (event.deltaY > 0) {
-      if (term.value.options.fontSize! > 12) {
-        term.value.options.fontSize = term.value.options.fontSize! - 1
-      }
-    } else {
-      term.value.options.fontSize = term.value.options.fontSize! + 1
-    }
-    fitAddon.fit()
-  }
-}
-
-// 终端模态框关闭后清理
-const handleTerminalModalClose = () => {
-  closeTerminal()
-}
-
-onMounted(() => {
-  refresh()
-})
 
 onUnmounted(() => {
   closeTerminal()
@@ -630,9 +383,9 @@ onUnmounted(() => {
         <n-dropdown
           v-if="isMobile"
           trigger="click"
-          :options="bulkActions"
+          :options="actions"
           :disabled="selectedRowKeys.length === 0"
-          @select="handleBulkSelect"
+          @select="(key: string) => run(key, selectedRowKeys)"
         >
           <n-button :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Actions') }}
@@ -640,11 +393,11 @@ onUnmounted(() => {
         </n-dropdown>
         <n-button-group v-else>
           <n-button
-            v-for="item in bulkActions"
+            v-for="item in actions"
             :key="item.key"
             :disabled="selectedRowKeys.length === 0"
             ghost
-            @click="item.handler"
+            @click="run(item.key, selectedRowKeys)"
           >
             {{ item.label }}
           </n-button>
@@ -698,13 +451,9 @@ onUnmounted(() => {
     size="full"
     :title="$gettext('Terminal') + ' - ' + terminalContainerName"
     style="height: 80vh"
-    @after-leave="handleTerminalModalClose"
+    @after-leave="closeTerminal"
   >
-    <div
-      ref="terminalRef"
-      @wheel="onTerminalWheel"
-      style="height: 100%; min-height: 60vh; background: #111"
-    ></div>
+    <div ref="terminalRef" style="height: 100%; min-height: 60vh; background: #111"></div>
   </app-modal>
   <ContainerCreate v-model:show="containerCreateModal" @update:show="closeContainerCreateModal" />
   <ContainerCreate

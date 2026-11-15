@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import copy2clipboard from '@vavt/copy2clipboard'
-import { NButton, NDataTable, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import mysql from '@/api/apps/mysql'
+import type mysql from '@/api/apps/mysql'
 import file from '@/api/panel/file'
-import systemctl from '@/api/panel/systemctl'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import MysqlConfigTuneView from './MysqlConfigTuneView.vue'
 import MysqlMaintenanceView from './MysqlMaintenanceView.vue'
@@ -19,98 +15,16 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const setRootPasswordLoading = ref(false)
-const saveConfigLoading = ref(false)
-const clearLogLoading = ref(false)
-const clearSlowLogLoading = ref(false)
-const runLogRef = ref<{ clear: () => void } | null>(null)
-const slowLogRef = ref<{ clear: () => void } | null>(null)
 
-const { data: rootPassword } = useRequest(props.api.rootPassword, {
-  initialData: '',
-})
-const { data: config, send: refreshConfig } = useRequest(props.api.config, {
-  initialData: '',
-})
-
-watch(currentTab, (val) => {
-  if (val === 'config') {
-    refreshConfig()
-  }
-})
 const { data: slowLog } = useRequest(props.api.slowLog, {
   initialData: '',
 })
-const { data: load } = useRequest(props.api.load, {
-  initialData: [],
-})
 
-const loadColumns: any = [
-  {
-    title: $gettext('Property'),
-    key: 'name',
-    minWidth: 200,
-    resizable: true,
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: $gettext('Current Value'),
-    key: 'value',
-    ellipsis: { tooltip: true },
-  },
-]
+const clearSlowLog = () => file.truncate(slowLog.value)
 
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(props.api.saveConfig(config.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
-}
-
-const handleClearLog = () => {
-  clearLogLoading.value = true
-  useRequest(systemctl.clearLog('mysqld'))
-    .onSuccess(() => {
-      runLogRef.value?.clear()
-      window.$message.success($gettext('Cleared successfully'))
-    })
-    .onComplete(() => {
-      clearLogLoading.value = false
-    })
-}
-
-const handleClearSlowLog = () => {
-  clearSlowLogLoading.value = true
-  useRequest(file.truncate(slowLog.value))
-    .onSuccess(() => {
-      slowLogRef.value?.clear()
-      window.$message.success($gettext('Cleared successfully'))
-    })
-    .onComplete(() => {
-      clearSlowLogLoading.value = false
-    })
-}
-
-const handleSetRootPassword = () => {
-  setRootPasswordLoading.value = true
-  useRequest(props.api.setRootPassword(rootPassword.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Modified successfully'))
-    })
-    .onComplete(() => {
-      setRootPasswordLoading.value = false
-    })
-}
-
-const handleCopyRootPassword = () => {
-  copy2clipboard(rootPassword.value).then(() => {
-    window.$message.success($gettext('Copied successfully'))
-  })
-}
+const rootPasswordTip = $gettext(
+  'The "root" user password is used to manage the database system. Keep it safe!',
+)
 </script>
 
 <template>
@@ -119,57 +33,25 @@ const handleCopyRootPassword = () => {
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <service-status service="mysqld" />
-          <n-card :title="$gettext('Root Password')">
-            <n-flex vertical>
-              <n-alert type="info">
-                {{
-                  $gettext(
-                    'The "root" user password is used to manage the database system. Keep it safe!',
-                  )
-                }}
-              </n-alert>
-              <n-flex>
-                <n-input-group>
-                  <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
-                  <n-button type="primary" ghost @click="handleCopyRootPassword">
-                    {{ $gettext('Copy') }}
-                  </n-button>
-                </n-input-group>
-                <n-button
-                  type="primary"
-                  :loading="setRootPasswordLoading"
-                  :disabled="setRootPasswordLoading"
-                  @click="handleSetRootPassword"
-                >
-                  {{ $gettext('Save') }}
-                </n-button>
-              </n-flex>
-            </n-flex>
-          </n-card>
+          <password-card
+            :title="$gettext('Root Password')"
+            :tip="rootPasswordTip"
+            :fetch="props.api.rootPassword"
+            :save="props.api.setRootPassword"
+          />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { name },
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="props.api.config"
+          :save="props.api.saveConfig"
+          :tip="
+            $gettext(
+              'This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+              { name },
+            )
+          "
+        />
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <mysql-config-tune-view :api="props.api" />
@@ -181,37 +63,13 @@ const handleCopyRootPassword = () => {
         <mysql-maintenance-view :api="props.api" />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
-        <n-data-table striped remote :loading="false" :columns="loadColumns" :data="load" />
+        <load-status-table :fetch="props.api.load" />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <n-flex vertical>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="clearLogLoading"
-              :disabled="clearLogLoading"
-              @click="handleClearLog"
-            >
-              {{ $gettext('Clear Log') }}
-            </n-button>
-          </n-flex>
-          <realtime-log ref="runLogRef" service="mysqld" />
-        </n-flex>
+        <clearable-log service="mysqld" />
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
-        <n-flex vertical>
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="clearSlowLogLoading"
-              :disabled="clearSlowLogLoading"
-              @click="handleClearSlowLog"
-            >
-              {{ $gettext('Clear Slow Log') }}
-            </n-button>
-          </n-flex>
-          <realtime-log ref="slowLogRef" :path="slowLog" />
-        </n-flex>
+        <clearable-log :path="slowLog" :clear="clearSlowLog" :label="$gettext('Clear Slow Log')" />
       </n-tab-pane>
     </n-tabs>
   </PageContainer>

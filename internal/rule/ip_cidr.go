@@ -8,22 +8,22 @@ import (
 	"github.com/spf13/cast"
 )
 
-// IPCIDR 验证一个值是否是有效的 IP 或 CIDR
-type IPCIDR struct {
+// ipCIDR 验证一个值是否是有效的 IP 或 CIDR
+type ipCIDR struct {
 	t *gotext.Locale
 }
 
-func NewIPCIDR(t *gotext.Locale) *IPCIDR {
-	return &IPCIDR{t: t}
+func newIPCIDR(t *gotext.Locale) *ipCIDR {
+	return &ipCIDR{t: t}
 }
 
-func (r *IPCIDR) Signature() string { return "ipcidr" }
+func (r *ipCIDR) Signature() string { return "ipcidr" }
 
-func (r *IPCIDR) Message() string {
+func (r *ipCIDR) Message() string {
 	return r.t.Get("{field} must be a valid IP address or CIDR notation")
 }
 
-func (r *IPCIDR) Passes(f *validator.Field) bool {
+func (r *ipCIDR) Passes(f *validator.Field) bool {
 	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}

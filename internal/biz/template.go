@@ -28,7 +28,12 @@ type TemplateUsecase struct {
 	log   *slog.Logger
 }
 
-func NewTemplateUsecase(t *gotext.Locale, log *slog.Logger, cacheRepo CacheRepo, templateRepo TemplateRepo) *TemplateUsecase {
+func NewTemplateUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	cacheRepo CacheRepo,
+	templateRepo TemplateRepo,
+) *TemplateUsecase {
 	return &TemplateUsecase{
 		repo:  templateRepo,
 		cache: cacheRepo,
@@ -83,7 +88,11 @@ func (uc *TemplateUsecase) Callback(slug string) error {
 }
 
 // CreateCompose 创建编排
-func (uc *TemplateUsecase) CreateCompose(ctx context.Context, slug, name, compose string, envs []types.KV) (string, error) {
+func (uc *TemplateUsecase) CreateCompose(
+	ctx context.Context,
+	slug, name, compose string,
+	envs []types.KV,
+) (string, error) {
 	dir := filepath.Join(app.Root, "compose", name)
 
 	// 检查编排是否已存在

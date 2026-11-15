@@ -4,6 +4,7 @@ import (
 	"fmt"
 	stdio "io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,7 +27,12 @@ type BackupService struct {
 	taskRepo   *biz.TaskUsecase
 }
 
-func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale, log *slog.Logger) *BackupService {
+func NewBackupService(
+	backupUsecase *biz.BackupUsecase,
+	taskUsecase *biz.TaskUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *BackupService {
 	return &BackupService{
 		t:          t,
 		log:        log,
@@ -66,7 +72,6 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 备份可能耗时较长（大库），提交到后台任务队列异步执行
-	pathEnv := "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n"
 	var backupCmd string
 	if req.Type == "website" {
 		backupCmd = fmt.Sprintf("acepanel backup website -n '%s' -s '%d'", req.Target, req.Storage)
@@ -74,22 +79,13 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 		backupCmd = fmt.Sprintf("acepanel backup database -t '%s' -n '%s' -s '%d'", req.Type, req.Target, req.Storage)
 	}
 
-	// 备份进程被杀后无法自清临时目录，包一层独享 TMPDIR 供取消时精确清理，不误伤并发的其他备份
-	// 放在面板目录下，避免大文件撑爆 /tmp（常为内存盘）
-	tmpDir := filepath.Join(app.Root, "tmp", "ace-backup-task-"+str.Random(16))
-	cmd := fmt.Sprintf(`%sexport TMPDIR="%s"
-mkdir -p "$TMPDIR"
-%s
-rc=$?
-rm -rf "$TMPDIR"
-exit $rc`, pathEnv, tmpDir, backupCmd)
-
+	script, cancelScript := s.taskScript("backup", backupCmd)
 	task := &biz.Task{
 		Key:         fmt.Sprintf("backup:%s:%s", req.Type, req.Target),
 		Name:        s.t.Get("Backup %s: %s", req.Type, req.Target),
 		Status:      biz.TaskStatusWaiting,
-		Shell:       cmd,
-		CancelShell: fmt.Sprintf(`rm -rf "%s"`, tmpDir),
+		Shell:       script,
+		CancelShell: cancelScript,
 	}
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -114,6 +110,10 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
+	if req.File == nil {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("file is required"))
+		return
+	}
 
 	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .zst .7z
 	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".zst", ".7z"}, filepath.Ext(req.File.Filename)) {
@@ -122,26 +122,18 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := s.backupRepo.GetDefaultPath(biz.BackupType(req.Type))
-	if io.Exists(filepath.Join(path, req.File.Filename)) {
+	target := filepath.Join(path, req.File.Filename)
+	if io.Exists(target) {
 		Error(w, http.StatusForbidden, s.t.Get("target backup %s already exists", path))
 		return
 	}
 
-	src, _ := req.File.Open()
-	out, err := os.OpenFile(filepath.Join(path, req.File.Filename), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
-	if err != nil {
+	if err := s.saveUpload(req.File, target); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if _, err = stdio.Copy(out, src); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	_ = src.Close()
-
-	s.log.Info(s.t.Get("backup uploaded"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("name", req.File.Filename), slog.String("path", filepath.Join(path, req.File.Filename)), slog.Int64("size", req.File.Size))
+	s.log.Info(s.t.Get("backup uploaded"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("name", req.File.Filename), slog.String("path", target), slog.Int64("size", req.File.Size))
 
 	Success(w, nil)
 }
@@ -194,7 +186,6 @@ func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 恢复可能耗时较长（大库/大站），提交到后台任务队列异步执行
-	pathEnv := "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n"
 	var restoreCmd string
 	if req.Type == "website" {
 		restoreCmd = fmt.Sprintf("acepanel restore website -n '%s' -f '%s'", req.Target, req.File)
@@ -202,22 +193,13 @@ func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 		restoreCmd = fmt.Sprintf("acepanel restore database -t '%s' -n '%s' -f '%s'", req.Type, req.Target, req.File)
 	}
 
-	// 恢复进程被杀后无法自清临时目录，包一层独享 TMPDIR 供取消时精确清理，不误伤并发的其他任务
-	// 放在面板目录下，避免大文件撑爆 /tmp（常为内存盘）
-	tmpDir := filepath.Join(app.Root, "tmp", "ace-restore-task-"+str.Random(16))
-	cmd := fmt.Sprintf(`%sexport TMPDIR="%s"
-mkdir -p "$TMPDIR"
-%s
-rc=$?
-rm -rf "$TMPDIR"
-exit $rc`, pathEnv, tmpDir, restoreCmd)
-
+	script, cancelScript := s.taskScript("restore", restoreCmd)
 	task := &biz.Task{
 		Key:         fmt.Sprintf("restore:%s:%s", req.Type, req.Target),
 		Name:        s.t.Get("Restore %s: %s", req.Type, req.Target),
 		Status:      biz.TaskStatusWaiting,
-		Shell:       cmd,
-		CancelShell: fmt.Sprintf(`rm -rf "%s"`, tmpDir),
+		Shell:       script,
+		CancelShell: cancelScript,
 	}
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -227,4 +209,52 @@ exit $rc`, pathEnv, tmpDir, restoreCmd)
 	s.log.Info(s.t.Get("restore task created"), slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("backup_type", req.Type), slog.String("target", req.Target), slog.String("name", filepath.Base(req.File)), slog.String("path", req.File), slog.Uint64("task_id", uint64(task.ID)))
 
 	Success(w, nil)
+}
+
+// saveUpload 先写同目录临时文件再 rename，中途失败不留半截文件
+func (s *BackupService) saveUpload(file *multipart.FileHeader, target string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = src.Close() }()
+
+	tmp, err := os.CreateTemp(filepath.Dir(target), "."+filepath.Base(target)+".*.part")
+	if err != nil {
+		return err
+	}
+	// 改名成功后临时文件已不存在，Remove 无害
+	defer func() {
+		_ = tmp.Close()
+		_ = os.Remove(tmp.Name())
+	}()
+
+	if _, err = stdio.Copy(tmp, src); err != nil {
+		return err
+	}
+	if err = tmp.Chmod(0644); err != nil {
+		return err
+	}
+	// 写入错误可能要到 Close 才暴露（如磁盘写满），这里不能吞
+	if err = tmp.Close(); err != nil {
+		return err
+	}
+
+	return os.Rename(tmp.Name(), target)
+}
+
+// taskScript 给任务命令补上 PATH 与独享的 TMPDIR，返回任务脚本和取消时的清理脚本
+// 进程被杀后无法自清临时目录，独享目录供取消时精确清理，不误伤并发的其他任务
+// 放在面板目录下，避免大文件撑爆 /tmp（常为内存盘）
+func (s *BackupService) taskScript(kind, command string) (string, string) {
+	tmpDir := filepath.Join(app.Root, "tmp", "ace-"+kind+"-task-"+str.Random(16))
+	script := fmt.Sprintf(`export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
+export TMPDIR="%s"
+mkdir -p "$TMPDIR"
+%s
+rc=$?
+rm -rf "$TMPDIR"
+exit $rc`, tmpDir, command)
+
+	return script, fmt.Sprintf(`rm -rf "%s"`, tmpDir)
 }

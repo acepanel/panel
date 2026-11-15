@@ -38,8 +38,6 @@ type TaskRepo interface {
 	GetByIDs(ids []uint) ([]*Task, error)
 	Delete(id uint) error
 	Cancel(id uint) error
-	UpdateStatus(id uint, status TaskStatus) error
-	UpdateLog(id uint, log string) error
 	Push(task *Task) error
 }
 
@@ -109,14 +107,6 @@ func (uc *TaskUsecase) Cancel(ctx context.Context, id uint) error {
 
 	uc.log.Info(uc.t.Get("task canceled"), slog.String("type", OperationTypePanel), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", task.Name), slog.String("status", string(task.Status)))
 	return nil
-}
-
-func (uc *TaskUsecase) UpdateStatus(id uint, status TaskStatus) error {
-	return uc.repo.UpdateStatus(id, status)
-}
-
-func (uc *TaskUsecase) UpdateLog(id uint, log string) error {
-	return uc.repo.UpdateLog(id, log)
 }
 
 func (uc *TaskUsecase) Push(task *Task) error {

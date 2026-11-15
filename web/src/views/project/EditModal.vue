@@ -5,7 +5,6 @@ import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
-import PathSelector from '@/components/common/PathSelector.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
 import { buildCommand, currentRuntime } from './command'

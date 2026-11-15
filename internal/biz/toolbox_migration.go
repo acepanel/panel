@@ -128,7 +128,10 @@ func NewToolboxMigrationUsecase(
 }
 
 // Connect 校验来源连接并保存，返回来源面板信息
-func (uc *ToolboxMigrationUsecase) Connect(ctx context.Context, conn *request.ToolboxMigrationConnection) (*types.MigrationSource, error) {
+func (uc *ToolboxMigrationUsecase) Connect(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+) (*types.MigrationSource, error) {
 	if conn.SourcePanel == "" {
 		conn.SourcePanel = "acepanel"
 	}
@@ -229,7 +232,9 @@ func (uc *ToolboxMigrationUsecase) Start(ctx context.Context, req *request.Toolb
 }
 
 // Status 返回当前迁移状态，since 为已获取的日志条数
-func (uc *ToolboxMigrationUsecase) Status(since int) (types.MigrationStep, []types.MigrationResult, []string, *time.Time, *time.Time) {
+func (uc *ToolboxMigrationUsecase) Status(
+	since int,
+) (types.MigrationStep, []types.MigrationResult, []string, *time.Time, *time.Time) {
 	uc.state.mu.RLock()
 	defer uc.state.mu.RUnlock()
 	logs := uc.state.logs
@@ -267,7 +272,11 @@ func (uc *ToolboxMigrationUsecase) Reset(ctx context.Context) error {
 }
 
 // run 执行迁移，按依赖顺序逐项处理
-func (uc *ToolboxMigrationUsecase) run(ctx context.Context, conn *request.ToolboxMigrationConnection, req *request.ToolboxMigrationStart) {
+func (uc *ToolboxMigrationUsecase) run(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+	req *request.ToolboxMigrationStart,
+) {
 	// 迁移脱离请求生命周期，大文件传输给足超时
 	ctx, cancel := context.WithTimeout(ctx, 24*time.Hour)
 	defer cancel()

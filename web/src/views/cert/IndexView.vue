@@ -9,12 +9,13 @@ import { useGettext } from 'vue3-gettext'
 import app from '@/api/panel/app'
 import cert from '@/api/panel/cert'
 import website from '@/api/panel/website'
+import { useBus } from '@/components/system/composables/useBus'
 import { WEBSERVER_SLUGS } from '@/utils'
+import AccountModal from '@/views/cert/AccountModal.vue'
 import AccountView from '@/views/cert/AccountView.vue'
+import CertModal from '@/views/cert/CertModal.vue'
 import CertView from '@/views/cert/CertView.vue'
-import CreateAccountModal from '@/views/cert/CreateAccountModal.vue'
-import CreateCertModal from '@/views/cert/CreateCertModal.vue'
-import CreateDnsModal from '@/views/cert/CreateDnsModal.vue'
+import DnsModal from '@/views/cert/DnsModal.vue'
 import DnsView from '@/views/cert/DnsView.vue'
 import UploadCertModal from '@/views/cert/UploadCertModal.vue'
 
@@ -83,12 +84,9 @@ const getAsyncData = () => {
 
 onMounted(() => {
   getAsyncData()
-  window.$bus.on('cert:refresh-async', getAsyncData)
 })
 
-onUnmounted(() => {
-  window.$bus.off('cert:refresh-async')
-})
+useBus('cert:refresh-async', getAsyncData)
 </script>
 
 <template>
@@ -131,15 +129,15 @@ onUnmounted(() => {
     </n-flex>
   </PageContainer>
   <upload-cert-modal v-model:show="uploadCert" />
-  <create-cert-modal
+  <cert-modal
     v-model:show="createCert"
     :accounts="accounts"
     :algorithms="algorithms"
     :websites="websites"
     :dns="dns"
   />
-  <create-dns-modal v-model:show="createDNS" :dns-providers="dnsProviders" />
-  <create-account-modal
+  <dns-modal v-model:show="createDNS" :dns-providers="dnsProviders" />
+  <account-modal
     v-model:show="createAccount"
     :ca-providers="caProviders"
     :algorithms="algorithms"

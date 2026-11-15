@@ -58,7 +58,6 @@ export default [
   Icons({
     compiler: 'vue3',
     scale: 1,
-    defaultClass: 'inline-block',
-    autoInstall: true
+    defaultClass: 'inline-block'
   }),
 ]

@@ -49,28 +49,6 @@ func (r userPasskeyRepo) Delete(userID, id uint) error {
 	return r.db.Where("user_id = ? AND id = ?", userID, id).Delete(&biz.UserPasskey{}).Error
 }
 
-func (r userPasskeyRepo) GetByCredentialID(credentialID []byte) (*biz.UserPasskey, *biz.User, error) {
-	passkey := new(biz.UserPasskey)
-	if err := r.db.Where("credential_id = ?", credentialID).First(passkey).Error; err != nil {
-		return nil, nil, err
-	}
-
-	user := new(biz.User)
-	if err := r.db.First(user, passkey.UserID).Error; err != nil {
-		return nil, nil, err
-	}
-
-	return passkey, user, nil
-}
-
-func (r userPasskeyRepo) HasPasskey(userID uint) (bool, error) {
-	var count int64
-	if err := r.db.Model(&biz.UserPasskey{}).Where("user_id = ?", userID).Count(&count).Error; err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
 func (r userPasskeyRepo) HasAny() (bool, error) {
 	var count int64
 	if err := r.db.Model(&biz.UserPasskey{}).Limit(1).Count(&count).Error; err != nil {

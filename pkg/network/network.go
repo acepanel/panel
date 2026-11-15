@@ -1,6 +1,7 @@
 package network
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -15,20 +16,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 const (
-	ModeAuto     = "auto"
-	ModeManual   = "manual"
-	ModeDisabled = "disabled"
+	modeAuto     = "auto"
+	modeManual   = "manual"
+	modeDisabled = "disabled"
 
 	// ConfirmTimeout 变更后等待确认的时长，超时未确认自动回滚，
 	// 避免配错导致远程失联后无法恢复
 	ConfirmTimeout = 30 * time.Second
-
-	// verifyTimeout 等待配置生效的上限，IPv6 重复地址检测默认约需 1～2 秒
-	verifyTimeout = 10 * time.Second
 )
 
 // ErrValidation 配置不合法，服务层据此返回 422
@@ -131,7 +130,7 @@ func (s *Service) Interfaces(ctx context.Context) (*Result, error) {
 
 // Update 应用网卡配置，成功后进入待确认状态，超时未确认自动回滚
 func (s *Service) Update(ctx context.Context, config Config) error {
-	if err := Validate(config); err != nil {
+	if err := validate(config); err != nil {
 		return err
 	}
 
@@ -195,38 +194,6 @@ func (s *Service) Rollback(ctx context.Context) error {
 	return rollback(ctx)
 }
 
-// expire 等待确认超时，自动回滚
-func (s *Service) expire() {
-	s.apply.Lock()
-	defer s.apply.Unlock()
-	rollback := s.take()
-	if rollback == nil {
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	s.onExpire(s.name, rollback(ctx))
-}
-
-// pending 是否有变更等待确认
-func (s *Service) pending() bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.rollback != nil
-}
-
-// take 取出待确认的回滚函数并清空状态，返回 nil 表示没有待确认变更
-func (s *Service) take() func(context.Context) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	rollback := s.rollback
-	if rollback != nil {
-		s.timer.Stop()
-		s.timer, s.rollback = nil, nil
-	}
-	return rollback
-}
-
 // detect 探测网络管理器，结果在进程生命周期内缓存
 func (s *Service) detect(ctx context.Context) backend {
 	s.mu.RLock()
@@ -255,10 +222,257 @@ func (s *Service) detect(ctx context.Context) backend {
 	return s.backend
 }
 
+// pending 是否有变更等待确认
+func (s *Service) pending() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.rollback != nil
+}
+
+// expire 等待确认超时，自动回滚
+func (s *Service) expire() {
+	s.apply.Lock()
+	defer s.apply.Unlock()
+	rollback := s.take()
+	if rollback == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	s.onExpire(s.name, rollback(ctx))
+}
+
+// take 取出待确认的回滚函数并清空状态，返回 nil 表示没有待确认变更
+func (s *Service) take() func(context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	rollback := s.rollback
+	if rollback != nil {
+		s.timer.Stop()
+		s.timer, s.rollback = nil, nil
+	}
+	return rollback
+}
+
+// runtimeInterfaces 列出内核中可管理的物理网卡
+func runtimeInterfaces() ([]Interface, error) {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+	items := make([]Interface, 0, len(interfaces))
+	for _, current := range interfaces {
+		kind := interfaceType(current.Name)
+		if kind == "" {
+			continue
+		}
+		state := "down"
+		if current.Flags&net.FlagUp != 0 {
+			state = "up"
+		}
+		ipv4, ipv6 := currentAddresses(current)
+		items = append(items, Interface{
+			Name: current.Name, Type: kind, State: state, MAC: current.HardwareAddr.String(),
+			CurrentMTU:  current.MTU,
+			CurrentIPv4: FamilyState{Addresses: ipv4},
+			CurrentIPv6: FamilyState{Addresses: ipv6},
+			IPv4:        emptyFamily(), IPv6: emptyFamily(),
+		})
+	}
+	slices.SortFunc(items, func(a, b Interface) int { return strings.Compare(a.Name, b.Name) })
+	return items, nil
+}
+
+// interfaceType 识别网卡类型，容器与隧道等虚拟设备不纳入管理
+func interfaceType(name string) string {
+	base := filepath.Join("/sys/class/net", name)
+	switch {
+	case name == "lo":
+		return ""
+	case io.Exists(filepath.Join(base, "bonding")):
+		return "bond"
+	case io.Exists(filepath.Join(base, "bridge")):
+		return "bridge"
+	case hasVLANParent(base):
+		return "vlan"
+	case !io.Exists(filepath.Join(base, "device")):
+		// 无对应硬件设备即为虚拟网卡（docker0、veth、tun 等）
+		return ""
+	case io.Exists(filepath.Join(base, "wireless")), io.Exists(filepath.Join(base, "phy80211")):
+		return "wifi"
+	default:
+		return "ethernet"
+	}
+}
+
+// hasVLANParent VLAN 在 sysfs 下有指向父设备的 lower_* 链接，
+// 而 bond 与 bridge 已在前面按各自目录识别
+func hasVLANParent(base string) bool {
+	matches, _ := filepath.Glob(filepath.Join(base, "lower_*"))
+	return len(matches) > 0
+}
+
+func currentAddresses(current net.Interface) ([]string, []string) {
+	addresses, _ := current.Addrs()
+	ipv4, ipv6 := make([]string, 0), make([]string, 0)
+	for _, address := range addresses {
+		prefix, err := netip.ParsePrefix(address.String())
+		if err != nil || prefix.Addr().IsUnspecified() {
+			continue
+		}
+		if prefix.Addr().Is4() {
+			ipv4 = append(ipv4, address.String())
+		} else if !prefix.Addr().IsLinkLocalUnicast() {
+			ipv6 = append(ipv6, address.String())
+		}
+	}
+	return unique(ipv4), unique(ipv6)
+}
+
+func emptyFamily() FamilyConfig {
+	return FamilyConfig{Mode: modeDisabled, Addresses: []string{}, AutoDNS: true, DNS: []string{}}
+}
+
+// defaultGateways 读取各网卡当前生效的默认网关
+func defaultGateways(ctx context.Context, ipv4 bool) map[string]string {
+	family := "-6"
+	if ipv4 {
+		family = "-4"
+	}
+	output, err := run(ctx, "ip", family, "route", "show", "default")
+	if err != nil {
+		return nil
+	}
+
+	gateways := make(map[string]string)
+	for line := range strings.SplitSeq(output, "\n") {
+		fields := strings.Fields(line)
+		var gateway, device string
+		for i := 0; i+1 < len(fields); i++ {
+			switch fields[i] {
+			case "via":
+				gateway = fields[i+1]
+			case "dev":
+				device = fields[i+1]
+			}
+		}
+		// 同一网卡可能有多条默认路由，取指标最优的第一条
+		if gateway != "" && device != "" && gateways[device] == "" {
+			gateways[device] = gateway
+		}
+	}
+	return gateways
+}
+
+// currentDNS 读取网卡当前生效的 DNS，按地址族分开返回。
+// systemd-resolved 按网卡维护 DNS，此时 resolv.conf 内只有本机 stub 地址
+func currentDNS(ctx context.Context, name string) ([]string, []string) {
+	var servers []string
+	if output, err := run(ctx, "resolvectl", "dns", name); err == nil {
+		// 输出形如 Link 2 (ens5): 183.60.83.19 183.60.82.98
+		if _, values, ok := strings.Cut(output, ":"); ok {
+			servers = strings.Fields(values)
+		}
+	} else if content, readErr := os.ReadFile("/etc/resolv.conf"); readErr == nil {
+		for line := range strings.SplitSeq(string(content), "\n") {
+			if fields := strings.Fields(line); len(fields) == 2 && fields[0] == "nameserver" {
+				servers = append(servers, fields[1])
+			}
+		}
+	}
+
+	ipv4, ipv6 := make([]string, 0), make([]string, 0)
+	for _, server := range servers {
+		address, err := netip.ParseAddr(server)
+		// 本机 stub 解析器不是真实上游，回填无意义
+		if err != nil || address.IsLoopback() {
+			continue
+		}
+		if address.Is4() {
+			ipv4 = append(ipv4, server)
+		} else {
+			ipv6 = append(ipv6, server)
+		}
+	}
+	return ipv4, ipv6
+}
+
+func validate(config Config) error {
+	if config.Name == "" || filepath.Base(config.Name) != config.Name || strings.ContainsAny(config.Name, " \t\r\n/") {
+		return fmt.Errorf("%w: invalid network interface name", ErrValidation)
+	}
+	if config.MTU != 0 && (config.MTU < 68 || config.MTU > 65535) {
+		return fmt.Errorf("%w: MTU must be 0 or between 68 and 65535", ErrValidation)
+	}
+	if config.IPv4.Mode == modeDisabled && config.IPv6.Mode == modeDisabled {
+		return fmt.Errorf("%w: IPv4 and IPv6 cannot both be disabled", ErrValidation)
+	}
+	if config.IPv6.Mode != modeDisabled && config.MTU != 0 && config.MTU < 1280 {
+		return fmt.Errorf("%w: MTU must not be lower than 1280 when IPv6 is enabled", ErrValidation)
+	}
+	if err := validateFamily("IPv4", config.IPv4, true); err != nil {
+		return err
+	}
+	return validateFamily("IPv6", config.IPv6, false)
+}
+
+func validateFamily(name string, config FamilyConfig, ipv4 bool) error {
+	if !slices.Contains([]string{modeAuto, modeManual, modeDisabled}, config.Mode) {
+		return fmt.Errorf("%w: invalid %s mode", ErrValidation, name)
+	}
+	if config.Mode == modeDisabled {
+		if len(config.Addresses) > 0 || config.Gateway != "" || len(config.DNS) > 0 {
+			return fmt.Errorf("%w: disabled %s configuration must be empty", ErrValidation, name)
+		}
+		return nil
+	}
+	if config.Mode == modeManual && len(config.Addresses) == 0 {
+		return fmt.Errorf("%w: manual %s configuration requires an address", ErrValidation, name)
+	}
+
+	addresses := make(map[netip.Prefix]struct{}, len(config.Addresses))
+	for _, value := range config.Addresses {
+		prefix, err := netip.ParsePrefix(value)
+		if err != nil || prefix.Addr().Is4() != ipv4 {
+			return fmt.Errorf("%w: invalid %s CIDR: %s", ErrValidation, name, value)
+		}
+		// 主机位全零的是网络地址，IPv6 下即子网路由器任播地址，由上游路由器占用，
+		// 配到本机会因重复地址检测失败而不可用。/31、/127 点对点链路与单地址前缀不受此限
+		if prefix.Bits() < prefix.Addr().BitLen()-1 && prefix.Masked().Addr() == prefix.Addr() {
+			return fmt.Errorf("%w: %s address %s is a subnet network address and cannot be assigned to a host", ErrValidation, name, value)
+		}
+		if _, exists := addresses[prefix]; exists {
+			return fmt.Errorf("%w: duplicate %s address: %s", ErrValidation, name, value)
+		}
+		addresses[prefix] = struct{}{}
+	}
+	if config.Gateway != "" {
+		gateway, err := netip.ParseAddr(config.Gateway)
+		if err != nil || gateway.Is4() != ipv4 {
+			return fmt.Errorf("%w: invalid %s gateway", ErrValidation, name)
+		}
+	}
+	dns := make(map[netip.Addr]struct{}, len(config.DNS))
+	for _, value := range config.DNS {
+		server, err := netip.ParseAddr(value)
+		if err != nil || server.Is4() != ipv4 {
+			return fmt.Errorf("%w: invalid %s DNS: %s", ErrValidation, name, value)
+		}
+		if _, exists := dns[server]; exists {
+			return fmt.Errorf("%w: duplicate %s DNS: %s", ErrValidation, name, value)
+		}
+		dns[server] = struct{}{}
+	}
+	return nil
+}
+
 // verify 确认配置已在网卡上生效，挡住应用命令返回成功但实际未生效的情况。
 // 网络管理器可能异步提交地址，IPv6 地址还要等重复地址检测结束，检测失败的地址挂在网卡上却无法使用，
 // 因此轮询到全部就绪、确认冲突或超时为止
 func verify(ctx context.Context, config Config) error {
+	// verifyTimeout 等待配置生效的上限，IPv6 重复地址检测默认约需 1～2 秒
+	const verifyTimeout = 10 * time.Second
+
 	deadline := time.Now().Add(verifyTimeout)
 	for {
 		output, err := run(ctx, "ip", "-j", "address", "show", "dev", config.Name)
@@ -302,7 +516,7 @@ func checkApplied(config Config, output string) error {
 		}
 	}
 	for _, family := range []FamilyConfig{config.IPv4, config.IPv6} {
-		if family.Mode != ModeManual {
+		if family.Mode != modeManual {
 			continue
 		}
 		for _, value := range family.Addresses {
@@ -322,147 +536,6 @@ func checkApplied(config Config, output string) error {
 	return nil
 }
 
-func Validate(config Config) error {
-	if config.Name == "" || filepath.Base(config.Name) != config.Name || strings.ContainsAny(config.Name, " \t\r\n/") {
-		return fmt.Errorf("%w: invalid network interface name", ErrValidation)
-	}
-	if config.MTU != 0 && (config.MTU < 68 || config.MTU > 65535) {
-		return fmt.Errorf("%w: MTU must be 0 or between 68 and 65535", ErrValidation)
-	}
-	if config.IPv4.Mode == ModeDisabled && config.IPv6.Mode == ModeDisabled {
-		return fmt.Errorf("%w: IPv4 and IPv6 cannot both be disabled", ErrValidation)
-	}
-	if config.IPv6.Mode != ModeDisabled && config.MTU != 0 && config.MTU < 1280 {
-		return fmt.Errorf("%w: MTU must not be lower than 1280 when IPv6 is enabled", ErrValidation)
-	}
-	if err := validateFamily("IPv4", config.IPv4, true); err != nil {
-		return err
-	}
-	return validateFamily("IPv6", config.IPv6, false)
-}
-
-func validateFamily(name string, config FamilyConfig, ipv4 bool) error {
-	if !slices.Contains([]string{ModeAuto, ModeManual, ModeDisabled}, config.Mode) {
-		return fmt.Errorf("%w: invalid %s mode", ErrValidation, name)
-	}
-	if config.Mode == ModeDisabled {
-		if len(config.Addresses) > 0 || config.Gateway != "" || len(config.DNS) > 0 {
-			return fmt.Errorf("%w: disabled %s configuration must be empty", ErrValidation, name)
-		}
-		return nil
-	}
-	if config.Mode == ModeManual && len(config.Addresses) == 0 {
-		return fmt.Errorf("%w: manual %s configuration requires an address", ErrValidation, name)
-	}
-
-	addresses := make(map[netip.Prefix]struct{}, len(config.Addresses))
-	for _, value := range config.Addresses {
-		prefix, err := netip.ParsePrefix(value)
-		if err != nil || prefix.Addr().Is4() != ipv4 {
-			return fmt.Errorf("%w: invalid %s CIDR: %s", ErrValidation, name, value)
-		}
-		// 主机位全零的是网络地址，IPv6 下即子网路由器任播地址，由上游路由器占用，
-		// 配到本机会因重复地址检测失败而不可用。/31、/127 点对点链路与单地址前缀不受此限
-		if prefix.Bits() < prefix.Addr().BitLen()-1 && prefix.Masked().Addr() == prefix.Addr() {
-			return fmt.Errorf("%w: %s address %s is a subnet network address and cannot be assigned to a host", ErrValidation, name, value)
-		}
-		if _, exists := addresses[prefix]; exists {
-			return fmt.Errorf("%w: duplicate %s address: %s", ErrValidation, name, value)
-		}
-		addresses[prefix] = struct{}{}
-	}
-	if config.Gateway != "" {
-		gateway, err := netip.ParseAddr(config.Gateway)
-		if err != nil || gateway.Is4() != ipv4 {
-			return fmt.Errorf("%w: invalid %s gateway", ErrValidation, name)
-		}
-	}
-	dns := make(map[netip.Addr]struct{}, len(config.DNS))
-	for _, value := range config.DNS {
-		server, err := netip.ParseAddr(value)
-		if err != nil || server.Is4() != ipv4 {
-			return fmt.Errorf("%w: invalid %s DNS: %s", ErrValidation, name, value)
-		}
-		if _, exists := dns[server]; exists {
-			return fmt.Errorf("%w: duplicate %s DNS: %s", ErrValidation, name, value)
-		}
-		dns[server] = struct{}{}
-	}
-	return nil
-}
-
-// runtimeInterfaces 列出内核中可管理的物理网卡
-func runtimeInterfaces() ([]Interface, error) {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return nil, err
-	}
-	items := make([]Interface, 0, len(interfaces))
-	for _, current := range interfaces {
-		kind := interfaceType(current.Name)
-		if kind == "" {
-			continue
-		}
-		state := "down"
-		if current.Flags&net.FlagUp != 0 {
-			state = "up"
-		}
-		ipv4, ipv6 := currentAddresses(current)
-		items = append(items, Interface{
-			Name: current.Name, Type: kind, State: state, MAC: current.HardwareAddr.String(),
-			CurrentMTU:  current.MTU,
-			CurrentIPv4: FamilyState{Addresses: ipv4},
-			CurrentIPv6: FamilyState{Addresses: ipv6},
-			IPv4:        emptyFamily(), IPv6: emptyFamily(),
-		})
-	}
-	slices.SortFunc(items, func(a, b Interface) int { return strings.Compare(a.Name, b.Name) })
-	return items, nil
-}
-
-// interfaceType 识别网卡类型，容器与隧道等虚拟设备不纳入管理
-func interfaceType(name string) string {
-	base := filepath.Join("/sys/class/net", name)
-	switch {
-	case name == "lo":
-		return ""
-	case exists(filepath.Join(base, "bonding")):
-		return "bond"
-	case exists(filepath.Join(base, "bridge")):
-		return "bridge"
-	case hasVLANParent(base):
-		return "vlan"
-	case !exists(filepath.Join(base, "device")):
-		// 无对应硬件设备即为虚拟网卡（docker0、veth、tun 等）
-		return ""
-	case exists(filepath.Join(base, "wireless")), exists(filepath.Join(base, "phy80211")):
-		return "wifi"
-	default:
-		return "ethernet"
-	}
-}
-
-func currentAddresses(current net.Interface) ([]string, []string) {
-	addresses, _ := current.Addrs()
-	ipv4, ipv6 := make([]string, 0), make([]string, 0)
-	for _, address := range addresses {
-		prefix, err := netip.ParsePrefix(address.String())
-		if err != nil || prefix.Addr().IsUnspecified() {
-			continue
-		}
-		if prefix.Addr().Is4() {
-			ipv4 = append(ipv4, address.String())
-		} else if !prefix.Addr().IsLinkLocalUnicast() {
-			ipv6 = append(ipv6, address.String())
-		}
-	}
-	return unique(ipv4), unique(ipv6)
-}
-
-func emptyFamily() FamilyConfig {
-	return FamilyConfig{Mode: ModeDisabled, Addresses: []string{}, AutoDNS: true, DNS: []string{}}
-}
-
 func unique(values []string) []string {
 	result := make([]string, 0, len(values))
 	for _, value := range values {
@@ -474,92 +547,19 @@ func unique(values []string) []string {
 	return result
 }
 
-// currentDNS 读取网卡当前生效的 DNS，按地址族分开返回。
-// systemd-resolved 按网卡维护 DNS，此时 resolv.conf 内只有本机 stub 地址
-func currentDNS(ctx context.Context, name string) ([]string, []string) {
-	var servers []string
-	if output, err := run(ctx, "resolvectl", "dns", name); err == nil {
-		// 输出形如 Link 2 (ens5): 183.60.83.19 183.60.82.98
-		if _, values, ok := strings.Cut(output, ":"); ok {
-			servers = strings.Fields(values)
-		}
-	} else if content, readErr := os.ReadFile("/etc/resolv.conf"); readErr == nil {
-		for line := range strings.SplitSeq(string(content), "\n") {
-			if fields := strings.Fields(line); len(fields) == 2 && fields[0] == "nameserver" {
-				servers = append(servers, fields[1])
-			}
-		}
-	}
-
-	ipv4, ipv6 := make([]string, 0), make([]string, 0)
-	for _, server := range servers {
-		address, err := netip.ParseAddr(server)
-		// 本机 stub 解析器不是真实上游，回填无意义
-		if err != nil || address.IsLoopback() {
-			continue
-		}
-		if address.Is4() {
-			ipv4 = append(ipv4, server)
-		} else {
-			ipv6 = append(ipv6, server)
-		}
-	}
-	return ipv4, ipv6
-}
-
-// defaultGateways 读取各网卡当前生效的默认网关
-func defaultGateways(ctx context.Context, ipv4 bool) map[string]string {
-	family := "-6"
-	if ipv4 {
-		family = "-4"
-	}
-	output, err := run(ctx, "ip", family, "route", "show", "default")
-	if err != nil {
-		return nil
-	}
-
-	gateways := make(map[string]string)
-	for line := range strings.SplitSeq(output, "\n") {
-		fields := strings.Fields(line)
-		var gateway, device string
-		for i := 0; i+1 < len(fields); i++ {
-			switch fields[i] {
-			case "via":
-				gateway = fields[i+1]
-			case "dev":
-				device = fields[i+1]
-			}
-		}
-		// 同一网卡可能有多条默认路由，取指标最优的第一条
-		if gateway != "" && device != "" && gateways[device] == "" {
-			gateways[device] = gateway
-		}
-	}
-	return gateways
-}
-
 func hasCommand(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil
 }
 
+// run 只返回标准输出：netplan 成功时也会往标准错误写警告（如配置文件权限过宽），混进结果会破坏解析
 func run(ctx context.Context, name string, args ...string) (string, error) {
 	cmd := shell.Command(ctx, name, args...)
-	output, err := cmd.CombinedOutput()
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	output, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("%s: %w: %s", name, err, strings.TrimSpace(string(output)))
+		return "", fmt.Errorf("%s: %w: %s", name, err, strings.TrimSpace(string(output)+stderr.String()))
 	}
 	return strings.TrimSpace(string(output)), nil
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-// hasVLANParent VLAN 在 sysfs 下有指向父设备的 lower_* 链接，
-// 而 bond 与 bridge 已在前面按各自目录识别
-func hasVLANParent(base string) bool {
-	matches, _ := filepath.Glob(filepath.Join(base, "lower_*"))
-	return len(matches) > 0
 }

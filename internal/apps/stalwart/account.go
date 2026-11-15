@@ -18,67 +18,6 @@ import (
 
 var accountProps = []string{"name", "domainId", "emailAddress", "description", "quotas", "usedDiskQuota", "aliases", "createdAt", "@type"}
 
-// domainNames 返回域名 id 与名称的双向映射，别名要靠它把邮箱地址换成 domainId
-func (s *App) domainNames(ctx context.Context, c *client) (map[string]string, map[string]string, error) {
-	domains, err := get[swDomain](ctx, c, "Domain", nil, []string{"name"})
-	if err != nil {
-		return nil, nil, err
-	}
-	byID := map[string]string{}
-	byName := map[string]string{}
-	for _, d := range domains {
-		byID[d.ID] = d.Name
-		byName[d.Name] = d.ID
-	}
-	return byID, byName, nil
-}
-
-// buildAliases 把 user@example.com 形式的别名换成 Stalwart 的别名对象
-func (s *App) buildAliases(aliases []string, byName map[string]string, selfEmail string) (map[string]any, error) {
-	result := map[string]any{}
-	for _, alias := range aliases {
-		alias = strings.ToLower(strings.TrimSpace(alias))
-		if alias == "" {
-			continue
-		}
-		local, domain, ok := strings.Cut(alias, "@")
-		if !ok || local == "" || domain == "" {
-			return nil, errors.New(s.t.Get("alias %s must be a full email address", alias))
-		}
-		domainID, ok := byName[domain]
-		if !ok {
-			return nil, errors.New(s.t.Get("alias domain %s is not managed by this mail server", domain))
-		}
-		if alias == selfEmail {
-			return nil, errors.New(s.t.Get("alias %s is the same as the account address", alias))
-		}
-		result[strconv.Itoa(len(result))] = map[string]any{
-			"enable":   true,
-			"name":     local,
-			"domainId": domainID,
-		}
-	}
-	return result, nil
-}
-
-func toAccount(a swAccount, byID map[string]string) Account {
-	aliases := lo.FilterMap(lo.Values(a.Aliases), func(alias swAlias, _ int) (string, bool) {
-		domain, ok := byID[alias.DomainID]
-		return alias.Name + "@" + domain, ok
-	})
-	slices.Sort(aliases)
-	return Account{
-		ID:          a.ID,
-		Name:        a.Name,
-		Email:       a.EmailAddress,
-		Description: deref(a.Description),
-		Quota:       a.Quotas["maxDiskQuota"],
-		Used:        a.UsedDiskQuota,
-		Aliases:     aliases,
-		CreatedAt:   a.CreatedAt,
-	}
-}
-
 // AccountList 邮箱账户列表，分页由 JMAP query 完成
 func (s *App) AccountList(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[AccountList](r)
@@ -280,6 +219,67 @@ func (s *App) AccountDelete(w http.ResponseWriter, r *http.Request) {
 
 	s.log.Warn(s.t.Get("mail account deleted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("email", account.EmailAddress), slog.String("account_id", req.ID))
 	service.Success(w, nil)
+}
+
+// domainNames 返回域名 id 与名称的双向映射，别名要靠它把邮箱地址换成 domainId
+func (s *App) domainNames(ctx context.Context, c *client) (map[string]string, map[string]string, error) {
+	domains, err := get[swDomain](ctx, c, "Domain", nil, []string{"name"})
+	if err != nil {
+		return nil, nil, err
+	}
+	byID := map[string]string{}
+	byName := map[string]string{}
+	for _, d := range domains {
+		byID[d.ID] = d.Name
+		byName[d.Name] = d.ID
+	}
+	return byID, byName, nil
+}
+
+// buildAliases 把 user@example.com 形式的别名换成 Stalwart 的别名对象
+func (s *App) buildAliases(aliases []string, byName map[string]string, selfEmail string) (map[string]any, error) {
+	result := map[string]any{}
+	for _, alias := range aliases {
+		alias = strings.ToLower(strings.TrimSpace(alias))
+		if alias == "" {
+			continue
+		}
+		local, domain, ok := strings.Cut(alias, "@")
+		if !ok || local == "" || domain == "" {
+			return nil, errors.New(s.t.Get("alias %s must be a full email address", alias))
+		}
+		domainID, ok := byName[domain]
+		if !ok {
+			return nil, errors.New(s.t.Get("alias domain %s is not managed by this mail server", domain))
+		}
+		if strings.EqualFold(alias, selfEmail) {
+			return nil, errors.New(s.t.Get("alias %s is the same as the account address", alias))
+		}
+		result[strconv.Itoa(len(result))] = map[string]any{
+			"enable":   true,
+			"name":     local,
+			"domainId": domainID,
+		}
+	}
+	return result, nil
+}
+
+func toAccount(a swAccount, byID map[string]string) Account {
+	aliases := lo.FilterMap(lo.Values(a.Aliases), func(alias swAlias, _ int) (string, bool) {
+		domain, ok := byID[alias.DomainID]
+		return alias.Name + "@" + domain, ok
+	})
+	slices.Sort(aliases)
+	return Account{
+		ID:          a.ID,
+		Name:        a.Name,
+		Email:       a.EmailAddress,
+		Description: deref(a.Description),
+		Quota:       a.Quotas["maxDiskQuota"],
+		Used:        a.UsedDiskQuota,
+		Aliases:     aliases,
+		CreatedAt:   a.CreatedAt,
+	}
 }
 
 // quotaMap 0 表示不限，Stalwart 侧用空映射表示

@@ -6,10 +6,8 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/ssh"
 )
@@ -26,39 +24,11 @@ type SSH struct {
 }
 
 func (r *SSH) BeforeSave(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	r.Config.Key, err = crypter.Encrypt([]byte(r.Config.Key))
-	if err != nil {
-		return err
-	}
-	r.Config.Password, err = crypter.Encrypt([]byte(r.Config.Password))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return encryptFields(&r.Config.Key, &r.Config.Password)
 }
 
 func (r *SSH) AfterFind(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	key, err := crypter.Decrypt(r.Config.Key)
-	if err == nil {
-		r.Config.Key = string(key)
-	}
-	password, err := crypter.Decrypt(r.Config.Password)
-	if err == nil {
-		r.Config.Password = string(password)
-	}
-
-	return nil
+	return decryptFields(&r.Config.Key, &r.Config.Password)
 }
 
 // SSHFileInfo SFTP 文件信息
@@ -160,7 +130,14 @@ func (uc *SSHUsecase) Mkdir(ctx context.Context, hostID uint, path string) error
 	return nil
 }
 
-func (uc *SSHUsecase) TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(transferred, total int64)) error {
+func (uc *SSHUsecase) TransferFile(
+	ctx context.Context,
+	srcID uint,
+	srcPath string,
+	dstID uint,
+	dstPath string,
+	progress func(transferred, total int64),
+) error {
 	if err := uc.repo.TransferFile(ctx, srcID, srcPath, dstID, dstPath, progress); err != nil {
 		return err
 	}

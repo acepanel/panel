@@ -65,3 +65,9 @@ map $uri $ace_auth_file_x {
 	// 除多余引号被规范化外导出应与原文一致
 	check.Equal(t, Export(cfg), strings.ReplaceAll(src, `"~^/admin(/.*)?$"`, `~^/admin(/.*)?$`))
 }
+
+// 报错行号要把 Lua 字符串里反斜杠续行的那个换行也算上
+func TestParseErrorLineAfterLuaContinuation(t *testing.T) {
+	_, err := Parse("content_by_lua_block {\n    local s = \"a\\\nb\"\n}\nserver {")
+	check.ErrorContains(t, err, "line 5: unclosed block")
+}

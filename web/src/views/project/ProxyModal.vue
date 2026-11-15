@@ -3,7 +3,7 @@ import type { SelectOption } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
-import ListInput from '@/components/common/ListInput.vue'
+import { useBus } from '@/components/system/composables/useBus'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useThemeStore } from '@/stores'
 import WebsiteEditModal from '@/views/website/EditModal.vue'
@@ -154,8 +154,7 @@ const handleWebsiteRefresh = () => {
   refresh()
   if (selectedId.value && mode.value === 'detail') loadSetting(selectedId.value)
 }
-onMounted(() => window.$bus.on('website:refresh', handleWebsiteRefresh))
-onUnmounted(() => window.$bus.off('website:refresh', handleWebsiteRefresh))
+useBus('website:refresh', handleWebsiteRefresh)
 
 // ==================== 新建 ====================
 const createForm = ref<ProxyWebsiteForm>({ name: '', domains: [], port: null })
@@ -363,16 +362,18 @@ const handleBind = () => {
             </n-form-item>
           </n-form>
           <n-flex justify="end">
-            <n-popconfirm @positive-click="handleUnbind">
-              <template #trigger>
-                <n-button>{{ $gettext('Unbind') }}</n-button>
-              </template>
-              {{
+            <ConfirmDialog
+              :content="
                 $gettext('Unbind website %{ name } from this project? The website will be kept.', {
                   name: current.name,
                 })
-              }}
-            </n-popconfirm>
+              "
+              @confirm="handleUnbind"
+            >
+              <template #trigger>
+                <n-button>{{ $gettext('Unbind') }}</n-button>
+              </template>
+            </ConfirmDialog>
             <n-button @click="openFullSettings">{{ $gettext('Full Settings') }}</n-button>
             <n-button
               type="primary"

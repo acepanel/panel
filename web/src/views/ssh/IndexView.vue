@@ -4,27 +4,18 @@ defineOptions({
 })
 
 import copy2clipboard from '@vavt/copy2clipboard'
-import { ClipboardAddon } from '@xterm/addon-clipboard'
-import { FitAddon } from '@xterm/addon-fit'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
-import { WebLinksAddon } from '@xterm/addon-web-links'
-
-import '@fontsource-variable/jetbrains-mono/wght-italic.css'
-import '@fontsource-variable/jetbrains-mono/wght.css'
-import { WebglAddon } from '@xterm/addon-webgl'
-import { Terminal } from '@xterm/xterm'
 import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import ssh from '@/api/panel/ssh'
 import ws from '@/api/ws'
+import { createXterm } from '@/components/common/composables/useXterm'
+import type { Xterm } from '@/components/common/composables/useXterm'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-
-import '@xterm/xterm/css/xterm.css'
-import CreateModal from '@/views/ssh/CreateModal.vue'
+import HostModal from '@/views/ssh/HostModal.vue'
 import SftpPanel from '@/views/ssh/SftpPanel.vue'
-import UpdateModal from '@/views/ssh/UpdateModal.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
@@ -37,11 +28,8 @@ interface TerminalTab {
   type: 'terminal' | 'sftp'
   hostId: number
   name: string
-  terminal: Terminal | null
-  fitAddon: FitAddon | null
-  webglAddon: WebglAddon | null
+  xterm: Xterm | null
   ws: WebSocket | null
-  element: HTMLElement | null
   connected: boolean
   latency: number
   pingTimer: ReturnType<typeof setInterval> | null
@@ -50,9 +38,8 @@ interface TerminalTab {
 
 const terminalContainer = ref<HTMLElement | null>(null)
 const showHosts = ref(false)
-const create = ref(false)
-const update = ref(false)
-const updateId = ref(0)
+const hostModal = ref(false)
+const editHostId = ref(0)
 const isFullscreen = ref(false)
 const fontSize = ref(14)
 
@@ -120,9 +107,14 @@ const fetchData = async () => {
   }
 }
 
+const handleCreateHost = () => {
+  editHostId.value = 0
+  hostModal.value = true
+}
+
 const handleEditHost = (id: number) => {
-  updateId.value = id
-  update.value = true
+  editHostId.value = id
+  hostModal.value = true
 }
 
 const handleConfirmDeleteHost = async (id: number) => {
@@ -154,11 +146,8 @@ const addTab = async (hostId: number) => {
     type: 'terminal',
     hostId,
     name: getHostName(hostId),
-    terminal: null,
-    fitAddon: null,
-    webglAddon: null,
+    xterm: null,
     ws: null,
-    element: null,
     connected: false,
     latency: 0,
     pingTimer: null,
@@ -178,11 +167,8 @@ const addSftpTab = () => {
     type: 'sftp',
     hostId: LOCAL_SERVER_ID,
     name: $gettext('File Transfer'),
-    terminal: null,
-    fitAddon: null,
-    webglAddon: null,
+    xterm: null,
     ws: null,
-    element: null,
     connected: false,
     latency: 0,
     pingTimer: null,
@@ -214,11 +200,9 @@ const switchTab = async (tabId: string) => {
   activeTabId.value = tabId
   await nextTick()
 
-  const tab = tabs.value.find((t) => t.id === tabId)
-  if (tab?.terminal && tab.fitAddon) {
-    tab.fitAddon.fit()
-    tab.terminal.focus()
-  }
+  const xterm = tabs.value.find((t) => t.id === tabId)?.xterm
+  xterm?.fit()
+  xterm?.term.focus()
 }
 
 const initTerminal = async (tabId: string) => {
@@ -228,105 +212,37 @@ const initTerminal = async (tabId: string) => {
   const container = document.getElementById(`terminal-${tabId}`)
   if (!container) return
 
-  tab.element = container
-
   try {
     tab.ws = tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
-    tab.ws.binaryType = 'arraybuffer'
-
-    tab.terminal = markRaw(
-      new Terminal({
-        allowProposedApi: true,
-        lineHeight: 1.2,
-        fontSize: fontSize.value,
-        fontFamily: `'JetBrains Mono Variable', monospace`,
-        cursorBlink: true,
-        cursorStyle: 'underline',
-        tabStopWidth: 4,
-        scrollOnEraseInDisplay: true,
-        theme: {
-          background:
-            getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-bg-terminal')
-              .trim() || '#0a0e1a',
-          foreground: '#e6edf3',
-        },
-      }),
-    )
-
-    tab.fitAddon = markRaw(new FitAddon())
-    tab.webglAddon = markRaw(new WebglAddon())
-
-    tab.terminal.loadAddon(tab.fitAddon)
-    tab.terminal.loadAddon(new ClipboardAddon())
-    tab.terminal.loadAddon(new WebLinksAddon())
-    tab.terminal.loadAddon(new Unicode11Addon())
-    tab.terminal.unicode.activeVersion = '11'
-    tab.terminal.loadAddon(tab.webglAddon)
-    tab.webglAddon.onContextLoss(() => {
-      tab.webglAddon?.dispose()
+    tab.xterm = createXterm(container, tab.ws, {
+      fontSize,
+      closedText: $gettext('Connection closed. Please refresh.'),
+      errorText: $gettext('Connection error. Please refresh.'),
+      onMessage: (data) => {
+        try {
+          if (JSON.parse(data).pong) {
+            handlePong(tab)
+            return true
+          }
+        } catch {
+          /* 不是 JSON 就是终端输出 */
+        }
+        return false
+      },
+      onClose: () => {
+        tab.connected = false
+      },
     })
 
-    tab.terminal.onSelectionChange(() => {
-      const selection = tab.terminal?.getSelection()
+    const { term } = tab.xterm
+    term.onSelectionChange(() => {
+      const selection = term.getSelection()
       if (selection) copy2clipboard(selection)
     })
 
-    tab.terminal.open(container)
-
-    tab.ws.onmessage = (ev) => {
-      const data: ArrayBuffer | string = ev.data
-      if (typeof data === 'string') {
-        try {
-          const json = JSON.parse(data)
-          if (json.pong) {
-            handlePong(tab)
-            return
-          }
-        } catch {
-          /* fallthrough */
-        }
-      }
-      tab.terminal?.write(typeof data === 'string' ? data : new Uint8Array(data))
-    }
-
-    tab.terminal.onData((data) => {
-      if (tab.ws?.readyState === WebSocket.OPEN) tab.ws.send(data)
-    })
-
-    tab.terminal.onBinary((data) => {
-      if (tab.ws?.readyState === WebSocket.OPEN) {
-        const buffer = new Uint8Array(data.length)
-        for (let i = 0; i < data.length; ++i) {
-          buffer[i] = data.charCodeAt(i) & 255
-        }
-        tab.ws.send(buffer)
-      }
-    })
-
-    tab.terminal.onResize(({ rows, cols }) => {
-      if (tab.ws?.readyState === WebSocket.OPEN) {
-        tab.ws.send(JSON.stringify({ resize: true, columns: cols, rows: rows }))
-      }
-    })
-
-    tab.fitAddon.fit()
-    tab.terminal.focus()
     tab.connected = true
 
     startPingTimer(tab)
-
-    tab.ws.onclose = () => {
-      tab.connected = false
-      tab.terminal?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
-    }
-
-    tab.ws.onerror = (event) => {
-      tab.connected = false
-      tab.terminal?.write('\r\n' + $gettext('Connection error. Please refresh.'))
-      console.error(event)
-      tab.ws?.close()
-    }
   } catch (error) {
     console.error('Failed to connect:', error)
     tab.connected = false
@@ -334,46 +250,18 @@ const initTerminal = async (tabId: string) => {
 }
 
 const disposeTab = (tab: TerminalTab) => {
-  try {
-    if (tab.pingTimer) {
-      clearInterval(tab.pingTimer)
-      tab.pingTimer = null
-    }
-    tab.ws?.close()
-    tab.terminal?.dispose()
-    tab.fitAddon = null
-    tab.webglAddon = null
-    if (tab.element) tab.element.innerHTML = ''
-  } catch {
-    /* empty */
+  if (tab.pingTimer) {
+    clearInterval(tab.pingTimer)
+    tab.pingTimer = null
   }
-}
-
-const onResize = () => {
-  if (!terminalContainer.value?.isConnected) return
-  const tab = tabs.value.find((t) => t.id === activeTabId.value)
-  if (tab?.fitAddon && tab.terminal) tab.fitAddon.fit()
-}
-
-const onTermWheel = (event: WheelEvent) => {
-  const tab = tabs.value.find((t) => t.id === activeTabId.value)
-  if (tab?.type !== 'terminal') return
-  if (event.ctrlKey) {
-    event.preventDefault()
-    if (event.deltaY > 0) {
-      if (fontSize.value > 10) fontSize.value--
-    } else {
-      if (fontSize.value < 32) fontSize.value++
-    }
-    applyFontSettings()
-  }
+  tab.xterm?.dispose()
 }
 
 const onContextMenu = async (event: MouseEvent) => {
   const tab = tabs.value.find((t) => t.id === activeTabId.value)
   if (tab?.type !== 'terminal') return
   event.preventDefault()
-  if (tab?.terminal && tab.ws?.readyState === WebSocket.OPEN) {
+  if (tab.ws?.readyState === WebSocket.OPEN) {
     try {
       const text = await readClipboardText()
       if (text) tab.ws.send(text)
@@ -385,14 +273,14 @@ const onContextMenu = async (event: MouseEvent) => {
 
 const onKeyDown = (event: KeyboardEvent) => {
   const tab = tabs.value.find((t) => t.id === activeTabId.value)
-  if (tab?.type !== 'terminal' || !tab?.terminal) return
+  if (tab?.type !== 'terminal' || !tab.xterm) return
 
   if (
     (event.ctrlKey && event.shiftKey && event.key === 'C') ||
     (event.metaKey && event.key === 'c')
   ) {
     event.preventDefault()
-    const selection = tab.terminal.getSelection()
+    const selection = tab.xterm.term.getSelection()
     if (selection) copy2clipboard(selection)
   }
 
@@ -405,15 +293,6 @@ const onKeyDown = (event: KeyboardEvent) => {
       if (text && tab.ws?.readyState === WebSocket.OPEN) tab.ws.send(text)
     })
   }
-}
-
-const applyFontSettings = () => {
-  tabs.value.forEach((tab) => {
-    if (tab.terminal) {
-      tab.terminal.options.fontSize = fontSize.value
-      tab.fitAddon?.fit()
-    }
-  })
 }
 
 const startPingTimer = (tab: TerminalTab) => {
@@ -458,29 +337,19 @@ const toggleFullscreen = async () => {
 
 const onFullscreenChange = () => {
   isFullscreen.value = !!document.fullscreenElement
-  nextTick(() => onResize())
 }
-
-watch(fontSize, () => applyFontSettings())
-
-onActivated(async () => {
-  await nextTick()
-  onResize()
-})
 
 onMounted(() => {
   document.fonts.ready.then((fontFaceSet: any) =>
     Promise.all(Array.from(fontFaceSet).map((el: any) => el.load())).then(fetchData),
   )
-  window.$bus.on('ssh:refresh', fetchData)
-  window.addEventListener('resize', onResize)
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
+useBus('ssh:refresh', fetchData)
+
 onUnmounted(() => {
   tabs.value.forEach(disposeTab)
-  window.$bus.off('ssh:refresh')
-  window.removeEventListener('resize', onResize)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 </script>
@@ -558,12 +427,7 @@ onUnmounted(() => {
         </div>
       </header>
 
-      <main
-        class="terminals-content"
-        @keydown="onKeyDown"
-        @wheel="onTermWheel"
-        @contextmenu="onContextMenu"
-      >
+      <main class="terminals-content" @keydown="onKeyDown" @contextmenu="onContextMenu">
         <template v-for="tab in tabs" :key="tab.id">
           <div
             v-if="tab.type === 'terminal'"
@@ -582,7 +446,7 @@ onUnmounted(() => {
   <n-drawer v-model:show="showHosts" :width="isMobile ? '100%' : 360" placement="right">
     <n-drawer-content :title="$gettext('Hosts')" closable>
       <n-flex vertical>
-        <n-button type="primary" block @click="create = true">
+        <n-button type="primary" block @click="handleCreateHost">
           <template #icon>
             <i-mdi-plus />
           </template>
@@ -639,8 +503,7 @@ onUnmounted(() => {
     </n-drawer-content>
   </n-drawer>
 
-  <create-modal v-model:show="create" />
-  <update-modal v-model:show="update" v-model:id="updateId" />
+  <host-modal v-model:show="hostModal" :edit-id="editHostId" />
 </template>
 
 <style scoped lang="scss">

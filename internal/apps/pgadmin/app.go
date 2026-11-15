@@ -8,7 +8,6 @@ import (
 	"fmt"
 	stdio "io"
 	"log/slog"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,10 +22,11 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
+	"github.com/acepanel/panel/v3/pkg/clientip"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -40,39 +40,34 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo) *App {
+// serversFile pgAdmin dump-servers/load-servers 的 JSON 结构
+type serversFile struct {
+	Servers map[string]serverEntry `json:"Servers"`
+}
+
+type serverEntry struct {
+	Name          string `json:"Name"`
+	Group         string `json:"Group"`
+	Host          string `json:"Host"`
+	Port          int    `json:"Port"`
+	MaintenanceDB string `json:"MaintenanceDB"`
+	Username      string `json:"Username"`
+	SSLMode       string `json:"SSLMode,omitempty"`
+	PassFile      string `json:"PassFile,omitempty"`
+}
+
+func NewApp(
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
 	}
-}
-
-// pgadminLanguage 面板语言映射为 pgAdmin 语言代码
-func (s *App) pgadminLanguage() string {
-	switch s.conf.App.Locale {
-	case "":
-		return ""
-	case "zh_CN":
-		return "zh_Hans_CN"
-	case "zh_TW":
-		return "zh_Hant_TW"
-	default:
-		return s.conf.App.Locale
-	}
-}
-
-// clientIP 获取请求来源 IP,面板位于反代之后时优先取配置的 IP 头
-func (s *App) clientIP(r *http.Request) string {
-	ip := r.RemoteAddr
-	if header := s.conf.HTTP.IPHeader; header != "" && r.Header.Get(header) != "" {
-		ip = strings.TrimSpace(strings.Split(r.Header.Get(header), ",")[0])
-	}
-	if host, _, err := net.SplitHostPort(ip); err == nil {
-		ip = host
-	}
-	return ip
 }
 
 func (s *App) Route(r chi.Router) {
@@ -86,38 +81,6 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Status(ctx context.Context) string {
 	ok, _ := systemctl.Status(ctx, "pgadmin")
 	return types.AggregateAppStatus(ok)
-}
-
-func (s *App) path() string {
-	return app.Root + "/server/pgadmin"
-}
-
-// port 从 systemd 环境文件中解析监听端口
-func (s *App) port() (uint, error) {
-	conf, err := io.Read(s.path() + "/pgadmin.conf")
-	if err != nil {
-		return 0, err
-	}
-	match := regexp.MustCompile(`PGADMIN_LISTEN=.+:(\d+)`).FindStringSubmatch(conf)
-	if len(match) < 2 {
-		return 0, errors.New(s.t.Get("pgAdmin port not found"))
-	}
-
-	return cast.ToUint(match[1]), nil
-}
-
-// credential 读取安装时生成的初始凭据(邮箱与密码)
-func (s *App) credential() (string, string) {
-	raw, err := io.Read(s.path() + "/credential")
-	if err != nil {
-		return "", ""
-	}
-	lines := strings.Split(strings.TrimSpace(raw), "\n")
-	if len(lines) < 2 {
-		return strings.TrimSpace(lines[0]), ""
-	}
-
-	return strings.TrimSpace(lines[0]), strings.TrimSpace(lines[1])
 }
 
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
@@ -158,23 +121,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall()
-	running, err := fw.Status(ctx)
+	running, err := common.OpenPort(ctx, req.Port, "")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
-	}
-	if running {
-		if err = fw.Port(ctx, firewall.FireInfo{
-			Type:      firewall.TypeNormal,
-			PortStart: req.Port,
-			PortEnd:   req.Port,
-			Strategy:  firewall.StrategyAccept,
-			Direction: firewall.DirectionIn,
-		}, firewall.OperationAdd); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
-		}
 	}
 
 	if err = systemctl.Restart(ctx, "pgadmin"); err != nil {
@@ -185,175 +135,6 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("app port updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.Uint64("port", uint64(req.Port)), slog.Bool("firewall_opened", running))
 
 	service.Success(w, nil)
-}
-
-// serversFile pgAdmin dump-servers/load-servers 的 JSON 结构
-type serversFile struct {
-	Servers map[string]serverEntry `json:"Servers"`
-}
-
-type serverEntry struct {
-	Name          string `json:"Name"`
-	Group         string `json:"Group"`
-	Host          string `json:"Host"`
-	Port          int    `json:"Port"`
-	MaintenanceDB string `json:"MaintenanceDB"`
-	Username      string `json:"Username"`
-	SSLMode       string `json:"SSLMode,omitempty"`
-	PassFile      string `json:"PassFile,omitempty"`
-}
-
-// escapePgpass 转义 pgpass 字段中的反斜杠与冒号
-func escapePgpass(s string) string {
-	return strings.NewReplacer(`\`, `\\`, `:`, `\:`).Replace(s)
-}
-
-// existingServers 只读 pgAdmin 配置库查询 Servers 组内已注册的服务器
-func (s *App) existingServers(ctx context.Context, email string) (map[string]struct{}, error) {
-	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s/data/pgadmin.db?mode=ro", s.path()))
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = db.Close() }()
-
-	rows, err := db.QueryContext(ctx, `SELECT s.host, s.port, s.username FROM server s
-		JOIN servergroup g ON s.servergroup_id = g.id
-		JOIN "user" u ON s.user_id = u.id
-		WHERE u.email = ? AND g.name = 'Servers'`, email)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	existing := make(map[string]struct{})
-	for rows.Next() {
-		var host, username sql.NullString
-		var port sql.NullInt64
-		if err = rows.Scan(&host, &port, &username); err != nil {
-			return nil, err
-		}
-		existing[fmt.Sprintf("%s:%d:%s", host.String, port.Int64, username.String)] = struct{}{}
-	}
-	return existing, rows.Err()
-}
-
-// dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
-func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]struct{} {
-	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
-	defer func() { _ = io.Remove(dump) }()
-	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
-
-	existing := make(map[string]struct{})
-	if raw, err := io.Read(dump); err == nil {
-		var dumped serversFile
-		if err = json.Unmarshal([]byte(raw), &dumped); err == nil {
-			for _, item := range dumped.Servers {
-				// 只认默认 Servers 组内的条目,历史版本同步进其他分组的会在此组补齐
-				if item.Group != "Servers" {
-					continue
-				}
-				existing[fmt.Sprintf("%s:%d:%s", item.Host, item.Port, item.Username)] = struct{}{}
-			}
-		}
-	}
-	return existing
-}
-
-// syncServers 将面板中全部 PostgreSQL 服务器合并注册到 pgAdmin,凭据写入 pgpass 实现免密
-// 仅追加 pgAdmin 中缺失的服务器,不影响用户在 pgAdmin 中手动添加的内容
-func (s *App) syncServers(ctx context.Context, email string) error {
-	servers, _, err := s.databaseServerRepo.List(ctx, 1, 10000, string(biz.DatabaseTypePostgresql))
-	if err != nil {
-		return err
-	}
-	if len(servers) == 0 {
-		return nil
-	}
-
-	// pgAdmin server 模式下 PassFile 以用户 storage 目录为根,目录名为邮箱 @ 转 _
-	storageDir := fmt.Sprintf("%s/data/storage/%s", s.path(), strings.ReplaceAll(email, "@", "_"))
-	pgpass := filepath.Join(storageDir, "pgpass")
-
-	// 重写 pgpass 中面板服务器的凭据行,保留其他行
-	prefixes := make([]string, 0, len(servers))
-	entries := make([]string, 0, len(servers))
-	for _, server := range servers {
-		prefix := fmt.Sprintf("%s:%d:*:%s:", escapePgpass(server.Host), server.Port, escapePgpass(server.Username))
-		prefixes = append(prefixes, prefix)
-		entries = append(entries, prefix+escapePgpass(server.Password))
-	}
-	var lines []string
-	if raw, err := io.Read(pgpass); err == nil {
-		for line := range strings.SplitSeq(strings.TrimSpace(raw), "\n") {
-			if line == "" {
-				continue
-			}
-			panelOwned := false
-			for _, prefix := range prefixes {
-				if strings.HasPrefix(line, prefix) {
-					panelOwned = true
-					break
-				}
-			}
-			if !panelOwned {
-				lines = append(lines, line)
-			}
-		}
-	}
-	lines = append(lines, entries...)
-	if err = os.MkdirAll(storageDir, 0700); err != nil {
-		return err
-	}
-	if err = io.Write(pgpass, strings.Join(lines, "\n")+"\n", 0600); err != nil {
-		return err
-	}
-
-	// 查询 pgAdmin 已有服务器用于查缺,直读配置库,异常时回退 CLI 导出
-	existing, err := s.existingServers(ctx, email)
-	if err != nil {
-		existing = s.dumpExistingServers(ctx, email)
-	}
-
-	// 一次性合并导入缺失的服务器
-	missing := make(map[string]serverEntry)
-	for i, server := range servers {
-		if _, ok := existing[fmt.Sprintf("%s:%d:%s", server.Host, server.Port, server.Username)]; ok {
-			continue
-		}
-		missing[cast.ToString(i+1)] = serverEntry{
-			Name:          server.Name,
-			Group:         "Servers",
-			Host:          server.Host,
-			Port:          int(server.Port),
-			MaintenanceDB: "postgres",
-			Username:      server.Username,
-			SSLMode:       "prefer",
-			PassFile:      "/pgpass",
-		}
-	}
-	if len(missing) > 0 {
-		load := filepath.Join(os.TempDir(), "pgadmin-servers-add.json")
-		defer func() { _ = io.Remove(load) }()
-		payload, err := json.Marshal(serversFile{Servers: missing})
-		if err != nil {
-			return err
-		}
-		if err = io.Write(load, string(payload), 0600); err != nil {
-			return err
-		}
-		// 导入与随后的 chown 必须成对完成，否则数据目录属主错误导致服务写不进去
-		loadCtx := context.WithoutCancel(ctx)
-		if out, err := shell.Execf(loadCtx, "%s/cli load-servers '%s' --user '%s'", s.path(), load, email); err != nil {
-			return errors.Join(err, errors.New(out))
-		}
-		// CLI 以 root 运行,修正数据目录属主避免服务写入失败
-		if _, err = shell.Execf(loadCtx, "chown -R www:www %s/data", s.path()); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	return io.ChownR(ctx, storageDir, "www", "www")
 }
 
 // Login 同步面板全部 PostgreSQL 服务器后代理登录 pgAdmin 并将会话 Cookie 转发给浏览器
@@ -468,7 +249,6 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ResetPassword 通过 CLI 重置管理员密码并同步凭据文件
 // UpdateUsername 修改管理员账号,迁移服务器配置与用户存储目录
 func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[UpdateUsername](r)
@@ -491,7 +271,7 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 	ctx := context.WithoutCancel(r.Context())
 
 	// 以当前密码创建新管理员账号
-	if out, err := shell.Execf(ctx, "%s/cli add-user '%s' '%s' --admin", s.path(), req.Username, password); err != nil {
+	if out, err := shell.ExecfWithEnv(ctx, []string{"NEW_PASSWORD=" + password}, `%s/cli add-user %s "$NEW_PASSWORD" --admin`, s.path(), shell.Quote(req.Username)); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create new account: %v", errors.Join(err, errors.New(out))))
 		return
 	}
@@ -534,6 +314,7 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
+// ResetPassword 通过 CLI 重置管理员密码并同步凭据文件
 func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[ResetPassword](r)
 	if err != nil {
@@ -551,7 +332,7 @@ func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := context.WithoutCancel(r.Context())
 
 	// cli 为安装脚本生成的稳定入口,屏蔽上游命令名随大版本变化
-	if out, err := shell.Execf(ctx, "%s/cli update-user '%s' --password '%s'", s.path(), email, req.Password); err != nil {
+	if out, err := shell.ExecfWithEnv(ctx, []string{"NEW_PASSWORD=" + req.Password}, `%s/cli update-user %s --password "$NEW_PASSWORD"`, s.path(), shell.Quote(email)); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reset password: %v", errors.Join(err, errors.New(out))))
 		return
 	}
@@ -569,4 +350,208 @@ func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("app password updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pgadmin"), slog.String("username", email))
 
 	service.Success(w, nil)
+}
+
+// port 从 systemd 环境文件中解析监听端口
+func (s *App) port() (uint, error) {
+	conf, err := io.Read(s.path() + "/pgadmin.conf")
+	if err != nil {
+		return 0, err
+	}
+	match := regexp.MustCompile(`PGADMIN_LISTEN=.+:(\d+)`).FindStringSubmatch(conf)
+	if len(match) < 2 {
+		return 0, errors.New(s.t.Get("pgAdmin port not found"))
+	}
+
+	return cast.ToUint(match[1]), nil
+}
+
+// credential 读取安装时生成的初始凭据(邮箱与密码)
+func (s *App) credential() (string, string) {
+	raw, err := io.Read(s.path() + "/credential")
+	if err != nil {
+		return "", ""
+	}
+	lines := strings.Split(strings.TrimSpace(raw), "\n")
+	if len(lines) < 2 {
+		return strings.TrimSpace(lines[0]), ""
+	}
+
+	return strings.TrimSpace(lines[0]), strings.TrimSpace(lines[1])
+}
+
+func (s *App) path() string {
+	return app.Root + "/server/pgadmin"
+}
+
+// syncServers 将面板中全部 PostgreSQL 服务器合并注册到 pgAdmin,凭据写入 pgpass 实现免密
+// 仅追加 pgAdmin 中缺失的服务器,不影响用户在 pgAdmin 中手动添加的内容
+func (s *App) syncServers(ctx context.Context, email string) error {
+	servers, _, err := s.databaseServerRepo.List(ctx, 1, 10000, string(biz.DatabaseTypePostgresql))
+	if err != nil {
+		return err
+	}
+	if len(servers) == 0 {
+		return nil
+	}
+
+	// pgAdmin server 模式下 PassFile 以用户 storage 目录为根,目录名为邮箱 @ 转 _
+	storageDir := fmt.Sprintf("%s/data/storage/%s", s.path(), strings.ReplaceAll(email, "@", "_"))
+	pgpass := filepath.Join(storageDir, "pgpass")
+
+	// 重写 pgpass 中面板服务器的凭据行,保留其他行
+	prefixes := make([]string, 0, len(servers))
+	entries := make([]string, 0, len(servers))
+	for _, server := range servers {
+		prefix := fmt.Sprintf("%s:%d:*:%s:", escapePgpass(server.Host), server.Port, escapePgpass(server.Username))
+		prefixes = append(prefixes, prefix)
+		entries = append(entries, prefix+escapePgpass(server.Password))
+	}
+	var lines []string
+	if raw, err := io.Read(pgpass); err == nil {
+		for line := range strings.SplitSeq(strings.TrimSpace(raw), "\n") {
+			if line == "" {
+				continue
+			}
+			var panelOwned bool
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(line, prefix) {
+					panelOwned = true
+					break
+				}
+			}
+			if !panelOwned {
+				lines = append(lines, line)
+			}
+		}
+	}
+	lines = append(lines, entries...)
+	if err = os.MkdirAll(storageDir, 0700); err != nil {
+		return err
+	}
+	if err = io.Write(pgpass, strings.Join(lines, "\n")+"\n", 0600); err != nil {
+		return err
+	}
+
+	// 查询 pgAdmin 已有服务器用于查缺,直读配置库,异常时回退 CLI 导出
+	existing, err := s.existingServers(ctx, email)
+	if err != nil {
+		existing = s.dumpExistingServers(ctx, email)
+	}
+
+	// 一次性合并导入缺失的服务器
+	missing := make(map[string]serverEntry)
+	for i, server := range servers {
+		if _, ok := existing[fmt.Sprintf("%s:%d:%s", server.Host, server.Port, server.Username)]; ok {
+			continue
+		}
+		missing[cast.ToString(i+1)] = serverEntry{
+			Name:          server.Name,
+			Group:         "Servers",
+			Host:          server.Host,
+			Port:          int(server.Port),
+			MaintenanceDB: "postgres",
+			Username:      server.Username,
+			SSLMode:       "prefer",
+			PassFile:      "/pgpass",
+		}
+	}
+	if len(missing) > 0 {
+		load := filepath.Join(os.TempDir(), "pgadmin-servers-add.json")
+		defer func() { _ = io.Remove(load) }()
+		payload, err := json.Marshal(serversFile{Servers: missing})
+		if err != nil {
+			return err
+		}
+		if err = io.Write(load, string(payload), 0600); err != nil {
+			return err
+		}
+		// 导入与随后的 chown 必须成对完成，否则数据目录属主错误导致服务写不进去
+		loadCtx := context.WithoutCancel(ctx)
+		if out, err := shell.Execf(loadCtx, "%s/cli load-servers '%s' --user '%s'", s.path(), load, email); err != nil {
+			return errors.Join(err, errors.New(out))
+		}
+		// CLI 以 root 运行,修正数据目录属主避免服务写入失败
+		if _, err = shell.Execf(loadCtx, "chown -R www:www %s/data", s.path()); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	return io.ChownR(ctx, storageDir, "www", "www")
+}
+
+// existingServers 只读 pgAdmin 配置库查询 Servers 组内已注册的服务器
+func (s *App) existingServers(ctx context.Context, email string) (map[string]struct{}, error) {
+	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s/data/pgadmin.db?mode=ro", s.path()))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = db.Close() }()
+
+	rows, err := db.QueryContext(ctx, `SELECT s.host, s.port, s.username FROM server s
+		JOIN servergroup g ON s.servergroup_id = g.id
+		JOIN "user" u ON s.user_id = u.id
+		WHERE u.email = ? AND g.name = 'Servers'`, email)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	existing := make(map[string]struct{})
+	for rows.Next() {
+		var host, username sql.NullString
+		var port sql.NullInt64
+		if err = rows.Scan(&host, &port, &username); err != nil {
+			return nil, err
+		}
+		existing[fmt.Sprintf("%s:%d:%s", host.String, port.Int64, username.String)] = struct{}{}
+	}
+	return existing, rows.Err()
+}
+
+// dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
+func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]struct{} {
+	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
+	defer func() { _ = io.Remove(dump) }()
+	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
+
+	existing := make(map[string]struct{})
+	if raw, err := io.Read(dump); err == nil {
+		var dumped serversFile
+		if err = json.Unmarshal([]byte(raw), &dumped); err == nil {
+			for _, item := range dumped.Servers {
+				// 只认默认 Servers 组内的条目,历史版本同步进其他分组的会在此组补齐
+				if item.Group != "Servers" {
+					continue
+				}
+				existing[fmt.Sprintf("%s:%d:%s", item.Host, item.Port, item.Username)] = struct{}{}
+			}
+		}
+	}
+	return existing
+}
+
+// clientIP 获取请求来源 IP,面板位于反代之后时优先取配置的 IP 头
+func (s *App) clientIP(r *http.Request) string {
+	return clientip.FromRequest(r, s.conf.HTTP.IPHeader)
+}
+
+// pgadminLanguage 面板语言映射为 pgAdmin 语言代码
+func (s *App) pgadminLanguage() string {
+	switch s.conf.App.Locale {
+	case "":
+		return ""
+	case "zh_CN":
+		return "zh_Hans_CN"
+	case "zh_TW":
+		return "zh_Hant_TW"
+	default:
+		return s.conf.App.Locale
+	}
+}
+
+// escapePgpass 转义 pgpass 字段中的反斜杠与冒号
+func escapePgpass(s string) string {
+	return strings.NewReplacer(`\`, `\\`, `:`, `\:`).Replace(s)
 }

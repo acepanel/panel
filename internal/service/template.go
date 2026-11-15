@@ -16,15 +16,17 @@ type TemplateService struct {
 	t            *gotext.Locale
 	log          *slog.Logger
 	templateRepo *biz.TemplateUsecase
-	settingRepo  *biz.SettingUsecase
 }
 
-func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale, log *slog.Logger) *TemplateService {
+func NewTemplateService(
+	templateUsecase *biz.TemplateUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *TemplateService {
 	return &TemplateService{
 		t:            t,
 		log:          log,
 		templateRepo: templateUsecase,
-		settingRepo:  settingUsecase,
 	}
 }
 

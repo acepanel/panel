@@ -82,7 +82,8 @@ let anchorSize = 0
 let nextCursor = ''
 let followWs: WebSocket | null = null
 let suppressScrollHandler = false
-let isManuallyClosed = false
+// cleanup 时自增，此前发出的请求回调与 socket 据此作废
+let session = 0
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
 const sourceParams = computed(() =>
@@ -302,11 +303,10 @@ watch([viewportW, viewportH], stickToBottom)
 watch(() => geometry.value.total, stickToBottom, { flush: 'post' })
 
 const scheduleReconnect = () => {
-  if (isManuallyClosed) return
   if (reconnectTimer) clearTimeout(reconnectTimer)
   reconnectTimer = setTimeout(() => {
     reconnectTimer = null
-    if (!isManuallyClosed) startFollow()
+    startFollow()
   }, 3000)
 }
 
@@ -343,17 +343,22 @@ const flushIncoming = () => {
 // 重连改用默认的“只跟新增”，否则会把锚点之后已显示的内容整段重放
 const startFollow = (fromAnchor = false) => {
   if (!sourceParams.value) return
-  isManuallyClosed = false
+  const sid = session
   status.value = 'connecting'
   // 上次连接残留的半行与新流拼接会拼出错行
   pendingTail = ''
   ws.follow({ ...sourceParams.value, offset: fromAnchor ? anchorSize : 0 })
     .then((socket) => {
+      if (sid !== session) {
+        socket.close()
+        return
+      }
       followWs = socket
       socket.binaryType = 'arraybuffer'
       status.value = 'connected'
 
       socket.onmessage = (ev) => {
+        if (sid !== session) return
         const data: string =
           typeof ev.data === 'string' ? ev.data : decoder.decode(new Uint8Array(ev.data))
         const parts = (pendingTail + data).split('\n')
@@ -367,18 +372,19 @@ const startFollow = (fromAnchor = false) => {
       }
 
       socket.onclose = () => {
-        if (!isManuallyClosed) {
-          status.value = 'connecting'
-        }
+        if (sid !== session) return
+        status.value = 'connecting'
         scheduleReconnect()
       }
 
       socket.onerror = () => {
+        if (sid !== session) return
         status.value = 'error'
         socket.close()
       }
     })
     .catch(() => {
+      if (sid !== session) return
       status.value = 'error'
       scheduleReconnect()
     })
@@ -404,9 +410,11 @@ const buildTailParams = (initial: boolean) => {
 
 const loadInitial = () => {
   if (!sourceParams.value) return
+  const sid = session
   initialLoading.value = true
   useRequest(file.tail(buildTailParams(true)))
     .onSuccess(({ data }: any) => {
+      if (sid !== session) return
       const newLines: string[] = data?.lines ?? []
       lines.value = newLines.map(parseLine)
       loadedFromEnd = newLines.length
@@ -416,12 +424,14 @@ const loadInitial = () => {
       // 与日志行同一次渲染中撤下加载占位，否则 nextTick 时 DOM 里还没有行，贴底会落空
       initialLoading.value = false
       nextTick(() => {
+        if (sid !== session) return
         scrollToBottom()
         followMode.value = true
         startFollow(true)
       })
     })
     .onComplete(() => {
+      if (sid !== session) return
       initialLoading.value = false
     })
 }
@@ -432,11 +442,13 @@ const loadOlder = () => {
     hasMore.value = false
     return
   }
+  const sid = session
   isLoadingMore.value = true
   loadedOlder.value = true
 
   useRequest(file.tail(buildTailParams(false)))
     .onSuccess(({ data }: any) => {
+      if (sid !== session) return
       const newOldLines: string[] = data?.lines ?? []
       if (newOldLines.length === 0) {
         hasMore.value = false
@@ -452,6 +464,7 @@ const loadOlder = () => {
       nextTick(() => setScrollTop((el) => el.scrollTop + addedH))
     })
     .onComplete(() => {
+      if (sid !== session) return
       isLoadingMore.value = false
     })
 }
@@ -554,7 +567,7 @@ watch(followMode, (on) => {
 })
 
 const cleanup = () => {
-  isManuallyClosed = true
+  session++
   if (reconnectTimer) {
     clearTimeout(reconnectTimer)
     reconnectTimer = null
@@ -569,6 +582,7 @@ const cleanup = () => {
   incoming = []
   hasMore.value = false
   loadedOlder.value = false
+  isLoadingMore.value = false
   status.value = 'connecting'
   matchedLineId.value = null
   pendingNew.value = 0

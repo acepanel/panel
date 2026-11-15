@@ -9,7 +9,6 @@ export interface FileTab {
   sub: boolean // 搜索是否包含子目录
   history: string[] // 浏览历史栈
   historyCursor: number // 历史指针
-  selected: string[] // 选中的文件路径
 }
 
 export interface FileState {
@@ -27,6 +26,8 @@ export interface FileState {
     marked: Marked[]
     markedType: 'copy' | 'move'
   }
+  // 各标签页选中的文件路径，以标签页 id 为键
+  selected: Record<string, string[]>
 }
 
 // 根据路径生成标签页显示名
@@ -46,7 +47,6 @@ const createNewTab = (path: string): FileTab => ({
   sub: false,
   history: [path],
   historyCursor: 0,
-  selected: [],
 })
 
 export const useFileStore = defineStore('file', {
@@ -64,6 +64,7 @@ export const useFileStore = defineStore('file', {
         marked: [],
         markedType: 'copy',
       },
+      selected: {},
     }
   },
   getters: {
@@ -75,6 +76,10 @@ export const useFileStore = defineStore('file', {
       return this.tabs.find((t) => t.id === this.activeTabId)
     },
     isFavorite: (state) => (path: string) => state.favorites.some((f) => f.path === path),
+    // 当前标签页选中的文件路径
+    activeSelected(): string[] {
+      return this.selected[this.activeTabId] ?? []
+    },
   },
   actions: {
     // 新建标签页
@@ -90,6 +95,7 @@ export const useFileStore = defineStore('file', {
       const index = this.tabs.findIndex((t) => t.id === tabId)
       if (index === -1) return
       this.tabs.splice(index, 1)
+      delete this.selected[tabId]
       // 如果关闭的是当前活跃标签页，切换到相邻标签页
       if (this.activeTabId === tabId) {
         const newIndex = Math.min(index, this.tabs.length - 1)
@@ -201,11 +207,11 @@ export const useFileStore = defineStore('file', {
       }
     },
   },
+  // 选中项、剪贴板只在本次会话有效，收藏以后端为准，都不持久化
   persist: {
+    pick: ['tabs', 'activeTabId', 'favorites', 'showHidden', 'viewType', 'sortKey', 'sortOrder'],
     afterHydrate(ctx: any) {
       const store = ctx.store as ReturnType<typeof useFileStore>
-      // 恢复后清空剪贴板
-      store.clipboard = { marked: [], markedType: 'copy' }
       // 确保 activeTabId 有效
       if (!store.tabs || store.tabs.length === 0) {
         const tab = createNewTab('/opt')
@@ -214,8 +220,8 @@ export const useFileStore = defineStore('file', {
       } else if (!store.tabs.some((t) => t.id === store.activeTabId)) {
         store.activeTabId = store.tabs[0]!.id
       }
-      // 恢复后清空选中（兼容无 selected 字段的旧持久化数据）
-      store.tabs.forEach((t) => (t.selected = []))
+      // 旧版本把选中项存在标签页里，丢掉以免跟着 tabs 一直写回
+      store.tabs.forEach((t: FileTab & { selected?: string[] }) => delete t.selected)
     },
   },
 })

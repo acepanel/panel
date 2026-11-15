@@ -19,40 +19,25 @@ import (
 // 上游写成顶层片段供 reverse_proxy 块内 import；代理按 nginx 的 location 优先级排入一个 route 块，
 // 匹配器序号即用户定义顺序；无法从指令推导的字段以 ace: 注释回写
 
-func (v *baseVhost) upstreamSnippet(name string) string {
-	return fmt.Sprintf("ace_upstream_%s_%s", v.safeName, safeName(name))
-}
+const (
+	realIPHeader = "X-Real-IP"
+	realIPValue  = "{remote_host}"
+)
 
 var weightPattern = regexp.MustCompile(`\bweight=(\d+)`)
 
-func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
-	for _, up := range v.upstreams {
-		s := cfg.AddBlock("(" + v.upstreamSnippet(up.Name) + ")")
-		s.AddMeta("upstream", up.Name)
-		servers := slices.Sorted(maps.Keys(up.Servers))
-		to := make([]string, 0, len(servers))
-		weights := make([]string, 0, len(servers))
-		weighted := false
-		for _, addr := range servers {
-			to = append(to, caddyAddress(addr))
-			weight := "1"
-			if m := weightPattern.FindStringSubmatch(up.Servers[addr]); m != nil {
-				weight = m[1]
-				weighted = weighted || weight != "1"
-			}
-			weights = append(weights, weight)
-		}
-		s.Add("to", to...)
-		switch algo := types.NormalizeAlgo(up.Algo); {
-		case algo != "":
-			s.Add("lb_policy", algo)
-		case weighted:
-			s.Add("lb_policy", append([]string{"weighted_round_robin"}, weights...)...)
-		default:
-			s.Add("lb_policy", "round_robin")
-		}
-	}
-}
+var denyAll = []string{"0.0.0.0/0", "::/0"}
+
+// 表首命中即回读时的规范原像，所以 $host 要排在 $http_host 之前
+var nginxVariables = types.NewVarMap([][2]string{
+	{"$proxy_add_x_forwarded_for", "{remote_host}"},
+	{"$remote_addr", "{remote_host}"},
+	{"$host", "{host}"},
+	{"$http_host", "{host}"},
+	{"$scheme", "{scheme}"},
+	{"$request_uri", "{uri}"},
+	{"$server_port", "{port}"},
+})
 
 func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 	for _, s := range cfg.All() {
@@ -84,207 +69,8 @@ func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 				up.Algo = types.NormalizeAlgo(lb.Arg(0))
 			}
 		}
-		v.upstreams = append(v.upstreams, up)
+		v.UpstreamList = append(v.UpstreamList, up)
 	}
-}
-
-// proxyOrder 按 nginx 的 location 优先级排序：精确匹配、^~ 前缀（长者优先）、正则（书写顺序）、普通前缀（长者优先）
-func proxyOrder(proxies []types.Proxy) []int {
-	rank := func(location string) (int, int) {
-		location = strings.TrimSpace(location)
-		switch {
-		case strings.HasPrefix(location, "="):
-			return 0, 0
-		case strings.HasPrefix(location, "^~"):
-			return 1, -len(strings.TrimSpace(location[2:]))
-		case strings.HasPrefix(location, "~"):
-			return 2, 0
-		}
-		return 3, -len(location)
-	}
-	order := make([]int, len(proxies))
-	for i := range order {
-		order[i] = i
-	}
-	sort.SliceStable(order, func(a, b int) bool {
-		ra, la := rank(proxies[order[a]].Location)
-		rb, lb := rank(proxies[order[b]].Location)
-		if ra != rb {
-			return ra < rb
-		}
-		return la < lb
-	})
-	return order
-}
-
-func (v *baseVhost) buildProxies(body *conf.Block) {
-	if len(v.proxies) == 0 {
-		return
-	}
-	body.Append(&conf.Blank{})
-	route := body.AddBlock("route")
-	for _, i := range proxyOrder(v.proxies) {
-		p := v.proxies[i]
-		name := fmt.Sprintf("@ace_proxy_%d", i)
-		route.Add(name, "expression", locationExpression(p.Location))
-		h := route.AddBlock("handle", name)
-		h.AddMeta("location", p.Location)
-		h.AddMeta("pass", p.Pass)
-		// 伪静态与 SPA 回退的 try_files 排在 route 之前执行，子路径反代的请求会先被改写成 /index.html，
-		// 所以按原始 URI 匹配、转发前再改回来，与 ACME 的处理一致
-		h.Add("rewrite", "*", "{http.request.orig_uri}")
-
-		if p.ClientMaxBodySize > 0 {
-			h.AddBlock("request_body").Add("max_size", strconv.FormatInt(p.ClientMaxBodySize, 10))
-		}
-		if p.AccessControl != nil {
-			allow, deny := accessLists(p.AccessControl)
-			if len(deny) > 0 {
-				name := fmt.Sprintf("@ace_deny_%d", i)
-				h.Add(name, append([]string{"remote_ip"}, deny...)...)
-				h.Add("respond", name, "403")
-			}
-			if len(allow) > 0 {
-				name := fmt.Sprintf("@ace_allow_%d", i)
-				h.Add(name, append([]string{"not", "remote_ip"}, allow...)...)
-				h.Add("respond", name, "403")
-			}
-		}
-		// proxy_pass 带路径时把匹配到的前缀替换为该路径，正则 location 不支持
-		if prefix, path := passPrefixRewrite(p); path != "" {
-			h.Add("uri", "path_regexp", "^"+regexp.QuoteMeta(prefix), path)
-		}
-		for _, from := range slices.Sorted(maps.Keys(p.Replaces)) {
-			h.Add("replace", from, p.Replaces[from])
-		}
-
-		rp := h.AddBlock("reverse_proxy")
-		snippet, address := v.proxyTarget(p.Pass)
-		if snippet != "" {
-			rp.Add("import", snippet)
-		} else {
-			rp.AppendArg(address)
-		}
-		switch host := strings.TrimSpace(p.Host); host {
-		case "$host":
-		case "", "$proxy_host":
-			// 与 nginx 的默认值 $proxy_host 一致，发上游主机名而不是访客 Host
-			rp.Add("header_up", "Host", "{upstream_hostport}")
-		default:
-			rp.Add("header_up", "Host", nginxVariables.ToNative(host))
-		}
-		// X-Forwarded-* 由 Caddy 自动附加，X-Real-IP 与 nginx 方言一样默认补上
-		if _, ok := p.Headers[realIPHeader]; !ok {
-			rp.Add("header_up", realIPHeader, realIPValue)
-		}
-		for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
-			// nginx 习惯手写的 X-Forwarded-For 链由 Caddy 自动维护，写死反而会丢掉上游链路
-			if strings.EqualFold(name, "X-Forwarded-For") && p.Headers[name] == "$proxy_add_x_forwarded_for" {
-				continue
-			}
-			rp.Add("header_up", name, nginxVariables.ToNative(p.Headers[name]))
-		}
-		if p.ResponseHeaders != nil {
-			for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
-				rp.Add("header_down", name, nginxVariables.ToNative(p.ResponseHeaders.Add[name]))
-			}
-			for _, name := range p.ResponseHeaders.Hide {
-				rp.Add("header_down", "-"+name)
-			}
-		}
-		if !p.Buffering {
-			rp.Add("flush_interval", "-1")
-		}
-		if p.Retry != nil {
-			if p.Retry.Tries > 0 {
-				rp.Add("lb_retries", strconv.Itoa(p.Retry.Tries))
-			}
-			if p.Retry.Timeout > 0 {
-				rp.Add("lb_try_duration", p.Retry.Timeout.String())
-			}
-		}
-		v.buildTransport(rp, p, strings.HasPrefix(strings.ToLower(p.Pass), "https://"))
-		if rp.Len() == 0 {
-			rp.Block = nil
-		}
-		custom, _ := customNodes(p)
-		h.AppendCustom(custom)
-	}
-}
-
-// customNodes 解析代理的自定义指令，SetProxies 时已校验过语法
-func customNodes(p types.Proxy) ([]conf.Node, error) {
-	cfg, err := Parse(p.Custom)
-	if err != nil {
-		return nil, fmt.Errorf("invalid custom directives of proxy %s: %w", p.Location, err)
-	}
-	return cfg.Nodes, nil
-}
-
-// buildTransport 后端 TLS、SNI、协议版本与超时都在 transport 块，nginx 默认不校验后端证书，这里保持一致
-func (v *baseVhost) buildTransport(rp *conf.Directive, p types.Proxy, https bool) {
-	t := conf.Blk("transport", "http")
-	if https || p.SNI != "" {
-		t.Add("tls")
-		if p.SNI != "" {
-			t.Add("tls_server_name", p.SNI)
-		}
-		if p.SSLBackend == nil || !p.SSLBackend.Verify {
-			t.Add("tls_insecure_skip_verify")
-		}
-		if p.SSLBackend != nil && p.SSLBackend.TrustedCertificate != "" {
-			t.Add("tls_trust_pool", "file", p.SSLBackend.TrustedCertificate)
-		}
-	}
-	if p.HTTPVersion == "2" {
-		t.Add("versions", "h2c", "2")
-	}
-	if p.Timeout != nil {
-		if p.Timeout.Connect > 0 {
-			t.Add("dial_timeout", p.Timeout.Connect.String())
-		}
-		if p.Timeout.Read > 0 {
-			t.Add("response_header_timeout", p.Timeout.Read.String())
-		}
-	}
-	if t.Len() > 0 {
-		rp.Append(t)
-	}
-}
-
-// proxyTarget 命中上游返回片段名，否则返回 Caddy 形式的后端地址
-func (v *baseVhost) proxyTarget(pass string) (string, string) {
-	u, err := url.Parse(pass)
-	if err != nil || u.Host == "" {
-		return "", pass
-	}
-	for _, up := range v.upstreams {
-		if up.Name == u.Hostname() {
-			return v.upstreamSnippet(up.Name), ""
-		}
-	}
-	// nginx 的 unix 套接字写法 http://unix:/path.sock，路径落在 Path 里
-	if u.Host == "unix:" {
-		return "", "unix/" + u.Path
-	}
-	port := u.Port()
-	if port == "" {
-		port = map[bool]string{true: "443", false: "80"}[u.Scheme == "https"]
-	}
-	return "", net.JoinHostPort(u.Hostname(), port)
-}
-
-func passPrefixRewrite(p types.Proxy) (string, string) {
-	location := strings.TrimSpace(p.Location)
-	if strings.HasPrefix(location, "~") {
-		return "", ""
-	}
-	u, err := url.Parse(p.Pass)
-	if err != nil || u.Path == "" || u.Host == "unix:" {
-		return "", ""
-	}
-	prefix := strings.TrimSpace(strings.TrimPrefix(strings.TrimPrefix(location, "^~"), "="))
-	return prefix, u.Path
 }
 
 func (v *baseVhost) loadProxies(body *conf.Block) {
@@ -305,7 +91,7 @@ func (v *baseVhost) loadProxies(body *conf.Block) {
 	}
 	sort.SliceStable(found, func(a, b int) bool { return found[a].index < found[b].index })
 	for _, item := range found {
-		v.proxies = append(v.proxies, item.proxy)
+		v.ProxyRules = append(v.ProxyRules, item.proxy)
 	}
 }
 
@@ -321,7 +107,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 		Resolver:    []string{},
 		Headers:     make(map[string]string),
 		Replaces:    make(map[string]string),
-		Custom:      strings.TrimSpace(Export(&conf.Config{Block: conf.Block{Nodes: custom}})),
+		Custom:      strings.TrimSpace(Export(&conf.Config{Nodes: custom})),
 	}
 	if body := h.Get("request_body"); body != nil {
 		p.ClientMaxBodySize, _ = strconv.ParseInt(body.Get("max_size").Arg(0), 10, 64)
@@ -354,7 +140,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 		switch {
 		case d.Arg(0) == "Host":
 			// 回读成 nginx 的变量名，切换服务器时这个值会原样交给别的方言
-			p.Host = strings.Replace(d.Arg(1), "{upstream_hostport}", "$proxy_host", 1)
+			p.Host = nginxVariables.ToNginx(strings.Replace(d.Arg(1), "{upstream_hostport}", "$proxy_host", 1))
 		case d.Arg(0) == realIPHeader && d.Arg(1) == realIPValue:
 		default:
 			p.Headers[d.Arg(0)] = nginxVariables.ToNginx(d.Arg(1))
@@ -402,30 +188,222 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 	return p
 }
 
-const (
-	realIPHeader = "X-Real-IP"
-	realIPValue  = "{remote_host}"
-)
-
-var denyAll = []string{"0.0.0.0/0", "::/0"}
-
-// accessLists nginx 习惯的 all：允许列表里等于不限制，有允许列表时 deny all 已隐含，否则展开为全部网段
-func accessLists(ac *types.AccessControlConfig) ([]string, []string) {
-	var allow, deny []string
-	for _, ip := range ac.Allow {
-		if !strings.EqualFold(ip, "all") {
-			allow = append(allow, ip)
+func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
+	for _, up := range v.UpstreamList {
+		s := cfg.AddBlock("(" + v.upstreamSnippet(up.Name) + ")")
+		s.AddMeta("upstream", up.Name)
+		servers := slices.Sorted(maps.Keys(up.Servers))
+		to := make([]string, 0, len(servers))
+		weights := make([]string, 0, len(servers))
+		var weighted bool
+		for _, addr := range servers {
+			to = append(to, caddyAddress(addr))
+			weight := "1"
+			if m := weightPattern.FindStringSubmatch(up.Servers[addr]); m != nil {
+				weight = m[1]
+				weighted = weighted || weight != "1"
+			}
+			weights = append(weights, weight)
+		}
+		s.Add("to", to...)
+		switch algo := types.NormalizeAlgo(up.Algo); {
+		case algo != "":
+			s.Add("lb_policy", algo)
+		case weighted:
+			s.Add("lb_policy", append([]string{"weighted_round_robin"}, weights...)...)
+		default:
+			s.Add("lb_policy", "round_robin")
 		}
 	}
-	for _, ip := range ac.Deny {
-		switch {
-		case !strings.EqualFold(ip, "all"):
-			deny = append(deny, ip)
-		case len(allow) == 0:
-			deny = append(deny, denyAll...)
+}
+
+func (v *baseVhost) buildProxies(body *conf.Block) {
+	if len(v.ProxyRules) == 0 {
+		return
+	}
+	body.Append(&conf.Blank{})
+	route := body.AddBlock("route")
+	for _, i := range types.ProxyOrder(v.ProxyRules) {
+		p := v.ProxyRules[i]
+		name := fmt.Sprintf("@ace_proxy_%d", i)
+		route.Add(name, "expression", locationExpression(p.Location))
+		h := route.AddBlock("handle", name)
+		h.AddMeta("location", p.Location)
+		h.AddMeta("pass", p.Pass)
+		// 伪静态与 SPA 回退的 try_files 排在 route 之前执行，子路径反代的请求会先被改写成 /index.html，
+		// 所以按原始 URI 匹配、转发前再改回来，与 ACME 的处理一致
+		h.Add("rewrite", "*", "{http.request.orig_uri}")
+
+		if p.ClientMaxBodySize > 0 {
+			h.AddBlock("request_body").Add("max_size", strconv.FormatInt(p.ClientMaxBodySize, 10))
+		}
+		if p.AccessControl != nil {
+			allow, deny := p.AccessControl.Lists()
+			if len(deny) > 0 {
+				name := fmt.Sprintf("@ace_deny_%d", i)
+				h.Add(name, append([]string{"remote_ip"}, denyNets(deny)...)...)
+				h.Add("respond", name, "403")
+			}
+			if len(allow) > 0 {
+				name := fmt.Sprintf("@ace_allow_%d", i)
+				h.Add(name, append([]string{"not", "remote_ip"}, allow...)...)
+				h.Add("respond", name, "403")
+			}
+		}
+		// proxy_pass 带路径时把匹配到的前缀替换为该路径，正则 location 不支持
+		if prefix, path := passPrefixRewrite(p); path != "" {
+			h.Add("uri", "path_regexp", "^"+regexp.QuoteMeta(prefix), path)
+		}
+		for _, from := range slices.Sorted(maps.Keys(p.Replaces)) {
+			h.Add("replace", from, p.Replaces[from])
+		}
+
+		rp := h.AddBlock("reverse_proxy")
+		snippet, address := v.proxyTarget(p.Pass)
+		if snippet != "" {
+			rp.Add("import", snippet)
+		} else {
+			rp.AppendArg(address)
+		}
+		switch host := strings.TrimSpace(p.Host); host {
+		case "$host":
+		case "", "$proxy_host":
+			// 与 nginx 的默认值 $proxy_host 一致，发上游主机名而不是访客 Host
+			rp.Add("header_up", "Host", "{upstream_hostport}")
+		default:
+			rp.Add("header_up", "Host", nginxVariables.ToNative(host))
+		}
+		// X-Forwarded-* 由 Caddy 自动附加，X-Real-IP 与 nginx 方言一样默认补上，用户给了就用用户的值
+		realIP := realIPValue
+		if custom, ok := p.Headers[realIPHeader]; ok {
+			realIP = nginxVariables.ToNative(custom)
+		}
+		rp.Add("header_up", realIPHeader, realIP)
+		for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
+			// nginx 习惯手写的 X-Forwarded-For 链由 Caddy 自动维护，写死反而会丢掉上游链路
+			if name == realIPHeader || (strings.EqualFold(name, "X-Forwarded-For") && p.Headers[name] == "$proxy_add_x_forwarded_for") {
+				continue
+			}
+			rp.Add("header_up", name, nginxVariables.ToNative(p.Headers[name]))
+		}
+		if p.ResponseHeaders != nil {
+			for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
+				rp.Add("header_down", name, nginxVariables.ToNative(p.ResponseHeaders.Add[name]))
+			}
+			for _, name := range p.ResponseHeaders.Hide {
+				rp.Add("header_down", "-"+name)
+			}
+		}
+		if !p.Buffering {
+			rp.Add("flush_interval", "-1")
+		}
+		if p.Retry != nil {
+			if p.Retry.Tries > 0 {
+				rp.Add("lb_retries", strconv.Itoa(p.Retry.Tries))
+			}
+			if p.Retry.Timeout > 0 {
+				rp.Add("lb_try_duration", p.Retry.Timeout.String())
+			}
+		}
+		v.buildTransport(rp, p, strings.HasPrefix(strings.ToLower(p.Pass), "https://"))
+		if rp.Len() == 0 {
+			rp.Block = nil
+		}
+		custom, _ := customNodes(p)
+		h.AppendCustom(custom)
+	}
+}
+
+// proxyTarget 命中上游返回片段名，否则返回 Caddy 形式的后端地址
+func (v *baseVhost) proxyTarget(pass string) (string, string) {
+	u, err := url.Parse(pass)
+	if err != nil || u.Host == "" {
+		return "", pass
+	}
+	for _, up := range v.UpstreamList {
+		if up.Name == u.Hostname() {
+			return v.upstreamSnippet(up.Name), ""
 		}
 	}
-	return allow, deny
+	// nginx 的 unix 套接字写法 http://unix:/path.sock，路径落在 Path 里
+	if u.Host == "unix:" {
+		return "", "unix/" + u.Path
+	}
+	port := u.Port()
+	if port == "" {
+		port = map[bool]string{true: "443", false: "80"}[u.Scheme == "https"]
+	}
+	return "", net.JoinHostPort(u.Hostname(), port)
+}
+
+// buildTransport 后端 TLS、SNI、协议版本与超时都在 transport 块，nginx 默认不校验后端证书，这里保持一致
+func (v *baseVhost) buildTransport(rp *conf.Directive, p types.Proxy, https bool) {
+	t := conf.Blk("transport", "http")
+	if https || p.SNI != "" {
+		t.Add("tls")
+		if p.SNI != "" {
+			t.Add("tls_server_name", p.SNI)
+		}
+		if p.SSLBackend == nil || !p.SSLBackend.Verify {
+			t.Add("tls_insecure_skip_verify")
+		}
+		if p.SSLBackend != nil && p.SSLBackend.TrustedCertificate != "" {
+			t.Add("tls_trust_pool", "file", p.SSLBackend.TrustedCertificate)
+		}
+	}
+	if p.HTTPVersion == "2" {
+		t.Add("versions", "h2c", "2")
+	}
+	if p.Timeout != nil {
+		if p.Timeout.Connect > 0 {
+			t.Add("dial_timeout", p.Timeout.Connect.String())
+		}
+		if p.Timeout.Read > 0 {
+			t.Add("response_header_timeout", p.Timeout.Read.String())
+		}
+	}
+	if t.Len() > 0 {
+		rp.Append(t)
+	}
+}
+
+func (v *baseVhost) upstreamSnippet(name string) string {
+	return fmt.Sprintf("ace_upstream_%s_%s", v.safeName, types.SafeName(name))
+}
+
+// customNodes 解析代理的自定义指令，SetProxies 时已校验过语法
+func customNodes(p types.Proxy) ([]conf.Node, error) {
+	cfg, err := Parse(p.Custom)
+	if err != nil {
+		return nil, fmt.Errorf("invalid custom directives of proxy %s: %w", p.Location, err)
+	}
+	return cfg.Nodes, nil
+}
+
+func passPrefixRewrite(p types.Proxy) (string, string) {
+	location := strings.TrimSpace(p.Location)
+	if strings.HasPrefix(location, "~") {
+		return "", ""
+	}
+	u, err := url.Parse(p.Pass)
+	if err != nil || u.Path == "" || u.Host == "unix:" {
+		return "", ""
+	}
+	prefix := strings.TrimSpace(strings.TrimPrefix(strings.TrimPrefix(location, "^~"), "="))
+	return prefix, u.Path
+}
+
+// denyNets 全部拒绝在 Caddy 里展开为全部网段
+func denyNets(deny []string) []string {
+	var nets []string
+	for _, ip := range deny {
+		if ip == "all" {
+			nets = append(nets, denyAll...)
+		} else {
+			nets = append(nets, ip)
+		}
+	}
+	return nets
 }
 
 // locationExpression 按原始 URI 匹配的 CEL 表达式，前缀与精确匹配区分大小写，与 nginx 一致；
@@ -458,14 +436,3 @@ func nginxAddress(addr string) string {
 	}
 	return addr
 }
-
-// 表首命中即回读时的规范原像，所以 $host 要排在 $http_host 之前
-var nginxVariables = types.NewVarMap([][2]string{
-	{"$proxy_add_x_forwarded_for", "{remote_host}"},
-	{"$remote_addr", "{remote_host}"},
-	{"$host", "{host}"},
-	{"$http_host", "{host}"},
-	{"$scheme", "{scheme}"},
-	{"$request_uri", "{uri}"},
-	{"$server_port", "{port}"},
-})

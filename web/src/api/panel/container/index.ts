@@ -40,9 +40,6 @@ export default {
   composeUpdate: (name: string, config: any): any => http.Put(`/container/compose/${name}`, config),
   // 删除编排
   composeRemove: (name: string): any => http.Delete(`/container/compose/${name}`),
-  // 启动编排
-  composeUp: (name: string, force: boolean): any =>
-    http.Post(`/container/compose/${name}/up`, { force }),
   // 停止编排
   composeDown: (name: string): any => http.Post(`/container/compose/${name}/down`),
   // 获取网络列表

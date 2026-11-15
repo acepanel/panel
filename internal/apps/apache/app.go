@@ -2,7 +2,6 @@ package apache
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -12,6 +11,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -26,14 +26,16 @@ import (
 var mpmEventRegexp = regexp.MustCompile(`(?s)<IfModule mpm_event_module>(.*?)</IfModule>`)
 
 type App struct {
+	*common.WebServer
 	t   *gotext.Locale
 	log *slog.Logger
 }
 
 func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t:   t,
-		log: log,
+		WebServer: common.NewWebServer(t, log, "apache", webserver.TypeApache, app.Root+"/server/apache/conf/httpd.conf", app.Root+"/server/apache/logs/error_log"),
+		t:         t,
+		log:       log,
 	}
 }
 
@@ -50,71 +52,6 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Status(ctx context.Context) string {
 	ok, _ := systemctl.Status(ctx, "apache")
 	return types.AggregateAppStatus(ok)
-}
-
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	path := app.Root + "/server/apache/conf/httpd.conf"
-	config, err := io.Read(path)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", path))
-
-	service.Success(w, config)
-}
-
-func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	path := app.Root + "/server/apache/conf/httpd.conf"
-	if err = io.Write(path, req.Config, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = s.reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", path))
-
-	service.Success(w, nil)
-}
-
-// reload 走方言的 Reload，错误里已带配置检查输出
-func (s *App) reload(ctx context.Context) error {
-	d, err := webserver.Get(webserver.TypeApache)
-	if err != nil {
-		return err
-	}
-
-	if err = d.Reload(ctx); err != nil {
-		return fmt.Errorf("%s", s.t.Get("failed to reload apache: %v", err))
-	}
-
-	return nil
-}
-
-func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/%s", app.Root, "server/apache/logs/error_log"))
-}
-
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/%s", app.Root, "server/apache/logs/error_log"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", app.Root+"/server/apache/logs/error_log"))
-
-	service.Success(w, nil)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
@@ -202,32 +139,19 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	mpmConf, _ := io.Read(app.Root + "/server/apache/conf/extra/httpd-mpm.conf")
-	eventBlock := ""
+	var eventBlock string
 	if m := mpmEventRegexp.FindStringSubmatch(mpmConf); len(m) > 1 {
 		eventBlock = m[1]
 	}
 
 	// 面板统一写入 httpd-default.conf，未写入过的从 httpd-mpm.conf 的 event 块读取默认值
-	get := func(key string) string {
-		if v := confval.Directive.Get(defaultConf, key); v != "" {
-			return v
+	tune := new(ConfigTune)
+	fields := s.tuneFields(tune)
+	confval.Directive.Read(defaultConf, fields)
+	for _, f := range fields {
+		if *f.Value == "" {
+			*f.Value = confval.Directive.Get(eventBlock, f.Key)
 		}
-		return confval.Directive.Get(eventBlock, key)
-	}
-
-	tune := ConfigTune{
-		// MPM 事件模型
-		StartServers:           get("StartServers"),
-		MinSpareThreads:        get("MinSpareThreads"),
-		MaxSpareThreads:        get("MaxSpareThreads"),
-		ThreadsPerChild:        get("ThreadsPerChild"),
-		MaxRequestWorkers:      get("MaxRequestWorkers"),
-		MaxConnectionsPerChild: get("MaxConnectionsPerChild"),
-		// 连接设置
-		Timeout:              get("Timeout"),
-		KeepAlive:            get("KeepAlive"),
-		MaxKeepAliveRequests: get("MaxKeepAliveRequests"),
-		KeepAliveTimeout:     get("KeepAliveTimeout"),
 	}
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "apache"), slog.String("path", confPath))
@@ -251,23 +175,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// MPM 参数一并写入 httpd-default.conf，其 Include 顺序在 httpd-mpm.conf 之后，顶层定义覆盖块内默认值
-	config = confval.Directive.Set(config, "StartServers", req.StartServers)
-	config = confval.Directive.Set(config, "MinSpareThreads", req.MinSpareThreads)
-	config = confval.Directive.Set(config, "MaxSpareThreads", req.MaxSpareThreads)
-	config = confval.Directive.Set(config, "ThreadsPerChild", req.ThreadsPerChild)
-	config = confval.Directive.Set(config, "MaxRequestWorkers", req.MaxRequestWorkers)
-	config = confval.Directive.Set(config, "MaxConnectionsPerChild", req.MaxConnectionsPerChild)
-	config = confval.Directive.Set(config, "Timeout", req.Timeout)
-	config = confval.Directive.Set(config, "KeepAlive", req.KeepAlive)
-	config = confval.Directive.Set(config, "MaxKeepAliveRequests", req.MaxKeepAliveRequests)
-	config = confval.Directive.Set(config, "KeepAliveTimeout", req.KeepAliveTimeout)
+	config = confval.Directive.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = s.reload(r.Context()); err != nil {
+	if err = s.Reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -290,4 +205,21 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	)
 
 	service.Success(w, nil)
+}
+
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		// MPM 事件模型
+		{Key: "StartServers", Value: &t.StartServers},
+		{Key: "MinSpareThreads", Value: &t.MinSpareThreads},
+		{Key: "MaxSpareThreads", Value: &t.MaxSpareThreads},
+		{Key: "ThreadsPerChild", Value: &t.ThreadsPerChild},
+		{Key: "MaxRequestWorkers", Value: &t.MaxRequestWorkers},
+		{Key: "MaxConnectionsPerChild", Value: &t.MaxConnectionsPerChild},
+		// 连接设置
+		{Key: "Timeout", Value: &t.Timeout},
+		{Key: "KeepAlive", Value: &t.KeepAlive},
+		{Key: "MaxKeepAliveRequests", Value: &t.MaxKeepAliveRequests},
+		{Key: "KeepAliveTimeout", Value: &t.KeepAliveTimeout},
+	}
 }

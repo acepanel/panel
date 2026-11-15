@@ -29,7 +29,10 @@ type remoteSetting struct {
 }
 
 // probeRemote 校验目标面板连通性并读取其版本
-func (uc *ToolboxMigrationUsecase) probeRemote(ctx context.Context, conn *request.ToolboxMigrationConnection) (*types.MigrationSource, error) {
+func (uc *ToolboxMigrationUsecase) probeRemote(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+) (*types.MigrationSource, error) {
 	body, err := uc.remote.Request(ctx, conn, "GET", "/api/home/system_info", nil)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to connect target server: %v", err))
@@ -47,7 +50,7 @@ func (uc *ToolboxMigrationUsecase) probeRemote(ctx context.Context, conn *reques
 
 // localItems 列出本地可推送到目标面板的资源
 func (uc *ToolboxMigrationUsecase) localItems(ctx context.Context) ([]types.MigrationItem, error) {
-	websites, _, err := uc.website.List("all", "", 0, 1, 10000)
+	websites, err := uc.website.All()
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +133,7 @@ func (uc *ToolboxMigrationUsecase) pushDatabase(
 	if !slices.Contains([]BackupType{BackupTypeMySQL, BackupTypePostgres, BackupTypeClickHouse}, backupType) {
 		return nil, errors.New(uc.t.Get("unsupported database type: %s", item.Subtype))
 	}
-	server, err := uc.databaseServer.GetByName(ctx, item.SourceGroup)
+	server, err := uc.databaseServer.FindByName(item.SourceGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -349,7 +352,10 @@ func (uc *ToolboxMigrationUsecase) createBackup(ctx context.Context, typ BackupT
 }
 
 // remoteSetting 读取目标面板的路径配置
-func (uc *ToolboxMigrationUsecase) remoteSetting(ctx context.Context, conn *request.ToolboxMigrationConnection) (*remoteSetting, error) {
+func (uc *ToolboxMigrationUsecase) remoteSetting(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+) (*remoteSetting, error) {
 	body, err := uc.remote.Request(ctx, conn, "GET", "/api/setting", nil)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to read target settings: %v", err))
@@ -406,7 +412,11 @@ func (uc *ToolboxMigrationUsecase) remoteDatabaseServer(
 }
 
 // remoteWebsiteID 查找目标面板上新建网站的 ID
-func (uc *ToolboxMigrationUsecase) remoteWebsiteID(ctx context.Context, conn *request.ToolboxMigrationConnection, name string) (uint, error) {
+func (uc *ToolboxMigrationUsecase) remoteWebsiteID(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+	name string,
+) (uint, error) {
 	body, err := uc.remote.Request(ctx, conn, "GET", "/api/website", map[string]any{"type": "all", "page": 1, "limit": 10000})
 	if err != nil {
 		return 0, errors.New(uc.t.Get("failed to read the created website on target: %v", err))

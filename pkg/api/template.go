@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 	"time"
@@ -57,49 +56,10 @@ func (t Templates) FilterByQuery(query string) Templates {
 
 // Templates 返回所有模版
 func (r *API) Templates() (*Templates, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get("/templates")
-	if err != nil {
-		return nil, err
-	}
-	if !resp.IsStatusSuccess() {
-		return nil, fmt.Errorf("failed to get templates: %s", resp.String())
-	}
-
-	templates, err := getResponseData[Templates](resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return templates, nil
-}
-
-// TemplateBySlug 根据slug返回模版
-func (r *API) TemplateBySlug(slug string) (*Template, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get("/templates/" + slug)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.IsStatusSuccess() {
-		return nil, fmt.Errorf("failed to get template: %s", resp.String())
-	}
-
-	template, err := getResponseData[Template](resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return template, nil
+	return get[Templates](r, "/templates", nil)
 }
 
 // TemplateCallback 模版下载回调
 func (r *API) TemplateCallback(slug string) error {
-	resp, err := r.client.R().SetResult(&Response{}).Post(fmt.Sprintf("/templates/%s/callback", slug))
-	if err != nil {
-		return err
-	}
-	if !resp.IsStatusSuccess() {
-		return fmt.Errorf("failed to callback template: %s", resp.String())
-	}
-
-	return nil
+	return r.callback("/templates/" + slug + "/callback")
 }

@@ -8,7 +8,15 @@ import (
 )
 
 // EnvironmentRoutes 运行环境路由
-func EnvironmentRoutes(environmentDotnetService *service.EnvironmentDotnetService, environmentGoService *service.EnvironmentGoService, environmentJavaService *service.EnvironmentJavaService, environmentNodejsService *service.EnvironmentNodejsService, environmentPHPService *service.EnvironmentPHPService, environmentPythonService *service.EnvironmentPythonService, environmentService *service.EnvironmentService) Endpoints {
+func EnvironmentRoutes(
+	environmentDotnetService *service.EnvironmentDotnetService,
+	environmentGoService *service.EnvironmentGoService,
+	environmentJavaService *service.EnvironmentJavaService,
+	environmentNodejsService *service.EnvironmentNodejsService,
+	environmentPHPService *service.EnvironmentPHPService,
+	environmentPythonService *service.EnvironmentPythonService,
+	environmentService *service.EnvironmentService,
+) Endpoints {
 	environment := environmentService
 	environmentGo := environmentGoService
 	environmentJava := environmentJavaService

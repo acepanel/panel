@@ -46,7 +46,15 @@ type App struct {
 	cert        *biz.CertUsecase
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, settingRepo biz.SettingRepo, certRepo biz.CertRepo, certDNSRepo biz.CertDNSRepo, website *biz.WebsiteUsecase, cert *biz.CertUsecase) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	settingRepo biz.SettingRepo,
+	certRepo biz.CertRepo,
+	certDNSRepo biz.CertDNSRepo,
+	website *biz.WebsiteUsecase,
+	cert *biz.CertUsecase,
+) *App {
 	s := &App{
 		t:           t,
 		log:         log,
@@ -94,81 +102,6 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Status(ctx context.Context) string {
 	ok, _ := systemctl.Status(ctx, unit)
 	return types.AggregateAppStatus(ok)
-}
-
-func (s *App) dir() string          { return filepath.Join(app.Root, "server", "stalwart") }
-func (s *App) configPath() string   { return filepath.Join(s.dir(), "etc", "config.json") }
-func (s *App) envPath() string      { return filepath.Join(s.dir(), "etc", "stalwart.env") }
-func (s *App) dataDir() string      { return filepath.Join(s.dir(), "data") + "/" }
-func (s *App) logDir() string       { return filepath.Join(s.dir(), "logs") + "/" }
-func (s *App) resourcesDir() string { return filepath.Join(s.dir(), "resources") }
-
-// initialized 以面板已保存管理员凭据且配置文件存在为准
-func (s *App) initialized() bool {
-	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
-	return user != "" && io.Exists(s.configPath())
-}
-
-// adminClient 用初始化时保存的管理员凭据构造客户端
-func (s *App) adminClient() (*client, error) {
-	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
-	pass, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminPassword)
-	if user == "" || pass == "" || !io.Exists(s.configPath()) {
-		return nil, errors.New(s.t.Get("mail server is not initialized"))
-	}
-	return newClient(user, pass), nil
-}
-
-// recoveryAdmin 读取安装脚本写入 env 文件的引导凭据
-func (s *App) recoveryAdmin() (string, string, error) {
-	content, err := io.Read(s.envPath())
-	if err != nil {
-		return "", "", err
-	}
-	for line := range strings.SplitSeq(content, "\n") {
-		if value, ok := strings.CutPrefix(strings.TrimSpace(line), recoveryEnv+"="); ok {
-			user, pass, found := strings.Cut(strings.Trim(value, `"'`), ":")
-			if found && user != "" && pass != "" {
-				return user, pass, nil
-			}
-		}
-	}
-	return "", "", errors.New(s.t.Get("recovery credential not found in %s, please reinstall the app", s.envPath()))
-}
-
-// removeRecoveryAdmin 初始化完成后删掉引导凭据，它是一个绕过目录的全权限账号
-func (s *App) removeRecoveryAdmin() error {
-	content, err := io.Read(s.envPath())
-	if err != nil {
-		return err
-	}
-	var kept []string
-	for line := range strings.SplitSeq(content, "\n") {
-		if strings.HasPrefix(strings.TrimSpace(line), recoveryEnv+"=") {
-			continue
-		}
-		kept = append(kept, line)
-	}
-	return io.Write(s.envPath(), strings.TrimRight(strings.Join(kept, "\n"), "\n")+"\n", 0640)
-}
-
-// latestLogPath 返回当前日志文件，Stalwart 按天轮转文件名带日期后缀
-func (s *App) latestLogPath() string {
-	entries, err := os.ReadDir(s.logDir())
-	if err != nil {
-		return ""
-	}
-	var names []string
-	for _, entry := range entries {
-		if !entry.IsDir() && strings.HasPrefix(entry.Name(), "stalwart.log") {
-			names = append(names, entry.Name())
-		}
-	}
-	if len(names) == 0 {
-		return ""
-	}
-	sort.Strings(names)
-	return filepath.Join(s.logDir(), names[len(names)-1])
 }
 
 // GetStatus 返回初始化状态与概览，前端据此决定显示初始化向导还是管理页
@@ -309,6 +242,94 @@ func (s *App) Init(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
+// GetAdmin 返回 Stalwart 管理员凭据，供用户登录它自带的 WebUI
+func (s *App) GetAdmin(w http.ResponseWriter, r *http.Request) {
+	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
+	pass, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminPassword)
+	if user == "" {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mail server is not initialized"))
+		return
+	}
+
+	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("username", user))
+	service.Success(w, map[string]string{"username": user, "password": pass})
+}
+
+func (s *App) dir() string          { return filepath.Join(app.Root, "server", "stalwart") }
+func (s *App) configPath() string   { return filepath.Join(s.dir(), "etc", "config.json") }
+func (s *App) envPath() string      { return filepath.Join(s.dir(), "etc", "stalwart.env") }
+func (s *App) dataDir() string      { return filepath.Join(s.dir(), "data") + "/" }
+func (s *App) logDir() string       { return filepath.Join(s.dir(), "logs") + "/" }
+func (s *App) resourcesDir() string { return filepath.Join(s.dir(), "resources") }
+
+// initialized 以面板已保存管理员凭据且配置文件存在为准
+func (s *App) initialized() bool {
+	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
+	return user != "" && io.Exists(s.configPath())
+}
+
+// adminClient 用初始化时保存的管理员凭据构造客户端
+func (s *App) adminClient() (*client, error) {
+	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
+	pass, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminPassword)
+	if user == "" || pass == "" || !io.Exists(s.configPath()) {
+		return nil, errors.New(s.t.Get("mail server is not initialized"))
+	}
+	return newClient(user, pass), nil
+}
+
+// recoveryAdmin 读取安装脚本写入 env 文件的引导凭据
+func (s *App) recoveryAdmin() (string, string, error) {
+	content, err := io.Read(s.envPath())
+	if err != nil {
+		return "", "", err
+	}
+	for line := range strings.SplitSeq(content, "\n") {
+		if value, ok := strings.CutPrefix(strings.TrimSpace(line), recoveryEnv+"="); ok {
+			user, pass, found := strings.Cut(strings.Trim(value, `"'`), ":")
+			if found && user != "" && pass != "" {
+				return user, pass, nil
+			}
+		}
+	}
+	return "", "", errors.New(s.t.Get("recovery credential not found in %s, please reinstall the app", s.envPath()))
+}
+
+// removeRecoveryAdmin 初始化完成后删掉引导凭据，它是一个绕过目录的全权限账号
+func (s *App) removeRecoveryAdmin() error {
+	content, err := io.Read(s.envPath())
+	if err != nil {
+		return err
+	}
+	var kept []string
+	for line := range strings.SplitSeq(content, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), recoveryEnv+"=") {
+			continue
+		}
+		kept = append(kept, line)
+	}
+	return io.Write(s.envPath(), strings.TrimRight(strings.Join(kept, "\n"), "\n")+"\n", 0640)
+}
+
+// latestLogPath 返回当前日志文件，Stalwart 按天轮转文件名带日期后缀
+func (s *App) latestLogPath() string {
+	entries, err := os.ReadDir(s.logDir())
+	if err != nil {
+		return ""
+	}
+	var names []string
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasPrefix(entry.Name(), "stalwart.log") {
+			names = append(names, entry.Name())
+		}
+	}
+	if len(names) == 0 {
+		return ""
+	}
+	sort.Strings(names)
+	return filepath.Join(s.logDir(), names[len(names)-1])
+}
+
 // applyPanelDefaults 把默认监听与资源地址改成面板形态：
 // 443 让给面板 web 服务器，HTTP 只听本机，WebUI 与反垃圾规则改用安装脚本预下载的本地文件
 func (s *App) applyPanelDefaults(ctx context.Context, c *client) error {
@@ -334,7 +355,7 @@ func (s *App) applyPanelDefaults(ctx context.Context, c *client) error {
 		return err
 	}
 	if !hasSubmission {
-		if _, err = c.create(ctx, "NetworkListener", listenerSpec("submission")); err != nil {
+		if _, err = c.create(ctx, "NetworkListener", s.listenerSpec("submission")); err != nil {
 			return err
 		}
 	}
@@ -378,17 +399,4 @@ func (s *App) occupiedPorts(ctx context.Context) []string {
 		}
 	}
 	return occupied
-}
-
-// GetAdmin 返回 Stalwart 管理员凭据，供用户登录它自带的 WebUI
-func (s *App) GetAdmin(w http.ResponseWriter, r *http.Request) {
-	user, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminUser)
-	pass, _ := s.settingRepo.Get(biz.SettingKeyStalwartAdminPassword)
-	if user == "" {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mail server is not initialized"))
-		return
-	}
-
-	s.log.Info(s.t.Get("app password viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("username", user))
-	service.Success(w, map[string]string{"username": user, "password": pass})
 }

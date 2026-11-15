@@ -90,4 +90,10 @@ var ScanMigrations = []*gormigrate.Migration{
 			return vacuumDB(tx)
 		},
 	},
+	{
+		ID: "20261115-add-scan-blocks",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.ScanBlock{})
+		},
+	},
 }

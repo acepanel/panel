@@ -18,8 +18,6 @@ export default {
   checkUpdate: (): any => http.Get('/home/check_update'),
   // 更新日志
   updateInfo: (): any => http.Get('/home/update_info', { meta: { noAlert: true } }),
-  // 更新面板
-  update: (): any => http.Post('/home/update'),
   // 重启面板
   restart: (): any => http.Post('/home/restart'),
   // 重启服务器

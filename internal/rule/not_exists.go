@@ -6,23 +6,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// NotExists 验证一个值在某个表中的字段中不存在，支持同时判断多个字段
+// notExists 验证一个值在某个表中的字段中不存在，支持同时判断多个字段
 // 用法：not_exists:表名称,字段名称,字段名称
 // 例子：not_exists:users,phone,email
-type NotExists struct {
+type notExists struct {
 	db *gorm.DB
 	t  *gotext.Locale
 }
 
-func NewNotExists(db *gorm.DB, t *gotext.Locale) *NotExists {
-	return &NotExists{db: db, t: t}
+func newNotExists(db *gorm.DB, t *gotext.Locale) *notExists {
+	return &notExists{db: db, t: t}
 }
 
-func (r *NotExists) Signature() string { return "not_exists" }
+func (r *notExists) Signature() string { return "not_exists" }
 
-func (r *NotExists) Message() string { return r.t.Get("{field} already exists") }
+func (r *notExists) Message() string { return r.t.Get("{field} already exists") }
 
-func (r *NotExists) Validate(f *validator.Field) (bool, error) {
+func (r *notExists) Validate(f *validator.Field) (bool, error) {
 	rv := f.Reflect()
 	if validator.IsEmptyValue(rv) {
 		return true, nil

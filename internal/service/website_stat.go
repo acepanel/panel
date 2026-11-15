@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
-	"time"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
@@ -26,7 +25,14 @@ type WebsiteStatService struct {
 	aggregator  *websitestat.Aggregator
 }
 
-func NewWebsiteStatService(t *gotext.Locale, log *slog.Logger, settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) *WebsiteStatService {
+func NewWebsiteStatService(
+	t *gotext.Locale,
+	log *slog.Logger,
+	settingUsecase *biz.SettingUsecase,
+	websiteStatUsecase *biz.WebsiteStatUsecase,
+	websiteUsecase *biz.WebsiteUsecase,
+	aggregator *websitestat.Aggregator,
+) *WebsiteStatService {
 	return &WebsiteStatService{
 		t:           t,
 		log:         log,
@@ -45,59 +51,14 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	start, end, sites := req.Start, req.End, req.SiteList()
-
-	// 计算对比周期
-	startDate, _ := time.Parse(time.DateOnly, start)
-	endDate, _ := time.Parse(time.DateOnly, end)
-	duration := int(endDate.Sub(startDate).Hours()/24) + 1
-	prevEnd := startDate.AddDate(0, 0, -1).Format(time.DateOnly)
-	prevStart := startDate.AddDate(0, 0, -duration).Format(time.DateOnly)
-
-	isSingleDay := start == end
-	today := time.Now().Format(time.DateOnly)
-
-	// 查询当前周期汇总
-	current, err := s.queryTotals(start, end, sites, today)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	// 查询对比周期汇总
-	previous, err := s.queryTotals(prevStart, prevEnd, sites, today)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	// 查询时间序列
-	var series []*biz.WebsiteStatSeries
-	if isSingleDay {
-		series, err = s.queryHourlySeries(start, sites, today)
-	} else {
-		series, err = s.queryDailySeries(start, end, sites, today)
-	}
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	// 查询对比周期时间序列
-	var prevSeries []*biz.WebsiteStatSeries
-	prevIsSingleDay := prevStart == prevEnd
-	if prevIsSingleDay {
-		prevSeries, err = s.queryHourlySeries(prevStart, sites, today)
-	} else {
-		prevSeries, err = s.queryDailySeries(prevStart, prevEnd, sites, today)
-	}
+	overview, err := s.statRepo.Overview(req.Start, req.End, req.SiteList())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	// 获取所有网站列表（用于站点选择器）
-	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
+	websites, err := s.websiteRepo.All()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -110,10 +71,10 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "overview"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
 
 	Success(w, chix.M{
-		"current":         current,
-		"previous":        previous,
-		"series":          series,
-		"previous_series": prevSeries,
+		"current":         overview.Current,
+		"previous":        overview.Previous,
+		"series":          overview.Series,
+		"previous_series": overview.PreviousSeries,
 		"sites":           siteList,
 	})
 }
@@ -132,75 +93,11 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	start, end, sites := req.Start, req.End, req.SiteList()
-	today := time.Now().Format(time.DateOnly)
-	includeToday := start <= today && today <= end
-
-	siteMap := make(map[string]*biz.WebsiteStatSiteItem)
-
-	// DB 查询全部日期范围（含今日）
-	dbItems, err := s.statRepo.ListSiteStats(start, end, sites)
+	items, err := s.statRepo.ListSiteStats(req.Start, req.End, req.SiteList())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	for _, item := range dbItems {
-		siteMap[item.Site] = item
-	}
-
-	// 叠加今日未刷新的增量
-	if includeToday {
-		liveStats := s.aggregator.SiteStats()
-		siteSet := make(map[string]struct{}, len(sites))
-		for _, name := range sites {
-			siteSet[name] = struct{}{}
-		}
-
-		for name, snap := range liveStats {
-			if len(sites) > 0 {
-				if _, ok := siteSet[name]; !ok {
-					continue
-				}
-			}
-			if existing, ok := siteMap[name]; ok {
-				existing.PV += snap.PV
-				existing.UV += snap.UV
-				existing.IP += snap.IP
-				existing.Bandwidth += snap.Bandwidth
-				existing.BandwidthIn += snap.BandwidthIn
-				existing.Requests += snap.Requests
-				existing.Errors += snap.Errors
-				existing.Spiders += snap.Spiders
-				existing.RequestTimeSum += snap.RequestTimeSum
-				existing.RequestTimeCount += snap.RequestTimeCount
-				existing.Status2xx += snap.Status2xx
-				existing.Status3xx += snap.Status3xx
-				existing.Status4xx += snap.Status4xx
-				existing.Status5xx += snap.Status5xx
-			} else {
-				siteMap[name] = &biz.WebsiteStatSiteItem{
-					Site:             name,
-					PV:               snap.PV,
-					UV:               snap.UV,
-					IP:               snap.IP,
-					Bandwidth:        snap.Bandwidth,
-					BandwidthIn:      snap.BandwidthIn,
-					Requests:         snap.Requests,
-					Errors:           snap.Errors,
-					Spiders:          snap.Spiders,
-					RequestTimeSum:   snap.RequestTimeSum,
-					RequestTimeCount: snap.RequestTimeCount,
-					Status2xx:        snap.Status2xx,
-					Status3xx:        snap.Status3xx,
-					Status4xx:        snap.Status4xx,
-					Status5xx:        snap.Status5xx,
-				}
-			}
-		}
-	}
-
-	// 转换为切片
-	items := lo.Values(siteMap)
 
 	s.log.Info(s.t.Get("website stats viewed"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("stat", "sites"), slog.String("start", req.Start), slog.String("end", req.End), slog.String("sites", req.Sites))
 
@@ -436,258 +333,31 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, strconv.FormatUint(uint64(req.Days), 10)); err != nil {
+	set := func(key biz.SettingKey, value string) {
+		if err == nil {
+			err = s.setting.Set(key, value)
+		}
+	}
+	set(biz.SettingKeyWebsiteStatDays, strconv.FormatUint(uint64(req.Days), 10))
+	if req.ErrBufMax > 0 {
+		set(biz.SettingKeyWebsiteStatErrBufMax, strconv.Itoa(req.ErrBufMax))
+	}
+	if req.UVMaxKeys > 0 {
+		set(biz.SettingKeyWebsiteStatUVMaxKeys, strconv.Itoa(req.UVMaxKeys))
+	}
+	if req.IPMaxKeys > 0 {
+		set(biz.SettingKeyWebsiteStatIPMaxKeys, strconv.Itoa(req.IPMaxKeys))
+	}
+	if req.DetailMaxKeys > 0 {
+		set(biz.SettingKeyWebsiteStatDetailMaxKeys, strconv.Itoa(req.DetailMaxKeys))
+	}
+	set(biz.SettingKeyWebsiteStatBodyEnabled, strconv.FormatBool(req.BodyEnabled))
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if req.ErrBufMax > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatErrBufMax, strconv.Itoa(req.ErrBufMax))
-	}
-	if req.UVMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatUVMaxKeys, strconv.Itoa(req.UVMaxKeys))
-	}
-	if req.IPMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatIPMaxKeys, strconv.Itoa(req.IPMaxKeys))
-	}
-	if req.DetailMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, strconv.Itoa(req.DetailMaxKeys))
-	}
-	_ = s.setting.Set(biz.SettingKeyWebsiteStatBodyEnabled, strconv.FormatBool(req.BodyEnabled))
 
 	s.log.Info(s.t.Get("website stat settings updated"), slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("days", uint64(req.Days)), slog.Int("err_buf_max", req.ErrBufMax), slog.Int("uv_max_keys", req.UVMaxKeys), slog.Int("ip_max_keys", req.IPMaxKeys), slog.Int("detail_max_keys", req.DetailMaxKeys), slog.Bool("body_enabled", req.BodyEnabled))
 
 	Success(w, nil)
-}
-
-type statTotals struct {
-	PV               uint64 `json:"pv"`
-	UV               uint64 `json:"uv"`
-	IP               uint64 `json:"ip"`
-	Bandwidth        uint64 `json:"bandwidth"`
-	BandwidthIn      uint64 `json:"bandwidth_in"`
-	Requests         uint64 `json:"requests"`
-	Errors           uint64 `json:"errors"`
-	Spiders          uint64 `json:"spiders"`
-	RequestTimeSum   uint64 `json:"request_time_sum"`
-	RequestTimeCount uint64 `json:"request_time_count"`
-	Status2xx        uint64 `json:"status_2xx"`
-	Status3xx        uint64 `json:"status_3xx"`
-	Status4xx        uint64 `json:"status_4xx"`
-	Status5xx        uint64 `json:"status_5xx"`
-}
-
-// queryTotals 查询指定日期范围的汇总数据
-// DB 包含全部日期（含今日已刷新数据），再叠加内存中未刷新的增量
-func (s *WebsiteStatService) queryTotals(start, end string, sites []string, today string) (*statTotals, error) {
-	var total statTotals
-
-	// DB 查询全部日期范围（含今日）
-	dbStats, err := s.statRepo.ListByDateRange(start, end, sites)
-	if err != nil {
-		return nil, err
-	}
-	for _, st := range dbStats {
-		total.PV += st.PV
-		total.UV += st.UV
-		total.IP += st.IP
-		total.Bandwidth += st.Bandwidth
-		total.BandwidthIn += st.BandwidthIn
-		total.Requests += st.Requests
-		total.Errors += st.Errors
-		total.Spiders += st.Spiders
-		total.RequestTimeSum += st.RequestTimeSum
-		total.RequestTimeCount += st.RequestTimeCount
-		total.Status2xx += st.Status2xx
-		total.Status3xx += st.Status3xx
-		total.Status4xx += st.Status4xx
-		total.Status5xx += st.Status5xx
-	}
-
-	// 叠加今日未刷新的增量
-	if start <= today && today <= end {
-		s.mergeLiveTotals(&total, sites)
-	}
-
-	return &total, nil
-}
-
-// mergeLiveTotals 合并内存中今日实时数据到汇总
-func (s *WebsiteStatService) mergeLiveTotals(total *statTotals, sites []string) {
-	liveStats := s.aggregator.SiteStats()
-	siteSet := make(map[string]struct{}, len(sites))
-	for _, name := range sites {
-		siteSet[name] = struct{}{}
-	}
-
-	for name, snap := range liveStats {
-		if len(sites) > 0 {
-			if _, ok := siteSet[name]; !ok {
-				continue
-			}
-		}
-		total.PV += snap.PV
-		total.UV += snap.UV
-		total.IP += snap.IP
-		total.Bandwidth += snap.Bandwidth
-		total.BandwidthIn += snap.BandwidthIn
-		total.Requests += snap.Requests
-		total.Errors += snap.Errors
-		total.Spiders += snap.Spiders
-		total.RequestTimeSum += snap.RequestTimeSum
-		total.RequestTimeCount += snap.RequestTimeCount
-		total.Status2xx += snap.Status2xx
-		total.Status3xx += snap.Status3xx
-		total.Status4xx += snap.Status4xx
-		total.Status5xx += snap.Status5xx
-	}
-}
-
-// queryHourlySeries 查询小时级时间序列
-func (s *WebsiteStatService) queryHourlySeries(date string, sites []string, today string) ([]*biz.WebsiteStatSeries, error) {
-	hourMap := make(map[int]*biz.WebsiteStatSeries, 24)
-
-	// 从 DB 查询小时数据
-	dbSeries, err := s.statRepo.HourlySeries(date, sites)
-	if err != nil {
-		return nil, err
-	}
-	for _, item := range dbSeries {
-		h, _ := strconv.Atoi(item.Key)
-		hourMap[h] = item
-	}
-
-	// 今天叠加内存中未刷新的增量
-	if date == today {
-		liveStats := s.aggregator.SiteStats()
-		siteSet := make(map[string]struct{}, len(sites))
-		for _, name := range sites {
-			siteSet[name] = struct{}{}
-		}
-
-		for name, snap := range liveStats {
-			if len(sites) > 0 {
-				if _, ok := siteSet[name]; !ok {
-					continue
-				}
-			}
-			for h, hs := range snap.Hours {
-				if hs == nil {
-					continue
-				}
-				if existing, ok := hourMap[h]; ok {
-					existing.PV += hs.PV
-					existing.UV += hs.UV
-					existing.IP += hs.IP
-					existing.Bandwidth += hs.Bandwidth
-					existing.BandwidthIn += hs.BandwidthIn
-					existing.Requests += hs.Requests
-					existing.Errors += hs.Errors
-					existing.Spiders += hs.Spiders
-					existing.RequestTimeSum += hs.RequestTimeSum
-					existing.RequestTimeCount += hs.RequestTimeCount
-					existing.Status2xx += hs.Status2xx
-					existing.Status3xx += hs.Status3xx
-					existing.Status4xx += hs.Status4xx
-					existing.Status5xx += hs.Status5xx
-				} else {
-					hourMap[h] = &biz.WebsiteStatSeries{
-						Key:              strconv.Itoa(h),
-						PV:               hs.PV,
-						UV:               hs.UV,
-						IP:               hs.IP,
-						Bandwidth:        hs.Bandwidth,
-						BandwidthIn:      hs.BandwidthIn,
-						Requests:         hs.Requests,
-						Errors:           hs.Errors,
-						Spiders:          hs.Spiders,
-						RequestTimeSum:   hs.RequestTimeSum,
-						RequestTimeCount: hs.RequestTimeCount,
-						Status2xx:        hs.Status2xx,
-						Status3xx:        hs.Status3xx,
-						Status4xx:        hs.Status4xx,
-						Status5xx:        hs.Status5xx,
-					}
-				}
-			}
-		}
-	}
-
-	// 填充完整 24 小时
-	result := make([]*biz.WebsiteStatSeries, 24)
-	for h := range 24 {
-		key := strconv.Itoa(h)
-		if s, ok := hourMap[h]; ok {
-			result[h] = s
-		} else {
-			result[h] = &biz.WebsiteStatSeries{Key: key}
-		}
-	}
-
-	return result, nil
-}
-
-// queryDailySeries 查询日级时间序列
-func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string, today string) ([]*biz.WebsiteStatSeries, error) {
-	includeToday := start <= today && today <= end
-
-	// DB 查询全部日期范围（含今日）
-	dateMap := make(map[string]*biz.WebsiteStatSeries)
-	dbSeries, err := s.statRepo.DailySeries(start, end, sites)
-	if err != nil {
-		return nil, err
-	}
-	for _, item := range dbSeries {
-		dateMap[item.Key] = item
-	}
-
-	// 今天叠加内存中未刷新的增量
-	if includeToday {
-		liveStats := s.aggregator.SiteStats()
-		siteSet := make(map[string]struct{}, len(sites))
-		for _, name := range sites {
-			siteSet[name] = struct{}{}
-		}
-
-		todayData := dateMap[today]
-		if todayData == nil {
-			todayData = &biz.WebsiteStatSeries{Key: today}
-			dateMap[today] = todayData
-		}
-		for name, snap := range liveStats {
-			if len(sites) > 0 {
-				if _, ok := siteSet[name]; !ok {
-					continue
-				}
-			}
-			todayData.PV += snap.PV
-			todayData.UV += snap.UV
-			todayData.IP += snap.IP
-			todayData.Bandwidth += snap.Bandwidth
-			todayData.BandwidthIn += snap.BandwidthIn
-			todayData.Requests += snap.Requests
-			todayData.Errors += snap.Errors
-			todayData.Spiders += snap.Spiders
-			todayData.RequestTimeSum += snap.RequestTimeSum
-			todayData.RequestTimeCount += snap.RequestTimeCount
-			todayData.Status2xx += snap.Status2xx
-			todayData.Status3xx += snap.Status3xx
-			todayData.Status4xx += snap.Status4xx
-			todayData.Status5xx += snap.Status5xx
-		}
-	}
-
-	// 填充日期范围内所有天
-	startDate, _ := time.Parse(time.DateOnly, start)
-	endDate, _ := time.Parse(time.DateOnly, end)
-	var result []*biz.WebsiteStatSeries
-	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
-		key := d.Format(time.DateOnly)
-		if s, ok := dateMap[key]; ok {
-			result = append(result, s)
-		} else {
-			result = append(result, &biz.WebsiteStatSeries{Key: key})
-		}
-	}
-
-	return result, nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/libtnb/chix/v2"
 )
 
-func Abort(w http.ResponseWriter, code int, format string, args ...any) {
+func abort(w http.ResponseWriter, code int, format string, args ...any) {
 	render := chix.NewRender(w)
 	defer render.Release()
 	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()

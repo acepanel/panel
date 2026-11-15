@@ -8,6 +8,36 @@ import (
 	"time"
 )
 
+// 负载均衡算法的规范值，取 nginx 写法。各方言写入时映射到自己的语法，
+// 没有对应实现的降级为轮询并把原值留在注释里，换服务器时不丢
+const (
+	AlgoRoundRobin = ""           // 轮询
+	AlgoLeastConn  = "least_conn" // 最少连接
+	AlgoIPHash     = "ip_hash"    // 按客户端 IP
+	AlgoRandom     = "random"     // 随机
+)
+
+type Proxy struct {
+	Location          string                `form:"location" json:"location" validate:"required"`             // 匹配路径，如: "/", "/api", "~ ^/api/v[0-9]+/"
+	Pass              string                `form:"pass" json:"pass" validate:"required"`                     // 代理地址，如: "http://example.com", "http://backend"
+	Host              string                `form:"host" json:"host"`                                         // 代理 Host，如: "example.com"
+	SNI               string                `form:"sni" json:"sni"`                                           // 代理 SNI，如: "example.com"
+	Cache             *CacheConfig          `form:"cache" json:"cache"`                                       // 缓存配置，nil 表示禁用缓存
+	Buffering         bool                  `form:"buffering" json:"buffering"`                               // 是否启用缓冲
+	Resolver          []string              `form:"resolver" json:"resolver"`                                 // 自定义 DNS 解析器配置，如: ["8.8.8.8", "ipv6=off"]
+	ResolverTimeout   time.Duration         `form:"resolver_timeout" json:"resolver_timeout"`                 // DNS 解析超时时间，如: 5 * time.Second
+	Headers           map[string]string     `form:"headers" json:"headers"`                                   // 自定义请求头，如: map["X-Custom-Header"] = "value"
+	Replaces          map[string]string     `form:"replaces" json:"replaces"`                                 // 响应内容替换，如: map["/old"] = "/new"
+	HTTPVersion       string                `form:"http_version" json:"http_version" validate:"in:1.0,1.1,2"` // HTTP 协议版本 (proxy_http_version)，可选: "1.0", "1.1", "2"
+	Timeout           *TimeoutConfig        `form:"timeout" json:"timeout"`                                   // 超时配置
+	Retry             *RetryConfig          `form:"retry" json:"retry"`                                       // 重试配置
+	ClientMaxBodySize int64                 `form:"client_max_body_size" json:"client_max_body_size"`         // 请求体大小限制 (client_max_body_size)，单位字节，0 表示使用全局配置
+	SSLBackend        *SSLBackendConfig     `form:"ssl_backend" json:"ssl_backend"`                           // SSL 后端验证配置
+	ResponseHeaders   *ResponseHeaderConfig `form:"response_headers" json:"response_headers"`                 // 响应头修改配置
+	AccessControl     *AccessControlConfig  `form:"access_control" json:"access_control"`                     // IP 访问控制配置
+	Custom            string                `form:"custom" json:"custom"`                                     // 自定义指令，当前 Web 服务器的原生语法，追加到该规则作用域的末尾，切换服务器时不迁移
+}
+
 type CacheConfig struct {
 	// 缓存时长，状态码 -> 时长，如: {"200 302": "10m", "404": "1m", "any": "5m"}
 	Valid map[string]string `form:"valid" json:"valid"`
@@ -77,25 +107,32 @@ type AccessControlConfig struct {
 	Deny []string `form:"deny" json:"deny"`
 }
 
-type Proxy struct {
-	Location          string                `form:"location" json:"location" validate:"required"`             // 匹配路径，如: "/", "/api", "~ ^/api/v[0-9]+/"
-	Pass              string                `form:"pass" json:"pass" validate:"required"`                     // 代理地址，如: "http://example.com", "http://backend"
-	Host              string                `form:"host" json:"host"`                                         // 代理 Host，如: "example.com"
-	SNI               string                `form:"sni" json:"sni"`                                           // 代理 SNI，如: "example.com"
-	Cache             *CacheConfig          `form:"cache" json:"cache"`                                       // 缓存配置，nil 表示禁用缓存
-	Buffering         bool                  `form:"buffering" json:"buffering"`                               // 是否启用缓冲
-	Resolver          []string              `form:"resolver" json:"resolver"`                                 // 自定义 DNS 解析器配置，如: ["8.8.8.8", "ipv6=off"]
-	ResolverTimeout   time.Duration         `form:"resolver_timeout" json:"resolver_timeout"`                 // DNS 解析超时时间，如: 5 * time.Second
-	Headers           map[string]string     `form:"headers" json:"headers"`                                   // 自定义请求头，如: map["X-Custom-Header"] = "value"
-	Replaces          map[string]string     `form:"replaces" json:"replaces"`                                 // 响应内容替换，如: map["/old"] = "/new"
-	HTTPVersion       string                `form:"http_version" json:"http_version" validate:"in:1.0,1.1,2"` // HTTP 协议版本 (proxy_http_version)，可选: "1.0", "1.1", "2"
-	Timeout           *TimeoutConfig        `form:"timeout" json:"timeout"`                                   // 超时配置
-	Retry             *RetryConfig          `form:"retry" json:"retry"`                                       // 重试配置
-	ClientMaxBodySize int64                 `form:"client_max_body_size" json:"client_max_body_size"`         // 请求体大小限制 (client_max_body_size)，单位字节，0 表示使用全局配置
-	SSLBackend        *SSLBackendConfig     `form:"ssl_backend" json:"ssl_backend"`                           // SSL 后端验证配置
-	ResponseHeaders   *ResponseHeaderConfig `form:"response_headers" json:"response_headers"`                 // 响应头修改配置
-	AccessControl     *AccessControlConfig  `form:"access_control" json:"access_control"`                     // IP 访问控制配置
-	Custom            string                `form:"custom" json:"custom"`                                     // 自定义指令，当前 Web 服务器的原生语法，追加到该规则作用域的末尾，切换服务器时不迁移
+// Lists 收敛 nginx 习惯的 all：允许列表里的 all 等于不限制，去掉；有允许列表时 deny all 已隐含，也去掉；
+// 没有允许列表的 deny all 留在拒绝列表里，统一成小写，由方言用自己的写法表达全部拒绝
+func (c *AccessControlConfig) Lists() (allow, deny []string) {
+	for _, ip := range c.Allow {
+		if !strings.EqualFold(ip, "all") {
+			allow = append(allow, ip)
+		}
+	}
+	for _, ip := range c.Deny {
+		switch {
+		case !strings.EqualFold(ip, "all"):
+			deny = append(deny, ip)
+		case len(allow) == 0:
+			deny = append(deny, "all")
+		}
+	}
+	return allow, deny
+}
+
+type Upstream struct {
+	Name            string            `form:"name" json:"name" validate:"required"`       // 上游名称，如: "backend"
+	Servers         map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及配置，如: map["server1"] = "weight=5 resolve"
+	Algo            string            `form:"algo" json:"algo"`                           // 负载均衡算法，如: "least_conn", "ip_hash"
+	Keepalive       int               `form:"keepalive" json:"keepalive"`                 // 保持连接数，如: 32
+	Resolver        []string          `form:"resolver" json:"resolver"`                   // 自定义 DNS 解析器配置，如: ["8.8.8.8", "ipv6=off"]
+	ResolverTimeout time.Duration     `form:"resolver_timeout" json:"resolver_timeout"`   // DNS 解析超时时间，如: 5 * time.Second
 }
 
 // DefaultProxyHost 按代理目标给出默认的 Host。本机、IP、unix 套接字与上游都是站点自己的应用，
@@ -114,15 +151,6 @@ func DefaultProxyHost(pass string, upstreams []Upstream) string {
 	return "$proxy_host"
 }
 
-// 负载均衡算法的规范值，取 nginx 写法。各方言写入时映射到自己的语法，
-// 没有对应实现的降级为轮询并把原值留在注释里，换服务器时不丢
-const (
-	AlgoRoundRobin = ""           // 轮询
-	AlgoLeastConn  = "least_conn" // 最少连接
-	AlgoIPHash     = "ip_hash"    // 按客户端 IP
-	AlgoRandom     = "random"     // 随机
-)
-
 // NormalizeAlgo 收敛到规范算法名，无法识别的按轮询处理
 func NormalizeAlgo(algo string) string {
 	switch algo {
@@ -131,13 +159,4 @@ func NormalizeAlgo(algo string) string {
 	default:
 		return AlgoRoundRobin
 	}
-}
-
-type Upstream struct {
-	Name            string            `form:"name" json:"name" validate:"required"`       // 上游名称，如: "backend"
-	Servers         map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及配置，如: map["server1"] = "weight=5 resolve"
-	Algo            string            `form:"algo" json:"algo"`                           // 负载均衡算法，如: "least_conn", "ip_hash"
-	Keepalive       int               `form:"keepalive" json:"keepalive"`                 // 保持连接数，如: 32
-	Resolver        []string          `form:"resolver" json:"resolver"`                   // 自定义 DNS 解析器配置，如: ["8.8.8.8", "ipv6=off"]
-	ResolverTimeout time.Duration     `form:"resolver_timeout" json:"resolver_timeout"`   // DNS 解析超时时间，如: 5 * time.Second
 }

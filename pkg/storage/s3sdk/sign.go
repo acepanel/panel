@@ -19,12 +19,10 @@ const (
 	shortDateFormat = "20060102"
 	// emptyPayloadSHA256 是空请求体的 SHA-256，SigV4 在无 body 时要求使用该值
 	emptyPayloadSHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-
-	upperHex = "0123456789ABCDEF"
 )
 
 // signRequest 按 AWS Signature V4 为请求添加鉴权头
-// 约定：调用方若有请求体，须先设置 x-amz-content-sha256 头为其 SHA-256；
+// 约定：调用方若有请求体，须先设置 x-amz-content-sha256 头（其 SHA-256 或 UNSIGNED-PAYLOAD）；
 // 未设置时按空 body 处理
 func (c *S3) signRequest(req *http.Request) {
 	c.signRequestAt(req, time.Now().UTC())
@@ -34,6 +32,8 @@ func (c *S3) signRequest(req *http.Request) {
 func (c *S3) signRequestAt(req *http.Request, now time.Time) {
 	amzDate := now.Format(amzDateFormat)
 
+	// 重试会复用同一个请求重签，上一次的鉴权头不能被算进签名头
+	req.Header.Del("Authorization")
 	req.Header.Set("Host", req.Host)
 	req.Header.Set("X-Amz-Date", amzDate)
 	if req.Header.Get("x-amz-content-sha256") == "" {
@@ -155,6 +155,8 @@ func canonicalAndSignedHeaders(req *http.Request) (canonical, signed string) {
 // uriEncode 按 AWS SigV4 要求对字符串做 RFC3986 百分号编码
 // 未保留字符 A-Za-z0-9-_.~ 不编码；encodeSlash 为 false 时 '/' 也保留（用于路径）
 func uriEncode(s string, encodeSlash bool) string {
+	const upperHex = "0123456789ABCDEF"
+
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := range len(s) {

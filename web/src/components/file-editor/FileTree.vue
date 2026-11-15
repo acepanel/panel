@@ -56,51 +56,46 @@ function createInlineNode(): TreeOption {
   }
 }
 
+// 目录在前，同类型按名称排序；搜索结果一律作叶子，点击文件夹是跳转而不是展开
+function toNodes(items: any[], flat = false): TreeOption[] {
+  return [...items]
+    .sort((a, b) => {
+      if (a.dir && !b.dir) return -1
+      if (!a.dir && b.dir) return 1
+      return a.name.localeCompare(b.name)
+    })
+    .map((item) => ({
+      key: item.full,
+      label: item.name,
+      isLeaf: flat || !item.dir,
+      isDir: item.dir,
+      prefix: () =>
+        h(TheIcon, {
+          icon: item.dir ? 'mdi:folder' : getIconByExt(getExt(item.name)),
+          size: 18,
+          color: item.dir ? '#f59e0b' : '#6b7280',
+        }),
+    }))
+}
+
 // 加载目录内容
 async function loadDirectory(path: string): Promise<TreeOption[]> {
-  return new Promise((resolve, reject) => {
-    useRequest(file.list(path, '', false, 'name', 1, 1000))
-      .onSuccess(({ data }) => {
-        const items = data.items || []
-        // 排序：目录在前，文件在后，同类型按名称排序
-        const sortedItems = [...items].sort((a: any, b: any) => {
-          if (a.dir && !b.dir) return -1
-          if (!a.dir && b.dir) return 1
-          return a.name.localeCompare(b.name)
-        })
-        resolve(
-          sortedItems.map((item: any) => ({
-            key: item.full,
-            label: item.name,
-            isLeaf: !item.dir,
-            prefix: () =>
-              h(TheIcon, {
-                icon: item.dir ? 'mdi:folder' : getIconByExt(getExt(item.name)),
-                size: 18,
-                color: item.dir ? '#f59e0b' : '#6b7280',
-              }),
-            isDir: item.dir,
-            children: item.dir ? undefined : undefined,
-          })),
-        )
-      })
-      .onError(() => {
-        reject(new Error('Failed to load directory'))
-      })
-  })
+  const data = await file.list(path, '', false, 'name', 1, 1000)
+  return toNodes(data.items || [])
 }
+
+// 序号保护：根目录快速切换时，先发后到的旧结果不覆盖新结果
+let treeSeq = 0
 
 // 初始化加载根目录
 // 保留 expandedKeys，n-tree 会对已展开但未加载的节点自动触发 on-load，刷新后目录不会折叠
 async function initTree() {
+  const seq = ++treeSeq
   loading.value = true
-  try {
-    treeData.value = await loadDirectory(props.rootPath)
-  } catch {
-    treeData.value = []
-  } finally {
-    loading.value = false
-  }
+  const nodes = await loadDirectory(props.rootPath).catch(() => [])
+  if (seq !== treeSeq) return
+  treeData.value = nodes
+  loading.value = false
 }
 
 // 刷新父目录，并通知文件列表同步
@@ -292,64 +287,30 @@ async function confirmInlineCreate() {
         editorStore.openFile(createdPath, '')
       }
     })
-    .onError(() => {
-      window.$message.error($gettext('Failed to create'))
-    })
     .onComplete(() => {
       inlineCreateLoading.value = false
     })
 }
 
-// 搜索文件
-let searchTimer: ReturnType<typeof setTimeout> | null = null
+// 搜索文件，序号保护同 initTree
+let searchSeq = 0
 
-function doSearch(keyword: string) {
+async function doSearch(keyword: string) {
+  const seq = ++searchSeq
   if (!keyword.trim()) {
     searchResults.value = []
+    searchLoading.value = false
     return
   }
 
   searchLoading.value = true
-  useRequest(file.list(props.rootPath, keyword, true, 'name', 1, 100))
-    .onSuccess(({ data }) => {
-      const items = data.items || []
-      // 排序：目录在前，文件在后
-      const sortedItems = [...items].sort((a: any, b: any) => {
-        if (a.dir && !b.dir) return -1
-        if (!a.dir && b.dir) return 1
-        return a.name.localeCompare(b.name)
-      })
-      searchResults.value = sortedItems.map((item: any) => ({
-        key: item.full,
-        label: item.name,
-        fullPath: item.full,
-        isLeaf: true, // 搜索结果都设为叶子节点，文件夹点击时跳转而不是展开
-        prefix: () =>
-          h(TheIcon, {
-            icon: item.dir ? 'mdi:folder' : getIconByExt(getExt(item.name)),
-            size: 18,
-            color: item.dir ? '#f59e0b' : '#6b7280',
-          }),
-        isDir: item.dir,
-      }))
-    })
-    .onError(() => {
-      searchResults.value = []
-    })
-    .onComplete(() => {
-      searchLoading.value = false
-    })
+  const data = await file.list(props.rootPath, keyword, true, 'name', 1, 100).catch(() => null)
+  if (seq !== searchSeq) return
+  searchResults.value = toNodes(data?.items || [], true)
+  searchLoading.value = false
 }
 
-// 监听搜索关键词变化（防抖）
-watch(searchKeyword, (keyword) => {
-  if (searchTimer) {
-    clearTimeout(searchTimer)
-  }
-  searchTimer = setTimeout(() => {
-    doSearch(keyword)
-  }, 300)
-})
+watchDebounced(searchKeyword, doSearch, { debounce: 300 })
 
 // 自定义渲染 label
 function renderLabel({ option }: { option: TreeOption }) {
@@ -432,7 +393,7 @@ function renderLabel({ option }: { option: TreeOption }) {
 
 // 搜索结果渲染 label（显示完整路径）
 function renderSearchLabel({ option }: { option: TreeOption }) {
-  const fullPath = (option as any).fullPath as string
+  const fullPath = option.key as string
   // 移除 rootPath 前缀，显示相对路径
   const relativePath = fullPath.startsWith(props.rootPath)
     ? fullPath.slice(props.rootPath.length).replace(/^\//, '')
@@ -575,9 +536,6 @@ function confirmInlineRename() {
 
           await reloadParent(parentPath)
         })
-        .onError(() => {
-          window.$message.error($gettext('Failed to rename'))
-        })
         .onComplete(() => {
           inlineRenameLoading.value = false
         })
@@ -595,18 +553,14 @@ function handleDelete(path: string, name: string) {
     positiveText: $gettext('Delete'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: async () => {
-      useRequest(file.delete(path))
-        .onSuccess(async () => {
-          window.$message.success($gettext('Deleted successfully'))
+      useRequest(file.delete(path)).onSuccess(async () => {
+        window.$message.success($gettext('Deleted successfully'))
 
-          // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
-          editorStore.closePath(path)
+        // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
+        editorStore.closePath(path)
 
-          await reloadParent(path.substring(0, path.lastIndexOf('/')) || '/')
-        })
-        .onError(() => {
-          window.$message.error($gettext('Failed to delete'))
-        })
+        await reloadParent(path.substring(0, path.lastIndexOf('/')) || '/')
+      })
     },
   })
 }

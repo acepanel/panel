@@ -27,7 +27,6 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 	projectPath, _ := uc.setting.Get(SettingKeyProjectPath, filepath.Join(app.Root, "projects"))
 	projects, _, _ := uc.project.List(ctx, "", "", 1, 10000)
 	databases, _, _ := uc.database.List(ctx, 1, 10000, "", "")
-	servers, _, _ := uc.databaseServer.List(ctx, 1, 10000, "")
 
 	for i := range items {
 		item := &items[i]
@@ -61,13 +60,13 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 			if !nameRegex.MatchString(item.TargetName) {
 				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
 			}
-			index := slices.IndexFunc(servers, func(candidate *DatabaseServer) bool { return candidate.Name == server })
-			if index < 0 {
+			target, err := uc.databaseServer.FindByName(server)
+			if err != nil {
 				item.Blockers = append(item.Blockers, uc.t.Get("the target server does not have a compatible %s database server", item.Subtype))
 				continue
 			}
 			if slices.ContainsFunc(databases, func(database *Database) bool {
-				return database.ServerID == servers[index].ID && database.Name == item.TargetName
+				return database.ServerID == target.ID && database.Name == item.TargetName
 			}) {
 				item.Blockers = append(item.Blockers, uc.t.Get("a database with the same name already exists on the target server"))
 			}
@@ -94,13 +93,17 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 }
 
 // importDatabase 创建目标数据库并导入备份
-func (uc *ToolboxMigrationUsecase) importDatabase(ctx context.Context, detail *types.MigrationDetail, archive string) ([]string, error) {
+func (uc *ToolboxMigrationUsecase) importDatabase(
+	ctx context.Context,
+	detail *types.MigrationDetail,
+	archive string,
+) ([]string, error) {
 	database := detail.Database
 	targetType := database.Type
 	if targetType == "mariadb" {
 		targetType = "mysql"
 	}
-	server, err := uc.databaseServer.GetByName(ctx, "local_"+targetType)
+	server, err := uc.databaseServer.FindByName("local_" + targetType)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("no compatible database server is installed on the target"))
 	}
@@ -144,14 +147,23 @@ func (uc *ToolboxMigrationUsecase) importDatabase(ctx context.Context, detail *t
 	return warnings, nil
 }
 
+// databaseUserExists 目标该数据库服务上是否已有同名用户
+func (uc *ToolboxMigrationUsecase) databaseUserExists(_ context.Context, serverID uint, username string) bool {
+	exists, _ := uc.databaseUser.Exists(serverID, username)
+	return exists
+}
+
 // importDatabaseUser 在目标创建数据库用户
-func (uc *ToolboxMigrationUsecase) importDatabaseUser(ctx context.Context, detail *types.MigrationDetail) ([]string, error) {
+func (uc *ToolboxMigrationUsecase) importDatabaseUser(
+	ctx context.Context,
+	detail *types.MigrationDetail,
+) ([]string, error) {
 	user := detail.DatabaseUser
 	targetType := user.Type
 	if targetType == "mariadb" {
 		targetType = "mysql"
 	}
-	server, err := uc.databaseServer.GetByName(ctx, "local_"+targetType)
+	server, err := uc.databaseServer.FindByName("local_" + targetType)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("no compatible database server is installed on the target"))
 	}
@@ -165,20 +177,12 @@ func (uc *ToolboxMigrationUsecase) importDatabaseUser(ctx context.Context, detai
 	return nil, nil
 }
 
-// databaseUserExists 目标该数据库服务上是否已有同名用户
-func (uc *ToolboxMigrationUsecase) databaseUserExists(ctx context.Context, serverID uint, username string) bool {
-	users, _, err := uc.databaseUser.List(ctx, 1, 10000, "")
-	if err != nil {
-		return false
-	}
-
-	return slices.ContainsFunc(users, func(user *DatabaseUser) bool {
-		return user.ServerID == serverID && user.Username == username
-	})
-}
-
 // importWebsite 创建目标网站、导入文件并还原配置
-func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *types.MigrationDetail, archive string) ([]string, error) {
+func (uc *ToolboxMigrationUsecase) importWebsite(
+	ctx context.Context,
+	detail *types.MigrationDetail,
+	archive string,
+) ([]string, error) {
 	website := detail.Website
 	targetPath := detail.Item.TargetPath
 	if !uc.archive.IsEmpty(targetPath) {
@@ -309,7 +313,11 @@ func (uc *ToolboxMigrationUsecase) websiteListens(website *types.MigrationWebsit
 }
 
 // importProject 还原项目文件并创建 systemd 服务
-func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *types.MigrationDetail, archive string) ([]string, error) {
+func (uc *ToolboxMigrationUsecase) importProject(
+	ctx context.Context,
+	detail *types.MigrationDetail,
+	archive string,
+) ([]string, error) {
 	project := detail.Project
 	if strings.TrimSpace(project.ExecStart) == "" {
 		return nil, errors.New(uc.t.Get("the source project start command is missing"))
@@ -369,7 +377,11 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 }
 
 // projectWebsite 为带域名的项目创建反向代理网站
-func (uc *ToolboxMigrationUsecase) projectWebsite(ctx context.Context, detail *types.MigrationDetail, project *types.MigrationProject) []string {
+func (uc *ToolboxMigrationUsecase) projectWebsite(
+	ctx context.Context,
+	detail *types.MigrationDetail,
+	project *types.MigrationProject,
+) []string {
 	if project.Port == 0 || len(project.Domains) == 0 {
 		return nil
 	}
@@ -426,7 +438,11 @@ func (uc *ToolboxMigrationUsecase) rewriteExecStart(project *types.MigrationProj
 }
 
 // runtimeSlug 匹配目标侧兼容的运行时，返回其 slug
-func (uc *ToolboxMigrationUsecase) runtimeSlug(ctx context.Context, typ types.ProjectType, version string) (string, bool) {
+func (uc *ToolboxMigrationUsecase) runtimeSlug(
+	ctx context.Context,
+	typ types.ProjectType,
+	version string,
+) (string, bool) {
 	if typ == types.ProjectTypeGeneral || typ == "" {
 		return "", true
 	}

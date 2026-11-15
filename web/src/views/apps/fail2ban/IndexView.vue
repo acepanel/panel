@@ -3,15 +3,14 @@ defineOptions({
   name: 'apps-fail2ban-index',
 })
 
-import { NButton, NDataTable, NFlex, NSwitch } from 'naive-ui'
+import { NButton, NFlex, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import fail2ban from '@/api/apps/fail2ban'
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { WEBSERVER_SLUGS } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -194,16 +193,9 @@ const getWebsiteList = async (page: number, limit: number) => {
   addJailModel.value.website_name = websites.value[0]?.value
 }
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => fail2ban.jails(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  fail2ban.jails(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleAddJail = () => {
   addJailLoading.value = true
@@ -265,7 +257,6 @@ const handleUnBan = (name: string, ip: string) => {
 }
 
 onMounted(() => {
-  refresh()
   getWhiteList()
   useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
     if (data) {
@@ -318,12 +309,7 @@ onMounted(() => {
             />
           </n-card>
           <n-flex>
-            <n-button
-              v-if="currentTab == 'jails'"
-              class="ml-4"
-              type="primary"
-              @click="addJailModal = true"
-            >
+            <n-button class="ml-4" type="primary" @click="addJailModal = true">
               {{ $gettext('Add Rule') }}
             </n-button>
           </n-flex>

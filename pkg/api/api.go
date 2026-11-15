@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/libtnb/utils/copier"
 	"github.com/shirou/gopsutil/v4/host"
 	"resty.dev/v3"
 )
@@ -13,11 +12,6 @@ import (
 type API struct {
 	panelVersion string
 	client       *resty.Client
-}
-
-type Response struct {
-	Message string `json:"message"`
-	Data    any    `json:"data"`
 }
 
 func NewAPI(panelVersion, locale string, url ...string) *API {
@@ -51,16 +45,29 @@ func NewAPI(panelVersion, locale string, url ...string) *API {
 	}
 }
 
-func getResponseData[T any](resp *resty.Response) (*T, error) {
-	raw, ok := resp.Result().(*Response)
-	if !ok {
-		return nil, fmt.Errorf("failed to get response data: %s", resp.String())
-	}
-
-	res, err := copier.Copy[T](raw.Data)
+func (r *API) callback(path string) error {
+	resp, err := r.client.R().Post(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to copy response data: %w", err)
+		return err
+	}
+	if !resp.IsStatusSuccess() {
+		return fmt.Errorf("failed to post %s: %s", path, resp.String())
 	}
 
-	return res, nil
+	return nil
+}
+
+func get[T any](r *API, path string, query map[string]string) (*T, error) {
+	var result struct {
+		Data T `json:"data"`
+	}
+	resp, err := r.client.R().SetQueryParams(query).SetResult(&result).Get(path)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.IsStatusSuccess() {
+		return nil, fmt.Errorf("failed to get %s: %s", path, resp.String())
+	}
+
+	return &result.Data, nil
 }

@@ -34,6 +34,17 @@ func TestGetPublicIPv6(t *testing.T) {
 	check.Empty(t, ip)
 }
 
+func TestTraceIP(t *testing.T) {
+	ip, err := traceIP("fl=1\nh=example.com\nip=2001:db8::1\nts=1\n")
+	must.NoError(t, err)
+	check.Equal(t, ip, "2001:db8::1")
+
+	for _, body := range []string{"", "fl=1\nh=example.com", "ip=unknown"} {
+		_, err = traceIP(body)
+		check.Error(t, err)
+	}
+}
+
 func TestGetLocalIPv4(t *testing.T) {
 	ip, err := GetLocalIPv4()
 	must.NoError(t, err)

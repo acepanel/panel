@@ -17,7 +17,11 @@ type CertAccountService struct {
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertAccountService(certAccountUsecase *biz.CertAccountUsecase, t *gotext.Locale, log *slog.Logger) *CertAccountService {
+func NewCertAccountService(
+	certAccountUsecase *biz.CertAccountUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *CertAccountService {
 	return &CertAccountService{
 		t:               t,
 		log:             log,

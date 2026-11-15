@@ -15,14 +15,14 @@ func NewConf() (*config.Config, error) {
 		return nil, err
 	}
 
-	if err = InitGlobal(conf); err != nil {
+	if err = initGlobal(conf); err != nil {
 		return nil, err
 	}
 	return conf, nil
 }
 
-// InitGlobal 用配置初始化全局状态
-func InitGlobal(conf *config.Config) error {
+// initGlobal 用配置初始化全局状态
+func initGlobal(conf *config.Config) error {
 	if len(conf.App.Key) != 32 {
 		return errors.New("panel app key must be 32 characters")
 	}

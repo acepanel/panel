@@ -26,12 +26,6 @@ var _ biz.DatabaseServerRepo = &DatabaseServerRepo{}
 //			CheckServerFunc: func(ctx context.Context, server *biz.DatabaseServer) bool {
 //				panic("mock out the CheckServer method")
 //			},
-//			ClearUsersFunc: func(id uint) error {
-//				panic("mock out the ClearUsers method")
-//			},
-//			CountFunc: func() (int64, error) {
-//				panic("mock out the Count method")
-//			},
 //			CreateFunc: func(server *biz.DatabaseServer) error {
 //				panic("mock out the Create method")
 //			},
@@ -44,11 +38,11 @@ var _ biz.DatabaseServerRepo = &DatabaseServerRepo{}
 //			FindFunc: func(id uint) (*biz.DatabaseServer, error) {
 //				panic("mock out the Find method")
 //			},
+//			FindByNameFunc: func(name string) (*biz.DatabaseServer, error) {
+//				panic("mock out the FindByName method")
+//			},
 //			GetFunc: func(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
 //				panic("mock out the Get method")
-//			},
-//			GetByNameFunc: func(ctx context.Context, name string) (*biz.DatabaseServer, error) {
-//				panic("mock out the GetByName method")
 //			},
 //			ListFunc: func(ctx context.Context, page uint, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
 //				panic("mock out the List method")
@@ -81,12 +75,6 @@ type DatabaseServerRepo struct {
 	// CheckServerFunc mocks the CheckServer method.
 	CheckServerFunc func(ctx context.Context, server *biz.DatabaseServer) bool
 
-	// ClearUsersFunc mocks the ClearUsers method.
-	ClearUsersFunc func(id uint) error
-
-	// CountFunc mocks the Count method.
-	CountFunc func() (int64, error)
-
 	// CreateFunc mocks the Create method.
 	CreateFunc func(server *biz.DatabaseServer) error
 
@@ -99,11 +87,11 @@ type DatabaseServerRepo struct {
 	// FindFunc mocks the Find method.
 	FindFunc func(id uint) (*biz.DatabaseServer, error)
 
+	// FindByNameFunc mocks the FindByName method.
+	FindByNameFunc func(name string) (*biz.DatabaseServer, error)
+
 	// GetFunc mocks the Get method.
 	GetFunc func(ctx context.Context, id uint) (*biz.DatabaseServer, error)
-
-	// GetByNameFunc mocks the GetByName method.
-	GetByNameFunc func(ctx context.Context, name string) (*biz.DatabaseServer, error)
 
 	// ListFunc mocks the List method.
 	ListFunc func(ctx context.Context, page uint, limit uint, typ string) ([]*biz.DatabaseServer, int64, error)
@@ -135,14 +123,6 @@ type DatabaseServerRepo struct {
 			// Server is the server argument value.
 			Server *biz.DatabaseServer
 		}
-		// ClearUsers holds details about calls to the ClearUsers method.
-		ClearUsers []struct {
-			// ID is the id argument value.
-			ID uint
-		}
-		// Count holds details about calls to the Count method.
-		Count []struct {
-		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
 			// Server is the server argument value.
@@ -163,19 +143,17 @@ type DatabaseServerRepo struct {
 			// ID is the id argument value.
 			ID uint
 		}
+		// FindByName holds details about calls to the FindByName method.
+		FindByName []struct {
+			// Name is the name argument value.
+			Name string
+		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ID is the id argument value.
 			ID uint
-		}
-		// GetByName holds details about calls to the GetByName method.
-		GetByName []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Name is the name argument value.
-			Name string
 		}
 		// List holds details about calls to the List method.
 		List []struct {
@@ -226,14 +204,12 @@ type DatabaseServerRepo struct {
 		}
 	}
 	lockCheckServer    sync.RWMutex
-	lockClearUsers     sync.RWMutex
-	lockCount          sync.RWMutex
 	lockCreate         sync.RWMutex
 	lockCreateUser     sync.RWMutex
 	lockDelete         sync.RWMutex
 	lockFind           sync.RWMutex
+	lockFindByName     sync.RWMutex
 	lockGet            sync.RWMutex
-	lockGetByName      sync.RWMutex
 	lockList           sync.RWMutex
 	lockListUsers      sync.RWMutex
 	lockOperator       sync.RWMutex
@@ -276,65 +252,6 @@ func (mock *DatabaseServerRepo) CheckServerCalls() []struct {
 	mock.lockCheckServer.RLock()
 	calls = mock.calls.CheckServer
 	mock.lockCheckServer.RUnlock()
-	return calls
-}
-
-// ClearUsers calls ClearUsersFunc.
-func (mock *DatabaseServerRepo) ClearUsers(id uint) error {
-	if mock.ClearUsersFunc == nil {
-		panic("DatabaseServerRepo.ClearUsersFunc: method is nil but DatabaseServerRepo.ClearUsers was just called")
-	}
-	callInfo := struct {
-		ID uint
-	}{
-		ID: id,
-	}
-	mock.lockClearUsers.Lock()
-	mock.calls.ClearUsers = append(mock.calls.ClearUsers, callInfo)
-	mock.lockClearUsers.Unlock()
-	return mock.ClearUsersFunc(id)
-}
-
-// ClearUsersCalls gets all the calls that were made to ClearUsers.
-// Check the length with:
-//
-//	len(mockedDatabaseServerRepo.ClearUsersCalls())
-func (mock *DatabaseServerRepo) ClearUsersCalls() []struct {
-	ID uint
-} {
-	var calls []struct {
-		ID uint
-	}
-	mock.lockClearUsers.RLock()
-	calls = mock.calls.ClearUsers
-	mock.lockClearUsers.RUnlock()
-	return calls
-}
-
-// Count calls CountFunc.
-func (mock *DatabaseServerRepo) Count() (int64, error) {
-	if mock.CountFunc == nil {
-		panic("DatabaseServerRepo.CountFunc: method is nil but DatabaseServerRepo.Count was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockCount.Lock()
-	mock.calls.Count = append(mock.calls.Count, callInfo)
-	mock.lockCount.Unlock()
-	return mock.CountFunc()
-}
-
-// CountCalls gets all the calls that were made to Count.
-// Check the length with:
-//
-//	len(mockedDatabaseServerRepo.CountCalls())
-func (mock *DatabaseServerRepo) CountCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockCount.RLock()
-	calls = mock.calls.Count
-	mock.lockCount.RUnlock()
 	return calls
 }
 
@@ -466,6 +383,38 @@ func (mock *DatabaseServerRepo) FindCalls() []struct {
 	return calls
 }
 
+// FindByName calls FindByNameFunc.
+func (mock *DatabaseServerRepo) FindByName(name string) (*biz.DatabaseServer, error) {
+	if mock.FindByNameFunc == nil {
+		panic("DatabaseServerRepo.FindByNameFunc: method is nil but DatabaseServerRepo.FindByName was just called")
+	}
+	callInfo := struct {
+		Name string
+	}{
+		Name: name,
+	}
+	mock.lockFindByName.Lock()
+	mock.calls.FindByName = append(mock.calls.FindByName, callInfo)
+	mock.lockFindByName.Unlock()
+	return mock.FindByNameFunc(name)
+}
+
+// FindByNameCalls gets all the calls that were made to FindByName.
+// Check the length with:
+//
+//	len(mockedDatabaseServerRepo.FindByNameCalls())
+func (mock *DatabaseServerRepo) FindByNameCalls() []struct {
+	Name string
+} {
+	var calls []struct {
+		Name string
+	}
+	mock.lockFindByName.RLock()
+	calls = mock.calls.FindByName
+	mock.lockFindByName.RUnlock()
+	return calls
+}
+
 // Get calls GetFunc.
 func (mock *DatabaseServerRepo) Get(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
 	if mock.GetFunc == nil {
@@ -499,42 +448,6 @@ func (mock *DatabaseServerRepo) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
-	return calls
-}
-
-// GetByName calls GetByNameFunc.
-func (mock *DatabaseServerRepo) GetByName(ctx context.Context, name string) (*biz.DatabaseServer, error) {
-	if mock.GetByNameFunc == nil {
-		panic("DatabaseServerRepo.GetByNameFunc: method is nil but DatabaseServerRepo.GetByName was just called")
-	}
-	callInfo := struct {
-		Ctx  context.Context
-		Name string
-	}{
-		Ctx:  ctx,
-		Name: name,
-	}
-	mock.lockGetByName.Lock()
-	mock.calls.GetByName = append(mock.calls.GetByName, callInfo)
-	mock.lockGetByName.Unlock()
-	return mock.GetByNameFunc(ctx, name)
-}
-
-// GetByNameCalls gets all the calls that were made to GetByName.
-// Check the length with:
-//
-//	len(mockedDatabaseServerRepo.GetByNameCalls())
-func (mock *DatabaseServerRepo) GetByNameCalls() []struct {
-	Ctx  context.Context
-	Name string
-} {
-	var calls []struct {
-		Ctx  context.Context
-		Name string
-	}
-	mock.lockGetByName.RLock()
-	calls = mock.calls.GetByName
-	mock.lockGetByName.RUnlock()
 	return calls
 }
 

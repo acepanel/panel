@@ -1,6 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
 
-import { viteDefine } from './config/define.ts'
 import { setupVitePlugins } from './config/plugins.ts'
 import { createViteProxy } from './config/proxy.ts'
 import { convertEnv, getRootPath, getSrcPath } from './config/utils.ts'
@@ -22,8 +21,7 @@ export default defineConfig(({ mode }) => {
         pofile: `${rootPath}/config/pofile-stub.ts`
       }
     },
-    define: viteDefine,
-    plugins: setupVitePlugins(viteEnv),
+    plugins: setupVitePlugins(),
     server: {
       host: '0.0.0.0',
       port: VITE_PORT,

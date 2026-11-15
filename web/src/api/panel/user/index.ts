@@ -70,5 +70,5 @@ export default {
   passkeyFinishLogin: (assertion: any): any => http.Put('/user/passkey/login', assertion),
   passkeyList: (user_id: number): any => http.Get('/user_passkeys', { params: { user_id } }),
   passkeyDelete: (id: number, user_id: number): any =>
-    http.Delete(`/user_passkeys/${id}`, { params: { user_id } }),
+    http.Delete(`/user_passkeys/${id}`, undefined, { params: { user_id } }),
 }

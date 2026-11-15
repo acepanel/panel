@@ -39,7 +39,7 @@ var _ biz.WebHookRepo = &WebHookRepo{}
 //			ListFunc: func(page uint, limit uint) ([]*biz.WebHook, int64, error) {
 //				panic("mock out the List method")
 //			},
-//			RemoveScriptFunc: func(key string) error {
+//			RemoveScriptFunc: func(key string)  {
 //				panic("mock out the RemoveScript method")
 //			},
 //			UpdateWithScriptFunc: func(webhook *biz.WebHook, req *request.WebHookUpdate) error {
@@ -71,7 +71,7 @@ type WebHookRepo struct {
 	ListFunc func(page uint, limit uint) ([]*biz.WebHook, int64, error)
 
 	// RemoveScriptFunc mocks the RemoveScript method.
-	RemoveScriptFunc func(key string) error
+	RemoveScriptFunc func(key string)
 
 	// UpdateWithScriptFunc mocks the UpdateWithScript method.
 	UpdateWithScriptFunc func(webhook *biz.WebHook, req *request.WebHookUpdate) error
@@ -336,7 +336,7 @@ func (mock *WebHookRepo) ListCalls() []struct {
 }
 
 // RemoveScript calls RemoveScriptFunc.
-func (mock *WebHookRepo) RemoveScript(key string) error {
+func (mock *WebHookRepo) RemoveScript(key string) {
 	if mock.RemoveScriptFunc == nil {
 		panic("WebHookRepo.RemoveScriptFunc: method is nil but WebHookRepo.RemoveScript was just called")
 	}
@@ -348,7 +348,7 @@ func (mock *WebHookRepo) RemoveScript(key string) error {
 	mock.lockRemoveScript.Lock()
 	mock.calls.RemoveScript = append(mock.calls.RemoveScript, callInfo)
 	mock.lockRemoveScript.Unlock()
-	return mock.RemoveScriptFunc(key)
+	mock.RemoveScriptFunc(key)
 }
 
 // RemoveScriptCalls gets all the calls that were made to RemoveScript.

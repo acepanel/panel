@@ -5,8 +5,6 @@ export default {
   status: (): any => http.Get('/task/status', { meta: { noAlert: true } }),
   // 获取任务列表
   list: (page: number, limit: number): any => http.Get('/task', { params: { page, limit } }),
-  // 获取任务
-  get: (id: number): any => http.Get(`/task/${id}`),
   // 批量获取任务，已删除的不在结果里
   query: (ids: number[]): any => http.Post('/task/query', { ids }, { meta: { noAlert: true } }),
   // 删除任务

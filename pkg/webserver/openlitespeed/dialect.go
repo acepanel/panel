@@ -16,7 +16,7 @@ import (
 )
 
 // acmeConf mod_acme 配置，无状态 HTTP-01：按账户指纹直接应答 token.thumbprint
-const acmeConf = PanelConfDir + "/acme.conf"
+const acmeConf = panelConfDir + "/acme.conf"
 
 const acmeProbe = "ace-probe"
 
@@ -42,11 +42,11 @@ func (Dialect) ConfigTest() string {
 }
 
 func (Dialect) HTMLDir() string {
-	return HTMLDir
+	return htmlDir
 }
 
 func (Dialect) ConfigFile() string {
-	return VhostConfName
+	return vhostConfName
 }
 
 func (Dialect) PanelACMEConf() string {
@@ -104,11 +104,11 @@ func (Dialect) RewritesDir() string {
 }
 
 func (Dialect) BeforeReload() error {
-	return Sync()
+	return syncPanelConf()
 }
 
 func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
-	vhost, err := NewStaticVhost(configDir)
+	vhost, err := newStaticVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
 }
 
 func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
-	vhost, err := NewPHPVhost(configDir)
+	vhost, err := newPHPVhost(configDir)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (Dialect) NewPHPVhost(configDir string) (types.PHPVhost, error) {
 }
 
 func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
-	vhost, err := NewProxyVhost(configDir)
+	vhost, err := newProxyVhost(configDir)
 	if err != nil {
 		return nil, err
 	}

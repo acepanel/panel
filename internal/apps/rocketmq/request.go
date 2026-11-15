@@ -1,10 +1,5 @@
 package rocketmq
 
-// UpdateConfig RocketMQ 配置更新
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // ConfigTune RocketMQ 配置调整
 type ConfigTune struct {
 	// Broker 基础

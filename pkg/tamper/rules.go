@@ -1,16 +1,9 @@
 package tamper
 
 import (
-	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 )
-
-// NormExt 归一化扩展名(去点,小写)
-func NormExt(e string) string {
-	return strings.ToLower(strings.TrimPrefix(e, "."))
-}
 
 // MatchExt 判断文件是否命中受保护后缀(exts 为空表示全部文件)
 func MatchExt(path string, exts []string) bool {
@@ -19,7 +12,7 @@ func MatchExt(path string, exts []string) bool {
 	}
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))
 	for _, e := range exts {
-		if NormExt(e) == ext {
+		if normExt(e) == ext {
 			return true
 		}
 	}
@@ -35,17 +28,8 @@ func ExcludeMatches(ex, path string) bool {
 	if filepath.IsAbs(ex) {
 		return path == ex || strings.HasPrefix(path, strings.TrimRight(ex, "/")+"/")
 	}
-	// 相对名:匹配任意路径段
-	return slices.Contains(strings.Split(path, string(os.PathSeparator)), ex)
-}
-
-func isExcluded(path string, excludes []string) bool {
-	for _, ex := range excludes {
-		if ExcludeMatches(ex, path) {
-			return true
-		}
-	}
-	return false
+	// 相对名:匹配任意位置上连续的路径段,可以是多段(如 cache/tmp)
+	return strings.Contains(path+"/", "/"+strings.Trim(ex, "/")+"/")
 }
 
 // UnderRoot 判断路径是否位于根目录内(含根自身)
@@ -70,4 +54,18 @@ func Covered(rules []Rule, path string, isDir bool) bool {
 		}
 	}
 	return false
+}
+
+func isExcluded(path string, excludes []string) bool {
+	for _, ex := range excludes {
+		if ExcludeMatches(ex, path) {
+			return true
+		}
+	}
+	return false
+}
+
+// normExt 归一化扩展名(去点,小写)
+func normExt(e string) string {
+	return strings.ToLower(strings.TrimPrefix(e, "."))
 }

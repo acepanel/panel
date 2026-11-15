@@ -18,6 +18,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/config"
@@ -114,27 +115,18 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "prometheus", app.Root+"/server/prometheus/prometheus.yml", 0644, "prometheus")
+	common.SaveConfig(w, r, s.log, s.t, "prometheus", app.Root+"/server/prometheus/prometheus.yml", 0644, common.Restart("prometheus"))
 }
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	confPath := app.Root + "/server/prometheus/prometheus.yml"
-	conf, _ := io.Read(confPath)
-
-	var cfg struct {
-		Global struct {
-			ScrapeInterval     string `yaml:"scrape_interval"`
-			EvaluationInterval string `yaml:"evaluation_interval"`
-			ScrapeTimeout      string `yaml:"scrape_timeout"`
-		} `yaml:"global"`
-	}
-	_ = yaml.Unmarshal([]byte(conf), &cfg)
+	cfg, _ := confval.LoadYAML(confPath)
 
 	tune := ConfigTune{
-		ScrapeInterval:     cfg.Global.ScrapeInterval,
-		EvaluationInterval: cfg.Global.EvaluationInterval,
-		ScrapeTimeout:      cfg.Global.ScrapeTimeout,
+		ScrapeInterval:     confval.GetYAML(cfg, "global.scrape_interval"),
+		EvaluationInterval: confval.GetYAML(cfg, "global.evaluation_interval"),
+		ScrapeTimeout:      confval.GetYAML(cfg, "global.scrape_timeout"),
 	}
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
@@ -151,29 +143,15 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	confPath := app.Root + "/server/prometheus/prometheus.yml"
-	raw, _ := io.Read(confPath)
-
-	var cfg map[string]any
-	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
+	cfg, err := confval.LoadYAML(confPath)
+	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	global, ok := cfg["global"].(map[string]any)
-	if !ok {
-		global = make(map[string]any)
-	}
-
-	if req.ScrapeInterval != "" {
-		global["scrape_interval"] = req.ScrapeInterval
-	}
-	if req.EvaluationInterval != "" {
-		global["evaluation_interval"] = req.EvaluationInterval
-	}
-	if req.ScrapeTimeout != "" {
-		global["scrape_timeout"] = req.ScrapeTimeout
-	}
-	cfg["global"] = global
+	confval.SetYAMLNested(cfg, "global.scrape_interval", req.ScrapeInterval)
+	confval.SetYAMLNested(cfg, "global.evaluation_interval", req.EvaluationInterval)
+	confval.SetYAMLNested(cfg, "global.scrape_timeout", req.ScrapeTimeout)
 
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
@@ -199,35 +177,13 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 // GetAlertmanagerConfig 获取 Alertmanager 配置
 func (s *App) GetAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 	confPath := app.Root + "/server/prometheus/alertmanager/alertmanager.yml"
-	conf, _ := io.Read(confPath)
-
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
-
-	service.Success(w, conf)
+	common.ServeConfig(w, confPath)
 }
 
 // UpdateAlertmanagerConfig 更新 Alertmanager 配置
 func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	confPath := app.Root + "/server/prometheus/alertmanager/alertmanager.yml"
-	if err = io.Write(confPath, req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(r.Context(), "alertmanager"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("path", confPath))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "prometheus", app.Root+"/server/prometheus/alertmanager/alertmanager.yml", 0644, common.Restart("alertmanager"))
 }
 
 // ExporterList 获取 Exporter 列表及状态
@@ -248,116 +204,27 @@ func (s *App) ExporterList(w http.ResponseWriter, r *http.Request) {
 
 // InstallExporter 安装 Exporter（异步任务）
 func (s *App) InstallExporter(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExporterSlug](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if !s.checkExporter(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/prometheus/exporters/exporter.sh' | bash -s -- 'install' '%s'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
-
-	task := new(biz.Task)
-	task.Key = "prometheus:exporter:" + req.Slug
-	task.Name = s.t.Get("Install Prometheus exporter %s", req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("prometheus exporter installed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
-
-	service.Success(w, nil)
+	s.queueExporter(w, r, "install")
 }
 
 // UninstallExporter 卸载 Exporter（异步任务）
 func (s *App) UninstallExporter(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExporterSlug](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if !s.checkExporter(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/prometheus/exporters/exporter.sh' | bash -s -- 'uninstall' '%s'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
-
-	task := new(biz.Task)
-	task.Key = "prometheus:exporter:" + req.Slug
-	task.Name = s.t.Get("Uninstall Prometheus exporter %s", req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("prometheus exporter uninstalled"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
-
-	service.Success(w, nil)
+	s.queueExporter(w, r, "uninstall")
 }
 
 // StartExporter 启动 Exporter
 func (s *App) StartExporter(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-	if !s.checkExporter(slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", slug))
-		return
-	}
-
-	if err := systemctl.Start(r.Context(), "prometheus-"+slug); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("prometheus exporter started"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
-
-	service.Success(w, nil)
+	s.controlExporter(w, r, systemctl.Start, s.t.Get("prometheus exporter started"))
 }
 
 // StopExporter 停止 Exporter
 func (s *App) StopExporter(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-	if !s.checkExporter(slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", slug))
-		return
-	}
-
-	if err := systemctl.Stop(r.Context(), "prometheus-"+slug); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("prometheus exporter stopped"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
-
-	service.Success(w, nil)
+	s.controlExporter(w, r, systemctl.Stop, s.t.Get("prometheus exporter stopped"))
 }
 
 // RestartExporter 重启 Exporter
 func (s *App) RestartExporter(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-	if !s.checkExporter(slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", slug))
-		return
-	}
-
-	if err := systemctl.Restart(r.Context(), "prometheus-"+slug); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("prometheus exporter restarted"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
-
-	service.Success(w, nil)
+	s.controlExporter(w, r, systemctl.Restart, s.t.Get("prometheus exporter restarted"))
 }
 
 // GetExporterConfig 获取 Exporter 配置
@@ -416,6 +283,69 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
+// queueExporter 把 Exporter 的安装或卸载排进任务队列，action 是安装脚本的子命令
+func (s *App) queueExporter(w http.ResponseWriter, r *http.Request, action string) {
+	req, err := service.Bind[ExporterSlug](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !s.checkExporter(req.Slug) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", req.Slug))
+		return
+	}
+
+	name, msg, level := s.t.Get("Install Prometheus exporter %s", req.Slug), s.t.Get("prometheus exporter installed"), slog.LevelInfo
+	if action == "uninstall" {
+		name, msg, level = s.t.Get("Uninstall Prometheus exporter %s", req.Slug), s.t.Get("prometheus exporter uninstalled"), slog.LevelWarn
+	}
+
+	task := new(biz.Task)
+	task.Key = "prometheus:exporter:" + req.Slug
+	task.Name = name
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/prometheus/exporters/exporter.sh' | bash -s -- '%s' '%s'`, s.conf.App.DownloadEndpoint, action, url.PathEscape(req.Slug))
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Log(r.Context(), level, msg, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
+
+	service.Success(w, nil)
+}
+
+// controlExporter 对单个 Exporter 的服务执行 systemctl 变更
+func (s *App) controlExporter(
+	w http.ResponseWriter,
+	r *http.Request,
+	action func(context.Context, string) error,
+	msg string,
+) {
+	slug := chi.URLParam(r, "slug")
+	if !s.checkExporter(slug) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("exporter %s does not exist", slug))
+		return
+	}
+
+	if err := action(r.Context(), "prometheus-"+slug); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(msg, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "prometheus"), slog.String("slug", slug))
+
+	service.Success(w, nil)
+}
+
+// checkExporter 检查 slug 是否有效
+func (s *App) checkExporter(slug string) bool {
+	return lo.ContainsBy(s.getExporters(), func(e Exporter) bool {
+		return e.Slug == slug
+	})
+}
+
 // getExporters 返回所有 exporter 定义
 func (s *App) getExporters() []Exporter {
 	return []Exporter{
@@ -442,11 +372,4 @@ func (s *App) getExporterConfigPath(slug string) string {
 	default:
 		return ""
 	}
-}
-
-// checkExporter 检查 slug 是否有效
-func (s *App) checkExporter(slug string) bool {
-	return lo.ContainsBy(s.getExporters(), func(e Exporter) bool {
-		return e.Slug == slug
-	})
 }

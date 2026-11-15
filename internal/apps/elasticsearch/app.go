@@ -3,9 +3,9 @@ package elasticsearch
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"time"
 
@@ -25,13 +25,42 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+var (
+	heapInitLineRegexp = regexp.MustCompile(`(?m)^-Xms\S+`)
+	heapMaxLineRegexp  = regexp.MustCompile(`(?m)^-Xmx\S+`)
+)
+
 type App struct {
-	t   *gotext.Locale
-	log *slog.Logger
+	t                  *gotext.Locale
+	log                *slog.Logger
+	databaseServerRepo biz.DatabaseServerRepo
+	slug               string   // 服务名与安装目录名，如 elasticsearch、opensearch
+	name               string   // 展示名，如 Elasticsearch、OpenSearch
+	heapFiles          []string // 相对 config 目录的 JVM 堆内存配置文件
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger) *App {
-	return &App{t: t, log: log}
+func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo) *App {
+	// ES 9.x 不再在 jvm.options 中设置堆内存，改为 jvm.options.d/heap.options，旧版本的仍留在 jvm.options
+	return New("elasticsearch", "Elasticsearch", []string{"jvm.options.d/heap.options", "jvm.options"}, t, log, databaseServerRepo)
+}
+
+// New 构造 Elasticsearch 协议兼容服务的应用
+// heapFiles 读取时按顺序取第一个带堆内存设置的文件，写入时只写第一个
+func New(
+	slug, name string,
+	heapFiles []string,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+) *App {
+	return &App{
+		t:                  t,
+		log:                log,
+		databaseServerRepo: databaseServerRepo,
+		slug:               slug,
+		name:               name,
+		heapFiles:          heapFiles,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -43,14 +72,14 @@ func (s *App) Route(r chi.Router) {
 }
 
 func (s *App) Status(ctx context.Context) string {
-	ok, _ := systemctl.Status(ctx, "elasticsearch")
+	ok, _ := systemctl.Status(ctx, s.slug)
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status(r.Context(), "elasticsearch")
+	status, err := systemctl.Status(r.Context(), s.slug)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get elasticsearch status: %v", err))
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s status: %v", s.name, err))
 		return
 	}
 	if !status {
@@ -58,10 +87,9 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	port := s.getPort()
 	client := resty.New().SetTimeout(10 * time.Second)
 	defer func(client *resty.Client) { _ = client.Close() }(client)
-	resp, err := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/_cluster/health", port))
+	resp, err := client.R().Get("http://127.0.0.1:" + s.port() + "/_cluster/health")
 	if err != nil || !resp.IsStatusSuccess() {
 		service.Success(w, []types.NV{})
 		return
@@ -97,30 +125,24 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("path", s.configPath()))
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.configPath()))
 	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "elasticsearch", s.configPath(), 0644, "elasticsearch")
+	common.SaveConfig(w, r, s.log, s.t, s.slug, s.configPath(), 0644, common.Restart(s.slug))
 }
 
-// GetConfigTune 获取 ElasticSearch 配置调整参数
+// GetConfigTune 获取配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	_ = yaml.Unmarshal([]byte(raw), &cfg)
-	if cfg == nil {
-		cfg = make(map[string]any)
-	}
+	cfg, _ := confval.LoadYAML(s.configPath())
 
-	// ES 9.x 不再在 jvm.options 中设置堆内存，改为 jvm.options.d/heap.options
-	heapRaw, _ := io.Read(s.jvmHeapOptionsPath())
-	heapInit, heapMax := s.parseJVMHeap(heapRaw)
-	// 兼容旧版本：如果 heap.options 没有，尝试从 jvm.options 读取
-	if heapInit == "" && heapMax == "" {
-		jvmRaw, _ := io.Read(s.jvmOptionsPath())
-		heapInit, heapMax = s.parseJVMHeap(jvmRaw)
+	var heapInit, heapMax string
+	for _, file := range s.heapFiles {
+		raw, _ := io.Read(s.configDir(file))
+		if heapInit, heapMax = confval.JVMHeap(raw); heapInit != "" || heapMax != "" {
+			break
+		}
 	}
 
 	tune := ConfigTune{
@@ -135,12 +157,12 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		HeapMaxSize:   heapMax,
 	}
 
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("path", s.configPath()))
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.configPath()))
 
 	service.Success(w, tune)
 }
 
-// UpdateConfigTune 更新 ElasticSearch 配置调整参数
+// UpdateConfigTune 更新配置调整参数
 func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[ConfigTune](r)
 	if err != nil {
@@ -148,11 +170,10 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 更新 YAML 配置
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
-		cfg = make(map[string]any)
+	cfg, err := confval.LoadYAML(s.configPath())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
 	confval.SetYAML(cfg, "cluster.name", req.ClusterName)
@@ -173,84 +194,69 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 更新 JVM 堆内存（写入 jvm.options.d/heap.options）
 	if req.HeapInitSize != "" || req.HeapMaxSize != "" {
-		heapRaw, _ := io.Read(s.jvmHeapOptionsPath())
-		heapRaw = s.setJVMHeap(heapRaw, req.HeapInitSize, req.HeapMaxSize)
-		if err = io.Write(s.jvmHeapOptionsPath(), heapRaw, 0644); err != nil {
+		heapPath := s.configDir(s.heapFiles[0])
+		heapRaw, _ := io.Read(heapPath)
+		if err = io.Write(heapPath, s.setJVMHeap(heapRaw, req.HeapInitSize, req.HeapMaxSize), 0644); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
 
-	if err = systemctl.Restart(r.Context(), "elasticsearch"); err != nil {
+	if err = systemctl.Restart(r.Context(), s.slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "elasticsearch"), slog.String("cluster_name", req.ClusterName), slog.String("node_name", req.NodeName), slog.String("network_host", req.NetworkHost), slog.String("http_port", req.HTTPPort), slog.String("discovery_type", req.DiscoveryType), slog.String("path_data", req.PathData), slog.String("path_logs", req.PathLogs), slog.String("heap_init_size", req.HeapInitSize), slog.String("heap_max_size", req.HeapMaxSize))
+	// http.port 可以写成端口范围，解析不出单个端口时不动面板记录
+	if port := cast.ToUint(s.port()); port > 0 {
+		if err = s.databaseServerRepo.UpdatePort("local_"+s.slug, port); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+	}
+
+	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("cluster_name", req.ClusterName), slog.String("node_name", req.NodeName), slog.String("network_host", req.NetworkHost), slog.String("http_port", req.HTTPPort), slog.String("discovery_type", req.DiscoveryType), slog.String("path_data", req.PathData), slog.String("path_logs", req.PathLogs), slog.String("heap_init_size", req.HeapInitSize), slog.String("heap_max_size", req.HeapMaxSize))
 
 	service.Success(w, nil)
 }
 
-// configPath 返回配置文件路径
-func (s *App) configPath() string {
-	return app.Root + "/server/elasticsearch/config/elasticsearch.yml"
-}
-
-// jvmOptionsPath 返回 JVM 选项文件路径
-func (s *App) jvmOptionsPath() string {
-	return app.Root + "/server/elasticsearch/config/jvm.options"
-}
-
-// jvmHeapOptionsPath 返回 JVM 堆内存配置文件路径（ES 9.x 推荐方式）
-func (s *App) jvmHeapOptionsPath() string {
-	return app.Root + "/server/elasticsearch/config/jvm.options.d/heap.options"
-}
-
-// getPort 从配置中获取 HTTP 端口
-func (s *App) getPort() string {
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	_ = yaml.Unmarshal([]byte(raw), &cfg)
-	if cfg != nil {
-		if v := confval.GetYAML(cfg, "http.port"); v != "" {
-			return v
-		}
+// port 从配置中获取 HTTP 端口
+func (s *App) port() string {
+	cfg, _ := confval.LoadYAML(s.configPath())
+	if port := confval.GetYAML(cfg, "http.port"); port != "" {
+		return port
 	}
+
 	return "9200"
 }
 
-// parseJVMHeap 从 jvm.options 中提取堆内存配置
-func (s *App) parseJVMHeap(content string) (initSize, maxSize string) {
-	reInit := regexp.MustCompile(`(?m)^-Xms(\S+)`)
-	reMax := regexp.MustCompile(`(?m)^-Xmx(\S+)`)
-	if m := reInit.FindStringSubmatch(content); len(m) == 2 {
-		initSize = m[1]
-	}
-	if m := reMax.FindStringSubmatch(content); len(m) == 2 {
-		maxSize = m[1]
-	}
-	return
+// configPath 返回主配置文件路径
+func (s *App) configPath() string {
+	return s.configDir(s.slug + ".yml")
 }
 
-// setJVMHeap 替换 jvm.options 中的堆内存配置
+// configDir 返回 config 目录下的文件路径
+func (s *App) configDir(file string) string {
+	return filepath.Join(app.Root, "server", s.slug, "config", file)
+}
+
+// setJVMHeap 替换 jvm.options 格式内容中的堆内存配置，没有则追加
 func (s *App) setJVMHeap(content string, initSize, maxSize string) string {
 	if initSize != "" {
-		re := regexp.MustCompile(`(?m)^-Xms\S+`)
-		if re.MatchString(content) {
-			content = re.ReplaceAllString(content, "-Xms"+initSize)
+		if heapInitLineRegexp.MatchString(content) {
+			content = heapInitLineRegexp.ReplaceAllString(content, "-Xms"+initSize)
 		} else {
 			content += "\n-Xms" + initSize
 		}
 	}
 	if maxSize != "" {
-		re := regexp.MustCompile(`(?m)^-Xmx\S+`)
-		if re.MatchString(content) {
-			content = re.ReplaceAllString(content, "-Xmx"+maxSize)
+		if heapMaxLineRegexp.MatchString(content) {
+			content = heapMaxLineRegexp.ReplaceAllString(content, "-Xmx"+maxSize)
 		} else {
 			content += "\n-Xmx" + maxSize
 		}
 	}
+
 	return content
 }

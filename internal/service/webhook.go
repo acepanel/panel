@@ -3,6 +3,7 @@ package service
 import (
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -13,12 +14,14 @@ import (
 type WebHookService struct {
 	webhookRepo *biz.WebHookUsecase
 	conf        *config.Config
+	t           *gotext.Locale
 }
 
-func NewWebHookService(webHookUsecase *biz.WebHookUsecase, conf *config.Config) *WebHookService {
+func NewWebHookService(webHookUsecase *biz.WebHookUsecase, conf *config.Config, t *gotext.Locale) *WebHookService {
 	return &WebHookService{
 		webhookRepo: webHookUsecase,
 		conf:        conf,
+		t:           t,
 	}
 }
 
@@ -114,7 +117,7 @@ func (s *WebHookService) Call(w http.ResponseWriter, r *http.Request) {
 	// 获取 webhook 信息以判断返回格式
 	webhook, err := s.webhookRepo.GetByKey(req.Key)
 	if err != nil {
-		Error(w, http.StatusNotFound, "webhook not found")
+		Error(w, http.StatusNotFound, s.t.Get("webhook not found"))
 		return
 	}
 

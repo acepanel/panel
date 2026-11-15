@@ -6,11 +6,12 @@ import (
 	"time"
 )
 
-// HealthLevelError 需要用户立即处理
-const HealthLevelError = "error"
-
-// HealthLevelWarning 提示性问题，通常已被系统自动降级处理
-const HealthLevelWarning = "warning"
+const (
+	// HealthLevelError 需要用户立即处理
+	HealthLevelError = "error"
+	// HealthLevelWarning 提示性问题，通常已被系统自动降级处理
+	HealthLevelWarning = "warning"
+)
 
 // HealthIssue 单条健康问题
 // Key 为稳定标识符（如 database:stat），前端据此选择翻译文案

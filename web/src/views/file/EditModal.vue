@@ -3,8 +3,6 @@ import { NButton, NFlex } from 'naive-ui'
 import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
-import DraggableWindow from '@/components/common/DraggableWindow.vue'
-import { FileEditorView } from '@/components/file-editor'
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import { useEditorStore } from '@/stores'
 

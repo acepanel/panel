@@ -1,9 +1,5 @@
 package openlitespeed
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // SetPHP 切换 PHP 版本运行协议
 type SetPHP struct {
 	Version uint `form:"version" json:"version" validate:"required"`

@@ -2,33 +2,34 @@ package rule
 
 import (
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/spf13/cast"
 )
 
-// Password 密码复杂度校验
-type Password struct {
+// password 密码复杂度校验
+type password struct {
 	t *gotext.Locale
 }
 
-func NewPassword(t *gotext.Locale) *Password {
-	return &Password{t: t}
+func newPassword(t *gotext.Locale) *password {
+	return &password{t: t}
 }
 
-func (r *Password) Signature() string { return "password" }
+func (r *password) Signature() string { return "password" }
 
-func (r *Password) Message() string {
+func (r *password) Message() string {
 	return r.t.Get("{field} must be 8-20 characters long and contain at least two types of characters: uppercase letters, lowercase letters, numbers, and special characters")
 }
 
-func (r *Password) Passes(f *validator.Field) bool {
+func (r *password) Passes(f *validator.Field) bool {
 	if validator.IsEmptyValue(f.Reflect()) {
 		return true
 	}
 	password := cast.ToString(f.Reflect().Interface())
-	if len(password) < 8 || len(password) > 20 {
+	if n := utf8.RuneCountInString(password); n < 8 || n > 20 {
 		return false
 	}
 

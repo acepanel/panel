@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
@@ -30,10 +29,6 @@ func NewAlert(alertUsecase *biz.AlertUsecase, t *gotext.Locale, log *slog.Logger
 }
 
 func (r *Alert) Run(ctx context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	if err := r.alertRepo.Evaluate(ctx); err != nil {
 		r.log.Warn(r.t.Get("failed to evaluate alert rules"), slog.Any("err", err))
 	}

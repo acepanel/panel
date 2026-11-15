@@ -26,6 +26,15 @@ type ToolboxNetworkService struct {
 	network *panelnetwork.Service
 }
 
+type networkConnection struct {
+	Type    string `json:"type"` // tcp, tcp6, udp, udp6
+	PID     int32  `json:"pid"`
+	Process string `json:"process"` // 进程名称
+	Local   string `json:"local"`   // 本地地址:端口
+	Remote  string `json:"remote"`  // 远程地址:端口
+	State   string `json:"state"`   // LISTEN, ESTABLISHED 等
+}
+
 func NewToolboxNetworkService(t *gotext.Locale, log *slog.Logger) *ToolboxNetworkService {
 	return &ToolboxNetworkService{
 		t:   t,
@@ -38,15 +47,6 @@ func NewToolboxNetworkService(t *gotext.Locale, log *slog.Logger) *ToolboxNetwor
 			log.Info(t.Get("network interface change rolled back"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", 0), slog.String("name", name), slog.Bool("expired", true))
 		}),
 	}
-}
-
-type networkConnection struct {
-	Type    string `json:"type"` // tcp, tcp6, udp, udp6
-	PID     int32  `json:"pid"`
-	Process string `json:"process"` // 进程名称
-	Local   string `json:"local"`   // 本地地址:端口
-	Remote  string `json:"remote"`  // 远程地址:端口
-	State   string `json:"state"`   // LISTEN, ESTABLISHED 等
 }
 
 // Interfaces 获取可管理网卡列表
@@ -115,12 +115,6 @@ func (s *ToolboxNetworkService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Page == 0 {
-		req.Page = 1
-	}
-	if req.Limit == 0 {
-		req.Limit = 50
-	}
 	if req.Order == "" {
 		req.Order = "asc"
 	}
@@ -167,7 +161,7 @@ func (s *ToolboxNetworkService) List(w http.ResponseWriter, r *http.Request) {
 
 	data := make([]networkConnection, 0, len(conns))
 	for conn := range slices.Values(conns) {
-		typ := resolveConnType(conn.Family, conn.Type)
+		typ := s.resolveConnType(conn.Family, conn.Type)
 		if typ == "" {
 			continue
 		}
@@ -231,7 +225,7 @@ func (s *ToolboxNetworkService) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // resolveConnType 将 Family + Type 转为可读字符串
-func resolveConnType(family, typ uint32) string {
+func (s *ToolboxNetworkService) resolveConnType(family, typ uint32) string {
 	switch {
 	case family == 2 && typ == 1:
 		return "tcp"

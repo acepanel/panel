@@ -31,8 +31,8 @@ func Parse(content string) (*conf.Config, error) {
 		}
 		cur := stack[len(stack)-1]
 
-		if strings.HasPrefix(line, "#") {
-			cur.Append(&conf.Comment{Text: strings.TrimPrefix(line, "#")})
+		if after, ok := strings.CutPrefix(line, "#"); ok {
+			cur.Append(&conf.Comment{Text: after})
 			continue
 		}
 		if strings.HasPrefix(line, "}") {
@@ -47,8 +47,8 @@ func Parse(content string) (*conf.Config, error) {
 			}
 			continue
 		}
-		if strings.HasSuffix(line, "{") {
-			name, value := splitKeyValue(strings.TrimSpace(strings.TrimSuffix(line, "{")))
+		if before, ok := strings.CutSuffix(line, "{"); ok {
+			name, value := splitKeyValue(strings.TrimSpace(before))
 			if name == "" {
 				return nil, fmt.Errorf("line %d: block without name", i+1)
 			}

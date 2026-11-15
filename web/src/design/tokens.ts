@@ -187,27 +187,6 @@ export const radius = {
   full: '9999px',
 } as const
 
-/* === 阴影 === */
-export const shadowLight = {
-  none: 'none',
-  xs: '0 1px 2px 0 rgba(15,23,42,.04)',
-  sm: '0 1px 3px 0 rgba(15,23,42,.06),0 1px 2px -1px rgba(15,23,42,.04)',
-  md: '0 4px 8px -2px rgba(15,23,42,.06),0 2px 4px -2px rgba(15,23,42,.04)',
-  lg: '0 12px 20px -4px rgba(15,23,42,.08),0 4px 8px -4px rgba(15,23,42,.04)',
-  xl: '0 24px 40px -8px rgba(15,23,42,.12),0 8px 16px -8px rgba(15,23,42,.06)',
-  focus: '0 0 0 3px rgba(24,160,88,.20)',
-} as const
-
-export const shadowDark = {
-  none: 'none',
-  xs: '0 1px 2px 0 rgba(0,0,0,.30)',
-  sm: '0 1px 3px 0 rgba(0,0,0,.40),0 1px 2px -1px rgba(0,0,0,.30)',
-  md: '0 4px 8px -2px rgba(0,0,0,.45),0 2px 4px -2px rgba(0,0,0,.35)',
-  lg: '0 12px 20px -4px rgba(0,0,0,.55),0 4px 8px -4px rgba(0,0,0,.40)',
-  xl: '0 24px 40px -8px rgba(0,0,0,.65),0 8px 16px -8px rgba(0,0,0,.45)',
-  focus: '0 0 0 3px rgba(54,173,106,.25)',
-} as const
-
 /* === 字体 === */
 export const typography = {
   fontFamily: {
@@ -244,22 +223,6 @@ export const typography = {
   },
 } as const
 
-/* === 动效 === */
-export const transition = {
-  duration: {
-    instant: '80ms',
-    fast: '150ms',
-    base: '220ms',
-    slow: '320ms',
-  },
-  easing: {
-    standard: 'cubic-bezier(.2,0,0,1)',
-    emphasized: 'cubic-bezier(.3,0,0,1.05)',
-    decelerate: 'cubic-bezier(0,0,.2,1)',
-    accelerate: 'cubic-bezier(.4,0,1,1)',
-  },
-} as const
-
 /* === Z-Index === */
 export const zIndex = {
   base: 0,
@@ -281,17 +244,3 @@ export const breakpoint = {
   xl: '1280px',
   '2xl': '1536px',
 } as const
-
-export const tokens = {
-  color: { neutral, primary, success, warning, error, info },
-  semantic: { light: lightSemantic, dark: darkSemantic },
-  radius,
-  shadow: { light: shadowLight, dark: shadowDark },
-  typography,
-  transition,
-  zIndex,
-  breakpoint,
-} as const
-
-export type Tokens = typeof tokens
-export type SemanticColors = SemanticPalette

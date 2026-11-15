@@ -14,8 +14,11 @@ import (
 	"fmt"
 	"math/big"
 	"net"
+	"slices"
 	"strings"
 	"time"
+
+	"github.com/samber/lo"
 )
 
 func ParseCert(crt []byte) (x509.Certificate, error) {
@@ -29,6 +32,13 @@ func ParseCert(crt []byte) (x509.Certificate, error) {
 	}
 
 	return *cert, nil
+}
+
+// SANs 取证书的全部使用者可选名称，域名在前、IP 在后
+func SANs(cert x509.Certificate) []string {
+	return slices.Concat(cert.DNSNames, lo.Map(cert.IPAddresses, func(ip net.IP, _ int) string {
+		return ip.String()
+	}))
 }
 
 func ParseKey(key []byte) (crypto.Signer, error) {
@@ -59,11 +69,6 @@ func ParseKey(key []byte) (crypto.Signer, error) {
 	}
 
 	return x509.ParseECPrivateKey(keyBlockDER.Bytes)
-}
-
-func EncodeCert(cert x509.Certificate) ([]byte, error) {
-	pemCert := pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw}
-	return pem.EncodeToMemory(&pemCert), nil
 }
 
 func EncodeKey(key crypto.Signer) ([]byte, error) {
@@ -155,64 +160,4 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 	key = pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyBytes})
 
 	return cert, key, nil
-}
-
-// GenerateSelfSignedRSA 生成 RSA-3072 自签名证书
-func GenerateSelfSignedRSA(hosts []string) (certPEM []byte, keyPEM []byte, err error) {
-	// 1) 生成 RSA 3072 私钥
-	priv, err := rsa.GenerateKey(rand.Reader, 3072)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// 2) 解析 SAN：DNS + IP
-	var dnsNames []string
-	var ipAddrs []net.IP
-	for _, h := range hosts {
-		if ip := net.ParseIP(h); ip != nil {
-			ipAddrs = append(ipAddrs, ip)
-		} else if h != "" {
-			dnsNames = append(dnsNames, h)
-		}
-	}
-	if len(dnsNames) == 0 && len(ipAddrs) == 0 {
-		return nil, nil, errors.New("hosts is empty: SAN must not be empty")
-	}
-
-	// 3) 随机 128 位序列号
-	serialLimit := new(big.Int).Lsh(big.NewInt(1), 128)
-	serial, err := rand.Int(rand.Reader, serialLimit)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	now := time.Now().Add(-5 * time.Minute) // 避免时钟偏差导致 not yet valid
-
-	// 4) 组装证书模板
-	tmpl := x509.Certificate{
-		SerialNumber: serial,
-		Subject:      pkix.Name{CommonName: "AcePanel"},
-		NotBefore:    now,
-		NotAfter:     now.AddDate(1, 0, 0), // 1 年
-
-		DNSNames:    dnsNames,
-		IPAddresses: ipAddrs,
-
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		BasicConstraintsValid: true,
-	}
-
-	der, err := x509.CreateCertificate(rand.Reader, &tmpl, &tmpl, &priv.PublicKey, priv)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// 5) 输出 PEM
-	certPEM = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})
-
-	keyBytes := x509.MarshalPKCS1PrivateKey(priv)
-	keyPEM = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: keyBytes})
-
-	return certPEM, keyPEM, nil
 }

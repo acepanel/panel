@@ -20,7 +20,12 @@ type ProjectService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewProjectService(projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) *ProjectService {
+func NewProjectService(
+	projectUsecase *biz.ProjectUsecase,
+	settingUsecase *biz.SettingUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *ProjectService {
 	return &ProjectService{
 		t:           t,
 		log:         log,

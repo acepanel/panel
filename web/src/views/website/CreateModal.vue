@@ -4,8 +4,6 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
-import ListInput from '@/components/common/ListInput.vue'
-import PathSelector from '@/components/common/PathSelector.vue'
 import { generateRandomString, notifyWebsiteCreated } from '@/utils'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })

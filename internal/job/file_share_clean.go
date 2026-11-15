@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
@@ -30,10 +29,6 @@ func NewFileShareClean(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale,
 }
 
 func (r *FileShareClean) Run(_ context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	count, err := r.fileShareRepo.ClearExpired()
 	if err != nil {
 		r.log.Warn(r.t.Get("failed to clear expired file shares"), slog.Any("err", err))

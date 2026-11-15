@@ -7,22 +7,22 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
 
+	"github.com/acepanel/panel/v3/pkg/clientip"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/embed"
 	"github.com/acepanel/panel/v3/pkg/punycode"
 )
 
-// Entrance 确保通过正确的入口访问
-func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) func(next http.Handler) http.Handler {
+// entrance 确保通过正确的入口访问
+func entrance(conf *config.Config, session *sessions.Manager) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := session.GetSession(r)
 			if err != nil {
-				Abort(w, http.StatusInternalServerError, "%v", err)
+				abort(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
 
@@ -42,55 +42,25 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 				}
 			}
 			if len(conf.HTTP.BindDomain) > 0 && !slices.Contains(conf.HTTP.BindDomain, host) {
-				abortEntrance(w, r, conf, conf.App.Locale)
+				abortEntrance(w, r, conf)
 				return
 			}
 
-			// 取请求 IP
-			ip := r.RemoteAddr
-			ipHeader := conf.HTTP.IPHeader
-			if ipHeader != "" && r.Header.Get(ipHeader) != "" {
-				ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
-			}
-			ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
-			if err != nil {
-				ip = r.RemoteAddr
-			}
-
-			if len(conf.HTTP.BindIP) > 0 {
-				allowed := false
-				requestIP := net.ParseIP(ip)
-				if requestIP != nil {
-					for _, allowedIP := range conf.HTTP.BindIP {
-						if strings.Contains(allowedIP, "/") {
-							// CIDR
-							if _, ipNet, err := net.ParseCIDR(allowedIP); err == nil && ipNet.Contains(requestIP) {
-								allowed = true
-								break
-							}
-						} else {
-							// IP
-							if allowedIP == ip {
-								allowed = true
-								break
-							}
-						}
-					}
-				}
-				if !allowed {
-					abortEntrance(w, r, conf, conf.App.Locale)
-					return
-				}
+			if len(conf.HTTP.BindIP) > 0 && !clientip.Match(clientip.FromRequest(r, conf.HTTP.IPHeader), conf.HTTP.BindIP) {
+				abortEntrance(w, r, conf)
+				return
 			}
 			if len(conf.HTTP.BindUA) > 0 && !slices.Contains(conf.HTTP.BindUA, r.UserAgent()) {
-				abortEntrance(w, r, conf, conf.App.Locale)
+				abortEntrance(w, r, conf)
 				return
 			}
 
 			// 情况二：请求路径与入口路径相同或未设置访问入口，标记通过验证并重定向
 			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") &&
 				r.Header.Get("Authorization") == "" {
-				sess.Put("verify_entrance", true)
+				if sess.Missing("verify_entrance") {
+					sess.Put("verify_entrance", true)
+				}
 				// 设置入口的情况下进行重定向
 				if entrance != "/" {
 					render := chix.NewRender(w, r)
@@ -121,7 +91,7 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 			if !conf.App.Debug &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
-				abortEntrance(w, r, conf, conf.App.Locale)
+				abortEntrance(w, r, conf)
 				return
 			}
 
@@ -130,30 +100,7 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 	}
 }
 
-func trimEntranceAPIPath(path string, entrance string) (string, bool) {
-	if entrance == "/" {
-		if path == "/api" || strings.HasPrefix(path, "/api/") {
-			return path, true
-		}
-		return "", false
-	}
-
-	if path != entrance && !strings.HasPrefix(path, entrance+"/") {
-		return "", false
-	}
-
-	apiPath := strings.TrimPrefix(path, entrance)
-	if apiPath == "" {
-		return "", false
-	}
-	if apiPath != "/api" && !strings.HasPrefix(apiPath, "/api/") {
-		return "", false
-	}
-
-	return apiPath, true
-}
-
-func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, locale string) {
+func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config) {
 	errorType := conf.HTTP.EntranceError
 
 	switch errorType {
@@ -182,7 +129,7 @@ func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, 
 		return
 	default:
 		fileName := "error/418.html"
-		if locale == "zh_CN" {
+		if conf.App.Locale == "zh_CN" {
 			fileName = "error/418_zh_CN.html"
 		}
 		content, _ := embed.ErrorFS.ReadFile(fileName)
@@ -191,4 +138,27 @@ func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, 
 		_, _ = w.Write(content)
 		return
 	}
+}
+
+func trimEntranceAPIPath(path string, entrance string) (string, bool) {
+	if entrance == "/" {
+		if path == "/api" || strings.HasPrefix(path, "/api/") {
+			return path, true
+		}
+		return "", false
+	}
+
+	if path != entrance && !strings.HasPrefix(path, entrance+"/") {
+		return "", false
+	}
+
+	apiPath := strings.TrimPrefix(path, entrance)
+	if apiPath == "" {
+		return "", false
+	}
+	if apiPath != "/api" && !strings.HasPrefix(apiPath, "/api/") {
+		return "", false
+	}
+
+	return apiPath, true
 }

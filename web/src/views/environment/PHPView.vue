@@ -6,8 +6,8 @@ import openlitespeed from '@/api/apps/openlitespeed'
 import php from '@/api/panel/environment/php'
 import file from '@/api/panel/file'
 import home from '@/api/panel/home'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { formatBytes } from '@/utils/file'
 import PhpConfigTuneView from '@/views/environment/PhpConfigTuneView.vue'
 
 const { confirmAction } = useConfirm()
@@ -84,17 +84,6 @@ const composerMirrorOptions = computed(() => [
   { label: $gettext('Aliyun Mirror'), value: 'https://mirrors.aliyun.com/composer/' },
   { label: $gettext('Tencent Mirror'), value: 'https://mirrors.tencent.com/composer/' },
 ])
-
-const formatBytes = (bytes: number) => {
-  if (!bytes || bytes <= 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let i = 0
-  while (bytes >= 1024 && i < units.length - 1) {
-    bytes /= 1024
-    i++
-  }
-  return `${Math.round(bytes * 10) / 10} ${units[i]}`
-}
 
 const processColumns: any = [
   { title: 'PID', key: 'pid', width: 90 },

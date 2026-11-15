@@ -1,6 +1,9 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/libtnb/assert/check"
@@ -9,6 +12,31 @@ import (
 
 func newTestAPI() *API {
 	return NewAPI("3.0.0", "en")
+}
+
+func TestGetDecodesData(t *testing.T) {
+	var query url.Values
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/version/intermediate" {
+			http.NotFound(w, r)
+			return
+		}
+		query = r.URL.Query()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message":"success","data":[{"version":"3.0.1","type":"stable"}]}`))
+	}))
+	defer srv.Close()
+	api := NewAPI("3.0.0", "en", srv.URL)
+
+	versions, err := api.IntermediateVersions("stable")
+	must.NoError(t, err)
+	check.DeepEqual(t, *versions, Versions{{Version: "3.0.1", Type: "stable"}})
+	check.Equal(t, query.Get("start"), "3.0.0")
+	check.Equal(t, query.Get("channel"), "stable")
+	check.Equal(t, query.Get("locale"), "en")
+
+	_, err = api.Apps()
+	check.Error(t, err)
 }
 
 func TestGetLatestVersion(t *testing.T) {
@@ -35,12 +63,6 @@ func TestGetApps(t *testing.T) {
 	check.NotEmpty(t, *apps)
 }
 
-func TestGetAppBySlug(t *testing.T) {
-	app, err := newTestAPI().AppBySlug("nginx")
-	must.NoError(t, err)
-	check.Equal(t, app.Slug, "nginx")
-}
-
 func TestAppCallback(t *testing.T) {
 	check.NoError(t, newTestAPI().AppCallback("nginx"))
 }
@@ -49,12 +71,6 @@ func TestGetTemplates(t *testing.T) {
 	templates, err := newTestAPI().Templates()
 	must.NoError(t, err)
 	check.NotEmpty(t, *templates)
-}
-
-func TestGetTemplateBySlug(t *testing.T) {
-	template, err := newTestAPI().TemplateBySlug("nginx")
-	must.NoError(t, err)
-	check.Equal(t, template.Slug, "nginx")
 }
 
 func TestTemplateCallback(t *testing.T) {

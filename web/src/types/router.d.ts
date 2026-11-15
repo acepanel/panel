@@ -21,6 +21,3 @@ interface RouteItem {
 type RouteType = RouteRecordRaw & RouteItem
 
 type RoutesType = Array<RouteType>
-
-/** 前端导入的路由模块 */
-type RouteModule = Record<string, { default: RouteType }>

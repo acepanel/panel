@@ -8,9 +8,9 @@ import (
 
 var parserPool fastjson.ParserPool
 
-// ParseSyslog 从 syslog 消息中提取 tag 和 JSON 体
+// parseSyslog 从 syslog 消息中提取 tag 和 JSON 体
 // 格式: <PRI>MMM DD HH:MM:SS tag: JSON（nohostname 模式下无主机名）；Caddy 直接发 JSON，没有 tag
-func ParseSyslog(msg []byte) (string, []byte) {
+func parseSyslog(msg []byte) (string, []byte) {
 	n := len(msg)
 	if n == 0 {
 		return "", nil

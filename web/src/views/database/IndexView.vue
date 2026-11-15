@@ -10,14 +10,15 @@ import pgadmin from '@/api/apps/pgadmin'
 import phpmyadmin from '@/api/apps/phpmyadmin'
 import app from '@/api/panel/app'
 import database from '@/api/panel/database'
+import { useBus } from '@/components/system/composables/useBus'
 import { renderLocalIcon } from '@/utils'
 import CreateDatabaseModal from '@/views/database/CreateDatabaseModal.vue'
-import CreateServerModal from '@/views/database/CreateServerModal.vue'
 import CreateUserModal from '@/views/database/CreateUserModal.vue'
 import DatabaseList from '@/views/database/DatabaseList.vue'
 import ElasticsearchDataView from '@/views/database/ElasticsearchDataView.vue'
 import RedisDataView from '@/views/database/RedisDataView.vue'
 import ServerList from '@/views/database/ServerList.vue'
+import ServerModal from '@/views/database/ServerModal.vue'
 import UserList from '@/views/database/UserList.vue'
 
 const { $gettext } = useGettext()
@@ -82,12 +83,9 @@ const refreshServers = () => {
 
 onMounted(() => {
   refreshServers()
-  window.$bus.on('database-server:refresh', refreshServers)
 })
 
-onUnmounted(() => {
-  window.$bus.off('database-server:refresh', refreshServers)
-})
+useBus('database-server:refresh', refreshServers)
 
 const serverOptions = computed(() =>
   mysqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
@@ -215,5 +213,5 @@ const handlePgAdmin = () => {
   </PageContainer>
   <create-database-modal v-model:show="createDatabaseModalShow" :type="currentTab" />
   <create-user-modal v-model:show="createUserModalShow" />
-  <create-server-modal v-model:show="createServerModalShow" />
+  <server-modal v-model:show="createServerModalShow" />
 </template>

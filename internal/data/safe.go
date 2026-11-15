@@ -5,23 +5,12 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/firewall"
-	"github.com/acepanel/panel/v3/pkg/os"
 )
 
-type safeRepo struct {
-	ssh string
-}
+type safeRepo struct{}
 
 func NewSafeRepo() biz.SafeRepo {
-	var ssh string
-	if os.IsRHEL() {
-		ssh = "sshd"
-	} else {
-		ssh = "ssh"
-	}
-	return &safeRepo{
-		ssh: ssh,
-	}
+	return &safeRepo{}
 }
 
 func (r *safeRepo) GetPingStatus(ctx context.Context) (bool, error) {

@@ -9,13 +9,13 @@ import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 
+import { useStatQuery } from './useStatQuery'
+
 const { $gettext } = useGettext()
 
 use([CanvasRenderer, LineChart, TooltipComponent, LegendComponent, GridComponent])
 
 const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
 
 interface StatTotals {
   status_2xx: number
@@ -32,32 +32,15 @@ interface SeriesPoint {
   status_5xx: number
 }
 
-const totals = ref<StatTotals>({ status_2xx: 0, status_3xx: 0, status_4xx: 0, status_5xx: 0 })
-const series = ref<SeriesPoint[]>([])
+const emptyTotals: StatTotals = { status_2xx: 0, status_3xx: 0, status_4xx: 0, status_5xx: 0 }
+
+const { loading, data: overview } = useStatQuery(({ start, end, sites }) =>
+  website.statOverview(start, end, sites),
+)
+const totals = computed<StatTotals>(() => overview.value?.current ?? emptyTotals)
+const series = computed<SeriesPoint[]>(() => overview.value?.series || [])
 
 const isSingleDay = computed(() => ctx.dateRange.value.start === ctx.dateRange.value.end)
-
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statOverview(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
-  )
-    .onSuccess(({ data }: any) => {
-      totals.value = data.current
-      series.value = data.series || []
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
-
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadData()
-})
-
-onMounted(() => {
-  loadData()
-})
 
 // 汇总
 const totalRequests = computed(() => {

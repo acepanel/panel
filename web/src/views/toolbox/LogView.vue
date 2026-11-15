@@ -6,7 +6,6 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import toolboxLog from '@/api/panel/toolbox-log'
-import TheIcon from '@/components/custom/TheIcon.vue'
 
 const { $gettext } = useGettext()
 

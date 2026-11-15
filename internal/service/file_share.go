@@ -22,7 +22,12 @@ type FileShareService struct {
 	fileShareRepo *biz.FileShareUsecase
 }
 
-func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale, log *slog.Logger, conf *config.Config) *FileShareService {
+func NewFileShareService(
+	fileShareUsecase *biz.FileShareUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+	conf *config.Config,
+) *FileShareService {
 	return &FileShareService{
 		t:             t,
 		log:           log,

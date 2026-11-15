@@ -13,6 +13,23 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
+func TestWithIPv6Listens(t *testing.T) {
+	address := func(listen types.Listen, _ int) string { return listen.Address }
+
+	got := WithIPv6Listens([]types.Listen{
+		{Address: "80", Args: []string{"default_server"}},
+		{Address: "0.0.0.0:8080"},
+		{Address: "127.0.0.1:9000"},
+		{Address: "[::1]:9001"},
+		{Address: "[::]:80"},
+	})
+	check.DeepEqual(t, lo.Map(got, address), []string{"80", "0.0.0.0:8080", "127.0.0.1:9000", "[::1]:9001", "[::]:80", "[::]:8080"})
+
+	// 补出来的监听沿用原监听的参数，已经写了的 [::] 不被覆盖
+	added := WithIPv6Listens([]types.Listen{{Address: "443", Args: []string{"ssl"}}})
+	check.DeepEqual(t, added[1], types.Listen{Address: "[::]:443", Args: []string{"ssl"}})
+}
+
 func TestMergeHTTPSListensDefault(t *testing.T) {
 	d, err := Get(TypeNginx)
 	must.NoError(t, err)

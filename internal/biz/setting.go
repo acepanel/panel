@@ -43,8 +43,8 @@ const (
 	SettingKeyClickHouseDefaultPassword SettingKey = "clickhouse_default_password"
 	SettingKeyStalwartAdminUser         SettingKey = "stalwart_admin_user"
 	SettingKeyStalwartAdminPassword     SettingKey = "stalwart_admin_password"
-	SettingKeyStalwartCertID            SettingKey = "stalwart_cert_id"     // 绑定到邮件服务的面板证书 ID
-	SettingKeyStalwartCertObject        SettingKey = "stalwart_cert_object" // Stalwart 侧对应的证书对象 ID
+	SettingKeyStalwartCertID            SettingKey = "stalwart_cert_id"       // 绑定到邮件服务的面板证书 ID
+	SettingKeyStalwartCertObject        SettingKey = "stalwart_cert_object"   // Stalwart 侧对应的证书对象 ID
 	SettingKeyStalwartProxyWebsite      SettingKey = "stalwart_proxy_website" // 一键创建的反代网站 ID
 	SettingKeyOfflineMode               SettingKey = "offline_mode"
 	SettingKeyAutoUpdate                SettingKey = "auto_update"
@@ -70,7 +70,8 @@ const (
 	SettingKeyIPDBType                  SettingKey = "ipdb_type" // "" / "custom" / "subscribe"
 	SettingKeyIPDBURL                   SettingKey = "ipdb_url"  // 订阅链接
 	SettingKeyIPDBPath                  SettingKey = "ipdb_path"
-	SettingKeyInfoRan                   SettingKey = "info_ran" // info 命令是否已运行过
+	SettingKeyInfoRan                   SettingKey = "info_ran"            // info 命令是否已运行过
+	SettingKeyServiceLogCleared         SettingKey = "service_log_cleared" // 后接 :服务名，值为清空运行日志的时刻（Unix 微秒）
 	SettingKeyTamperEnabled             SettingKey = "tamper_enabled"
 	SettingKeyTamperMode                SettingKey = "tamper_mode"           // chattr / ebpf
 	SettingKeyTamperBlockNew            SettingKey = "tamper_block_new"      // 新建受保护类型文件时删除拦截
@@ -148,74 +149,7 @@ func (uc *SettingUsecase) GetPanel() (*request.SettingPanel, error) {
 }
 
 func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
-	if err := uc.repo.Set(SettingKeyName, req.Name); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyChannel, req.Channel); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyOfflineMode, cast.ToString(req.OfflineMode)); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyAutoUpdate, cast.ToString(req.AutoUpdate)); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyWebsitePath, req.WebsitePath); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyBackupPath, req.BackupPath); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyBackupFormat, req.BackupFormat); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyProjectPath, req.ProjectPath); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyContainerSock, req.ContainerSock); err != nil {
-		return false, err
-	}
-	if err := uc.repo.SetSlice(SettingHiddenMenu, req.HiddenMenu); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyCustomLogo, req.CustomLogo); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyIPDBType, req.IPDBType); err != nil {
-		return false, err
-	}
-	ipdbURL := req.IPDBURL
-	if req.IPDBType == "subscribe" && ipdbURL == "" {
-		// https://github.com/metowolf/qqwry.ipdb
-		ipdbURL = "https://fastly.jsdelivr.net/npm/qqwry.ipdb/qqwry.ipdb"
-	}
-	if err := uc.repo.Set(SettingKeyIPDBURL, ipdbURL); err != nil {
-		return false, err
-	}
-	if err := uc.repo.Set(SettingKeyIPDBPath, req.IPDBPath); err != nil {
-		return false, err
-	}
-	if err := uc.repo.SetSlice(SettingKeyPublicIPs, req.PublicIP); err != nil {
-		return false, err
-	}
-
-	// 订阅模式后台下载 IPDB
-	if req.IPDBType == "subscribe" && ipdbURL != "" {
-		go func() {
-			ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Minute)
-			defer cancel()
-			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
-			if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
-				uc.log.Warn(uc.t.Get("failed to download ipdb"), slog.String("url", ipdbURL), slog.Any("err", err))
-			} else {
-				uc.log.Info(uc.t.Get("ipdb downloaded"), slog.String("url", ipdbURL))
-			}
-		}()
-	}
-
-	// 下面是需要需要重启的设置
-	// 面板HTTPS
-	restartFlag := false
+	// 校验全部通过后才开始落盘，否则报错返回时设置已经改了一半
 
 	// 自签模式
 	if req.TLS == "self-signed" {
@@ -234,15 +168,6 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 			req.Key = string(key)
 		}
 	}
-
-	oldCert, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
-	oldKey, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
-	if oldCert != req.Cert || oldKey != req.Key {
-		if uc.task.HasRunningTask() {
-			return false, errors.New(uc.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
-		}
-		restartFlag = true
-	}
 	// custom 模式需要验证证书格式
 	if req.TLS == "custom" {
 		if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
@@ -252,23 +177,41 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 			return false, errors.New(uc.t.Get("failed to parse private key: %v", err))
 		}
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
-		return false, err
-	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
-		return false, err
-	}
 
-	// 面板主配置
+	// 面板证书和主配置有变更时需要重启
+	oldCert, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
+	oldKey, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
+	restartFlag := oldCert != req.Cert || oldKey != req.Key
+
 	conf, err := config.Load()
 	if err != nil {
 		return false, err
 	}
+	portChanged := req.Port != conf.HTTP.Port
+	if portChanged && os.TCPPortInUse(req.Port) { //nolint:contextcheck
+		return false, errors.New(uc.t.Get("port is already in use"))
+	}
 
-	if req.Port != conf.HTTP.Port {
-		if os.TCPPortInUse(req.Port) { //nolint:contextcheck
-			return false, errors.New(uc.t.Get("port is already in use"))
-		}
+	conf.App.Locale = req.Locale
+	conf.HTTP.Port = req.Port
+	conf.HTTP.Entrance = "/" + strings.Trim(req.Entrance, "/")
+	conf.HTTP.EntranceError = req.EntranceError
+	conf.HTTP.LoginCaptcha = req.LoginCaptcha
+	conf.HTTP.TLS = req.TLS
+	conf.HTTP.IPHeader = req.IPHeader
+	conf.HTTP.BindDomain = req.BindDomain
+	conf.HTTP.BindIP = req.BindIP
+	conf.HTTP.BindUA = req.BindUA
+	conf.Session.Lifetime = req.Lifetime
+	if same, _ := config.Check(conf); !same {
+		restartFlag = true
+	}
+
+	if restartFlag && uc.task.HasRunningTask() {
+		return false, errors.New(uc.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
+	}
+
+	if portChanged {
 		// 放行端口与后面的保存配置、重启是一个整体，中途取消会让面板监听在被防火墙拦截的端口上，管理员直接失联
 		ctx = context.WithoutCancel(ctx)
 		fw := firewall.NewFirewall()
@@ -290,24 +233,59 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 		}
 	}
 
-	conf.App.Locale = req.Locale
-	conf.HTTP.Port = req.Port
-	conf.HTTP.Entrance = "/" + strings.Trim(req.Entrance, "/")
-	conf.HTTP.EntranceError = req.EntranceError
-	conf.HTTP.LoginCaptcha = req.LoginCaptcha
-	conf.HTTP.TLS = req.TLS
-	conf.HTTP.IPHeader = req.IPHeader
-	conf.HTTP.BindDomain = req.BindDomain
-	conf.HTTP.BindIP = req.BindIP
-	conf.HTTP.BindUA = req.BindUA
-	conf.Session.Lifetime = req.Lifetime
-
-	// 检查配置是否有变更
-	if same, _ := config.Check(conf); !same {
-		if uc.task.HasRunningTask() {
-			return false, errors.New(uc.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
+	ipdbURL := req.IPDBURL
+	if req.IPDBType == "subscribe" && ipdbURL == "" {
+		// https://github.com/metowolf/qqwry.ipdb
+		ipdbURL = "https://fastly.jsdelivr.net/npm/qqwry.ipdb/qqwry.ipdb"
+	}
+	for _, item := range []struct {
+		key   SettingKey
+		value string
+	}{
+		{SettingKeyName, req.Name},
+		{SettingKeyChannel, req.Channel},
+		{SettingKeyOfflineMode, cast.ToString(req.OfflineMode)},
+		{SettingKeyAutoUpdate, cast.ToString(req.AutoUpdate)},
+		{SettingKeyWebsitePath, req.WebsitePath},
+		{SettingKeyBackupPath, req.BackupPath},
+		{SettingKeyBackupFormat, req.BackupFormat},
+		{SettingKeyProjectPath, req.ProjectPath},
+		{SettingKeyContainerSock, req.ContainerSock},
+		{SettingKeyCustomLogo, req.CustomLogo},
+		{SettingKeyIPDBType, req.IPDBType},
+		{SettingKeyIPDBURL, ipdbURL},
+		{SettingKeyIPDBPath, req.IPDBPath},
+	} {
+		if err = uc.repo.Set(item.key, item.value); err != nil {
+			return false, err
 		}
-		restartFlag = true
+	}
+	if err = uc.repo.SetSlice(SettingHiddenMenu, req.HiddenMenu); err != nil {
+		return false, err
+	}
+	if err = uc.repo.SetSlice(SettingKeyPublicIPs, req.PublicIP); err != nil {
+		return false, err
+	}
+
+	// 订阅模式后台下载 IPDB
+	if req.IPDBType == "subscribe" && ipdbURL != "" {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Minute)
+			defer cancel()
+			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
+			if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
+				uc.log.Warn(uc.t.Get("failed to download ipdb"), slog.String("url", ipdbURL), slog.Any("err", err))
+			} else {
+				uc.log.Info(uc.t.Get("ipdb downloaded"), slog.String("url", ipdbURL))
+			}
+		}()
+	}
+
+	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
+		return false, err
+	}
+	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
+		return false, err
 	}
 	if err = config.Save(conf); err != nil {
 		return false, err

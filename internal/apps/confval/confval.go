@@ -52,8 +52,6 @@ var (
 	Nginx = Codec{Assign: " ", Terminator: ";", Comments: []string{"#"}, InlineComment: true, RequireValue: true, AppendIndent: "    "}
 	// Postgres 「键 = '值'」，支持行尾注释
 	Postgres = Codec{Delim: "=", Assign: " = ", Quote: "'", Comments: []string{"#"}, InlineComment: true}
-	// INI 「键 = 值」，忽略分组，用于 mysql
-	INI = Codec{Delim: "=", Assign: " = ", Comments: []string{"#", ";"}}
 	// SectionINI 分组感知的 INI，用于 grafana
 	SectionINI = Codec{Delim: "=", Assign: " = ", Comments: []string{"#", ";"}, Sections: true}
 	// PHPINI PHP 的 ini，注释优先使用 ";"

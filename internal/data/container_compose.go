@@ -71,7 +71,7 @@ func (r *containerComposeRepo) List(ctx context.Context) ([]types.ContainerCompo
 			continue
 		}
 		// ConfigFiles 可能包含多个以逗号分隔的路径，取第一个
-		first := strings.SplitN(item.ConfigFiles, ",", 2)[0]
+		first, _, _ := strings.Cut(item.ConfigFiles, ",")
 		dir := filepath.Base(filepath.Dir(first))
 		if i, ok := index[dir]; ok {
 			composes[i].Status = item.Status
@@ -97,43 +97,13 @@ func (r *containerComposeRepo) Create(name, compose string, envs []types.KV) err
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
-		return err
-	}
 
-	var sb strings.Builder
-	for _, kv := range envs {
-		sb.WriteString(kv.Key)
-		sb.WriteString("=")
-		sb.WriteString(kv.Value)
-		sb.WriteString("\n")
-	}
-	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
-		return err
-	}
-
-	return nil
+	return writeComposeFiles(dir, compose, envs)
 }
 
 // Update 更新编排文件
 func (r *containerComposeRepo) Update(name, compose string, envs []types.KV) error {
-	dir := filepath.Join(app.Root, "compose", name)
-	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
-		return err
-	}
-
-	var sb strings.Builder
-	for _, kv := range envs {
-		sb.WriteString(kv.Key)
-		sb.WriteString("=")
-		sb.WriteString(kv.Value)
-		sb.WriteString("\n")
-	}
-	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
-		return err
-	}
-
-	return nil
+	return writeComposeFiles(filepath.Join(app.Root, "compose", name), compose, envs)
 }
 
 // Up 启动编排
@@ -158,4 +128,20 @@ func (r *containerComposeRepo) Down(ctx context.Context, name string) error {
 func (r *containerComposeRepo) RemoveDir(name string) error {
 	dir := filepath.Join(app.Root, "compose", name)
 	return os.RemoveAll(dir)
+}
+
+func writeComposeFiles(dir, compose string, envs []types.KV) error {
+	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
+		return err
+	}
+
+	var sb strings.Builder
+	for _, kv := range envs {
+		sb.WriteString(kv.Key)
+		sb.WriteString("=")
+		sb.WriteString(kv.Value)
+		sb.WriteString("\n")
+	}
+
+	return os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644)
 }

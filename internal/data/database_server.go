@@ -23,16 +23,11 @@ func NewDatabaseServerRepo(db *gorm.DB) biz.DatabaseServerRepo {
 	}
 }
 
-func (r *databaseServerRepo) Count() (int64, error) {
-	var count int64
-	if err := r.db.Model(&biz.DatabaseServer{}).Count(&count).Error; err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
-func (r *databaseServerRepo) List(ctx context.Context, page, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
+func (r *databaseServerRepo) List(
+	ctx context.Context,
+	page, limit uint,
+	typ string,
+) ([]*biz.DatabaseServer, int64, error) {
 	databaseServer := make([]*biz.DatabaseServer, 0)
 	var total int64
 	query := r.db.Model(&biz.DatabaseServer{}).Order("id desc")
@@ -69,15 +64,13 @@ func (r *databaseServerRepo) Find(id uint) (*biz.DatabaseServer, error) {
 	return server, nil
 }
 
-func (r *databaseServerRepo) GetByName(ctx context.Context, name string) (*biz.DatabaseServer, error) {
-	databaseServer := new(biz.DatabaseServer)
-	if err := r.db.Where("name = ?", name).First(databaseServer).Error; err != nil {
+func (r *databaseServerRepo) FindByName(name string) (*biz.DatabaseServer, error) {
+	server := new(biz.DatabaseServer)
+	if err := r.db.Where("name = ?", name).First(server).Error; err != nil {
 		return nil, err
 	}
 
-	r.CheckServer(ctx, databaseServer)
-
-	return databaseServer, nil
+	return server, nil
 }
 
 // Create 创建服务器记录
@@ -95,7 +88,14 @@ func (r *databaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemar
 }
 
 func (r *databaseServerRepo) UpdatePassword(name string, password string) error {
-	return r.db.Model(&biz.DatabaseServer{}).Where("name = ?", name).Update("password", password).Error
+	server, err := r.FindByName(name)
+	if err != nil {
+		return err
+	}
+
+	server.Password = password
+
+	return r.db.Save(server).Error
 }
 
 func (r *databaseServerRepo) UpdatePort(name string, port uint) error {
@@ -103,16 +103,12 @@ func (r *databaseServerRepo) UpdatePort(name string, port uint) error {
 }
 
 func (r *databaseServerRepo) Delete(id uint) error {
-	if err := r.ClearUsers(id); err != nil {
+	// 只删面板里的用户记录，不动数据库里的实际用户
+	if err := r.db.Where("server_id = ?", id).Delete(&biz.DatabaseUser{}).Error; err != nil {
 		return err
 	}
 
 	return r.db.Where("id = ?", id).Delete(&biz.DatabaseServer{}).Error
-}
-
-// ClearUsers 删除指定服务器的所有用户，只是删除面板记录，不会实际删除
-func (r *databaseServerRepo) ClearUsers(serverID uint) error {
-	return r.db.Where("server_id = ?", serverID).Delete(&biz.DatabaseUser{}).Error
 }
 
 // ListUsers 查询指定服务器的本地用户记录
@@ -130,11 +126,16 @@ func (r *databaseServerRepo) CreateUser(user *biz.DatabaseUser) error {
 	return r.db.Create(user).Error
 }
 
+// Operator 获取数据库操作句柄
+func (r *databaseServerRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+	return newOperator(ctx, server)
+}
+
 // CheckServer 检查服务器连接，ctx 取消时立即放弃探测
 func (r *databaseServerRepo) CheckServer(ctx context.Context, server *biz.DatabaseServer) bool {
 	switch server.Type {
 	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql, biz.DatabaseTypeClickHouse:
-		operator, err := r.Operator(ctx, server)
+		operator, err := newOperator(ctx, server)
 		if err == nil {
 			operator.Close()
 			server.Status = biz.DatabaseServerStatusValid
@@ -174,17 +175,13 @@ func (r *databaseServerRepo) CheckServer(ctx context.Context, server *biz.Databa
 	return false
 }
 
-// Operator 获取数据库操作句柄
-func (r *databaseServerRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+// newOperator 按服务器类型构建数据库操作句柄
+func newOperator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
 		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
-		if err != nil {
-			return nil, err
-		}
-		return postgres, nil
+		return db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypeClickHouse:
 		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err != nil {

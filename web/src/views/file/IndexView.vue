@@ -5,6 +5,7 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { useBus } from '@/components/system/composables/useBus'
 import { useFileStore, useUploadStore } from '@/stores'
 import { readDroppedFiles } from '@/utils/file'
 import CompressModal from '@/views/file/CompressModal.vue'
@@ -100,13 +101,10 @@ const handleDrop = async (e: DragEvent) => {
 }
 
 onMounted(() => {
-  window.$bus.on('file:edit', handleEditFile)
   fileStore.loadFavorites()
 })
 
-onUnmounted(() => {
-  window.$bus.off('file:edit', handleEditFile)
-})
+useBus('file:edit', handleEditFile)
 </script>
 
 <template>

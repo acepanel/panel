@@ -14,13 +14,13 @@ import (
 
 // SMTP 加密方式
 const (
-	EncryptionNone     = "none"
-	EncryptionSSL      = "ssl"
-	EncryptionSTARTTLS = "starttls"
+	encryptionNone     = "none"
+	encryptionSSL      = "ssl"
+	encryptionSTARTTLS = "starttls"
 )
 
-// SMTPConfig SMTP 渠道配置
-type SMTPConfig struct {
+// smtpConfig SMTP 渠道配置
+type smtpConfig struct {
 	Host       string   `json:"host"`
 	Port       int      `json:"port"`
 	Encryption string   `json:"encryption"` // none / ssl / starttls
@@ -33,12 +33,12 @@ type SMTPConfig struct {
 }
 
 type smtpNotifier struct {
-	conf SMTPConfig
+	conf smtpConfig
 }
 
-// NewSMTP 构造 SMTP 通知器
-func NewSMTP(config json.RawMessage) (Notifier, error) {
-	var conf SMTPConfig
+// newSMTP 构造 SMTP 通知器
+func newSMTP(config json.RawMessage) (Notifier, error) {
+	var conf smtpConfig
 	if err := json.Unmarshal(config, &conf); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func NewSMTP(config json.RawMessage) (Notifier, error) {
 		return nil, errors.New("smtp recipients are required")
 	}
 	// 未知取值不能落到明文分支，否则拼写错误会让预期加密的连接静默降级
-	if !slices.Contains([]string{EncryptionNone, EncryptionSSL, EncryptionSTARTTLS}, conf.Encryption) {
+	if !slices.Contains([]string{encryptionNone, encryptionSSL, encryptionSTARTTLS}, conf.Encryption) {
 		return nil, fmt.Errorf("unsupported smtp encryption: %s", conf.Encryption)
 	}
 
@@ -84,9 +84,9 @@ func (s *smtpNotifier) Send(ctx context.Context, msg *Message) error {
 	}
 
 	switch s.conf.Encryption {
-	case EncryptionSSL:
+	case encryptionSSL:
 		options = append(options, mail.WithSSL())
-	case EncryptionSTARTTLS:
+	case encryptionSTARTTLS:
 		options = append(options, mail.WithTLSPolicy(mail.TLSMandatory))
 	default:
 		options = append(options, mail.WithTLSPolicy(mail.NoTLS))

@@ -1,11 +1,17 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"log/slog"
+	"slices"
+	"strconv"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/v3/pkg/websitestat"
 )
 
 // WebsiteStat 网站统计（每站每天一行或每小时一行）
@@ -101,21 +107,8 @@ type WebsiteStatURI struct {
 
 // WebsiteStatSeries 时间序列数据点（用于 API 返回）
 type WebsiteStatSeries struct {
-	Key              string `json:"key"` // 小时 "0"-"23" 或日期 "2026-02-18"
-	PV               uint64 `json:"pv"`
-	UV               uint64 `json:"uv"`
-	IP               uint64 `json:"ip"`
-	Bandwidth        uint64 `json:"bandwidth"`
-	BandwidthIn      uint64 `json:"bandwidth_in"`
-	Requests         uint64 `json:"requests"`
-	Errors           uint64 `json:"errors"`
-	Spiders          uint64 `json:"spiders"`
-	RequestTimeSum   uint64 `json:"request_time_sum"`
-	RequestTimeCount uint64 `json:"request_time_count"`
-	Status2xx        uint64 `json:"status_2xx"`
-	Status3xx        uint64 `json:"status_3xx"`
-	Status4xx        uint64 `json:"status_4xx"`
-	Status5xx        uint64 `json:"status_5xx"`
+	Key string `json:"key"` // 小时 "0"-"23" 或日期 "2026-02-18"
+	websitestat.Counters
 }
 
 // WebsiteStatSpiderRank 蜘蛛排名
@@ -164,29 +157,22 @@ type WebsiteStatURIRank struct {
 
 // WebsiteStatSiteItem 网站维度汇总
 type WebsiteStatSiteItem struct {
-	Site             string `json:"site"`
-	PV               uint64 `json:"pv"`
-	UV               uint64 `json:"uv"`
-	IP               uint64 `json:"ip"`
-	Bandwidth        uint64 `json:"bandwidth"`
-	BandwidthIn      uint64 `json:"bandwidth_in"`
-	Requests         uint64 `json:"requests"`
-	Errors           uint64 `json:"errors"`
-	Spiders          uint64 `json:"spiders"`
-	RequestTimeSum   uint64 `json:"request_time_sum"`
-	RequestTimeCount uint64 `json:"request_time_count"`
-	Status2xx        uint64 `json:"status_2xx"`
-	Status3xx        uint64 `json:"status_3xx"`
-	Status4xx        uint64 `json:"status_4xx"`
-	Status5xx        uint64 `json:"status_5xx"`
+	Site string `json:"site"`
+	websitestat.Counters
+}
+
+// WebsiteStatOverview 概览：所选周期与紧邻其前的等长周期
+type WebsiteStatOverview struct {
+	Current        websitestat.Counters
+	Previous       websitestat.Counters
+	Series         []*WebsiteStatSeries
+	PreviousSeries []*WebsiteStatSeries
 }
 
 // WebsiteStatRepo 网站统计数据访问接口
 type WebsiteStatRepo interface {
 	// Upsert 批量写入/更新统计数据（含每日汇总和小时数据）
 	Upsert(stats []*WebsiteStat) error
-	// ListByDateRange 按日期范围查询每站汇总（仅 hour=-1 的每日行）
-	ListByDateRange(start, end string, sites []string) ([]*WebsiteStat, error)
 	// DailySeries 按日分组的时间序列
 	DailySeries(start, end string, sites []string) ([]*WebsiteStatSeries, error)
 	// HourlySeries 按小时的时间序列（单天查询）
@@ -233,29 +219,50 @@ type WebsiteStatRepo interface {
 }
 
 type WebsiteStatUsecase struct {
-	t    *gotext.Locale
-	log  *slog.Logger
-	repo WebsiteStatRepo
+	t          *gotext.Locale
+	log        *slog.Logger
+	repo       WebsiteStatRepo
+	aggregator *websitestat.Aggregator
 }
 
-func NewWebsiteStatUsecase(t *gotext.Locale, log *slog.Logger, repo WebsiteStatRepo) *WebsiteStatUsecase {
-	return &WebsiteStatUsecase{t: t, log: log, repo: repo}
+func NewWebsiteStatUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	repo WebsiteStatRepo,
+	aggregator *websitestat.Aggregator,
+) *WebsiteStatUsecase {
+	return &WebsiteStatUsecase{t: t, log: log, repo: repo, aggregator: aggregator}
 }
 
 func (uc *WebsiteStatUsecase) Upsert(stats []*WebsiteStat) error {
 	return uc.repo.Upsert(stats)
 }
 
-func (uc *WebsiteStatUsecase) ListByDateRange(start, end string, sites []string) ([]*WebsiteStat, error) {
-	return uc.repo.ListByDateRange(start, end, sites)
-}
+// Overview 所选周期与上一周期的汇总和时间序列，单日按小时、多日按天
+func (uc *WebsiteStatUsecase) Overview(start, end string, sites []string) (*WebsiteStatOverview, error) {
+	startDate, _ := time.Parse(time.DateOnly, start)
+	endDate, _ := time.Parse(time.DateOnly, end)
+	days := int(endDate.Sub(startDate).Hours()/24) + 1
+	prevStart := startDate.AddDate(0, 0, -days).Format(time.DateOnly)
+	prevEnd := startDate.AddDate(0, 0, -1).Format(time.DateOnly)
+	today := time.Now().Format(time.DateOnly)
 
-func (uc *WebsiteStatUsecase) DailySeries(start, end string, sites []string) ([]*WebsiteStatSeries, error) {
-	return uc.repo.DailySeries(start, end, sites)
-}
+	var overview WebsiteStatOverview
+	var err error
+	if overview.Current, err = uc.totals(start, end, sites, today); err != nil {
+		return nil, err
+	}
+	if overview.Previous, err = uc.totals(prevStart, prevEnd, sites, today); err != nil {
+		return nil, err
+	}
+	if overview.Series, err = uc.series(start, end, sites, today); err != nil {
+		return nil, err
+	}
+	if overview.PreviousSeries, err = uc.series(prevStart, prevEnd, sites, today); err != nil {
+		return nil, err
+	}
 
-func (uc *WebsiteStatUsecase) HourlySeries(date string, sites []string) ([]*WebsiteStatSeries, error) {
-	return uc.repo.HourlySeries(date, sites)
+	return &overview, nil
 }
 
 func (uc *WebsiteStatUsecase) ClearBefore(date string) error {
@@ -292,7 +299,11 @@ func (uc *WebsiteStatUsecase) UpsertSpiders(stats []*WebsiteStatSpider) error {
 	return uc.repo.UpsertSpiders(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopSpiders(start, end string, sites []string, limit uint) ([]*WebsiteStatSpiderRank, error) {
+func (uc *WebsiteStatUsecase) TopSpiders(
+	start, end string,
+	sites []string,
+	limit uint,
+) ([]*WebsiteStatSpiderRank, error) {
 	return uc.repo.TopSpiders(start, end, sites, limit)
 }
 
@@ -304,7 +315,11 @@ func (uc *WebsiteStatUsecase) UpsertClients(stats []*WebsiteStatClient) error {
 	return uc.repo.UpsertClients(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopClients(start, end string, sites []string, limit uint) ([]*WebsiteStatClientRank, error) {
+func (uc *WebsiteStatUsecase) TopClients(
+	start, end string,
+	sites []string,
+	limit uint,
+) ([]*WebsiteStatClientRank, error) {
 	return uc.repo.TopClients(start, end, sites, limit)
 }
 
@@ -316,11 +331,21 @@ func (uc *WebsiteStatUsecase) UpsertIPs(stats []*WebsiteStatIP) error {
 	return uc.repo.UpsertIPs(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopIPs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatIPRank, uint, error) {
+func (uc *WebsiteStatUsecase) TopIPs(
+	start, end string,
+	sites []string,
+	page, limit uint,
+) ([]*WebsiteStatIPRank, uint, error) {
 	return uc.repo.TopIPs(start, end, sites, page, limit)
 }
 
-func (uc *WebsiteStatUsecase) TopGeos(start, end string, sites []string, groupBy string, country string, limit uint) ([]*WebsiteStatGeoRank, error) {
+func (uc *WebsiteStatUsecase) TopGeos(
+	start, end string,
+	sites []string,
+	groupBy string,
+	country string,
+	limit uint,
+) ([]*WebsiteStatGeoRank, error) {
 	return uc.repo.TopGeos(start, end, sites, groupBy, country, limit)
 }
 
@@ -332,11 +357,19 @@ func (uc *WebsiteStatUsecase) UpsertURIs(stats []*WebsiteStatURI) error {
 	return uc.repo.UpsertURIs(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopURIs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatURIRank, uint, error) {
+func (uc *WebsiteStatUsecase) TopURIs(
+	start, end string,
+	sites []string,
+	page, limit uint,
+) ([]*WebsiteStatURIRank, uint, error) {
 	return uc.repo.TopURIs(start, end, sites, page, limit)
 }
 
-func (uc *WebsiteStatUsecase) TopSlowURIs(start, end string, sites []string, threshold, page, limit uint) ([]*WebsiteStatURIRank, uint, error) {
+func (uc *WebsiteStatUsecase) TopSlowURIs(
+	start, end string,
+	sites []string,
+	threshold, page, limit uint,
+) ([]*WebsiteStatURIRank, uint, error) {
 	return uc.repo.TopSlowURIs(start, end, sites, threshold, page, limit)
 }
 
@@ -344,10 +377,138 @@ func (uc *WebsiteStatUsecase) ClearURIsBefore(date string) error {
 	return uc.repo.ClearURIsBefore(date)
 }
 
-func (uc *WebsiteStatUsecase) ListErrors(start, end string, sites []string, status int, page, limit uint) ([]*WebsiteErrorLog, uint, error) {
+func (uc *WebsiteStatUsecase) ListErrors(
+	start, end string,
+	sites []string,
+	status int,
+	page, limit uint,
+) ([]*WebsiteErrorLog, uint, error) {
 	return uc.repo.ListErrors(start, end, sites, status, page, limit)
 }
 
+// ListSiteStats 各站点在日期范围内的汇总，按请求数降序
 func (uc *WebsiteStatUsecase) ListSiteStats(start, end string, sites []string) ([]*WebsiteStatSiteItem, error) {
-	return uc.repo.ListSiteStats(start, end, sites)
+	rows, err := uc.repo.ListSiteStats(start, end, sites)
+	if err != nil {
+		return nil, err
+	}
+
+	bySite := lo.KeyBy(rows, func(item *WebsiteStatSiteItem) string { return item.Site })
+	for name, snap := range uc.liveStats(start, end, sites, time.Now().Format(time.DateOnly)) {
+		item, ok := bySite[name]
+		if !ok {
+			item = &WebsiteStatSiteItem{Site: name}
+			bySite[name] = item
+		}
+		item.Add(snap.Counters)
+	}
+
+	items := lo.Values(bySite)
+	slices.SortFunc(items, func(a, b *WebsiteStatSiteItem) int {
+		return cmp.Or(cmp.Compare(b.Requests, a.Requests), cmp.Compare(a.Site, b.Site))
+	})
+
+	return items, nil
+}
+
+// liveStats 日期范围内尚未落库的内存增量，sites 为空表示全部站点
+// 聚合器只对今日给出增量，范围不含今日时为空
+func (uc *WebsiteStatUsecase) liveStats(
+	start, end string,
+	sites []string,
+	today string,
+) map[string]*websitestat.SiteSnapshot {
+	if today < start || today > end {
+		return nil
+	}
+
+	live := uc.aggregator.SiteStats()
+	if len(sites) == 0 {
+		return live
+	}
+
+	return lo.PickByKeys(live, sites)
+}
+
+func (uc *WebsiteStatUsecase) totals(start, end string, sites []string, today string) (websitestat.Counters, error) {
+	var total websitestat.Counters
+
+	rows, err := uc.repo.ListSiteStats(start, end, sites)
+	if err != nil {
+		return total, err
+	}
+	for _, row := range rows {
+		total.Add(row.Counters)
+	}
+	for _, snap := range uc.liveStats(start, end, sites, today) {
+		total.Add(snap.Counters)
+	}
+
+	return total, nil
+}
+
+func (uc *WebsiteStatUsecase) series(start, end string, sites []string, today string) ([]*WebsiteStatSeries, error) {
+	if start == end {
+		return uc.hourlySeries(start, sites, today)
+	}
+
+	return uc.dailySeries(start, end, sites, today)
+}
+
+// hourlySeries 补齐 24 个小时的序列
+func (uc *WebsiteStatUsecase) hourlySeries(date string, sites []string, today string) ([]*WebsiteStatSeries, error) {
+	rows, err := uc.repo.HourlySeries(date, sites)
+	if err != nil {
+		return nil, err
+	}
+
+	points := lo.KeyBy(rows, func(row *WebsiteStatSeries) string { return row.Key })
+	for _, snap := range uc.liveStats(date, date, sites, today) {
+		for h, hs := range snap.Hours {
+			if hs != nil {
+				uc.seriesPoint(points, strconv.Itoa(h)).Add(hs.Counters)
+			}
+		}
+	}
+
+	return lo.Times(24, func(h int) *WebsiteStatSeries {
+		return uc.seriesPoint(points, strconv.Itoa(h))
+	}), nil
+}
+
+// dailySeries 补齐范围内每一天的序列
+func (uc *WebsiteStatUsecase) dailySeries(
+	start, end string,
+	sites []string,
+	today string,
+) ([]*WebsiteStatSeries, error) {
+	rows, err := uc.repo.DailySeries(start, end, sites)
+	if err != nil {
+		return nil, err
+	}
+
+	points := lo.KeyBy(rows, func(row *WebsiteStatSeries) string { return row.Key })
+	for _, snap := range uc.liveStats(start, end, sites, today) {
+		uc.seriesPoint(points, today).Add(snap.Counters)
+	}
+
+	startDate, _ := time.Parse(time.DateOnly, start)
+	endDate, _ := time.Parse(time.DateOnly, end)
+	var series []*WebsiteStatSeries
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		series = append(series, uc.seriesPoint(points, d.Format(time.DateOnly)))
+	}
+
+	return series, nil
+}
+
+// seriesPoint 取 key 对应的数据点，没有则补一个零值点
+func (uc *WebsiteStatUsecase) seriesPoint(points map[string]*WebsiteStatSeries, key string) *WebsiteStatSeries {
+	point, ok := points[key]
+	if !ok {
+		point = &WebsiteStatSeries{Key: key}
+		points[key] = point
+	}
+
+	return point
 }

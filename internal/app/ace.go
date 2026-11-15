@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/bddjr/hlfhr"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/libtnb/cron"
 
@@ -21,7 +20,6 @@ import (
 
 type Ace struct {
 	conf     *config.Config
-	router   *chi.Mux
 	server   *hlfhr.Server
 	reloader *tlscert.Reloader
 	migrator *gormigrate.Gormigrate
@@ -29,10 +27,16 @@ type Ace struct {
 	runner   types.TaskRunner
 }
 
-func NewAce(router *chi.Mux, conf *config.Config, cron *cron.Cron, migrator *gormigrate.Gormigrate, server *hlfhr.Server, reloader *tlscert.Reloader, runner types.TaskRunner) *Ace {
+func NewAce(
+	conf *config.Config,
+	cron *cron.Cron,
+	migrator *gormigrate.Gormigrate,
+	server *hlfhr.Server,
+	reloader *tlscert.Reloader,
+	runner types.TaskRunner,
+) *Ace {
 	return &Ace{
 		conf:     conf,
-		router:   router,
 		server:   server,
 		reloader: reloader,
 		migrator: migrator,

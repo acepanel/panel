@@ -15,12 +15,17 @@ import (
 )
 
 // Run 交互式驱动命令树：逐级选择命令、填写参数后交给 exec 执行，Esc 返回上一级，Ctrl+C 退出
-func Run(ctx context.Context, t *gotext.Locale, root *cli.Command, exec func(context.Context, []string) error) error {
+func Run(
+	ctx context.Context,
+	t *gotext.Locale,
+	root *cli.Command,
+	exec func(context.Context, []string) error,
+) error {
 	fmt.Println(color.Bold.Sprint(root.Usage + " " + root.Version))
 	err := newPrompt(t).loop(ctx, root, exec)
 
 	// Esc 与 Ctrl+C 是正常退出，不当作错误
-	return lo.Ternary(errors.Is(err, ErrBack) || errors.Is(err, ErrAbort), nil, err)
+	return lo.Ternary(errors.Is(err, errBack) || errors.Is(err, errAbort), nil, err)
 }
 
 // loop 反复执行“选命令、填参数、运行、回显结果”，直到用户退出或上下文结束
@@ -31,7 +36,7 @@ func (p *prompt) loop(ctx context.Context, root *cli.Command, exec func(context.
 			return err
 		}
 		args, shown, err := p.fill(ctx, leaf)
-		if errors.Is(err, ErrBack) {
+		if errors.Is(err, errBack) {
 			continue
 		}
 		if err != nil {
@@ -47,7 +52,7 @@ func (p *prompt) loop(ctx context.Context, root *cli.Command, exec func(context.
 		}
 		fmt.Println()
 		if ctx.Err() != nil {
-			return ErrAbort
+			return errAbort
 		}
 	}
 }
@@ -58,8 +63,8 @@ func (p *prompt) pickCommand(ctx context.Context, root *cli.Command) (*cli.Comma
 	for {
 		cur := stack[len(stack)-1]
 		cmds := cur.VisibleCommands()
-		items := lo.Map(cmds, func(c *cli.Command, _ int) Item {
-			return Item{Label: c.Name, Desc: c.Usage}
+		items := lo.Map(cmds, func(c *cli.Command, _ int) item {
+			return item{Label: c.Name, Desc: c.Usage}
 		})
 		label, meta := p.t.Get("Command"), ""
 		if cur != root {
@@ -67,7 +72,7 @@ func (p *prompt) pickCommand(ctx context.Context, root *cli.Command) (*cli.Comma
 		}
 
 		i, err := p.Select(ctx, label, meta, items, 0)
-		if errors.Is(err, ErrBack) && len(stack) > 1 {
+		if errors.Is(err, errBack) && len(stack) > 1 {
 			stack = stack[:len(stack)-1]
 			continue
 		}
@@ -141,7 +146,14 @@ func (p *prompt) askArg(ctx context.Context, a cli.Argument) ([]string, bool, er
 
 	var values []string
 	for {
-		v, err := p.Input(ctx, usage, p.t.Get("#%d, leave empty to finish", len(values)+1), "", secret, p.notEmpty(required && len(values) == 0))
+		v, err := p.Input(
+			ctx,
+			usage,
+			p.t.Get("#%d, leave empty to finish", len(values)+1),
+			"",
+			secret,
+			p.notEmpty(required && len(values) == 0),
+		)
 		if err != nil {
 			return nil, secret, err
 		}
@@ -157,56 +169,69 @@ func (p *prompt) askFlag(ctx context.Context, f cli.Flag, name string) (string, 
 	meta := "--" + name
 	switch fl := f.(type) {
 	case *cli.BoolFlag:
-		i, err := p.Select(ctx, flagLabel(fl.Usage, fl.Required), meta, []Item{{Label: p.t.Get("Yes")}, {Label: p.t.Get("No")}}, lo.Ternary(fl.Value, 0, 1))
+		i, err := p.Select(
+			ctx,
+			flagLabel(fl.Usage, fl.Required),
+			meta,
+			[]item{{Label: p.t.Get("Yes")}, {Label: p.t.Get("No")}},
+			lo.Ternary(fl.Value, 0, 1),
+		)
 		if err != nil || (i == 0) == fl.Value {
 			return "", false, err
 		}
 		return strconv.FormatBool(i == 0), false, nil
 	case *cli.StringFlag:
 		secret := strings.Contains(name, "password")
-		v, err := p.Input(ctx, flagLabel(fl.Usage, fl.Required), meta, fl.Value, secret, p.notEmpty(fl.Required))
+		v, err := p.Input(
+			ctx,
+			flagLabel(fl.Usage, fl.Required),
+			meta,
+			fl.Value,
+			secret,
+			p.notEmpty(fl.Required),
+		)
 		return v, secret, err
 	case *cli.StringSliceFlag:
-		v, err := p.Input(ctx, flagLabel(fl.Usage, fl.Required), meta+" "+p.t.Get("(comma separated)"), strings.Join(fl.Value, ","), false, p.notEmpty(fl.Required))
+		v, err := p.Input(
+			ctx,
+			flagLabel(fl.Usage, fl.Required),
+			meta+" "+p.t.Get("(comma separated)"),
+			strings.Join(fl.Value, ","),
+			false,
+			p.notEmpty(fl.Required),
+		)
 		return v, false, err
 	case *cli.UintFlag:
 		placeholder := ""
 		if fl.Value != 0 {
 			placeholder = strconv.FormatUint(uint64(fl.Value), 10)
 		}
-		v, err := p.Input(ctx, flagLabel(fl.Usage, fl.Required), meta, placeholder, false, p.integer(fl.Required, false))
+		v, err := p.Input(
+			ctx,
+			flagLabel(fl.Usage, fl.Required),
+			meta,
+			placeholder,
+			false,
+			p.integer(fl.Required, false),
+		)
 		return v, false, err
 	case *cli.IntFlag:
 		placeholder := ""
 		if fl.Value != 0 {
 			placeholder = strconv.Itoa(fl.Value)
 		}
-		v, err := p.Input(ctx, flagLabel(fl.Usage, fl.Required), meta, placeholder, false, p.integer(fl.Required, true))
+		v, err := p.Input(
+			ctx,
+			flagLabel(fl.Usage, fl.Required),
+			meta,
+			placeholder,
+			false,
+			p.integer(fl.Required, true),
+		)
 		return v, false, err
 	}
 
 	return "", false, nil
-}
-
-// flagLabel 标志的提问文本，尖括号表示必填，方括号表示可选，与位置参数的写法一致
-func flagLabel(usage string, required bool) string {
-	if required {
-		return "<" + usage + ">"
-	}
-
-	return "[" + usage + "]"
-}
-
-// display 回显时密码打星号，其余值按 shell 习惯加引号
-func display(v string, secret bool) string {
-	if secret {
-		return "******"
-	}
-	if strings.ContainsAny(v, " \t\"'$&|;<>()*?[]!#~\\") {
-		return "'" + strings.ReplaceAll(v, "'", `'\''`) + "'"
-	}
-
-	return v
 }
 
 // notEmpty 必填校验
@@ -237,4 +262,25 @@ func (p *prompt) integer(required, signed bool) func(string) error {
 
 		return nil
 	}
+}
+
+// flagLabel 标志的提问文本，尖括号表示必填，方括号表示可选，与位置参数的写法一致
+func flagLabel(usage string, required bool) string {
+	if required {
+		return "<" + usage + ">"
+	}
+
+	return "[" + usage + "]"
+}
+
+// display 回显时密码打星号，其余值按 shell 习惯加引号
+func display(v string, secret bool) string {
+	if secret {
+		return "******"
+	}
+	if strings.ContainsAny(v, " \t\"'$&|;<>()*?[]!#~\\") {
+		return "'" + strings.ReplaceAll(v, "'", `'\''`) + "'"
+	}
+
+	return v
 }

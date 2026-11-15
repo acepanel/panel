@@ -9,52 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"strconv"
-	"strings"
-	"time"
 )
-
-// ObjectInfo 是对象元数据，来自 HEAD 响应并已解析为强类型
-type ObjectInfo struct {
-	ContentType  string
-	Size         int64
-	ETag         string
-	LastModified time.Time
-	Metadata     map[string]string // x-amz-meta-*（已去除前缀）
-}
-
-// Stat 通过 HEAD 获取对象元数据；对象不存在时返回的错误可用 IsNotFound 判断
-func (c *S3) Stat(ctx context.Context, key string) (ObjectInfo, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, c.objectURL(key), nil)
-	if err != nil {
-		return ObjectInfo{}, err
-	}
-
-	_, res, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
-	if err != nil {
-		return ObjectInfo{}, err
-	}
-
-	info := ObjectInfo{
-		ContentType: res.Header.Get("Content-Type"),
-		ETag:        res.Header.Get("ETag"),
-	}
-	if v := res.Header.Get("Content-Length"); v != "" {
-		info.Size, _ = strconv.ParseInt(v, 10, 64)
-	}
-	if v := res.Header.Get("Last-Modified"); v != "" {
-		info.LastModified, _ = http.ParseTime(v)
-	}
-	for k, vs := range res.Header {
-		if lk := strings.ToLower(k); strings.HasPrefix(lk, amzMetaPrefix) {
-			if info.Metadata == nil {
-				info.Metadata = make(map[string]string)
-			}
-			info.Metadata[strings.TrimPrefix(lk, amzMetaPrefix)] = vs[0]
-		}
-	}
-	return info, nil
-}
 
 // Delete 删除一个或多个对象，自动按每批 1000 个分批请求
 func (c *S3) Delete(ctx context.Context, keys ...string) error {

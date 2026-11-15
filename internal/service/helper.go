@@ -3,9 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
-	"net/netip"
 	"slices"
 	"strings"
 
@@ -13,50 +11,32 @@ import (
 	"github.com/libtnb/validator"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/clientip"
 )
 
 // defaultValidator Bind 使用的校验器
 var defaultValidator = validator.Default()
+
+// errorResponse 通用错误响应
+type errorResponse struct {
+	Msg string `json:"msg"`
+}
 
 // SetValidator 设置 Bind 使用的校验器
 func SetValidator(v *validator.Validator) {
 	defaultValidator = v
 }
 
-// clientIP 提取客户端 IP
-func clientIP(r *http.Request, ipHeader string) string {
-	ip := r.RemoteAddr
-	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
-		ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
-	}
-	ip = strings.TrimSpace(ip)
-
-	if addr, err := netip.ParseAddr(ip); err == nil {
-		return addr.String()
-	}
-	if host, _, err := net.SplitHostPort(ip); err == nil {
-		return host
-	}
-
-	return r.RemoteAddr
-}
-
-// SuccessResponse 通用成功响应
-type SuccessResponse struct {
-	Msg  string `json:"msg"`
-	Data any    `json:"data"`
-}
-
-// ErrorResponse 通用错误响应
-type ErrorResponse struct {
-	Msg string `json:"msg"`
-}
-
 // Success 响应成功
 func Success(w http.ResponseWriter, data any) {
+	type successResponse struct {
+		Msg  string `json:"msg"`
+		Data any    `json:"data"`
+	}
+
 	render := chix.NewRender(w)
 	defer render.Release()
-	render.JSON(&SuccessResponse{
+	render.JSON(&successResponse{
 		Msg:  "success",
 		Data: data,
 	})
@@ -71,7 +51,7 @@ func Error(w http.ResponseWriter, code int, format string, args ...any) {
 	if len(args) > 0 {
 		format = fmt.Sprintf(format, args...)
 	}
-	render.JSON(&ErrorResponse{
+	render.JSON(&errorResponse{
 		Msg: format,
 	})
 }
@@ -82,7 +62,7 @@ func ErrorSystem(w http.ResponseWriter) {
 	defer render.Release()
 	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()
 	render.Status(http.StatusInternalServerError)
-	render.JSON(&ErrorResponse{
+	render.JSON(&errorResponse{
 		Msg: http.StatusText(http.StatusInternalServerError),
 	})
 }
@@ -114,33 +94,10 @@ func Bind[T any](r *http.Request) (*T, error) {
 			return nil, err
 		}
 	}
-	if reqWithAuthorize, ok := any(req).(request.WithAuthorize); ok {
-		if err := reqWithAuthorize.Authorize(r); err != nil {
-			return nil, err
-		}
-	}
 
 	vd, err := defaultValidator.Struct(req)
 	if err != nil {
 		return nil, err
-	}
-	if reqWithRules, ok := any(req).(request.WithRules); ok {
-		if rules := reqWithRules.Rules(r); rules != nil {
-			for key, value := range rules {
-				if err := vd.AddRules(key, value); err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-	if reqWithFilters, ok := any(req).(request.WithFilters); ok {
-		if filters := reqWithFilters.Filters(r); filters != nil {
-			for key, value := range filters {
-				if err := vd.AddFilters(key, value); err != nil {
-					return nil, err
-				}
-			}
-		}
 	}
 
 	// 开始验证
@@ -178,4 +135,9 @@ func Paginate[T any](r *http.Request, items []T) (pagedItems []T, total uint) {
 	}
 
 	return items[start:end], total
+}
+
+// clientIP 提取客户端 IP
+func clientIP(r *http.Request, ipHeader string) string {
+	return clientip.FromRequest(r, ipHeader)
 }

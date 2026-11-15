@@ -20,9 +20,9 @@ import (
 type NTPServiceType string
 
 const (
-	NTPServiceTimesyncd NTPServiceType = "timesyncd" // systemd-timesyncd (Debian/Ubuntu)
-	NTPServiceChrony    NTPServiceType = "chrony"    // chrony (RHEL/CentOS/Rocky)
-	NTPServiceUnknown   NTPServiceType = "unknown"   // 未知或不支持
+	ntpServiceTimesyncd NTPServiceType = "timesyncd" // systemd-timesyncd (Debian/Ubuntu)
+	ntpServiceChrony    NTPServiceType = "chrony"    // chrony (RHEL/CentOS/Rocky)
+	ntpServiceUnknown   NTPServiceType = "unknown"   // 未知或不支持
 )
 
 // timesyncd 配置文件路径
@@ -40,54 +40,28 @@ type SystemNTPConfig struct {
 	Servers     []string       `json:"servers"`      // NTP 服务器列表
 }
 
-// DetectNTPService 检测系统使用的 NTP 服务类型
-func DetectNTPService(ctx context.Context) NTPServiceType {
-	// 优先检查 chrony
-	if _, err := shell.Execf(ctx, "systemctl is-active chronyd 2>/dev/null"); err == nil {
-		return NTPServiceChrony
-	}
-	if _, err := shell.Execf(ctx, "systemctl is-active chrony 2>/dev/null"); err == nil {
-		return NTPServiceChrony
-	}
-
-	// 检查 systemd-timesyncd
-	if _, err := shell.Execf(ctx, "systemctl is-active systemd-timesyncd 2>/dev/null"); err == nil {
-		return NTPServiceTimesyncd
-	}
-
-	// 检查配置文件是否存在
-	if slices.ContainsFunc(chronyConfigPaths, io.Exists) {
-		return NTPServiceChrony
-	}
-	if io.Exists(timesyncdConfigPath) {
-		return NTPServiceTimesyncd
-	}
-
-	return NTPServiceUnknown
-}
-
 // GetSystemNTPConfig 获取系统 NTP 配置
 func GetSystemNTPConfig(ctx context.Context) (*SystemNTPConfig, error) {
-	serviceType := DetectNTPService(ctx)
+	serviceType := detectNTPService(ctx)
 	config := &SystemNTPConfig{
 		ServiceType: serviceType,
 		Servers:     []string{},
 	}
 
 	switch serviceType {
-	case NTPServiceTimesyncd:
+	case ntpServiceTimesyncd:
 		servers, err := getTimesyncdServers()
 		if err != nil {
 			return config, err
 		}
 		config.Servers = servers
-	case NTPServiceChrony:
+	case ntpServiceChrony:
 		servers, err := getChronyServers()
 		if err != nil {
 			return config, err
 		}
 		config.Servers = servers
-	case NTPServiceUnknown:
+	case ntpServiceUnknown:
 	}
 
 	return config, nil
@@ -95,16 +69,42 @@ func GetSystemNTPConfig(ctx context.Context) (*SystemNTPConfig, error) {
 
 // SetSystemNTPServers 设置系统 NTP 服务器
 func SetSystemNTPServers(ctx context.Context, servers []string) error {
-	serviceType := DetectNTPService(ctx)
+	serviceType := detectNTPService(ctx)
 
 	switch serviceType {
-	case NTPServiceTimesyncd:
+	case ntpServiceTimesyncd:
 		return setTimesyncdServers(ctx, servers)
-	case NTPServiceChrony:
+	case ntpServiceChrony:
 		return setChronyServers(ctx, servers)
 	default:
 		return errors.New("unsupported NTP service type")
 	}
+}
+
+// detectNTPService 检测系统使用的 NTP 服务类型
+func detectNTPService(ctx context.Context) NTPServiceType {
+	// 优先检查 chrony
+	if _, err := shell.Execf(ctx, "systemctl is-active chronyd 2>/dev/null"); err == nil {
+		return ntpServiceChrony
+	}
+	if _, err := shell.Execf(ctx, "systemctl is-active chrony 2>/dev/null"); err == nil {
+		return ntpServiceChrony
+	}
+
+	// 检查 systemd-timesyncd
+	if _, err := shell.Execf(ctx, "systemctl is-active systemd-timesyncd 2>/dev/null"); err == nil {
+		return ntpServiceTimesyncd
+	}
+
+	// 检查配置文件是否存在
+	if slices.ContainsFunc(chronyConfigPaths, io.Exists) {
+		return ntpServiceChrony
+	}
+	if io.Exists(timesyncdConfigPath) {
+		return ntpServiceTimesyncd
+	}
+
+	return ntpServiceUnknown
 }
 
 // getTimesyncdServers 获取 systemd-timesyncd 的 NTP 服务器配置
@@ -282,21 +282,4 @@ func setChronyServers(ctx context.Context, servers []string) error {
 	_ = systemctl.Restart(ctx, "chrony")
 
 	return nil
-}
-
-// RestartNTPService 重启 NTP 服务
-func RestartNTPService(ctx context.Context) error {
-	serviceType := DetectNTPService(ctx)
-
-	switch serviceType {
-	case NTPServiceTimesyncd:
-		return systemctl.Restart(ctx, "systemd-timesyncd")
-	case NTPServiceChrony:
-		if err := systemctl.Restart(ctx, "chronyd"); err != nil {
-			return systemctl.Restart(ctx, "chrony")
-		}
-		return nil
-	default:
-		return errors.New("unsupported NTP service type")
-	}
 }

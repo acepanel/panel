@@ -1,6 +1,6 @@
-import { icons as mdi } from '@iconify-json/mdi'
 import { addCollection, Icon } from '@iconify/vue'
 import { NIcon } from 'naive-ui'
+import mdi from 'virtual:mdi-icons'
 
 addCollection(mdi)
 

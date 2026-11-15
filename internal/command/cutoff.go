@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -31,9 +29,7 @@ func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CutoffWebsite(ctx, cmd)
-				},
+				Action: cliService.CutoffWebsite,
 			},
 			{
 				Name:  "container",
@@ -51,9 +47,7 @@ func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CutoffContainer(ctx, cmd)
-				},
+				Action: cliService.CutoffContainer,
 			},
 			{
 				Name:  "clear",
@@ -83,9 +77,7 @@ func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CutoffClear(ctx, cmd)
-				},
+				Action: cliService.CutoffClear,
 			},
 		},
 	}

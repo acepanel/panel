@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"fmt"
 
 	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
@@ -22,19 +21,11 @@ func NewDatabaseUserRepo(db *gorm.DB) biz.DatabaseUserRepo {
 	}
 }
 
-func (r *databaseUserRepo) Count() (int64, error) {
-	var count int64
-	if err := r.db.Model(&biz.DatabaseUser{}).Count(&count).Error; err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
 func (r *databaseUserRepo) List(ctx context.Context, page, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
 	user := make([]*biz.DatabaseUser, 0)
 	var total int64
-	query := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc")
+	// 排序列带表名：按类型过滤时会 JOIN 服务器表，裸 id 有歧义
+	query := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("database_users.id desc")
 	if typ != "" {
 		query = query.Joins("JOIN database_servers ON database_servers.id = database_users.server_id").Where("database_servers.type = ?", typ)
 	}
@@ -59,56 +50,14 @@ func (r *databaseUserRepo) Get(ctx context.Context, id uint) (*biz.DatabaseUser,
 	return user, nil
 }
 
-func (r *databaseUserRepo) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
-	user, err := r.Get(ctx, req.ID)
-	if err != nil {
-		return err
+// Find 只读记录，不连数据库查权限和登录状态
+func (r *databaseUserRepo) Find(id uint) (*biz.DatabaseUser, error) {
+	user := new(biz.DatabaseUser)
+	if err := r.db.Where("id = ?", id).First(user).Error; err != nil {
+		return nil, err
 	}
 
-	user.Remark = req.Remark
-
-	return r.db.Omit("Server").Save(user).Error
-}
-
-// Operator 获取数据库操作句柄
-func (r *databaseUserRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
-	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
-	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
-		if err != nil {
-			return nil, err
-		}
-		return postgres, nil
-	case biz.DatabaseTypeClickHouse:
-		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return nil, err
-		}
-		return clickhouse, nil
-	default:
-		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
-	}
-}
-
-// Upsert 创建或更新用户记录（FirstOrInit + Save，非原子保留）
-func (r *databaseUserRepo) Upsert(user *biz.DatabaseUser) error {
-	if err := r.db.FirstOrInit(user, user).Error; err != nil {
-		return err
-	}
-
-	return r.db.Omit("Server").Save(user).Error
-}
-
-// Save 保存用户记录
-func (r *databaseUserRepo) Save(user *biz.DatabaseUser) error {
-	return r.db.Omit("Server").Save(user).Error
-}
-
-// DeleteByID 按 ID 删除用户记录
-func (r *databaseUserRepo) DeleteByID(id uint) error {
-	return r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
+	return user, nil
 }
 
 // ListByNames 查询指定服务器下匹配用户名的用户记录
@@ -121,9 +70,47 @@ func (r *databaseUserRepo) ListByNames(serverID uint, names []string) ([]*biz.Da
 	return users, nil
 }
 
+// Upsert 按 (server_id, username, host) 创建或更新用户记录（FirstOrInit + Save，非原子保留）
+func (r *databaseUserRepo) Upsert(user *biz.DatabaseUser) error {
+	// 条件用 map：结构体条件会跳过空 host，从而匹配到同名的其他 host
+	key := map[string]any{"server_id": user.ServerID, "username": user.Username, "host": user.Host}
+	record := new(biz.DatabaseUser)
+	if err := r.db.Where(key).FirstOrInit(record).Error; err != nil {
+		return err
+	}
+
+	record.Password = user.Password
+	record.Remark = user.Remark
+	if err := r.db.Save(record).Error; err != nil {
+		return err
+	}
+	user.ID = record.ID
+
+	return nil
+}
+
+// Save 保存用户记录
+func (r *databaseUserRepo) Save(user *biz.DatabaseUser) error {
+	return r.db.Omit("Server").Save(user).Error
+}
+
+func (r *databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
+	return r.db.Model(&biz.DatabaseUser{}).Where("id = ?", req.ID).Update("remark", req.Remark).Error
+}
+
+// DeleteByID 按 ID 删除用户记录
+func (r *databaseUserRepo) DeleteByID(id uint) error {
+	return r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
+}
+
 // DeleteByServerNames 按服务器与用户名删除用户记录
 func (r *databaseUserRepo) DeleteByServerNames(serverID uint, names []string) error {
 	return r.db.Where("server_id = ? AND username IN ?", serverID, names).Delete(&biz.DatabaseUser{}).Error
+}
+
+// Operator 获取数据库操作句柄
+func (r *databaseUserRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+	return newOperator(ctx, server)
 }
 
 func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser) {
@@ -143,42 +130,22 @@ func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser)
 		}
 	}
 
-	operator, err := r.Operator(ctx, server)
+	operator, err := newOperator(ctx, server)
 	if err != nil {
 		user.Status = biz.DatabaseUserStatusInvalid
 		return
 	}
 	defer operator.Close()
 
-	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		privileges, _ := operator.UserPrivileges(ctx, user.Username, user.Host)
-		user.Privileges = privileges
-		if mysql2, err := newMySQLOperator(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
-			mysql2.Close()
-			user.Status = biz.DatabaseUserStatusValid
-		} else {
-			user.Status = biz.DatabaseUserStatusInvalid
-		}
-	case biz.DatabaseTypePostgresql:
-		privileges, _ := operator.UserPrivileges(ctx, user.Username)
-		user.Privileges = privileges
-		if postgres2, err := db.NewPostgres(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
-			postgres2.Close()
-			user.Status = biz.DatabaseUserStatusValid
-		} else {
-			user.Status = biz.DatabaseUserStatusInvalid
-		}
-	case biz.DatabaseTypeClickHouse:
-		privileges, _ := operator.UserPrivileges(ctx, user.Username)
-		user.Privileges = privileges
-		if ch2, err := db.NewClickHouse(ctx, user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
-			ch2.Close()
-			user.Status = biz.DatabaseUserStatusValid
-		} else {
-			user.Status = biz.DatabaseUserStatusInvalid
-		}
-	default:
+	user.Privileges, _ = operator.UserPrivileges(ctx, user.Username, user.Host)
+
+	// 用该用户自己的账号密码登录一次，判断面板记录的密码是否还有效
+	login := *server
+	login.Username, login.Password = user.Username, user.Password
+	user.Status = biz.DatabaseUserStatusInvalid
+	if probe, err := newOperator(ctx, &login); err == nil {
+		probe.Close()
+		user.Status = biz.DatabaseUserStatusValid
 	}
 }
 

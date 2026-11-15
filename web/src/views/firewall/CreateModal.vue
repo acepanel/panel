@@ -3,7 +3,6 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
-import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })

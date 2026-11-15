@@ -106,13 +106,13 @@ func TestQuotedCommentCharIsData(t *testing.T) {
 	check.Equal(t, Postgres.Set("password = 'a#b' # real note", "password", "x#y"), "password = 'x#y' # real note")
 }
 
-func TestINIIgnoresSectionHeaders(t *testing.T) {
+func TestFlatINIIgnoresSectionHeaders(t *testing.T) {
 	conf := "[mysqld]\nport = 3306\n; skip-name-resolve = 1\n"
 
-	check.Equal(t, INI.Get(conf, "port"), "3306")
-	check.Empty(t, INI.Get(conf, "mysqld"))
+	check.Equal(t, PHPINI.Get(conf, "port"), "3306")
+	check.Empty(t, PHPINI.Get(conf, "mysqld"))
 	// 分号注释同样能被重新启用
-	check.Equal(t, INI.Set(conf, "skip-name-resolve", "2"), "[mysqld]\nport = 3306\nskip-name-resolve = 2\n")
+	check.Equal(t, PHPINI.Set(conf, "skip-name-resolve", "2"), "[mysqld]\nport = 3306\nskip-name-resolve = 2\n")
 }
 
 func TestSectionINIMatchesOnlyTargetSection(t *testing.T) {

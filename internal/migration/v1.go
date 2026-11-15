@@ -29,32 +29,11 @@ func init() {
 				&biz.Website{},
 			)
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(
-				&biz.App{},
-				&biz.Cert{},
-				&biz.CertAccount{},
-				&biz.CertDNS{},
-				&biz.Cron{},
-				&biz.DatabaseServer{},
-				&biz.DatabaseUser{},
-				&biz.Setting{},
-				&biz.SSH{},
-				&biz.Task{},
-				&biz.User{},
-				&biz.UserToken{},
-				&biz.WebHook{},
-				&biz.Website{},
-			)
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260110-add-project",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.Project{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.Project{})
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -62,17 +41,11 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.BackupStorage{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.BackupStorage{})
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260216-add-cron-config",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.Cron{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return nil
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -80,17 +53,11 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.ScanEvent{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.ScanEvent{})
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260226-add-user-passkeys",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.UserPasskey{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.UserPasskey{})
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -98,17 +65,11 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.UserPasskey{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.UserPasskey{})
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260406-add-cert-alias",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.Cert{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return nil
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -116,17 +77,11 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.Website{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return nil
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260720-add-tamper-rules",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.TamperRule{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.TamperRule{})
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -134,26 +89,17 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.FileShare{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.FileShare{})
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260720-update-task-fields",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.Task{})
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return nil
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260725-add-notify-and-alert",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.NotifyChannel{}, &biz.AlertRule{}, &biz.Alert{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.NotifyChannel{}, &biz.AlertRule{}, &biz.Alert{})
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -198,9 +144,6 @@ func init() {
 
 			return nil
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropColumn(&biz.Website{}, "cert_id")
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20261025-add-website-project",
@@ -213,9 +156,6 @@ func init() {
 			return tx.Exec(`UPDATE websites SET project_id = (
 				SELECT projects.id FROM projects WHERE projects.name = websites.name
 			) WHERE type = 'proxy' AND EXISTS (SELECT 1 FROM projects WHERE projects.name = websites.name)`).Error
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropColumn(&biz.Website{}, "project_id")
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
@@ -246,17 +186,11 @@ func init() {
 
 			return nil
 		},
-		Rollback: func(tx *gorm.DB) error {
-			return nil
-		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20261108-add-file-favorite",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&biz.FileFavorite{})
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(&biz.FileFavorite{})
 		},
 	})
 }

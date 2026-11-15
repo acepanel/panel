@@ -1,33 +1,16 @@
 package service
 
 import (
-	"bufio"
-	"bytes"
-	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
-	"os"
-	"slices"
 	"strconv"
-	"time"
 
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/sshlog"
-	"github.com/acepanel/panel/v3/pkg/types"
-)
-
-// SSH 日志反向分块读取参数：首块 512 KB 起，每次翻倍，单块上限 64 MB
-const (
-	sshLogChunkInitial int64 = 512 * 1024
-	sshLogChunkMax     int64 = 64 * 1024 * 1024
 )
 
 type LogService struct {
@@ -113,9 +96,9 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	logs, err := s.sshFromJournalctl(r.Context(), limit)
-	if err != nil {
-		logs, err = s.sshFromLogFile(limit)
+	logs, err := sshlog.Read(r.Context(), limit)
+	if errors.Is(err, sshlog.ErrNotFound) {
+		err = errors.New(s.t.Get("SSH log file not found"))
 	}
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -125,112 +108,4 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("ssh login log viewed"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Int("limit", limit))
 
 	Success(w, logs)
-}
-
-// sshFromJournalctl 通过 journalctl 获取 SSH 日志
-// 登录记录在 journal 里很稀疏，连接关闭、PAM 之类的噪音是它的几十倍，让 journalctl 自己按正则过滤后倒序取 limit 条，
-// 面板只收到命中的行，也不用再反序列化整条 journal 记录
-func (s *LogService) sshFromJournalctl(ctx context.Context, limit int) ([]types.SSHLoginLog, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	pipe, err := shell.ExecWithPipe(ctx, fmt.Sprintf("journalctl -u sshd -u ssh --no-pager -q -o json --output-fields=MESSAGE,__REALTIME_TIMESTAMP -g %s -n %d -r 2>/dev/null", shell.Quote(sshlog.JournalPattern), limit))
-	if err != nil {
-		return nil, err
-	}
-	defer func(pipe io.ReadCloser) { _ = pipe.Close() }(pipe)
-
-	var logs []types.SSHLoginLog
-	scanner := bufio.NewScanner(pipe)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for len(logs) < limit && scanner.Scan() {
-		var entry struct {
-			RealtimeTimestamp string `json:"__REALTIME_TIMESTAMP"`
-			Message           string `json:"MESSAGE"`
-		}
-		if json.Unmarshal(scanner.Bytes(), &entry) != nil {
-			continue
-		}
-
-		record := sshlog.ParseMessage(entry.Message)
-		if record == nil {
-			continue
-		}
-
-		// 解析 journalctl 微秒时间戳
-		if us, err := strconv.ParseInt(entry.RealtimeTimestamp, 10, 64); err == nil {
-			record.Time = time.Unix(0, us*int64(time.Microsecond)).Format("2006-01-02 15:04:05")
-		}
-
-		logs = append(logs, *record)
-	}
-
-	if len(logs) == 0 {
-		return nil, errors.New(s.t.Get("no SSH log entries found"))
-	}
-
-	// 倒序读的，翻回时间正序与文件解析保持一致
-	slices.Reverse(logs)
-
-	return logs, nil
-}
-
-// sshFromLogFile 从日志文件中解析 SSH 日志
-func (s *LogService) sshFromLogFile(limit int) ([]types.SSHLoginLog, error) {
-	paths := []string{"/var/log/auth.log", "/var/log/secure"}
-	var file *os.File
-	for _, p := range paths {
-		if f, err := os.Open(p); err == nil {
-			file = f
-			break
-		}
-	}
-	if file == nil {
-		return nil, errors.New(s.t.Get("SSH log file not found"))
-	}
-	defer func(file *os.File) { _ = file.Close() }(file)
-
-	stat, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
-
-	// 从末尾反向分块读取，直到收集满 limit 条或读到文件头
-	var logs []types.SSHLoginLog
-	offset := stat.Size()
-	window := sshLogChunkInitial
-	for offset > 0 && len(logs) < limit {
-		if window > sshLogChunkMax {
-			window = sshLogChunkMax
-		}
-		readSize := min(window, offset)
-		offset -= readSize
-
-		buf := make([]byte, readSize)
-		if _, err = file.ReadAt(buf, offset); err != nil && !errors.Is(err, io.EOF) {
-			return nil, err
-		}
-
-		// 若块开头是残行（前一字节不是换行），丢到本块第一个换行为止
-		if offset > 0 {
-			var prev [1]byte
-			if _, err = file.ReadAt(prev[:], offset-1); err == nil && prev[0] != '\n' {
-				if idx := bytes.IndexByte(buf, '\n'); idx >= 0 {
-					buf = buf[idx+1:]
-				} else {
-					buf = nil
-				}
-			}
-		}
-
-		// 新读的块时间上更早，前置到已收集 logs 之前
-		logs = append(sshlog.ParseChunk(buf), logs...)
-		window *= 2
-	}
-
-	if len(logs) > limit {
-		logs = logs[len(logs)-limit:]
-	}
-
-	return logs, nil
 }

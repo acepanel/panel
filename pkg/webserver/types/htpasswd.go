@@ -18,14 +18,18 @@ func WriteUserFile(userFile, suffix, sep string) (bool, error) {
 		return false, nil //nolint:nilerr // 用户文件缺失不能阻塞整个站点保存
 	}
 
-	type entry struct{ user, password string }
+	type entry struct {
+		user, password string
+		plain          bool
+	}
 	users := make([]entry, 0)
 	for line := range strings.SplitSeq(string(content), "\n") {
 		user, password, ok := strings.Cut(strings.TrimSpace(line), ":")
 		if !ok || user == "" || strings.HasPrefix(user, "#") {
 			continue
 		}
-		users = append(users, entry{user, strings.TrimPrefix(password, "{PLAIN}")})
+		password, plain := strings.CutPrefix(password, "{PLAIN}")
+		users = append(users, entry{user, password, plain})
 	}
 
 	// bcrypt 是故意设计得慢的纯 CPU 活，重建全部站点时几百个哈希串起来要几十秒
@@ -34,8 +38,8 @@ func WriteUserFile(userFile, suffix, sep string) (bool, error) {
 		err  error
 	}
 	results := lop.Map(users, func(u entry, _ int) hashed {
-		// 已经是哈希的原样带过，用户可能直接手写了加密口令
-		if strings.HasPrefix(u.password, "$") || strings.HasPrefix(u.password, "{SHA}") {
+		// 已经是哈希的原样带过，用户可能直接手写了加密口令；面板写入的带 {PLAIN} 标记，以 $ 开头也是明文
+		if !u.plain && (strings.HasPrefix(u.password, "$") || strings.HasPrefix(u.password, "{SHA}")) {
 			return hashed{line: u.user + sep + u.password}
 		}
 		hash, err := bcrypt.GenerateFromPassword([]byte(u.password), bcrypt.DefaultCost)

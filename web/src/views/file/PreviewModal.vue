@@ -17,7 +17,7 @@ const img = computed(() => {
 watch(show, (val) => {
   if (!val) return
   content.value = ''
-  useRequest(file.content(encodeURIComponent(path.value))).onSuccess(({ data }) => {
+  useRequest(file.content(path.value)).onSuccess(({ data }) => {
     mime.value = data.mime
     content.value = data.content
   })

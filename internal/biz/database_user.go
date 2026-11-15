@@ -7,10 +7,8 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
@@ -38,44 +36,24 @@ type DatabaseUser struct {
 }
 
 func (r *DatabaseUser) BeforeSave(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	r.Password, err = crypter.Encrypt([]byte(r.Password))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return encryptFields(&r.Password)
 }
 
 func (r *DatabaseUser) AfterFind(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	password, err := crypter.Decrypt(r.Password)
-	if err == nil {
-		r.Password = string(password)
-	}
-
-	return nil
+	return decryptFields(&r.Password)
 }
 
 type DatabaseUserRepo interface {
-	Count() (int64, error)
 	List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseUser, int64, error)
 	Get(ctx context.Context, id uint) (*DatabaseUser, error)
-	UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error
-	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
+	Find(id uint) (*DatabaseUser, error)
+	ListByNames(serverID uint, names []string) ([]*DatabaseUser, error)
 	Upsert(user *DatabaseUser) error
 	Save(user *DatabaseUser) error
+	UpdateRemark(req *request.DatabaseUserUpdateRemark) error
 	DeleteByID(id uint) error
-	ListByNames(serverID uint, names []string) ([]*DatabaseUser, error)
 	DeleteByServerNames(serverID uint, names []string) error
+	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
 }
 
 // DatabaseUserUsecase 数据库用户业务用例
@@ -86,17 +64,18 @@ type DatabaseUserUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUserUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) *DatabaseUserUsecase {
+func NewDatabaseUserUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo DatabaseServerRepo,
+	databaseUserRepo DatabaseUserRepo,
+) *DatabaseUserUsecase {
 	return &DatabaseUserUsecase{
 		repo:   databaseUserRepo,
 		server: databaseServerRepo,
 		t:      t,
 		log:    log,
 	}
-}
-
-func (uc *DatabaseUserUsecase) Count() (int64, error) {
-	return uc.repo.Count()
 }
 
 func (uc *DatabaseUserUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseUser, int64, error) {
@@ -107,8 +86,14 @@ func (uc *DatabaseUserUsecase) Get(ctx context.Context, id uint) (*DatabaseUser,
 	return uc.repo.Get(ctx, id)
 }
 
+// Exists 面板里是否已有该服务器下的同名用户记录
+func (uc *DatabaseUserUsecase) Exists(serverID uint, username string) (bool, error) {
+	users, err := uc.repo.ListByNames(serverID, []string{username})
+	return len(users) > 0, err
+}
+
 func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.DatabaseUserCreate) error {
-	server, err := uc.server.Get(ctx, req.ServerID)
+	server, err := uc.server.Find(req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -156,12 +141,12 @@ func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.Database
 }
 
 func (uc *DatabaseUserUsecase) Update(ctx context.Context, req *request.DatabaseUserUpdate) error {
-	user, err := uc.repo.Get(ctx, req.ID)
+	user, err := uc.repo.Find(req.ID)
 	if err != nil {
 		return err
 	}
 
-	server, err := uc.server.Get(ctx, user.ServerID)
+	server, err := uc.server.Find(user.ServerID)
 	if err != nil {
 		return err
 	}
@@ -213,12 +198,12 @@ func (uc *DatabaseUserUsecase) Update(ctx context.Context, req *request.Database
 }
 
 func (uc *DatabaseUserUsecase) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
-	user, err := uc.repo.Get(ctx, req.ID)
+	user, err := uc.repo.Find(req.ID)
 	if err != nil {
 		return err
 	}
 
-	if err = uc.repo.UpdateRemark(ctx, req); err != nil {
+	if err = uc.repo.UpdateRemark(req); err != nil {
 		return err
 	}
 
@@ -228,12 +213,12 @@ func (uc *DatabaseUserUsecase) UpdateRemark(ctx context.Context, req *request.Da
 }
 
 func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
-	user, err := uc.repo.Get(ctx, id)
+	user, err := uc.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	server, err := uc.server.Get(ctx, user.ServerID)
+	server, err := uc.server.Find(user.ServerID)
 	if err != nil {
 		return err
 	}
@@ -260,7 +245,7 @@ func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
 }
 
 func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint, names []string) error {
-	server, err := uc.server.Get(ctx, serverID)
+	server, err := uc.server.Find(serverID)
 	if err != nil {
 		return err
 	}

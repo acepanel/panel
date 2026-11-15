@@ -6,8 +6,8 @@ import (
 
 var uaParser = ua.NewParser()
 
-// ClassifyUA 单次解析 UA
-func ClassifyUA(rawUA string) (spider, browser, os string) {
+// classifyUA 单次解析 UA
+func classifyUA(rawUA string) (spider, browser, os string) {
 	if spider = spiderByKeyword(rawUA); spider != "" {
 		return spider, "", ""
 	}
@@ -18,12 +18,6 @@ func ClassifyUA(rawUA string) (spider, browser, os string) {
 	}
 
 	return "", browserOf(agent), osOf(agent)
-}
-
-// ParseUA 解析 User-Agent
-func ParseUA(rawUA string) (browser, os string) {
-	agent := uaParser.Parse(rawUA)
-	return browserOf(agent), osOf(agent)
 }
 
 // browserOf 浏览器名称 + 主版本号

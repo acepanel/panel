@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import copy2clipboard from '@vavt/copy2clipboard'
-import type { DropdownOption, SelectOption } from 'naive-ui'
+import type { DropdownOption } from 'naive-ui'
 import {
   NButton,
   NCheckbox,
@@ -16,22 +16,14 @@ import { useGettext } from 'vue3-gettext'
 import file from '@/api/panel/file'
 import tamper from '@/api/panel/tamper'
 import { hasOpenWindow } from '@/components/common/composables/useWindowStack'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import TheIcon from '@/components/custom/TheIcon.vue'
+import { useBus } from '@/components/system/composables/useBus'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { useFileStore, useTaskQueueStore } from '@/stores'
-import {
-  checkName,
-  checkPath,
-  getExt,
-  getFilename,
-  getIconByExt,
-  isCompress,
-  isImage,
-  joinPath,
-} from '@/utils/file'
+import { checkPath, getExt, getIconByExt, isCompress, isImage } from '@/utils/file'
+import { useBoxSelection } from '@/views/file/composables/useBoxSelection'
 import { useFileOps } from '@/views/file/composables/useFileOps'
+import { useInlineEdit } from '@/views/file/composables/useInlineEdit'
 import { usePaste } from '@/views/file/composables/usePaste'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
@@ -43,7 +35,7 @@ const themeVars = useThemeVars()
 const fileStore = useFileStore()
 const taskQueue = useTaskQueueStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, movePath, markClipboard, toggleFavorite } = useFileOps()
+const { deletePaths, markClipboard, toggleFavorite } = useFileOps()
 const { isMobile } = useResponsive()
 
 const props = defineProps<{
@@ -64,12 +56,16 @@ const marked = computed(() => fileStore.clipboard.marked)
 const markedType = computed(() => fileStore.clipboard.markedType)
 
 // 选中状态归属 fileStore（按标签页隔离），此处仅做读写代理
-const selected = computed<string[]>({
-  get: () => tab.value.selected,
+// 读到的可能是兜底的临时空数组，所以类型上只读，修改一律整体赋值
+const selected = computed<readonly string[], string[]>({
+  get: () => fileStore.selected[props.tabId] ?? [],
   set: (v) => {
-    tab.value.selected = v
+    fileStore.selected[props.tabId] = v
   },
 })
+// 使用 Set 做 O(1) 查找
+const selectedSet = computed(() => new Set(selected.value))
+
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 
@@ -87,95 +83,21 @@ const selectedRow = ref<any>()
 const dropdownX = ref(0)
 const dropdownY = ref(0)
 
-// 内联重命名状态
-const inlineRenameItem = ref<any>(null)
-const inlineRenameName = ref('')
-const inlineRenameInputRef = ref<HTMLInputElement | null>(null)
-
-// 内联新建状态
-const inlineCreateActive = ref(false)
-const inlineCreateIsDir = ref(false)
-const inlineCreateName = ref('')
-const inlineCreateInputRef = ref<HTMLInputElement | null>(null)
-
-// 设置内联重命名输入框 ref 的函数
-const setInlineRenameRef = (el: any) => {
-  if (el) {
-    inlineRenameInputRef.value = el
-  }
-}
-
-// 设置内联新建输入框 ref 的函数
-const setInlineCreateRef = (el: any) => {
-  if (el) {
-    inlineCreateInputRef.value = el
-  }
-}
-
-// 启动内联新建
-const startInlineCreate = (isDir: boolean) => {
-  // 取消正在进行的重命名
-  cancelInlineRename()
-
-  inlineCreateActive.value = true
-  inlineCreateIsDir.value = isDir
-  inlineCreateName.value = ''
-
-  // 等待 DOM 更新后聚焦输入框
-  nextTick(() => {
-    if (inlineCreateInputRef.value) {
-      inlineCreateInputRef.value.focus()
-    }
-  })
-}
-
-// 取消内联新建
-const cancelInlineCreate = () => {
-  inlineCreateActive.value = false
-  inlineCreateIsDir.value = false
-  inlineCreateName.value = ''
-}
-
-// 提交内联新建
-const submitInlineCreate = () => {
-  if (!inlineCreateActive.value) return
-
-  const name = inlineCreateName.value.trim()
-
-  // 如果名称为空，直接取消
-  if (!name) {
-    cancelInlineCreate()
-    return
-  }
-
-  // 验证名称
-  if (!checkName(name)) {
-    window.$message.error($gettext('Invalid name'))
-    return
-  }
-
-  const fullPath = joinPath(path.value, name)
-
-  useRequest(file.create(fullPath, inlineCreateIsDir.value))
-    .onSuccess(() => {
-      window.$bus.emit('file:refresh')
-      window.$message.success($gettext('Created successfully'))
-    })
-    .onComplete(() => {
-      cancelInlineCreate()
-    })
-}
-
-// 处理内联新建键盘事件
-const handleInlineCreateKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter') {
-    event.preventDefault()
-    submitInlineCreate()
-  } else if (event.key === 'Escape') {
-    event.preventDefault()
-    cancelInlineCreate()
-  }
-}
+const {
+  inlineCreateActive,
+  inlineCreateIsDir,
+  inlineCreateName,
+  setInlineCreateRef,
+  startInlineCreate,
+  submitInlineCreate,
+  handleInlineCreateKeydown,
+  inlineRenameItem,
+  inlineRenameName,
+  setInlineRenameRef,
+  startInlineRename,
+  submitInlineRename,
+  handleInlineRenameKeydown,
+} = useInlineEdit(path)
 
 const unCompressModal = ref(false)
 const unCompressModel = ref({
@@ -187,21 +109,12 @@ const unCompressModel = ref({
 const sizeLoading = ref<Map<string, boolean>>(new Map())
 const sizeCache = ref<Map<string, string>>(new Map())
 
-// 框选相关状态
 const gridContainerRef = ref<HTMLElement | null>(null)
-const isSelecting = ref(false)
-const selectionBoxEl = ref<HTMLElement | null>(null)
-
-// 非响应式坐标 — 避免每次 mousemove 触发 Vue 重渲染
-let selStartX = 0
-let selStartY = 0
-let selEndX = 0
-let selEndY = 0
-
-// 缓存 item 位置，框选期间不再每帧 querySelectorAll + getBoundingClientRect
-let cachedItemRects: { path: string; left: number; top: number; right: number; bottom: number }[] =
-  []
-let cachedContainerRect: DOMRect | null = null
+const { isSelecting, selectionBoxEl, onSelectionStart } = useBoxSelection(
+  gridContainerRef,
+  selected,
+  selectedSet,
+)
 
 // 将 hex 颜色转换为 RGB
 const hexToRgb = (hex: string) => {
@@ -345,18 +258,72 @@ const toggleSelectAll = () => {
   }
 }
 
-// 切换单个项目的选中状态（用于复选框点击）
+// 切换单个项目的选中状态（复选框点击、Ctrl/Cmd + 点击）
 const toggleCheckbox = (item: any) => {
-  const index = selected.value.indexOf(item.full)
-  if (index > -1) {
-    selected.value.splice(index, 1)
-  } else {
-    selected.value.push(item.full)
-  }
+  selected.value = selectedSet.value.has(item.full)
+    ? selected.value.filter((p) => p !== item.full)
+    : [...selected.value, item.full]
 }
 
 // 空白区域右键菜单是否激活
 const isEmptyContextMenu = ref(false)
+
+// 「打开」对不同类型的叫法，与 openFile 的分支一一对应
+const openLabel = (item: any) => {
+  if (item.dir) return $gettext('Open')
+  if (isImage(item.name)) return $gettext('Preview')
+  if (isCompress(item.name)) return $gettext('Uncompress')
+  return $gettext('Edit')
+}
+
+// 单个文件/目录的全部菜单项，右键菜单、「更多」菜单与手机下拉按 key 从中挑选
+const getItemOptions = (item: any): DropdownOption[] => [
+  { label: $gettext('Paste'), key: 'paste', show: marked.value.length > 0 },
+  { label: openLabel(item), key: 'open' },
+  { label: $gettext('Copy'), key: 'copy' },
+  { label: $gettext('Move'), key: 'move' },
+  { label: $gettext('Permission'), key: 'permission' },
+  { label: $gettext('Compress'), key: 'compress' },
+  { label: $gettext('Download'), key: 'download' },
+  { label: $gettext('Share'), key: 'share', show: !item.dir },
+  { label: $gettext('Copy Path'), key: 'copy-path' },
+  { label: $gettext('Rename'), key: 'rename' },
+  { label: $gettext('Terminal'), key: 'terminal', show: item.dir },
+  {
+    label: fileStore.isFavorite(item.full)
+      ? $gettext('Remove from Favorites')
+      : $gettext('Add to Favorites'),
+    key: 'favorite',
+    show: item.dir,
+  },
+  {
+    label: isProtected(item) ? $gettext('Remove Protection') : $gettext('Add Protection'),
+    key: 'protect',
+    show: tamperRunning.value,
+  },
+  { label: $gettext('Properties'), key: 'properties' },
+  { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
+]
+
+// 按 keys 的顺序挑出要显示的菜单项
+const pickItemOptions = (item: any, keys: string[]): DropdownOption[] => {
+  const all = getItemOptions(item)
+  return keys.flatMap((key) => all.filter((o) => o.key === key && o.show !== false))
+}
+
+// 桌面「更多」菜单里的项
+const moreKeys = [
+  'copy',
+  'move',
+  'permission',
+  'compress',
+  'share',
+  'copy-path',
+  'terminal',
+  'favorite',
+  'protect',
+  'properties',
+]
 
 const options = computed<DropdownOption[]>(() => {
   // 空白区域右键菜单
@@ -393,66 +360,23 @@ const options = computed<DropdownOption[]>(() => {
   }
 
   // 单选情况下显示完整菜单
-  if (selectedRow.value == null) return []
-  const options = [
-    {
-      label: selectedRow.value.dir
-        ? $gettext('Open')
-        : isImage(selectedRow.value.name)
-          ? $gettext('Preview')
-          : isCompress(selectedRow.value.name)
-            ? $gettext('Uncompress')
-            : $gettext('Edit'),
-      key: selectedRow.value.dir
-        ? 'open'
-        : isImage(selectedRow.value.name)
-          ? 'preview'
-          : isCompress(selectedRow.value.name)
-            ? 'uncompress'
-            : 'edit',
-    },
-    { label: $gettext('Copy'), key: 'copy' },
-    { label: $gettext('Move'), key: 'move' },
-    { label: $gettext('Permission'), key: 'permission' },
-    {
-      label: selectedRow.value.dir ? $gettext('Compress') : $gettext('Download'),
-      key: selectedRow.value.dir ? 'compress' : 'download',
-    },
-    {
-      label: $gettext('Share'),
-      key: 'share',
-      show: !selectedRow.value.dir,
-    },
-    { label: $gettext('Rename'), key: 'rename' },
-    {
-      label: $gettext('Terminal'),
-      key: 'terminal',
-      show: selectedRow.value.dir,
-    },
-    {
-      label: fileStore.isFavorite(selectedRow.value.full)
-        ? $gettext('Remove from Favorites')
-        : $gettext('Add to Favorites'),
-      key: 'favorite',
-      show: selectedRow.value.dir,
-    },
-    {
-      label: isProtected(selectedRow.value)
-        ? $gettext('Remove Protection')
-        : $gettext('Add Protection'),
-      key: isProtected(selectedRow.value) ? 'unprotect' : 'protect',
-      show: tamperRunning.value,
-    },
-    { label: $gettext('Properties'), key: 'properties' },
-    { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
-  ]
-  if (marked.value.length) {
-    options.unshift({
-      label: $gettext('Paste'),
-      key: 'paste',
-    })
-  }
-  return options
+  const row = selectedRow.value
+  if (row == null) return []
+  return pickItemOptions(row, [
+    'paste',
+    'open',
+    'copy',
+    'move',
+    'permission',
+    row.dir ? 'compress' : 'download',
+    'share',
+    'rename',
+    'terminal',
+    'favorite',
+    'protect',
+    'properties',
+    'delete',
+  ])
 })
 
 const openPermissionModal = (row: any) => {
@@ -508,9 +432,6 @@ const getIconColor = (item: any) => {
 }
 
 // 检查项目是否被选中
-// 使用 Set 做 O(1) 查找
-const selectedSet = computed(() => new Set(selected.value))
-
 const isSelected = (item: any) => {
   return selectedSet.value.has(item.full)
 }
@@ -528,12 +449,7 @@ const toggleSelect = (item: any, event: MouseEvent) => {
   event.stopPropagation()
   if (event.ctrlKey || event.metaKey) {
     // Ctrl/Cmd + 点击：多选
-    const index = selected.value.indexOf(item.full)
-    if (index > -1) {
-      selected.value.splice(index, 1)
-    } else {
-      selected.value.push(item.full)
-    }
+    toggleCheckbox(item)
   } else if (event.shiftKey && selected.value.length > 0) {
     // Shift + 点击：范围选择
     const lastSelected = selected.value[selected.value.length - 1]
@@ -624,127 +540,6 @@ const handleEmptyContextMenu = (event: MouseEvent) => {
   })
 }
 
-// 直接操作 DOM 更新选择框位置，避免 Vue 响应式开销
-const updateSelectionBoxDOM = () => {
-  const el = selectionBoxEl.value
-  if (!el) return
-  const left = Math.min(selStartX, selEndX)
-  const top = Math.min(selStartY, selEndY)
-  const width = Math.abs(selEndX - selStartX)
-  const height = Math.abs(selEndY - selStartY)
-  el.style.left = left + 'px'
-  el.style.top = top + 'px'
-  el.style.width = width + 'px'
-  el.style.height = height + 'px'
-}
-
-// 框选开始
-const onSelectionStart = (event: MouseEvent) => {
-  // 只响应左键，且不在项目上
-  if (event.button !== 0) return
-  const target = event.target as HTMLElement
-  if (target.closest('.file-item')) return
-  // 列表视图表头不触发框选
-  if (target.closest('.list-header')) return
-
-  const container = gridContainerRef.value
-  if (!container) return
-
-  isSelecting.value = true
-  const rect = container.getBoundingClientRect()
-  cachedContainerRect = rect
-  selStartX = event.clientX - rect.left + container.scrollLeft
-  selStartY = event.clientY - rect.top + container.scrollTop
-  selEndX = selStartX
-  selEndY = selStartY
-
-  // 缓存所有 item 的位置，框选期间不再重复查询 DOM
-  const items = container.querySelectorAll('.file-item')
-  const scrollLeft = container.scrollLeft
-  const scrollTop = container.scrollTop
-  cachedItemRects = []
-  items.forEach((item) => {
-    const fullPath = item.getAttribute('data-path')
-    if (fullPath) {
-      const itemRect = item.getBoundingClientRect()
-      cachedItemRects.push({
-        path: fullPath,
-        left: itemRect.left - rect.left + scrollLeft,
-        top: itemRect.top - rect.top + scrollTop,
-        right: itemRect.right - rect.left + scrollLeft,
-        bottom: itemRect.bottom - rect.top + scrollTop,
-      })
-    }
-  })
-
-  updateSelectionBoxDOM()
-
-  // 如果没有按住 Ctrl/Cmd，清除已选
-  if (!event.ctrlKey && !event.metaKey) {
-    selected.value = []
-  }
-}
-
-// 框选移动
-let selectionRafId: number | null = null
-const onSelectionMove = (event: MouseEvent) => {
-  if (!isSelecting.value) return
-
-  const container = gridContainerRef.value
-  if (!container || !cachedContainerRect) return
-
-  selEndX = event.clientX - cachedContainerRect.left + container.scrollLeft
-  selEndY = event.clientY - cachedContainerRect.top + container.scrollTop
-
-  // 直接 DOM 更新选择框
-  updateSelectionBoxDOM()
-
-  // rAF 节流碰撞检测
-  if (selectionRafId === null) {
-    selectionRafId = requestAnimationFrame(() => {
-      updateSelectionFromBox()
-      selectionRafId = null
-    })
-  }
-}
-
-// 框选结束
-const onSelectionEnd = () => {
-  if (!isSelecting.value) return
-  // 最后一次碰撞检测确保结果准确
-  updateSelectionFromBox()
-  isSelecting.value = false
-  cachedItemRects = []
-  cachedContainerRect = null
-  if (selectionRafId !== null) {
-    cancelAnimationFrame(selectionRafId)
-    selectionRafId = null
-  }
-}
-
-// 根据选择框更新选中的项目
-const updateSelectionFromBox = () => {
-  if (cachedItemRects.length === 0) return
-
-  const left = Math.min(selStartX, selEndX)
-  const top = Math.min(selStartY, selEndY)
-  const right = Math.max(selStartX, selEndX)
-  const bottom = Math.max(selStartY, selEndY)
-
-  const newSelected: string[] = []
-  for (const item of cachedItemRects) {
-    if (item.right >= left && item.left <= right && item.bottom >= top && item.top <= bottom) {
-      newSelected.push(item.path)
-    }
-  }
-
-  // 只在选中集合真正变化时才更新
-  const currentSet = selectedSet.value
-  if (newSelected.length !== currentSet.size || newSelected.some((v) => !currentSet.has(v))) {
-    selected.value = newSelected
-  }
-}
-
 // ==================== 公共操作函数 ====================
 
 // 获取选中的文件列表
@@ -773,13 +568,6 @@ const openCompress = (items: any[]) => {
   compress.value = true
 }
 
-// 打开解压弹窗
-const openUncompress = (item: any) => {
-  unCompressModel.value.file = item.full
-  unCompressModel.value.path = path.value
-  unCompressModal.value = true
-}
-
 // 打开终端
 const openTerminal = (item: any) => {
   terminalPath.value = item.full
@@ -798,94 +586,7 @@ const openProperty = (item: any) => {
 
 // 启动内联重命名
 const openRename = (item: any) => {
-  confirmImmutableOperation(item, () => {
-    inlineRenameItem.value = item
-    inlineRenameName.value = getFilename(item.name)
-    // 等待 DOM 更新后聚焦输入框
-    nextTick(() => {
-      if (inlineRenameInputRef.value) {
-        inlineRenameInputRef.value.focus()
-        // 选中文件名（不包括扩展名）
-        const dotIndex = inlineRenameName.value.lastIndexOf('.')
-        if (dotIndex > 0 && !item.dir) {
-          inlineRenameInputRef.value.setSelectionRange(0, dotIndex)
-        } else {
-          inlineRenameInputRef.value.select()
-        }
-      }
-    })
-  })
-}
-
-// 取消内联重命名
-const cancelInlineRename = () => {
-  inlineRenameItem.value = null
-  inlineRenameName.value = ''
-}
-
-// 提交内联重命名
-const submitInlineRename = () => {
-  if (!inlineRenameItem.value) return
-
-  const item = inlineRenameItem.value
-  const sourceName = getFilename(item.name)
-  const targetName = inlineRenameName.value.trim()
-
-  // 如果名称没有变化，直接取消
-  if (sourceName === targetName) {
-    cancelInlineRename()
-    return
-  }
-
-  // 验证名称
-  if (!checkName(targetName)) {
-    window.$message.error($gettext('Invalid name'))
-    return
-  }
-
-  const source = joinPath(path.value, sourceName)
-  const target = joinPath(path.value, targetName)
-
-  // 执行重命名，成功后编辑器标签页同步与列表刷新由 movePath 收敛处理
-  const doRename = async (force: boolean) => {
-    if (await movePath(source, target, force)) {
-      window.$message.success(
-        $gettext('Renamed %{ source } to %{ target } successfully', {
-          source: sourceName,
-          target: targetName,
-        }),
-      )
-    }
-    cancelInlineRename()
-  }
-
-  useRequest(file.exist([target])).onSuccess(({ data: existData }) => {
-    if (existData[0]) {
-      window.$dialog.warning({
-        title: $gettext('Warning'),
-        content: $gettext('There are items with the same name. Do you want to overwrite?'),
-        positiveText: $gettext('Overwrite'),
-        negativeText: $gettext('Cancel'),
-        onPositiveClick: () => doRename(true),
-        onNegativeClick: () => {
-          // 保持编辑状态，让用户修改名称
-        },
-      })
-    } else {
-      doRename(false)
-    }
-  })
-}
-
-// 处理内联重命名键盘事件
-const handleInlineRenameKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter') {
-    event.preventDefault()
-    submitInlineRename()
-  } else if (event.key === 'Escape') {
-    event.preventDefault()
-    cancelInlineRename()
-  }
+  confirmImmutableOperation(item, () => startInlineRename(item))
 }
 
 // 执行删除（不带确认）
@@ -931,37 +632,21 @@ const handlePaste = () => {
   doPaste(path.value)
 }
 
-const handleSelect = (key: string) => {
-  // 空白区域菜单选项
-  if (isEmptyContextMenu.value) {
-    switch (key) {
-      case 'paste':
-        handlePaste()
-        break
-      case 'new-file':
-        startInlineCreate(false)
-        break
-      case 'new-folder':
-        startInlineCreate(true)
-        break
-    }
-    onCloseDropdown()
-    return
-  }
-
-  const items = isMultiSelect.value ? getSelectedItems() : [selectedRow.value]
-
+// 菜单动作统一分发：右键菜单、桌面行内按钮、「更多」菜单与手机下拉共用，单项动作取 items 的第一项
+const handleAction = (key: string, items: any[]) => {
+  const item = items[0]
   switch (key) {
     case 'paste':
       handlePaste()
       break
-    case 'open':
-    case 'edit':
-    case 'preview':
-      openFile(selectedRow.value)
+    case 'new-file':
+      startInlineCreate(false)
       break
-    case 'uncompress':
-      openUncompress(selectedRow.value)
+    case 'new-folder':
+      startInlineCreate(true)
+      break
+    case 'open':
+      openFile(item)
       break
     case 'copy':
       markFiles(items, 'copy')
@@ -976,31 +661,38 @@ const handleSelect = (key: string) => {
       openCompress(items)
       break
     case 'download':
-      window.open('/api/file/download?path=' + encodeURIComponent(selectedRow.value.full))
+      handleDownload(item)
       break
     case 'share':
-      openShare(selectedRow.value)
+      openShare(item)
+      break
+    case 'copy-path':
+      copyPath(item)
       break
     case 'rename':
-      openRename(selectedRow.value)
+      openRename(item)
       break
     case 'terminal':
-      openTerminal(selectedRow.value)
+      openTerminal(item)
       break
     case 'favorite':
-      toggleFavorite(selectedRow.value.full)
-      break
-    case 'properties':
-      openProperty(selectedRow.value)
+      toggleFavorite(item.full)
       break
     case 'protect':
-    case 'unprotect':
-      handleProtect(selectedRow.value, key === 'protect')
+      handleProtect(item, !isProtected(item))
+      break
+    case 'properties':
+      openProperty(item)
       break
     case 'delete':
       deleteFiles(items)
       break
   }
+}
+
+// 右键菜单：多选时作用于全部选中项，否则作用于右键点中的那一项
+const handleSelect = (key: string) => {
+  handleAction(key, isMultiSelect.value ? getSelectedItems() : [selectedRow.value])
   onCloseDropdown()
 }
 
@@ -1014,50 +706,9 @@ const handleDeleteClick = (item: any) => {
   doDelete([item])
 }
 
-// 更多操作选项
-const getMoreOptions = (item: any): SelectOption[] => {
-  const options: SelectOption[] = [
-    { label: $gettext('Copy'), value: 'copy' },
-    { label: $gettext('Move'), value: 'move' },
-    { label: $gettext('Permission'), value: 'permission' },
-    { label: $gettext('Compress'), value: 'compress' },
-  ]
-
-  // 如果是压缩文件，添加解压选项
-  if (isCompress(item.full)) {
-    options.push({ label: $gettext('Uncompress'), value: 'uncompress' })
-  }
-
-  // 文件支持分享
-  if (!item.dir) {
-    options.push({ label: $gettext('Share'), value: 'share' })
-  }
-
-  options.push({ label: $gettext('Copy Path'), value: 'copy-path' })
-
-  // 如果是文件夹，添加终端与收藏选项
-  if (item.dir) {
-    options.push({ label: $gettext('Terminal'), value: 'terminal' })
-    options.push({
-      label: fileStore.isFavorite(item.full)
-        ? $gettext('Remove from Favorites')
-        : $gettext('Add to Favorites'),
-      value: 'favorite',
-    })
-  }
-
-  // 防篡改运行时，添加/移除保护
-  if (tamperRunning.value) {
-    options.push({
-      label: isProtected(item) ? $gettext('Remove Protection') : $gettext('Add Protection'),
-      value: isProtected(item) ? 'unprotect' : 'protect',
-    })
-  }
-
-  options.push({ label: $gettext('Properties'), value: 'properties' })
-
-  return options
-}
+// 桌面「更多」菜单，n-popselect 的选项用 value 而不是 key
+const getMoreOptions = (item: any) =>
+  pickItemOptions(item, moreKeys).map((o) => ({ label: o.label as string, value: o.key as string }))
 
 // 下载文件
 const handleDownload = (item: any) => {
@@ -1066,78 +717,15 @@ const handleDownload = (item: any) => {
 
 // 手机操作列折叠成下拉：行内按钮在前，「更多」里的选项接在分隔线后，去掉与行内重复的项
 const getRowMenuOptions = (item: any): DropdownOption[] => {
-  const primary: DropdownOption[] = [
-    {
-      label: item.dir
-        ? $gettext('Open')
-        : isImage(item.name)
-          ? $gettext('Preview')
-          : $gettext('Edit'),
-      key: 'open',
-    },
-    item.dir
-      ? { label: $gettext('Compress'), key: 'compress' }
-      : { label: $gettext('Download'), key: 'download' },
-    { label: $gettext('Rename'), key: 'rename' },
-    { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
+  const primary = ['open', item.dir ? 'compress' : 'download', 'rename', 'delete']
+  return [
+    ...pickItemOptions(item, primary),
+    { type: 'divider', key: 'divider' },
+    ...pickItemOptions(
+      item,
+      moreKeys.filter((key) => !primary.includes(key)),
+    ),
   ]
-  const keys = new Set(primary.map((o) => o.key))
-  const more = getMoreOptions(item)
-    .filter((o) => !keys.has(o.value as string))
-    .map((o) => ({ label: o.label as string, key: o.value as string }))
-  return [...primary, { type: 'divider', key: 'divider' }, ...more]
-}
-
-// 行操作统一分发：桌面行内按钮、「更多」菜单与手机下拉共用
-const handleRowAction = (key: string, item: any) => {
-  switch (key) {
-    case 'open':
-      openFile(item)
-      break
-    case 'download':
-      handleDownload(item)
-      break
-    case 'rename':
-      openRename(item)
-      break
-    case 'delete':
-      deleteFiles([item])
-      break
-    case 'copy':
-      markFiles([item], 'copy')
-      break
-    case 'move':
-      markFiles([item], 'move')
-      break
-    case 'permission':
-      openPermission([item])
-      break
-    case 'compress':
-      openCompress([item])
-      break
-    case 'uncompress':
-      openUncompress(item)
-      break
-    case 'share':
-      openShare(item)
-      break
-    case 'copy-path':
-      copyPath(item)
-      break
-    case 'terminal':
-      openTerminal(item)
-      break
-    case 'favorite':
-      toggleFavorite(item.full)
-      break
-    case 'properties':
-      openProperty(item)
-      break
-    case 'protect':
-    case 'unprotect':
-      handleProtect(item, key === 'protect')
-      break
-  }
 }
 
 // 获取当前选中项的索引
@@ -1162,7 +750,7 @@ const navigateToIndex = (index: number, addToSelection = false) => {
   const item = data.value[index]
   if (addToSelection) {
     if (!selectedSet.value.has(item.full)) {
-      selected.value.push(item.full)
+      selected.value = [...selected.value, item.full]
     }
   } else {
     selected.value = [item.full]
@@ -1347,10 +935,10 @@ const handleUnCompress = () => {
   )
 }
 
-const { loading, data, page, total, pageSize, refresh, reload } = usePagination(
+const { loading, data, page, pageSize, refresh, reload, pagination } = usePagedTable(
   (page, pageSize) =>
     file.list(
-      encodeURIComponent(path.value),
+      path.value,
       keyword.value,
       sub.value,
       sort.value,
@@ -1359,13 +947,10 @@ const { loading, data, page, total, pageSize, refresh, reload } = usePagination(
       !fileStore.showHidden,
     ),
   {
-    initialData: { total: 0, list: [] },
     initialPageSize: 100,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
+    pageSizes: [100, 200, 500, 1000],
   },
 )
-const pagination = useTablePagination(page, pageSize, total, [100, 200, 500, 1000])
 
 // selected 只保留当前列表中存在的项，避免删除/翻页/排序后残留导致表头复选框显示部分勾选
 // 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
@@ -1395,25 +980,16 @@ const handleFileSearch = () => {
   fileStore.pushHistory(props.tabId, path.value)
 }
 
-const addDocumentListeners = () => {
-  document.addEventListener('mousemove', onSelectionMove)
-  document.addEventListener('mouseup', onSelectionEnd)
-  document.addEventListener('keydown', handleKeyDown)
-}
+const addKeyListener = () => document.addEventListener('keydown', handleKeyDown)
+const removeKeyListener = () => document.removeEventListener('keydown', handleKeyDown)
 
-const removeDocumentListeners = () => {
-  document.removeEventListener('mousemove', onSelectionMove)
-  document.removeEventListener('mouseup', onSelectionEnd)
-  document.removeEventListener('keydown', handleKeyDown)
-}
-
-onActivated(addDocumentListeners)
-onDeactivated(removeDocumentListeners)
+onActivated(addKeyListener)
+onDeactivated(removeKeyListener)
 
 onMounted(() => {
   refreshShares()
 
-  // 首次加载由 usePagination 自己发起，这里只跟随路径变化，否则刷新页面会请求两次
+  // 首次加载由 usePagedTable 自己发起，这里只跟随路径变化，否则刷新页面会请求两次
   watch(path, () => {
     selected.value = []
     sizeCache.value.clear()
@@ -1429,12 +1005,12 @@ onMounted(() => {
     })
   })
 
-  window.$bus.on('file:search', handleFileSearch)
-  window.$bus.on('file:refresh', refresh)
-  window.$bus.on('file:inline-create', startInlineCreate)
-
-  addDocumentListeners()
+  addKeyListener()
 })
+
+useBus('file:search', handleFileSearch)
+useBus('file:refresh', refresh)
+useBus('file:inline-create', startInlineCreate)
 
 onUnmounted(() => {
   // 清理点击计时器
@@ -1443,11 +1019,7 @@ onUnmounted(() => {
     clickTimer = null
   }
 
-  // 移除事件监听
-  window.$bus.off('file:search', handleFileSearch)
-  window.$bus.off('file:refresh', refresh)
-  window.$bus.off('file:inline-create', startInlineCreate)
-  removeDocumentListeners()
+  removeKeyListener()
 })
 </script>
 
@@ -1685,7 +1257,7 @@ onUnmounted(() => {
                 v-if="isMobile"
                 trigger="click"
                 :options="getRowMenuOptions(item)"
-                @select="(key: string) => handleRowAction(key, item)"
+                @select="(key: string) => handleAction(key, [item])"
               >
                 <n-button size="small" quaternary circle @click.stop>
                   <template #icon>
@@ -1700,7 +1272,7 @@ onUnmounted(() => {
                     size="tiny"
                     type="success"
                     tertiary
-                    @click.stop="handleRowAction('open', item)"
+                    @click.stop="handleAction('open', [item])"
                   >
                     {{ $gettext('Open') }}
                   </n-button>
@@ -1708,7 +1280,7 @@ onUnmounted(() => {
                     size="tiny"
                     type="primary"
                     tertiary
-                    @click.stop="handleRowAction('compress', item)"
+                    @click.stop="handleAction('compress', [item])"
                   >
                     {{ $gettext('Compress') }}
                   </n-button>
@@ -1719,15 +1291,15 @@ onUnmounted(() => {
                     size="tiny"
                     type="primary"
                     tertiary
-                    @click.stop="handleRowAction('open', item)"
+                    @click.stop="handleAction('open', [item])"
                   >
-                    {{ isImage(item.name) ? $gettext('Preview') : $gettext('Edit') }}
+                    {{ openLabel(item) }}
                   </n-button>
                   <n-button
                     size="tiny"
                     type="info"
                     tertiary
-                    @click.stop="handleRowAction('download', item)"
+                    @click.stop="handleAction('download', [item])"
                   >
                     {{ $gettext('Download') }}
                   </n-button>
@@ -1737,7 +1309,7 @@ onUnmounted(() => {
                   size="tiny"
                   type="warning"
                   tertiary
-                  @click.stop="handleRowAction('rename', item)"
+                  @click.stop="handleAction('rename', [item])"
                 >
                   {{ $gettext('Rename') }}
                 </n-button>
@@ -1757,7 +1329,7 @@ onUnmounted(() => {
                 <n-popselect
                   :options="getMoreOptions(item)"
                   trigger="click"
-                  @update:value="(key: string) => handleRowAction(key, item)"
+                  @update:value="(key: string) => handleAction(key, [item])"
                 >
                   <n-button size="tiny" tertiary @click.stop>
                     {{ $gettext('More') }}

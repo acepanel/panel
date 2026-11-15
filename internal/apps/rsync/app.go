@@ -45,7 +45,7 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) List(w http.ResponseWriter, r *http.Request) {
-	modules, err := listModules()
+	modules, err := s.listModules()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -68,7 +68,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if io.Exists(modulePath(req.Name)) {
+	if io.Exists(s.modulePath(req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s already exists", req.Name))
 		return
 	}
@@ -83,7 +83,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !io.Exists(modulePath(req.Name)) {
+	if !io.Exists(s.modulePath(req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
 		return
 	}
@@ -100,11 +100,11 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// 删模块与重启不跟随请求取消，否则配置已删而运行中的 rsyncd 仍在提供该模块
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(modulePath(req.Name)); err != nil {
+	if err = io.Remove(s.modulePath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(secretsPath(req.Name)); err != nil {
+	if err = io.Remove(s.secretsPath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -125,11 +125,11 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "rsync", rsyncdConf, 0644, "rsyncd")
+	common.SaveConfig(w, r, s.log, s.t, "rsync", rsyncdConf, 0644, common.Restart("rsyncd"))
 }
 
 func (s *App) save(r *http.Request, w http.ResponseWriter, req *Module, msg string) {
-	if err := writeModule(*req); err != nil {
+	if err := s.writeModule(*req); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

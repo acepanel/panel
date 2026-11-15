@@ -10,13 +10,19 @@ import (
 
 // nginx 配置：分号结尾的指令、花括号块、单双引号（反斜杠转义）、# 注释，*_by_lua_block 的块体按 Lua 词法原样保留
 
+type parser struct {
+	s    string
+	i    int
+	line int
+}
+
 func Parse(content string) (*conf.Config, error) {
 	p := &parser{s: strings.ReplaceAll(content, "\r\n", "\n"), line: 1}
 	nodes, err := p.parseNodes(true)
 	if err != nil {
 		return nil, err
 	}
-	return &conf.Config{Block: conf.Block{Nodes: nodes}}, nil
+	return &conf.Config{Nodes: nodes}, nil
 }
 
 func ParseFile(path string) (*conf.Config, error) {
@@ -25,40 +31,6 @@ func ParseFile(path string) (*conf.Config, error) {
 		return nil, err
 	}
 	return Parse(string(content))
-}
-
-type parser struct {
-	s    string
-	i    int
-	line int
-}
-
-func (p *parser) errorf(format string, args ...any) error {
-	return fmt.Errorf("line %d: %s", p.line, fmt.Sprintf(format, args...))
-}
-
-func (p *parser) skipSpace() {
-	for p.i < len(p.s) {
-		switch p.s[p.i] {
-		case '\n':
-			p.line++
-		case ' ', '\t', '\r':
-		default:
-			return
-		}
-		p.i++
-	}
-}
-
-// readLine 读到行尾，不消费换行符
-func (p *parser) readLine() string {
-	end := strings.IndexByte(p.s[p.i:], '\n')
-	if end < 0 {
-		end = len(p.s) - p.i
-	}
-	text := p.s[p.i : p.i+end]
-	p.i += end
-	return text
 }
 
 func (p *parser) parseNodes(top bool) ([]conf.Node, error) {
@@ -227,10 +199,6 @@ func (p *parser) trailingComment() string {
 	return p.readLine()[1:]
 }
 
-func isLuaBlock(name string) bool {
-	return strings.HasSuffix(name, "_by_lua_block")
-}
-
 // readLuaBlock 读取 Lua 块体直到配对的 }，跳过 Lua 字符串、长括号与注释里的花括号
 func (p *parser) readLuaBlock() (string, error) {
 	start, depth := p.i, 1
@@ -272,21 +240,6 @@ func (p *parser) readLuaBlock() (string, error) {
 	return "", p.errorf("unclosed lua block")
 }
 
-// longBracket 判断是否为 Lua 长括号 [=*[，返回等号数量
-func longBracket(s string) (int, bool) {
-	if !strings.HasPrefix(s, "[") {
-		return 0, false
-	}
-	level := 0
-	for level+1 < len(s) && s[level+1] == '=' {
-		level++
-	}
-	if level+1 < len(s) && s[level+1] == '[' {
-		return level, true
-	}
-	return 0, false
-}
-
 // skipLongBracket 跳过整个长括号，含注释形式
 func (p *parser) skipLongBracket(level int) {
 	if strings.HasPrefix(p.s[p.i:], "--") {
@@ -309,6 +262,9 @@ func (p *parser) skipLuaString(quote byte) {
 	for p.i < len(p.s) {
 		switch p.s[p.i] {
 		case '\\':
+			if p.i+1 < len(p.s) && p.s[p.i+1] == '\n' {
+				p.line++
+			}
 			p.i += 2
 			continue
 		case '\n':
@@ -319,4 +275,51 @@ func (p *parser) skipLuaString(quote byte) {
 		}
 		p.i++
 	}
+}
+
+func (p *parser) skipSpace() {
+	for p.i < len(p.s) {
+		switch p.s[p.i] {
+		case '\n':
+			p.line++
+		case ' ', '\t', '\r':
+		default:
+			return
+		}
+		p.i++
+	}
+}
+
+// readLine 读到行尾，不消费换行符
+func (p *parser) readLine() string {
+	end := strings.IndexByte(p.s[p.i:], '\n')
+	if end < 0 {
+		end = len(p.s) - p.i
+	}
+	text := p.s[p.i : p.i+end]
+	p.i += end
+	return text
+}
+
+func (p *parser) errorf(format string, args ...any) error {
+	return fmt.Errorf("line %d: %s", p.line, fmt.Sprintf(format, args...))
+}
+
+func isLuaBlock(name string) bool {
+	return strings.HasSuffix(name, "_by_lua_block")
+}
+
+// longBracket 判断是否为 Lua 长括号 [=*[，返回等号数量
+func longBracket(s string) (int, bool) {
+	if !strings.HasPrefix(s, "[") {
+		return 0, false
+	}
+	var level int
+	for level+1 < len(s) && s[level+1] == '=' {
+		level++
+	}
+	if level+1 < len(s) && s[level+1] == '[' {
+		return level, true
+	}
+	return 0, false
 }

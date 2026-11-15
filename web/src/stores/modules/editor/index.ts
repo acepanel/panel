@@ -86,12 +86,6 @@ export const useEditorStore = defineStore('editor', {
     unsavedTabs(): EditorTab[] {
       return this.tabs.filter((tab) => tab.modified)
     },
-
-    // 获取标签页索引
-    activeTabIndex(): number {
-      if (!this.activeTabPath) return -1
-      return this.tabs.findIndex((tab) => tab.path === this.activeTabPath)
-    },
   },
 
   actions: {

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { NButton, NCheckbox, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useFileStore } from '@/stores'
 import { formatDateTime } from '@/utils'
 
@@ -125,28 +124,19 @@ const columns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            showIcon: false,
-            onPositiveClick: () => handleComposeUp(row, forcePull.value),
-          },
-          {
-            default: () =>
-              h(
-                NFlex,
-                { vertical: true },
-                {
-                  default: () => [
-                    h(
-                      'strong',
-                      {},
-                      {
-                        default: () =>
-                          $gettext(`Are you sure you want to start compose %{ name }?`, {
-                            name: row.name,
-                          }),
-                      },
-                    ),
+            size: 'small',
+            type: 'success',
+            onClick: async () => {
+              const ok = await confirmAction({
+                type: 'info',
+                title: $gettext('Confirm'),
+                content: () =>
+                  h(NFlex, { vertical: true }, () => [
+                    $gettext('Are you sure you want to start compose %{ name }?', {
+                      name: row.name,
+                    }),
                     h(
                       NCheckbox,
                       {
@@ -155,12 +145,12 @@ const columns: any = [
                       },
                       { default: () => $gettext('Force pull images') },
                     ),
-                  ],
-                },
-              ),
-            trigger: () =>
-              h(NButton, { size: 'small', type: 'success' }, { default: () => $gettext('Start') }),
+                  ]),
+              })
+              if (ok) handleComposeUp(row, forcePull.value)
+            },
           },
+          { default: () => $gettext('Start') },
         ),
         h(
           NButton,
@@ -215,16 +205,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => container.composeList(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  container.composeList(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleCreate = () => {
   loading.value = true
@@ -270,10 +253,6 @@ const handleBatchDelete = async () => {
   refresh()
   window.$message.success($gettext('Delete successful'))
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

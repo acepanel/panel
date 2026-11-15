@@ -9,9 +9,3 @@ export function toLogin() {
     query: needRedirect ? { ...currentRoute.query, redirect: currentRoute.path } : {},
   })
 }
-
-export function toFourZeroFour() {
-  router.replace({
-    path: '/404',
-  })
-}

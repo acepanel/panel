@@ -9,10 +9,8 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
@@ -39,46 +37,24 @@ type DatabaseServer struct {
 }
 
 func (r *DatabaseServer) BeforeSave(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	r.Password, err = crypter.Encrypt([]byte(r.Password))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return encryptFields(&r.Password)
 }
 
 func (r *DatabaseServer) AfterFind(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	password, err := crypter.Decrypt(r.Password)
-	if err == nil {
-		r.Password = string(password)
-	}
-
-	return nil
+	return decryptFields(&r.Password)
 }
 
 type DatabaseServerRepo interface {
-	Count() (int64, error)
 	List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseServer, int64, error)
 	Get(ctx context.Context, id uint) (*DatabaseServer, error)
 	Find(id uint) (*DatabaseServer, error)
-	GetByName(ctx context.Context, name string) (*DatabaseServer, error)
+	FindByName(name string) (*DatabaseServer, error)
 	Create(server *DatabaseServer) error
 	Save(server *DatabaseServer) error
 	UpdateRemark(req *request.DatabaseServerUpdateRemark) error
 	UpdatePassword(name string, password string) error
 	UpdatePort(name string, port uint) error
 	Delete(id uint) error
-	ClearUsers(id uint) error
 	ListUsers(serverID uint) ([]*DatabaseUser, error)
 	CreateUser(user *DatabaseUser) error
 	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
@@ -92,7 +68,11 @@ type DatabaseServerUsecase struct {
 	log  *slog.Logger
 }
 
-func NewDatabaseServerUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo) *DatabaseServerUsecase {
+func NewDatabaseServerUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo DatabaseServerRepo,
+) *DatabaseServerUsecase {
 	return &DatabaseServerUsecase{
 		repo: databaseServerRepo,
 		t:    t,
@@ -100,11 +80,11 @@ func NewDatabaseServerUsecase(t *gotext.Locale, log *slog.Logger, databaseServer
 	}
 }
 
-func (uc *DatabaseServerUsecase) Count() (int64, error) {
-	return uc.repo.Count()
-}
-
-func (uc *DatabaseServerUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseServer, int64, error) {
+func (uc *DatabaseServerUsecase) List(
+	ctx context.Context,
+	page, limit uint,
+	typ string,
+) ([]*DatabaseServer, int64, error) {
 	return uc.repo.List(ctx, page, limit, typ)
 }
 
@@ -112,8 +92,9 @@ func (uc *DatabaseServerUsecase) Get(ctx context.Context, id uint) (*DatabaseSer
 	return uc.repo.Get(ctx, id)
 }
 
-func (uc *DatabaseServerUsecase) GetByName(ctx context.Context, name string) (*DatabaseServer, error) {
-	return uc.repo.GetByName(ctx, name)
+// FindByName 只读记录不探测连通性，Status 为空
+func (uc *DatabaseServerUsecase) FindByName(name string) (*DatabaseServer, error) {
+	return uc.repo.FindByName(name)
 }
 
 func (uc *DatabaseServerUsecase) Create(ctx context.Context, req *request.DatabaseServerCreate) error {
@@ -141,7 +122,7 @@ func (uc *DatabaseServerUsecase) Create(ctx context.Context, req *request.Databa
 }
 
 func (uc *DatabaseServerUsecase) Update(ctx context.Context, req *request.DatabaseServerUpdate) error {
-	server, err := uc.repo.Get(ctx, req.ID)
+	server, err := uc.repo.Find(req.ID)
 	if err != nil {
 		return err
 	}
@@ -181,14 +162,6 @@ func (uc *DatabaseServerUsecase) UpdateRemark(ctx context.Context, req *request.
 	return nil
 }
 
-func (uc *DatabaseServerUsecase) UpdatePassword(name string, password string) error {
-	return uc.repo.UpdatePassword(name, password)
-}
-
-func (uc *DatabaseServerUsecase) UpdatePort(name string, port uint) error {
-	return uc.repo.UpdatePort(name, port)
-}
-
 func (uc *DatabaseServerUsecase) Delete(ctx context.Context, id uint) error {
 	server, err := uc.repo.Find(id)
 	if err != nil {
@@ -204,20 +177,25 @@ func (uc *DatabaseServerUsecase) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (uc *DatabaseServerUsecase) ClearUsers(id uint) error {
-	return uc.repo.ClearUsers(id)
-}
-
 func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
-	server, err := uc.repo.Get(ctx, id)
+	// databaseUserSync 各类型同步用户时跳过的内置用户，以及是否按 host 区分用户
+	databaseUserSync := map[DatabaseType]struct {
+		system    []string
+		matchHost bool
+	}{
+		DatabaseTypeMysql:      {system: []string{"root", "mysql.sys", "mysql.session", "mysql.infoschema"}, matchHost: true},
+		DatabaseTypePostgresql: {system: []string{"postgres"}, matchHost: false},
+		DatabaseTypeClickHouse: {system: []string{"default"}, matchHost: false},
+	}
+
+	server, err := uc.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
 	// 非 Operator 类型不支持用户同步
-	switch server.Type {
-	case DatabaseTypeMysql, DatabaseTypePostgresql, DatabaseTypeClickHouse:
-	default:
+	rule, ok := databaseUserSync[server.Type]
+	if !ok {
 		return fmt.Errorf("sync is not supported for %s", server.Type)
 	}
 
@@ -232,73 +210,29 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 	}
 	defer operator.Close()
 
+	allUsers, err := operator.Users(ctx)
+	if err != nil {
+		return err
+	}
+
 	synced := 0
-	switch server.Type {
-	case DatabaseTypeMysql:
-		allUsers, err := operator.Users(ctx)
-		if err != nil {
-			return err
+	for user := range slices.Values(allUsers) {
+		if slices.Contains(rule.system, user.User) || slices.ContainsFunc(users, func(a *DatabaseUser) bool {
+			return a.Username == user.User && (!rule.matchHost || a.Host == user.Host)
+		}) {
+			continue
 		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
-				return a.Username == user.User && a.Host == user.Host
-			}) && !slices.Contains([]string{"root", "mysql.sys", "mysql.session", "mysql.infoschema"}, user.User) {
-				newUser := &DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Host:     user.Host,
-					Remark:   uc.t.Get("sync from server %s", server.Name),
-				}
-				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
-					continue
-				}
-				synced++
-			}
+		newUser := &DatabaseUser{
+			ServerID: id,
+			Username: user.User,
+			Host:     user.Host,
+			Remark:   uc.t.Get("sync from server %s", server.Name),
 		}
-	case DatabaseTypePostgresql:
-		allUsers, err := operator.Users(ctx)
-		if err != nil {
-			return err
+		if err = uc.repo.CreateUser(newUser); err != nil {
+			uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
+			continue
 		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
-				return a.Username == user.User
-			}) && !slices.Contains([]string{"postgres"}, user.User) {
-				newUser := &DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Remark:   uc.t.Get("sync from server %s", server.Name),
-				}
-				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
-					continue
-				}
-				synced++
-			}
-		}
-	case DatabaseTypeClickHouse:
-		allUsers, err := operator.Users(ctx)
-		if err != nil {
-			return err
-		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
-				return a.Username == user.User
-			}) && !slices.Contains([]string{"default"}, user.User) {
-				newUser := &DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Remark:   uc.t.Get("sync from server %s", server.Name),
-				}
-				if err = uc.repo.CreateUser(newUser); err != nil {
-					uc.log.Warn(uc.t.Get("failed to sync database users"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.String("username", user.User), slog.Any("err", err))
-					continue
-				}
-				synced++
-			}
-		}
-	default:
+		synced++
 	}
 
 	uc.log.Info(uc.t.Get("database server users synced"), slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(server.ID)), slog.String("name", server.Name), slog.String("server_type", string(server.Type)), slog.Int("synced", synced))

@@ -31,6 +31,10 @@ type onePanelAdapter struct {
 	known bool // 大版本已确定，不再回落重试
 }
 
+type onePanelDatabaseServer struct {
+	subtype, name, version string
+}
+
 // newOnePanelClient 1Panel 以 JSON 提交，认证为请求头中的 md5("1panel" + 接口密钥 + 时间戳)
 func newOnePanelClient(conn *request.ToolboxMigrationConnection) *migrationClient {
 	return &migrationClient{
@@ -71,7 +75,8 @@ func (a *onePanelAdapter) Items(ctx context.Context) ([]types.MigrationItem, err
 	if err != nil {
 		return nil, err
 	}
-	return slices.Concat(websites, a.databaseItems(ctx), a.databaseUserItems(ctx)), nil
+	servers := a.databaseServers(ctx)
+	return slices.Concat(websites, a.databaseItems(ctx, servers), a.databaseUserItems(ctx, servers)), nil
 }
 
 // websiteItems 列出静态、反代与 PHP 运行环境网站
@@ -134,9 +139,9 @@ func (a *onePanelAdapter) phpRuntimes(ctx context.Context) map[string]string {
 	})
 }
 
-// databaseItems 列出本机 MySQL / MariaDB / PostgreSQL 数据库
-func (a *onePanelAdapter) databaseItems(ctx context.Context) []types.MigrationItem {
-	items := make([]types.MigrationItem, 0)
+// databaseServers 列出本机 MySQL / MariaDB / PostgreSQL 服务
+func (a *onePanelAdapter) databaseServers(ctx context.Context) []onePanelDatabaseServer {
+	var servers []onePanelDatabaseServer
 	for _, subtype := range []string{"mysql", "mariadb", "postgresql"} {
 		data, err := a.api(ctx, http.MethodGet, "/databases/db/list/"+subtype, nil)
 		if err != nil {
@@ -148,75 +153,17 @@ func (a *onePanelAdapter) databaseItems(ctx context.Context) []types.MigrationIt
 			if name == "" || strings.EqualFold(cast.ToString(server["from"]), "remote") {
 				continue
 			}
-			items = append(items, a.databasesOf(ctx, subtype, name, cast.ToString(server["version"]))...)
+			servers = append(servers, onePanelDatabaseServer{subtype: subtype, name: name, version: cast.ToString(server["version"])})
 		}
 	}
-	return items
+	return servers
 }
 
-// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
-func (a *onePanelAdapter) databaseUserDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabaseUser, error) {
-	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": item.SourceGroup})
-	if err != nil {
-		return nil, err
-	}
-	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
-		return cast.ToString(row["username"]) == item.SourceID && cast.ToString(row["host"]) == item.Version
-	})
-	if !ok {
-		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
-	}
-
-	return &types.MigrationDatabaseUser{
-		Type: item.Subtype, Username: item.SourceID,
-		Password: cast.ToString(row["password"]), Host: item.Version,
-	}, nil
-}
-
-// databaseUserItems 列出各数据库服务下的用户，1Panel 的用户接口直接返回明文密码
-func (a *onePanelAdapter) databaseUserItems(ctx context.Context) []types.MigrationItem {
-	// v1 没有数据库用户接口
-	if a.v1 {
-		return nil
-	}
-
+// databaseItems 列出各数据库服务下的数据库
+func (a *onePanelAdapter) databaseItems(ctx context.Context, servers []onePanelDatabaseServer) []types.MigrationItem {
 	items := make([]types.MigrationItem, 0)
-	for _, subtype := range []string{"mysql", "mariadb", "postgresql"} {
-		data, err := a.api(ctx, http.MethodGet, "/databases/db/list/"+subtype, nil)
-		if err != nil {
-			continue
-		}
-		for _, server := range a.rows(data) {
-			name := cast.ToString(server["database"])
-			if name == "" || strings.EqualFold(cast.ToString(server["from"]), "remote") {
-				continue
-			}
-			items = append(items, a.usersOf(ctx, subtype, name)...)
-		}
-	}
-	return items
-}
-
-// usersOf 列出指定数据库服务下的用户
-func (a *onePanelAdapter) usersOf(ctx context.Context, subtype, server string) []types.MigrationItem {
-	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": server})
-	if err != nil {
-		return nil
-	}
-
-	items := make([]types.MigrationItem, 0)
-	for _, row := range a.rows(data) {
-		username, password := cast.ToString(row["username"]), cast.ToString(row["password"])
-		// 密码不可见的用户迁过去也连不上，不如不迁
-		if username == "" || password == "" {
-			continue
-		}
-		host := lo.CoalesceOrEmpty(cast.ToString(row["host"]), "%")
-		items = append(items, types.MigrationItem{
-			Key:  biz.MigrationItemKey("database_user", subtype+":"+server+":"+username+"@"+host),
-			Type: "database_user", Subtype: subtype, Name: username + "@" + host, Status: "running",
-			TargetName: username, SourceID: username, SourceGroup: server, Version: host,
-		})
+	for _, server := range servers {
+		items = append(items, a.databasesOf(ctx, server.subtype, server.name, server.version)...)
 	}
 	return items
 }
@@ -249,6 +196,47 @@ func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, vers
 	return items
 }
 
+// databaseUserItems 列出各数据库服务下的用户，1Panel 的用户接口直接返回明文密码
+func (a *onePanelAdapter) databaseUserItems(
+	ctx context.Context,
+	servers []onePanelDatabaseServer,
+) []types.MigrationItem {
+	// v1 没有数据库用户接口
+	if a.v1 {
+		return nil
+	}
+
+	items := make([]types.MigrationItem, 0)
+	for _, server := range servers {
+		items = append(items, a.usersOf(ctx, server.subtype, server.name)...)
+	}
+	return items
+}
+
+// usersOf 列出指定数据库服务下的用户
+func (a *onePanelAdapter) usersOf(ctx context.Context, subtype, server string) []types.MigrationItem {
+	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": server})
+	if err != nil {
+		return nil
+	}
+
+	items := make([]types.MigrationItem, 0)
+	for _, row := range a.rows(data) {
+		username, password := cast.ToString(row["username"]), cast.ToString(row["password"])
+		// 密码不可见的用户迁过去也连不上，不如不迁
+		if username == "" || password == "" {
+			continue
+		}
+		host := lo.CoalesceOrEmpty(cast.ToString(row["host"]), "%")
+		items = append(items, types.MigrationItem{
+			Key:  biz.MigrationItemKey("database_user", subtype+":"+server+":"+username+"@"+host),
+			Type: "database_user", Subtype: subtype, Name: username + "@" + host, Status: "running",
+			TargetName: username, SourceID: username, SourceGroup: server, Version: host,
+		})
+	}
+	return items
+}
+
 func (a *onePanelAdapter) Detail(ctx context.Context, item types.MigrationItem) (*types.MigrationDetail, error) {
 	detail := &types.MigrationDetail{Item: item}
 	var err error
@@ -265,7 +253,10 @@ func (a *onePanelAdapter) Detail(ctx context.Context, item types.MigrationItem) 
 	return detail, err
 }
 
-func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationWebsite, error) {
+func (a *onePanelAdapter) websiteDetail(
+	ctx context.Context,
+	item types.MigrationItem,
+) (*types.MigrationWebsite, error) {
 	data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil)
 	if err != nil {
 		return nil, err
@@ -301,6 +292,24 @@ func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.Migratio
 	website.Redirects = a.redirects(ctx, item.SourceID)
 	a.applySSL(ctx, item.SourceID, website)
 	return website, nil
+}
+
+// runtimePHP 读取运行环境的 PHP 版本，version 可能只有主版本号，params 中的才完整
+func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint {
+	if runtimeID == "" || runtimeID == "0" {
+		return 0
+	}
+	data, err := a.api(ctx, http.MethodGet, "/runtimes/"+runtimeID, nil)
+	if err != nil {
+		return 0
+	}
+	row := cast.ToStringMap(data)
+
+	if version := a.phpVersion(cast.ToString(cast.ToStringMap(row["params"])["PHP_VERSION"])); version > 0 {
+		return version
+	}
+
+	return a.phpVersion(cast.ToString(row["version"]))
 }
 
 // domains 读取站点域名与监听端口
@@ -405,25 +414,10 @@ func (a *onePanelAdapter) applySSL(ctx context.Context, websiteID string, websit
 	website.SSLListens = append(website.SSLListens, "443")
 }
 
-// runtimePHP 读取运行环境的 PHP 版本，version 可能只有主版本号，params 中的才完整
-func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint {
-	if runtimeID == "" || runtimeID == "0" {
-		return 0
-	}
-	data, err := a.api(ctx, http.MethodGet, "/runtimes/"+runtimeID, nil)
-	if err != nil {
-		return 0
-	}
-	row := cast.ToStringMap(data)
-
-	if version := a.phpVersion(cast.ToString(cast.ToStringMap(row["params"])["PHP_VERSION"])); version > 0 {
-		return version
-	}
-
-	return a.phpVersion(cast.ToString(row["version"]))
-}
-
-func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabase, error) {
+func (a *onePanelAdapter) databaseDetail(
+	ctx context.Context,
+	item types.MigrationItem,
+) (*types.MigrationDatabase, error) {
 	path := "/databases/search"
 	if item.Subtype == "postgresql" {
 		path = "/databases/pg/search"
@@ -444,6 +438,28 @@ func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.Migrati
 	return &types.MigrationDatabase{
 		Type: item.Subtype, Version: item.Version, Name: item.Name, Host: "localhost",
 		Username: cast.ToString(row["username"]), Password: cast.ToString(row["password"]),
+	}, nil
+}
+
+// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
+func (a *onePanelAdapter) databaseUserDetail(
+	ctx context.Context,
+	item types.MigrationItem,
+) (*types.MigrationDatabaseUser, error) {
+	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": item.SourceGroup})
+	if err != nil {
+		return nil, err
+	}
+	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
+		return cast.ToString(row["username"]) == item.SourceID && cast.ToString(row["host"]) == item.Version
+	})
+	if !ok {
+		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
+	}
+
+	return &types.MigrationDatabaseUser{
+		Type: item.Subtype, Username: item.SourceID,
+		Password: cast.ToString(row["password"]), Host: item.Version,
 	}, nil
 }
 

@@ -15,7 +15,12 @@ type App struct {
 	redis *redis.App
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return &App{
 		redis: redis.New("valkey", "Valkey", t, log, databaseServerRepo, taskRepo),
 	}

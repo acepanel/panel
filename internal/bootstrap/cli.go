@@ -12,24 +12,22 @@ import (
 )
 
 func NewCli(t *gotext.Locale, cliService *service.CliService) app.CliBuilder {
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "NAME", t.Get("NAME"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "USAGE", t.Get("USAGE"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "VERSION", t.Get("VERSION"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "DESCRIPTION", t.Get("DESCRIPTION"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "AUTHOR", t.Get("AUTHOR"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "COMMANDS", t.Get("COMMANDS"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "GLOBAL OPTIONS", t.Get("GLOBAL OPTIONS"))
-	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "COPYRIGHT", t.Get("COPYRIGHT"))
-	cli.CommandHelpTemplate = strings.ReplaceAll(cli.CommandHelpTemplate, "NAME", t.Get("NAME"))
-	cli.CommandHelpTemplate = strings.ReplaceAll(cli.CommandHelpTemplate, "USAGE", t.Get("USAGE"))
-	cli.CommandHelpTemplate = strings.ReplaceAll(cli.CommandHelpTemplate, "CATEGORY", t.Get("CATEGORY"))
-	cli.CommandHelpTemplate = strings.ReplaceAll(cli.CommandHelpTemplate, "DESCRIPTION", t.Get("DESCRIPTION"))
-	cli.CommandHelpTemplate = strings.ReplaceAll(cli.CommandHelpTemplate, "OPTIONS", t.Get("OPTIONS"))
-	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "NAME", t.Get("NAME"))
-	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "USAGE", t.Get("USAGE"))
-	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "DESCRIPTION", t.Get("USAGE"))
-	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "COMMANDS", t.Get("COMMANDS"))
-	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "OPTIONS", t.Get("OPTIONS"))
+	// 单趟替换按位置匹配，GLOBAL OPTIONS 不会被 OPTIONS 截走后半段
+	headings := strings.NewReplacer(
+		"NAME", t.Get("NAME"),
+		"USAGE", t.Get("USAGE"),
+		"VERSION", t.Get("VERSION"),
+		"CATEGORY", t.Get("CATEGORY"),
+		"DESCRIPTION", t.Get("DESCRIPTION"),
+		"AUTHOR", t.Get("AUTHOR"),
+		"COMMANDS", t.Get("COMMANDS"),
+		"GLOBAL OPTIONS", t.Get("GLOBAL OPTIONS"),
+		"OPTIONS", t.Get("OPTIONS"),
+		"COPYRIGHT", t.Get("COPYRIGHT"),
+	)
+	for _, tpl := range []*string{&cli.RootCommandHelpTemplate, &cli.CommandHelpTemplate, &cli.SubcommandHelpTemplate} {
+		*tpl = headings.Replace(*tpl)
+	}
 
 	cli.RootCommandHelpTemplate += "\n" + t.Get("Website：https://acepanel.net")
 	cli.RootCommandHelpTemplate += "\n" + t.Get("Forum：https://tom.moe")

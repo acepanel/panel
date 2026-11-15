@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { NButton, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import monitor from '@/api/panel/monitor'
 import notify from '@/api/panel/notify'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ChannelModal from '@/views/monitor/ChannelModal.vue'
 import { useNotifyEvents } from '@/views/monitor/metrics'
 
 const { $gettext } = useGettext()
-const { confirmAction } = useConfirm()
+const { confirmAction, confirmDelete } = useConfirm()
 const events = useNotifyEvents()
 const formLayout = useFormLayout(160)
 
@@ -62,21 +62,12 @@ const {
   loading: channelsLoading,
   data: channels,
   page: channelPage,
-  total: channelTotal,
   pageSize: channelPageSize,
   refresh: refreshChannels,
-} = usePagination((page, pageSize) => notify.channels(page, pageSize), {
-  initialData: { total: 0, items: [] },
-  initialPageSize: 20,
-  total: (res: any) => res.total,
-  data: (res: any) => res.items,
+  pagination: channelPagination,
+} = usePagedTable((page, pageSize) => notify.channels(page, pageSize), {
+  pageSizes: [20, 50, 100],
 })
-const channelPagination = useTablePagination(
-  channelPage,
-  channelPageSize,
-  channelTotal,
-  [20, 50, 100],
-)
 
 const handleAddChannel = () => {
   editingChannel.value = null
@@ -88,7 +79,11 @@ const handleEditChannel = (row: any) => {
   channelModalShow.value = true
 }
 
-const handleDeleteChannel = (row: any) => {
+const handleDeleteChannel = async (row: any) => {
+  const ok = await confirmDelete({
+    content: $gettext('Are you sure to delete this channel?'),
+  })
+  if (!ok) return
   useRequest(notify.deleteChannel(row.id)).onSuccess(() => {
     window.$message.success($gettext('Deleted successfully'))
     refreshChannels()
@@ -152,15 +147,14 @@ const channelColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NPopconfirm,
-          { onPositiveClick: () => handleDeleteChannel(row) },
+          NButton,
           {
-            trigger: () =>
-              h(NButton, { size: 'small', type: 'error', secondary: true }, () =>
-                $gettext('Delete'),
-              ),
-            default: () => $gettext('Are you sure to delete this channel?'),
+            size: 'small',
+            type: 'error',
+            secondary: true,
+            onClick: () => handleDeleteChannel(row),
           },
+          () => $gettext('Delete'),
         ),
       ])
     },

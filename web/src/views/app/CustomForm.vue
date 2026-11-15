@@ -2,7 +2,6 @@
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
-import CommonEditor from '@/components/common/CommonEditor.vue'
 
 const { $gettext } = useGettext()
 

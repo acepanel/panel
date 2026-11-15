@@ -49,9 +49,6 @@ var _ biz.BackupRepo = &BackupRepo{}
 //			GetDefaultPathFunc: func(typ biz.BackupType) string {
 //				panic("mock out the GetDefaultPath method")
 //			},
-//			GetStorageFunc: func(id uint) (*biz.BackupStorage, error) {
-//				panic("mock out the GetStorage method")
-//			},
 //			ListFunc: func(typ biz.BackupType) ([]*types.BackupFile, error) {
 //				panic("mock out the List method")
 //			},
@@ -94,9 +91,6 @@ type BackupRepo struct {
 
 	// GetDefaultPathFunc mocks the GetDefaultPath method.
 	GetDefaultPathFunc func(typ biz.BackupType) string
-
-	// GetStorageFunc mocks the GetStorage method.
-	GetStorageFunc func(id uint) (*biz.BackupStorage, error)
 
 	// ListFunc mocks the List method.
 	ListFunc func(typ biz.BackupType) ([]*types.BackupFile, error)
@@ -188,11 +182,6 @@ type BackupRepo struct {
 			// Typ is the typ argument value.
 			Typ biz.BackupType
 		}
-		// GetStorage holds details about calls to the GetStorage method.
-		GetStorage []struct {
-			// ID is the id argument value.
-			ID uint
-		}
 		// List holds details about calls to the List method.
 		List []struct {
 			// Typ is the typ argument value.
@@ -232,7 +221,6 @@ type BackupRepo struct {
 	lockDelete              sync.RWMutex
 	lockFixPanel            sync.RWMutex
 	lockGetDefaultPath      sync.RWMutex
-	lockGetStorage          sync.RWMutex
 	lockList                sync.RWMutex
 	lockRestore             sync.RWMutex
 	lockUpdatePanel         sync.RWMutex
@@ -591,38 +579,6 @@ func (mock *BackupRepo) GetDefaultPathCalls() []struct {
 	mock.lockGetDefaultPath.RLock()
 	calls = mock.calls.GetDefaultPath
 	mock.lockGetDefaultPath.RUnlock()
-	return calls
-}
-
-// GetStorage calls GetStorageFunc.
-func (mock *BackupRepo) GetStorage(id uint) (*biz.BackupStorage, error) {
-	if mock.GetStorageFunc == nil {
-		panic("BackupRepo.GetStorageFunc: method is nil but BackupRepo.GetStorage was just called")
-	}
-	callInfo := struct {
-		ID uint
-	}{
-		ID: id,
-	}
-	mock.lockGetStorage.Lock()
-	mock.calls.GetStorage = append(mock.calls.GetStorage, callInfo)
-	mock.lockGetStorage.Unlock()
-	return mock.GetStorageFunc(id)
-}
-
-// GetStorageCalls gets all the calls that were made to GetStorage.
-// Check the length with:
-//
-//	len(mockedBackupRepo.GetStorageCalls())
-func (mock *BackupRepo) GetStorageCalls() []struct {
-	ID uint
-} {
-	var calls []struct {
-		ID uint
-	}
-	mock.lockGetStorage.RLock()
-	calls = mock.calls.GetStorage
-	mock.lockGetStorage.RUnlock()
 	return calls
 }
 

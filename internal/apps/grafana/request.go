@@ -32,7 +32,7 @@ type ConfigTune struct {
 
 // DataSource 数据源
 type DataSource struct {
-	Name      string `form:"name" json:"name" validate:"required"`
+	Name      string `form:"name" json:"name" uri:"-" validate:"required"` // 路径里的 name 是旧名，不能盖掉它
 	Type      string `form:"type" json:"type" validate:"required && in:prometheus,mysql,postgres,influxdb,loki,elasticsearch,tempo,jaeger,zipkin,graphite,alertmanager,opentsdb,mssql,testdata,grafana-pyroscope-datasource,grafana-opensearch-datasource"`
 	URL       string `form:"url" json:"url" validate:"required"`
 	Access    string `form:"access" json:"access" validate:"in:proxy,direct"`

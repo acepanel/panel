@@ -15,15 +15,19 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+// passwordPipe 把密码源源不断地喂给 pure-pw 的两次密码提示
+// 密码取自环境变量 FTP_PASSWORD，不进命令行也就不受 shell 元字符影响
+const passwordPipe = `while printf '%%s\n' "$FTP_PASSWORD"; do :; done | `
 
 type App struct {
 	t   *gotext.Locale
@@ -103,7 +107,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 
 	// mkdb 被取消会让文本库已改、二进制库未重建，FTP 认证与面板显示不一致
 	ctx := context.WithoutCancel(r.Context())
-	if _, err = shell.Execf(ctx, `yes '%s' | pure-pw useradd '%s' -u www -g www -d '%s'`, req.Password, req.Username, req.Path); err != nil {
+	if _, err = shell.ExecfWithEnv(ctx, s.passwordEnv(req.Password), passwordPipe+`pure-pw useradd %s -u www -g www -d %s`, shell.Quote(req.Username), shell.Quote(req.Path)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -149,7 +153,7 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	// mkdb 被取消会让二进制库仍是旧密码，FTP 认的还是改前的密码
 	ctx := context.WithoutCancel(r.Context())
-	if _, err = shell.Execf(ctx, `yes '%s' | pure-pw passwd '%s' -m`, req.Password, req.Username); err != nil {
+	if _, err = shell.ExecfWithEnv(ctx, s.passwordEnv(req.Password), passwordPipe+`pure-pw passwd %s -m`, shell.Quote(req.Username)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -164,21 +168,14 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 // GetPort 获取端口
 func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
-	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
-	config, err := io.Read(confPath)
+	config, err := io.Read(s.ConfPath())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 		return
 	}
 
-	bind := strings.Trim(confval.FTP.Get(config, "Bind"), `"'`)
-	port := 21 // 默认端口
-	if parts := strings.SplitN(bind, ",", 2); len(parts) == 2 {
-		port = cast.ToInt(strings.TrimSpace(parts[1]))
-	}
-
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("path", confPath))
-	service.Success(w, port)
+	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("path", s.ConfPath()))
+	service.Success(w, s.Port(config))
 }
 
 // UpdatePort 设置端口
@@ -189,7 +186,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+	confPath := s.ConfPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -203,23 +200,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall()
-	running, err := fw.Status(ctx)
+	running, err := common.OpenPort(ctx, req.Port, "")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
-	}
-	if running {
-		if err = fw.Port(ctx, firewall.FireInfo{
-			Type:      firewall.TypeNormal,
-			PortStart: req.Port,
-			PortEnd:   req.Port,
-			Strategy:  firewall.StrategyAccept,
-			Direction: firewall.DirectionIn,
-		}, firewall.OperationAdd); err != nil {
-			service.Error(w, http.StatusInternalServerError, "%v", err)
-			return
-		}
 	}
 
 	if err = systemctl.Restart(ctx, "pure-ftpd"); err != nil {
@@ -233,23 +217,15 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Pure-FTPd 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+	confPath := s.ConfPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	tune := ConfigTune{
-		MaxClientsNumber: confval.FTP.Get(config, "MaxClientsNumber"),
-		MaxClientsPerIP:  confval.FTP.Get(config, "MaxClientsPerIP"),
-		MaxIdleTime:      confval.FTP.Get(config, "MaxIdleTime"),
-		MaxLoad:          confval.FTP.Get(config, "MaxLoad"),
-		PassivePortRange: confval.FTP.Get(config, "PassivePortRange"),
-		AnonymousOnly:    confval.FTP.Get(config, "AnonymousOnly"),
-		NoAnonymous:      confval.FTP.Get(config, "NoAnonymous"),
-		MaxDiskUsage:     confval.FTP.Get(config, "MaxDiskUsage"),
-	}
+	tune := new(ConfigTune)
+	confval.FTP.Read(config, s.tuneFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("path", confPath))
 	service.Success(w, tune)
@@ -263,21 +239,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+	confPath := s.ConfPath()
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	config = confval.FTP.Set(config, "MaxClientsNumber", req.MaxClientsNumber)
-	config = confval.FTP.Set(config, "MaxClientsPerIP", req.MaxClientsPerIP)
-	config = confval.FTP.Set(config, "MaxIdleTime", req.MaxIdleTime)
-	config = confval.FTP.Set(config, "MaxLoad", req.MaxLoad)
-	config = confval.FTP.Set(config, "PassivePortRange", req.PassivePortRange)
-	config = confval.FTP.Set(config, "AnonymousOnly", req.AnonymousOnly)
-	config = confval.FTP.Set(config, "NoAnonymous", req.NoAnonymous)
-	config = confval.FTP.Set(config, "MaxDiskUsage", req.MaxDiskUsage)
+	config = confval.FTP.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -291,4 +260,36 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "pureftpd"), slog.String("max_clients_number", req.MaxClientsNumber), slog.String("max_clients_per_ip", req.MaxClientsPerIP), slog.String("max_idle_time", req.MaxIdleTime), slog.String("max_load", req.MaxLoad), slog.String("passive_port_range", req.PassivePortRange), slog.String("anonymous_only", req.AnonymousOnly), slog.String("no_anonymous", req.NoAnonymous), slog.String("max_disk_usage", req.MaxDiskUsage))
 	service.Success(w, nil)
+}
+
+// ConfPath 主配置文件路径
+func (s *App) ConfPath() string {
+	return app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
+}
+
+// Port 从配置内容解析监听端口，Bind 形如 "0.0.0.0,21"，未指定端口时为默认的 21
+func (s *App) Port(config string) int {
+	bind := strings.Trim(confval.FTP.Get(config, "Bind"), `"'`)
+	if _, port, ok := strings.Cut(bind, ","); ok {
+		return cast.ToInt(strings.TrimSpace(port))
+	}
+
+	return 21
+}
+
+func (s *App) passwordEnv(password string) []string {
+	return []string{"FTP_PASSWORD=" + password}
+}
+
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		{Key: "MaxClientsNumber", Value: &t.MaxClientsNumber},
+		{Key: "MaxClientsPerIP", Value: &t.MaxClientsPerIP},
+		{Key: "MaxIdleTime", Value: &t.MaxIdleTime},
+		{Key: "MaxLoad", Value: &t.MaxLoad},
+		{Key: "PassivePortRange", Value: &t.PassivePortRange},
+		{Key: "AnonymousOnly", Value: &t.AnonymousOnly},
+		{Key: "NoAnonymous", Value: &t.NoAnonymous},
+		{Key: "MaxDiskUsage", Value: &t.MaxDiskUsage},
+	}
 }

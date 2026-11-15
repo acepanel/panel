@@ -1,139 +1,91 @@
 package frp
 
-import (
-	"github.com/spf13/cast"
+import "github.com/acepanel/panel/v3/internal/apps/confval"
 
-	"github.com/acepanel/panel/v3/internal/apps/confval"
-)
+// serverFields 可视化参数与 TOML 键的对应关系，表单一律用字符串收值，Kind 决定写回时的字面量类型
+func (s *App) serverFields(t *ServerTune) []confval.Field {
+	return []confval.Field{
+		{Key: "bindAddr", Value: &t.BindAddr},
+		{Key: "bindPort", Value: &t.BindPort, Kind: confval.Int},
+		{Key: "kcpBindPort", Value: &t.KCPBindPort, Kind: confval.Int},
+		{Key: "quicBindPort", Value: &t.QUICBindPort, Kind: confval.Int},
+		{Key: "proxyBindAddr", Value: &t.ProxyBindAddr},
+		{Key: "subDomainHost", Value: &t.SubDomainHost},
+		{Key: "maxPortsPerClient", Value: &t.MaxPortsPerClient, Kind: confval.Int},
+		{Key: "udpPacketSize", Value: &t.UDPPacketSize, Kind: confval.Int},
+		{Key: "detailedErrorsToClient", Value: &t.DetailedErrorsToClient, Kind: confval.Bool},
 
-type tuneKind uint8
+		{Key: "auth.method", Value: &t.AuthMethod},
+		{Key: "auth.token", Value: &t.AuthToken},
 
-const (
-	tuneString tuneKind = iota
-	tuneInt
-	tuneBool
-)
+		{Key: "vhostHTTPPort", Value: &t.VhostHTTPPort, Kind: confval.Int},
+		{Key: "vhostHTTPSPort", Value: &t.VhostHTTPSPort, Kind: confval.Int},
+		{Key: "vhostHTTPTimeout", Value: &t.VhostHTTPTimeout, Kind: confval.Int},
+		{Key: "tcpmuxHTTPConnectPort", Value: &t.TCPMuxHTTPConnectPort, Kind: confval.Int},
+		{Key: "custom404Page", Value: &t.Custom404Page},
 
-// tuneField 可视化参数与 TOML 键的对应关系，表单一律用字符串收值，kind 决定写回时的字面量类型
-type tuneField struct {
-	key   string
-	value *string
-	kind  tuneKind
-}
+		{Key: "webServer.addr", Value: &t.WebServerAddr},
+		{Key: "webServer.port", Value: &t.WebServerPort, Kind: confval.Int},
+		{Key: "webServer.user", Value: &t.WebServerUser},
+		{Key: "webServer.password", Value: &t.WebServerPassword},
+		{Key: "webServer.pprofEnable", Value: &t.WebServerPprofEnable, Kind: confval.Bool},
+		{Key: "enablePrometheus", Value: &t.EnablePrometheus, Kind: confval.Bool},
 
-// literal 空串表示注释掉该项
-func (f tuneField) literal() any {
-	if *f.value == "" {
-		return ""
-	}
+		{Key: "transport.maxPoolCount", Value: &t.TransportMaxPoolCount, Kind: confval.Int},
+		{Key: "transport.tcpMux", Value: &t.TransportTCPMux, Kind: confval.Bool},
+		{Key: "transport.tcpMuxKeepaliveInterval", Value: &t.TransportTCPMuxKeepaliveInterval, Kind: confval.Int},
+		{Key: "transport.tcpKeepalive", Value: &t.TransportTCPKeepalive, Kind: confval.Int},
+		{Key: "transport.heartbeatTimeout", Value: &t.TransportHeartbeatTimeout, Kind: confval.Int},
+		{Key: "transport.tls.force", Value: &t.TransportTLSForce, Kind: confval.Bool},
+		{Key: "transport.tls.certFile", Value: &t.TransportTLSCertFile},
+		{Key: "transport.tls.keyFile", Value: &t.TransportTLSKeyFile},
+		{Key: "transport.tls.trustedCaFile", Value: &t.TransportTLSTrustedCaFile},
 
-	switch f.kind {
-	case tuneInt:
-		return cast.ToInt(*f.value)
-	case tuneBool:
-		return cast.ToBool(*f.value)
-	default:
-		return *f.value
-	}
-}
-
-func readTune(config string, fields []tuneField) {
-	for _, f := range fields {
-		*f.value = confval.GetTOML(config, f.key)
-	}
-}
-
-func writeTune(config string, fields []tuneField) string {
-	for _, f := range fields {
-		config = confval.SetTOML(config, f.key, f.literal())
-	}
-
-	return config
-}
-
-func serverFields(t *ServerTune) []tuneField {
-	return []tuneField{
-		{"bindAddr", &t.BindAddr, tuneString},
-		{"bindPort", &t.BindPort, tuneInt},
-		{"kcpBindPort", &t.KCPBindPort, tuneInt},
-		{"quicBindPort", &t.QUICBindPort, tuneInt},
-		{"proxyBindAddr", &t.ProxyBindAddr, tuneString},
-		{"subDomainHost", &t.SubDomainHost, tuneString},
-		{"maxPortsPerClient", &t.MaxPortsPerClient, tuneInt},
-		{"udpPacketSize", &t.UDPPacketSize, tuneInt},
-		{"detailedErrorsToClient", &t.DetailedErrorsToClient, tuneBool},
-
-		{"auth.method", &t.AuthMethod, tuneString},
-		{"auth.token", &t.AuthToken, tuneString},
-
-		{"vhostHTTPPort", &t.VhostHTTPPort, tuneInt},
-		{"vhostHTTPSPort", &t.VhostHTTPSPort, tuneInt},
-		{"vhostHTTPTimeout", &t.VhostHTTPTimeout, tuneInt},
-		{"tcpmuxHTTPConnectPort", &t.TCPMuxHTTPConnectPort, tuneInt},
-		{"custom404Page", &t.Custom404Page, tuneString},
-
-		{"webServer.addr", &t.WebServerAddr, tuneString},
-		{"webServer.port", &t.WebServerPort, tuneInt},
-		{"webServer.user", &t.WebServerUser, tuneString},
-		{"webServer.password", &t.WebServerPassword, tuneString},
-		{"webServer.pprofEnable", &t.WebServerPprofEnable, tuneBool},
-		{"enablePrometheus", &t.EnablePrometheus, tuneBool},
-
-		{"transport.maxPoolCount", &t.TransportMaxPoolCount, tuneInt},
-		{"transport.tcpMux", &t.TransportTCPMux, tuneBool},
-		{"transport.tcpMuxKeepaliveInterval", &t.TransportTCPMuxKeepaliveInterval, tuneInt},
-		{"transport.tcpKeepalive", &t.TransportTCPKeepalive, tuneInt},
-		{"transport.heartbeatTimeout", &t.TransportHeartbeatTimeout, tuneInt},
-		{"transport.tls.force", &t.TransportTLSForce, tuneBool},
-		{"transport.tls.certFile", &t.TransportTLSCertFile, tuneString},
-		{"transport.tls.keyFile", &t.TransportTLSKeyFile, tuneString},
-		{"transport.tls.trustedCaFile", &t.TransportTLSTrustedCaFile, tuneString},
-
-		{"log.to", &t.LogTo, tuneString},
-		{"log.level", &t.LogLevel, tuneString},
-		{"log.maxDays", &t.LogMaxDays, tuneInt},
-		{"log.disablePrintColor", &t.LogDisablePrintColor, tuneBool},
+		{Key: "log.to", Value: &t.LogTo},
+		{Key: "log.level", Value: &t.LogLevel},
+		{Key: "log.maxDays", Value: &t.LogMaxDays, Kind: confval.Int},
+		{Key: "log.disablePrintColor", Value: &t.LogDisablePrintColor, Kind: confval.Bool},
 	}
 }
 
-func clientFields(t *ClientTune) []tuneField {
-	return []tuneField{
-		{"user", &t.User, tuneString},
-		{"serverAddr", &t.ServerAddr, tuneString},
-		{"serverPort", &t.ServerPort, tuneInt},
-		{"loginFailExit", &t.LoginFailExit, tuneBool},
-		{"natHoleStunServer", &t.NatHoleStunServer, tuneString},
-		{"dnsServer", &t.DNSServer, tuneString},
-		{"udpPacketSize", &t.UDPPacketSize, tuneInt},
+func (s *App) clientFields(t *ClientTune) []confval.Field {
+	return []confval.Field{
+		{Key: "user", Value: &t.User},
+		{Key: "serverAddr", Value: &t.ServerAddr},
+		{Key: "serverPort", Value: &t.ServerPort, Kind: confval.Int},
+		{Key: "loginFailExit", Value: &t.LoginFailExit, Kind: confval.Bool},
+		{Key: "natHoleStunServer", Value: &t.NatHoleStunServer},
+		{Key: "dnsServer", Value: &t.DNSServer},
+		{Key: "udpPacketSize", Value: &t.UDPPacketSize, Kind: confval.Int},
 
-		{"auth.method", &t.AuthMethod, tuneString},
-		{"auth.token", &t.AuthToken, tuneString},
+		{Key: "auth.method", Value: &t.AuthMethod},
+		{Key: "auth.token", Value: &t.AuthToken},
 
-		{"transport.protocol", &t.TransportProtocol, tuneString},
-		{"transport.poolCount", &t.TransportPoolCount, tuneInt},
-		{"transport.tcpMux", &t.TransportTCPMux, tuneBool},
-		{"transport.tcpMuxKeepaliveInterval", &t.TransportTCPMuxKeepaliveInterval, tuneInt},
-		{"transport.dialServerTimeout", &t.TransportDialServerTimeout, tuneInt},
-		{"transport.dialServerKeepalive", &t.TransportDialServerKeepalive, tuneInt},
-		{"transport.heartbeatInterval", &t.TransportHeartbeatInterval, tuneInt},
-		{"transport.heartbeatTimeout", &t.TransportHeartbeatTimeout, tuneInt},
-		{"transport.connectServerLocalIP", &t.TransportConnectServerLocalIP, tuneString},
-		{"transport.proxyURL", &t.TransportProxyURL, tuneString},
-		{"transport.tls.enable", &t.TransportTLSEnable, tuneBool},
-		{"transport.tls.certFile", &t.TransportTLSCertFile, tuneString},
-		{"transport.tls.keyFile", &t.TransportTLSKeyFile, tuneString},
-		{"transport.tls.trustedCaFile", &t.TransportTLSTrustedCaFile, tuneString},
-		{"transport.tls.serverName", &t.TransportTLSServerName, tuneString},
+		{Key: "transport.protocol", Value: &t.TransportProtocol},
+		{Key: "transport.poolCount", Value: &t.TransportPoolCount, Kind: confval.Int},
+		{Key: "transport.tcpMux", Value: &t.TransportTCPMux, Kind: confval.Bool},
+		{Key: "transport.tcpMuxKeepaliveInterval", Value: &t.TransportTCPMuxKeepaliveInterval, Kind: confval.Int},
+		{Key: "transport.dialServerTimeout", Value: &t.TransportDialServerTimeout, Kind: confval.Int},
+		{Key: "transport.dialServerKeepalive", Value: &t.TransportDialServerKeepalive, Kind: confval.Int},
+		{Key: "transport.heartbeatInterval", Value: &t.TransportHeartbeatInterval, Kind: confval.Int},
+		{Key: "transport.heartbeatTimeout", Value: &t.TransportHeartbeatTimeout, Kind: confval.Int},
+		{Key: "transport.connectServerLocalIP", Value: &t.TransportConnectServerLocalIP},
+		{Key: "transport.proxyURL", Value: &t.TransportProxyURL},
+		{Key: "transport.tls.enable", Value: &t.TransportTLSEnable, Kind: confval.Bool},
+		{Key: "transport.tls.certFile", Value: &t.TransportTLSCertFile},
+		{Key: "transport.tls.keyFile", Value: &t.TransportTLSKeyFile},
+		{Key: "transport.tls.trustedCaFile", Value: &t.TransportTLSTrustedCaFile},
+		{Key: "transport.tls.serverName", Value: &t.TransportTLSServerName},
 
-		{"webServer.addr", &t.WebServerAddr, tuneString},
-		{"webServer.port", &t.WebServerPort, tuneInt},
-		{"webServer.user", &t.WebServerUser, tuneString},
-		{"webServer.password", &t.WebServerPassword, tuneString},
-		{"webServer.pprofEnable", &t.WebServerPprofEnable, tuneBool},
+		{Key: "webServer.addr", Value: &t.WebServerAddr},
+		{Key: "webServer.port", Value: &t.WebServerPort, Kind: confval.Int},
+		{Key: "webServer.user", Value: &t.WebServerUser},
+		{Key: "webServer.password", Value: &t.WebServerPassword},
+		{Key: "webServer.pprofEnable", Value: &t.WebServerPprofEnable, Kind: confval.Bool},
 
-		{"log.to", &t.LogTo, tuneString},
-		{"log.level", &t.LogLevel, tuneString},
-		{"log.maxDays", &t.LogMaxDays, tuneInt},
-		{"log.disablePrintColor", &t.LogDisablePrintColor, tuneBool},
+		{Key: "log.to", Value: &t.LogTo},
+		{Key: "log.level", Value: &t.LogLevel},
+		{Key: "log.maxDays", Value: &t.LogMaxDays, Kind: confval.Int},
+		{Key: "log.disablePrintColor", Value: &t.LogDisablePrintColor, Kind: confval.Bool},
 	}
 }

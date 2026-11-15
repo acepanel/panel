@@ -3,9 +3,9 @@ package mongodb
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
@@ -14,6 +14,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -29,7 +30,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -62,7 +68,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	password, _ := s.settingRepo.Get(biz.SettingKeyMongoDBAdminPassword)
-	raw, err := shell.Execf(r.Context(), `mongosh --quiet --eval "JSON.stringify(db.serverStatus())" -u admin -p '%s' --authenticationDatabase admin 2>/dev/null`, password)
+	raw, err := shell.Execf(r.Context(), `mongosh --quiet --eval "JSON.stringify(db.serverStatus())" -u admin -p %s --authenticationDatabase admin 2>/dev/null`, shell.Quote(password))
 	if err != nil {
 		service.Success(w, []types.NV{})
 		return
@@ -117,25 +123,20 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "mongodb", s.configPath(), 0644, "mongod")
+	common.SaveConfig(w, r, s.log, s.t, "mongodb", s.configPath(), 0644, common.Restart("mongod"))
 }
 
 // GetConfigTune 获取配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	_ = yaml.Unmarshal([]byte(raw), &cfg)
-	if cfg == nil {
-		cfg = make(map[string]any)
-	}
+	cfg, _ := confval.LoadYAML(s.configPath())
 
 	tune := ConfigTune{
-		DbPath:        s.getYAMLValue(cfg, "storage.dbPath"),
-		CacheSizeGB:   s.getYAMLValue(cfg, "storage.wiredTiger.engineConfig.cacheSizeGB"),
-		Port:          s.getYAMLValue(cfg, "net.port"),
-		BindIp:        s.getYAMLValue(cfg, "net.bindIp"),
-		SystemLogPath: s.getYAMLValue(cfg, "systemLog.path"),
-		Authorization: s.getYAMLValue(cfg, "security.authorization"),
+		DbPath:        confval.GetYAML(cfg, "storage.dbPath"),
+		CacheSizeGB:   confval.GetYAML(cfg, "storage.wiredTiger.engineConfig.cacheSizeGB"),
+		Port:          confval.GetYAML(cfg, "net.port"),
+		BindIp:        confval.GetYAML(cfg, "net.bindIp"),
+		SystemLogPath: confval.GetYAML(cfg, "systemLog.path"),
+		Authorization: confval.GetYAML(cfg, "security.authorization"),
 	}
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "mongodb"), slog.String("path", s.configPath()))
@@ -151,18 +152,18 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
-		cfg = make(map[string]any)
+	cfg, err := confval.LoadYAML(s.configPath())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
-	s.setNestedYAMLValue(cfg, "storage.dbPath", req.DbPath)
-	s.setNestedYAMLValue(cfg, "storage.wiredTiger.engineConfig.cacheSizeGB", req.CacheSizeGB)
-	s.setNestedYAMLValue(cfg, "net.port", req.Port)
-	s.setNestedYAMLValue(cfg, "net.bindIp", req.BindIp)
-	s.setNestedYAMLValue(cfg, "systemLog.path", req.SystemLogPath)
-	s.setNestedYAMLValue(cfg, "security.authorization", req.Authorization)
+	confval.SetYAMLNested(cfg, "storage.dbPath", req.DbPath)
+	confval.SetYAMLNested(cfg, "storage.wiredTiger.engineConfig.cacheSizeGB", req.CacheSizeGB)
+	confval.SetYAMLNested(cfg, "net.port", req.Port)
+	confval.SetYAMLNested(cfg, "net.bindIp", req.BindIp)
+	confval.SetYAMLNested(cfg, "systemLog.path", req.SystemLogPath)
+	confval.SetYAMLNested(cfg, "security.authorization", req.Authorization)
 
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
@@ -175,6 +176,15 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = systemctl.Restart(r.Context(), "mongod"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	port := cast.ToUint(confval.GetYAML(cfg, "net.port"))
+	if port == 0 {
+		port = 27017
+	}
+	if err = s.databaseServerRepo.UpdatePort("local_mongodb", port); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -205,19 +215,26 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 新密码以 JSON 字面量嵌进脚本，整段脚本再整体引用，密码里的引号与 $ 都不会被 JS 或 shell 解释
+	literal, err := json.Marshal(req.Password)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyMongoDBAdminPassword)
 
 	// 回退路径会临时起一个无认证 mongod，中途取消轻则服务不起，重则留下裸奔实例
 	ctx := context.WithoutCancel(r.Context())
 
 	// 尝试用旧密码连接修改
-	_, err = shell.Execf(ctx, `mongosh --quiet -u admin -p '%s' --authenticationDatabase admin --eval "db.changeUserPassword('admin', '%s')"`, oldPassword, req.Password)
+	_, err = shell.Execf(ctx, `mongosh --quiet -u admin -p %s --authenticationDatabase admin --eval %s`, shell.Quote(oldPassword), shell.Quote(fmt.Sprintf("db.changeUserPassword('admin', %s)", literal)))
 	fallback := err != nil
 	if fallback {
 		// 回退：停止服务，无认证模式修改
 		_ = systemctl.Stop(ctx, "mongod")
 		_, _ = shell.Execf(ctx, `su -s /bin/bash mongod -c "mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log"`, s.configPath())
-		_, resetErr := shell.Execf(ctx, `mongosh --quiet --eval "db.getSiblingDB('admin').changeUserPassword('admin', '%s')"`, req.Password)
+		_, resetErr := shell.Execf(ctx, `mongosh --quiet --eval %s`, shell.Quote(fmt.Sprintf("db.getSiblingDB('admin').changeUserPassword('admin', %s)", literal)))
 		_, _ = shell.Execf(ctx, `su -s /bin/bash mongod -c "mongod --config %s --shutdown" 2>/dev/null; pkill -f 'mongod --config.*--noauth' 2>/dev/null`, s.configPath())
 		_ = systemctl.Start(ctx, "mongod")
 		if resetErr != nil {
@@ -241,39 +258,4 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 // configPath 返回配置文件路径
 func (s *App) configPath() string {
 	return app.Root + "/server/mongodb/mongod.conf"
-}
-
-// getYAMLValue 获取嵌套 YAML 值，支持 dot notation
-func (s *App) getYAMLValue(cfg map[string]any, key string) string {
-	parts := strings.SplitN(key, ".", 2)
-	val, ok := cfg[parts[0]]
-	if !ok {
-		return ""
-	}
-	if len(parts) == 1 {
-		return cast.ToString(val)
-	}
-	nested, ok := val.(map[string]any)
-	if !ok {
-		return ""
-	}
-	return s.getYAMLValue(nested, parts[1])
-}
-
-// setNestedYAMLValue 设置嵌套 YAML 值，逐层创建 map
-func (s *App) setNestedYAMLValue(cfg map[string]any, key string, value string) {
-	if value == "" {
-		return
-	}
-	parts := strings.SplitN(key, ".", 2)
-	if len(parts) == 1 {
-		cfg[parts[0]] = value
-		return
-	}
-	nested, ok := cfg[parts[0]].(map[string]any)
-	if !ok {
-		nested = make(map[string]any)
-		cfg[parts[0]] = nested
-	}
-	s.setNestedYAMLValue(nested, parts[1], value)
 }

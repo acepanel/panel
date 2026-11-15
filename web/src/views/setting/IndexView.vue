@@ -48,7 +48,6 @@ const { data: model } = useRequest(setting.list, {
     entrance_error: '418',
     login_captcha: false,
     offline_mode: false,
-    two_fa: false,
     lifetime: 0,
     ip_header: '',
     bind_domain: [],

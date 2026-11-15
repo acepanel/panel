@@ -9,9 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -20,6 +18,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/pkg/clientip"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
@@ -44,6 +43,15 @@ func (r userTokenRepo) List(userID, page, limit uint) ([]*biz.UserToken, int64, 
 	return userTokens, total, err
 }
 
+func (r userTokenRepo) Get(id uint) (*biz.UserToken, error) {
+	userToken := new(biz.UserToken)
+	if err := r.db.First(userToken, id).Error; err != nil {
+		return nil, err
+	}
+
+	return userToken, nil
+}
+
 func (r userTokenRepo) Create(userID uint, ips []string, expired time.Time) (*biz.UserToken, error) {
 	token := str.Random(32)
 	userToken := &biz.UserToken{
@@ -61,24 +69,6 @@ func (r userTokenRepo) Create(userID uint, ips []string, expired time.Time) (*bi
 	return userToken, nil
 }
 
-func (r userTokenRepo) Get(id uint) (*biz.UserToken, error) {
-	userToken := new(biz.UserToken)
-	if err := r.db.First(userToken, id).Error; err != nil {
-		return nil, err
-	}
-
-	return userToken, nil
-}
-
-func (r userTokenRepo) Delete(id uint) error {
-	userToken := new(biz.UserToken)
-	if err := r.db.First(userToken, id).Error; err != nil {
-		return err
-	}
-
-	return r.db.Delete(userToken).Error
-}
-
 func (r userTokenRepo) Update(id uint, ips []string, expired time.Time) (*biz.UserToken, error) {
 	userToken := new(biz.UserToken)
 	if err := r.db.First(userToken, id).Error; err != nil {
@@ -93,6 +83,15 @@ func (r userTokenRepo) Update(id uint, ips []string, expired time.Time) (*biz.Us
 	}
 
 	return userToken, nil
+}
+
+func (r userTokenRepo) Delete(id uint) error {
+	userToken := new(biz.UserToken)
+	if err := r.db.First(userToken, id).Error; err != nil {
+		return err
+	}
+
+	return r.db.Delete(userToken).Error
 }
 
 func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
@@ -143,36 +142,8 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 
 	// 步骤六：验证IP
 	if len(userToken.IPs) > 0 {
-		ip := req.RemoteAddr
-		ipHeader := r.conf.HTTP.IPHeader
-		if ipHeader != "" && req.Header.Get(ipHeader) != "" {
-			ip = strings.Split(req.Header.Get(ipHeader), ",")[0]
-		}
-		ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
-		if err != nil {
-			ip = req.RemoteAddr
-		}
-
-		allowed := false
-		requestIP := net.ParseIP(ip)
-		if requestIP != nil {
-			for _, allowedIP := range userToken.IPs {
-				if strings.Contains(allowedIP, "/") {
-					// CIDR
-					if _, ipNet, err := net.ParseCIDR(allowedIP); err == nil && ipNet.Contains(requestIP) {
-						allowed = true
-						break
-					}
-				} else {
-					// IP
-					if allowedIP == ip {
-						allowed = true
-						break
-					}
-				}
-			}
-		}
-		if !allowed {
+		ip := clientip.FromRequest(req, r.conf.HTTP.IPHeader)
+		if !clientip.Match(ip, userToken.IPs) {
 			return 0, errors.New(r.t.Get("invalid request ip: %s", ip))
 		}
 	}

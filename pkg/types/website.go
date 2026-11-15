@@ -2,13 +2,6 @@ package types
 
 import "github.com/acepanel/panel/v3/pkg/webserver/types"
 
-// WebsiteListen 网站监听配置
-type WebsiteListen struct {
-	Address string `form:"address" json:"address" validate:"required"` // 监听地址 e.g. 80 0.0.0.0:80 [::]:80
-	HTTPS   bool   `form:"https" json:"https"`                         // 是否启用HTTPS
-	QUIC    bool   `form:"quic" json:"quic"`                           // 是否启用QUIC
-}
-
 // WebsiteSetting 网站设置
 type WebsiteSetting struct {
 	ID      uint           `json:"id"`

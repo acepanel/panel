@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
+	"net"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/studio-b12/gowebdav"
 )
 
@@ -21,7 +21,7 @@ type WebDavConfig struct {
 	Timeout  time.Duration // 连接超时时间
 }
 
-type WebDav struct {
+type webDavStorage struct {
 	client *gowebdav.Client
 	config WebDavConfig
 }
@@ -41,7 +41,7 @@ func NewWebDav(config WebDavConfig) (Storage, error) {
 		return nil, fmt.Errorf("failed to connect to WebDAV server: %w", err)
 	}
 
-	w := &WebDav{
+	w := &webDavStorage{
 		client: client,
 		config: config,
 	}
@@ -56,9 +56,9 @@ func NewWebDav(config WebDavConfig) (Storage, error) {
 }
 
 // Delete 删除文件
-func (w *WebDav) Delete(_ context.Context, files ...string) error {
+func (w *webDavStorage) Delete(_ context.Context, files ...string) error {
 	for _, file := range files {
-		remotePath := w.fullPath(file)
+		remotePath := joinPath(w.config.BasePath, file)
 		if err := w.client.Remove(remotePath); err != nil {
 			return err
 		}
@@ -66,29 +66,20 @@ func (w *WebDav) Delete(_ context.Context, files ...string) error {
 	return nil
 }
 
-// Exists 检查文件是否存在
-func (w *WebDav) Exists(_ context.Context, file string) bool {
-	remotePath := w.fullPath(file)
-	_, err := w.client.Stat(remotePath)
-	return err == nil
-}
-
-// LastModified 获取文件最后修改时间
-func (w *WebDav) LastModified(_ context.Context, file string) (time.Time, error) {
-	remotePath := w.fullPath(file)
-	stat, err := w.client.Stat(remotePath)
+// List 列出目录下的所有文件
+func (w *webDavStorage) List(_ context.Context, path string) ([]File, error) {
+	entries, err := w.client.ReadDir(joinPath(w.config.BasePath, path))
 	if err != nil {
-		return time.Time{}, err
+		return nil, err
 	}
-
-	return stat.ModTime(), nil
+	return toFiles(entries), nil
 }
 
 // Put 写入文件内容
 // gowebdav 没有接收 context 的 API，上传无法被取消；且 content 必须保持 io.Seeker，
 // 否则 WriteStream 会把整个文件读进内存来算 Content-Length
-func (w *WebDav) Put(_ context.Context, file string, content io.Reader) error {
-	remotePath := w.fullPath(file)
+func (w *webDavStorage) Put(_ context.Context, file string, content io.Reader) error {
+	remotePath := joinPath(w.config.BasePath, file)
 
 	// 确保目录存在
 	remoteDir := filepath.Dir(remotePath)
@@ -106,45 +97,21 @@ func (w *WebDav) Put(_ context.Context, file string, content io.Reader) error {
 }
 
 // Rename 改名
-func (w *WebDav) Rename(_ context.Context, src, dst string) error {
-	return w.client.Rename(w.fullPath(src), w.fullPath(dst), true)
+func (w *webDavStorage) Rename(_ context.Context, src, dst string) error {
+	return w.client.Rename(joinPath(w.config.BasePath, src), joinPath(w.config.BasePath, dst), true)
 }
 
-// Size 获取文件大小
-func (w *WebDav) Size(_ context.Context, file string) (int64, error) {
-	remotePath := w.fullPath(file)
-	stat, err := w.client.Stat(remotePath)
-	if err != nil {
-		return 0, err
+// newTransport 构造带各阶段超时的传输层
+// 不设 http.Client.Timeout：上传耗时随文件大小变化，只能靠分阶段超时兜住对端黑洞
+func newTransport() *http.Transport {
+	return &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: time.Second,
+		ResponseHeaderTimeout: time.Minute,
 	}
-
-	return stat.Size(), nil
-}
-
-// List 列出目录下的所有文件
-func (w *WebDav) List(_ context.Context, path string) ([]string, error) {
-	remotePath := w.fullPath(path)
-	entries, err := w.client.ReadDir(remotePath)
-	if err != nil {
-		return nil, err
-	}
-
-	files := lo.FilterMap(entries, func(entry os.FileInfo, _ int) (string, bool) {
-		if entry.IsDir() {
-			return "", false
-		}
-		return entry.Name(), true
-	})
-	return files, nil
-}
-
-func (w *WebDav) fullPath(path string) string {
-	path = strings.TrimPrefix(path, "/")
-	if w.config.BasePath == "" {
-		return path
-	}
-	if path == "" {
-		return w.config.BasePath
-	}
-	return filepath.Join(w.config.BasePath, path)
 }

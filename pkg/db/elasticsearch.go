@@ -131,7 +131,11 @@ func (r *Elasticsearch) IndexDelete(ctx context.Context, name string) error {
 }
 
 // Search 搜索文档
-func (r *Elasticsearch) Search(ctx context.Context, index, query string, page, pageSize int) ([]ESDocument, int64, error) {
+func (r *Elasticsearch) Search(
+	ctx context.Context,
+	index, query string,
+	page, pageSize int,
+) ([]ESDocument, int64, error) {
 	from := (page - 1) * pageSize
 	body := map[string]any{
 		"from": from,

@@ -12,9 +12,10 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
-var ErrNotReachable = errors.New("failed to reach NTP server")
-
-var ErrNoAvailableServer = errors.New("no available NTP server found")
+var (
+	errNotReachable      = errors.New("failed to reach NTP server")
+	errNoAvailableServer = errors.New("no available NTP server found")
+)
 
 // builtinAddresses 内置的 NTP 服务器地址列表（用于面板同步时间）
 var builtinAddresses = []string{
@@ -34,11 +35,11 @@ func GetBuiltinServers() []string {
 
 func Now(address ...string) (time.Time, error) {
 	if len(address) > 0 && address[0] != "" {
-		if now, err := ntp.Time(address[0]); err != nil {
-			return time.Now(), fmt.Errorf("%w: %w", ErrNotReachable, err)
-		} else {
-			return now, nil
+		now, err := ntp.Time(address[0])
+		if err != nil {
+			return time.Now(), fmt.Errorf("%w: %w", errNotReachable, err)
 		}
+		return now, nil
 	}
 
 	best, err := bestServer(builtinAddresses...)
@@ -48,7 +49,7 @@ func Now(address ...string) (time.Time, error) {
 
 	now, err := ntp.Time(best)
 	if err != nil {
-		return time.Now(), fmt.Errorf("%w: %w", ErrNotReachable, err)
+		return time.Now(), fmt.Errorf("%w: %w", errNotReachable, err)
 	}
 
 	return now, nil
@@ -57,22 +58,6 @@ func Now(address ...string) (time.Time, error) {
 func UpdateSystemTime(ctx context.Context, t time.Time) error {
 	_, err := shell.Execf(ctx, `date -s '%s'`, t.Format(time.DateTime))
 	return err
-}
-
-func UpdateSystemTimeZone(ctx context.Context, tz string) error {
-	_, err := shell.Execf(ctx, `timedatectl set-timezone '%s'`, tz)
-	return err
-}
-
-// pingServer 计算NTP服务器的延迟
-func pingServer(addr string) (time.Duration, error) {
-	options := ntp.QueryOptions{Timeout: 1 * time.Second}
-	response, err := ntp.QueryWithOptions(addr, options)
-	if err != nil {
-		return 0, err
-	}
-
-	return response.RTT, nil
 }
 
 // bestServer 返回延迟最低的NTP服务器
@@ -120,8 +105,19 @@ func bestServer(addresses ...string) (string, error) {
 	}
 
 	if !found {
-		return "", ErrNoAvailableServer
+		return "", errNoAvailableServer
 	}
 
 	return bestAddr, nil
+}
+
+// pingServer 计算NTP服务器的延迟
+func pingServer(addr string) (time.Duration, error) {
+	options := ntp.QueryOptions{Timeout: 1 * time.Second}
+	response, err := ntp.QueryWithOptions(addr, options)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.RTT, nil
 }

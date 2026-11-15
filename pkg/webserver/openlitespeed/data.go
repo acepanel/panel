@@ -2,26 +2,24 @@ package openlitespeed
 
 const ServerRoot = "/opt/ace/server/openlitespeed"
 
-const HTMLDir = ServerRoot + "/html"
+const htmlDir = ServerRoot + "/html"
 
-const DisablePage = HTMLDir + "/stop.html"
+// panelConfDir 面板托管的主配置片段目录，由主配置 include
+const panelConfDir = ServerRoot + "/conf/panel"
 
-// PanelConfDir 面板托管的主配置片段目录，由主配置 include
-const PanelConfDir = ServerRoot + "/conf/panel"
+const listenersConf = panelConfDir + "/listeners.conf"
 
-const ListenersConf = PanelConfDir + "/listeners.conf"
-
-const VhostsConf = PanelConfDir + "/vhosts.conf"
+const vhostsConf = panelConfDir + "/vhosts.conf"
 
 // vhostStubDir configFile 桩目录，让 OLS 的 .txt 转储留在面板目录内
-const vhostStubDir = PanelConfDir + "/vhosts"
+const vhostStubDir = panelConfDir + "/vhosts"
 
-const SitesPath = "/opt/ace/sites"
+const sitesPath = "/opt/ace/sites"
 
 // 站点配置目录下的文件名
 const (
-	VhostConfName  = "openlitespeed.conf"        // 站点 vhconf，由面板生成
-	ListenConfName = "openlitespeed.listen.conf" // 面板记录的监听地址与域名
+	vhostConfName  = "openlitespeed.conf"        // 站点 vhconf，由面板生成
+	listenConfName = "openlitespeed.listen.conf" // 面板记录的监听地址与域名
 )
 
 // stopURI 站点停用时请求重写到的路径

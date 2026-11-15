@@ -8,13 +8,12 @@ import "slices"
 type Quote uint8
 
 const (
-	QuoteAuto     Quote = iota // 生成的参数，渲染时按方言规则判断
-	QuoteNone                  // 裸值
-	QuoteDouble                // 双引号
-	QuoteSingle                // 单引号
-	QuoteBacktick              // 反引号
-	QuoteHeredoc               // 多行值
-	QuoteRaw                   // 原样输出的块体，如 nginx 的 lua 块
+	QuoteAuto    Quote = iota // 生成的参数，渲染时按方言规则判断
+	QuoteNone                 // 裸值
+	QuoteDouble               // 双引号
+	QuoteSingle               // 单引号
+	QuoteHeredoc              // 多行值
+	QuoteRaw                  // 原样输出的块体，如 nginx 的 lua 块
 )
 
 // Arg 指令参数：解引号后的纯值与引号风格
@@ -44,7 +43,8 @@ type Directive struct {
 	Trailing string
 }
 
-// Block 有序节点列表，Config 与带子块的指令共用查询与修改方法，方法对 nil 接收者安全
+// Block 有序节点列表，Config 与带子块的指令共用查询与修改方法。查询与删除对 nil 接收者安全；
+// 往里加节点的不行，指令可能不带子块时用 Directive.Append，它会先把子块建出来
 type Block struct {
 	Nodes []Node
 }
@@ -132,6 +132,17 @@ func (d *Directive) Append(nodes ...Node) *Directive {
 	return d
 }
 
+func (d *Directive) Clone() *Directive {
+	if d == nil {
+		return nil
+	}
+	out := &Directive{Name: d.Name, Trailing: d.Trailing, Block: d.Block.Clone()}
+	if d.Args != nil {
+		out.Args = slices.Clone(d.Args)
+	}
+	return out
+}
+
 // Clone 深拷贝节点列表，副本与原树不共享任何可变结构
 func (b *Block) Clone() *Block {
 	if b == nil {
@@ -140,17 +151,6 @@ func (b *Block) Clone() *Block {
 	out := &Block{Nodes: make([]Node, 0, len(b.Nodes))}
 	for _, n := range b.Nodes {
 		out.Nodes = append(out.Nodes, cloneNode(n))
-	}
-	return out
-}
-
-func (d *Directive) Clone() *Directive {
-	if d == nil {
-		return nil
-	}
-	out := &Directive{Name: d.Name, Trailing: d.Trailing, Block: d.Block.Clone()}
-	if d.Args != nil {
-		out.Args = slices.Clone(d.Args)
 	}
 	return out
 }

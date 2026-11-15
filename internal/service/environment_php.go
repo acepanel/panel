@@ -41,84 +41,79 @@ type EnvironmentPHPService struct {
 	conf            *config.Config
 	environmentRepo *biz.EnvironmentUsecase
 	taskRepo        *biz.TaskUsecase
-	settingRepo     biz.SettingRepo
 }
 
-func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *EnvironmentPHPService {
+// phpTuneField 把配置键对应到调优请求的字段
+type phpTuneField struct {
+	key   string
+	value *string
+}
+
+func NewEnvironmentPHPService(
+	environmentUsecase *biz.EnvironmentUsecase,
+	taskUsecase *biz.TaskUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *EnvironmentPHPService {
 	return &EnvironmentPHPService{
 		t:               t,
 		log:             log,
 		conf:            conf,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
-		settingRepo:     settingUsecase,
 	}
 }
 
 func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	binPath := fmt.Sprintf("%s/server/php/%d/bin", app.Root, req.Version)
-	if err = linkCLIBinaries(binPath, "php"); err != nil {
+	binPath, err := linkEnvironmentCLI("php", strconv.FormatUint(uint64(version), 10))
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "php"), slog.String("slug", fmt.Sprintf("php%d", req.Version)), slog.String("bin_path", binPath))
+	s.log.Info(s.t.Get("environment cli set"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("environment_type", "php"), slog.String("slug", fmt.Sprintf("php%d", version)), slog.String("bin_path", binPath))
 
 	Success(w, nil)
 }
 
 func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
 	// 使用 php-cgi 执行 phpinfo() 获取 HTML 格式输出
-	output, err := shell.Execf(r.Context(), "echo '<?php phpinfo();' | %s/server/php/%d/bin/php-cgi -q", app.Root, req.Version)
+	output, err := shell.Execf(r.Context(), "echo '<?php phpinfo();' | %s -q", s.phpPath(version, "bin/php-cgi"))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("phpinfo viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+	s.log.Info(s.t.Get("phpinfo viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)))
 
 	Success(w, output)
 }
 
 func (s *EnvironmentPHPService) GetConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	path := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	path := s.phpPath(version, "etc/php.ini")
 	ini, err := io.Read(path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("php config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
+	s.log.Info(s.t.Get("php config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)), slog.String("path", path))
 
 	Success(w, ini)
 }
@@ -129,12 +124,11 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	if !s.installed(w, req.Version) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	path := s.phpPath(req.Version, "etc/php.ini")
 	if err = io.Write(path, req.Config, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -150,24 +144,19 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 }
 
 func (s *EnvironmentPHPService) GetFPMConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	path := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	path := s.phpPath(version, "etc/php-fpm.conf")
 	ini, err := io.Read(path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("php-fpm config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", path))
+	s.log.Info(s.t.Get("php-fpm config viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)), slog.String("path", path))
 
 	Success(w, ini)
 }
@@ -178,12 +167,11 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	if !s.installed(w, req.Version) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	path := s.phpPath(req.Version, "etc/php-fpm.conf")
 	if err = io.Write(path, req.Config, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -199,21 +187,15 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 }
 
 func (s *EnvironmentPHPService) Load(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
 	var raw map[string]any
 	client := resty.New().SetTimeout(10 * time.Second)
 	defer func(client *resty.Client) { _ = client.Close() }(client)
-	_, err = client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json", req.Version))
-	if err != nil {
+	if _, err := client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json", version)); err != nil {
 		Success(w, []types.NV{})
 		return
 	}
@@ -264,97 +246,53 @@ func (s *EnvironmentPHPService) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *EnvironmentPHPService) Log(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	Success(w, fmt.Sprintf("%s/server/php/%d/var/log/php-fpm.log", app.Root, req.Version))
+	Success(w, s.phpPath(version, "var/log/php-fpm.log"))
 }
 
 func (s *EnvironmentPHPService) SlowLog(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	Success(w, fmt.Sprintf("%s/server/php/%d/var/log/slow.log", app.Root, req.Version))
+	Success(w, s.phpPath(version, "var/log/slow.log"))
 }
 
 func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	modules := s.getModules(r.Context(), req.Version)
-	raw, err := shell.Execf(r.Context(), "%s/server/php/%d/bin/php -m", app.Root, req.Version)
+	raw, err := shell.Execf(r.Context(), "%s -m", s.phpPath(version, "bin/php"))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	moduleMap := make(map[string]*types.EnvironmentPHPModule)
+	// 已加载的模块在 php -m 的输出里各占一行
+	loaded := strings.Split(raw, "\n")
+	modules := s.modules(version)
 	for i := range modules {
-		moduleMap[modules[i].Slug] = &modules[i]
+		modules[i].Installed = slices.Contains(loaded, modules[i].Slug)
 	}
 
-	rawModuleList := strings.SplitSeq(raw, "\n")
-	for item := range rawModuleList {
-		if ext, exists := moduleMap[item]; exists && !strings.Contains(item, "[") && item != "" {
-			ext.Installed = true
-		}
-	}
-
-	s.log.Info(s.t.Get("php module list viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+	s.log.Info(s.t.Get("php module list viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)))
 
 	Success(w, modules)
 }
 
 func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPModule](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
+	req, ok := s.bindModule(w, r)
+	if !ok {
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
-		return
-	}
-
-	if !s.checkModule(r.Context(), req.Version, req.Slug) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/%s.sh' | bash -s -- 'install' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
-	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
-	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/official.sh' | bash -s -- 'install' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
-	}
-
-	task := new(biz.Task)
-	task.Key = fmt.Sprintf("php:module:%d:%s", req.Version, req.Slug)
-	task.Name = s.t.Get("Install PHP-%d %s module", req.Version, req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+	if !s.pushModuleTask(w, req, "install", s.t.Get("Install PHP-%d %s module", req.Version, req.Slug)) {
 		return
 	}
 
@@ -364,34 +302,11 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 }
 
 func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPModule](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
+	req, ok := s.bindModule(w, r)
+	if !ok {
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
-		return
-	}
-
-	if !s.checkModule(r.Context(), req.Version, req.Slug) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/%s.sh' | bash -s -- 'uninstall' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
-	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
-	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/official.sh' | bash -s -- 'uninstall' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
-	}
-
-	task := new(biz.Task)
-	task.Key = fmt.Sprintf("php:module:%d:%s", req.Version, req.Slug)
-	task.Name = s.t.Get("Uninstall PHP-%d %s module", req.Version, req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
+	if !s.pushModuleTask(w, req, "uninstall", s.t.Get("Uninstall PHP-%d %s module", req.Version, req.Slug)) {
 		return
 	}
 
@@ -402,18 +317,13 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 
 // GetConfigTune 获取 PHP 配置调整参数
 func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
-	fpmPath := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	iniPath := s.phpPath(version, "etc/php.ini")
+	fpmPath := s.phpPath(version, "etc/php-fpm.conf")
 
 	ini, err := io.Read(iniPath)
 	if err != nil {
@@ -426,44 +336,16 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	tune := request.EnvironmentPHPConfigTune{
-		// php.ini 常规设置
-		ShortOpenTag:   confval.PHPINI.Get(ini, "short_open_tag"),
-		DateTimezone:   confval.PHPINI.Get(ini, "date.timezone"),
-		DisplayErrors:  confval.PHPINI.Get(ini, "display_errors"),
-		ErrorReporting: confval.PHPINI.Get(ini, "error_reporting"),
-		// php.ini 禁用函数
-		DisableFunctions: confval.PHPINI.Get(ini, "disable_functions"),
-		// php.ini 上传限制
-		UploadMaxFilesize: confval.PHPINI.Get(ini, "upload_max_filesize"),
-		PostMaxSize:       confval.PHPINI.Get(ini, "post_max_size"),
-		MaxFileUploads:    confval.PHPINI.Get(ini, "max_file_uploads"),
-		MemoryLimit:       confval.PHPINI.Get(ini, "memory_limit"),
-		// php.ini 超时限制
-		MaxExecutionTime: confval.PHPINI.Get(ini, "max_execution_time"),
-		MaxInputTime:     confval.PHPINI.Get(ini, "max_input_time"),
-		MaxInputVars:     confval.PHPINI.Get(ini, "max_input_vars"),
-		// Session 相关
-		SessionSaveHandler:    confval.PHPINI.Get(ini, "session.save_handler"),
-		SessionSavePath:       confval.PHPINI.Get(ini, "session.save_path"),
-		SessionGcMaxlifetime:  confval.PHPINI.Get(ini, "session.gc_maxlifetime"),
-		SessionCookieLifetime: confval.PHPINI.Get(ini, "session.cookie_lifetime"),
-		// OPcache 相关
-		OpcacheMemoryConsumption:     confval.PHPINI.Get(ini, "opcache.memory_consumption"),
-		OpcacheInternedStringsBuffer: confval.PHPINI.Get(ini, "opcache.interned_strings_buffer"),
-		OpcacheMaxAcceleratedFiles:   confval.PHPINI.Get(ini, "opcache.max_accelerated_files"),
-		OpcacheRevalidateFreq:        confval.PHPINI.Get(ini, "opcache.revalidate_freq"),
-		OpcacheJit:                   confval.PHPINI.Get(ini, "opcache.jit"),
-		OpcacheJitBufferSize:         confval.PHPINI.Get(ini, "opcache.jit_buffer_size"),
-		// php-fpm.conf 配置
-		Pm:                confval.PHPINI.Get(fpm, "pm"),
-		PmMaxChildren:     confval.PHPINI.Get(fpm, "pm.max_children"),
-		PmStartServers:    confval.PHPINI.Get(fpm, "pm.start_servers"),
-		PmMinSpareServers: confval.PHPINI.Get(fpm, "pm.min_spare_servers"),
-		PmMaxSpareServers: confval.PHPINI.Get(fpm, "pm.max_spare_servers"),
+	var tune request.EnvironmentPHPConfigTune
+	iniFields, fpmFields := s.tuneFields(&tune)
+	for _, field := range iniFields {
+		*field.value = confval.PHPINI.Get(ini, field.key)
+	}
+	for _, field := range fpmFields {
+		*field.value = confval.PHPINI.Get(fpm, field.key)
 	}
 
-	s.log.Info(s.t.Get("php config tune viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("ini_path", iniPath), slog.String("fpm_path", fpmPath))
+	s.log.Info(s.t.Get("php config tune viewed"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)), slog.String("ini_path", iniPath), slog.String("fpm_path", fpmPath))
 
 	Success(w, tune)
 }
@@ -475,13 +357,12 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	if !s.installed(w, req.Version) {
 		return
 	}
 
-	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
-	fpmPath := fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version)
+	iniPath := s.phpPath(req.Version, "etc/php.ini")
+	fpmPath := s.phpPath(req.Version, "etc/php-fpm.conf")
 
 	ini, err := io.Read(iniPath)
 	if err != nil {
@@ -494,36 +375,13 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// 更新 php.ini 配置
-	ini = confval.PHPINI.Set(ini, "short_open_tag", req.ShortOpenTag)
-	ini = confval.PHPINI.Set(ini, "date.timezone", req.DateTimezone)
-	ini = confval.PHPINI.Set(ini, "display_errors", req.DisplayErrors)
-	ini = confval.PHPINI.Set(ini, "error_reporting", req.ErrorReporting)
-	ini = confval.PHPINI.Set(ini, "disable_functions", req.DisableFunctions)
-	ini = confval.PHPINI.Set(ini, "upload_max_filesize", req.UploadMaxFilesize)
-	ini = confval.PHPINI.Set(ini, "post_max_size", req.PostMaxSize)
-	ini = confval.PHPINI.Set(ini, "max_execution_time", req.MaxExecutionTime)
-	ini = confval.PHPINI.Set(ini, "max_input_time", req.MaxInputTime)
-	ini = confval.PHPINI.Set(ini, "memory_limit", req.MemoryLimit)
-	ini = confval.PHPINI.Set(ini, "max_input_vars", req.MaxInputVars)
-	ini = confval.PHPINI.Set(ini, "max_file_uploads", req.MaxFileUploads)
-	ini = confval.PHPINI.Set(ini, "session.save_handler", req.SessionSaveHandler)
-	ini = confval.PHPINI.Set(ini, "session.save_path", req.SessionSavePath)
-	ini = confval.PHPINI.Set(ini, "session.gc_maxlifetime", req.SessionGcMaxlifetime)
-	ini = confval.PHPINI.Set(ini, "session.cookie_lifetime", req.SessionCookieLifetime)
-	ini = confval.PHPINI.Set(ini, "opcache.memory_consumption", req.OpcacheMemoryConsumption)
-	ini = confval.PHPINI.Set(ini, "opcache.interned_strings_buffer", req.OpcacheInternedStringsBuffer)
-	ini = confval.PHPINI.Set(ini, "opcache.max_accelerated_files", req.OpcacheMaxAcceleratedFiles)
-	ini = confval.PHPINI.Set(ini, "opcache.revalidate_freq", req.OpcacheRevalidateFreq)
-	ini = confval.PHPINI.Set(ini, "opcache.jit", req.OpcacheJit)
-	ini = confval.PHPINI.Set(ini, "opcache.jit_buffer_size", req.OpcacheJitBufferSize)
-
-	// 更新 php-fpm.conf 配置
-	fpm = confval.PHPINI.Set(fpm, "pm", req.Pm)
-	fpm = confval.PHPINI.Set(fpm, "pm.max_children", req.PmMaxChildren)
-	fpm = confval.PHPINI.Set(fpm, "pm.start_servers", req.PmStartServers)
-	fpm = confval.PHPINI.Set(fpm, "pm.min_spare_servers", req.PmMinSpareServers)
-	fpm = confval.PHPINI.Set(fpm, "pm.max_spare_servers", req.PmMaxSpareServers)
+	iniFields, fpmFields := s.tuneFields(req)
+	for _, field := range iniFields {
+		ini = confval.PHPINI.Set(ini, field.key, *field.value)
+	}
+	for _, field := range fpmFields {
+		fpm = confval.PHPINI.Set(fpm, field.key, *field.value)
+	}
 
 	if err = io.Write(iniPath, ini, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -545,17 +403,12 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 
 // CleanSession 清理 PHP Session 文件
 func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	iniPath := fmt.Sprintf("%s/server/php/%d/etc/php.ini", app.Root, req.Version)
+	iniPath := s.phpPath(version, "etc/php.ini")
 	ini, err := io.Read(iniPath)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -578,20 +431,15 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	s.log.Warn(s.t.Get("php sessions cleaned"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)), slog.String("path", savePath))
+	s.log.Warn(s.t.Get("php sessions cleaned"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)), slog.String("path", savePath))
 
 	Success(w, nil)
 }
 
 // Processes 获取 PHP-FPM 工作进程列表
 func (s *EnvironmentPHPService) Processes(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
@@ -611,7 +459,7 @@ func (s *EnvironmentPHPService) Processes(w http.ResponseWriter, r *http.Request
 	}
 	client := resty.New().SetTimeout(10 * time.Second)
 	defer func(client *resty.Client) { _ = client.Close() }(client)
-	if _, err = client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json&full", req.Version)); err != nil {
+	if _, err := client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json&full", version)); err != nil {
 		Success(w, []types.EnvironmentPHPProcess{})
 		return
 	}
@@ -637,23 +485,18 @@ func (s *EnvironmentPHPService) Processes(w http.ResponseWriter, r *http.Request
 
 // Opcache 获取 OPcache 状态
 func (s *EnvironmentPHPService) Opcache(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	socket, _ := s.probeSocket(req.Version)
-	if _, err = os.Stat(socket); err != nil {
-		Success(w, types.EnvironmentPHPOpcache{Message: s.t.Get("PHP-%d backend is not running, unable to get OPcache status", req.Version)})
+	socket, _ := s.probeSocket(version)
+	if _, err := os.Stat(socket); err != nil {
+		Success(w, types.EnvironmentPHPOpcache{Message: s.t.Get("PHP-%d backend is not running, unable to get OPcache status", version)})
 		return
 	}
 
-	body, err := s.opcacheProbe(r.Context(), req.Version, "")
+	body, err := s.opcacheProbe(r.Context(), version, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get OPcache status: %v", err))
 		return
@@ -702,23 +545,18 @@ func (s *EnvironmentPHPService) Opcache(w http.ResponseWriter, r *http.Request) 
 
 // ResetOpcache 重置 OPcache
 func (s *EnvironmentPHPService) ResetOpcache(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+	version, ok := s.bindVersion(w, r)
+	if !ok {
 		return
 	}
 
-	socket, _ := s.probeSocket(req.Version)
-	if _, err = os.Stat(socket); err != nil {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d backend is not running", req.Version))
+	socket, _ := s.probeSocket(version)
+	if _, err := os.Stat(socket); err != nil {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d backend is not running", version))
 		return
 	}
 
-	body, err := s.opcacheProbe(r.Context(), req.Version, "action=reset")
+	body, err := s.opcacheProbe(r.Context(), version, "action=reset")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to reset OPcache: %v", err))
 		return
@@ -730,7 +568,7 @@ func (s *EnvironmentPHPService) ResetOpcache(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	s.log.Info(s.t.Get("php opcache reset"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(req.Version)))
+	s.log.Info(s.t.Get("php opcache reset"), slog.String("type", biz.OperationTypeEnvironment), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("version", uint64(version)))
 
 	Success(w, nil)
 }
@@ -745,7 +583,7 @@ func (s *EnvironmentPHPService) Composer(w http.ResponseWriter, r *http.Request)
 
 	composer := types.EnvironmentPHPComposer{Installed: io.Exists("/usr/local/bin/composer")}
 	if composer.Installed {
-		out, outErr := shell.ExecfWithEnv(r.Context(), []string{"COMPOSER_ALLOW_SUPERUSER=1"}, "%s/server/php/%d/bin/php /usr/local/bin/composer --version --no-ansi 2>/dev/null", app.Root, req.Version)
+		out, outErr := shell.ExecfWithEnv(r.Context(), []string{"COMPOSER_ALLOW_SUPERUSER=1"}, "%s /usr/local/bin/composer --version --no-ansi 2>/dev/null", s.phpPath(req.Version, "bin/php"))
 		// 输出形如 Composer version 2.8.4 2025-01-01 00:00:00
 		if fields := strings.Fields(out); outErr == nil && len(fields) >= 3 {
 			composer.Version = fields[2]
@@ -787,7 +625,7 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 		return
 	}
 
-	php := fmt.Sprintf("%s/server/php/%d/bin/php", app.Root, req.Version)
+	php := s.phpPath(req.Version, "bin/php")
 	env := []string{"COMPOSER_ALLOW_SUPERUSER=1"}
 	if req.Mirror == "" {
 		// 恢复官方源，未设置过镜像时报错可忽略
@@ -811,7 +649,46 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 	Success(w, nil)
 }
 
-func (s *EnvironmentPHPService) getModules(ctx context.Context, version uint) []types.EnvironmentPHPModule {
+// bindVersion 绑定路径里的版本并确认已安装，失败时响应已写入
+func (s *EnvironmentPHPService) bindVersion(w http.ResponseWriter, r *http.Request) (uint, bool) {
+	req, err := Bind[request.EnvironmentPHPVersion](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return 0, false
+	}
+
+	return req.Version, s.installed(w, req.Version)
+}
+
+// installed 版本未安装时写入错误响应
+func (s *EnvironmentPHPService) installed(w http.ResponseWriter, version uint) bool {
+	if s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(version), 10)) {
+		return true
+	}
+
+	Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", version))
+	return false
+}
+
+func (s *EnvironmentPHPService) phpPath(version uint, rel string) string {
+	return fmt.Sprintf("%s/server/php/%d/%s", app.Root, version, rel)
+}
+
+// applyLSAPI LSAPI 下 lsphp 是 OLS 的子进程，重载 OLS 会同步外部应用参数并重启 lsphp
+func (s *EnvironmentPHPService) applyLSAPI(ctx context.Context, version uint) error {
+	if !openlitespeed.LSAPIEnabled(version) {
+		return nil
+	}
+	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
+	if err != nil {
+		return err
+	}
+
+	return d.Reload(context.WithoutCancel(ctx))
+}
+
+// modules 可安装的模块目录，不含安装状态
+func (s *EnvironmentPHPService) modules(version uint) []types.EnvironmentPHPModule {
 	modules := []types.EnvironmentPHPModule{
 		{
 			Name:        "fileinfo",
@@ -1036,26 +913,103 @@ func (s *EnvironmentPHPService) getModules(ctx context.Context, version uint) []
 		})
 	}
 
-	raw, _ := shell.Execf(ctx, "%s/server/php/%d/bin/php -m", app.Root, version)
-	moduleMap := make(map[string]*types.EnvironmentPHPModule)
-	for i := range modules {
-		moduleMap[modules[i].Slug] = &modules[i]
-	}
-
-	rawModuleList := strings.SplitSeq(raw, "\n")
-	for item := range rawModuleList {
-		if ext, exists := moduleMap[item]; exists && !strings.Contains(item, "[") && item != "" {
-			ext.Installed = true
-		}
-	}
-
 	return modules
 }
 
-func (s *EnvironmentPHPService) checkModule(ctx context.Context, version uint, slug string) bool {
-	return lo.ContainsBy(s.getModules(ctx, version), func(item types.EnvironmentPHPModule) bool {
-		return item.Slug == slug
-	})
+// bindModule 绑定模块请求并确认版本已安装、模块在目录内，失败时响应已写入
+func (s *EnvironmentPHPService) bindModule(
+	w http.ResponseWriter,
+	r *http.Request,
+) (*request.EnvironmentPHPModule, bool) {
+	req, err := Bind[request.EnvironmentPHPModule](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return nil, false
+	}
+	if !s.installed(w, req.Version) {
+		return nil, false
+	}
+	if !lo.ContainsBy(s.modules(req.Version), func(item types.EnvironmentPHPModule) bool { return item.Slug == req.Slug }) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Slug))
+		return nil, false
+	}
+
+	return req, true
+}
+
+// pushModuleTask 提交模块的安装或卸载任务，失败时响应已写入
+func (s *EnvironmentPHPService) pushModuleTask(
+	w http.ResponseWriter,
+	req *request.EnvironmentPHPModule,
+	action, name string,
+) bool {
+	// 由 official.sh 统一处理的官方模块
+	officialModules := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/%s.sh' | bash -s -- '%s' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), action, req.Version)
+	if slices.Contains(officialModules, req.Slug) {
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/official.sh' | bash -s -- '%s' '%d' '%s'`, s.conf.App.DownloadEndpoint, action, req.Version, req.Slug)
+	}
+
+	task := new(biz.Task)
+	task.Key = fmt.Sprintf("php:module:%d:%s", req.Version, req.Slug)
+	task.Name = name
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = cmd
+	if err := s.taskRepo.Push(task); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return false
+	}
+
+	return true
+}
+
+// tuneFields 列出 php.ini 与 php-fpm.conf 的调优项，顺序即写入顺序
+func (s *EnvironmentPHPService) tuneFields(tune *request.EnvironmentPHPConfigTune) (ini, fpm []phpTuneField) {
+	ini = []phpTuneField{
+		{"short_open_tag", &tune.ShortOpenTag},
+		{"date.timezone", &tune.DateTimezone},
+		{"display_errors", &tune.DisplayErrors},
+		{"error_reporting", &tune.ErrorReporting},
+		{"disable_functions", &tune.DisableFunctions},
+		{"upload_max_filesize", &tune.UploadMaxFilesize},
+		{"post_max_size", &tune.PostMaxSize},
+		{"max_execution_time", &tune.MaxExecutionTime},
+		{"max_input_time", &tune.MaxInputTime},
+		{"memory_limit", &tune.MemoryLimit},
+		{"max_input_vars", &tune.MaxInputVars},
+		{"max_file_uploads", &tune.MaxFileUploads},
+		{"session.save_handler", &tune.SessionSaveHandler},
+		{"session.save_path", &tune.SessionSavePath},
+		{"session.gc_maxlifetime", &tune.SessionGcMaxlifetime},
+		{"session.cookie_lifetime", &tune.SessionCookieLifetime},
+		{"opcache.memory_consumption", &tune.OpcacheMemoryConsumption},
+		{"opcache.interned_strings_buffer", &tune.OpcacheInternedStringsBuffer},
+		{"opcache.max_accelerated_files", &tune.OpcacheMaxAcceleratedFiles},
+		{"opcache.revalidate_freq", &tune.OpcacheRevalidateFreq},
+		{"opcache.jit", &tune.OpcacheJit},
+		{"opcache.jit_buffer_size", &tune.OpcacheJitBufferSize},
+	}
+	fpm = []phpTuneField{
+		{"pm", &tune.Pm},
+		{"pm.max_children", &tune.PmMaxChildren},
+		{"pm.start_servers", &tune.PmStartServers},
+		{"pm.min_spare_servers", &tune.PmMinSpareServers},
+		{"pm.max_spare_servers", &tune.PmMaxSpareServers},
+	}
+
+	return ini, fpm
+}
+
+// probeSocket 探针要连的套接字
+func (s *EnvironmentPHPService) probeSocket(version uint) (string, bool) {
+	if openlitespeed.LSAPIEnabled(version) {
+		return openlitespeed.LSAPISocket(version), true
+	}
+	return s.phpFPMSocket(version), false
+}
+
+func (s *EnvironmentPHPService) phpFPMSocket(version uint) string {
+	return fmt.Sprintf("/tmp/php-cgi-%d.sock", version)
 }
 
 // opcacheProbe 通过 FastCGI 请求 PHP-FPM 执行 OPcache 探针脚本
@@ -1135,29 +1089,4 @@ func (s *EnvironmentPHPService) composerMirror() string {
 	}
 
 	return ""
-}
-
-func (s *EnvironmentPHPService) phpFPMSocket(version uint) string {
-	return fmt.Sprintf("/tmp/php-cgi-%d.sock", version)
-}
-
-// probeSocket 探针要连的套接字
-func (s *EnvironmentPHPService) probeSocket(version uint) (string, bool) {
-	if openlitespeed.LSAPIEnabled(version) {
-		return openlitespeed.LSAPISocket(version), true
-	}
-	return s.phpFPMSocket(version), false
-}
-
-// applyLSAPI LSAPI 下 lsphp 是 OLS 的子进程，重载 OLS 会同步外部应用参数并重启 lsphp
-func (s *EnvironmentPHPService) applyLSAPI(ctx context.Context, version uint) error {
-	if !openlitespeed.LSAPIEnabled(version) {
-		return nil
-	}
-	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
-	if err != nil {
-		return err
-	}
-
-	return d.Reload(context.WithoutCancel(ctx))
 }

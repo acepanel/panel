@@ -24,16 +24,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-// 宝塔项目模块与 AcePanel 项目类型的对应关系，nodejs 等模块名同时用于拼接接口路径
-var baotaProjectModules = map[string]types.ProjectType{
-	"nodejs": types.ProjectTypeNodejs,
-	"python": types.ProjectTypePython,
-	"go":     types.ProjectTypeGo,
-	"net":    types.ProjectTypeDotnet,
-	"java":   types.ProjectTypeJava,
-	"other":  types.ProjectTypeGeneral,
-}
-
 type baotaAdapter struct {
 	t *gotext.Locale
 	*migrationClient
@@ -84,7 +74,8 @@ func (a *baotaAdapter) Items(ctx context.Context) ([]types.MigrationItem, error)
 	if err != nil {
 		return nil, err
 	}
-	databases := a.databaseItems(ctx)
+	rows, subtype := a.databaseRows(ctx)
+	databases := a.databaseItems(rows, subtype)
 	// 宝塔一键部署的站点与数据库同名，据此建立依赖关系
 	for i := range websites {
 		if index := slices.IndexFunc(databases, func(database types.MigrationItem) bool {
@@ -93,7 +84,7 @@ func (a *baotaAdapter) Items(ctx context.Context) ([]types.MigrationItem, error)
 			websites[i].DependsOn = append(websites[i].DependsOn, databases[index].Key)
 		}
 	}
-	return slices.Concat(websites, databases, a.databaseUserItems(ctx), a.projectItems(ctx)), nil
+	return slices.Concat(websites, databases, a.databaseUserItems(rows, subtype), a.projectItems(ctx)), nil
 }
 
 // websiteItems 列出静态、PHP 与反代网站
@@ -135,6 +126,17 @@ func (a *baotaAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem,
 	return items, nil
 }
 
+// databaseRows 读取 databases 表与本机 MySQL 的实际分支
+func (a *baotaAdapter) databaseRows(ctx context.Context) ([]map[string]any, string) {
+	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
+		"table": "databases", "p": 1, "limit": 10000,
+	})
+	if err != nil {
+		return nil, ""
+	}
+	return a.rows(data), a.mysqlSubtype(ctx)
+}
+
 // mysqlSubtype 宝塔的 MySQL 可能实际是 MariaDB，版本文件里能区分
 func (a *baotaAdapter) mysqlSubtype(ctx context.Context) string {
 	version, err := a.fileContent(ctx, "/www/server/mysql/version.pl")
@@ -145,18 +147,28 @@ func (a *baotaAdapter) mysqlSubtype(ctx context.Context) string {
 	return "mysql"
 }
 
-// databaseUserItems 列出数据库用户
-func (a *baotaAdapter) databaseUserItems(ctx context.Context) []types.MigrationItem {
-	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
-		"table": "databases", "p": 1, "limit": 10000,
-	})
-	if err != nil {
-		return nil
-	}
-	subtype := a.mysqlSubtype(ctx)
-
+// databaseItems 列出本机 MySQL 数据库
+func (a *baotaAdapter) databaseItems(rows []map[string]any, subtype string) []types.MigrationItem {
 	items := make([]types.MigrationItem, 0)
-	for _, row := range a.rows(data) {
+	for _, row := range rows {
+		id, name := cast.ToString(row["id"]), cast.ToString(row["name"])
+		// db_type 与 sid 非 0 表示远程数据库，不在迁移范围内
+		if id == "" || name == "" || !strings.EqualFold(cast.ToString(row["type"]), "mysql") ||
+			cast.ToInt(row["db_type"]) != 0 || cast.ToInt(row["sid"]) != 0 {
+			continue
+		}
+		items = append(items, types.MigrationItem{
+			Key: biz.MigrationItemKey("database", id), Type: "database", Subtype: subtype, Name: name, Status: "running",
+			Size: cast.ToInt64(cast.ToStringMap(row["quota"])["used"]), TargetName: name, SourceID: id,
+		})
+	}
+	return items
+}
+
+// databaseUserItems 列出数据库用户
+func (a *baotaAdapter) databaseUserItems(rows []map[string]any, subtype string) []types.MigrationItem {
+	items := make([]types.MigrationItem, 0)
+	for _, row := range rows {
 		username, password := cast.ToString(row["username"]), cast.ToString(row["password"])
 		if username == "" || password == "" || cast.ToInt(row["db_type"]) != 0 || cast.ToInt(row["sid"]) != 0 {
 			continue
@@ -175,55 +187,17 @@ func (a *baotaAdapter) databaseUserItems(ctx context.Context) []types.MigrationI
 	return items
 }
 
-// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
-func (a *baotaAdapter) databaseUserDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabaseUser, error) {
-	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
-		"table": "databases", "p": 1, "limit": 10000, "search": item.SourceID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
-		return cast.ToString(row["username"]) == item.SourceID
-	})
-	if !ok {
-		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
-	}
-
-	return &types.MigrationDatabaseUser{
-		Type: item.Subtype, Username: item.SourceID,
-		Password: cast.ToString(row["password"]), Host: item.Version,
-	}, nil
-}
-
-// databaseItems 列出本机 MySQL 数据库
-func (a *baotaAdapter) databaseItems(ctx context.Context) []types.MigrationItem {
-	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
-		"table": "databases", "p": 1, "limit": 10000,
-	})
-	if err != nil {
-		return nil
-	}
-	subtype := a.mysqlSubtype(ctx)
-
-	items := make([]types.MigrationItem, 0)
-	for _, row := range a.rows(data) {
-		id, name := cast.ToString(row["id"]), cast.ToString(row["name"])
-		// db_type 与 sid 非 0 表示远程数据库，不在迁移范围内
-		if id == "" || name == "" || !strings.EqualFold(cast.ToString(row["type"]), "mysql") ||
-			cast.ToInt(row["db_type"]) != 0 || cast.ToInt(row["sid"]) != 0 {
-			continue
-		}
-		items = append(items, types.MigrationItem{
-			Key: biz.MigrationItemKey("database", id), Type: "database", Subtype: subtype, Name: name, Status: "running",
-			Size: cast.ToInt64(cast.ToStringMap(row["quota"])["used"]), TargetName: name, SourceID: id,
-		})
-	}
-	return items
-}
-
 // projectItems 列出各语言项目
 func (a *baotaAdapter) projectItems(ctx context.Context) []types.MigrationItem {
+	// 宝塔项目模块与 AcePanel 项目类型的对应关系，nodejs 等模块名同时用于拼接接口路径
+	baotaProjectModules := map[string]types.ProjectType{
+		"nodejs": types.ProjectTypeNodejs,
+		"python": types.ProjectTypePython,
+		"go":     types.ProjectTypeGo,
+		"net":    types.ProjectTypeDotnet,
+		"java":   types.ProjectTypeJava,
+		"other":  types.ProjectTypeGeneral,
+	}
 	items := make([]types.MigrationItem, 0)
 	for module, projectType := range baotaProjectModules {
 		data, err := a.call(ctx, http.MethodPost, a.projectPath(module, "list"), map[string]any{"p": 1, "limit": 10000})
@@ -251,15 +225,6 @@ func (a *baotaAdapter) projectItems(ctx context.Context) []types.MigrationItem {
 		}
 	}
 	return items
-}
-
-// projectPath 拼接项目接口路径，python 模块的方法名与其他模块不同
-func (a *baotaAdapter) projectPath(module, action string) string {
-	name := map[string]string{"list": "get_project_list", "start": "start_project", "stop": "stop_project"}[action]
-	if module == "python" && action == "list" {
-		name = "GetProjectList"
-	}
-	return fmt.Sprintf("/project/%s/%s/%s", module, name, module)
 }
 
 // projectVersion 取项目配置中的运行时版本
@@ -368,6 +333,19 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 	website.Redirects = a.redirects(ctx, item.Name)
 	a.applySSL(ctx, item.Name, website)
 	return website
+}
+
+// parseDate 解析宝塔的日期字段，0000-00-00 表示未设置
+func (a *baotaAdapter) parseDate(value string) *time.Time {
+	value = strings.TrimSpace(value)
+	if value == "" || value == "0000-00-00" {
+		return nil
+	}
+	parsed, err := time.ParseInLocation(time.DateOnly, value, time.Local)
+	if err != nil {
+		return nil
+	}
+	return &parsed
 }
 
 // domains 读取站点绑定的域名与端口
@@ -551,6 +529,30 @@ func (a *baotaAdapter) databaseDetail(ctx context.Context, item types.MigrationI
 	return database, nil
 }
 
+// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
+func (a *baotaAdapter) databaseUserDetail(
+	ctx context.Context,
+	item types.MigrationItem,
+) (*types.MigrationDatabaseUser, error) {
+	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
+		"table": "databases", "p": 1, "limit": 10000, "search": item.SourceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
+		return cast.ToString(row["username"]) == item.SourceID
+	})
+	if !ok {
+		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
+	}
+
+	return &types.MigrationDatabaseUser{
+		Type: item.Subtype, Username: item.SourceID,
+		Password: cast.ToString(row["password"]), Host: item.Version,
+	}, nil
+}
+
 func (a *baotaAdapter) projectDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationProject, error) {
 	data, err := a.call(ctx, http.MethodPost, a.projectPath(item.SourceGroup, "list"), map[string]any{"p": 1, "limit": 10000})
 	if err != nil {
@@ -690,6 +692,14 @@ func (a *baotaAdapter) projectEnvironments(ctx context.Context, config map[strin
 	return values
 }
 
+// environments 把 KEY=VALUE 文本解析为环境变量
+func (a *baotaAdapter) environments(content string) []types.KV {
+	return types.SliceToKV(lo.FilterMap(strings.Split(content, "\n"), func(line string, _ int) (string, bool) {
+		line = strings.TrimSpace(line)
+		return line, line != "" && !strings.HasPrefix(line, "#") && strings.Contains(line, "=")
+	}))
+}
+
 func (a *baotaAdapter) SetRunning(ctx context.Context, item types.MigrationItem, running bool) error {
 	action := lo.Ternary(running, "start", "stop")
 	switch item.Type {
@@ -794,6 +804,23 @@ func (a *baotaAdapter) archive(ctx context.Context, name, path string) (string, 
 	return target, nil
 }
 
+// safeName 过滤出可安全用于文件名的字符
+func (a *baotaAdapter) safeName(name string) string {
+	var result strings.Builder
+	for _, char := range name {
+		switch {
+		case char >= 'a' && char <= 'z', char >= 'A' && char <= 'Z', char >= '0' && char <= '9', char == '-', char == '_', char == '.':
+			result.WriteRune(char)
+		default:
+			result.WriteRune('_')
+		}
+	}
+	if result.Len() == 0 {
+		return "resource"
+	}
+	return result.String()
+}
+
 // waitTask 等待宝塔后台任务完成
 func (a *baotaAdapter) waitTask(ctx context.Context, taskID string) error {
 	for range 3600 {
@@ -822,6 +849,15 @@ func (a *baotaAdapter) Download(ctx context.Context, remote, local string, progr
 	return a.download(ctx, remote, local, progress)
 }
 
+// projectPath 拼接项目接口路径，python 模块的方法名与其他模块不同
+func (a *baotaAdapter) projectPath(module, action string) string {
+	name := map[string]string{"list": "get_project_list", "start": "start_project", "stop": "stop_project"}[action]
+	if module == "python" && action == "list" {
+		name = "GetProjectList"
+	}
+	return fmt.Sprintf("/project/%s/%s/%s", module, name, module)
+}
+
 // fileContent 读取来源服务器上的文件内容
 func (a *baotaAdapter) fileContent(ctx context.Context, path string) (string, error) {
 	data, err := a.call(ctx, http.MethodPost, "/files?action=GetFileBody", map[string]any{"path": path})
@@ -829,42 +865,4 @@ func (a *baotaAdapter) fileContent(ctx context.Context, path string) (string, er
 		return "", err
 	}
 	return cast.ToString(data), nil
-}
-
-// parseDate 解析宝塔的日期字段，0000-00-00 表示未设置
-func (a *baotaAdapter) parseDate(value string) *time.Time {
-	value = strings.TrimSpace(value)
-	if value == "" || value == "0000-00-00" {
-		return nil
-	}
-	parsed, err := time.ParseInLocation(time.DateOnly, value, time.Local)
-	if err != nil {
-		return nil
-	}
-	return &parsed
-}
-
-// environments 把 KEY=VALUE 文本解析为环境变量
-func (a *baotaAdapter) environments(content string) []types.KV {
-	return types.SliceToKV(lo.FilterMap(strings.Split(content, "\n"), func(line string, _ int) (string, bool) {
-		line = strings.TrimSpace(line)
-		return line, line != "" && !strings.HasPrefix(line, "#") && strings.Contains(line, "=")
-	}))
-}
-
-// safeName 过滤出可安全用于文件名的字符
-func (a *baotaAdapter) safeName(name string) string {
-	var result strings.Builder
-	for _, char := range name {
-		switch {
-		case char >= 'a' && char <= 'z', char >= 'A' && char <= 'Z', char >= '0' && char <= '9', char == '-', char == '_', char == '.':
-			result.WriteRune(char)
-		default:
-			result.WriteRune('_')
-		}
-	}
-	if result.Len() == 0 {
-		return "resource"
-	}
-	return result.String()
 }

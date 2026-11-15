@@ -46,7 +46,7 @@ require (
 	github.com/libtnb/cron v0.6.0
 	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.6
-	github.com/libtnb/sessions v1.5.0
+	github.com/libtnb/sessions v1.6.0
 	github.com/libtnb/sqlite v1.3.0
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.6.0

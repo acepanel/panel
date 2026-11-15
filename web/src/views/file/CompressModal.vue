@@ -34,9 +34,7 @@ const handleArchive = () => {
   useRequest(api.compress(path.value, paths.value.map(relative), file.value + format.value))
     .onSuccess(({ data }) => {
       show.value = false
-      if (fileStore.activeTab) {
-        fileStore.activeTab.selected = []
-      }
+      fileStore.selected[fileStore.activeTabId] = []
       taskQueue.add(data)
     })
     .onComplete(() => {
@@ -60,7 +58,7 @@ const formatOptions = computed(() => [
 // 格式沿用上次的选择，多选时需避开 .gz
 watch(show, (val) => {
   if (!val) return
-  paths.value = [...(fileStore.activeTab?.selected ?? [])]
+  paths.value = [...fileStore.activeSelected]
   file.value = generateName()
   if (paths.value.length > 1 && format.value === '.gz') {
     format.value = '.zip'

@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -26,9 +24,7 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupList(ctx, cmd)
-				},
+				Action: cliService.BackupList,
 			},
 			{
 				Name:  "website",
@@ -46,9 +42,7 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupWebsite(ctx, cmd)
-				},
+				Action: cliService.BackupWebsite,
 			},
 			{
 				Name:  "database",
@@ -72,9 +66,7 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupDatabase(ctx, cmd)
-				},
+				Action: cliService.BackupDatabase,
 			},
 			{
 				Name:  "path",
@@ -92,17 +84,13 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupPath(ctx, cmd)
-				},
+				Action: cliService.BackupPath,
 			},
 			{
-				Name:  "panel",
-				Usage: t.Get("Backup panel"),
-				Flags: []cli.Flag{},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupPanel(ctx, cmd)
-				},
+				Name:   "panel",
+				Usage:  t.Get("Backup panel"),
+				Flags:  []cli.Flag{},
+				Action: cliService.BackupPanel,
 			},
 			{
 				Name:  "clear",
@@ -132,9 +120,7 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 						Usage:   t.Get("Storage ID (local storage if not filled)"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.BackupClear(ctx, cmd)
-				},
+				Action: cliService.BackupClear,
 			},
 		},
 	}

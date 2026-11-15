@@ -8,9 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -40,69 +39,19 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetRegistryConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read("/etc/containers/registries.conf")
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "podman"), slog.String("path", "/etc/containers/registries.conf"))
-
-	service.Success(w, config)
+	common.ServeConfig(w, "/etc/containers/registries.conf")
 }
 
 func (s *App) UpdateRegistryConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write("/etc/containers/registries.conf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(r.Context(), "podman"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "podman"), slog.String("path", "/etc/containers/registries.conf"))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "podman", "/etc/containers/registries.conf", 0644, common.Restart("podman"))
 }
 
 func (s *App) GetStorageConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read("/etc/containers/storage.conf")
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "podman"), slog.String("path", "/etc/containers/storage.conf"))
-
-	service.Success(w, config)
+	common.ServeConfig(w, "/etc/containers/storage.conf")
 }
 
 func (s *App) UpdateStorageConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write("/etc/containers/storage.conf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(r.Context(), "podman"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "podman"), slog.String("path", "/etc/containers/storage.conf"))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "podman", "/etc/containers/storage.conf", 0644, common.Restart("podman"))
 }

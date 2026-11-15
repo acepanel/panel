@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"slices"
 	"sync"
 	"time"
 
@@ -18,12 +19,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/geoip"
 )
 
-// healthKeyScanDB 扫描事件辅助数据库健康问题上报 key
-const healthKeyScanDB = "database:scan"
-
-// maxScanEntries 聚合缓冲/计数器条目上限,防伪造源 IP 洪水耗尽内存
-const maxScanEntries = 100000
-
 // ipCounter 单个 IP 的扫描计数器
 type ipCounter struct {
 	count     uint
@@ -36,13 +31,14 @@ type FirewallScan struct {
 	setting      *biz.SettingUsecase
 	scanRepo     *biz.ScanEventUsecase
 	t            *gotext.Locale
+	fw           firewall.Firewall
 	scanner      *scan.Scanner
+	ifaces       []string // scanner 启动时的网卡设置
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
 	geoIPModTime time.Time
 	buffer       map[string]*biz.ScanEvent // key: "ip:port:proto:date"
 	ipCounters   map[string]*ipCounter     // per-IP 扫描计数
-	blockedIPs   map[string]time.Time      // 已屏蔽 IP → 屏蔽时间
 	cleanedAt    time.Time
 	mu           sync.Mutex
 
@@ -50,54 +46,101 @@ type FirewallScan struct {
 }
 
 // NewFirewallScan 构造防火墙扫描感知任务
-func NewFirewallScan(scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) Job {
+func NewFirewallScan(
+	scanEventUsecase *biz.ScanEventUsecase,
+	settingUsecase *biz.SettingUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "*/2 * * * *",
-		Task: &FirewallScan{
-			log:        log,
-			setting:    settingUsecase,
-			scanRepo:   scanEventUsecase,
-			t:          t,
-			buffer:     make(map[string]*biz.ScanEvent),
-			ipCounters: make(map[string]*ipCounter),
-			blockedIPs: make(map[string]time.Time),
-		},
+		Task: newFirewallScan(scanEventUsecase, settingUsecase, firewall.NewFirewall(), t, log),
+	}
+}
+
+func newFirewallScan(
+	scanEventUsecase *biz.ScanEventUsecase,
+	settingUsecase *biz.SettingUsecase,
+	fw firewall.Firewall,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *FirewallScan {
+	return &FirewallScan{
+		log:        log,
+		setting:    settingUsecase,
+		scanRepo:   scanEventUsecase,
+		t:          t,
+		fw:         fw,
+		buffer:     make(map[string]*biz.ScanEvent),
+		ipCounters: make(map[string]*ipCounter),
 	}
 }
 
 func (r *FirewallScan) Run(ctx context.Context) error {
-	if app.Status != app.StatusNormal {
+	// 到期解封不看开关：关掉扫描感知或自动屏蔽后，已有的限时屏蔽照常到期
+	r.unblockExpired(ctx)
+
+	setting, err := r.scanRepo.GetSetting()
+	if err != nil {
+		r.log.Warn(r.t.Get("failed to get scan setting"), slog.Any("err", err))
+		return nil
+	}
+	if !setting.Enabled {
+		r.stopScanner()
 		return nil
 	}
 
-	enabled, err := r.setting.GetBool(biz.SettingKeyScanAware)
-	if err != nil || !enabled {
-		// 未启用时，确保 scanner 已停止
-		r.stopScanner()
-		return nil //nolint:nilerr
-	}
-
-	// 确保 scanner 已启动
-	r.ensureScanner()
-
-	// 热更新 GeoIP
+	r.ensureScanner(setting.Interfaces)
 	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.t, r.log)
-
-	// flush 缓冲到数据库
 	r.flush()
-
-	// 自动屏蔽/解封
-	r.autoBlock(ctx)
-
-	// 清理过期数据
+	r.autoBlock(ctx, setting)
 	r.cleanup()
 	return nil
 }
 
-// ensureScanner 确保 scanner 正在运行
-func (r *FirewallScan) ensureScanner() {
-	if r.scanner != nil {
+// unblockExpired 解封到期的限时屏蔽
+func (r *FirewallScan) unblockExpired(ctx context.Context) {
+	blocks, err := r.scanRepo.ExpiredBlocks(time.Now())
+	if err != nil {
+		r.log.Warn(r.t.Get("failed to read scan blocks"), slog.Any("err", err))
 		return
+	}
+	if len(blocks) == 0 {
+		return
+	}
+
+	running, err := r.fw.Status(ctx)
+	if err != nil {
+		r.log.Warn(r.t.Get("failed to get firewall status"), slog.Any("err", err))
+		return
+	}
+	// 防火墙没在运行时规则删不掉，记录留着等它恢复后再解封
+	if !running {
+		return
+	}
+
+	ips := lo.Map(blocks, func(block *biz.ScanBlock, _ int) string { return block.IP })
+	if err = r.fw.RichRulesBatch(ctx, lo.Map(ips, r.blockRule), firewall.OperationRemove); err != nil {
+		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(ips)), slog.Any("err", err))
+		return
+	}
+	if err = r.scanRepo.DeleteBlocks(ips); err != nil {
+		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
+		return
+	}
+	for _, block := range blocks {
+		r.log.Info(r.t.Get("auto unblocked IP (expired)"), slog.String("ip", block.IP), slog.Time("blocked_at", block.CreatedAt))
+	}
+}
+
+// ensureScanner 确保 scanner 挂在设置的网卡上
+func (r *FirewallScan) ensureScanner(ifaces []string) {
+	if r.scanner != nil {
+		if slices.Equal(ifaces, r.ifaces) {
+			return
+		}
+		// 监听网卡改了，重建
+		r.stopScanner()
 	}
 
 	if !scan.Supported() {
@@ -108,22 +151,16 @@ func (r *FirewallScan) ensureScanner() {
 		return
 	}
 
-	setting, err := r.scanRepo.GetSetting()
-	if err != nil {
-		r.log.Warn(r.t.Get("failed to get scan setting"), slog.Any("err", err))
-		return
-	}
-
-	scanner, err := scan.New(setting.Interfaces, r.t, r.log)
+	scanner, err := scan.New(ifaces, r.t, r.log)
 	if err != nil {
 		r.log.Warn(r.t.Get("failed to start eBPF scan detector"), slog.Any("err", err))
 		return
 	}
 
-	r.scanner = scanner
+	r.scanner, r.ifaces = scanner, ifaces
 
 	// 启动后台事件聚合
-	go r.aggregate()
+	go r.aggregate(scanner.Events())
 }
 
 // stopScanner 停止 scanner
@@ -134,18 +171,22 @@ func (r *FirewallScan) stopScanner() {
 	_ = r.scanner.Close()
 	r.scanner = nil
 
-	// 清空计数器，保留 blockedIPs
+	r.resetCounters()
+}
+
+// resetCounters 清空扫描计数，重新分配以释放内存
+func (r *FirewallScan) resetCounters() {
 	r.mu.Lock()
-	r.ipCounters = make(map[string]*ipCounter)
+	if len(r.ipCounters) > 0 {
+		r.ipCounters = make(map[string]*ipCounter)
+	}
 	r.mu.Unlock()
 }
 
 // aggregate 持续读取 eBPF 事件并聚合到内存缓冲
-func (r *FirewallScan) aggregate() {
-	events := r.scanner.Events()
-	if events == nil {
-		return
-	}
+func (r *FirewallScan) aggregate(events <-chan scan.Event) {
+	// maxScanEntries 聚合缓冲/计数器条目上限,防伪造源 IP 洪水耗尽内存
+	const maxScanEntries = 100000
 
 	for evt := range events {
 		date := evt.Timestamp.Format(time.DateOnly)
@@ -182,6 +223,9 @@ func (r *FirewallScan) aggregate() {
 
 // flush 将内存缓冲写入数据库
 func (r *FirewallScan) flush() {
+	// healthKeyScanDB 扫描事件辅助数据库健康问题上报 key
+	const healthKeyScanDB = "database:scan"
+
 	r.mu.Lock()
 	if len(r.buffer) == 0 {
 		r.mu.Unlock()
@@ -211,21 +255,15 @@ func (r *FirewallScan) flush() {
 	app.Health.Clear(healthKeyScanDB)
 }
 
-// autoBlock 自动屏蔽超阈值 IP 并解封过期 IP
-func (r *FirewallScan) autoBlock(ctx context.Context) {
-	setting, err := r.scanRepo.GetSetting()
-	if err != nil || !setting.AutoBlock {
+// autoBlock 自动屏蔽超阈值 IP
+func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) {
+	if !setting.AutoBlock {
 		// 未启用时清空计数器，防止无界增长
-		r.mu.Lock()
-		if len(r.ipCounters) > 0 {
-			r.ipCounters = make(map[string]*ipCounter)
-		}
-		r.mu.Unlock()
+		r.resetCounters()
 		return
 	}
 
-	fw := firewall.NewFirewall()
-	running, err := fw.Status(ctx)
+	running, err := r.fw.Status(ctx)
 	if err != nil {
 		// 查询失败不等于防火墙没运行，清空计数器会丢掉本轮窗口内累计的扫描次数
 		r.log.Warn(r.t.Get("failed to get firewall status"), slog.Any("err", err))
@@ -233,99 +271,111 @@ func (r *FirewallScan) autoBlock(ctx context.Context) {
 	}
 	if !running {
 		// 防火墙未运行时也要清理计数器，防止无界增长
-		r.mu.Lock()
-		if len(r.ipCounters) > 0 {
-			r.ipCounters = make(map[string]*ipCounter)
-		}
-		r.mu.Unlock()
+		r.resetCounters()
 		return
 	}
 
-	// 解析白名单
-	whitelist := parseWhitelist(setting.Whitelist)
+	whitelist := r.parseWhitelist(setting.Whitelist)
 	now := time.Now()
-	window := time.Duration(setting.BlockWindow) * time.Minute   //nolint:gosec
-	duration := time.Duration(setting.BlockDuration) * time.Hour //nolint:gosec
-
-	var toBlock []struct {
-		ip    string
-		count uint
-	}
-	var toUnblock []string
-
-	r.mu.Lock()
-	// 收集需要解封的 IP
-	if setting.BlockDuration > 0 {
-		for ip, blockedAt := range r.blockedIPs {
-			if now.Sub(blockedAt) >= duration {
-				toUnblock = append(toUnblock, ip)
-			}
-		}
-	}
+	window := time.Duration(setting.BlockWindow) * time.Minute //nolint:gosec
 
 	// 遍历计数器，清除过期窗口，收集超阈值 IP
+	counts := make(map[string]uint)
+	r.mu.Lock()
 	for ip, counter := range r.ipCounters {
 		if now.Sub(counter.firstSeen) >= window {
-			// 窗口过期，重置
 			delete(r.ipCounters, ip)
 			continue
 		}
 		if counter.count >= setting.BlockThreshold {
-			if _, blocked := r.blockedIPs[ip]; !blocked {
-				toBlock = append(toBlock, struct {
-					ip    string
-					count uint
-				}{ip, counter.count})
-			}
+			counts[ip] = counter.count
 			// 触发后重置计数器
 			delete(r.ipCounters, ip)
 		}
 	}
 	r.mu.Unlock()
 
-	// 执行解封（锁外操作，防火墙命令耗时）
-	for _, ip := range toUnblock {
-		family := ipFamily(ip)
-		if err = fw.RichRules(ctx, firewall.FireInfo{
-			Family:    family,
-			Address:   ip,
-			Strategy:  firewall.StrategyDrop,
-			Direction: firewall.DirectionIn,
-		}, firewall.OperationRemove); err != nil {
-			r.log.Warn(r.t.Get("failed to unblock IP"), slog.String("ip", ip), slog.Any("err", err))
-			continue
+	for ip, count := range counts {
+		if r.isWhitelisted(ip, whitelist) {
+			r.log.Info(r.t.Get("skip whitelisted IP"), slog.String("ip", ip), slog.Uint64("count", uint64(count)))
+			delete(counts, ip)
 		}
-		r.mu.Lock()
-		delete(r.blockedIPs, ip)
-		r.mu.Unlock()
-		r.log.Info(r.t.Get("auto unblocked IP (expired)"), slog.String("ip", ip), slog.Uint64("duration_hours", uint64(setting.BlockDuration)))
+	}
+	if len(counts) == 0 {
+		return
 	}
 
-	// 执行屏蔽
-	for _, item := range toBlock {
-		if isWhitelisted(item.ip, whitelist) {
-			r.log.Info(r.t.Get("skip whitelisted IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)))
-			continue
+	// TCX 挂在 netfilter 之前，已屏蔽的 IP 仍会继续计数，不重复下发
+	blocked, err := r.scanRepo.BlockedIPs(lo.Keys(counts))
+	if err != nil {
+		r.log.Warn(r.t.Get("failed to read scan blocks"), slog.Any("err", err))
+		return
+	}
+	for _, ip := range blocked {
+		delete(counts, ip)
+	}
+	if len(counts) == 0 {
+		return
+	}
+
+	var expiresAt int64
+	if setting.BlockDuration > 0 {
+		expiresAt = now.Add(time.Duration(setting.BlockDuration) * time.Hour).Unix() //nolint:gosec
+	}
+	ips := lo.Keys(counts)
+	rules := lo.Map(ips, r.blockRule)
+
+	// 先落库再下发规则：中途被杀只会留下一条到期后空删的记录，不会留下没人解封的规则
+	if err = r.scanRepo.AddBlocks(lo.Map(ips, func(ip string, _ int) *biz.ScanBlock {
+		return &biz.ScanBlock{IP: ip, ExpiresAt: expiresAt}
+	})); err != nil {
+		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
+		return
+	}
+	if err = r.fw.RichRulesBatch(ctx, rules, firewall.OperationAdd); err != nil {
+		r.log.Warn(r.t.Get("failed to auto block IP"), slog.Int("count", len(ips)), slog.Any("err", err))
+		// 规则可能已写入一部分，撤回成功才删记录，否则留到期满再解封
+		if r.fw.RichRulesBatch(ctx, rules, firewall.OperationRemove) == nil {
+			_ = r.scanRepo.DeleteBlocks(ips)
 		}
-		family := ipFamily(item.ip)
-		if err = fw.RichRules(ctx, firewall.FireInfo{
-			Family:    family,
-			Address:   item.ip,
-			Strategy:  firewall.StrategyDrop,
-			Direction: firewall.DirectionIn,
-		}, firewall.OperationAdd); err != nil {
-			r.log.Warn(r.t.Get("failed to auto block IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Any("err", err))
-			continue
-		}
-		r.mu.Lock()
-		r.blockedIPs[item.ip] = now
-		r.mu.Unlock()
-		r.log.Info(r.t.Get("auto blocked IP"), slog.String("ip", item.ip), slog.Uint64("count", uint64(item.count)), slog.Uint64("threshold", uint64(setting.BlockThreshold)), slog.Uint64("window_min", uint64(setting.BlockWindow)))
+		return
+	}
+	for ip, count := range counts {
+		r.log.Info(r.t.Get("auto blocked IP"), slog.String("ip", ip), slog.Uint64("count", uint64(count)), slog.Uint64("threshold", uint64(setting.BlockThreshold)), slog.Uint64("window_min", uint64(setting.BlockWindow)))
+	}
+}
+
+// cleanup 清理过期数据
+// 任务每 2 分钟触发，但数据按天过期，故限流到 6 小时一次
+func (r *FirewallScan) cleanup() {
+	if time.Since(r.cleanedAt) < 6*time.Hour {
+		return
+	}
+	r.cleanedAt = time.Now()
+
+	day, err := r.setting.GetInt(biz.SettingKeyScanAwareDays, 30)
+	if err != nil {
+		return
+	}
+
+	cutoff := time.Now().AddDate(0, 0, -day).Format(time.DateOnly)
+	if err = r.scanRepo.ClearBefore(cutoff); err != nil {
+		r.log.Warn(r.t.Get("failed to clear expired scan data"), slog.Any("err", err))
+	}
+}
+
+// blockRule 屏蔽指定 IP 全部入站流量的规则
+func (r *FirewallScan) blockRule(ip string, _ int) firewall.FireInfo {
+	return firewall.FireInfo{
+		Family:    r.ipFamily(ip),
+		Address:   ip,
+		Strategy:  firewall.StrategyDrop,
+		Direction: firewall.DirectionIn,
 	}
 }
 
 // ipFamily 根据 IP 地址返回协议族
-func ipFamily(ip string) string {
+func (r *FirewallScan) ipFamily(ip string) string {
 	parsed := net.ParseIP(ip)
 	if parsed != nil && parsed.To4() == nil {
 		return "ipv6"
@@ -334,7 +384,7 @@ func ipFamily(ip string) string {
 }
 
 // parseWhitelist 解析白名单为 net.IPNet 列表
-func parseWhitelist(list []string) []net.IPNet {
+func (r *FirewallScan) parseWhitelist(list []string) []net.IPNet {
 	var nets []net.IPNet
 	for _, entry := range list {
 		// 尝试 CIDR
@@ -361,7 +411,7 @@ func parseWhitelist(list []string) []net.IPNet {
 }
 
 // isWhitelisted 检查 IP 是否在白名单中
-func isWhitelisted(ip string, whitelist []net.IPNet) bool {
+func (r *FirewallScan) isWhitelisted(ip string, whitelist []net.IPNet) bool {
 	parsed := net.ParseIP(ip)
 	if parsed == nil {
 		return false
@@ -372,23 +422,4 @@ func isWhitelisted(ip string, whitelist []net.IPNet) bool {
 	return lo.ContainsBy(whitelist, func(cidr net.IPNet) bool {
 		return cidr.Contains(parsed)
 	})
-}
-
-// cleanup 清理过期数据
-// 任务每 2 分钟触发，但数据按天过期，故限流到 6 小时一次
-func (r *FirewallScan) cleanup() {
-	if time.Since(r.cleanedAt) < 6*time.Hour {
-		return
-	}
-	r.cleanedAt = time.Now()
-
-	day, err := r.setting.GetInt(biz.SettingKeyScanAwareDays, 30)
-	if err != nil {
-		return
-	}
-
-	cutoff := time.Now().AddDate(0, 0, -day).Format(time.DateOnly)
-	if err = r.scanRepo.ClearBefore(cutoff); err != nil {
-		r.log.Warn(r.t.Get("failed to clear expired scan data"), slog.Any("err", err))
-	}
 }

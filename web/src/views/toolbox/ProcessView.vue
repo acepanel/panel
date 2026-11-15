@@ -4,8 +4,8 @@ import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatBytes, formatDateTime, formatPercent } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -286,7 +286,7 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
 }
 
 // 分页获取进程列表
-const { loading, data, page, total, pageSize, reload } = usePagination(
+const { loading, data, page, pageSize, reload, pagination } = usePagedTable(
   (page, pageSize) => {
     const sort = sortState.value?.columnKey as string | undefined
     // descend(箭头向下) -> desc(大到小), ascend(箭头向上) -> asc(小到大)
@@ -306,14 +306,11 @@ const { loading, data, page, total, pageSize, reload } = usePagination(
     return process.list(params)
   },
   {
-    initialData: { total: 0, list: [] },
     initialPageSize: 50,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [sortState, statusFilter, keyword],
+    pageSizes: [50, 100, 200, 500],
   },
 )
-const pagination = useTablePagination(page, pageSize, total, [50, 100, 200, 500])
 </script>
 
 <template>

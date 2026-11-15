@@ -6,120 +6,77 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
+import { toOptions, type TuneGroup } from '@/utils/tune'
 
 const { $gettext } = useGettext()
 
-const maxClientsNumber = ref<number | null>(null)
-const maxClientsPerIP = ref<number | null>(null)
-const maxIdleTime = ref<number | null>(null)
-const maxLoad = ref<number | null>(null)
-const passivePortRange = ref('')
-const anonymousOnly = ref('')
-const noAnonymous = ref('')
-const maxDiskUsage = ref<number | null>(null)
+const yesNoOptions = toOptions(['yes', 'no'])
 
-const saveLoading = ref(false)
-
-const yesNoOptions = [
-  { label: 'yes', value: 'yes' },
-  { label: 'no', value: 'no' },
+const groups: TuneGroup[] = [
+  {
+    name: 'general',
+    tab: $gettext('General'),
+    tip: $gettext('Common Pure-FTPd settings.'),
+    fields: [
+      {
+        key: 'max_clients_number',
+        label: $gettext('MaxClientsNumber'),
+        type: 'number',
+        placeholder: $gettext('e.g. 50'),
+        min: 1,
+      },
+      {
+        key: 'max_clients_per_ip',
+        label: $gettext('MaxClientsPerIP'),
+        type: 'number',
+        placeholder: $gettext('e.g. 8'),
+        min: 1,
+      },
+      {
+        key: 'max_idle_time',
+        label: $gettext('MaxIdleTime (minutes)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 15'),
+        min: 0,
+      },
+      {
+        key: 'max_load',
+        label: $gettext('MaxLoad'),
+        type: 'number',
+        placeholder: $gettext('e.g. 4'),
+        min: 1,
+      },
+      {
+        key: 'passive_port_range',
+        label: $gettext('PassivePortRange (start end)'),
+        type: 'text',
+        placeholder: $gettext('e.g. 39000 40000'),
+      },
+      {
+        key: 'anonymous_only',
+        label: $gettext('AnonymousOnly'),
+        type: 'select',
+        options: yesNoOptions,
+      },
+      {
+        key: 'no_anonymous',
+        label: $gettext('NoAnonymous'),
+        type: 'select',
+        options: yesNoOptions,
+      },
+      {
+        key: 'max_disk_usage',
+        label: $gettext('MaxDiskUsage (%)'),
+        type: 'number',
+        placeholder: $gettext('e.g. 99'),
+        min: 1,
+        max: 100,
+      },
+    ],
+  },
 ]
-
-useRequest(pureftpd.configTune()).onSuccess(({ data }: any) => {
-  maxClientsNumber.value = Number(data.max_clients_number) || null
-  maxClientsPerIP.value = Number(data.max_clients_per_ip) || null
-  maxIdleTime.value = Number(data.max_idle_time) || null
-  maxLoad.value = Number(data.max_load) || null
-  passivePortRange.value = data.passive_port_range ?? ''
-  anonymousOnly.value = data.anonymous_only || null
-  noAnonymous.value = data.no_anonymous || null
-  maxDiskUsage.value = Number(data.max_disk_usage) || null
-})
-
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(
-    pureftpd.saveConfigTune({
-      max_clients_number: String(maxClientsNumber.value ?? ''),
-      max_clients_per_ip: String(maxClientsPerIP.value ?? ''),
-      max_idle_time: String(maxIdleTime.value ?? ''),
-      max_load: String(maxLoad.value ?? ''),
-      passive_port_range: passivePortRange.value,
-      anonymous_only: anonymousOnly.value ?? '',
-      no_anonymous: noAnonymous.value ?? '',
-      max_disk_usage: String(maxDiskUsage.value ?? ''),
-    }),
-  )
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
-}
 </script>
 
 <template>
-  <n-flex vertical>
-    <n-alert type="info">
-      {{ $gettext('Common Pure-FTPd settings.') }}
-    </n-alert>
-    <n-form>
-      <n-form-item :label="$gettext('MaxClientsNumber')">
-        <n-input-number
-          class="w-full"
-          v-model:value="maxClientsNumber"
-          :placeholder="$gettext('e.g. 50')"
-          :min="1"
-        />
-      </n-form-item>
-      <n-form-item :label="$gettext('MaxClientsPerIP')">
-        <n-input-number
-          class="w-full"
-          v-model:value="maxClientsPerIP"
-          :placeholder="$gettext('e.g. 8')"
-          :min="1"
-        />
-      </n-form-item>
-      <n-form-item :label="$gettext('MaxIdleTime (minutes)')">
-        <n-input-number
-          class="w-full"
-          v-model:value="maxIdleTime"
-          :placeholder="$gettext('e.g. 15')"
-          :min="0"
-        />
-      </n-form-item>
-      <n-form-item :label="$gettext('MaxLoad')">
-        <n-input-number
-          class="w-full"
-          v-model:value="maxLoad"
-          :placeholder="$gettext('e.g. 4')"
-          :min="1"
-        />
-      </n-form-item>
-      <n-form-item :label="$gettext('PassivePortRange (start end)')">
-        <n-input v-model:value="passivePortRange" :placeholder="$gettext('e.g. 39000 40000')" />
-      </n-form-item>
-      <n-form-item :label="$gettext('AnonymousOnly')">
-        <n-select v-model:value="anonymousOnly" :options="yesNoOptions" clearable />
-      </n-form-item>
-      <n-form-item :label="$gettext('NoAnonymous')">
-        <n-select v-model:value="noAnonymous" :options="yesNoOptions" clearable />
-      </n-form-item>
-      <n-form-item :label="$gettext('MaxDiskUsage (%)')">
-        <n-input-number
-          class="w-full"
-          v-model:value="maxDiskUsage"
-          :placeholder="$gettext('e.g. 99')"
-          :min="1"
-          :max="100"
-        />
-      </n-form-item>
-    </n-form>
-    <n-flex>
-      <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
-        {{ $gettext('Save') }}
-      </n-button>
-    </n-flex>
-  </n-flex>
+  <config-tune-form :fetch="pureftpd.configTune" :save="pureftpd.saveConfigTune" :groups="groups" />
 </template>

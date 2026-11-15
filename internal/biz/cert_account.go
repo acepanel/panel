@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -27,6 +28,28 @@ type CertAccount struct {
 	Certs []*Cert `gorm:"foreignKey:AccountID" json:"-"`
 }
 
+// Directory 取账户所属 CA 的 ACME 目录地址，CA 不受支持时为空
+func (r *CertAccount) Directory() string {
+	// caDirectories CA 标识到 ACME 目录地址的映射
+	caDirectories := map[string]string{
+		"googlecn":    acme.CAGoogleCN,
+		"google":      acme.CAGoogle,
+		"letsencrypt": acme.CALetsEncrypt,
+		"litessl":     acme.CALiteSSL,
+		"zerossl":     acme.CAZeroSSL,
+		"sslcom":      acme.CASSLcom,
+	}
+	return caDirectories[r.CA]
+}
+
+// EAB 取回已注册账户时要带的 EAB 凭据，不需要时为 nil
+func (r *CertAccount) EAB() *acme.EAB {
+	if !slices.Contains([]string{"googlecn", "google", "zerossl", "sslcom"}, r.CA) {
+		return nil
+	}
+	return &acme.EAB{KeyID: r.Kid, MACKey: r.HmacEncoded}
+}
+
 type CertAccountRepo interface {
 	List(page, limit uint) ([]*CertAccount, int64, error)
 	Get(id uint) (*CertAccount, error)
@@ -46,7 +69,12 @@ type CertAccountUsecase struct {
 	log      *slog.Logger
 }
 
-func NewCertAccountUsecase(t *gotext.Locale, log *slog.Logger, certAccountRepo CertAccountRepo, userRepo UserRepo) *CertAccountUsecase {
+func NewCertAccountUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	certAccountRepo CertAccountRepo,
+	userRepo UserRepo,
+) *CertAccountUsecase {
 	return &CertAccountUsecase{
 		repo:     certAccountRepo,
 		userRepo: userRepo,
@@ -57,6 +85,10 @@ func NewCertAccountUsecase(t *gotext.Locale, log *slog.Logger, certAccountRepo C
 
 func (uc *CertAccountUsecase) List(page, limit uint) ([]*CertAccount, int64, error) {
 	return uc.repo.List(page, limit)
+}
+
+func (uc *CertAccountUsecase) Get(id uint) (*CertAccount, error) {
+	return uc.repo.Get(id)
 }
 
 func (uc *CertAccountUsecase) GetDefault(ctx context.Context, userID uint) (*CertAccount, error) {
@@ -79,10 +111,6 @@ func (uc *CertAccountUsecase) GetDefault(ctx context.Context, userID uint) (*Cer
 	return uc.Create(ctx, req)
 }
 
-func (uc *CertAccountUsecase) Get(id uint) (*CertAccount, error) {
-	return uc.repo.Get(id)
-}
-
 func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccountCreate) (*CertAccount, error) {
 	account := new(CertAccount)
 	account.CA = req.CA
@@ -91,48 +119,11 @@ func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccou
 	account.HmacEncoded = req.HmacEncoded
 	account.KeyType = req.KeyType
 
-	var err error
-	var client *acme.Client
-	switch account.CA {
-	case "googlecn":
-		eab, eabErr := uc.repo.GetGoogleEAB()
-		if eabErr != nil {
-			return nil, eabErr
-		}
-		account.Kid = eab.KeyID
-		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
-	case "google":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	case "letsencrypt":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
-	case "litessl":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	case "zerossl":
-		eab, eabErr := uc.repo.GetZeroSSLEAB(account.Email)
-		if eabErr != nil {
-			return nil, eabErr
-		}
-		account.Kid = eab.KeyID
-		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
-	case "sslcom":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	default:
-		return nil, errors.New(uc.t.Get("unsupported CA"))
+	if err := uc.register(ctx, account); err != nil {
+		return nil, err
 	}
 
-	if err != nil {
-		return nil, errors.New(uc.t.Get("failed to register account: %v", err))
-	}
-
-	privateKey, err := cert.EncodeKey(client.Account.PrivateKey)
-	if err != nil {
-		return nil, errors.New(uc.t.Get("failed to get private key"))
-	}
-	account.PrivateKey = string(privateKey)
-
-	if err = uc.repo.Create(account); err != nil {
+	if err := uc.repo.Create(account); err != nil {
 		return nil, err
 	}
 
@@ -154,45 +145,9 @@ func (uc *CertAccountUsecase) Update(ctx context.Context, req *request.CertAccou
 	account.HmacEncoded = req.HmacEncoded
 	account.KeyType = req.KeyType
 
-	var client *acme.Client
-	switch account.CA {
-	case "googlecn":
-		eab, eabErr := uc.repo.GetGoogleEAB()
-		if eabErr != nil {
-			return eabErr
-		}
-		account.Kid = eab.KeyID
-		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
-	case "google":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	case "letsencrypt":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
-	case "litessl":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	case "zerossl":
-		eab, eabErr := uc.repo.GetZeroSSLEAB(account.Email)
-		if eabErr != nil {
-			return eabErr
-		}
-		account.Kid = eab.KeyID
-		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
-	case "sslcom":
-		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
-	default:
-		return errors.New(uc.t.Get("unsupported CA"))
+	if err = uc.register(ctx, account); err != nil {
+		return err
 	}
-
-	if err != nil {
-		return errors.New(uc.t.Get("failed to register account: %v", err))
-	}
-
-	privateKey, err := cert.EncodeKey(client.Account.PrivateKey)
-	if err != nil {
-		return errors.New(uc.t.Get("failed to get private key: %v", err))
-	}
-	account.PrivateKey = string(privateKey)
 
 	if err = uc.repo.Save(account); err != nil {
 		return err
@@ -216,6 +171,48 @@ func (uc *CertAccountUsecase) Delete(ctx context.Context, id uint) error {
 
 	// 记录日志
 	uc.log.Warn(uc.t.Get("cert account deleted"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("email", account.Email), slog.String("ca", account.CA))
+
+	return nil
+}
+
+// register 向 CA 注册账户并把账户私钥写回 account
+func (uc *CertAccountUsecase) register(ctx context.Context, account *CertAccount) error {
+	directory := account.Directory()
+	if directory == "" {
+		return errors.New(uc.t.Get("unsupported CA"))
+	}
+
+	// letsencrypt 不需要 EAB，googlecn 与 zerossl 的由接口自动申请，其余由用户填写
+	var eab *acme.EAB
+	var err error
+	switch account.CA {
+	case "letsencrypt":
+	case "googlecn":
+		eab, err = uc.repo.GetGoogleEAB()
+	case "zerossl":
+		eab, err = uc.repo.GetZeroSSLEAB(account.Email)
+	default:
+		eab = &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}
+	}
+	if err != nil {
+		return err
+	}
+	// 自动申请到的凭据要随账户保存
+	if eab != nil {
+		account.Kid = eab.KeyID
+		account.HmacEncoded = eab.MACKey
+	}
+
+	client, err := uc.repo.RegisterAccount(ctx, account.Email, directory, eab, acme.KeyType(account.KeyType))
+	if err != nil {
+		return errors.New(uc.t.Get("failed to register account: %v", err))
+	}
+
+	privateKey, err := cert.EncodeKey(client.Account.PrivateKey)
+	if err != nil {
+		return errors.New(uc.t.Get("failed to get private key: %v", err))
+	}
+	account.PrivateKey = string(privateKey)
 
 	return nil
 }

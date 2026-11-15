@@ -3,8 +3,9 @@ import { NButton, NInput, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 const props = defineProps<{
   type: string
@@ -93,18 +94,13 @@ const columns: any = computed(() => {
   return cols
 })
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => database.list(page, pageSize, props.type, props.keyword),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [() => props.keyword],
     debounce: [300],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = (serverID: number, name: string) => {
   useRequest(database.delete(serverID, name)).onSuccess(() => {
@@ -119,15 +115,7 @@ const handleComment = (row: any) => {
   })
 }
 
-onMounted(() => {
-  window.$bus.on('database:refresh', () => {
-    refresh()
-  })
-})
-
-onUnmounted(() => {
-  window.$bus.off('database:refresh')
-})
+useBus('database:refresh', refresh)
 </script>
 
 <template>

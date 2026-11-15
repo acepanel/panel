@@ -3,7 +3,7 @@ defineOptions({
   name: 'prometheus-exporters',
 })
 
-import { NButton, NDataTable, NSpace, NTag } from 'naive-ui'
+import { NButton, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import prometheus from '@/api/apps/prometheus'

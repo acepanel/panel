@@ -3,13 +3,12 @@ defineOptions({
   name: 'apps-pureftpd-index',
 })
 
-import { NButton, NDataTable, NFlex } from 'naive-ui'
+import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { generateRandomString } from '@/utils'
 
 import PureftpdConfigTuneView from './PureftpdConfigTuneView.vue'
@@ -92,16 +91,9 @@ const userColumns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => pureftpd.list(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  pureftpd.list(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const getPort = async () => {
   port.value = await pureftpd.port()
@@ -159,7 +151,6 @@ const handleDeleteUser = async (username: string) => {
 }
 
 onMounted(() => {
-  refresh()
   getPort()
 })
 </script>

@@ -130,57 +130,6 @@ func (r *sshRepo) Delete(id uint) error {
 	return nil
 }
 
-// dial 与主机建立 SSH 和 SFTP 连接
-func (r *sshRepo) dial(hostID uint) (*cryptossh.Client, *sftp.Client, error) {
-	info, err := r.Get(hostID)
-	if err != nil {
-		return nil, nil, err
-	}
-	sshClient, err := pkgssh.NewSSHClient(info.Config)
-	if err != nil {
-		return nil, nil, errors.New(r.t.Get("failed to connect to %s: %v", info.Name, err))
-	}
-	sftpClient, err := sftp.NewClient(sshClient, sftp.UseConcurrentWrites(true))
-	if err != nil {
-		_ = sshClient.Close()
-		return nil, nil, errors.New(r.t.Get("failed to open sftp session on %s: %v", info.Name, err))
-	}
-
-	return sshClient, sftpClient, nil
-}
-
-// getSftp 获取缓存的 SFTP 连接,失效时重建,顺带清理闲置连接
-func (r *sshRepo) getSftp(hostID uint) (*sftp.Client, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	for id, conn := range r.conns {
-		if id != hostID && time.Since(conn.lastUsed) > 10*time.Minute {
-			_ = conn.sftp.Close()
-			_ = conn.ssh.Close()
-			delete(r.conns, id)
-		}
-	}
-
-	if conn, ok := r.conns[hostID]; ok {
-		if _, err := conn.sftp.Getwd(); err == nil {
-			conn.lastUsed = time.Now()
-			return conn.sftp, nil
-		}
-		_ = conn.sftp.Close()
-		_ = conn.ssh.Close()
-		delete(r.conns, hostID)
-	}
-
-	sshClient, sftpClient, err := r.dial(hostID)
-	if err != nil {
-		return nil, err
-	}
-	r.conns[hostID] = &sftpConn{ssh: sshClient, sftp: sftpClient, lastUsed: time.Now()}
-
-	return sftpClient, nil
-}
-
 func (r *sshRepo) ListFiles(hostID uint, path string) ([]*biz.SSHFileInfo, error) {
 	var infos []os.FileInfo
 	if hostID == 0 {
@@ -242,42 +191,14 @@ func (r *sshRepo) Mkdir(hostID uint, path string) error {
 	return client.MkdirAll(path)
 }
 
-// transferProbe 在读写路径上统计进度并响应取消
-type transferProbe struct {
-	ctx         context.Context
-	r           io.Reader
-	w           io.Writer
-	transferred int64
-	total       int64
-	progress    func(transferred, total int64)
-}
-
-func (t *transferProbe) advance(n int) {
-	if n > 0 {
-		t.transferred += int64(n)
-		t.progress(t.transferred, t.total)
-	}
-}
-
-func (t *transferProbe) Read(p []byte) (int, error) {
-	if err := t.ctx.Err(); err != nil {
-		return 0, err
-	}
-	n, err := t.r.Read(p)
-	t.advance(n)
-	return n, err
-}
-
-func (t *transferProbe) Write(p []byte) (int, error) {
-	if err := t.ctx.Err(); err != nil {
-		return 0, err
-	}
-	n, err := t.w.Write(p)
-	t.advance(n)
-	return n, err
-}
-
-func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(transferred, total int64)) error {
+func (r *sshRepo) TransferFile(
+	ctx context.Context,
+	srcID uint,
+	srcPath string,
+	dstID uint,
+	dstPath string,
+	progress func(transferred, total int64),
+) error {
 	// 传输不复用缓存连接,独立建连以支持长时间占用与随时取消
 	var srcSftp, dstSftp *sftp.Client
 	if srcID != 0 {
@@ -397,8 +318,66 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 	return nil
 }
 
+// getSftp 获取缓存的 SFTP 连接,失效时重建,顺带清理闲置连接
+func (r *sshRepo) getSftp(hostID uint) (*sftp.Client, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for id, conn := range r.conns {
+		if id != hostID && time.Since(conn.lastUsed) > 10*time.Minute {
+			_ = conn.sftp.Close()
+			_ = conn.ssh.Close()
+			delete(r.conns, id)
+		}
+	}
+
+	if conn, ok := r.conns[hostID]; ok {
+		if _, err := conn.sftp.Getwd(); err == nil {
+			conn.lastUsed = time.Now()
+			return conn.sftp, nil
+		}
+		_ = conn.sftp.Close()
+		_ = conn.ssh.Close()
+		delete(r.conns, hostID)
+	}
+
+	sshClient, sftpClient, err := r.dial(hostID)
+	if err != nil {
+		return nil, err
+	}
+	r.conns[hostID] = &sftpConn{ssh: sshClient, sftp: sftpClient, lastUsed: time.Now()}
+
+	return sftpClient, nil
+}
+
+// dial 与主机建立 SSH 和 SFTP 连接
+func (r *sshRepo) dial(hostID uint) (*cryptossh.Client, *sftp.Client, error) {
+	info, err := r.Get(hostID)
+	if err != nil {
+		return nil, nil, err
+	}
+	sshClient, err := pkgssh.NewSSHClient(info.Config)
+	if err != nil {
+		return nil, nil, errors.New(r.t.Get("failed to connect to %s: %v", info.Name, err))
+	}
+	sftpClient, err := sftp.NewClient(sshClient, sftp.UseConcurrentWrites(true))
+	if err != nil {
+		_ = sshClient.Close()
+		return nil, nil, errors.New(r.t.Get("failed to open sftp session on %s: %v", info.Name, err))
+	}
+
+	return sshClient, sftpClient, nil
+}
+
 // transferOne 传输单个文件,base 与 grandTotal 用于目录传输的累计进度
-func (r *sshRepo) transferOne(ctx context.Context, srcSftp, dstSftp *sftp.Client, srcPath, dstPath string, mode os.FileMode, size, base, grandTotal int64, progress func(transferred, total int64)) error {
+func (r *sshRepo) transferOne(
+	ctx context.Context,
+	srcSftp, dstSftp *sftp.Client,
+	srcPath, dstPath string,
+	mode os.FileMode,
+	size, base, grandTotal int64,
+	progress func(transferred, total int64),
+) error {
 	var reader io.ReadCloser
 	var err error
 	if srcSftp == nil {
@@ -445,4 +424,39 @@ func (r *sshRepo) transferOne(ctx context.Context, srcSftp, dstSftp *sftp.Client
 	}
 
 	return nil
+}
+
+// transferProbe 在读写路径上统计进度并响应取消
+type transferProbe struct {
+	ctx         context.Context
+	r           io.Reader
+	w           io.Writer
+	transferred int64
+	total       int64
+	progress    func(transferred, total int64)
+}
+
+func (t *transferProbe) Read(p []byte) (int, error) {
+	if err := t.ctx.Err(); err != nil {
+		return 0, err
+	}
+	n, err := t.r.Read(p)
+	t.advance(n)
+	return n, err
+}
+
+func (t *transferProbe) Write(p []byte) (int, error) {
+	if err := t.ctx.Err(); err != nil {
+		return 0, err
+	}
+	n, err := t.w.Write(p)
+	t.advance(n)
+	return n, err
+}
+
+func (t *transferProbe) advance(n int) {
+	if n > 0 {
+		t.transferred += int64(n)
+		t.progress(t.transferred, t.total)
+	}
 }

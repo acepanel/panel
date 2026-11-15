@@ -11,8 +11,8 @@ import (
 // tomlCodec TOML 根表的书写约定，值的引号由 formatTOML 按类型决定
 var tomlCodec = Codec{Delim: "=", Assign: " = ", Comments: []string{"#"}, InlineComment: true}
 
-// GetTOML 读取根表配置项，兼容点号键（auth.token = "x"）与分组写法（[auth] 下的 token = "x"）
-func GetTOML(content, key string) string {
+// getTOML 读取根表配置项，兼容点号键（auth.token = "x"）与分组写法（[auth] 下的 token = "x"）
+func getTOML(content, key string) string {
 	section, leaf, nested := cutLast(key)
 
 	current := ""
@@ -36,8 +36,8 @@ func GetTOML(content, key string) string {
 	return ""
 }
 
-// SetTOML 写入根表配置项，值为空时注释掉该项；新键以点号形式插入到首个表头之前
-func SetTOML(content, key string, value any) string {
+// setTOML 写入根表配置项，值为空时注释掉该项；新键以点号形式插入到首个表头之前
+func setTOML(content, key string, value any) string {
 	literal := formatTOML(value)
 	section, leaf, nested := cutLast(key)
 
@@ -123,10 +123,10 @@ func tableName(raw string) (string, bool) {
 
 // cutLast 切出点号键的分组前缀与末段，如 auth.token -> auth, token
 func cutLast(key string) (section, leaf string, nested bool) {
-	idx := strings.LastIndex(key, ".")
-	if idx < 0 {
+	before, after, ok := strings.CutLast(key, ".")
+	if !ok {
 		return "", key, false
 	}
 
-	return key[:idx], key[idx+1:], true
+	return before, after, true
 }

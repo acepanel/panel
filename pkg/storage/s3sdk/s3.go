@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -14,7 +15,33 @@ import (
 	"time"
 )
 
-const amzMetaPrefix = "x-amz-meta-"
+const (
+	// minPartSize 是 S3 规定的最小分片大小（最后一片除外）
+	minPartSize = 5 * 1024 * 1024
+	// defaultPartSize 是默认分片大小
+	defaultPartSize = 5 * 1024 * 1024
+	// maxParts 是 S3 规定的单次分片上传的最大分片数
+	maxParts = 10000
+	// maxBuffered 是分片被放大后的内存预算，超出时压低并发
+	maxBuffered = 128 * 1024 * 1024
+
+	defaultMaxRetries = 3
+)
+
+// defaultClient 未配置 HTTP 客户端时的兜底
+// 不设 Client.Timeout：分片上传耗时随文件大小变化，只能靠分阶段超时兜住对端黑洞
+var defaultClient = &http.Client{
+	Transport: &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: time.Second,
+		ResponseHeaderTimeout: time.Minute,
+	},
+}
 
 // Config 是创建 S3 客户端的配置
 type Config struct {
@@ -54,8 +81,8 @@ type S3 struct {
 // New 按配置创建一个 S3 客户端。
 func New(cfg Config) *S3 {
 	partSize := cfg.PartSize
-	if partSize < MinPartSize {
-		partSize = DefaultPartSize
+	if partSize < minPartSize {
+		partSize = defaultPartSize
 	}
 	concurrency := cfg.Concurrency
 	if concurrency <= 0 {
@@ -75,67 +102,6 @@ func New(cfg Config) *S3 {
 		maxRetries:  maxRetries,
 		client:      cfg.Client,
 	}
-}
-
-// computeBase 根据寻址风格与端点预计算请求基础 URL
-// path-style：     {base} = {endpoint|aws}/{bucket}，对象 URL 为 {base}/{key}
-// virtual-hosted： {base} = {scheme}://{bucket}.{host}，对象 URL 为 {base}/{key}
-func computeBase(cfg Config) string {
-	scheme := cfg.Scheme
-	if scheme == "" {
-		scheme = "https"
-	}
-
-	if cfg.Endpoint != "" {
-		ep := cfg.Endpoint
-		if !strings.Contains(ep, "://") {
-			ep = scheme + "://" + ep
-		}
-		ep = strings.TrimRight(ep, "/")
-
-		if cfg.PathStyle {
-			return ep + "/" + cfg.Bucket
-		}
-		// virtual-hosted：把 bucket 插入 host 最前
-		if u, err := url.Parse(ep); err == nil {
-			u.Host = cfg.Bucket + "." + u.Host
-			return strings.TrimRight(u.String(), "/")
-		}
-		return ep
-	}
-
-	// 无自定义端点，使用 AWS S3 默认端点
-	if cfg.PathStyle {
-		return fmt.Sprintf("https://s3.%s.amazonaws.com/%s", cfg.Region, cfg.Bucket)
-	}
-	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com", cfg.Bucket, cfg.Region)
-}
-
-// objectURL 返回对象的请求 URL
-func (c *S3) objectURL(key string) string {
-	return c.base + "/" + uriEncode(key, false)
-}
-
-// defaultClient 未配置 HTTP 客户端时的兜底
-// 不设 Client.Timeout：分片上传耗时随文件大小变化，只能靠分阶段超时兜住对端黑洞
-var defaultClient = &http.Client{
-	Transport: &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
-		DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
-		ForceAttemptHTTP2:     true,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: time.Second,
-		ResponseHeaderTimeout: time.Minute,
-	},
-}
-
-func (c *S3) httpClient() *http.Client {
-	if c.client == nil {
-		return defaultClient
-	}
-	return c.client
 }
 
 // do 对请求签名并执行，对可重试错误（5xx、网络错误）按指数退避重试
@@ -188,12 +154,16 @@ func (c *S3) doOnce(req *http.Request, wantStatus int) ([]byte, *http.Response, 
 	return body, res, nil
 }
 
-// backoff 返回第 attempt 次重试前的等待时长（指数退避，上限 5 秒）
-func backoff(attempt int) time.Duration {
-	if d := time.Duration(1<<(attempt-1)) * 100 * time.Millisecond; d < 5*time.Second {
-		return d
+func (c *S3) httpClient() *http.Client {
+	if c.client == nil {
+		return defaultClient
 	}
-	return 5 * time.Second
+	return c.client
+}
+
+// objectURL 返回对象的请求 URL
+func (c *S3) objectURL(key string) string {
+	return c.base + "/" + uriEncode(key, false)
 }
 
 // apiError 表示一个非预期状态码的 S3 响应
@@ -216,4 +186,55 @@ func (e *apiError) Error() string {
 		return fmt.Sprintf("s3: unexpected status %s: %s", e.statusText, trimmed)
 	}
 	return "s3: unexpected status " + e.statusText
+}
+
+// computeBase 根据寻址风格与端点预计算请求基础 URL
+// path-style：     {base} = {endpoint|aws}/{bucket}，对象 URL 为 {base}/{key}
+// virtual-hosted： {base} = {scheme}://{bucket}.{host}，对象 URL 为 {base}/{key}
+func computeBase(cfg Config) string {
+	scheme := cfg.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+
+	if cfg.Endpoint != "" {
+		ep := cfg.Endpoint
+		if !strings.Contains(ep, "://") {
+			ep = scheme + "://" + ep
+		}
+		ep = strings.TrimRight(ep, "/")
+
+		if cfg.PathStyle {
+			return ep + "/" + cfg.Bucket
+		}
+		// virtual-hosted：把 bucket 插入 host 最前
+		if u, err := url.Parse(ep); err == nil {
+			u.Host = cfg.Bucket + "." + u.Host
+			return strings.TrimRight(u.String(), "/")
+		}
+		return ep
+	}
+
+	// 无自定义端点，使用 AWS S3 默认端点
+	if cfg.PathStyle {
+		return fmt.Sprintf("https://s3.%s.amazonaws.com/%s", cfg.Region, cfg.Bucket)
+	}
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com", cfg.Bucket, cfg.Region)
+}
+
+// backoff 返回第 attempt 次重试前的等待时长（指数退避，上限 5 秒）
+func backoff(attempt int) time.Duration {
+	if d := time.Duration(1<<(attempt-1)) * 100 * time.Millisecond; d < 5*time.Second {
+		return d
+	}
+	return 5 * time.Second
+}
+
+// isRetryable 判断错误是否值得重试：5xx 服务端错误或网络层错误
+func isRetryable(err error) bool {
+	if ae, ok := errors.AsType[*apiError](err); ok {
+		return ae.status >= 500
+	}
+	var ne net.Error
+	return errors.As(err, &ne)
 }

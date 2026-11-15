@@ -9,19 +9,19 @@ import (
 // Rules 面板自定义校验规则
 func Rules(t *gotext.Locale) []validator.Rule {
 	return []validator.Rule{
-		NewPassword(t),
-		NewCron(t),
-		NewIPCIDR(t),
-		NewUnixPath(t),
-		NewEntrance(t),
+		newPassword(t),
+		newCron(t),
+		newIPCIDR(t),
+		newUnixPath(t),
+		newEntrance(t),
 	}
 }
 
 // FallibleRules 依赖数据库查询的校验规则
 func FallibleRules(db *gorm.DB, t *gotext.Locale) []validator.FallibleRule {
 	return []validator.FallibleRule{
-		NewExists(db, t),
-		NewNotExists(db, t),
+		newExists(db, t),
+		newNotExists(db, t),
 	}
 }
 

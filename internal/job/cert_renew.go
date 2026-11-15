@@ -32,7 +32,16 @@ type CertRenew struct {
 }
 
 // NewCertRenew 构造证书续签任务
-func NewCertRenew(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
+func NewCertRenew(
+	certAccountUsecase *biz.CertAccountUsecase,
+	certUsecase *biz.CertUsecase,
+	notifyUsecase *biz.NotifyUsecase,
+	settingUsecase *biz.SettingUsecase,
+	conf *config.Config,
+	db *gorm.DB,
+	t *gotext.Locale,
+	log *slog.Logger,
+) Job {
 	return Job{
 		Spec: "0 4 * * *",
 		Task: &CertRenew{
@@ -49,10 +58,6 @@ func NewCertRenew(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.C
 }
 
 func (r *CertRenew) Run(ctx context.Context) error {
-	if app.Status != app.StatusNormal {
-		return nil
-	}
-
 	var certs []biz.Cert
 	if err := r.db.Preload("Websites").Preload("Account").Preload("DNS").Find(&certs).Error; err != nil {
 		r.log.Warn(r.t.Get("failed to get certs"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))

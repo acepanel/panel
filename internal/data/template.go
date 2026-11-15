@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"github.com/leonelquinteros/gotext"
 	"go.yaml.in/yaml/v4"
@@ -24,42 +23,12 @@ type templateRepo struct {
 	api *api.API
 }
 
-func NewTemplateRepo(t *gotext.Locale, log *slog.Logger) biz.TemplateRepo {
+func NewTemplateRepo(apiClient *api.API, t *gotext.Locale, log *slog.Logger) biz.TemplateRepo {
 	return &templateRepo{
 		t:   t,
 		log: log,
-		api: api.NewAPI(app.Version, app.Locale),
+		api: apiClient,
 	}
-}
-
-// Callback 模版下载回调
-func (r *templateRepo) Callback(slug string) error {
-	return r.api.TemplateCallback(slug)
-}
-
-// WriteCompose 写入编排文件
-func (r *templateRepo) WriteCompose(name, compose string, envs []types.KV) (string, error) {
-	dir := filepath.Join(app.Root, "compose", name)
-
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return "", err
-	}
-	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
-		return "", err
-	}
-
-	var sb strings.Builder
-	for _, kv := range envs {
-		sb.WriteString(kv.Key)
-		sb.WriteString("=")
-		sb.WriteString(kv.Value)
-		sb.WriteString("\n")
-	}
-	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
-		return "", err
-	}
-
-	return dir, nil
 }
 
 // LoadLocalTemplates 从本地目录加载模板
@@ -214,4 +183,23 @@ func (r *templateRepo) readLogo(dir string) string {
 		return "data:" + c.mime + ";base64," + base64.StdEncoding.EncodeToString(data)
 	}
 	return ""
+}
+
+// Callback 模版下载回调
+func (r *templateRepo) Callback(slug string) error {
+	return r.api.TemplateCallback(slug)
+}
+
+// WriteCompose 写入编排文件
+func (r *templateRepo) WriteCompose(name, compose string, envs []types.KV) (string, error) {
+	dir := filepath.Join(app.Root, "compose", name)
+
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", err
+	}
+	if err := writeComposeFiles(dir, compose, envs); err != nil {
+		return "", err
+	}
+
+	return dir, nil
 }

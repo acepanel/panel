@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,7 +14,6 @@ import (
 // ClickHouse 通过 HTTP API 操作 ClickHouse
 type ClickHouse struct {
 	client   *resty.Client
-	address  string
 	username string
 	password string
 }
@@ -26,13 +26,12 @@ func NewClickHouse(ctx context.Context, username, password, address string) (*Cl
 
 	ch := &ClickHouse{
 		client:   client,
-		address:  address,
 		username: username,
 		password: password,
 	}
 
 	// 测试连接
-	if err := ch.Ping(ctx); err != nil {
+	if _, err := ch.exec(ctx, "SELECT 1"); err != nil {
 		_ = client.Close()
 		return nil, fmt.Errorf("connect to clickhouse failed: %w", err)
 	}
@@ -44,38 +43,20 @@ func (r *ClickHouse) Close() {
 	_ = r.client.Close()
 }
 
-func (r *ClickHouse) Ping(ctx context.Context) error {
-	resp, err := r.client.R().
-		SetContext(ctx).
-		SetQueryParam("user", r.username).
-		SetQueryParam("password", r.password).
-		SetBody("SELECT 1").
-		Post("/")
-	if err != nil {
-		return fmt.Errorf("clickhouse query failed: %w", err)
-	}
-	if resp.StatusCode() != 200 {
-		return fmt.Errorf("clickhouse query error: %s", strings.TrimSpace(resp.String()))
-	}
-
-	return nil
-}
-
 func (r *ClickHouse) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	return nil, errors.New("clickhouse HTTP API does not support sql.Rows")
 }
 
+// QueryRow 返回 Scan 时报错的行：*sql.Row 只能由 database/sql 构造，借一个建连必失败的连接器产出
 func (r *ClickHouse) QueryRow(ctx context.Context, query string, args ...any) *sql.Row {
-	return nil
+	db := sql.OpenDB(noRowConnector{})
+	defer func(db *sql.DB) { _ = db.Close() }(db)
+	return db.QueryRowContext(ctx, query)
 }
 
 func (r *ClickHouse) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	_, err := r.exec(ctx, query)
 	return nil, err
-}
-
-func (r *ClickHouse) Prepare(ctx context.Context, query string) (*sql.Stmt, error) {
-	return nil, errors.New("clickhouse HTTP API does not support Prepare")
 }
 
 func (r *ClickHouse) DatabaseCreate(ctx context.Context, name string) error {
@@ -96,18 +77,6 @@ func (r *ClickHouse) DatabaseExists(ctx context.Context, name string) (bool, err
 		return false, err
 	}
 	return strings.TrimSpace(result) != "0", nil
-}
-
-func (r *ClickHouse) DatabaseSize(ctx context.Context, name string) (int64, error) {
-	result, err := r.exec(ctx, fmt.Sprintf("SELECT COALESCE(sum(bytes_on_disk), 0) FROM system.parts WHERE database = '%s'", name))
-	if err != nil {
-		return 0, err
-	}
-	var size int64
-	if _, err = fmt.Sscanf(strings.TrimSpace(result), "%d", &size); err != nil {
-		return 0, nil //nolint:nilerr
-	}
-	return size, nil
 }
 
 func (r *ClickHouse) UserCreate(ctx context.Context, user, password string, host ...string) error {
@@ -144,8 +113,8 @@ func (r *ClickHouse) UserPrivileges(ctx context.Context, user string, host ...st
 		// 解析 GRANT ALL ON database.* TO user 格式
 		if idx := strings.Index(line, " ON "); idx != -1 {
 			rest := line[idx+4:]
-			if dotIdx := strings.Index(rest, "."); dotIdx != -1 {
-				dbName := strings.Trim(rest[:dotIdx], "`")
+			if before, _, ok := strings.Cut(rest, "."); ok {
+				dbName := strings.Trim(before, "`")
 				if dbName != "" && dbName != "*" {
 					databases = append(databases, dbName)
 				}
@@ -221,4 +190,14 @@ func (r *ClickHouse) exec(ctx context.Context, query string) (string, error) {
 		return "", fmt.Errorf("clickhouse query error: %s", strings.TrimSpace(resp.String()))
 	}
 	return resp.String(), nil
+}
+
+type noRowConnector struct{}
+
+func (noRowConnector) Connect(context.Context) (driver.Conn, error) {
+	return nil, errors.New("clickhouse HTTP API does not support sql.Row")
+}
+
+func (noRowConnector) Driver() driver.Driver {
+	return nil
 }

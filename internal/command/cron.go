@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -16,11 +14,9 @@ func CronCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 		Usage: t.Get("Cron task"),
 		Commands: []*cli.Command{
 			{
-				Name:  "list",
-				Usage: t.Get("List all cron tasks"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CronList(ctx, cmd)
-				},
+				Name:   "list",
+				Usage:  t.Get("List all cron tasks"),
+				Action: cliService.CronList,
 			},
 			{
 				Name:  "run",
@@ -33,9 +29,7 @@ func CronCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CronRun(ctx, cmd)
-				},
+				Action: cliService.CronRun,
 			},
 			{
 				Name:  "status",
@@ -52,9 +46,7 @@ func CronCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 						Usage: t.Get("Disable the task instead of enabling it"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CronStatus(ctx, cmd)
-				},
+				Action: cliService.CronStatus,
 			},
 			{
 				Name:  "failed",
@@ -72,9 +64,7 @@ func CronCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 						Usage:   t.Get("Exit code"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CronFailed(ctx, cmd)
-				},
+				Action: cliService.CronFailed,
 			},
 		},
 	}

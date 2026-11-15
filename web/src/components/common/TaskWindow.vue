@@ -3,8 +3,6 @@ import type { TagProps } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import task from '@/api/panel/task'
-import DraggableWindow from '@/components/common/DraggableWindow.vue'
-import RealtimeLog from '@/components/common/RealtimeLog.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import type { QueueTask, QueueTaskStatus } from '@/stores'
 import { useThemeStore } from '@/stores'

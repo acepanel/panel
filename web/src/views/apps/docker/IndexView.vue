@@ -6,19 +6,12 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import docker from '@/api/apps/docker'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const formLayout = useFormLayout(120)
 const firewallFormLayout = useFormLayout(140)
-
-const { data: config } = useRequest(docker.config, {
-  initialData: {
-    config: '',
-  },
-})
 
 // 基本设置
 const settingsLoading = ref(false)
@@ -146,12 +139,6 @@ const addHost = () => addItems(hostInput, 'hosts')
 // 保存设置
 const handleSaveSettings = () => {
   useRequest(docker.updateSettings(settings.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
-}
-
-const handleSaveConfig = () => {
-  useRequest(docker.updateConfig(config.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
@@ -427,17 +414,11 @@ watch(currentTab, (tab) => {
         </n-spin>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Configuration File')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{ $gettext('This modifies the Docker configuration file (/etc/docker/daemon.json)') }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="docker.config"
+          :save="docker.updateConfig"
+          :tip="$gettext('This modifies the Docker configuration file (/etc/docker/daemon.json)')"
+        />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="docker" />

@@ -55,6 +55,8 @@ type WebsiteRepo interface {
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ, keyword string, projectID, page, limit uint) ([]*Website, int64, error)
+	// All 只查库，不读证书和 vhost 配置
+	All() ([]*Website, error)
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
 	Update(ctx context.Context, req *request.WebsiteUpdate) (*Website, error)
 	SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*Website, error)
@@ -85,7 +87,18 @@ type WebsiteUsecase struct {
 	stat           *WebsiteStatUsecase
 }
 
-func NewWebsiteUsecase(certAccountUsecase *CertAccountUsecase, certUsecase *CertUsecase, databaseUsecase *DatabaseUsecase, databaseUserUsecase *DatabaseUserUsecase, tamperUsecase *TamperUsecase, websiteStatUsecase *WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, websiteRepo WebsiteRepo) *WebsiteUsecase {
+func NewWebsiteUsecase(
+	certAccountUsecase *CertAccountUsecase,
+	certUsecase *CertUsecase,
+	databaseUsecase *DatabaseUsecase,
+	databaseUserUsecase *DatabaseUserUsecase,
+	tamperUsecase *TamperUsecase,
+	websiteStatUsecase *WebsiteStatUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo DatabaseServerRepo,
+	websiteRepo WebsiteRepo,
+) *WebsiteUsecase {
 	return &WebsiteUsecase{
 		repo:           websiteRepo,
 		log:            log,
@@ -130,6 +143,10 @@ func (uc *WebsiteUsecase) List(typ, keyword string, projectID, page, limit uint)
 	return uc.repo.List(typ, keyword, projectID, page, limit)
 }
 
+func (uc *WebsiteUsecase) All() ([]*Website, error) {
+	return uc.repo.All()
+}
+
 func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, []string, error) {
 	w, err := uc.repo.Create(ctx, req)
 	if err != nil {
@@ -149,23 +166,6 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 	uc.log.Info(uc.t.Get("website created"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(w.ID)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.Any("domains", req.Domains), slog.String("path", req.Path), slog.Bool("db", req.DB), slog.String("db_name", lo.Ternary(req.DB, req.DBName, "")))
 
 	return w, warnings, nil
-}
-
-func (uc *WebsiteUsecase) createDatabase(ctx context.Context, req *request.WebsiteCreate) error {
-	name := "local_" + req.DBType
-	server, err := uc.databaseServer.GetByName(ctx, name)
-	if err != nil {
-		return errors.New(uc.t.Get("can't find %s database server, please add it first", name))
-	}
-	return uc.database.Create(ctx, &request.DatabaseCreate{
-		ServerID:   server.ID,
-		Name:       req.DBName,
-		CreateUser: true,
-		Username:   req.DBUser,
-		Password:   req.DBPassword,
-		Host:       "localhost",
-		Comment:    "website " + req.Name,
-	})
 }
 
 func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate) error {
@@ -214,11 +214,11 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 
 	_ = uc.repo.RemoveFiles(ctx, website.Name, req.Path)
 	if req.DB {
-		if mysql, err := uc.databaseServer.GetByName(ctx, "local_mysql"); err == nil {
+		if mysql, err := uc.databaseServer.FindByName("local_mysql"); err == nil {
 			_ = uc.databaseUser.DeleteByNames(ctx, mysql.ID, []string{website.Name})
 			_ = uc.database.Delete(ctx, mysql.ID, website.Name)
 		}
-		if postgres, err := uc.databaseServer.GetByName(ctx, "local_postgresql"); err == nil {
+		if postgres, err := uc.databaseServer.FindByName("local_postgresql"); err == nil {
 			_ = uc.databaseUser.DeleteByNames(ctx, postgres.ID, []string{website.Name})
 			_ = uc.database.Delete(ctx, postgres.ID, website.Name)
 		}
@@ -251,45 +251,6 @@ func (uc *WebsiteUsecase) UpdateRemark(ctx context.Context, id uint, remark stri
 	return nil
 }
 
-// UpdateProject 绑定到项目，projectID 为 0 时解除绑定
-func (uc *WebsiteUsecase) UpdateProject(ctx context.Context, id, projectID uint) error {
-	website, err := uc.repo.GetForDelete(id)
-	if err != nil {
-		return err
-	}
-	if err = uc.repo.UpdateProject(id, projectID); err != nil {
-		return err
-	}
-
-	uc.log.Info(uc.t.Get("website project updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.Uint64("project_id", uint64(projectID)))
-
-	return nil
-}
-
-// ReleaseProject 处理项目删除后留下的网站：remove 为 true 时一并删除，否则解除绑定成为普通网站
-func (uc *WebsiteUsecase) ReleaseProject(ctx context.Context, projectID uint, remove bool) error {
-	if !remove {
-		return uc.repo.UnbindProject(projectID)
-	}
-
-	websites, _, err := uc.repo.List("all", "", projectID, 1, 10000)
-	if err != nil {
-		return err
-	}
-	for _, website := range websites {
-		if err = uc.Delete(ctx, &request.WebsiteDelete{ID: website.ID, Path: true}); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Rebuild 按当前 Web 服务器重建站点配置
-func (uc *WebsiteUsecase) Rebuild(ctx context.Context, website *Website) (bool, []string, error) {
-	return uc.repo.Rebuild(ctx, website)
-}
-
 func (uc *WebsiteUsecase) ResetConfig(ctx context.Context, id uint) error {
 	website, err := uc.repo.GetForDelete(id)
 	if err != nil {
@@ -302,6 +263,11 @@ func (uc *WebsiteUsecase) ResetConfig(ctx context.Context, id uint) error {
 	uc.log.Info(uc.t.Get("website config reset"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name))
 
 	return nil
+}
+
+// Rebuild 按当前 Web 服务器重建站点配置
+func (uc *WebsiteUsecase) Rebuild(ctx context.Context, website *Website) (bool, []string, error) {
+	return uc.repo.Rebuild(ctx, website)
 }
 
 func (uc *WebsiteUsecase) UpdateStatus(ctx context.Context, id uint, status bool) error {
@@ -346,6 +312,40 @@ func (uc *WebsiteUsecase) UpdateCert(ctx context.Context, req *request.WebsiteUp
 	return nil
 }
 
+// UpdateProject 绑定到项目，projectID 为 0 时解除绑定
+func (uc *WebsiteUsecase) UpdateProject(ctx context.Context, id, projectID uint) error {
+	website, err := uc.repo.GetForDelete(id)
+	if err != nil {
+		return err
+	}
+	if err = uc.repo.UpdateProject(id, projectID); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("website project updated"), slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", website.Name), slog.Uint64("project_id", uint64(projectID)))
+
+	return nil
+}
+
+// ReleaseProject 处理项目删除后留下的网站：remove 为 true 时一并删除，否则解除绑定成为普通网站
+func (uc *WebsiteUsecase) ReleaseProject(ctx context.Context, projectID uint, remove bool) error {
+	if !remove {
+		return uc.repo.UnbindProject(projectID)
+	}
+
+	websites, _, err := uc.repo.List("all", "", projectID, 1, 10000)
+	if err != nil {
+		return err
+	}
+	for _, website := range websites {
+		if err = uc.Delete(ctx, &request.WebsiteDelete{ID: website.ID, Path: true}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
 	website, err := uc.repo.Get(id)
 	if err != nil {
@@ -367,19 +367,18 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 
 	newCert, err := uc.cert.GetByWebsite(website.ID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			newCert, err = uc.cert.repo.Create(&request.CertCreate{
-				Type:        string(acme.KeyEC256),
-				Domains:     website.Domains,
-				AutoRenewal: true,
-				AccountID:   account.ID,
-				DNSID:       dnsID,
-				WebsiteIDs:  []uint{website.ID},
-			})
-			if err != nil {
-				return err
-			}
-		} else {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		newCert, err = uc.cert.repo.Create(&request.CertCreate{
+			Type:        string(acme.KeyEC256),
+			Domains:     website.Domains,
+			AutoRenewal: true,
+			AccountID:   account.ID,
+			DNSID:       dnsID,
+			WebsiteIDs:  []uint{website.ID},
+		})
+		if err != nil {
 			return err
 		}
 	}
@@ -396,4 +395,21 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 
 	_, _, err = uc.cert.deploy(ctx, newCert.ID, []uint{website.ID}, true)
 	return err
+}
+
+func (uc *WebsiteUsecase) createDatabase(ctx context.Context, req *request.WebsiteCreate) error {
+	name := "local_" + req.DBType
+	server, err := uc.databaseServer.FindByName(name)
+	if err != nil {
+		return errors.New(uc.t.Get("can't find %s database server, please add it first", name))
+	}
+	return uc.database.Create(ctx, &request.DatabaseCreate{
+		ServerID:   server.ID,
+		Name:       req.DBName,
+		CreateUser: true,
+		Username:   req.DBUser,
+		Password:   req.DBPassword,
+		Host:       "localhost",
+		Comment:    "website " + req.Name,
+	})
 }

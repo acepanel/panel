@@ -128,6 +128,37 @@ func (r *alertRepo) CertExpiry() ([]*biz.AlertMetric, error) {
 	return metrics, nil
 }
 
+func (r *alertRepo) WebsiteExpiry() ([]*biz.AlertMetric, error) {
+	websites := make([]*biz.Website, 0)
+	if err := r.db.Where("expire_at IS NOT NULL").Find(&websites).Error; err != nil {
+		return nil, err
+	}
+
+	metrics := make([]*biz.AlertMetric, 0, len(websites))
+	for _, item := range websites {
+		metrics = append(metrics, &biz.AlertMetric{
+			Target: item.Name,
+			Value:  time.Until(*item.ExpireAt).Hours() / 24,
+		})
+	}
+
+	return metrics, nil
+}
+
+func (r *alertRepo) ProjectNames() ([]string, error) {
+	names := make([]string, 0)
+	err := r.db.Model(&biz.Project{}).Pluck("name", &names).Error
+	return names, err
+}
+
+// DatabaseServers 取数据库服务器列表
+// 不复用 DatabaseServerRepo.List：它会串行探测每台服务器，探测由调用方按需并发进行
+func (r *alertRepo) DatabaseServers() ([]*biz.DatabaseServer, error) {
+	servers := make([]*biz.DatabaseServer, 0)
+	err := r.db.Order("id desc").Find(&servers).Error
+	return servers, err
+}
+
 // WebsiteHourStats 取各网站当前自然小时的请求统计
 // 统计按自然小时聚合，整点归零，因此规则语义是「本小时累计」而非滚动一小时
 func (r *alertRepo) WebsiteHourStats() ([]*biz.WebsiteHourStat, error) {
@@ -145,38 +176,4 @@ func (r *alertRepo) WebsiteHourStats() ([]*biz.WebsiteHourStat, error) {
 			Status5xx: item.Status5xx,
 		}
 	}), nil
-}
-
-func (r *alertRepo) ProjectNames() ([]string, error) {
-	names := make([]string, 0)
-	err := r.db.Model(&biz.Project{}).Pluck("name", &names).Error
-	return names, err
-}
-
-// DatabaseServers 取数据库服务器列表
-// 不复用 DatabaseServerRepo.List：它会串行探测每台服务器，探测由调用方按需并发进行
-func (r *alertRepo) DatabaseServers() ([]*biz.DatabaseServer, error) {
-	servers := make([]*biz.DatabaseServer, 0)
-	err := r.db.Order("id desc").Find(&servers).Error
-	return servers, err
-}
-
-func (r *alertRepo) WebsiteExpiry() ([]*biz.AlertMetric, error) {
-	websites := make([]*biz.Website, 0)
-	if err := r.db.Where("expire_at IS NOT NULL").Find(&websites).Error; err != nil {
-		return nil, err
-	}
-
-	metrics := make([]*biz.AlertMetric, 0, len(websites))
-	for _, item := range websites {
-		if item.ExpireAt == nil {
-			continue
-		}
-		metrics = append(metrics, &biz.AlertMetric{
-			Target: item.Name,
-			Value:  time.Until(*item.ExpireAt).Hours() / 24,
-		})
-	}
-
-	return metrics, nil
 }

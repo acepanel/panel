@@ -32,13 +32,13 @@ type appRepo struct {
 	api  *api.API
 }
 
-func NewAppRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.AppRepo {
+func NewAppRepo(apiClient *api.API, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.AppRepo {
 	return &appRepo{
 		t:    t,
 		conf: conf,
 		db:   db,
 		log:  log,
-		api:  api.NewAPI(app.Version, app.Locale),
+		api:  apiClient,
 	}
 }
 
@@ -58,15 +58,6 @@ func (r *appRepo) GetInstalled(slug string) (*biz.App, error) {
 	}
 
 	return installed, nil
-}
-
-func (r *appRepo) GetInstalledAll(query string, cond ...string) ([]*biz.App, error) {
-	var apps []*biz.App
-	if err := r.db.Where(query, cond).Find(&apps).Error; err != nil {
-		return nil, err
-	}
-
-	return apps, nil
 }
 
 func (r *appRepo) ListHomeShow() ([]*biz.App, error) {
@@ -173,57 +164,6 @@ func (r *appRepo) ExecScript(ctx context.Context, script string) error {
 	return shell.ExecWithOutput(ctx, script)
 }
 
-// customDir 自定义编译参数存放目录,安装脚本在编译时直接读取
-func customDir(slug string) string {
-	return filepath.Join(app.Root, "panel", "storage", "customize", slug)
-}
-
-func (r *appRepo) GetCustom(slug string) (*biz.AppCustom, error) {
-	custom := new(biz.AppCustom)
-	if pre, err := io.Read(filepath.Join(customDir(slug), "pre.sh")); err == nil {
-		custom.PreScript = pre
-	}
-	if args, err := io.Read(filepath.Join(customDir(slug), "args")); err == nil {
-		custom.Args = args
-	}
-
-	return custom, nil
-}
-
-func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCustom) error {
-	dir := customDir(slug)
-	// 全部为空时直接清理目录
-	if strings.TrimSpace(custom.PreScript) == "" && strings.TrimSpace(custom.Args) == "" {
-		return io.Remove(dir)
-	}
-
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-	pre := filepath.Join(dir, "pre.sh")
-	if strings.TrimSpace(custom.PreScript) == "" {
-		if err := io.Remove(pre); err != nil {
-			return err
-		}
-	} else {
-		if err := io.Write(pre, custom.PreScript, 0700); err != nil {
-			return err
-		}
-	}
-	args := filepath.Join(dir, "args")
-	if strings.TrimSpace(custom.Args) == "" {
-		if err := io.Remove(args); err != nil {
-			return err
-		}
-	} else {
-		if err := io.Write(args, custom.Args, 0600); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
 	if strings.TrimSpace(app.Depends) == "" {
 		return nil
@@ -260,4 +200,55 @@ func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
 	}
 
 	return nil
+}
+
+func (r *appRepo) GetCustom(slug string) (*biz.AppCustom, error) {
+	custom := new(biz.AppCustom)
+	if pre, err := io.Read(filepath.Join(r.customDir(slug), "pre.sh")); err == nil {
+		custom.PreScript = pre
+	}
+	if args, err := io.Read(filepath.Join(r.customDir(slug), "args")); err == nil {
+		custom.Args = args
+	}
+
+	return custom, nil
+}
+
+func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCustom) error {
+	dir := r.customDir(slug)
+	// 全部为空时直接清理目录
+	if strings.TrimSpace(custom.PreScript) == "" && strings.TrimSpace(custom.Args) == "" {
+		return io.Remove(dir)
+	}
+
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+	pre := filepath.Join(dir, "pre.sh")
+	if strings.TrimSpace(custom.PreScript) == "" {
+		if err := io.Remove(pre); err != nil {
+			return err
+		}
+	} else {
+		if err := io.Write(pre, custom.PreScript, 0700); err != nil {
+			return err
+		}
+	}
+	args := filepath.Join(dir, "args")
+	if strings.TrimSpace(custom.Args) == "" {
+		if err := io.Remove(args); err != nil {
+			return err
+		}
+	} else {
+		if err := io.Write(args, custom.Args, 0600); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// customDir 自定义编译参数存放目录,安装脚本在编译时直接读取
+func (r *appRepo) customDir(slug string) string {
+	return filepath.Join(app.Root, "panel", "storage", "customize", slug)
 }

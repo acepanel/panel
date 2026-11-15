@@ -1,7 +1,5 @@
 import { router } from '@/router'
 
-export const WITHOUT_TAB_PATHS = ['/404', '/login']
-
 export interface Tab {
   active: string
   reloading: boolean
@@ -31,8 +29,7 @@ export const useTabStore = defineStore('tab', {
     },
     addTab(tab: TabItem) {
       this.setActiveTab(tab.path)
-      if (WITHOUT_TAB_PATHS.includes(tab.path) || this.tabs.some((item) => item.path === tab.path))
-        return
+      if (this.tabs.some((item) => item.path === tab.path)) return
       this.setTabs([...this.tabs, tab])
     },
     async reloadTab(path: string) {

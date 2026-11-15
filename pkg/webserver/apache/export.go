@@ -8,6 +8,15 @@ import (
 
 const defaultIndent = "    "
 
+// orderLower 是 order 表的小写键副本，用于大小写不敏感查找
+var orderLower = func() map[string]int {
+	m := make(map[string]int, len(order))
+	for k, v := range order {
+		m[strings.ToLower(k)] = v
+	}
+	return m
+}()
+
 // Export 保序导出（用于片段）：按节点原有顺序输出，规范缩进
 func Export(c *conf.Config) string {
 	var b strings.Builder
@@ -52,15 +61,6 @@ func writeNodes(b *strings.Builder, nodes []conf.Node, depth int, sorted bool) {
 		}
 	}
 }
-
-// orderLower 是 order 表的小写键副本，用于大小写不敏感查找
-var orderLower = func() map[string]int {
-	m := make(map[string]int, len(order))
-	for k, v := range order {
-		m[strings.ToLower(k)] = v
-	}
-	return m
-}()
 
 // orderOf 返回排序键，未知指令排在已知功能指令之后、容器之前
 func orderOf(d *conf.Directive) int {

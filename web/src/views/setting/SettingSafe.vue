@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
-import ListInput from '@/components/common/ListInput.vue'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 
 const { $gettext } = useGettext()

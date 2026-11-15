@@ -7,8 +7,9 @@ import backup from '@/api/panel/backup'
 import storage from '@/api/panel/backup-storage'
 import database from '@/api/panel/database'
 import website from '@/api/panel/website'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime, WEBSERVER_SLUGS } from '@/utils'
 import UploadModal from '@/views/backup/UploadModal.vue'
 
@@ -153,16 +154,13 @@ const toRow = (group: any) => {
   }
 }
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => backup.list(type.value, page, pageSize),
   {
-    initialData: { total: 0, items: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
     data: (res: any) => res.items.map(toRow),
+    watchingStates: [type],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const openRestore = (row: any) => {
   restorePoints.value = row.group.items.map((item: any) => ({
@@ -255,7 +253,6 @@ watch(
       restoreModel.value.target = null
       loadDatabases(newType)
     }
-    refresh()
   },
   { immediate: true },
 )
@@ -286,13 +283,9 @@ onMounted(() => {
     }
     createModel.value.storage = storages.value[0]?.value || 0
   })
-  refresh()
-  window.$bus.on('backup:refresh', refresh)
 })
 
-onUnmounted(() => {
-  window.$bus.off('backup:refresh')
-})
+useBus('backup:refresh', refresh)
 </script>
 
 <template>

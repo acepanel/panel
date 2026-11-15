@@ -4,8 +4,6 @@ import { useGettext } from 'vue3-gettext'
 
 import containerApi from '@/api/panel/container'
 import templateApi from '@/api/panel/template'
-import DiffEditor from '@/components/common/DiffEditor.vue'
-import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 

@@ -2,16 +2,30 @@ package os
 
 import (
 	"bufio"
-	"context"
-	"fmt"
-	"net"
 	"os"
-	"regexp"
 	"strings"
 	"time"
-
-	"github.com/acepanel/panel/v3/pkg/shell"
 )
+
+// IsDebian 判断是否是 Debian 系统
+func IsDebian() bool {
+	return isDebian(readOSRelease())
+}
+
+// IsRHEL 判断是否是 RHEL 系统
+func IsRHEL() bool {
+	return isRHEL(readOSRelease())
+}
+
+// IsUbuntu 判断是否是 Ubuntu 系统
+func IsUbuntu() bool {
+	return isUbuntu(readOSRelease())
+}
+
+// IsEOL 判断系统是否已到达生命周期终点
+func IsEOL() bool {
+	return isEOL(readOSRelease(), time.Now())
+}
 
 func readOSRelease() map[string]string {
 	file, err := os.Open("/etc/os-release")
@@ -37,22 +51,12 @@ func readOSRelease() map[string]string {
 	return osRelease
 }
 
-// IsDebian 判断是否是 Debian 系统
-func IsDebian() bool {
-	osRelease := readOSRelease()
-	if osRelease == nil {
-		return false
-	}
+func isDebian(osRelease map[string]string) bool {
 	id, idLike := osRelease["ID"], osRelease["ID_LIKE"]
 	return id == "debian" || strings.Contains(idLike, "debian")
 }
 
-// IsRHEL 判断是否是 RHEL 系统
-func IsRHEL() bool {
-	osRelease := readOSRelease()
-	if osRelease == nil {
-		return false
-	}
+func isRHEL(osRelease map[string]string) bool {
 	// alinux Alibaba Cloud Linux
 	// hce Huawei Cloud EulerOS
 	// openEuler 欧拉
@@ -60,18 +64,12 @@ func IsRHEL() bool {
 	return id == "rhel" || id == "almalinux" || id == "rocky" || id == "alinux" || id == "tencentos" || id == "opencloudos" || strings.Contains(idLike, "rhel")
 }
 
-// IsUbuntu 判断是否是 Ubuntu 系统
-func IsUbuntu() bool {
-	osRelease := readOSRelease()
-	if osRelease == nil {
-		return false
-	}
+func isUbuntu(osRelease map[string]string) bool {
 	id, idLike := osRelease["ID"], osRelease["ID_LIKE"]
 	return id == "ubuntu" || strings.Contains(idLike, "ubuntu")
 }
 
-// IsEOL 判断系统是否已到达生命周期终点
-func IsEOL() bool {
+func isEOL(osRelease map[string]string, now time.Time) bool {
 	eolTimeTable := map[string]map[string]time.Time{
 		"rhel": {
 			"9":  time.Date(2032, 5, 31, 0, 0, 0, 0, time.UTC),
@@ -88,114 +86,25 @@ func IsEOL() bool {
 		},
 	}
 
-	osRelease := readOSRelease()
+	// Ubuntu 以 年.月 为大版本，其余取第一段；衍生版的 VERSION_ID 可能不含点
+	parts := strings.SplitN(osRelease["VERSION_ID"], ".", 3)
+	major, majorMinor := parts[0], strings.Join(parts[:min(len(parts), 2)], ".")
 
-	if IsRHEL() {
-		version, ok := osRelease["VERSION_ID"]
-		if !ok {
-			return false
-		}
-		majorVersion, _, _ := strings.Cut(version, ".")
-		if eol, ok := eolTimeTable["rhel"][majorVersion]; ok {
-			return time.Now().After(eol)
+	if isRHEL(osRelease) {
+		if eol, ok := eolTimeTable["rhel"][major]; ok {
+			return now.After(eol)
 		}
 	}
-	if IsUbuntu() {
-		version, ok := osRelease["VERSION_ID"]
-		if !ok {
-			return false
-		}
-		majorVersion := strings.Join(strings.Split(version, ".")[:2], ".")
-		if eol, ok := eolTimeTable["ubuntu"][majorVersion]; ok {
-			return time.Now().After(eol)
+	if isUbuntu(osRelease) {
+		if eol, ok := eolTimeTable["ubuntu"][majorMinor]; ok {
+			return now.After(eol)
 		}
 	}
-	if IsDebian() {
-		version, ok := osRelease["VERSION_ID"]
-		if !ok {
-			return false
-		}
-		majorVersion, _, _ := strings.Cut(version, ".")
-		if eol, ok := eolTimeTable["debian"][majorVersion]; ok {
-			return time.Now().After(eol)
+	if isDebian(osRelease) {
+		if eol, ok := eolTimeTable["debian"][major]; ok {
+			return now.After(eol)
 		}
 	}
 
 	return false
-}
-
-func TCPPortInUse(port uint) bool {
-	var lc net.ListenConfig
-	conn, err := lc.Listen(context.Background(), "tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return true
-	}
-	defer func(conn net.Listener) { _ = conn.Close() }(conn)
-	return false
-}
-
-func UDPPortInUse(port uint) bool {
-	var lc net.ListenConfig
-	conn, err := lc.ListenPacket(context.Background(), "udp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return true
-	}
-	defer func(conn net.PacketConn) { _ = conn.Close() }(conn)
-	return false
-}
-
-// PortProcess 端口占用进程信息
-type PortProcess struct {
-	PID     string `json:"pid"`
-	Name    string `json:"name"`
-	Command string `json:"command"`
-}
-
-// GetPortProcess 获取占用指定端口的进程信息
-func GetPortProcess(ctx context.Context, port uint, protocol string) []PortProcess {
-	var flag string
-	switch protocol {
-	case "udp":
-		flag = "-ulnp"
-	default:
-		flag = "-tlnp"
-	}
-
-	output, err := shell.Execf(ctx, "ss %s sport = :%d", flag, port)
-	if err != nil {
-		return nil
-	}
-
-	re := regexp.MustCompile(`\("([^"]*)",pid=(\d+),`)
-	seen := make(map[string]struct{})
-	var processes []PortProcess
-
-	for line := range strings.SplitSeq(output, "\n") {
-		matches := re.FindAllStringSubmatch(line, -1)
-		for _, match := range matches {
-			pid := match[2]
-			if _, ok := seen[pid]; ok {
-				continue
-			}
-			seen[pid] = struct{}{}
-
-			name := match[1]
-			command := name
-			if cmdline, err := os.ReadFile(fmt.Sprintf("/proc/%s/cmdline", pid)); err == nil {
-				// cmdline 以 \0 分隔参数
-				cmd := strings.ReplaceAll(strings.TrimRight(string(cmdline), "\x00"), "\x00", " ")
-				if cmd != "" {
-					command = cmd
-				}
-			}
-
-			processes = append(processes, PortProcess{
-				PID:     pid,
-				Name:    name,
-				Command: command,
-			})
-		}
-	}
-
-	return processes
 }

@@ -2,7 +2,6 @@ package openlitespeed
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -14,28 +13,27 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
-	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
 	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 )
 
-// rtReport 实时状态报告，由 OpenLiteSpeed 每 10 秒刷新
-const rtReport = "/tmp/lshttpd/.rtreport"
-
 type App struct {
+	*common.WebServer
 	t   *gotext.Locale
 	log *slog.Logger
 }
 
 func NewApp(t *gotext.Locale, log *slog.Logger) *App {
 	return &App{
-		t:   t,
-		log: log,
+		WebServer: common.NewWebServer(t, log, "openlitespeed", webserver.TypeOpenLiteSpeed, openlitespeed.ServerRoot+"/conf/httpd_config.conf", openlitespeed.ServerRoot+"/logs/error.log"),
+		t:         t,
+		log:       log,
 	}
 }
 
@@ -56,58 +54,10 @@ func (s *App) Status(ctx context.Context) string {
 	return types.AggregateAppStatus(ok)
 }
 
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	path := openlitespeed.ServerRoot + "/conf/httpd_config.conf"
-	config, err := io.Read(path)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", path))
-
-	service.Success(w, config)
-}
-
-func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	path := openlitespeed.ServerRoot + "/conf/httpd_config.conf"
-	if err = io.Write(path, req.Config, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = s.reload(r.Context()); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", path))
-
-	service.Success(w, nil)
-}
-
-func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, openlitespeed.ServerRoot+"/logs/error.log")
-}
-
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/logs/error.log", openlitespeed.ServerRoot); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("app error log cleared"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.String("path", openlitespeed.ServerRoot+"/logs/error.log"))
-
-	service.Success(w, nil)
-}
-
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
+	// rtReport 实时状态报告，由 OpenLiteSpeed 每 10 秒刷新
+	const rtReport = "/tmp/lshttpd/.rtreport"
+
 	report, err := io.Read(rtReport)
 	if err != nil {
 		service.Success(w, []types.NV{})
@@ -180,7 +130,7 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = s.reload(r.Context()); err != nil {
+	if err = s.Reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -213,7 +163,7 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = s.reload(r.Context()); err != nil {
+	if err = s.Reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -221,18 +171,4 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("openlitespeed real ip updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "openlitespeed"), slog.Bool("enabled", req.Enabled), slog.Any("trusted", req.Trusted))
 
 	service.Success(w, nil)
-}
-
-// reload 经方言重载，重载前会 Sync
-func (s *App) reload(ctx context.Context) error {
-	ctx = context.WithoutCancel(ctx)
-	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
-	if err != nil {
-		return err
-	}
-	if err = d.Reload(ctx); err != nil {
-		return fmt.Errorf("%s", s.t.Get("failed to reload openlitespeed: %v", err))
-	}
-
-	return nil
 }

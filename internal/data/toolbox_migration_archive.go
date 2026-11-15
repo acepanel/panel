@@ -9,6 +9,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -61,17 +62,10 @@ func (r *migrationArchiveRepo) CopyTree(ctx context.Context, source, target stri
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
-	// 必须以 /. 结尾才是复制目录内容，filepath.Join 会把尾部的点清理掉
-	cp := shell.Command(ctx, "cp", "-a", source+"/.", target)
-	output, err := cp.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("copy directory: %s", strings.TrimSpace(string(output)))
-	}
-	return nil
+	return io.Cp(ctx, source, target)
 }
 
 // IsEmpty 判断目录为空或不存在
 func (r *migrationArchiveRepo) IsEmpty(path string) bool {
-	entries, err := os.ReadDir(path)
-	return err != nil || len(entries) == 0
+	return io.Empty(path)
 }

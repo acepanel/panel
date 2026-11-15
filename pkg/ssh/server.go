@@ -5,13 +5,53 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
+
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
+
+const serverConfigPath = "/etc/ssh/sshd_config"
+
+var (
+	serverPortRegex         = regexp.MustCompile(`(?m)^Port\s+(\d+)`)
+	serverPasswordAuthRegex = regexp.MustCompile(`(?m)^PasswordAuthentication\s+(\S+)`)
+	serverPubkeyAuthRegex   = regexp.MustCompile(`(?m)^PubkeyAuthentication\s+(\S+)`)
+	serverRootLoginRegex    = regexp.MustCompile(`(?m)^PermitRootLogin\s+(\S+)`)
+)
+
+// ServerConfig sshd_config 中由面板管理的选项
+type ServerConfig struct {
+	Port         int
+	PasswordAuth bool
+	PubkeyAuth   bool
+	RootLogin    string
+}
+
+// ReadServerConfig 读取 sshd_config，没有显式配置的选项取默认值
+func ReadServerConfig() (ServerConfig, error) {
+	content, err := io.Read(serverConfigPath)
+	if err != nil {
+		return ServerConfig{}, err
+	}
+
+	return parseServerConfig(content), nil
+}
+
+// SetServerOption 修改 sshd_config 中的选项，被注释掉的同名行一并替换，没有则追加
+func SetServerOption(key, value string) error {
+	content, err := io.Read(serverConfigPath)
+	if err != nil {
+		return err
+	}
+
+	return io.Write(serverConfigPath, setServerOption(content, key, value), 0600)
+}
 
 // ApplyServerPort 使已写入的 SSH 端口配置生效，保留服务和 socket 的启用状态。
 func ApplyServerPort(ctx context.Context, service string, port uint) error {
@@ -58,7 +98,8 @@ func ApplyServerPort(ctx context.Context, service string, port uint) error {
 		}
 		if changed, err = serverSocketPortChanged(state["Listen"], port); err != nil {
 			return err
-		} else if changed {
+		}
+		if changed {
 			return errors.New("SSH socket port did not take effect")
 		}
 	}
@@ -72,6 +113,38 @@ func ApplyServerPort(ctx context.Context, service string, port uint) error {
 	// 由 socket 按需拉起服务；Accept=yes 的常驻服务可能与 socket 互斥。
 	_, err = shell.Execf(ctx, "systemctl restart '%s'", socket)
 	return err
+}
+
+func parseServerConfig(content string) ServerConfig {
+	config := ServerConfig{
+		Port:         22,
+		PasswordAuth: true,
+		PubkeyAuth:   true,
+		RootLogin:    "yes",
+	}
+	if m := serverPortRegex.FindStringSubmatch(content); m != nil {
+		config.Port = cast.ToInt(m[1])
+	}
+	if m := serverPasswordAuthRegex.FindStringSubmatch(content); m != nil {
+		config.PasswordAuth = strings.ToLower(m[1]) == "yes"
+	}
+	if m := serverPubkeyAuthRegex.FindStringSubmatch(content); m != nil {
+		config.PubkeyAuth = strings.ToLower(m[1]) == "yes"
+	}
+	if m := serverRootLoginRegex.FindStringSubmatch(content); m != nil {
+		config.RootLogin = strings.ToLower(m[1])
+	}
+
+	return config
+}
+
+func setServerOption(content, key, value string) string {
+	line := regexp.MustCompile(`(?m)^#?\s*` + key + `\s+.*$`)
+	if line.MatchString(content) {
+		return line.ReplaceAllString(content, key+" "+value)
+	}
+
+	return content + "\n" + key + " " + value + "\n"
 }
 
 func readServerSocket(ctx context.Context, socket string) (map[string]string, error) {

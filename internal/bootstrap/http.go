@@ -30,7 +30,14 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tlscert"
 )
 
-func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, middlewares *middleware.Middlewares, v *validator.Validator, endpoints []route.Endpoints) (*chi.Mux, error) {
+func NewRouter(
+	loader *apploader.Loader,
+	conf *config.Config,
+	t *gotext.Locale,
+	middlewares *middleware.Middlewares,
+	v *validator.Validator,
+	endpoints []route.Endpoints,
+) (*chi.Mux, error) {
 	mws := middlewares
 
 	// 供 service.Bind 使用
@@ -40,7 +47,7 @@ func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, 
 	public := route.PublicPaths(endpoints)
 
 	r := chi.NewRouter()
-	r.Use(mws.Globals(t, r, public)...)
+	r.Use(mws.Globals(t, public)...)
 
 	// 注册各域路由
 	route.HTTP(conf, endpoints, r)
@@ -67,6 +74,8 @@ func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, 
 		})
 	}
 
+	frontend, _ := fs.Sub(embed.PublicFS, "frontend")
+	spa := newPrecompressedSPAHandler(http.FS(frontend))
 	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
 		// /api 开头的返回 404
 		if strings.HasPrefix(req.URL.Path, "/api") {
@@ -74,8 +83,7 @@ func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, 
 			return
 		}
 		// 其他返回前端页面
-		frontend, _ := fs.Sub(embed.PublicFS, "frontend")
-		newPrecompressedSPAHandler(http.FS(frontend)).ServeHTTP(w, req)
+		spa.ServeHTTP(w, req)
 	})
 
 	return r, nil
@@ -148,6 +156,7 @@ func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSyste
 		}
 		w.Header().Set("Content-Type", ct)
 		w.Header().Set("Vary", "Accept-Encoding")
+		setCacheControl(w, path)
 
 		if acceptBr {
 			// 客户端支持 br，直接透传
@@ -174,6 +183,18 @@ func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSyste
 	if err != nil || fi.IsDir() {
 		return false
 	}
+	setCacheControl(w, path)
 	http.ServeContent(w, r, name, fi.ModTime(), f)
 	return true
+}
+
+// setCacheControl embed 的文件没有修改时间，浏览器拿不到任何缓存依据：
+// /assets/ 下是文件名带内容哈希的构建产物，可永久缓存；入口页每次都要重新验证
+func setCacheControl(w http.ResponseWriter, path string) {
+	switch {
+	case strings.HasPrefix(path, "/assets/"):
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	case path == "/index.html":
+		w.Header().Set("Cache-Control", "no-cache")
+	}
 }

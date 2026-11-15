@@ -29,9 +29,6 @@ const props = withDefaults(
     showPasswordToggle?: boolean
   }>(),
   {
-    keyPlaceholder: 'Key',
-    valuePlaceholder: 'Value',
-    addButtonText: 'Add',
     defaultKeyPrefix: 'key',
     defaultValue: '',
     separator: '=',
@@ -102,7 +99,7 @@ const removeItem = (key: string) => {
     >
       <n-input
         :default-value="String(key)"
-        :placeholder="keyPlaceholder"
+        :placeholder="keyPlaceholder ?? $gettext('Key')"
         class="flex-[1_1_100%] md:flex-1"
         @blur="(e: FocusEvent) => updateKey(String(key), (e.target as HTMLInputElement).value)"
       />
@@ -111,7 +108,7 @@ const removeItem = (key: string) => {
         :default-value="String(value)"
         :type="valueType"
         :show-password-on="showPasswordToggle ? 'click' : undefined"
-        :placeholder="valuePlaceholder"
+        :placeholder="valuePlaceholder ?? $gettext('Value')"
         flex-1
         @blur="(e: FocusEvent) => updateValue(String(key), (e.target as HTMLInputElement).value)"
       />
@@ -120,7 +117,7 @@ const removeItem = (key: string) => {
       </n-button>
     </n-flex>
     <n-button dashed size="small" @click="addItem">
-      {{ addButtonText }}
+      {{ addButtonText ?? $gettext('Add') }}
     </n-button>
   </n-flex>
 </template>

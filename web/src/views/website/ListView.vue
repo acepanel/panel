@@ -15,7 +15,8 @@ import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { useBus } from '@/components/system/composables/useBus'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 import { useFileStore } from '@/stores'
 import { isNullOrUndef, wrapIPv6 } from '@/utils'
@@ -325,18 +326,13 @@ const deleteModel = ref({
   db: false,
 })
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) => website.list(type.value, page, pageSize, keyword.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [type, keyword],
     debounce: [0, 300],
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 // 修改运行状态
 const switching = reactive(new Set<number>())
@@ -407,10 +403,7 @@ const bulkDelete = async () => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
-onMounted(() => {
-  refresh()
-  window.$bus.on('website:refresh', refresh)
-})
+useBus('website:refresh', refresh)
 </script>
 
 <template>

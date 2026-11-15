@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/libtnb/cron"
 	"github.com/libtnb/cron/wrap"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/job"
 )
 
@@ -22,7 +24,11 @@ func NewCron(log *slog.Logger, jobs []job.Job) (*cron.Cron, error) {
 	}
 
 	for _, j := range jobs {
-		id, err := c.Add(j.Spec, j.Task)
+		task := j.Task
+		if !j.AnyStatus {
+			task = normalOnly(task)
+		}
+		id, err := c.Add(j.Spec, task)
 		if err != nil {
 			return nil, err
 		}
@@ -40,4 +46,14 @@ func NewCron(log *slog.Logger, jobs []job.Job) (*cron.Cron, error) {
 	}
 
 	return c, nil
+}
+
+// normalOnly 面板处于维护或升级状态时跳过任务
+func normalOnly(j cron.Job) cron.Job {
+	return cron.JobFunc(func(ctx context.Context) error {
+		if app.Status.Load() != app.StatusNormal {
+			return nil
+		}
+		return j.Run(ctx)
+	})
 }

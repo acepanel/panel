@@ -11,6 +11,9 @@ import (
 	"github.com/acepanel/panel/v3/internal/migration"
 )
 
+// statSums website_stats 各计数列的聚合清单
+const statSums = "SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(bandwidth_in) as bandwidth_in, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count, SUM(status2xx) as status2xx, SUM(status3xx) as status3xx, SUM(status4xx) as status4xx, SUM(status5xx) as status5xx"
+
 type websiteStatRepo struct {
 	db *gorm.DB
 }
@@ -56,22 +59,10 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 	})
 }
 
-func (r *websiteStatRepo) ListByDateRange(start, end string, sites []string) ([]*biz.WebsiteStat, error) {
-	var items []*biz.WebsiteStat
-	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(bandwidth_in) as bandwidth_in, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count, SUM(status2xx) as status2xx, SUM(status3xx) as status3xx, SUM(status4xx) as status4xx, SUM(status5xx) as status5xx").
-		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
-	if len(sites) > 0 {
-		q = q.Where("site IN ?", sites)
-	}
-	err := q.Group("site").Scan(&items).Error
-	return items, err
-}
-
 func (r *websiteStatRepo) DailySeries(start, end string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	var series []*biz.WebsiteStatSeries
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("date as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(bandwidth_in), 0) as bandwidth_in, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders, COALESCE(SUM(request_time_sum), 0) as request_time_sum, COALESCE(SUM(request_time_count), 0) as request_time_count, COALESCE(SUM(status2xx), 0) as status2xx, COALESCE(SUM(status3xx), 0) as status3xx, COALESCE(SUM(status4xx), 0) as status4xx, COALESCE(SUM(status5xx), 0) as status5xx").
+		Select("date as key, "+statSums).
 		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
@@ -83,7 +74,7 @@ func (r *websiteStatRepo) DailySeries(start, end string, sites []string) ([]*biz
 func (r *websiteStatRepo) HourlySeries(date string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	var series []*biz.WebsiteStatSeries
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("CAST(hour AS TEXT) as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth_in), 0) as bandwidth_in, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders, COALESCE(SUM(request_time_sum), 0) as request_time_sum, COALESCE(SUM(request_time_count), 0) as request_time_count, COALESCE(SUM(status2xx), 0) as status2xx, COALESCE(SUM(status3xx), 0) as status3xx, COALESCE(SUM(status4xx), 0) as status4xx, COALESCE(SUM(status5xx), 0) as status5xx").
+		Select("CAST(hour AS TEXT) as key, "+statSums).
 		Where("date = ? AND hour >= 0", date)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
@@ -97,17 +88,7 @@ func (r *websiteStatRepo) ClearBefore(date string) error {
 }
 
 func (r *websiteStatRepo) InsertErrors(errors []*biz.WebsiteErrorLog) error {
-	if len(errors) == 0 {
-		return nil
-	}
-
-	for i := 0; i < len(errors); i += upsertBatchSize {
-		end := min(i+upsertBatchSize, len(errors))
-		if err := r.db.Create(errors[i:end]).Error; err != nil {
-			return err
-		}
-	}
-	return nil
+	return r.db.CreateInBatches(errors, upsertBatchSize).Error
 }
 
 func (r *websiteStatRepo) ClearErrorsBefore(t time.Time) error {
@@ -115,41 +96,27 @@ func (r *websiteStatRepo) ClearErrorsBefore(t time.Time) error {
 }
 
 func (r *websiteStatRepo) Clear() error {
-	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStat{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteErrorLog{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatSpider{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatClient{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatIP{}).Error; err != nil {
-		return err
-	}
-	return r.db.Where("1 = 1").Delete(&biz.WebsiteStatURI{}).Error
+	return r.deleteAll("1 = 1")
 }
 
 func (r *websiteStatRepo) DeleteBySite(site string) error {
-	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStat{}).Error; err != nil {
-		return err
+	return r.deleteAll("site = ?", site)
+}
+
+// deleteAll 在六张统计表中删除符合条件的行
+func (r *websiteStatRepo) deleteAll(query string, args ...any) error {
+	models := []any{
+		&biz.WebsiteStat{}, &biz.WebsiteErrorLog{},
+		&biz.WebsiteStatSpider{}, &biz.WebsiteStatClient{},
+		&biz.WebsiteStatIP{}, &biz.WebsiteStatURI{},
 	}
-	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteErrorLog{}).Error; err != nil {
-		return err
+	for _, model := range models {
+		if err := r.db.Where(query, args...).Delete(model).Error; err != nil {
+			return err
+		}
 	}
-	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatSpider{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatClient{}).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatIP{}).Error; err != nil {
-		return err
-	}
-	return r.db.Where("site = ?", site).Delete(&biz.WebsiteStatURI{}).Error
+
+	return nil
 }
 
 func (r *websiteStatRepo) VacuumDB() error {
@@ -171,7 +138,11 @@ func (r *websiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {
 	})
 }
 
-func (r *websiteStatRepo) TopSpiders(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
+func (r *websiteStatRepo) TopSpiders(
+	start, end string,
+	sites []string,
+	limit uint,
+) ([]*biz.WebsiteStatSpiderRank, error) {
 	var items []*biz.WebsiteStatSpiderRank
 	q := r.db.Model(&biz.WebsiteStatSpider{}).
 		Select("spider, SUM(requests) as requests").
@@ -202,7 +173,11 @@ func (r *websiteStatRepo) UpsertClients(stats []*biz.WebsiteStatClient) error {
 	})
 }
 
-func (r *websiteStatRepo) TopClients(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
+func (r *websiteStatRepo) TopClients(
+	start, end string,
+	sites []string,
+	limit uint,
+) ([]*biz.WebsiteStatClientRank, error) {
 	var items []*biz.WebsiteStatClientRank
 	q := r.db.Model(&biz.WebsiteStatClient{}).
 		Select("browser, os, SUM(requests) as requests").
@@ -238,7 +213,11 @@ func (r *websiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
 	})
 }
 
-func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatIPRank, uint, error) {
+func (r *websiteStatRepo) TopIPs(
+	start, end string,
+	sites []string,
+	page, limit uint,
+) ([]*biz.WebsiteStatIPRank, uint, error) {
 	var total int64
 	q := r.db.Model(&biz.WebsiteStatIP{}).
 		Where("date BETWEEN ? AND ?", start, end)
@@ -266,11 +245,13 @@ func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit 
 	return items, uint(total), err //nolint:gosec
 }
 
-func (r *websiteStatRepo) ClearIPsBefore(date string) error {
-	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatIP{}).Error
-}
-
-func (r *websiteStatRepo) TopGeos(start, end string, sites []string, groupBy string, country string, limit uint) ([]*biz.WebsiteStatGeoRank, error) {
+func (r *websiteStatRepo) TopGeos(
+	start, end string,
+	sites []string,
+	groupBy string,
+	country string,
+	limit uint,
+) ([]*biz.WebsiteStatGeoRank, error) {
 	var items []*biz.WebsiteStatGeoRank
 	q := r.db.Model(&biz.WebsiteStatIP{}).
 		Where("date BETWEEN ? AND ?", start, end)
@@ -297,6 +278,10 @@ func (r *websiteStatRepo) TopGeos(start, end string, sites []string, groupBy str
 	return items, err
 }
 
+func (r *websiteStatRepo) ClearIPsBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatIP{}).Error
+}
+
 // ========== URI 统计 ==========
 
 func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
@@ -316,7 +301,11 @@ func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
 	})
 }
 
-func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+func (r *websiteStatRepo) TopURIs(
+	start, end string,
+	sites []string,
+	page, limit uint,
+) ([]*biz.WebsiteStatURIRank, uint, error) {
 	var total int64
 	q := r.db.Model(&biz.WebsiteStatURI{}).
 		Where("date BETWEEN ? AND ?", start, end)
@@ -344,11 +333,11 @@ func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit
 	return items, uint(total), err //nolint:gosec
 }
 
-func (r *websiteStatRepo) ClearURIsBefore(date string) error {
-	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatURI{}).Error
-}
-
-func (r *websiteStatRepo) TopSlowURIs(start, end string, sites []string, threshold, page, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+func (r *websiteStatRepo) TopSlowURIs(
+	start, end string,
+	sites []string,
+	threshold, page, limit uint,
+) ([]*biz.WebsiteStatURIRank, uint, error) {
 	var total int64
 	q := r.db.Model(&biz.WebsiteStatURI{}).
 		Where("date BETWEEN ? AND ? AND request_time_count > 0", start, end)
@@ -386,9 +375,18 @@ func (r *websiteStatRepo) TopSlowURIs(start, end string, sites []string, thresho
 	return items, uint(total), err //nolint:gosec
 }
 
+func (r *websiteStatRepo) ClearURIsBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatURI{}).Error
+}
+
 // ========== 错误日志查询 ==========
 
-func (r *websiteStatRepo) ListErrors(start, end string, sites []string, status int, page, limit uint) ([]*biz.WebsiteErrorLog, uint, error) {
+func (r *websiteStatRepo) ListErrors(
+	start, end string,
+	sites []string,
+	status int,
+	page, limit uint,
+) ([]*biz.WebsiteErrorLog, uint, error) {
 	var total int64
 	q := r.db.Model(&biz.WebsiteErrorLog{}).
 		Where("created_at >= ? AND created_at < DATE(?, '+1 day')", start, end)
@@ -413,7 +411,7 @@ func (r *websiteStatRepo) ListErrors(start, end string, sites []string, status i
 func (r *websiteStatRepo) ListSiteStats(start, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error) {
 	var items []*biz.WebsiteStatSiteItem
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(bandwidth_in) as bandwidth_in, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count, SUM(status2xx) as status2xx, SUM(status3xx) as status3xx, SUM(status4xx) as status4xx, SUM(status5xx) as status5xx").
+		Select("site, "+statSums).
 		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)

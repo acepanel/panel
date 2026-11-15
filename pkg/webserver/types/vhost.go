@@ -1,5 +1,16 @@
 package types
 
+import (
+	"fmt"
+	"strings"
+)
+
+// HSTS 响应头与默认值（一年）
+const (
+	HSTSHeader = "Strict-Transport-Security"
+	HSTSValue  = "max-age=31536000"
+)
+
 type ConfigScope string
 
 const (
@@ -30,9 +41,6 @@ type Vhost interface {
 	Root() string
 	SetRoot(root string) error
 
-	Includes() []IncludeFile
-	SetIncludes(includes []IncludeFile) error
-
 	// AccessLog 取访问日志路径，如: "/opt/ace/sites/example/log/access.log"
 	AccessLog() string
 	SetAccessLog(accessLog string) error
@@ -42,7 +50,6 @@ type Vhost interface {
 	SetErrorLog(errorLog string) error
 
 	Save() error
-	Reset() error
 
 	SSL() bool
 	SSLConfig() *SSLConfig
@@ -55,7 +62,6 @@ type Vhost interface {
 
 	BasicAuth() []BasicAuth
 	SetBasicAuth(auths []BasicAuth) error
-	ClearBasicAuth() error
 
 	RealIP() *RealIP
 	SetRealIP(realIP *RealIP) error
@@ -103,11 +109,9 @@ type VhostRedirect interface {
 type VhostProxy interface {
 	Proxies() []Proxy
 	SetProxies(proxies []Proxy) error
-	ClearProxies() error
 
 	Upstreams() []Upstream
 	SetUpstreams(upstreams []Upstream) error
-	ClearUpstreams() error
 }
 
 type Listen struct {
@@ -144,7 +148,20 @@ type RealIP struct {
 	Recursive bool     `json:"recursive"` // 递归搜索 (real_ip_recursive)
 }
 
-type IncludeFile struct {
-	Path    string   `json:"path"`    // 文件路径
-	Comment []string `json:"comment"` // 注释说明
+// PHPVersionFromSocket 从含 php-fpm 套接字路径的配置里取版本号，如 /tmp/php-cgi-84.sock 得 84，取不到为 0
+func PHPVersionFromSocket(content string) uint {
+	idx := strings.Index(content, "php-cgi-")
+	if idx == -1 {
+		return 0
+	}
+	var version uint
+	if _, err := fmt.Sscanf(content[idx:], "php-cgi-%d.sock", &version); err != nil {
+		return 0
+	}
+	return version
+}
+
+// DefaultSSLProtocols 未指定协议时启用的 TLS 版本
+func DefaultSSLProtocols() []string {
+	return []string{"TLSv1.2", "TLSv1.3"}
 }

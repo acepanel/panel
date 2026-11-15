@@ -101,6 +101,26 @@ func TestFirewalldForwardRegex(t *testing.T) {
 	}
 }
 
+func TestIsLocalAddress(t *testing.T) {
+	tests := []struct {
+		ip   string
+		want bool
+	}{
+		{"127.0.0.1", true},
+		{"::1", true},
+		{"0.0.0.0", true},
+		{"192.168.1.1", false},
+		{"8.8.8.8", false},
+		{"localhost", false}, // net.ParseIP 返回 nil
+		{"not-an-ip", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.ip, func(t *testing.T) {
+			check.Equal(t, newFirewalld().isLocalAddress(tt.ip), tt.want)
+		})
+	}
+}
+
 func TestUFWStripProtocolSuffix(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -117,7 +137,7 @@ func TestUFWStripProtocolSuffix(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			addr, proto := stripProtocolSuffix(tt.in)
+			addr, proto := newUFW().stripProtocolSuffix(tt.in)
 			check.Equal(t, addr, tt.wantAddr)
 			check.Equal(t, proto, tt.wantProto)
 		})
@@ -411,7 +431,7 @@ func TestUFWMergeRules(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			check.DeepEqual(t, mergeRules(tt.rules), tt.want)
+			check.DeepEqual(t, lockedFirewall{}.mergeRules(tt.rules), tt.want)
 		})
 	}
 }
@@ -438,6 +458,45 @@ func TestUFWNATRegex(t *testing.T) {
 			check.DeepEqual(t, match[1:], tt.want)
 		})
 	}
+}
+
+func TestUFWRemoveForwardLines(t *testing.T) {
+	lines := []string{
+		"*nat",
+		":PREROUTING ACCEPT [0:0]",
+		":POSTROUTING ACCEPT [0:0]",
+		natMarker,
+		"-A PREROUTING -p tcp --dport 8080 -j DNAT --to-destination 10.0.0.2:80",
+		"-A POSTROUTING -d 10.0.0.2 -p tcp --dport 80 -j MASQUERADE",
+		natMarker,
+		"-A PREROUTING -p tcp --dport 8081 -j DNAT --to-destination 10.0.0.2:80",
+		"-A POSTROUTING -d 10.0.0.2 -p tcp --dport 80 -j MASQUERADE",
+		natMarker,
+		"-A PREROUTING -p udp --dport 8080 -j DNAT --to-destination 10.0.0.2:80",
+		"-A POSTROUTING -d 10.0.0.2 -p udp --dport 80 -j MASQUERADE",
+		"COMMIT",
+	}
+
+	// 8081 还指向同一目标，tcp 的 MASQUERADE 要留着；udp 没有别的转发，整组删掉
+	lines = newUFW().removeForwardLines(lines, Forward{Protocol: ProtocolTCPUDP, Port: 8080, TargetIP: "10.0.0.2", TargetPort: 80})
+	check.DeepEqual(t, lines, []string{
+		"*nat",
+		":PREROUTING ACCEPT [0:0]",
+		":POSTROUTING ACCEPT [0:0]",
+		"-A POSTROUTING -d 10.0.0.2 -p tcp --dport 80 -j MASQUERADE",
+		natMarker,
+		"-A PREROUTING -p tcp --dport 8081 -j DNAT --to-destination 10.0.0.2:80",
+		"-A POSTROUTING -d 10.0.0.2 -p tcp --dport 80 -j MASQUERADE",
+		"COMMIT",
+	})
+
+	lines = newUFW().removeForwardLines(lines, Forward{Protocol: ProtocolTCP, Port: 8081, TargetIP: "10.0.0.2", TargetPort: 80})
+	check.DeepEqual(t, lines, []string{
+		"*nat",
+		":PREROUTING ACCEPT [0:0]",
+		":POSTROUTING ACCEPT [0:0]",
+		"COMMIT",
+	})
 }
 
 func TestUFWParseRuleFullOutput(t *testing.T) {
@@ -474,7 +533,7 @@ func TestUFWParseRuleFullOutput(t *testing.T) {
 	}
 
 	// 同端口的 tcp 与 udp 合并为 tcp/udp，其余按首次出现顺序保留
-	check.DeepEqual(t, mergeRules(rules), []FireInfo{
+	check.DeepEqual(t, lockedFirewall{}.mergeRules(rules), []FireInfo{
 		{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
 		{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
 		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
@@ -488,24 +547,4 @@ func TestUFWParseRuleFullOutput(t *testing.T) {
 		{Type: TypeNormal, Family: "ipv6", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
 		{Type: TypeNormal, Family: "ipv6", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
 	})
-}
-
-func TestIsLocalAddress(t *testing.T) {
-	tests := []struct {
-		ip   string
-		want bool
-	}{
-		{"127.0.0.1", true},
-		{"::1", true},
-		{"0.0.0.0", true},
-		{"192.168.1.1", false},
-		{"8.8.8.8", false},
-		{"localhost", false}, // net.ParseIP 返回 nil
-		{"not-an-ip", false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.ip, func(t *testing.T) {
-			check.Equal(t, isLocalAddress(tt.ip), tt.want)
-		})
-	}
 }

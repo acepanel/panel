@@ -37,6 +37,13 @@ type ScanSource struct {
 	ISP      string `gorm:"not null;default:''"`
 }
 
+// ScanBlock 扫描感知自动屏蔽的 IP
+type ScanBlock struct {
+	IP        string    `gorm:"primaryKey" json:"ip"`
+	ExpiresAt int64     `gorm:"not null;default:0;index" json:"expires_at"` // Unix 秒，0 为永久
+	CreatedAt time.Time `json:"created_at"`
+}
+
 // ScanSummary 扫描汇总
 type ScanSummary struct {
 	TotalCount  uint `json:"total_count"`
@@ -94,6 +101,13 @@ type ScanEventRepo interface {
 	ClearBefore(date string) error
 	Clear() error
 	VacuumDB() error
+	// AddBlocks 记录屏蔽的 IP，已有记录的保持原样
+	AddBlocks(blocks []*ScanBlock) error
+	// BlockedIPs 返回给定 IP 中已有屏蔽记录的
+	BlockedIPs(ips []string) ([]string, error)
+	// ExpiredBlocks 返回到期的限时屏蔽
+	ExpiredBlocks(now time.Time) ([]*ScanBlock, error)
+	DeleteBlocks(ips []string) error
 }
 
 // ScanEventUsecase 扫描事件业务逻辑
@@ -104,7 +118,12 @@ type ScanEventUsecase struct {
 	setting SettingRepo
 }
 
-func NewScanEventUsecase(t *gotext.Locale, log *slog.Logger, repo ScanEventRepo, setting SettingRepo) *ScanEventUsecase {
+func NewScanEventUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	repo ScanEventRepo,
+	setting SettingRepo,
+) *ScanEventUsecase {
 	return &ScanEventUsecase{t: t, log: log, repo: repo, setting: setting}
 }
 
@@ -112,7 +131,12 @@ func (uc *ScanEventUsecase) Upsert(events []*ScanEvent) error {
 	return uc.repo.Upsert(events)
 }
 
-func (uc *ScanEventUsecase) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*ScanEvent, uint, error) {
+func (uc *ScanEventUsecase) List(
+	start, end, sourceIP string,
+	port uint,
+	location string,
+	page, limit uint,
+) ([]*ScanEvent, uint, error) {
 	return uc.repo.List(start, end, sourceIP, port, location, page, limit)
 }
 
@@ -134,6 +158,35 @@ func (uc *ScanEventUsecase) TopPorts(start, end string, limit uint) ([]*ScanPort
 
 func (uc *ScanEventUsecase) ClearBefore(date string) error {
 	return uc.repo.ClearBefore(date)
+}
+
+func (uc *ScanEventUsecase) Clear(ctx context.Context) error {
+	if err := uc.repo.Clear(); err != nil {
+		return err
+	}
+
+	uc.log.Warn(uc.t.Get("scan events cleared"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)))
+	return nil
+}
+
+func (uc *ScanEventUsecase) VacuumDB() error {
+	return uc.repo.VacuumDB()
+}
+
+func (uc *ScanEventUsecase) AddBlocks(blocks []*ScanBlock) error {
+	return uc.repo.AddBlocks(blocks)
+}
+
+func (uc *ScanEventUsecase) BlockedIPs(ips []string) ([]string, error) {
+	return uc.repo.BlockedIPs(ips)
+}
+
+func (uc *ScanEventUsecase) ExpiredBlocks(now time.Time) ([]*ScanBlock, error) {
+	return uc.repo.ExpiredBlocks(now)
+}
+
+func (uc *ScanEventUsecase) DeleteBlocks(ips []string) error {
+	return uc.repo.DeleteBlocks(ips)
 }
 
 func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
@@ -225,17 +278,4 @@ func (uc *ScanEventUsecase) UpdateSetting(ctx context.Context, setting *ScanSett
 
 	uc.log.Info(uc.t.Get("scan aware setting updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Bool("auto_block", setting.AutoBlock), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("block_threshold", uint64(setting.BlockThreshold)), slog.Uint64("block_window", uint64(setting.BlockWindow)), slog.Uint64("block_duration", uint64(setting.BlockDuration)), slog.Any("whitelist", setting.Whitelist))
 	return nil
-}
-
-func (uc *ScanEventUsecase) Clear(ctx context.Context) error {
-	if err := uc.repo.Clear(); err != nil {
-		return err
-	}
-
-	uc.log.Warn(uc.t.Get("scan events cleared"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)))
-	return nil
-}
-
-func (uc *ScanEventUsecase) VacuumDB() error {
-	return uc.repo.VacuumDB()
 }

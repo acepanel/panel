@@ -33,11 +33,17 @@ var _ biz.UserRepo = &UserRepo{}
 //			DeleteFunc: func(id uint) (string, error) {
 //				panic("mock out the Delete method")
 //			},
+//			FirstFunc: func() (*biz.User, error) {
+//				panic("mock out the First method")
+//			},
 //			GenerateTwoFAFunc: func(id uint) (image.Image, string, string, error) {
 //				panic("mock out the GenerateTwoFA method")
 //			},
 //			GetFunc: func(id uint) (*biz.User, error) {
 //				panic("mock out the Get method")
+//			},
+//			GetByUsernameFunc: func(username string) (*biz.User, error) {
+//				panic("mock out the GetByUsername method")
 //			},
 //			IsTwoFAFunc: func(username string) (bool, error) {
 //				panic("mock out the IsTwoFA method")
@@ -76,11 +82,17 @@ type UserRepo struct {
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(id uint) (string, error)
 
+	// FirstFunc mocks the First method.
+	FirstFunc func() (*biz.User, error)
+
 	// GenerateTwoFAFunc mocks the GenerateTwoFA method.
 	GenerateTwoFAFunc func(id uint) (image.Image, string, string, error)
 
 	// GetFunc mocks the Get method.
 	GetFunc func(id uint) (*biz.User, error)
+
+	// GetByUsernameFunc mocks the GetByUsername method.
+	GetByUsernameFunc func(username string) (*biz.User, error)
 
 	// IsTwoFAFunc mocks the IsTwoFA method.
 	IsTwoFAFunc func(username string) (bool, error)
@@ -126,6 +138,9 @@ type UserRepo struct {
 			// ID is the id argument value.
 			ID uint
 		}
+		// First holds details about calls to the First method.
+		First []struct {
+		}
 		// GenerateTwoFA holds details about calls to the GenerateTwoFA method.
 		GenerateTwoFA []struct {
 			// ID is the id argument value.
@@ -135,6 +150,11 @@ type UserRepo struct {
 		Get []struct {
 			// ID is the id argument value.
 			ID uint
+		}
+		// GetByUsername holds details about calls to the GetByUsername method.
+		GetByUsername []struct {
+			// Username is the username argument value.
+			Username string
 		}
 		// IsTwoFA holds details about calls to the IsTwoFA method.
 		IsTwoFA []struct {
@@ -183,8 +203,10 @@ type UserRepo struct {
 	lockCount          sync.RWMutex
 	lockCreate         sync.RWMutex
 	lockDelete         sync.RWMutex
+	lockFirst          sync.RWMutex
 	lockGenerateTwoFA  sync.RWMutex
 	lockGet            sync.RWMutex
+	lockGetByUsername  sync.RWMutex
 	lockIsTwoFA        sync.RWMutex
 	lockList           sync.RWMutex
 	lockUpdateEmail    sync.RWMutex
@@ -328,6 +350,33 @@ func (mock *UserRepo) DeleteCalls() []struct {
 	return calls
 }
 
+// First calls FirstFunc.
+func (mock *UserRepo) First() (*biz.User, error) {
+	if mock.FirstFunc == nil {
+		panic("UserRepo.FirstFunc: method is nil but UserRepo.First was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockFirst.Lock()
+	mock.calls.First = append(mock.calls.First, callInfo)
+	mock.lockFirst.Unlock()
+	return mock.FirstFunc()
+}
+
+// FirstCalls gets all the calls that were made to First.
+// Check the length with:
+//
+//	len(mockedUserRepo.FirstCalls())
+func (mock *UserRepo) FirstCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockFirst.RLock()
+	calls = mock.calls.First
+	mock.lockFirst.RUnlock()
+	return calls
+}
+
 // GenerateTwoFA calls GenerateTwoFAFunc.
 func (mock *UserRepo) GenerateTwoFA(id uint) (image.Image, string, string, error) {
 	if mock.GenerateTwoFAFunc == nil {
@@ -389,6 +438,38 @@ func (mock *UserRepo) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
+	return calls
+}
+
+// GetByUsername calls GetByUsernameFunc.
+func (mock *UserRepo) GetByUsername(username string) (*biz.User, error) {
+	if mock.GetByUsernameFunc == nil {
+		panic("UserRepo.GetByUsernameFunc: method is nil but UserRepo.GetByUsername was just called")
+	}
+	callInfo := struct {
+		Username string
+	}{
+		Username: username,
+	}
+	mock.lockGetByUsername.Lock()
+	mock.calls.GetByUsername = append(mock.calls.GetByUsername, callInfo)
+	mock.lockGetByUsername.Unlock()
+	return mock.GetByUsernameFunc(username)
+}
+
+// GetByUsernameCalls gets all the calls that were made to GetByUsername.
+// Check the length with:
+//
+//	len(mockedUserRepo.GetByUsernameCalls())
+func (mock *UserRepo) GetByUsernameCalls() []struct {
+	Username string
+} {
+	var calls []struct {
+		Username string
+	}
+	mock.lockGetByUsername.RLock()
+	calls = mock.calls.GetByUsername
+	mock.lockGetByUsername.RUnlock()
 	return calls
 }
 

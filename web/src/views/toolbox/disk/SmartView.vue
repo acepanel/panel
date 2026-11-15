@@ -7,6 +7,7 @@ import { useGettext } from 'vue3-gettext'
 
 import disk from '@/api/panel/toolbox-disk'
 import { useResponsive } from '@/components/system/composables/useResponsive'
+import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
@@ -109,7 +110,7 @@ const deviceInfo = computed(() => {
   if (d.user_capacity?.bytes) {
     items.push({
       label: $gettext('Capacity'),
-      value: formatCapacity(d.user_capacity.bytes),
+      value: formatBytes(d.user_capacity.bytes),
     })
   }
   if (d.device_type?.name) {
@@ -137,13 +138,13 @@ const deviceInfo = computed(() => {
     if (nvme.data_units_read != null) {
       items.push({
         label: $gettext('Data Read'),
-        value: formatCapacity(nvme.data_units_read * 512000),
+        value: formatBytes(nvme.data_units_read * 512000),
       })
     }
     if (nvme.data_units_written != null) {
       items.push({
         label: $gettext('Data Written'),
-        value: formatCapacity(nvme.data_units_written * 512000),
+        value: formatBytes(nvme.data_units_written * 512000),
       })
     }
   }
@@ -233,19 +234,6 @@ const nvmeColumns = computed<DataTableColumns>(() => [
   { title: $gettext('Attribute'), key: 'name', width: 220 },
   { title: $gettext('Value'), key: 'value' },
 ])
-
-// 格式化容量
-const formatCapacity = (bytes: number): string => {
-  if (bytes < 1024) return bytes + ' B'
-  const units = ['KB', 'MB', 'GB', 'TB', 'PB']
-  let i = -1
-  let val = bytes
-  do {
-    val /= 1024
-    i++
-  } while (val >= 1024 && i < units.length - 1)
-  return val.toFixed(2) + ' ' + units[i]
-}
 </script>
 
 <template>

@@ -7,10 +7,3 @@ export function rsaEncrypt(data: string, publicKey: string) {
   })
   return forge.util.encode64(encryptedBytes)
 }
-
-export function rsaDecrypt(data: string, privateKey: string) {
-  const pk = forge.pki.privateKeyFromPem(privateKey)
-  return pk.decrypt(forge.util.decode64(data), 'RSA-OAEP', {
-    md: forge.md.sha512.create(),
-  })
-}

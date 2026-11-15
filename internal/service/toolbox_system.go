@@ -105,7 +105,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 			return
 		}
 		if cast.ToInt64(free)*1024 < req.Size*1024*1024 {
-			Error(w, http.StatusInternalServerError, s.t.Get("disk space is insufficient, current free %s", tools.FormatBytes(cast.ToFloat64(free))))
+			Error(w, http.StatusInternalServerError, s.t.Get("disk space is insufficient, current free %s", tools.FormatBytes(cast.ToFloat64(free)*1024)))
 			return
 		}
 
@@ -152,9 +152,9 @@ func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	match := regexp.MustCompile(`zone:\s+(\S+)`).FindStringSubmatch(raw)
-	if len(match) == 0 {
-		match = append(match, "")
+	timezone := ""
+	if match := regexp.MustCompile(`zone:\s+(\S+)`).FindStringSubmatch(raw); match != nil {
+		timezone = match[1]
 	}
 
 	zonesRaw, err := shell.Execf(r.Context(), "timedatectl list-timezones")
@@ -168,7 +168,7 @@ func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Reques
 
 	s.log.Info(s.t.Get("timezone viewed"), slog.String("type", biz.OperationTypeToolbox), slog.Uint64("operator_id", biz.OperatorID(r.Context())))
 	Success(w, chix.M{
-		"timezone":  match[1],
+		"timezone":  timezone,
 		"timezones": zonesList,
 	})
 }

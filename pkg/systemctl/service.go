@@ -73,14 +73,6 @@ func ListUnits(ctx context.Context) ([]Unit, error) {
 	return units, nil
 }
 
-func listJSON(ctx context.Context, command string, v any) error {
-	output, err := shell.Execf(ctx, "systemctl %s --type=service,socket,target,mount --output=json --no-pager", command)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal([]byte(output), v)
-}
-
 // GetServiceInfo 获取服务详细信息
 func GetServiceInfo(ctx context.Context, name string) (*ServiceInfo, error) {
 	output, err := shell.Execf(ctx, "systemctl show '%s' --property=ActiveState,MainPID,ExecMainStartTimestamp --no-pager", name)
@@ -144,13 +136,6 @@ func IsEnabled(ctx context.Context, name string) (bool, error) {
 	return out == "enabled" || out == "static" || out == "indirect", nil
 }
 
-// change 执行 systemd 变更命令
-// 变更一旦下发就没有回头路，断开请求 ctx 的取消链，避免连接断开留下「配置改了服务没生效」的半截状态
-func change(ctx context.Context, shellCmd string, args ...any) error {
-	_, err := shell.ExecfWithTimeout(context.WithoutCancel(ctx), 2*time.Minute, shellCmd, args...)
-	return err
-}
-
 // Start 启动服务
 func Start(ctx context.Context, name string) error {
 	return change(ctx, "systemctl start '%s'", name)
@@ -181,38 +166,17 @@ func Disable(ctx context.Context, name string) error {
 	return change(ctx, "systemctl disable '%s'", name)
 }
 
-// Mask 屏蔽服务
-func Mask(ctx context.Context, name string) error {
-	return change(ctx, "systemctl mask '%s'", name)
-}
-
-// Unmask 解除屏蔽服务
-func Unmask(ctx context.Context, name string) error {
-	return change(ctx, "systemctl unmask '%s'", name)
-}
-
-// Log 获取服务日志
-func Log(ctx context.Context, name string) (string, error) {
-	return shell.ExecfWithTimeout(ctx, 2*time.Minute, "journalctl -u '%s'", name)
-}
-
-// LogTail 获取服务日志
-func LogTail(ctx context.Context, name string, lines int) (string, error) {
-	return shell.ExecfWithTimeout(ctx, 2*time.Minute, "journalctl -u '%s' --lines '%d'", name, lines)
-}
-
-// LogClear 清空服务日志
-func LogClear(ctx context.Context, name string) error {
-	if _, err := shell.Execf(ctx, "journalctl --rotate -u '%s'", name); err != nil {
-		return err
-	}
-	_, err := shell.Execf(ctx, "journalctl --vacuum-time=1s -u '%s'", name)
-	return err
-}
-
 // DaemonReload 重载 systemd 服务配置
 func DaemonReload(ctx context.Context) error {
 	return change(ctx, "systemctl daemon-reload")
+}
+
+func listJSON(ctx context.Context, command string, v any) error {
+	output, err := shell.Execf(ctx, "systemctl %s --type=service,socket,target,mount --output=json --no-pager", command)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(output), v)
 }
 
 // calcUptime 计算运行时间
@@ -248,4 +212,11 @@ func calcUptime(startTime string) string {
 		return strconv.Itoa(hours) + "h " + strconv.Itoa(minutes) + "m"
 	}
 	return strconv.Itoa(minutes) + "m"
+}
+
+// change 执行 systemd 变更命令
+// 变更一旦下发就没有回头路，断开请求 ctx 的取消链，避免连接断开留下「配置改了服务没生效」的半截状态
+func change(ctx context.Context, shellCmd string, args ...any) error {
+	_, err := shell.ExecfWithTimeout(context.WithoutCancel(ctx), 2*time.Minute, shellCmd, args...)
+	return err
 }

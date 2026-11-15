@@ -16,7 +16,7 @@ import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
 import template from '@/api/panel/template'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 import TemplateDeployModal from './TemplateDeployModal.vue'
 import type { Template } from './types'
@@ -28,7 +28,7 @@ const searchQuery = ref<string>('')
 const deployModalShow = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) =>
     template.list(
       page,
@@ -37,13 +37,10 @@ const { loading, data, page, total, pageSize, refresh } = usePagination(
       searchQuery.value || undefined,
     ),
   {
-    initialData: { total: 0, list: [] },
     initialPageSize: 12,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
+    pageSizes: [12, 24, 48, 96],
   },
 )
-const pagination = useTablePagination(page, pageSize, total, [12, 24, 48, 96])
 
 // 获取所有分类
 const { data: categories } = useRequest(app.categories, {
@@ -70,10 +67,6 @@ const handleDeploy = (tpl: Template) => {
   selectedTemplate.value = tpl
   deployModalShow.value = true
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

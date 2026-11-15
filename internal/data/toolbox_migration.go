@@ -41,18 +41,10 @@ func NewMigrationSourceRepo(t *gotext.Locale) biz.MigrationSourceRepo {
 	return &migrationSourceRepo{t: t}
 }
 
-func (r *migrationSourceRepo) adapter(conn *request.ToolboxMigrationConnection) (migrationAdapter, error) {
-	switch conn.SourcePanel {
-	case "baota":
-		return &baotaAdapter{t: r.t, migrationClient: newBaotaClient(conn)}, nil
-	case "onepanel":
-		return &onePanelAdapter{t: r.t, migrationClient: newOnePanelClient(conn)}, nil
-	default:
-		return nil, errors.New(r.t.Get("unsupported source panel: %s", conn.SourcePanel))
-	}
-}
-
-func (r *migrationSourceRepo) Probe(ctx context.Context, conn *request.ToolboxMigrationConnection) (*types.MigrationSource, error) {
+func (r *migrationSourceRepo) Probe(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+) (*types.MigrationSource, error) {
 	adapter, err := r.adapter(conn)
 	if err != nil {
 		return nil, err
@@ -60,7 +52,10 @@ func (r *migrationSourceRepo) Probe(ctx context.Context, conn *request.ToolboxMi
 	return adapter.Probe(ctx)
 }
 
-func (r *migrationSourceRepo) Items(ctx context.Context, conn *request.ToolboxMigrationConnection) ([]types.MigrationItem, error) {
+func (r *migrationSourceRepo) Items(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+) ([]types.MigrationItem, error) {
 	adapter, err := r.adapter(conn)
 	if err != nil {
 		return nil, err
@@ -116,6 +111,17 @@ func (r *migrationSourceRepo) Download(
 		return err
 	}
 	return adapter.Download(ctx, remote, local, progress)
+}
+
+func (r *migrationSourceRepo) adapter(conn *request.ToolboxMigrationConnection) (migrationAdapter, error) {
+	switch conn.SourcePanel {
+	case "baota":
+		return &baotaAdapter{t: r.t, migrationClient: newBaotaClient(conn)}, nil
+	case "onepanel":
+		return &onePanelAdapter{t: r.t, migrationClient: newOnePanelClient(conn)}, nil
+	default:
+		return nil, errors.New(r.t.Get("unsupported source panel: %s", conn.SourcePanel))
+	}
 }
 
 // migrationClient 来源面板 HTTP 客户端，屏蔽两家面板的认证与响应格式差异

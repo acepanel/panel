@@ -83,28 +83,20 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var filledRules []map[string]any
-	//nolint:contextcheck
-	for rule := range slices.Values(rules) {
+	rules = lo.Reject(rules, func(rule firewall.FireInfo, _ int) bool {
 		// 去除IP规则
-		if rule.PortStart == 1 && rule.PortEnd == 65535 {
-			continue
-		}
-		isUse := false
-		for port := rule.PortStart; port <= rule.PortEnd; port++ {
-			switch rule.Protocol {
-			case firewall.ProtocolTCP:
-				isUse = os.TCPPortInUse(port)
-			case firewall.ProtocolUDP:
-				isUse = os.UDPPortInUse(port)
-			default:
-				isUse = os.TCPPortInUse(port) || os.UDPPortInUse(port)
-			}
-			if isUse {
-				break
-			}
-		}
-		filledRules = append(filledRules, map[string]any{
+		return rule.PortStart == 1 && rule.PortEnd == 65535
+	})
+	paged, total := Paginate(r, rules)
+
+	tcp, udp, err := os.ListeningPorts(r.Context())
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	items := make([]map[string]any, 0, len(paged))
+	for _, rule := range paged {
+		items = append(items, map[string]any{
 			"type":       rule.Type,
 			"family":     rule.Family,
 			"port_start": rule.PortStart,
@@ -113,16 +105,14 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 			"address":    rule.Address,
 			"strategy":   rule.Strategy,
 			"direction":  rule.Direction,
-			"in_use":     isUse,
+			"in_use":     s.portRangeInUse(rule, tcp, udp),
 		})
 	}
-
-	paged, total := Paginate(r, filledRules)
 
 	s.log.Info(s.t.Get("firewall rule list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Uint64("page", cast.ToUint64(r.URL.Query().Get("page"))), slog.Uint64("limit", cast.ToUint64(r.URL.Query().Get("limit"))))
 	Success(w, chix.M{
 		"total": total,
-		"items": paged,
+		"items": items,
 	})
 }
 
@@ -193,32 +183,6 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 
 	s.log.Warn(s.t.Get("firewall rule deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
-}
-
-func replaceFirewallRule(ctx context.Context, operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
-	// 加新 + 删旧是一个整体，中途取消会让该端口既没有新规则也没有旧规则
-	ctx = context.WithoutCancel(ctx)
-
-	if err := operator.Port(ctx, newRule, firewall.OperationAdd); err != nil {
-		return fmt.Errorf("adding replacement firewall rule: %w", err)
-	}
-
-	if err := operator.Port(ctx, oldRule, firewall.OperationRemove); err != nil {
-		removeErr := fmt.Errorf("removing original firewall rule: %w", err)
-		// 删旧可能已部分生效，回滚要撤掉新规则并补回旧规则，只撤新规则会让该端口一条规则都不剩
-		if rollbackErr := errors.Join(
-			operator.Port(ctx, newRule, firewall.OperationRemove),
-			operator.Port(ctx, oldRule, firewall.OperationAdd),
-		); rollbackErr != nil {
-			return errors.Join(
-				removeErr,
-				fmt.Errorf("rolling back replacement firewall rule: %w", rollbackErr),
-			)
-		}
-		return removeErr
-	}
-
-	return nil
 }
 
 // ExportRules 导出端口规则为 xlsx
@@ -464,4 +428,41 @@ func (s *FirewallService) GetPortUsage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, os.GetPortProcess(r.Context(), uint(port), protocol))
+}
+
+func (s *FirewallService) portRangeInUse(rule firewall.FireInfo, tcp, udp os.PortSet) bool {
+	switch rule.Protocol {
+	case firewall.ProtocolTCP:
+		return tcp.Overlaps(rule.PortStart, rule.PortEnd)
+	case firewall.ProtocolUDP:
+		return udp.Overlaps(rule.PortStart, rule.PortEnd)
+	default:
+		return tcp.Overlaps(rule.PortStart, rule.PortEnd) || udp.Overlaps(rule.PortStart, rule.PortEnd)
+	}
+}
+
+func replaceFirewallRule(ctx context.Context, operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
+	// 加新 + 删旧是一个整体，中途取消会让该端口既没有新规则也没有旧规则
+	ctx = context.WithoutCancel(ctx)
+
+	if err := operator.Port(ctx, newRule, firewall.OperationAdd); err != nil {
+		return fmt.Errorf("adding replacement firewall rule: %w", err)
+	}
+
+	if err := operator.Port(ctx, oldRule, firewall.OperationRemove); err != nil {
+		removeErr := fmt.Errorf("removing original firewall rule: %w", err)
+		// 删旧可能已部分生效，回滚要撤掉新规则并补回旧规则，只撤新规则会让该端口一条规则都不剩
+		if rollbackErr := errors.Join(
+			operator.Port(ctx, newRule, firewall.OperationRemove),
+			operator.Port(ctx, oldRule, firewall.OperationAdd),
+		); rollbackErr != nil {
+			return errors.Join(
+				removeErr,
+				fmt.Errorf("rolling back replacement firewall rule: %w", rollbackErr),
+			)
+		}
+		return removeErr
+	}
+
+	return nil
 }

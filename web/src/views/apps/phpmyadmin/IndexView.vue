@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-phpmyadmin-index',
 })
 
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import phpmyadmin from '@/api/apps/phpmyadmin'
@@ -11,19 +10,12 @@ import phpmyadmin from '@/api/apps/phpmyadmin'
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const saveLoading = ref(false)
-const saveConfigLoading = ref(false)
 const hostname = ref(window.location.hostname)
 const port = ref(0)
 const path = ref('')
 const newPort = ref(0)
 const url = computed(() => {
   return `http://${hostname.value}:${port.value}/${path.value}`
-})
-
-const { data: config } = useRequest(phpmyadmin.config, {
-  initialData: {
-    config: '',
-  },
 })
 
 const getInfo = async () => {
@@ -42,17 +34,6 @@ const handleSave = () => {
     })
     .onComplete(() => {
       saveLoading.value = false
-    })
-}
-
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(phpmyadmin.updateConfig(config.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
     })
 }
 
@@ -88,26 +69,15 @@ onMounted(() => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{
-              $gettext(
-                'This modifies the web server configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-              )
-            }}
-          </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
-          <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveConfigLoading"
-              :disabled="saveConfigLoading"
-              @click="handleSaveConfig"
-            >
-              {{ $gettext('Save') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
+        <config-editor-pane
+          :fetch="phpmyadmin.config"
+          :save="phpmyadmin.updateConfig"
+          :tip="
+            $gettext(
+              'This modifies the web server configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+            )
+          "
+        />
       </n-tab-pane>
     </n-tabs>
   </PageContainer>

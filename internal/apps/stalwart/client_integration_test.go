@@ -40,7 +40,7 @@ func TestIntegrationObjects(t *testing.T) {
 
 	full, err := getOne[swDomain](ctx, c, "Domain", domains[0].ID)
 	require.NoError(t, err)
-	records := parseZoneFile(full.DNSZoneFile, full.Name)
+	records := parseZoneFile(full.DNSZoneFile)
 	assert.NotEmpty(t, records)
 
 	accounts, total, err := queryGet[swAccount](ctx, c, "Account", map[string]any{"domainId": settings.DefaultDomainID}, 0, 10, accountProps)

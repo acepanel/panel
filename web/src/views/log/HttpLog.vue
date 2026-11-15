@@ -6,61 +6,16 @@ defineOptions({
 import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import log from '@/api/panel/log'
-
-import CleanPopover from './CleanPopover.vue'
+import LogTable from './LogTable.vue'
 
 const { $gettext } = useGettext()
 
-// 日志条目类型定义
 interface LogEntry {
   time: string
   level: string
   msg: string
   extra?: Record<string, any>
 }
-
-// 数据加载
-const limit = ref(200)
-const selectedDate = ref('')
-const selectedLevel = ref('')
-const keyword = ref('')
-
-// 日志级别选项
-const levelOptions = [
-  { label: $gettext('All'), value: '' },
-  { label: 'DEBUG', value: 'DEBUG' },
-  { label: 'INFO', value: 'INFO' },
-  { label: 'WARN', value: 'WARN' },
-  { label: 'ERROR', value: 'ERROR' },
-]
-
-// 获取可用的日志日期列表
-const { data: dates, send: refreshDates } = useRequest(() => log.dates('http'), {
-  initialData: [],
-})
-
-// 日期选项
-const dateOptions = computed(() => {
-  const options = [{ label: $gettext('Today'), value: '' }]
-  if (dates.value) {
-    for (const date of dates.value) {
-      options.push({ label: date, value: date })
-    }
-  }
-  return options
-})
-
-const {
-  loading,
-  data,
-  send: refresh,
-} = useRequest(
-  () => log.list('http', limit.value, selectedDate.value, selectedLevel.value, keyword.value),
-  {
-    initialData: [],
-  },
-)
 
 // 获取状态码颜色
 const getStatusType = (code: number): 'success' | 'warning' | 'error' | 'info' => {
@@ -70,7 +25,6 @@ const getStatusType = (code: number): 'success' | 'warning' | 'error' | 'info' =
   return 'error'
 }
 
-// 表格列配置
 const columns = [
   {
     title: $gettext('Time'),
@@ -148,77 +102,8 @@ const columns = [
     },
   },
 ]
-
-// 刷新
-const handleRefresh = () => {
-  refresh()
-}
-
-// 清理后选中的日期可能已被删掉，回到今天
-const handleCleaned = () => {
-  selectedDate.value = ''
-  refreshDates()
-  refresh()
-}
 </script>
 
 <template>
-  <n-flex vertical class="h-full">
-    <n-flex align="center">
-      <div class="flex gap-3 items-center">
-        <span>{{ $gettext('Date') }}:</span>
-        <n-select
-          v-model:value="selectedDate"
-          :options="dateOptions"
-          class="w-37"
-          @update:value="handleRefresh"
-        />
-      </div>
-      <div class="flex gap-3 items-center">
-        <span>{{ $gettext('Level') }}:</span>
-        <n-select
-          v-model:value="selectedLevel"
-          :options="levelOptions"
-          class="w-25"
-          @update:value="handleRefresh"
-        />
-      </div>
-      <div class="flex gap-3 items-center">
-        <span>{{ $gettext('Show entries') }}:</span>
-        <n-select
-          v-model:value="limit"
-          :options="[
-            { label: '100', value: 100 },
-            { label: '200', value: 200 },
-            { label: '500', value: 500 },
-            { label: '1000', value: 1000 },
-          ]"
-          class="w-25"
-          @update:value="handleRefresh"
-        />
-      </div>
-      <n-input
-        v-model:value="keyword"
-        :placeholder="$gettext('Search')"
-        clearable
-        class="md:!w-60"
-        @keyup.enter="handleRefresh"
-        @clear="handleRefresh"
-      />
-      <n-button type="primary" @click="handleRefresh">
-        {{ $gettext('Refresh') }}
-      </n-button>
-      <clean-popover type="http" @cleaned="handleCleaned" />
-    </n-flex>
-    <n-data-table
-      class="flex-1 min-h-0"
-      :columns="columns"
-      :data="data"
-      :loading="loading"
-      :bordered="false"
-      flex-height
-      :scroll-x="800"
-      virtual-scroll
-    />
-  </n-flex>
+  <log-table type="http" :columns="columns" />
 </template>

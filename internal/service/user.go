@@ -38,7 +38,14 @@ type UserService struct {
 	guard      *loginGuard
 }
 
-func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger, session *sessions.Manager) *UserService {
+func NewUserService(
+	notifyUsecase *biz.NotifyUsecase,
+	userUsecase *biz.UserUsecase,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+	session *sessions.Manager,
+) *UserService {
 	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	gob.Register(rsa.PrivateKey{})
 	return &UserService{
@@ -174,7 +181,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sess.Put("user_id", user.ID)
-	sess.Put("refresh_at", time.Now().Unix())
 	sess.Forget("key")
 	sess.Forget("login_fail_count")
 
@@ -188,26 +194,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	s.log.Info(s.t.Get("user logged in"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", ip), slog.String("method", "password"))
 
 	Success(w, nil)
-}
-
-// loginFailed 记录一次登录失败，同来源短时间内失败过多时告警
-func (s *UserService) loginFailed(r *http.Request, sess *sessions.Session, ip, username string, failCount int) {
-	sess.Put("login_fail_count", failCount+1)
-
-	s.log.Warn(s.t.Get("user login failed"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.String("username", username), slog.String("ip", ip))
-
-	count, exceeded := s.guard.Fail(ip)
-	if !exceeded {
-		return
-	}
-
-	s.notifyRepo.SendEvent(biz.NotifyEventLoginFailed, s.t.Get("[AcePanel] Suspicious Login Attempts"), biz.NotifyBody(s.t.Get("too many failed panel login attempts"), [][2]string{
-		{s.t.Get("IP"), ip},
-		{s.t.Get("Username"), username},
-		{s.t.Get("Failed Attempts"), cast.ToString(count)},
-		{s.t.Get("User Agent"), r.UserAgent()},
-		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
-	}))
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +243,7 @@ func (s *UserService) IsTwoFA(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Info(w http.ResponseWriter, r *http.Request) {
-	userID := cast.ToUint(r.Context().Value("user_id"))
+	userID := uint(biz.OperatorID(r.Context()))
 	if userID == 0 {
 		ErrorSystem(w)
 		return
@@ -411,4 +397,24 @@ func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+// loginFailed 记录一次登录失败，同来源短时间内失败过多时告警
+func (s *UserService) loginFailed(r *http.Request, sess *sessions.Session, ip, username string, failCount int) {
+	sess.Put("login_fail_count", failCount+1)
+
+	s.log.Warn(s.t.Get("user login failed"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.String("username", username), slog.String("ip", ip))
+
+	count, exceeded := s.guard.Fail(ip)
+	if !exceeded {
+		return
+	}
+
+	s.notifyRepo.SendEvent(biz.NotifyEventLoginFailed, s.t.Get("[AcePanel] Suspicious Login Attempts"), biz.NotifyBody(s.t.Get("too many failed panel login attempts"), [][2]string{
+		{s.t.Get("IP"), ip},
+		{s.t.Get("Username"), username},
+		{s.t.Get("Failed Attempts"), cast.ToString(count)},
+		{s.t.Get("User Agent"), r.UserAgent()},
+		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
+	}))
 }

@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/pkg/sftp"
-	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -26,7 +24,7 @@ type SFTPConfig struct {
 	Timeout    time.Duration // 连接超时时间
 }
 
-type SFTP struct {
+type sftpStorage struct {
 	config SFTPConfig
 }
 
@@ -43,71 +41,11 @@ func NewSFTP(config SFTPConfig) (Storage, error) {
 		return nil, errors.New("username and either password or private key must be provided")
 	}
 
-	return &SFTP{config: config}, nil
-}
-
-// connect 建立 SFTP 连接，返回 client 和 cleanup 函数
-func (s *SFTP) connect(ctx context.Context) (*sftp.Client, func(), error) {
-	var auth []ssh.AuthMethod
-	// 密码认证
-	if s.config.Password != "" {
-		auth = append(auth, ssh.Password(s.config.Password))
-	}
-	// 私钥认证
-	if s.config.PrivateKey != "" {
-		signer, err := ssh.ParsePrivateKey([]byte(s.config.PrivateKey))
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to parse private key: %w", err)
-		}
-		auth = append(auth, ssh.PublicKeys(signer))
-	}
-
-	clientConfig := &ssh.ClientConfig{
-		User:            s.config.Username,
-		Auth:            auth,
-		Timeout:         s.config.Timeout,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
-	}
-
-	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
-	conn, err := (&net.Dialer{Timeout: s.config.Timeout}).DialContext(ctx, "tcp", addr)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
-	}
-	sshConn, chans, reqs, err := ssh.NewClientConn(conn, addr, clientConfig)
-	if err != nil {
-		_ = conn.Close()
-		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
-	}
-	sshClient := ssh.NewClient(sshConn, chans, reqs)
-
-	sftpClient, err := sftp.NewClient(sshClient)
-	if err != nil {
-		_ = sshClient.Close()
-		return nil, nil, fmt.Errorf("failed to create SFTP client: %w", err)
-	}
-
-	// ClientConfig.Timeout 只管拨号，连接半死时读写会一直挂着；取消时直接关连接把它踹醒
-	stop := make(chan struct{})
-	go func() {
-		select {
-		case <-ctx.Done():
-			_ = conn.Close()
-		case <-stop:
-		}
-	}()
-
-	cleanup := func() {
-		close(stop)
-		_ = sftpClient.Close()
-		_ = sshClient.Close()
-	}
-
-	return sftpClient, cleanup, nil
+	return &sftpStorage{config: config}, nil
 }
 
 // Delete 删除文件
-func (s *SFTP) Delete(ctx context.Context, files ...string) error {
+func (s *sftpStorage) Delete(ctx context.Context, files ...string) error {
 	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return err
@@ -115,7 +53,7 @@ func (s *SFTP) Delete(ctx context.Context, files ...string) error {
 	defer cleanup()
 
 	for _, file := range files {
-		remotePath := s.getRemotePath(file)
+		remotePath := joinPath(s.config.BasePath, file)
 		if err = client.Remove(remotePath); err != nil {
 			return err
 		}
@@ -123,38 +61,8 @@ func (s *SFTP) Delete(ctx context.Context, files ...string) error {
 	return nil
 }
 
-// Exists 检查文件是否存在
-func (s *SFTP) Exists(ctx context.Context, file string) bool {
-	client, cleanup, err := s.connect(ctx)
-	if err != nil {
-		return false
-	}
-	defer cleanup()
-
-	remotePath := s.getRemotePath(file)
-	_, err = client.Stat(remotePath)
-	return err == nil
-}
-
-// LastModified 获取文件最后修改时间
-func (s *SFTP) LastModified(ctx context.Context, file string) (time.Time, error) {
-	client, cleanup, err := s.connect(ctx)
-	if err != nil {
-		return time.Time{}, err
-	}
-	defer cleanup()
-
-	remotePath := s.getRemotePath(file)
-	stat, err := client.Stat(remotePath)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return stat.ModTime(), nil
-}
-
 // List 列出目录下的所有文件
-func (s *SFTP) List(ctx context.Context, path string) ([]string, error) {
+func (s *sftpStorage) List(ctx context.Context, path string) ([]File, error) {
 	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return nil, err
@@ -166,30 +74,22 @@ func (s *SFTP) List(ctx context.Context, path string) ([]string, error) {
 		_ = client.MkdirAll(s.config.BasePath)
 	}
 
-	remotePath := s.getRemotePath(path)
-	entries, err := client.ReadDir(remotePath)
+	entries, err := client.ReadDir(joinPath(s.config.BasePath, path))
 	if err != nil {
 		return nil, err
 	}
-
-	files := lo.FilterMap(entries, func(entry os.FileInfo, _ int) (string, bool) {
-		if entry.IsDir() {
-			return "", false
-		}
-		return entry.Name(), true
-	})
-	return files, nil
+	return toFiles(entries), nil
 }
 
 // Put 写入文件内容
-func (s *SFTP) Put(ctx context.Context, file string, content io.Reader) error {
+func (s *sftpStorage) Put(ctx context.Context, file string, content io.Reader) error {
 	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return err
 	}
 	defer cleanup()
 
-	remotePath := s.getRemotePath(file)
+	remotePath := joinPath(s.config.BasePath, file)
 
 	// 确保目录存在
 	remoteDir := filepath.Dir(remotePath)
@@ -217,41 +117,67 @@ func (s *SFTP) Put(ctx context.Context, file string, content io.Reader) error {
 }
 
 // Rename 改名
-func (s *SFTP) Rename(ctx context.Context, src, dst string) error {
+func (s *sftpStorage) Rename(ctx context.Context, src, dst string) error {
 	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return err
 	}
 	defer cleanup()
 
-	return client.Rename(s.getRemotePath(src), s.getRemotePath(dst))
+	return client.Rename(joinPath(s.config.BasePath, src), joinPath(s.config.BasePath, dst))
 }
 
-// Size 获取文件大小
-func (s *SFTP) Size(ctx context.Context, file string) (int64, error) {
-	client, cleanup, err := s.connect(ctx)
+// connect 建立 SFTP 连接，返回 client 和 cleanup 函数
+func (s *sftpStorage) connect(ctx context.Context) (*sftp.Client, func(), error) {
+	var auth []ssh.AuthMethod
+	// 密码认证
+	if s.config.Password != "" {
+		auth = append(auth, ssh.Password(s.config.Password))
+	}
+	// 私钥认证
+	if s.config.PrivateKey != "" {
+		signer, err := ssh.ParsePrivateKey([]byte(s.config.PrivateKey))
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to parse private key: %w", err)
+		}
+		auth = append(auth, ssh.PublicKeys(signer))
+	}
+
+	clientConfig := &ssh.ClientConfig{
+		User:            s.config.Username,
+		Auth:            auth,
+		Timeout:         s.config.Timeout,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
+	}
+
+	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
+	conn, err := (&net.Dialer{Timeout: s.config.Timeout}).DialContext(ctx, "tcp", addr)
 	if err != nil {
-		return 0, err
+		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
 	}
-	defer cleanup()
+	// ClientConfig.Timeout 只管拨号，握手和之后的读写在连接半死时会一直挂着；取消时直接关连接把它踹醒
+	stop := context.AfterFunc(ctx, func() { _ = conn.Close() })
 
-	remotePath := s.getRemotePath(file)
-	stat, err := client.Stat(remotePath)
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, addr, clientConfig)
 	if err != nil {
-		return 0, err
+		stop()
+		_ = conn.Close()
+		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
+	}
+	sshClient := ssh.NewClient(sshConn, chans, reqs)
+
+	sftpClient, err := sftp.NewClient(sshClient)
+	if err != nil {
+		stop()
+		_ = sshClient.Close()
+		return nil, nil, fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 
-	return stat.Size(), nil
-}
+	cleanup := func() {
+		stop()
+		_ = sftpClient.Close()
+		_ = sshClient.Close()
+	}
 
-// getRemotePath 获取远程路径
-func (s *SFTP) getRemotePath(path string) string {
-	path = strings.TrimPrefix(path, "/")
-	if s.config.BasePath == "" {
-		return path
-	}
-	if path == "" {
-		return s.config.BasePath
-	}
-	return filepath.Join(s.config.BasePath, path)
+	return sftpClient, cleanup, nil
 }

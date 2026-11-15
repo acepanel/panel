@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -16,11 +14,9 @@ func CertCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 		Usage: t.Get("Certificate management"),
 		Commands: []*cli.Command{
 			{
-				Name:  "list",
-				Usage: t.Get("List all certificates"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CertList(ctx, cmd)
-				},
+				Name:   "list",
+				Usage:  t.Get("List all certificates"),
+				Action: cliService.CertList,
 			},
 			{
 				Name:  "renew",
@@ -36,9 +32,7 @@ func CertCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 						Usage: t.Get("Renew all certificates with auto renewal enabled"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.CertRenew(ctx, cmd)
-				},
+				Action: cliService.CertRenew,
 			},
 		},
 	}

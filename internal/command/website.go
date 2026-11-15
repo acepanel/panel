@@ -1,8 +1,6 @@
 package command
 
 import (
-	"context"
-
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
@@ -77,16 +75,12 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Usage: t.Get("Website remark"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteCreate(ctx, cmd)
-				},
+				Action: cliService.WebsiteCreate,
 			},
 			{
-				Name:  "rebuild",
-				Usage: t.Get("Rebuild all website configs for the current web server"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteRebuild(ctx, cmd)
-				},
+				Name:   "rebuild",
+				Usage:  t.Get("Rebuild all website configs for the current web server"),
+				Action: cliService.WebsiteRebuild,
 			},
 			{
 				Name:  "remove",
@@ -99,9 +93,7 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteRemove(ctx, cmd)
-				},
+				Action: cliService.WebsiteRemove,
 			},
 			{
 				Name:  "delete",
@@ -114,16 +106,12 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteDelete(ctx, cmd)
-				},
+				Action: cliService.WebsiteDelete,
 			},
 			{
-				Name:  "list",
-				Usage: t.Get("List all websites"),
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteList(ctx, cmd)
-				},
+				Name:   "list",
+				Usage:  t.Get("List all websites"),
+				Action: cliService.WebsiteList,
 			},
 			{
 				Name:  "cert",
@@ -148,9 +136,7 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Required: true,
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteCert(ctx, cmd)
-				},
+				Action: cliService.WebsiteCert,
 			},
 			{
 				Name:   "write",
@@ -188,9 +174,7 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 						Usage: t.Get("Website remark"),
 					},
 				},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return cliService.WebsiteWrite(ctx, cmd)
-				},
+				Action: cliService.WebsiteWrite,
 			},
 		},
 	}

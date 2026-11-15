@@ -4,33 +4,13 @@ import { useGettext } from 'vue3-gettext'
 import website from '@/api/panel/website'
 import { formatBytes } from '@/utils/file'
 
+import { useStatQuery } from './useStatQuery'
+
 const { $gettext } = useGettext()
 
-const ctx = inject<any>('statContext')!
-
-const loading = ref(false)
-const items = ref<any[]>([])
-
-const loadData = () => {
-  loading.value = true
-  useRequest(
-    website.statSites(ctx.dateRange.value.start, ctx.dateRange.value.end, ctx.sitesParam.value),
-  )
-    .onSuccess(({ data }: any) => {
-      items.value = data.items || []
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
-}
-
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
-  loadData()
-})
-
-onMounted(() => {
-  loadData()
-})
+const { loading, items } = useStatQuery(({ start, end, sites }) =>
+  website.statSites(start, end, sites),
+)
 
 const columns = computed(() => [
   { title: $gettext('Site'), key: 'site', ellipsis: { tooltip: true } },

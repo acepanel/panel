@@ -15,8 +15,8 @@ var staticExts = map[string]struct{}{
 	".7z": {}, ".bz2": {}, ".xz": {}, ".zst": {}, ".swf": {}, ".flv": {},
 }
 
-// IsStaticResource 判定 URI 是否为静态资源（js/css/图片/字体等）
-func IsStaticResource(uri string) bool {
+// isStaticResource 判定 URI 是否为静态资源（js/css/图片/字体等）
+func isStaticResource(uri string) bool {
 	if i := strings.IndexByte(uri, '?'); i >= 0 {
 		uri = uri[:i]
 	}
@@ -28,8 +28,8 @@ func IsStaticResource(uri string) bool {
 	return ok
 }
 
-// IsPageView 判定请求是否为页面浏览（PV）
-func IsPageView(entry *LogEntry) bool {
+// isPageView 判定请求是否为页面浏览（PV）
+func isPageView(entry *LogEntry) bool {
 	// 优先使用 Content-Type 判定
 	if entry.ContentType != "" {
 		return strings.Contains(entry.ContentType, "text/html")

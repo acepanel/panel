@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"io"
 	"log/slog"
 	"slices"
 	"strings"
@@ -11,47 +12,54 @@ import (
 	"github.com/moby/moby/api/types/container"
 
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type ContainerRepo interface {
-	ListAll(ctx context.Context, sock string) ([]types.Container, error)
-	Inspect(ctx context.Context, sock string, id string) (any, error)
-	Create(ctx context.Context, sock string, req *request.ContainerCreate) (string, error)
-	Remove(ctx context.Context, sock string, id string) error
-	Start(ctx context.Context, sock string, id string) error
-	Stop(ctx context.Context, sock string, id string) error
-	Restart(ctx context.Context, sock string, id string) error
-	Pause(ctx context.Context, sock string, id string) error
-	Unpause(ctx context.Context, sock string, id string) error
-	Kill(ctx context.Context, sock string, id string) error
-	Rename(ctx context.Context, sock string, id string, newName string) error
-	Logs(ctx context.Context, sock string, id string, tail int) (string, error)
-	Prune(ctx context.Context, sock string) error
+	ListAll(ctx context.Context) ([]types.Container, error)
+	Inspect(ctx context.Context, id string) (any, error)
+	Create(ctx context.Context, req *request.ContainerCreate) (string, error)
+	// CreateShell 生成后台创建容器的命令
+	CreateShell(req *request.ContainerCreate) (string, error)
+	// UpdateShell 生成后台重建容器的命令：删除旧容器后按新配置创建，本地没有镜像时先拉取
+	UpdateShell(id string, req *request.ContainerCreate) (string, error)
+	Remove(ctx context.Context, id string) error
+	Start(ctx context.Context, id string) error
+	Stop(ctx context.Context, id string) error
+	Restart(ctx context.Context, id string) error
+	Pause(ctx context.Context, id string) error
+	Unpause(ctx context.Context, id string) error
+	Kill(ctx context.Context, id string) error
+	Rename(ctx context.Context, id string, newName string) error
+	Logs(ctx context.Context, id string, tail int) (string, error)
+	// FollowLogs 把容器新增的日志持续写入 w，直到日志流结束或 ctx 取消，只在无法开始跟随时返回错误
+	FollowLogs(ctx context.Context, id string, w io.Writer) error
+	Prune(ctx context.Context) error
 }
 
 type ContainerUsecase struct {
-	repo    ContainerRepo
-	setting SettingRepo
-	task    TaskRepo
-	t       *gotext.Locale
-	log     *slog.Logger
+	repo ContainerRepo
+	task TaskRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewContainerUsecase(t *gotext.Locale, log *slog.Logger, containerRepo ContainerRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerUsecase {
+func NewContainerUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	containerRepo ContainerRepo,
+	taskRepo TaskRepo,
+) *ContainerUsecase {
 	return &ContainerUsecase{
-		repo:    containerRepo,
-		setting: settingRepo,
-		task:    taskRepo,
-		t:       t,
-		log:     log,
+		repo: containerRepo,
+		task: taskRepo,
+		t:    t,
+		log:  log,
 	}
 }
 
 func (uc *ContainerUsecase) ListAll(ctx context.Context) ([]types.Container, error) {
-	sock := containerSock(uc.setting)
-	return uc.repo.ListAll(ctx, sock)
+	return uc.repo.ListAll(ctx)
 }
 
 // List 按名称或镜像关键字筛选容器，关键字为空时返回全部
@@ -70,13 +78,12 @@ func (uc *ContainerUsecase) List(ctx context.Context, keyword string) ([]types.C
 }
 
 func (uc *ContainerUsecase) Inspect(ctx context.Context, id string) (any, error) {
-	sock := containerSock(uc.setting)
-	data, err := uc.repo.Inspect(ctx, sock, id)
+	data, err := uc.repo.Inspect(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	uc.log.Info(uc.t.Get("container viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", containerName(data)))
+	uc.log.Info(uc.t.Get("container viewed"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", id), slog.String("name", uc.containerName(data)))
 	return data, nil
 }
 
@@ -91,22 +98,8 @@ func (uc *ContainerUsecase) Create(ctx context.Context, req *request.ContainerCr
 	return id, nil
 }
 
-func (uc *ContainerUsecase) create(ctx context.Context, req *request.ContainerCreate) (string, error) {
-	sock := containerSock(uc.setting)
-	// 中途取消会留下已创建未启动的容器
-	ctx = context.WithoutCancel(ctx)
-	id, err := uc.repo.Create(ctx, sock, req)
-	if err != nil {
-		return "", err
-	}
-	if err = uc.repo.Start(ctx, sock, id); err != nil {
-		return "", errors.New(uc.t.Get("Container created but failed to start: %v", err))
-	}
-	return id, nil
-}
-
 func (uc *ContainerUsecase) CreateBackground(ctx context.Context, req *request.ContainerCreate) error {
-	shell, err := docker.RunShell(containerSock(uc.setting), req)
+	shell, err := uc.repo.CreateShell(req)
 	if err != nil {
 		return err
 	}
@@ -135,9 +128,8 @@ func (uc *ContainerUsecase) CreateBackground(ctx context.Context, req *request.C
 
 // Update 删除旧容器后按新配置重建同名容器
 func (uc *ContainerUsecase) Update(ctx context.Context, id string, req *request.ContainerCreate) (string, error) {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Remove(ctx, id); err != nil {
 		return "", err
 	}
 	newID, err := uc.create(ctx, req)
@@ -151,18 +143,11 @@ func (uc *ContainerUsecase) Update(ctx context.Context, id string, req *request.
 }
 
 func (uc *ContainerUsecase) UpdateBackground(ctx context.Context, id string, req *request.ContainerCreate) error {
-	sock := containerSock(uc.setting)
-	runShell, err := docker.RunShell(sock, req)
+	shell, err := uc.repo.UpdateShell(id, req)
 	if err != nil {
 		return err
 	}
 
-	shell := strings.Join([]string{
-		"set -e",
-		docker.Command(sock, "image", "inspect", req.Image) + " >/dev/null 2>&1 || " + docker.Command(sock, "pull", req.Image),
-		docker.Command(sock, "rm", "--force", id),
-		runShell,
-	}, "\n")
 	target := req.Name
 	if target == "" {
 		target = req.Image
@@ -183,9 +168,8 @@ func (uc *ContainerUsecase) UpdateBackground(ctx context.Context, id string, req
 }
 
 func (uc *ContainerUsecase) Remove(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Remove(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Remove(ctx, id); err != nil {
 		return err
 	}
 
@@ -194,9 +178,8 @@ func (uc *ContainerUsecase) Remove(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Start(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Start(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Start(ctx, id); err != nil {
 		return err
 	}
 
@@ -205,9 +188,8 @@ func (uc *ContainerUsecase) Start(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Stop(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Stop(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Stop(ctx, id); err != nil {
 		return err
 	}
 
@@ -216,9 +198,8 @@ func (uc *ContainerUsecase) Stop(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Restart(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Restart(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Restart(ctx, id); err != nil {
 		return err
 	}
 
@@ -227,9 +208,8 @@ func (uc *ContainerUsecase) Restart(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Pause(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Pause(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Pause(ctx, id); err != nil {
 		return err
 	}
 
@@ -238,9 +218,8 @@ func (uc *ContainerUsecase) Pause(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Unpause(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Unpause(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Unpause(ctx, id); err != nil {
 		return err
 	}
 
@@ -249,9 +228,8 @@ func (uc *ContainerUsecase) Unpause(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Kill(ctx context.Context, id string) error {
-	sock := containerSock(uc.setting)
-	name := uc.name(ctx, sock, id)
-	if err := uc.repo.Kill(ctx, sock, id); err != nil {
+	name := uc.name(ctx, id)
+	if err := uc.repo.Kill(ctx, id); err != nil {
 		return err
 	}
 
@@ -260,9 +238,8 @@ func (uc *ContainerUsecase) Kill(ctx context.Context, id string) error {
 }
 
 func (uc *ContainerUsecase) Rename(ctx context.Context, id string, newName string) error {
-	sock := containerSock(uc.setting)
-	oldName := uc.name(ctx, sock, id)
-	if err := uc.repo.Rename(ctx, sock, id, newName); err != nil {
+	oldName := uc.name(ctx, id)
+	if err := uc.repo.Rename(ctx, id, newName); err != nil {
 		return err
 	}
 
@@ -271,13 +248,15 @@ func (uc *ContainerUsecase) Rename(ctx context.Context, id string, newName strin
 }
 
 func (uc *ContainerUsecase) Logs(ctx context.Context, id string, tail int) (string, error) {
-	sock := containerSock(uc.setting)
-	return uc.repo.Logs(ctx, sock, id, tail)
+	return uc.repo.Logs(ctx, id, tail)
+}
+
+func (uc *ContainerUsecase) FollowLogs(ctx context.Context, id string, w io.Writer) error {
+	return uc.repo.FollowLogs(ctx, id, w)
 }
 
 func (uc *ContainerUsecase) Prune(ctx context.Context) error {
-	sock := containerSock(uc.setting)
-	if err := uc.repo.Prune(ctx, sock); err != nil {
+	if err := uc.repo.Prune(ctx); err != nil {
 		return err
 	}
 
@@ -285,12 +264,25 @@ func (uc *ContainerUsecase) Prune(ctx context.Context) error {
 	return nil
 }
 
-func (uc *ContainerUsecase) name(ctx context.Context, sock, id string) string {
-	info, _ := uc.repo.Inspect(ctx, sock, id)
-	return containerName(info)
+func (uc *ContainerUsecase) create(ctx context.Context, req *request.ContainerCreate) (string, error) {
+	// 中途取消会留下已创建未启动的容器
+	ctx = context.WithoutCancel(ctx)
+	id, err := uc.repo.Create(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	if err = uc.repo.Start(ctx, id); err != nil {
+		return "", errors.New(uc.t.Get("Container created but failed to start: %v", err))
+	}
+	return id, nil
 }
 
-func containerName(info any) string {
+func (uc *ContainerUsecase) name(ctx context.Context, id string) string {
+	info, _ := uc.repo.Inspect(ctx, id)
+	return uc.containerName(info)
+}
+
+func (uc *ContainerUsecase) containerName(info any) string {
 	if resp, ok := info.(container.InspectResponse); ok {
 		return strings.TrimPrefix(resp.Name, "/")
 	}

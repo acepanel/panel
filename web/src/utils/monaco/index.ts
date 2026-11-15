@@ -5,49 +5,8 @@ let isInitialized = false
 let initPromise: Promise<typeof Monaco> | null = null
 
 async function loadMonacoLocale(locale: string) {
-  switch (locale) {
-    case 'cs':
-      await import('monaco-editor/nls/lang/cs.js')
-      break
-    case 'de':
-      await import('monaco-editor/nls/lang/de.js')
-      break
-    case 'es':
-      await import('monaco-editor/nls/lang/es.js')
-      break
-    case 'fr':
-      await import('monaco-editor/nls/lang/fr.js')
-      break
-    case 'it':
-      await import('monaco-editor/nls/lang/it.js')
-      break
-    case 'ja':
-      await import('monaco-editor/nls/lang/ja.js')
-      break
-    case 'ko':
-      await import('monaco-editor/nls/lang/ko.js')
-      break
-    case 'pl':
-      await import('monaco-editor/nls/lang/pl.js')
-      break
-    case 'pt_BR':
-      await import('monaco-editor/nls/lang/pt-br.js')
-      break
-    case 'ru':
-      await import('monaco-editor/nls/lang/ru.js')
-      break
-    case 'tr':
-      await import('monaco-editor/nls/lang/tr.js')
-      break
-    case 'zh_CN':
-      await import('monaco-editor/nls/lang/zh-cn.js')
-      break
-    case 'zh_TW':
-      await import('monaco-editor/nls/lang/zh-tw.js')
-      break
-    default:
-      break
-  }
+  if (locale === 'zh_CN') await import('monaco-editor/nls/lang/zh-cn.js')
+  if (locale === 'zh_TW') await import('monaco-editor/nls/lang/zh-tw.js')
 }
 
 async function setupMonacoWorkers() {
@@ -94,12 +53,21 @@ function setupConfigLanguages(monaco: typeof Monaco) {
     ],
   }
 
-  monaco.languages.setLanguageConfiguration('nginx', configuration)
-
-  for (const id of ['apache', 'apacheconf']) {
+  for (const id of ['nginx', 'apache', 'apacheconf']) {
     monaco.languages.register({ id })
     monaco.languages.setLanguageConfiguration(id, configuration)
   }
+
+  // nginx 指令库体积大，首次用到 nginx 语言时才加载
+  // 主题先占位保证加载完成前深浅色正确，monaco-editor-nginx 加载后会重新定义并刷新
+  monaco.editor.defineTheme('nginx-theme', { base: 'vs', inherit: true, rules: [], colors: {} })
+  monaco.editor.defineTheme('nginx-theme-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {},
+  })
+  monaco.languages.onLanguage('nginx', () => void import('monaco-editor-nginx'))
 }
 
 /**
@@ -124,7 +92,6 @@ export async function getMonaco(locale?: string): Promise<typeof Monaco> {
     await setupMonacoWorkers()
 
     const monaco = await import('monaco-editor')
-    await import('monaco-editor-nginx')
     setupConfigLanguages(monaco)
     monacoInstance = monaco
     isInitialized = true

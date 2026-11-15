@@ -189,3 +189,81 @@ func TestUpdateServerSocketConfigs(t *testing.T) {
 		})
 	}
 }
+
+func TestParseServerConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		want    ServerConfig
+	}{
+		{
+			name:    "全部注释时取默认值",
+			content: "#Port 22\n#PermitRootLogin prohibit-password\n#PubkeyAuthentication yes\n#PasswordAuthentication yes\n",
+			want:    ServerConfig{Port: 22, PasswordAuth: true, PubkeyAuth: true, RootLogin: "yes"},
+		},
+		{
+			name:    "读取显式配置",
+			content: "Include /etc/ssh/sshd_config.d/*.conf\n\nPort 2222\nPermitRootLogin Prohibit-Password\nPubkeyAuthentication no\nPasswordAuthentication No\n",
+			want:    ServerConfig{Port: 2222, PasswordAuth: false, PubkeyAuth: false, RootLogin: "prohibit-password"},
+		},
+		{
+			name:    "同名选项以首个为准",
+			content: "Port 2222\nPort 22\nPasswordAuthentication no\nPasswordAuthentication yes\n",
+			want:    ServerConfig{Port: 2222, PasswordAuth: false, PubkeyAuth: true, RootLogin: "yes"},
+		},
+		{
+			name:    "忽略 Match 块里缩进的选项",
+			content: "Match User deploy\n    PasswordAuthentication no\n    PermitRootLogin no\n",
+			want:    ServerConfig{Port: 22, PasswordAuth: true, PubkeyAuth: true, RootLogin: "yes"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.DeepEqual(t, parseServerConfig(tt.content), tt.want)
+		})
+	}
+}
+
+func TestSetServerOption(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		key     string
+		value   string
+		want    string
+	}{
+		{
+			name:    "替换已有选项",
+			content: "Port 22\nPermitRootLogin yes\nPasswordAuthentication yes\n",
+			key:     "PermitRootLogin",
+			value:   "prohibit-password",
+			want:    "Port 22\nPermitRootLogin prohibit-password\nPasswordAuthentication yes\n",
+		},
+		{
+			name:    "启用被注释的选项",
+			content: "#Port 22\n#AddressFamily any\n",
+			key:     "Port",
+			value:   "2222",
+			want:    "Port 2222\n#AddressFamily any\n",
+		},
+		{
+			name:    "没有时追加",
+			content: "PermitRootLogin yes\n",
+			key:     "PubkeyAuthentication",
+			value:   "no",
+			want:    "PermitRootLogin yes\n\nPubkeyAuthentication no\n",
+		},
+		{
+			name:    "不动其他选项",
+			content: "PasswordAuthentication yes\nKbdInteractiveAuthentication no\n",
+			key:     "PubkeyAuthentication",
+			value:   "yes",
+			want:    "PasswordAuthentication yes\nKbdInteractiveAuthentication no\n\nPubkeyAuthentication yes\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.Equal(t, setServerOption(tt.content, tt.key, tt.value), tt.want)
+		})
+	}
+}

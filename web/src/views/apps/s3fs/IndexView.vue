@@ -3,12 +3,12 @@ defineOptions({
   name: 'apps-s3fs-index',
 })
 
-import { NButton, NDataTable } from 'naive-ui'
+import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import s3fs from '@/api/apps/s3fs'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
@@ -59,16 +59,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => s3fs.mounts(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  s3fs.mounts(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleAddMount = () => {
   addMountLoading.value = true
@@ -89,10 +82,6 @@ const handleDeleteMount = (id: number) => {
     window.$message.success($gettext('Deleted successfully'))
   })
 }
-
-onMounted(() => {
-  refresh()
-})
 </script>
 
 <template>

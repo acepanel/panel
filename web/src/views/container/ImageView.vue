@@ -3,10 +3,12 @@ import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
-import ws from '@/api/ws'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
+
+import { useImagePull } from './composables/useImagePull'
+import ImagePullProgress from './ImagePullProgress.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
@@ -22,35 +24,6 @@ const pullModal = ref(false)
 const pullSubmitting = ref(false)
 const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
-
-// 镜像拉取进度状态
-const isPulling = ref(false)
-const pullProgress = ref<Map<string, any>>(new Map())
-const pullStatus = ref('')
-const pullError = ref('')
-let pullWs: WebSocket | null = null
-
-const closePullSocket = () => {
-  if (!pullWs) return
-  pullWs.onmessage = null
-  pullWs.onclose = null
-  pullWs.onerror = null
-  pullWs.close()
-  pullWs = null
-}
-
-// 计算总体拉取进度
-const totalProgress = computed(() => {
-  const layers = Array.from(pullProgress.value.values())
-  if (layers.length === 0) return 0
-
-  const completed = layers.filter(
-    (p) => p.status === 'Pull complete' || p.status === 'Already exists',
-  ).length
-  const total = layers.filter((p) => p.id && p.id.length === 12).length
-
-  return total > 0 ? Math.round((completed / total) * 100) : 0
-})
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -118,16 +91,9 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => container.imageList(page, pageSize),
-  {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
-  },
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
+  container.imageList(page, pageSize),
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleDelete = async (row: any) => {
   useRequest(container.imageRemove(row.id)).onSuccess(() => {
@@ -157,19 +123,19 @@ const handleBulkDelete = async () => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
-// 取消拉取
-const cancelPull = () => {
-  closePullSocket()
-  resetState()
-  pullModal.value = false
-}
+const { isPulling, pullProgress, pullStatus, pullError, totalProgress, start, cancel, reset } =
+  useImagePull(() => {
+    pullModal.value = false
+    refresh()
+    window.$message.success($gettext('Pull successful'))
+  })
 
-// 重置拉取状态
-const resetState = () => {
-  isPulling.value = false
-  pullProgress.value = new Map()
-  pullStatus.value = ''
-  pullError.value = ''
+// 取消拉取：出错后回到表单以便修改重试，拉取中则直接关窗
+const cancelPull = () => {
+  if (!pullError.value) {
+    pullModal.value = false
+  }
+  reset()
 }
 
 // 拉取镜像
@@ -194,84 +160,22 @@ const handlePull = () => {
     return
   }
 
-  closePullSocket()
-
-  isPulling.value = true
-  pullProgress.value = new Map()
-  pullStatus.value = $gettext('Connecting...')
-  pullError.value = ''
-
-  const auth = pullModel.value.auth
-    ? { username: pullModel.value.username, password: pullModel.value.password }
-    : undefined
-
-  ws.imagePull(pullModel.value.name, auth)
-    .then((socket) => {
-      pullWs = socket
-      pullStatus.value = $gettext('Pulling image...')
-
-      socket.onmessage = (event) => {
-        try {
-          const data: any = JSON.parse(event.data)
-
-          if (data.error) {
-            pullError.value = data.error
-            isPulling.value = false
-            return
-          }
-
-          if (data.complete) {
-            pullStatus.value = $gettext('Pull completed')
-            isPulling.value = false
-            pullModal.value = false
-            refresh()
-            window.$message.success($gettext('Pull successful'))
-            return
-          }
-
-          // 更新进度
-          if (data.id) {
-            pullProgress.value.set(data.id, data)
-          }
-          pullStatus.value = data.status
-        } catch {
-          // 忽略解析错误
-        }
-      }
-
-      socket.onclose = () => {
-        if (isPulling.value) {
-          isPulling.value = false
-        }
-      }
-
-      socket.onerror = () => {
-        pullError.value = $gettext('Connection error')
-        isPulling.value = false
-      }
-    })
-    .catch((err) => {
-      pullError.value = err.message || $gettext('Failed to connect')
-      isPulling.value = false
-    })
+  start(
+    pullModel.value.name,
+    pullModel.value.auth
+      ? { username: pullModel.value.username, password: pullModel.value.password }
+      : undefined,
+  )
 }
 
 // 监听弹窗打开，重置状态
 watch(pullModal, (val) => {
   if (val) {
-    resetState()
+    reset()
     pullModel.value.background = false
   } else {
-    closePullSocket()
+    cancel()
   }
-})
-
-onMounted(() => {
-  refresh()
-})
-
-onUnmounted(() => {
-  closePullSocket()
 })
 </script>
 
@@ -320,63 +224,15 @@ onUnmounted(() => {
     :mask-closable="!isPulling && !pullSubmitting"
     :closable="!isPulling && !pullSubmitting"
   >
-    <!-- 拉取进度 -->
-    <template v-if="isPulling || pullProgress.size > 0">
-      <n-flex vertical :size="16">
-        <n-progress
-          type="line"
-          :percentage="totalProgress"
-          :indicator-placement="'inside'"
-          processing
-        />
-
-        <n-card size="small" :bordered="true" class="max-h-75 overflow-y-auto">
-          <n-flex vertical :size="8">
-            <div
-              v-for="[id, progress] in pullProgress"
-              :key="id"
-              class="p-1 px-2 rounded bg-bg-subtle"
-            >
-              <n-flex justify="space-between" align="center">
-                <n-text depth="3" class="text-xs font-mono">
-                  {{ id.substring(0, 12) }}
-                </n-text>
-                <n-text depth="2" class="text-xs">
-                  {{ progress.status }}
-                  <template v-if="progress.progress">
-                    {{ progress.progress }}
-                  </template>
-                </n-text>
-              </n-flex>
-            </div>
-            <n-text v-if="pullProgress.size === 0" depth="3">
-              {{ pullStatus }}
-            </n-text>
-          </n-flex>
-        </n-card>
-
-        <n-flex justify="center">
-          <n-button @click="cancelPull" type="error" ghost>
-            {{ $gettext('Cancel') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </template>
-
-    <!-- 拉取错误 -->
-    <n-result
-      v-else-if="pullError"
-      status="error"
-      :title="$gettext('Pull Failed')"
-      :description="pullError"
-    >
-      <template #footer>
-        <n-flex justify="center">
-          <n-button @click="resetState">{{ $gettext('Cancel') }}</n-button>
-          <n-button type="primary" @click="handlePull">{{ $gettext('Retry') }}</n-button>
-        </n-flex>
-      </template>
-    </n-result>
+    <image-pull-progress
+      v-if="isPulling || pullError || pullProgress.size > 0"
+      :progress="pullProgress"
+      :status="pullStatus"
+      :error="pullError"
+      :percentage="totalProgress"
+      @cancel="cancelPull"
+      @retry="handlePull"
+    />
 
     <!-- 拉取表单 -->
     <template v-else>

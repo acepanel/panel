@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -39,7 +40,14 @@ type App struct {
 	taskRepo           biz.TaskRepo
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, conf *config.Config, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	conf *config.Config,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -87,77 +95,29 @@ func (s *App) Status(ctx context.Context) string {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	// 获取配置
-	config, err := io.Read(s.configPath())
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
-
-	service.Success(w, config)
+	common.ServeConfig(w, s.configPath())
 }
 
 // UpdateConfig 保存配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
 	oldPort := db.PostgresPort(app.Root)
-	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = s.applyConfig(r.Context(), req.Config, oldPort); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to apply PostgreSQL config: %v", err))
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "postgresql", s.configPath(), 0644, func(ctx context.Context) error {
+		return s.applyConfig(ctx, oldPort)
+	})
 }
 
 // GetUserConfig 获取用户配置
 func (s *App) GetUserConfig(w http.ResponseWriter, r *http.Request) {
-	// 获取配置
-	config, err := io.Read(app.Root + "/server/postgresql/data/pg_hba.conf")
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", app.Root+"/server/postgresql/data/pg_hba.conf"))
-
-	service.Success(w, config)
+	common.ServeConfig(w, app.Root+"/server/postgresql/data/pg_hba.conf")
 }
 
 // UpdateUserConfig 保存用户配置
 func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(app.Root+"/server/postgresql/data/pg_hba.conf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Reload(r.Context(), "postgresql"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
-		return
-	}
-
-	s.log.Info(s.t.Get("app config saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", app.Root+"/server/postgresql/data/pg_hba.conf"))
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.log, s.t, "postgresql", app.Root+"/server/postgresql/data/pg_hba.conf", 0644, func(ctx context.Context) error {
+		return systemctl.Reload(ctx, "postgresql")
+	})
 }
 
 // Load 获取负载
@@ -168,45 +128,29 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postgresPassword, err := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+	postgres, err := s.connect(r.Context())
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load PostgreSQL postgres password: %v", err))
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	defer postgres.Close()
 
-	env := []string{"PGPASSWORD=" + postgresPassword}
-	port := db.PostgresPort(app.Root)
-	start, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
-		return
-	}
-	pid, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL backend pid: %v", err))
-		return
-	}
-	process, err := shell.Execf(r.Context(), `ps aux | grep postgres | grep -v grep | wc -l`)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL process: %v", err))
-		return
-	}
-	connections, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL connections: %v", err))
-		return
-	}
-	storage, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL database size: %v", err))
+	var start, storage string
+	var pid, process, connections int64
+	if err = postgres.QueryRow(r.Context(), `
+		SELECT to_char(pg_postmaster_start_time(), 'YYYY-MM-DD HH24:MI:SS'), pg_backend_pid(),
+		       (SELECT count(*) FROM pg_stat_activity),
+		       (SELECT count(*) FROM pg_stat_activity WHERE NOT pid = pg_backend_pid()),
+		       pg_size_pretty(pg_database_size('postgres'))`).Scan(&start, &pid, &process, &connections, &storage); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	data := []types.NV{
 		{Name: s.t.Get("Start Time"), Value: start},
-		{Name: s.t.Get("Process PID"), Value: pid},
-		{Name: s.t.Get("Process Count"), Value: process},
-		{Name: s.t.Get("Total Connections"), Value: connections},
+		{Name: s.t.Get("Process PID"), Value: cast.ToString(pid)},
+		{Name: s.t.Get("Process Count"), Value: cast.ToString(process)},
+		{Name: s.t.Get("Total Connections"), Value: cast.ToString(connections)},
 		{Name: s.t.Get("Storage Usage"), Value: storage},
 	}
 
@@ -251,8 +195,10 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	ctx := context.WithoutCancel(r.Context())
 	postgres, err := db.NewPostgres(r.Context(), "postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
-		// 回退到直接修改密码
-		if _, err = shell.Execf(ctx, `su -s /bin/bash - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
+		// 回退到直接修改密码，SQL 要穿过 su 与 psql 两层 shell，逐层整体引用
+		sql := "ALTER USER postgres WITH PASSWORD '" + strings.ReplaceAll(req.Password, "'", "''") + "';"
+		psql := fmt.Sprintf("psql -p %d -c %s", port, shell.Quote(sql))
+		if _, err = shell.Execf(ctx, "su -s /bin/bash - postgres -c %s", shell.Quote(psql)); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
@@ -284,35 +230,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tune := ConfigTune{
-		// 连接设置
-		ListenAddresses:              confval.Postgres.Get(config, "listen_addresses"),
-		Port:                         confval.Postgres.Get(config, "port"),
-		MaxConnections:               confval.Postgres.Get(config, "max_connections"),
-		SuperuserReservedConnections: confval.Postgres.Get(config, "superuser_reserved_connections"),
-		// 内存设置
-		SharedBuffers:      confval.Postgres.Get(config, "shared_buffers"),
-		WorkMem:            confval.Postgres.Get(config, "work_mem"),
-		MaintenanceWorkMem: confval.Postgres.Get(config, "maintenance_work_mem"),
-		EffectiveCacheSize: confval.Postgres.Get(config, "effective_cache_size"),
-		HugePages:          confval.Postgres.Get(config, "huge_pages"),
-		// WAL 设置
-		WalLevel:                   confval.Postgres.Get(config, "wal_level"),
-		WalBuffers:                 confval.Postgres.Get(config, "wal_buffers"),
-		MaxWalSize:                 confval.Postgres.Get(config, "max_wal_size"),
-		MinWalSize:                 confval.Postgres.Get(config, "min_wal_size"),
-		CheckpointCompletionTarget: confval.Postgres.Get(config, "checkpoint_completion_target"),
-		// 查询优化
-		DefaultStatisticsTarget: confval.Postgres.Get(config, "default_statistics_target"),
-		RandomPageCost:          confval.Postgres.Get(config, "random_page_cost"),
-		EffectiveIoConcurrency:  confval.Postgres.Get(config, "effective_io_concurrency"),
-		// 日志设置
-		LogDestination:          confval.Postgres.Get(config, "log_destination"),
-		LogMinDurationStatement: confval.Postgres.Get(config, "log_min_duration_statement"),
-		LogTimezone:             confval.Postgres.Get(config, "log_timezone"),
-		// IO 设置
-		IoMethod: confval.Postgres.Get(config, "io_method"),
-	}
+	tune := new(ConfigTune)
+	confval.Postgres.Read(config, s.tuneFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("path", s.configPath()))
 
@@ -335,40 +254,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 更新连接设置
-	config = confval.Postgres.Set(config, "listen_addresses", req.ListenAddresses)
-	config = confval.Postgres.Set(config, "port", req.Port)
-	config = confval.Postgres.Set(config, "max_connections", req.MaxConnections)
-	config = confval.Postgres.Set(config, "superuser_reserved_connections", req.SuperuserReservedConnections)
-	// 更新内存设置
-	config = confval.Postgres.Set(config, "shared_buffers", req.SharedBuffers)
-	config = confval.Postgres.Set(config, "work_mem", req.WorkMem)
-	config = confval.Postgres.Set(config, "maintenance_work_mem", req.MaintenanceWorkMem)
-	config = confval.Postgres.Set(config, "effective_cache_size", req.EffectiveCacheSize)
-	config = confval.Postgres.Set(config, "huge_pages", req.HugePages)
-	// 更新 WAL 设置
-	config = confval.Postgres.Set(config, "wal_level", req.WalLevel)
-	config = confval.Postgres.Set(config, "wal_buffers", req.WalBuffers)
-	config = confval.Postgres.Set(config, "max_wal_size", req.MaxWalSize)
-	config = confval.Postgres.Set(config, "min_wal_size", req.MinWalSize)
-	config = confval.Postgres.Set(config, "checkpoint_completion_target", req.CheckpointCompletionTarget)
-	// 更新查询优化
-	config = confval.Postgres.Set(config, "default_statistics_target", req.DefaultStatisticsTarget)
-	config = confval.Postgres.Set(config, "random_page_cost", req.RandomPageCost)
-	config = confval.Postgres.Set(config, "effective_io_concurrency", req.EffectiveIoConcurrency)
-	// 更新日志设置
-	config = confval.Postgres.Set(config, "log_destination", req.LogDestination)
-	config = confval.Postgres.Set(config, "log_min_duration_statement", req.LogMinDurationStatement)
-	config = confval.Postgres.Set(config, "log_timezone", req.LogTimezone)
-	// 更新 IO 设置
-	config = confval.Postgres.Set(config, "io_method", req.IoMethod)
+	config = confval.Postgres.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = s.applyConfig(r.Context(), config, oldPort); err != nil {
+	if err = s.applyConfig(r.Context(), oldPort); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to apply PostgreSQL config: %v", err))
 		return
 	}
@@ -399,62 +292,12 @@ func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
 
 // InstallExtension 安装扩展（异步任务）
 func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExtensionSlug](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/postgresql/extensions/%s.sh' | bash -s -- 'install'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
-
-	task := new(biz.Task)
-	task.Key = "postgresql:extension:" + req.Slug
-	task.Name = s.t.Get("Install PostgreSQL extension %s", req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Info(s.t.Get("postgresql extension install queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
-
-	service.Success(w, nil)
+	s.queueExtension(w, r, "install")
 }
 
 // UninstallExtension 卸载扩展（异步任务）
 func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ExtensionSlug](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
-		return
-	}
-
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/postgresql/extensions/%s.sh' | bash -s -- 'uninstall'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
-
-	task := new(biz.Task)
-	task.Key = "postgresql:extension:" + req.Slug
-	task.Name = s.t.Get("Uninstall PostgreSQL extension %s", req.Slug)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd
-	if err = s.taskRepo.Push(task); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	s.log.Warn(s.t.Get("postgresql extension uninstall queued"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
-
-	service.Success(w, nil)
+	s.queueExtension(w, r, "uninstall")
 }
 
 // EnableExtension 在指定数据库启用扩展
@@ -906,6 +749,106 @@ func (s *App) DropReplicationSlot(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
+func (s *App) configPath() string {
+	return app.Root + "/server/postgresql/data/postgresql.conf"
+}
+
+// applyConfig 让已落盘的 PostgreSQL 配置生效，oldPort 是写入前的端口
+func (s *App) applyConfig(ctx context.Context, oldPort uint) error {
+	// 改端口后还要回写面板记录，整段不跟随请求取消
+	ctx = context.WithoutCancel(ctx)
+	newPort := db.PostgresPort(app.Root)
+	if oldPort == newPort {
+		return systemctl.Reload(ctx, "postgresql")
+	}
+	if err := systemctl.Restart(ctx, "postgresql"); err != nil {
+		return err
+	}
+	return s.databaseServerRepo.UpdatePort("local_postgresql", newPort)
+}
+
+// connect 以 postgres 超级用户连接指定数据库，默认 postgres 库
+func (s *App) connect(ctx context.Context, database ...string) (db.Operator, error) {
+	password, err := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return db.NewPostgres(ctx, "postgres", password, "127.0.0.1", db.PostgresPort(app.Root), database...)
+}
+
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		// 连接设置
+		{Key: "listen_addresses", Value: &t.ListenAddresses},
+		{Key: "port", Value: &t.Port},
+		{Key: "max_connections", Value: &t.MaxConnections},
+		{Key: "superuser_reserved_connections", Value: &t.SuperuserReservedConnections},
+		// 内存设置
+		{Key: "shared_buffers", Value: &t.SharedBuffers},
+		{Key: "work_mem", Value: &t.WorkMem},
+		{Key: "maintenance_work_mem", Value: &t.MaintenanceWorkMem},
+		{Key: "effective_cache_size", Value: &t.EffectiveCacheSize},
+		{Key: "huge_pages", Value: &t.HugePages},
+		// WAL 设置
+		{Key: "wal_level", Value: &t.WalLevel},
+		{Key: "wal_buffers", Value: &t.WalBuffers},
+		{Key: "max_wal_size", Value: &t.MaxWalSize},
+		{Key: "min_wal_size", Value: &t.MinWalSize},
+		{Key: "checkpoint_completion_target", Value: &t.CheckpointCompletionTarget},
+		// 查询优化
+		{Key: "default_statistics_target", Value: &t.DefaultStatisticsTarget},
+		{Key: "random_page_cost", Value: &t.RandomPageCost},
+		{Key: "effective_io_concurrency", Value: &t.EffectiveIoConcurrency},
+		// 日志设置
+		{Key: "log_destination", Value: &t.LogDestination},
+		{Key: "log_min_duration_statement", Value: &t.LogMinDurationStatement},
+		{Key: "log_timezone", Value: &t.LogTimezone},
+		// IO 设置
+		{Key: "io_method", Value: &t.IoMethod},
+	}
+}
+
+// queueExtension 把扩展的安装或卸载排进任务队列，action 是安装脚本的子命令
+func (s *App) queueExtension(w http.ResponseWriter, r *http.Request, action string) {
+	req, err := service.Bind[ExtensionSlug](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !s.checkExtension(req.Slug) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
+		return
+	}
+
+	name, msg, level := s.t.Get("Install PostgreSQL extension %s", req.Slug), s.t.Get("postgresql extension install queued"), slog.LevelInfo
+	if action == "uninstall" {
+		name, msg, level = s.t.Get("Uninstall PostgreSQL extension %s", req.Slug), s.t.Get("postgresql extension uninstall queued"), slog.LevelWarn
+	}
+
+	task := new(biz.Task)
+	task.Key = "postgresql:extension:" + req.Slug
+	task.Name = name
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/postgresql/extensions/%s.sh' | bash -s -- '%s'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), action)
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Log(r.Context(), level, msg, slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("slug", req.Slug), slog.Uint64("task_id", uint64(task.ID)))
+
+	service.Success(w, nil)
+}
+
+// checkExtension 检查 slug 是否有效
+func (s *App) checkExtension(slug string) bool {
+	return lo.ContainsBy(s.getExtensions(), func(e Extension) bool {
+		return e.Slug == slug
+	})
+}
+
 // getExtensions 返回所有扩展定义
 func (s *App) getExtensions() []Extension {
 	return []Extension{
@@ -925,48 +868,4 @@ func (s *App) getExtensions() []Extension {
 		{Name: "orafce", Slug: "orafce", ExtName: "orafce", Description: s.t.Get("Oracle compatibility functions")},
 		{Name: "http", Slug: "http", ExtName: "http", Description: s.t.Get("HTTP client for SQL, send requests from the database")},
 	}
-}
-
-// checkExtension 检查 slug 是否有效
-func (s *App) checkExtension(slug string) bool {
-	return lo.ContainsBy(s.getExtensions(), func(e Extension) bool {
-		return e.Slug == slug
-	})
-}
-
-// connect 以 postgres 超级用户连接指定数据库，默认 postgres 库
-func (s *App) connect(ctx context.Context, database ...string) (db.Operator, error) {
-	password, err := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
-	if err != nil {
-		return nil, err
-	}
-
-	return db.NewPostgres(ctx, "postgres", password, "127.0.0.1", db.PostgresPort(app.Root), database...)
-}
-
-func (s *App) configPath() string {
-	return app.Root + "/server/postgresql/data/postgresql.conf"
-}
-
-// parsePort 从 config 内容解析端口，未配置时返回默认值
-func (s *App) parsePort(config string) uint {
-	port := cast.ToUint(confval.Postgres.Get(config, "port"))
-	if port == 0 {
-		return 5432
-	}
-	return port
-}
-
-// applyConfig 让 PostgreSQL 配置生效
-func (s *App) applyConfig(ctx context.Context, newConfig string, oldPort uint) error {
-	// 配置已落盘，且改端口后还要回写面板记录，整段不跟随请求取消
-	ctx = context.WithoutCancel(ctx)
-	newPort := s.parsePort(newConfig)
-	if oldPort == newPort {
-		return systemctl.Reload(ctx, "postgresql")
-	}
-	if err := systemctl.Restart(ctx, "postgresql"); err != nil {
-		return err
-	}
-	return s.databaseServerRepo.UpdatePort("local_postgresql", newPort)
 }

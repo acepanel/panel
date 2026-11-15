@@ -15,23 +15,23 @@ const (
 	visitorPrefix = "visitor"
 )
 
-func confPath(name string) string {
+func (s *App) confPath(name string) string {
 	return filepath.Join(app.Root, "server", "frp", name+".toml")
 }
 
-func confDDir() string {
+func (s *App) confDDir() string {
 	return filepath.Join(app.Root, "server", "frp", "conf.d")
 }
 
-func confDGlob() string {
-	return filepath.Join(confDDir(), "*.toml")
+func (s *App) confDGlob() string {
+	return filepath.Join(s.confDDir(), "*.toml")
 }
 
-func itemPath(prefix, name string) string {
-	return filepath.Join(confDDir(), prefix+"-"+name+".toml")
+func (s *App) itemPath(prefix, name string) string {
+	return filepath.Join(s.confDDir(), prefix+"-"+name+".toml")
 }
 
-func readConfD(path string) (ConfD, error) {
+func (s *App) readConfD(path string) (ConfD, error) {
 	raw, err := io.Read(path)
 	if err != nil {
 		return ConfD{}, err
@@ -41,17 +41,17 @@ func readConfD(path string) (ConfD, error) {
 	return confD, toml.Unmarshal([]byte(raw), &confD)
 }
 
-func listConfD() (ConfD, error) {
+func (s *App) listConfD() (ConfD, error) {
 	var all ConfD
 
 	// Glob 在目录不存在时返回空，无需额外判断
-	paths, err := filepath.Glob(confDGlob())
+	paths, err := filepath.Glob(s.confDGlob())
 	if err != nil {
 		return all, err
 	}
 
 	for _, path := range paths {
-		confD, err := readConfD(path)
+		confD, err := s.readConfD(path)
 		if err != nil {
 			return all, err
 		}
@@ -63,8 +63,8 @@ func listConfD() (ConfD, error) {
 	return all, nil
 }
 
-func writeConfD(prefix, name string, confD ConfD) error {
-	if err := os.MkdirAll(confDDir(), 0755); err != nil {
+func (s *App) writeConfD(prefix, name string, confD ConfD) error {
+	if err := os.MkdirAll(s.confDDir(), 0755); err != nil {
 		return err
 	}
 
@@ -73,5 +73,5 @@ func writeConfD(prefix, name string, confD ConfD) error {
 		return err
 	}
 
-	return io.Write(itemPath(prefix, name), string(raw), 0644)
+	return io.Write(s.itemPath(prefix, name), string(raw), 0644)
 }

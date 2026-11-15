@@ -2,7 +2,6 @@
 import type { TreeSelectOption } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import PathSelector from '@/components/common/PathSelector.vue'
 import { translateTitle } from '@/locales/menu'
 import { usePermissionStore } from '@/stores'
 import type { RouteType } from '@/types/router'

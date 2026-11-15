@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/leonelquinteros/gotext"
-
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
@@ -15,40 +13,15 @@ import (
 )
 
 type environmentRepo struct {
-	t    *gotext.Locale
 	conf *config.Config
 }
 
-func NewEnvironmentRepo(conf *config.Config, t *gotext.Locale) biz.EnvironmentRepo {
-	return &environmentRepo{
-		t:    t,
-		conf: conf,
-	}
-}
-
-// binPath 返回运行时可执行文件路径，不支持的类型返回空
-func binPath(typ, slug string) string {
-	path := filepath.Join(app.Root, "server", typ, slug)
-	switch typ {
-	case "go":
-		return filepath.Join(path, "bin", "go")
-	case "java":
-		return filepath.Join(path, "bin", "java")
-	case "nodejs":
-		return filepath.Join(path, "bin", "node")
-	case "php":
-		return filepath.Join(path, "bin", "php")
-	case "python":
-		return filepath.Join(path, "bin", "python3")
-	case "dotnet":
-		return filepath.Join(path, "dotnet")
-	default:
-		return ""
-	}
+func NewEnvironmentRepo(conf *config.Config) biz.EnvironmentRepo {
+	return &environmentRepo{conf: conf}
 }
 
 func (r *environmentRepo) IsInstalled(typ, slug string) bool {
-	binFile := binPath(typ, slug)
+	binFile := r.binPath(typ, slug)
 	if binFile == "" {
 		return false
 	}
@@ -62,7 +35,7 @@ func (r *environmentRepo) InstalledVersion(ctx context.Context, typ, slug string
 		return ""
 	}
 
-	bin := binPath(typ, slug)
+	bin := r.binPath(typ, slug)
 	var version string
 	var err error
 
@@ -91,6 +64,27 @@ func (r *environmentRepo) InstalledVersion(ctx context.Context, typ, slug string
 		return ""
 	}
 	return version
+}
+
+// binPath 返回运行时可执行文件路径，不支持的类型返回空
+func (r *environmentRepo) binPath(typ, slug string) string {
+	path := filepath.Join(app.Root, "server", typ, slug)
+	switch typ {
+	case "go":
+		return filepath.Join(path, "bin", "go")
+	case "java":
+		return filepath.Join(path, "bin", "java")
+	case "nodejs":
+		return filepath.Join(path, "bin", "node")
+	case "php":
+		return filepath.Join(path, "bin", "php")
+	case "python":
+		return filepath.Join(path, "bin", "python3")
+	case "dotnet":
+		return filepath.Join(path, "dotnet")
+	default:
+		return ""
+	}
 }
 
 func (r *environmentRepo) ScriptCommand(typ, action, slug, version string) string {

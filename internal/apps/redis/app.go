@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -28,6 +29,8 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+const defaultPort = "6379"
+
 type App struct {
 	t                  *gotext.Locale
 	log                *slog.Logger
@@ -37,11 +40,22 @@ type App struct {
 	name               string // 展示名，如 Redis、Valkey
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return New("redis", "Redis", t, log, databaseServerRepo, taskRepo)
 }
 
-func New(slug, name string, t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
+func New(
+	slug, name string,
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	taskRepo biz.TaskRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -83,17 +97,14 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := io.Read(s.confPath())
+	conn, err := s.connect(r.Context())
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s info: %v", s.name, err))
 		return
 	}
-	var env []string
-	if password := confval.Directive.Get(config, "requirepass"); password != "" {
-		env = append(env, "REDISCLI_AUTH="+password)
-	}
+	defer conn.Close()
 
-	raw, err := shell.ExecfWithEnv(r.Context(), env, "%s-cli info", s.slug)
+	raw, err := redigo.String(conn.Exec("INFO"))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s info: %v", s.name, err))
 		return
@@ -132,7 +143,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, s.slug, s.confPath(), 0644, s.slug)
+	common.SaveConfig(w, r, s.log, s.t, s.slug, s.confPath(), 0644, common.Restart(s.slug))
 }
 
 // GetConfigTune 获取配置调整参数
@@ -143,18 +154,8 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tune := ConfigTune{
-		Bind:            confval.Directive.Get(config, "bind"),
-		Port:            confval.Directive.Get(config, "port"),
-		Databases:       confval.Directive.Get(config, "databases"),
-		Requirepass:     confval.Directive.Get(config, "requirepass"),
-		Timeout:         confval.Directive.Get(config, "timeout"),
-		TCPKeepalive:    confval.Directive.Get(config, "tcp-keepalive"),
-		Maxmemory:       confval.Directive.Get(config, "maxmemory"),
-		MaxmemoryPolicy: confval.Directive.Get(config, "maxmemory-policy"),
-		Appendonly:      confval.Directive.Get(config, "appendonly"),
-		Appendfsync:     confval.Directive.Get(config, "appendfsync"),
-	}
+	tune := new(ConfigTune)
+	confval.Directive.Read(config, s.tuneFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("path", s.confPath()))
 
@@ -176,16 +177,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config = confval.Directive.Set(config, "bind", req.Bind)
-	config = confval.Directive.Set(config, "port", req.Port)
-	config = confval.Directive.Set(config, "databases", req.Databases)
-	config = confval.Directive.Set(config, "requirepass", req.Requirepass)
-	config = confval.Directive.Set(config, "timeout", req.Timeout)
-	config = confval.Directive.Set(config, "tcp-keepalive", req.TCPKeepalive)
-	config = confval.Directive.Set(config, "maxmemory", req.Maxmemory)
-	config = confval.Directive.Set(config, "maxmemory-policy", req.MaxmemoryPolicy)
-	config = confval.Directive.Set(config, "appendonly", req.Appendonly)
-	config = confval.Directive.Set(config, "appendfsync", req.Appendfsync)
+	config = confval.Directive.Write(config, s.tuneFields(req))
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -197,7 +189,11 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 同步密码到数据库服务器记录
+	// 同步端口与密码到数据库服务器记录
+	if err = s.databaseServerRepo.UpdatePort("local_"+s.slug, cast.ToUint(s.port(config))); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 	_ = s.databaseServerRepo.UpdatePassword("local_"+s.slug, req.Requirepass)
 
 	s.log.Info(s.t.Get("app config tune saved"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("bind", req.Bind), slog.String("port", req.Port), slog.String("databases", req.Databases), slog.String("maxmemory", req.Maxmemory), slog.String("maxmemory_policy", req.MaxmemoryPolicy), slog.String("appendonly", req.Appendonly), slog.String("appendfsync", req.Appendfsync))
@@ -427,7 +423,7 @@ func (s *App) ScanBigKeys(w http.ResponseWriter, r *http.Request) {
 	task.Key = s.slug + ":bigkeys"
 	task.Name = s.t.Get("Scan %s big keys", s.name)
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`pw=$(sed -n 's/^requirepass[[:space:]]\+//p' %s | head -n 1); [ -n "$pw" ] && export REDISCLI_AUTH="$pw"; %s-cli --bigkeys`, shell.Quote(s.confPath()), s.slug)
+	task.Shell = fmt.Sprintf(`pw=$(sed -n 's/^requirepass[[:space:]]\+//p' %[1]s | head -n 1); [ -n "$pw" ] && export REDISCLI_AUTH="$pw"; port=$(sed -n 's/^port[[:space:]]\+//p' %[1]s | head -n 1); %[2]s-cli -p "${port:-%[3]s}" --bigkeys`, shell.Quote(s.confPath()), s.slug, defaultPort)
 	if err := s.taskRepo.Push(task); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -444,15 +440,35 @@ func (s *App) connect(ctx context.Context) (*db.Redis, error) {
 	if err != nil {
 		return nil, err
 	}
-	port := confval.Directive.Get(config, "port")
-	if port == "" {
-		port = "6379"
-	}
 	password := confval.Directive.Get(config, "requirepass")
 
-	return db.NewRedis(ctx, "", password, "127.0.0.1:"+port)
+	return db.NewRedis(ctx, "", password, net.JoinHostPort("127.0.0.1", s.port(config)))
 }
 
 func (s *App) confPath() string {
 	return filepath.Join(app.Root, "server", s.slug, s.slug+".conf")
+}
+
+// port 从配置内容读取监听端口，未配置时为默认端口
+func (s *App) port(config string) string {
+	if port := confval.Directive.Get(config, "port"); port != "" {
+		return port
+	}
+
+	return defaultPort
+}
+
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		{Key: "bind", Value: &t.Bind},
+		{Key: "port", Value: &t.Port},
+		{Key: "databases", Value: &t.Databases},
+		{Key: "requirepass", Value: &t.Requirepass},
+		{Key: "timeout", Value: &t.Timeout},
+		{Key: "tcp-keepalive", Value: &t.TCPKeepalive},
+		{Key: "maxmemory", Value: &t.Maxmemory},
+		{Key: "maxmemory-policy", Value: &t.MaxmemoryPolicy},
+		{Key: "appendonly", Value: &t.Appendonly},
+		{Key: "appendfsync", Value: &t.Appendfsync},
+	}
 }

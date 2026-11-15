@@ -39,13 +39,6 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 设置默认值
-	if req.Page == 0 {
-		req.Page = 1
-	}
-	if req.Limit == 0 {
-		req.Limit = 20
-	}
 	if req.Order == "" {
 		req.Order = "desc"
 	}

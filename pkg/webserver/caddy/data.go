@@ -4,10 +4,10 @@ const ServerRoot = "/opt/ace/server/caddy"
 
 const MainConf = ServerRoot + "/Caddyfile"
 
-const HTMLDir = ServerRoot + "/html"
+const htmlDir = ServerRoot + "/html"
 
-// ACMEDir HTTP-01 验证目录，站点与兜底站点以它为根提供 token
-const ACMEDir = ServerRoot + "/acme"
+// acmeDir HTTP-01 验证目录，站点与兜底站点以它为根提供 token
+const acmeDir = ServerRoot + "/acme"
 
 // ErrorLogPath 全局错误日志，Caddy 没有站点级错误日志
 const ErrorLogPath = ServerRoot + "/logs/error.log"
@@ -15,7 +15,7 @@ const ErrorLogPath = ServerRoot + "/logs/error.log"
 // panelACMEConf 面板验证写入的 token 文件名，供清理
 const panelACMEConf = ServerRoot + "/conf/acme-tokens"
 
-const ConfName = "caddy.conf"
+const confName = "caddy.conf"
 
 const acmeURI = "/.well-known/acme-challenge/"
 

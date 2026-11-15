@@ -1,9 +1,6 @@
 package api
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
 type App struct {
 	CreatedAt   time.Time `json:"created_at"`
@@ -30,51 +27,10 @@ type Apps []*App
 
 // Apps 返回所有应用
 func (r *API) Apps() (*Apps, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get("/apps")
-	if err != nil {
-		return nil, err
-	}
-	if !resp.IsStatusSuccess() {
-		return nil, fmt.Errorf("failed to get apps: %s", resp.String())
-	}
-
-	apps, err := getResponseData[Apps](resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return apps, nil
-}
-
-// AppBySlug 根据slug返回应用
-func (r *API) AppBySlug(slug string) (*App, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get("/apps/" + slug)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.IsStatusSuccess() {
-		return nil, fmt.Errorf("failed to get app: %s", resp.String())
-	}
-
-	app, err := getResponseData[App](resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return app, nil
+	return get[Apps](r, "/apps", nil)
 }
 
 // AppCallback 应用下载回调
 func (r *API) AppCallback(slug string) error {
-	resp, err := r.client.R().
-		SetResult(&Response{}).
-		Post(fmt.Sprintf("/apps/%s/callback", slug))
-	if err != nil {
-		return err
-	}
-	if !resp.IsStatusSuccess() {
-		return fmt.Errorf("failed to callback app: %s", resp.String())
-	}
-
-	return nil
+	return r.callback("/apps/" + slug + "/callback")
 }

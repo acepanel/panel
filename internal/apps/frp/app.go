@@ -12,6 +12,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -65,7 +66,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := confPath(req.Name)
+	path := s.confPath(req.Name)
 	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -84,7 +85,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	common.WriteConfig(w, r, s.log, s.t, "frp", confPath(req.Name), req.Config, 0644, req.Name)
+	common.WriteConfig(w, r, s.log, s.t, "frp", s.confPath(req.Name), req.Config, 0644, common.Restart(req.Name))
 }
 
 func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -173,7 +174,7 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // GetServer 获取 frps 可视化参数
 func (s *App) GetServer(w http.ResponseWriter, r *http.Request) {
-	path := confPath("frps")
+	path := s.confPath("frps")
 	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -181,7 +182,7 @@ func (s *App) GetServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tune := new(ServerTune)
-	readTune(config, serverFields(tune))
+	confval.ReadTOML(config, s.serverFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frps"), slog.String("path", path))
 
@@ -196,14 +197,14 @@ func (s *App) UpdateServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := confPath("frps")
+	path := s.confPath("frps")
 	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = io.Write(path, writeTune(config, serverFields(req)), 0644); err != nil {
+	if err = io.Write(path, confval.WriteTOML(config, s.serverFields(req)), 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -220,7 +221,7 @@ func (s *App) UpdateServer(w http.ResponseWriter, r *http.Request) {
 
 // GetClient 获取 frpc 可视化公共参数
 func (s *App) GetClient(w http.ResponseWriter, r *http.Request) {
-	path := confPath("frpc")
+	path := s.confPath("frpc")
 	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -228,7 +229,7 @@ func (s *App) GetClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tune := new(ClientTune)
-	readTune(config, clientFields(tune))
+	confval.ReadTOML(config, s.clientFields(tune))
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "frp"), slog.String("service", "frpc"), slog.String("path", path))
 
@@ -243,14 +244,14 @@ func (s *App) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := confPath("frpc")
+	path := s.confPath("frpc")
 	config, err := io.Read(path)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = io.Write(path, writeTune(config, clientFields(req)), 0644); err != nil {
+	if err = io.Write(path, confval.WriteTOML(config, s.clientFields(req)), 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -267,7 +268,7 @@ func (s *App) UpdateClient(w http.ResponseWriter, r *http.Request) {
 
 // Proxies 代理列表
 func (s *App) Proxies(w http.ResponseWriter, r *http.Request) {
-	confD, err := listConfD()
+	confD, err := s.listConfD()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -291,7 +292,7 @@ func (s *App) CreateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if io.Exists(itemPath(proxyPrefix, req.Name)) {
+	if io.Exists(s.itemPath(proxyPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s already exists", req.Name))
 		return
 	}
@@ -314,8 +315,8 @@ func (s *App) GetProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := itemPath(proxyPrefix, req.Name)
-	confD, err := readConfD(path)
+	path := s.itemPath(proxyPrefix, req.Name)
+	confD, err := s.readConfD(path)
 	if err != nil || len(confD.Proxies) == 0 {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
 		return
@@ -334,7 +335,7 @@ func (s *App) UpdateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !io.Exists(itemPath(proxyPrefix, req.Name)) {
+	if !io.Exists(s.itemPath(proxyPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
 		return
 	}
@@ -359,7 +360,7 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 
 	// 配置已删除，重启不跟随请求取消，否则代理仍在运行的 frpc 里生效
 	ctx := context.WithoutCancel(r.Context())
-	path := itemPath(proxyPrefix, req.Name)
+	path := s.itemPath(proxyPrefix, req.Name)
 	if err = io.Remove(path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -377,7 +378,7 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 
 // Visitors 访问者列表
 func (s *App) Visitors(w http.ResponseWriter, r *http.Request) {
-	confD, err := listConfD()
+	confD, err := s.listConfD()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -401,7 +402,7 @@ func (s *App) CreateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if io.Exists(itemPath(visitorPrefix, req.Name)) {
+	if io.Exists(s.itemPath(visitorPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s already exists", req.Name))
 		return
 	}
@@ -424,8 +425,8 @@ func (s *App) GetVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := itemPath(visitorPrefix, req.Name)
-	confD, err := readConfD(path)
+	path := s.itemPath(visitorPrefix, req.Name)
+	confD, err := s.readConfD(path)
 	if err != nil || len(confD.Visitors) == 0 {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
 		return
@@ -444,7 +445,7 @@ func (s *App) UpdateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !io.Exists(itemPath(visitorPrefix, req.Name)) {
+	if !io.Exists(s.itemPath(visitorPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
 		return
 	}
@@ -468,7 +469,7 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.WithoutCancel(r.Context())
-	path := itemPath(visitorPrefix, req.Name)
+	path := s.itemPath(visitorPrefix, req.Name)
 	if err = io.Remove(path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -485,7 +486,7 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) save(ctx context.Context, prefix, name string, confD ConfD) error {
-	if err := writeConfD(prefix, name, confD); err != nil {
+	if err := s.writeConfD(prefix, name, confD); err != nil {
 		return err
 	}
 

@@ -30,7 +30,13 @@ type EnvironmentUsecase struct {
 	log   *slog.Logger
 }
 
-func NewEnvironmentUsecase(t *gotext.Locale, log *slog.Logger, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) *EnvironmentUsecase {
+func NewEnvironmentUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	cacheRepo CacheRepo,
+	environmentRepo EnvironmentRepo,
+	taskRepo TaskRepo,
+) *EnvironmentUsecase {
 	return &EnvironmentUsecase{
 		repo:  environmentRepo,
 		cache: cacheRepo,
@@ -69,16 +75,6 @@ func (uc *EnvironmentUsecase) All(typ ...string) api.Environments {
 	return environments
 }
 
-func (uc *EnvironmentUsecase) getByTypeAndSlug(typ, slug string) *api.Environment {
-	all := uc.All()
-	for _, env := range all {
-		if env.Type == typ && env.Slug == slug {
-			return env
-		}
-	}
-	return nil
-}
-
 func (uc *EnvironmentUsecase) IsInstalled(typ, slug string) bool {
 	return uc.repo.IsInstalled(typ, slug)
 }
@@ -99,21 +95,6 @@ func (uc *EnvironmentUsecase) InstalledSlugs(typ string) []string {
 
 func (uc *EnvironmentUsecase) InstalledVersion(ctx context.Context, typ, slug string) string {
 	return uc.repo.InstalledVersion(ctx, typ, slug)
-}
-
-func (uc *EnvironmentUsecase) HasUpdate(ctx context.Context, typ, slug string) bool {
-	if !uc.repo.IsInstalled(typ, slug) {
-		return false
-	}
-	env := uc.getByTypeAndSlug(typ, slug)
-	if env == nil {
-		return false
-	}
-
-	mainlineVersion := env.Version
-	installedVersion := uc.repo.InstalledVersion(ctx, typ, slug)
-
-	return mainlineVersion != installedVersion && mainlineVersion != "" && installedVersion != ""
 }
 
 func (uc *EnvironmentUsecase) Install(ctx context.Context, typ, slug string) error {
@@ -177,5 +158,15 @@ func (uc *EnvironmentUsecase) do(ctx context.Context, typ, slug, action string) 
 
 	logf(msg, slog.String("type", OperationTypeEnvironment), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("environment_type", typ), slog.String("slug", slug), slog.String("name", env.Name), slog.String("version", env.Version))
 
+	return nil
+}
+
+func (uc *EnvironmentUsecase) getByTypeAndSlug(typ, slug string) *api.Environment {
+	all := uc.All()
+	for _, env := range all {
+		if env.Type == typ && env.Slug == slug {
+			return env
+		}
+	}
 	return nil
 }

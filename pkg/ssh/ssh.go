@@ -1,7 +1,6 @@
 package ssh
 
 import (
-	"errors"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -61,14 +60,5 @@ func parseKey(key, passphrase string) (ssh.Signer, error) {
 		return ssh.ParsePrivateKeyWithPassphrase(keyBytes, []byte(passphrase))
 	}
 
-	signer, err := ssh.ParsePrivateKey(keyBytes)
-	if err != nil {
-		// 密钥被加密
-		if passphraseMissingError, ok := errors.AsType[*ssh.PassphraseMissingError](err); ok {
-			return nil, passphraseMissingError
-		}
-		return nil, err
-	}
-
-	return signer, nil
+	return ssh.ParsePrivateKey(keyBytes)
 }

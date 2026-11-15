@@ -4,8 +4,6 @@ export default {
   // 获取备份账号列表
   list: (page: number, limit: number): any =>
     http.Get('/backup_storage', { params: { page, limit } }),
-  // 获取备份账号
-  get: (id: number): any => http.Get(`/backup_storage/${id}`),
   // 创建备份账号
   create: (data: any): any => http.Post('/backup_storage', data),
   // 更新备份账号

@@ -14,27 +14,6 @@ const (
 	AppStatusNA      = "n/a"     // 不适用（无 systemd 服务的应用）
 )
 
-// AggregateAppStatus 根据各服务运行状态聚合应用状态
-func AggregateAppStatus(running ...bool) string {
-	if len(running) == 0 {
-		return AppStatusNA
-	}
-	count := 0
-	for _, r := range running {
-		if r {
-			count++
-		}
-	}
-	switch count {
-	case 0:
-		return AppStatusStopped
-	case len(running):
-		return AppStatusRunning
-	default:
-		return AppStatusPartial
-	}
-}
-
 // App 应用接口
 type App interface {
 	Route(r chi.Router)
@@ -61,4 +40,25 @@ type AppDetail struct {
 	Show             bool   `json:"show"`
 	Status           string `json:"status"`
 	CustomSupported  bool   `json:"custom_supported"`
+}
+
+// AggregateAppStatus 根据各服务运行状态聚合应用状态
+func AggregateAppStatus(running ...bool) string {
+	if len(running) == 0 {
+		return AppStatusNA
+	}
+	count := 0
+	for _, r := range running {
+		if r {
+			count++
+		}
+	}
+	switch count {
+	case 0:
+		return AppStatusStopped
+	case len(running):
+		return AppStatusRunning
+	default:
+		return AppStatusPartial
+	}
 }

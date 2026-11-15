@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useResponsive } from '@/components/system/composables/useResponsive'
-import HealthBanner from '@/components/system/HealthBanner.vue'
 import { useThemeStore } from '@/stores'
 
 import AppMain from './AppMain.vue'

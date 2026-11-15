@@ -17,19 +17,22 @@ import (
 // PHP 外部应用定义在服务器级，每版本一个，站点只 include 脚本处理器行，切换协议无需改站点配置
 
 const (
-	phpConf       = PanelConfDir + "/php.conf" // 各版本外部应用
-	phpHandlerDir = PanelConfDir + "/php"      // 各版本脚本处理器行，供站点 include
-	lsapiDir      = PanelConfDir + "/lsapi"    // 已切换为 LSAPI 的版本标记
+	phpConf       = panelConfDir + "/php.conf" // 各版本外部应用
+	phpHandlerDir = panelConfDir + "/php"      // 各版本脚本处理器行，供站点 include
+	lsapiDir      = panelConfDir + "/lsapi"    // 已切换为 LSAPI 的版本标记
 )
 
 var phpHandlerPattern = regexp.MustCompile(`/php/(\d+)\.conf$`)
 
-func phpHandlerFile(version uint) string {
-	return filepath.Join(phpHandlerDir, strconv.FormatUint(uint64(version), 10)+".conf")
-}
+var maxChildrenPattern = regexp.MustCompile(`(?m)^\s*pm\.max_children\s*=\s*(\d+)`)
 
 func LSPHPPath(version uint) string {
 	return fmt.Sprintf("/opt/ace/server/php/%d/bin/lsphp", version)
+}
+
+// LSAPISocket lsphp 监听的套接字
+func LSAPISocket(version uint) string {
+	return fmt.Sprintf("/tmp/lshttpd/php%d.sock", version)
 }
 
 func LSAPIEnabled(version uint) bool {
@@ -57,7 +60,29 @@ func SetLSAPI(version uint, enabled bool) error {
 		return err
 	}
 
-	return Sync()
+	return syncPanelConf()
+}
+
+// SyncFPM 按 LSAPI 的启用情况开停 php-fpm
+func SyncFPM(ctx context.Context, active bool) error {
+	var errs []error
+	for _, version := range installedPHPVersions() {
+		name := fmt.Sprintf("php-fpm-%d", version)
+		// 服务不存在时 enable/disable 会报错，这里只关心开停结果
+		if active && LSAPIEnabled(version) {
+			_ = systemctl.Disable(ctx, name)
+			if running, _ := systemctl.Status(ctx, name); running {
+				errs = append(errs, systemctl.Stop(ctx, name))
+			}
+			continue
+		}
+		_ = systemctl.Enable(ctx, name)
+		if running, _ := systemctl.Status(ctx, name); !running {
+			errs = append(errs, systemctl.Start(ctx, name))
+		}
+	}
+
+	return errors.Join(errs...)
 }
 
 // syncPHP 为已安装及站点引用的 PHP 版本生成外部应用与处理器行，未安装的也生成以免 PHP 源码被当静态文件输出
@@ -67,9 +92,9 @@ func syncPHP() error {
 	}
 
 	versions := installedPHPVersions()
-	sites, _ := filepath.Glob(filepath.Join(SitesPath, "*", "config", VhostConfName))
+	sites, _ := filepath.Glob(filepath.Join(sitesPath, "*", "config", vhostConfName))
 	for _, path := range sites {
-		if vhost, err := NewPHPVhost(filepath.Dir(path)); err == nil && vhost.PHP() > 0 {
+		if vhost, err := newPHPVhost(filepath.Dir(path)); err == nil && vhost.PHP() > 0 {
 			versions = append(versions, vhost.PHP())
 		}
 	}
@@ -121,31 +146,8 @@ func syncPHP() error {
 	return os.WriteFile(phpConf, []byte(Export(cfg)), 0600)
 }
 
-// LSAPISocket lsphp 监听的套接字
-func LSAPISocket(version uint) string {
-	return fmt.Sprintf("/tmp/lshttpd/php%d.sock", version)
-}
-
-// SyncFPM 按 LSAPI 的启用情况开停 php-fpm
-func SyncFPM(ctx context.Context, active bool) error {
-	var errs []error
-	for _, version := range installedPHPVersions() {
-		name := fmt.Sprintf("php-fpm-%d", version)
-		// 服务不存在时 enable/disable 会报错，这里只关心开停结果
-		if active && LSAPIEnabled(version) {
-			_ = systemctl.Disable(ctx, name)
-			if running, _ := systemctl.Status(ctx, name); running {
-				errs = append(errs, systemctl.Stop(ctx, name))
-			}
-			continue
-		}
-		_ = systemctl.Enable(ctx, name)
-		if running, _ := systemctl.Status(ctx, name); !running {
-			errs = append(errs, systemctl.Start(ctx, name))
-		}
-	}
-
-	return errors.Join(errs...)
+func phpHandlerFile(version uint) string {
+	return filepath.Join(phpHandlerDir, strconv.FormatUint(uint64(version), 10)+".conf")
 }
 
 func installedPHPVersions() []uint {
@@ -158,8 +160,6 @@ func installedPHPVersions() []uint {
 	}
 	return versions
 }
-
-var maxChildrenPattern = regexp.MustCompile(`(?m)^\s*pm\.max_children\s*=\s*(\d+)`)
 
 // fpmMaxChildren 取 php-fpm 的进程上限，LSAPI 与 FastCGI 并发都用它
 func fpmMaxChildren(version uint) int {

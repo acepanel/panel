@@ -8,8 +8,6 @@ import cron from '@/api/panel/cron'
 import database from '@/api/panel/database'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
-import CronSelector from '@/components/common/CronSelector.vue'
-import PathSelector from '@/components/common/PathSelector.vue'
 import { WEBSERVER_SLUGS } from '@/utils'
 
 const { $gettext } = useGettext()

@@ -16,6 +16,7 @@ import (
 
 	"github.com/libtnb/assert/must"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/internal/golden"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -48,7 +49,7 @@ func TestValidateWithCaddy(t *testing.T) {
 	d := Dialect{}
 
 	phpDir := newSite("php")
-	php, err := NewPHPVhost(phpDir)
+	php, err := newPHPVhost(phpDir)
 	must.NoError(t, err)
 	must.NoError(t, php.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
 	must.NoError(t, php.SetServerName([]string{"php.example.com", "www.php.example.com"}))
@@ -77,7 +78,7 @@ func TestValidateWithCaddy(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			content, err := os.ReadFile(preset)
 			must.NoError(t, err)
-			site, err := NewPHPVhost(newSite("preset-" + name))
+			site, err := newPHPVhost(newSite("preset-" + name))
 			must.NoError(t, err)
 			must.NoError(t, site.SetServerName([]string{name + ".preset.test"}))
 			must.NoError(t, site.SetRoot(filepath.Join(sites, "preset-"+name, "public")))
@@ -88,7 +89,7 @@ func TestValidateWithCaddy(t *testing.T) {
 	}
 
 	proxyDir := newSite("proxy")
-	proxy, err := NewProxyVhost(proxyDir)
+	proxy, err := newProxyVhost(proxyDir)
 	must.NoError(t, err)
 	must.NoError(t, proxy.SetListen([]types.Listen{{Address: "80"}, {Address: "8443", Args: []string{"ssl"}}}))
 	must.NoError(t, proxy.SetServerName([]string{"proxy.example.com"}))
@@ -116,7 +117,7 @@ func TestValidateWithCaddy(t *testing.T) {
 	must.NoError(t, proxy.Save())
 
 	staticDir := newSite("static")
-	static, err := NewStaticVhost(staticDir)
+	static, err := newStaticVhost(staticDir)
 	must.NoError(t, err)
 	must.NoError(t, static.SetListen([]types.Listen{{Address: "127.0.0.1:80"}, {Address: "127.0.0.1:443", Args: []string{"ssl"}}}))
 	must.NoError(t, static.SetServerName([]string{"static.example.com"}))
@@ -128,7 +129,7 @@ func TestValidateWithCaddy(t *testing.T) {
 
 	// 无域名站点
 	pmaDir := newSite("phpmyadmin")
-	must.NoError(t, os.WriteFile(filepath.Join(pmaDir, ConfName), []byte(":888 {\n\troot * "+filepath.Join(sites, "phpmyadmin", "public")+"\n\tphp_fastcgi unix//tmp/php-cgi-83.sock\n\tfile_server {\n\t\tindex index.php\n\t}\n}\n"), 0600))
+	must.NoError(t, os.WriteFile(filepath.Join(pmaDir, confName), []byte(":888 {\n\troot * "+filepath.Join(sites, "phpmyadmin", "public")+"\n\tphp_fastcgi unix//tmp/php-cgi-83.sock\n\tfile_server {\n\t\tindex index.php\n\t}\n}\n"), 0600))
 
 	main := strings.NewReplacer("{root}", root, "{sites}", sites, "{cert}", certPath, "{key}", keyPath).Replace(`{
 	admin unix/{root}/admin.sock
@@ -165,7 +166,7 @@ import {sites}/*/config/caddy.conf
 `)
 	// 冒烟站点用高位端口，可在本机启动后用 curl 验证
 	smokeDir := newSite("smoke")
-	smoke, err := NewStaticVhost(smokeDir)
+	smoke, err := newStaticVhost(smokeDir)
 	must.NoError(t, err)
 	must.NoError(t, smoke.SetListen([]types.Listen{{Address: "18080"}, {Address: "18443", Args: []string{"ssl"}}}))
 	must.NoError(t, smoke.SetServerName([]string{"localhost"}))
@@ -187,20 +188,27 @@ import {sites}/*/config/caddy.conf
 	must.NoError(t, os.MkdirAll(filepath.Join(sites, "smoke", "public", "admin"), 0755))
 	must.NoError(t, os.WriteFile(filepath.Join(sites, "smoke", "public", "admin", "index.html"), []byte("admin area"), 0644))
 	stoppedDir := newSite("stopped")
-	stopped, err := NewStaticVhost(stoppedDir)
+	stopped, err := newStaticVhost(stoppedDir)
 	must.NoError(t, err)
 	must.NoError(t, stopped.SetListen([]types.Listen{{Address: "18081"}}))
 	must.NoError(t, stopped.SetServerName([]string{"localhost"}))
 	must.NoError(t, stopped.SetRoot(filepath.Join(sites, "stopped", "public")))
+	// 停用页要压过站点原有的重定向、认证与反代
+	must.NoError(t, stopped.SetRedirects([]types.Redirect{{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 302}}))
+	must.NoError(t, stopped.SetBasicAuth([]types.BasicAuth{{Path: "/admin", UserFile: htpasswd}}))
+	must.NoError(t, stopped.SetProxies([]types.Proxy{{Location: "^~ /api", Pass: "http://127.0.0.1:18090", Host: "$host"}}))
 	must.NoError(t, stopped.SetEnable(false))
 	must.NoError(t, stopped.Save())
 	must.NoError(t, os.WriteFile(filepath.Join(sites, "stopped", "public", "index.html"), []byte("must not be served"), 0644))
+
+	// 快照测试的全功能站点也交给真实 caddy 校验
+	golden.Build(t, d, root, "golden-", certPath, keyPath, goldenCustom)
 
 	mainPath := filepath.Join(root, "Caddyfile")
 	must.NoError(t, os.WriteFile(mainPath, []byte(main), 0600))
 
 	out, err := exec.Command(bin, "validate", "--config", mainPath).CombinedOutput()
-	must.NoError(t, err, must.Msgf("%s\n---- php ----\n%s\n---- proxy ----\n%s", out, readFile(t, filepath.Join(phpDir, ConfName)), readFile(t, filepath.Join(proxyDir, ConfName))))
+	must.NoError(t, err, must.Msgf("%s\n---- php ----\n%s\n---- proxy ----\n%s", out, readFile(t, filepath.Join(phpDir, confName)), readFile(t, filepath.Join(proxyDir, confName))))
 }
 
 func readFile(t *testing.T, path string) string {

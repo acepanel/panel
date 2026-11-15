@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { NButton, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import alert from '@/api/panel/alert'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
 import AlertRuleModal from '@/views/monitor/AlertRuleModal.vue'
 import { useAlertMetrics } from '@/views/monitor/metrics'
 
 const { $gettext } = useGettext()
-const { confirmAction } = useConfirm()
+const { confirmAction, confirmDelete } = useConfirm()
 const { metricOf, conditionText } = useAlertMetrics()
 
 const currentTab = ref('rule')
@@ -23,16 +23,10 @@ const {
   loading: rulesLoading,
   data: rules,
   page: rulePage,
-  total: ruleTotal,
   pageSize: rulePageSize,
   refresh: refreshRules,
-} = usePagination((page, pageSize) => alert.rules(page, pageSize), {
-  initialData: { total: 0, items: [] },
-  initialPageSize: 20,
-  total: (res: any) => res.total,
-  data: (res: any) => res.items,
-})
-const rulePagination = useTablePagination(rulePage, rulePageSize, ruleTotal)
+  pagination: rulePagination,
+} = usePagedTable((page, pageSize) => alert.rules(page, pageSize))
 
 const handleAddRule = () => {
   editingRule.value = null
@@ -44,7 +38,11 @@ const handleEditRule = (row: any) => {
   ruleModalShow.value = true
 }
 
-const handleDeleteRule = (row: any) => {
+const handleDeleteRule = async (row: any) => {
+  const ok = await confirmDelete({
+    content: $gettext('Are you sure to delete this rule?'),
+  })
+  if (!ok) return
   useRequest(alert.deleteRule(row.id)).onSuccess(() => {
     window.$message.success($gettext('Deleted successfully'))
     refreshRules()
@@ -112,15 +110,14 @@ const ruleColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NPopconfirm,
-          { onPositiveClick: () => handleDeleteRule(row) },
+          NButton,
           {
-            trigger: () =>
-              h(NButton, { size: 'small', type: 'error', secondary: true }, () =>
-                $gettext('Delete'),
-              ),
-            default: () => $gettext('Are you sure to delete this rule?'),
+            size: 'small',
+            type: 'error',
+            secondary: true,
+            onClick: () => handleDeleteRule(row),
           },
+          () => $gettext('Delete'),
         ),
       ])
     },
@@ -132,16 +129,10 @@ const {
   loading: recordsLoading,
   data: records,
   page: recordPage,
-  total: recordTotal,
   pageSize: recordPageSize,
   refresh: refreshRecords,
-} = usePagination((page, pageSize) => alert.records(page, pageSize), {
-  initialData: { total: 0, items: [] },
-  initialPageSize: 20,
-  total: (res: any) => res.total,
-  data: (res: any) => res.items,
-})
-const recordPagination = useTablePagination(recordPage, recordPageSize, recordTotal)
+  pagination: recordPagination,
+} = usePagedTable((page, pageSize) => alert.records(page, pageSize))
 
 const recordColumns: any = [
   {

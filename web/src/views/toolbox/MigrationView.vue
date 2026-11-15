@@ -18,6 +18,7 @@ import ws from '@/api/ws'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
@@ -161,7 +162,7 @@ const columns = computed<DataTableColumns<MigrationResource>>(() => [
     title: $gettext('Size'),
     key: 'size',
     width: 100,
-    render: (row) => (row.size > 0 ? formatSize(row.size) : '—'),
+    render: (row) => (row.size > 0 ? formatBytes(row.size) : '—'),
   },
   {
     title: $gettext('Target'),
@@ -265,17 +266,6 @@ const statusType = (status: string) => {
   if (status === 'failed') return 'error'
   if (status === 'running') return 'info'
   return 'default'
-}
-
-const formatSize = (bytes: number) => {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let value = bytes
-  let unit = 0
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024
-    unit++
-  }
-  return `${value.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`
 }
 
 const formatDate = (value: string | null) => (value ? new Date(value).toLocaleString() : '—')
@@ -664,7 +654,7 @@ watch(
           size="small"
           striped
         />
-        <n-log :lines="logs" :rows="16" language="naive-log" />
+        <n-log :lines="logs" :rows="16" />
       </n-flex>
     </n-card>
   </n-flex>

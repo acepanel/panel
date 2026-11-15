@@ -37,12 +37,15 @@ func NewDB(conf *config.Config) (*gorm.DB, func() error, error) {
 		options = append(options, sloggorm.WithTraceAll())
 	}
 
-	db, err := gorm.Open(sqlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db")+"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"),
+	db, err := gorm.Open(
+		sqlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db")+
+			"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"),
 		&gorm.Config{
 			Logger:                                   sloggorm.New(options...),
 			SkipDefaultTransaction:                   true,
 			DisableForeignKeyConstraintWhenMigrating: true,
-		})
+		},
+	)
 	if err != nil {
 		return nil, nil, err
 	}

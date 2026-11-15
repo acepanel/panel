@@ -27,7 +27,14 @@ type AppService struct {
 	loader      *apploader.Loader
 }
 
-func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale, log *slog.Logger) *AppService {
+func NewAppService(
+	loader *apploader.Loader,
+	appUsecase *biz.AppUsecase,
+	cacheUsecase *biz.CacheUsecase,
+	settingUsecase *biz.SettingUsecase,
+	t *gotext.Locale,
+	log *slog.Logger,
+) *AppService {
 	return &AppService{
 		t:           t,
 		log:         log,
@@ -276,19 +283,7 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.cacheRepo.UpdateCategories(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if err := s.cacheRepo.UpdateApps(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if err := s.cacheRepo.UpdateEnvironments(); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if err := s.cacheRepo.UpdateTemplates(); err != nil {
+	if _, err := s.cacheRepo.UpdateAll(); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	// ErrBack 用户按下 Esc 要求返回上一级
-	ErrBack = errors.New("back")
-	// ErrAbort 用户按下 Ctrl+C 或上下文已取消，要求退出
-	ErrAbort = errors.New("abort")
+	// errBack 用户按下 Esc 要求返回上一级
+	errBack = errors.New("back")
+	// errAbort 用户按下 Ctrl+C 或上下文已取消，要求退出
+	errAbort = errors.New("abort")
 )
 
 type key int
@@ -69,7 +69,7 @@ func (p *prompt) raw() (func(), error) {
 func (p *prompt) readKey(ctx context.Context) (key, rune, error) {
 	for {
 		if ctx.Err() != nil {
-			return keyAbort, 0, ErrAbort
+			return keyAbort, 0, errAbort
 		}
 		ready, err := p.ready(pollStep)
 		if err != nil {

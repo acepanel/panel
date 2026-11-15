@@ -6,10 +6,8 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -33,103 +31,33 @@ type BackupStorage struct {
 }
 
 func (r *BackupStorage) BeforeSave(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
-
-	switch r.Type {
-	case BackupStorageTypeS3:
-		r.Info.AccessKey, err = crypter.Encrypt([]byte(r.Info.AccessKey))
-		if err != nil {
-			return err
-		}
-		r.Info.SecretKey, err = crypter.Encrypt([]byte(r.Info.SecretKey))
-		if err != nil {
-			return err
-		}
-		return nil
-	case BackupStorageTypeSFTP:
-		r.Info.Username, err = crypter.Encrypt([]byte(r.Info.Username))
-		if err != nil {
-			return err
-		}
-		if r.Info.Password != "" {
-			r.Info.Password, err = crypter.Encrypt([]byte(r.Info.Password))
-			if err != nil {
-				return err
-			}
-		}
-		if r.Info.PrivateKey != "" {
-			r.Info.PrivateKey, err = crypter.Encrypt([]byte(r.Info.PrivateKey))
-			if err != nil {
-				return err
-			}
-		}
-	case BackupStorageTypeWebDAV:
-		r.Info.Username, err = crypter.Encrypt([]byte(r.Info.Username))
-		if err != nil {
-			return err
-		}
-		r.Info.Password, err = crypter.Encrypt([]byte(r.Info.Password))
-		if err != nil {
-			return err
-		}
-		return nil
-	default:
-	}
-
-	return nil
+	return encryptFields(r.secrets()...)
 }
 
 func (r *BackupStorage) AfterFind(tx *gorm.DB) error {
-	crypter, err := crypt.NewXChacha20Poly1305([]byte(app.Key))
-	if err != nil {
-		return err
-	}
+	return decryptFields(r.secrets()...)
+}
 
+// secrets 返回当前存储类型下加密落库的字段
+func (r *BackupStorage) secrets() []*string {
 	switch r.Type {
 	case BackupStorageTypeS3:
-		accessKey, err := crypter.Decrypt(r.Info.AccessKey)
-		if err == nil {
-			r.Info.AccessKey = string(accessKey)
-		}
-		secretKey, err := crypter.Decrypt(r.Info.SecretKey)
-		if err == nil {
-			r.Info.SecretKey = string(secretKey)
-		}
-		return nil
+		return []*string{&r.Info.AccessKey, &r.Info.SecretKey}
 	case BackupStorageTypeSFTP:
-		username, err := crypter.Decrypt(r.Info.Username)
-		if err == nil {
-			r.Info.Username = string(username)
-		}
+		// 密码和私钥留空的那个保持空串，不加密
+		fields := []*string{&r.Info.Username}
 		if r.Info.Password != "" {
-			password, err := crypter.Decrypt(r.Info.Password)
-			if err == nil {
-				r.Info.Password = string(password)
-			}
+			fields = append(fields, &r.Info.Password)
 		}
 		if r.Info.PrivateKey != "" {
-			privateKey, err := crypter.Decrypt(r.Info.PrivateKey)
-			if err == nil {
-				r.Info.PrivateKey = string(privateKey)
-			}
+			fields = append(fields, &r.Info.PrivateKey)
 		}
+		return fields
 	case BackupStorageTypeWebDAV:
-		username, err := crypter.Decrypt(r.Info.Username)
-		if err == nil {
-			r.Info.Username = string(username)
-		}
-		password, err := crypter.Decrypt(r.Info.Password)
-		if err == nil {
-			r.Info.Password = string(password)
-		}
-		return nil
+		return []*string{&r.Info.Username, &r.Info.Password}
 	default:
+		return nil
 	}
-
-	return nil
 }
 
 type BackupAccountRepo interface {
@@ -138,6 +66,7 @@ type BackupAccountRepo interface {
 	Create(account *BackupStorage) error
 	Update(account *BackupStorage) error
 	Delete(id uint) error
+	Check(ctx context.Context, account *BackupStorage) error
 }
 
 type BackupAccountUsecase struct {
@@ -147,7 +76,12 @@ type BackupAccountUsecase struct {
 	log     *slog.Logger
 }
 
-func NewBackupAccountUsecase(t *gotext.Locale, log *slog.Logger, backupAccountRepo BackupAccountRepo, settingRepo SettingRepo) *BackupAccountUsecase {
+func NewBackupAccountUsecase(
+	t *gotext.Locale,
+	log *slog.Logger,
+	backupAccountRepo BackupAccountRepo,
+	settingRepo SettingRepo,
+) *BackupAccountUsecase {
 	return &BackupAccountUsecase{
 		repo:    backupAccountRepo,
 		setting: settingRepo,
@@ -203,13 +137,17 @@ func (uc *BackupAccountUsecase) Create(ctx context.Context, req *request.BackupS
 		Info: req.Info,
 	}
 
+	if err := uc.repo.Check(ctx, account); err != nil {
+		return nil, err
+	}
 	if err := uc.repo.Create(account); err != nil {
 		return nil, err
 	}
 
 	uc.log.Info(uc.t.Get("backup storage created"), slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("account_type", req.Type), slog.String("name", req.Name))
 
-	return account, nil
+	// 落库时凭据已被加密，重新读取以返回解密后的实体
+	return uc.repo.GetByID(account.ID)
 }
 
 func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupStorageUpdate) error {
@@ -223,6 +161,9 @@ func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupS
 	account.Name = req.Name
 	account.Info = req.Info
 
+	if err = uc.repo.Check(ctx, account); err != nil {
+		return err
+	}
 	if err = uc.repo.Update(account); err != nil {
 		return err
 	}

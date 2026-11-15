@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
 
@@ -32,7 +32,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, log *slog.Logger, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(
+	t *gotext.Locale,
+	log *slog.Logger,
+	databaseServerRepo biz.DatabaseServerRepo,
+	settingRepo biz.SettingRepo,
+) *App {
 	return &App{
 		t:                  t,
 		log:                log,
@@ -65,38 +70,28 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	password, _ := s.settingRepo.Get(biz.SettingKeyClickHouseDefaultPassword)
-	port := s.getPort()
 
-	client := resty.New().SetTimeout(10 * time.Second)
+	// 密码走 Basic Auth、SQL 走 query 参数，编码都交给 HTTP 库，密码里的 & # % + 不会破坏请求
+	client := resty.New().SetTimeout(10*time.Second).SetBaseURL("http://127.0.0.1:"+s.getPort()).SetBasicAuth("default", password)
 	defer func(client *resty.Client) { _ = client.Close() }(client)
+	query := func(sql string) (string, bool) {
+		resp, err := client.R().SetQueryParam("query", sql).Get("/")
+		if err != nil || !resp.IsStatusSuccess() {
+			return "", false
+		}
+		return strings.TrimSpace(resp.String()), true
+	}
 
-	// 获取版本
-	versionResp, err := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+version()&user=default&password=%s", port, password))
-	if err != nil || !versionResp.IsStatusSuccess() {
+	version, ok := query("SELECT version()")
+	if !ok {
 		service.Success(w, []types.NV{})
 		return
 	}
-	version := strings.TrimSpace(string(versionResp.Bytes()))
-
-	// 获取运行时间
-	uptimeResp, _ := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+uptime()&user=default&password=%s", port, password))
-	uptime := strings.TrimSpace(string(uptimeResp.Bytes()))
-
-	// 获取当前查询数
-	queriesResp, _ := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+value+FROM+system.metrics+WHERE+metric='Query'&user=default&password=%s", port, password))
-	queries := strings.TrimSpace(string(queriesResp.Bytes()))
-
-	// 获取内存使用
-	memResp, _ := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+value+FROM+system.metrics+WHERE+metric='MemoryTracking'&user=default&password=%s", port, password))
-	memUsage := strings.TrimSpace(string(memResp.Bytes()))
-
-	// 获取数据库数量
-	dbCountResp, _ := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+count()+FROM+system.databases&user=default&password=%s", port, password))
-	dbCount := strings.TrimSpace(string(dbCountResp.Bytes()))
-
-	// 获取表数量
-	tableCountResp, _ := client.R().Get(fmt.Sprintf("http://127.0.0.1:%s/?query=SELECT+count()+FROM+system.tables&user=default&password=%s", port, password))
-	tableCount := strings.TrimSpace(string(tableCountResp.Bytes()))
+	uptime, _ := query("SELECT uptime()")
+	queries, _ := query("SELECT value FROM system.metrics WHERE metric='Query'")
+	memUsage, _ := query("SELECT value FROM system.metrics WHERE metric='MemoryTracking'")
+	dbCount, _ := query("SELECT count() FROM system.databases")
+	tableCount, _ := query("SELECT count() FROM system.tables")
 
 	data := []types.NV{
 		{Name: s.t.Get("Version"), Value: version},
@@ -118,17 +113,12 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "clickhouse", s.configPath(), 0644, "clickhouse-server")
+	common.SaveConfig(w, r, s.log, s.t, "clickhouse", s.configPath(), 0644, common.Restart("clickhouse-server"))
 }
 
 // GetConfigTune 获取配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	_ = yaml.Unmarshal([]byte(raw), &cfg)
-	if cfg == nil {
-		cfg = make(map[string]any)
-	}
+	cfg, _ := confval.LoadYAML(s.configPath())
 
 	tune := ConfigTune{
 		ListenHost:     confval.GetYAML(cfg, "listen_host"),
@@ -154,22 +144,20 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
-		cfg = make(map[string]any)
+	cfg, err := confval.LoadYAML(s.configPath())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
-	// ClickHouse 顶层键直接用平铺方式
-	s.setYAMLValue(cfg, "listen_host", req.ListenHost)
-	s.setYAMLValue(cfg, "http_port", req.HTTPPort)
-	s.setYAMLValue(cfg, "tcp_port", req.TCPPort)
-	s.setYAMLValue(cfg, "max_memory_usage", req.MaxMemoryUsage)
-	s.setYAMLValue(cfg, "max_threads", req.MaxThreads)
-	s.setYAMLValue(cfg, "path", req.Path)
-	s.setYAMLValue(cfg, "tmp_path", req.TmpPath)
-	// logger.level 是嵌套的
-	s.setNestedYAMLValue(cfg, "logger.level", req.LogLevel)
+	confval.SetYAMLNested(cfg, "listen_host", req.ListenHost)
+	confval.SetYAMLNested(cfg, "http_port", req.HTTPPort)
+	confval.SetYAMLNested(cfg, "tcp_port", req.TCPPort)
+	confval.SetYAMLNested(cfg, "max_memory_usage", req.MaxMemoryUsage)
+	confval.SetYAMLNested(cfg, "max_threads", req.MaxThreads)
+	confval.SetYAMLNested(cfg, "path", req.Path)
+	confval.SetYAMLNested(cfg, "tmp_path", req.TmpPath)
+	confval.SetYAMLNested(cfg, "logger.level", req.LogLevel)
 
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
@@ -182,6 +170,12 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = systemctl.Restart(r.Context(), "clickhouse-server"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 面板的数据库服务器记录走 HTTP 端口
+	if err = s.databaseServerRepo.UpdatePort("local_clickhouse", cast.ToUint(s.getPort())); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -217,10 +211,10 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 	hexHash := hex.EncodeToString(hash[:])
 
 	// 读取 users.d/default.yaml 并更新密码
-	raw, _ := io.Read(s.usersConfigPath())
-	var cfg map[string]any
-	if err = yaml.Unmarshal([]byte(raw), &cfg); err != nil {
-		cfg = make(map[string]any)
+	cfg, err := confval.LoadYAML(s.usersConfigPath())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 	users, _ := cfg["users"].(map[string]any)
 	if users == nil {
@@ -269,39 +263,10 @@ func (s *App) usersConfigPath() string {
 
 // getPort 从配置中获取 HTTP 端口
 func (s *App) getPort() string {
-	raw, _ := io.Read(s.configPath())
-	var cfg map[string]any
-	_ = yaml.Unmarshal([]byte(raw), &cfg)
-	if cfg != nil {
-		if v := confval.GetYAML(cfg, "http_port"); v != "" {
-			return v
-		}
+	cfg, _ := confval.LoadYAML(s.configPath())
+	if port := confval.GetYAML(cfg, "http_port"); port != "" {
+		return port
 	}
+
 	return "8123"
-}
-
-// setYAMLValue 设置平铺 YAML 值
-func (s *App) setYAMLValue(cfg map[string]any, key string, value string) {
-	if value == "" {
-		return
-	}
-	cfg[key] = value
-}
-
-// setNestedYAMLValue 设置嵌套 YAML 值
-func (s *App) setNestedYAMLValue(cfg map[string]any, key string, value string) {
-	if value == "" {
-		return
-	}
-	parts := strings.SplitN(key, ".", 2)
-	if len(parts) == 1 {
-		cfg[parts[0]] = value
-		return
-	}
-	nested, ok := cfg[parts[0]].(map[string]any)
-	if !ok {
-		nested = make(map[string]any)
-		cfg[parts[0]] = nested
-	}
-	s.setNestedYAMLValue(nested, parts[1], value)
 }

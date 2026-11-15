@@ -16,19 +16,6 @@ import (
 
 var domainProps = []string{"name", "aliases", "createdAt", "catchAllAddress"}
 
-func toDomain(d swDomain, defaultID string) Domain {
-	aliases := lo.Keys(d.Aliases)
-	slices.Sort(aliases)
-	return Domain{
-		ID:        d.ID,
-		Name:      d.Name,
-		CreatedAt: d.CreatedAt,
-		CatchAll:  deref(d.CatchAllAddress),
-		Aliases:   aliases,
-		IsDefault: d.ID == defaultID,
-	}
-}
-
 // DomainList 域名列表
 func (s *App) DomainList(w http.ResponseWriter, r *http.Request) {
 	c, err := s.adminClient()
@@ -176,4 +163,17 @@ func (s *App) DomainCatchAll(w http.ResponseWriter, r *http.Request) {
 
 	s.log.Info(s.t.Get("mail domain catch-all updated"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", slug), slog.String("domain", domain.Name), slog.String("address", address))
 	service.Success(w, nil)
+}
+
+func toDomain(d swDomain, defaultID string) Domain {
+	aliases := lo.Keys(d.Aliases)
+	slices.Sort(aliases)
+	return Domain{
+		ID:        d.ID,
+		Name:      d.Name,
+		CreatedAt: d.CreatedAt,
+		CatchAll:  deref(d.CatchAllAddress),
+		Aliases:   aliases,
+		IsDefault: d.ID == defaultID,
+	}
 }

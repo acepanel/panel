@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/common"
@@ -73,7 +73,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.log, s.t, "kafka", s.configPath(), 0644, "kafka")
+	common.SaveConfig(w, r, s.log, s.t, "kafka", s.configPath(), 0644, common.Restart("kafka"))
 }
 
 // GetConfigTune 获取 Kafka 配置调整参数
@@ -81,18 +81,10 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	config, _ := io.Read(s.configPath())
 
 	heapRaw, _ := io.Read(s.heapEnvPath())
-	heapInit, heapMax := s.parseHeapEnv(heapRaw)
 
-	tune := ConfigTune{
-		NodeID:          confval.Properties.Get(config, "node.id"),
-		Listeners:       confval.Properties.Get(config, "listeners"),
-		LogDirs:         confval.Properties.Get(config, "log.dirs"),
-		NumPartitions:   confval.Properties.Get(config, "num.partitions"),
-		RetentionHours:  confval.Properties.Get(config, "log.retention.hours"),
-		LogSegmentBytes: confval.Properties.Get(config, "log.segment.bytes"),
-		HeapInitSize:    heapInit,
-		HeapMaxSize:     heapMax,
-	}
+	tune := new(ConfigTune)
+	confval.Properties.Read(config, s.tuneFields(tune))
+	tune.HeapInitSize, tune.HeapMaxSize = s.heapOpts(heapRaw)
 
 	s.log.Info(s.t.Get("app config viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "kafka"), slog.String("path", s.configPath()))
 
@@ -109,12 +101,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	config, _ := io.Read(s.configPath())
 
-	config = confval.Properties.Set(config, "node.id", req.NodeID)
-	config = confval.Properties.Set(config, "listeners", req.Listeners)
-	config = confval.Properties.Set(config, "log.dirs", req.LogDirs)
-	config = confval.Properties.Set(config, "num.partitions", req.NumPartitions)
-	config = confval.Properties.Set(config, "log.retention.hours", req.RetentionHours)
-	config = confval.Properties.Set(config, "log.segment.bytes", req.LogSegmentBytes)
+	config = confval.Properties.Write(config, s.tuneFields(req))
 
 	if err = io.Write(s.configPath(), config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -124,8 +111,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	// 更新 JVM 堆内存
 	if req.HeapInitSize != "" || req.HeapMaxSize != "" {
 		heapRaw, _ := io.Read(s.heapEnvPath())
-		heapRaw = s.setHeapEnv(heapRaw, req.HeapInitSize, req.HeapMaxSize)
-		if err = io.Write(s.heapEnvPath(), heapRaw, 0644); err != nil {
+		if err = io.Write(s.heapEnvPath(), s.setHeapEnv(heapRaw, req.HeapInitSize, req.HeapMaxSize), 0644); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -151,38 +137,25 @@ func (s *App) heapEnvPath() string {
 	return app.Root + "/server/kafka/config/heap.env"
 }
 
-// parseHeapEnv 从 heap.env 中提取堆内存配置
-func (s *App) parseHeapEnv(content string) (initSize, maxSize string) {
-	re := regexp.MustCompile(`KAFKA_HEAP_OPTS=(.+)`)
-	m := re.FindStringSubmatch(content)
-	if len(m) != 2 {
-		return
+func (s *App) tuneFields(t *ConfigTune) []confval.Field {
+	return []confval.Field{
+		{Key: "node.id", Value: &t.NodeID},
+		{Key: "listeners", Value: &t.Listeners},
+		{Key: "log.dirs", Value: &t.LogDirs},
+		{Key: "num.partitions", Value: &t.NumPartitions},
+		{Key: "log.retention.hours", Value: &t.RetentionHours},
+		{Key: "log.segment.bytes", Value: &t.LogSegmentBytes},
 	}
-	opts := m[1]
-	if mi := regexp.MustCompile(`-Xms(\S+)`).FindStringSubmatch(opts); len(mi) == 2 {
-		initSize = mi[1]
-	}
-	if mx := regexp.MustCompile(`-Xmx(\S+)`).FindStringSubmatch(opts); len(mx) == 2 {
-		maxSize = mx[1]
-	}
-	return
 }
 
-// setHeapEnv 设置 heap.env 中的堆内存配置
+// heapOpts 从 heap.env 中提取堆内存配置
+func (s *App) heapOpts(content string) (initSize, maxSize string) {
+	return confval.JVMHeap(confval.Properties.Get(content, "KAFKA_HEAP_OPTS"))
+}
+
+// setHeapEnv 生成 heap.env 的内容，未填的项沿用已有值
 func (s *App) setHeapEnv(content string, initSize, maxSize string) string {
-	// 读取已有值作为默认
-	oldInit, oldMax := s.parseHeapEnv(content)
-	if initSize == "" {
-		initSize = oldInit
-	}
-	if maxSize == "" {
-		maxSize = oldMax
-	}
-	if initSize == "" {
-		initSize = "1g"
-	}
-	if maxSize == "" {
-		maxSize = "1g"
-	}
-	return fmt.Sprintf("KAFKA_HEAP_OPTS=-Xms%s -Xmx%s\n", initSize, maxSize)
+	oldInit, oldMax := s.heapOpts(content)
+
+	return fmt.Sprintf("KAFKA_HEAP_OPTS=-Xms%s -Xmx%s\n", lo.CoalesceOrEmpty(initSize, oldInit, "1g"), lo.CoalesceOrEmpty(maxSize, oldMax, "1g"))
 }

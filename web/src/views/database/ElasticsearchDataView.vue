@@ -3,8 +3,9 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ElasticsearchDocModal from '@/views/database/ElasticsearchDocModal.vue'
 
 const { confirmDelete } = useConfirm()
@@ -206,19 +207,14 @@ const docColumns: any = [
 ]
 
 // 文档分页
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) =>
     database.esData(selectedServer.value || 0, selectedIndex.value, page, pageSize, search.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [search],
     immediate: false,
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 // 选中索引时加载文档
 watch(selectedIndex, (val) => {
@@ -277,12 +273,9 @@ const openCreateDoc = () => {
 
 onMounted(() => {
   loadServers()
-  window.$bus.on('database-server:refresh', loadServers)
 })
 
-onUnmounted(() => {
-  window.$bus.off('database-server:refresh', loadServers)
-})
+useBus('database-server:refresh', loadServers)
 </script>
 
 <template>

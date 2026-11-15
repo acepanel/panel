@@ -15,8 +15,8 @@ type LogEntry struct {
 	RequestTime float64 // 请求耗时（秒）
 }
 
-// HourSnapshot 小时粒度快照
-type HourSnapshot struct {
+// Counters 一组流量计数
+type Counters struct {
 	PV               uint64 `json:"pv"`
 	UV               uint64 `json:"uv"`
 	IP               uint64 `json:"ip"`
@@ -33,23 +33,33 @@ type HourSnapshot struct {
 	Status5xx        uint64 `json:"status_5xx"`
 }
 
+// Add 逐项累加
+func (c *Counters) Add(o Counters) {
+	c.PV += o.PV
+	c.UV += o.UV
+	c.IP += o.IP
+	c.Bandwidth += o.Bandwidth
+	c.BandwidthIn += o.BandwidthIn
+	c.Requests += o.Requests
+	c.Errors += o.Errors
+	c.Spiders += o.Spiders
+	c.RequestTimeSum += o.RequestTimeSum
+	c.RequestTimeCount += o.RequestTimeCount
+	c.Status2xx += o.Status2xx
+	c.Status3xx += o.Status3xx
+	c.Status4xx += o.Status4xx
+	c.Status5xx += o.Status5xx
+}
+
+// HourSnapshot 小时粒度快照
+type HourSnapshot struct {
+	Counters
+}
+
 // SiteSnapshot 站点快照（用于 DB flush）
 type SiteSnapshot struct {
-	PV               uint64            `json:"pv"`
-	UV               uint64            `json:"uv"`
-	IP               uint64            `json:"ip"`
-	Bandwidth        uint64            `json:"bandwidth"`
-	BandwidthIn      uint64            `json:"bandwidth_in"`
-	Requests         uint64            `json:"requests"`
-	Errors           uint64            `json:"errors"`
-	Spiders          uint64            `json:"spiders"`
-	RequestTimeSum   uint64            `json:"request_time_sum"`
-	RequestTimeCount uint64            `json:"request_time_count"`
-	Status2xx        uint64            `json:"status_2xx"`
-	Status3xx        uint64            `json:"status_3xx"`
-	Status4xx        uint64            `json:"status_4xx"`
-	Status5xx        uint64            `json:"status_5xx"`
-	Hours            [24]*HourSnapshot `json:"-"`
+	Counters
+	Hours [24]*HourSnapshot `json:"-"`
 }
 
 // RealtimeStats 实时统计

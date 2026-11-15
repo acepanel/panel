@@ -10,7 +10,6 @@ import toolboxNetwork, {
   type NetworkInterfaceState,
   type NetworkInterfaces,
 } from '@/api/panel/toolbox-network'
-import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const result = ref<NetworkInterfaces>({ manager: 'unsupported', items: [], pending: false })

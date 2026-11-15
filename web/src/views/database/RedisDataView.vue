@@ -3,8 +3,9 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatBytes } from '@/utils'
 import RedisKeyModal from '@/views/database/RedisKeyModal.vue'
 
@@ -187,19 +188,14 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, refresh } = usePagination(
+const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   (page, pageSize) =>
     database.redisData(selectedServer.value || 0, selectedDB.value, page, pageSize, search.value),
   {
-    initialData: { total: 0, list: [] },
-    initialPageSize: 20,
-    total: (res: any) => res.total,
-    data: (res: any) => res.items,
     watchingStates: [selectedServer, selectedDB, search],
     immediate: false,
   },
 )
-const pagination = useTablePagination(page, pageSize, total)
 
 const handleSearch = () => {
   search.value = searchInput.value
@@ -257,12 +253,9 @@ const handleClear = () => {
 
 onMounted(() => {
   loadServers()
-  window.$bus.on('database-server:refresh', loadServers)
 })
 
-onUnmounted(() => {
-  window.$bus.off('database-server:refresh', loadServers)
-})
+useBus('database-server:refresh', loadServers)
 </script>
 
 <template>
