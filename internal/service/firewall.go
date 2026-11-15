@@ -94,6 +94,12 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	// 转发走的端口没有进程监听，只看监听会显示成未使用
+	forwards, err := s.firewall.ListForward(r.Context())
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 	items := make([]map[string]any, 0, len(paged))
 	for _, rule := range paged {
 		items = append(items, map[string]any{
@@ -106,6 +112,7 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 			"strategy":   rule.Strategy,
 			"direction":  rule.Direction,
 			"in_use":     s.portRangeInUse(rule, tcp, udp),
+			"forwards":   s.forwardsInRange(rule, forwards),
 		})
 	}
 
@@ -439,6 +446,23 @@ func (s *FirewallService) portRangeInUse(rule firewall.FireInfo, tcp, udp os.Por
 	default:
 		return tcp.Overlaps(rule.PortStart, rule.PortEnd) || udp.Overlaps(rule.PortStart, rule.PortEnd)
 	}
+}
+
+// forwardsInRange 端口落在规则范围内、协议有交集的转发
+func (s *FirewallService) forwardsInRange(
+	rule firewall.FireInfo,
+	forwards []firewall.FireForwardInfo,
+) []firewall.FireForwardInfo {
+	overlap := func(a, b firewall.Protocol) bool {
+		return a == b || a == firewall.ProtocolTCPUDP || b == firewall.ProtocolTCPUDP
+	}
+	matched := make([]firewall.FireForwardInfo, 0)
+	for _, forward := range forwards {
+		if forward.Port >= rule.PortStart && forward.Port <= rule.PortEnd && overlap(forward.Protocol, rule.Protocol) {
+			matched = append(matched, forward)
+		}
+	}
+	return matched
 }
 
 func replaceFirewallRule(ctx context.Context, operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
