@@ -28,7 +28,7 @@ const (
 	ramfsMagic = 0x858458f6
 
 	// 1000 分对应的顺序读写速度（字节/秒）与 4K 随机读写 IOPS，取主流云盘入门规格的水平，读写同一个限额
-	diskSeqBaseline  = 125 << 20
+	diskSeqBaseline  = 100 << 20
 	diskRandBaseline = 3000
 )
 
