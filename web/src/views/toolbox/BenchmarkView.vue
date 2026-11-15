@@ -248,28 +248,31 @@ const handleTest = async () => {
     <n-grid cols="1 l:5" responsive="screen" :x-gap="16" :y-gap="16">
       <n-gi span="1 l:3">
         <n-card size="small" :title="$gettext('CPU')" class="h-full">
-          <template #header-extra>
-            <n-flex align="center" :size="16" class="text-12px text-text-tertiary">
-              <n-flex align="center" :size="6">
-                <span class="rounded-full bg-brand size-2" />
-                {{ $gettext('Single-Core') }}
-              </n-flex>
-              <n-flex align="center" :size="6">
-                <span class="rounded-full bg-brand opacity-40 size-2" />
-                {{ $gettext('Multi-Core') }}
-              </n-flex>
-              <n-flex align="center" :size="6">
-                <span class="border-l border-text-tertiary border-dashed h-3" />
-                {{ BASELINE }}
-              </n-flex>
-            </n-flex>
-          </template>
           <n-alert v-if="cpuFailure" type="error" class="mb-3">{{ cpuFailure }}</n-alert>
           <div class="flex flex-col gap-3.5">
+            <!-- 表头与下面的分项共用列宽，图例对齐各自的分数列，1000 标在参考线正上方 -->
+            <div
+              class="text-12px text-text-tertiary gap-x-4 grid grid-cols-[1fr_5rem_5rem] items-center md:grid-cols-[8rem_1fr_5rem_5rem]"
+            >
+              <span />
+              <div class="h-4 hidden relative md:block">
+                <span class="leading-4 absolute -translate-x-1/2" :style="{ left: baselineLeft }">
+                  {{ BASELINE }}
+                </span>
+              </div>
+              <n-flex align="center" justify="end" :size="6" :wrap="false">
+                <span class="rounded-full bg-brand flex-none size-2" />
+                {{ $gettext('Single-Core') }}
+              </n-flex>
+              <n-flex align="center" justify="end" :size="6" :wrap="false">
+                <span class="rounded-full bg-brand opacity-40 flex-none size-2" />
+                {{ $gettext('Multi-Core') }}
+              </n-flex>
+            </div>
             <div
               v-for="test in cpuTests"
               :key="test.name"
-              class="gap-x-4 gap-y-1.5 grid grid-cols-[1fr_auto_auto] items-center md:grid-cols-[8rem_1fr_4.5rem_4.5rem]"
+              class="gap-x-4 gap-y-1.5 grid grid-cols-[1fr_5rem_5rem] items-center md:grid-cols-[8rem_1fr_5rem_5rem]"
             >
               <span class="text-13px truncate">{{ test.title }}</span>
               <div class="col-span-3 row-start-2 relative md:col-span-1 md:row-start-auto">
