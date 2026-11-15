@@ -6,6 +6,8 @@ export interface S3Provider {
   style: 'virtual-hosted' | 'path'
   regions: string[]
   bucketHint?: string
+  // 控制台里两个密钥的叫法，是各家的产品术语，不翻译
+  keys: [string, string]
 }
 
 // 预置负责填好的四个字段，与后端 BackupStorageInfo 的同名字段一一对应
@@ -23,6 +25,7 @@ const $gettext = (msgid: string) => msgid
 export const s3Providers: S3Provider[] = [
   {
     key: 'aliyun',
+    keys: ['AccessKey ID', 'AccessKey Secret'],
     name: $gettext('Alibaba Cloud OSS'),
     endpoint: 's3.oss-{region}.aliyuncs.com',
     style: 'virtual-hosted',
@@ -59,6 +62,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'tencent',
+    keys: ['SecretId', 'SecretKey'],
     name: $gettext('Tencent Cloud COS'),
     endpoint: 'cos.{region}.myqcloud.com',
     style: 'virtual-hosted',
@@ -86,6 +90,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'huawei',
+    keys: ['Access Key ID', 'Secret Access Key'],
     name: $gettext('Huawei Cloud OBS'),
     endpoint: 'obs.{region}.myhuaweicloud.com',
     style: 'virtual-hosted',
@@ -121,6 +126,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'qiniu',
+    keys: ['AccessKey', 'SecretKey'],
     name: $gettext('Qiniu Cloud Kodo'),
     endpoint: 's3.{region}.qiniucs.com',
     style: 'virtual-hosted',
@@ -138,6 +144,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'baidu',
+    keys: ['Access Key ID', 'Secret Access Key'],
     name: $gettext('Baidu AI Cloud BOS'),
     endpoint: 's3.{region}.bcebos.com',
     style: 'virtual-hosted',
@@ -145,6 +152,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'volcengine',
+    keys: ['Access Key ID', 'Secret Access Key'],
     name: $gettext('Volcengine TOS'),
     endpoint: 'tos-s3-{region}.volces.com',
     style: 'virtual-hosted',
@@ -159,6 +167,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'jdcloud',
+    keys: ['AccessKey ID', 'AccessKey Secret'],
     name: $gettext('JD Cloud OSS'),
     endpoint: 's3.{region}.jdcloud-oss.com',
     style: 'virtual-hosted',
@@ -166,6 +175,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'aws',
+    keys: ['Access Key ID', 'Secret Access Key'],
     name: $gettext('Amazon S3'),
     endpoint: 's3.{region}.amazonaws.com',
     style: 'virtual-hosted',
@@ -207,6 +217,7 @@ export const s3Providers: S3Provider[] = [
   },
   {
     key: 'aws-cn',
+    keys: ['Access Key ID', 'Secret Access Key'],
     name: $gettext('Amazon S3 (China)'),
     endpoint: 's3.{region}.amazonaws.com.cn',
     style: 'virtual-hosted',

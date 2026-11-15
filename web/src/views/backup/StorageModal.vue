@@ -69,6 +69,10 @@ const providerOptions = [
 ]
 
 const preset = computed(() => s3Providers.find((p) => p.key === provider.value))
+// 选了服务商时用它控制台里的叫法，自定义时用通用叫法
+const keyLabels = computed<[string, string]>(
+  () => preset.value?.keys ?? [$gettext('Access Key'), $gettext('Secret Key')],
+)
 
 // 列表里没有的地域可以直接输入。不用 tag 模式：它把输入的文字排在第一项，
 // 搜索后回车选中的是输入的片段而不是匹配到的地域
@@ -182,18 +186,26 @@ const handleSubmit = () => {
             @update:value="handleRegionChange"
           />
         </n-form-item>
-        <n-form-item :label="$gettext('Access Key')" required>
+        <n-form-item :label="keyLabels[0]" required>
           <n-input
             v-model:value="model.info.access_key"
-            :placeholder="$gettext('Enter access key')"
+            :placeholder="
+              preset
+                ? $gettext('Enter %{ name }', { name: keyLabels[0] })
+                : $gettext('Enter access key')
+            "
           />
         </n-form-item>
-        <n-form-item :label="$gettext('Secret Key')" required>
+        <n-form-item :label="keyLabels[1]" required>
           <n-input
             v-model:value="model.info.secret_key"
             type="password"
             show-password-on="click"
-            :placeholder="$gettext('Enter secret key')"
+            :placeholder="
+              preset
+                ? $gettext('Enter %{ name }', { name: keyLabels[1] })
+                : $gettext('Enter secret key')
+            "
           />
         </n-form-item>
         <template v-if="!preset">

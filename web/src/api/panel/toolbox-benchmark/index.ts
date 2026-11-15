@@ -1,5 +1,13 @@
 import { http } from '@/utils'
 
+// 被测机器的概况，cores 为物理核心数，取不到时为 0；memory 为字节
+export interface BenchmarkMachine {
+  model: string
+  cores: number
+  threads: number
+  memory: number
+}
+
 // 一项 CPU 测试的单线程与多线程得分
 export interface BenchmarkCpu {
   single: number
@@ -24,6 +32,8 @@ export interface BenchmarkDisk {
 }
 
 export default {
+  // 被测机器的概况
+  machine: (): any => http.Get('/toolbox_benchmark/machine'),
   // 运行一项测试，测不了的原因由页面显示在对应的卡片里
   test: (name: string): any =>
     http.Post('/toolbox_benchmark/test', { name }, { meta: { noAlert: true } }),
