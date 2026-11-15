@@ -13,6 +13,7 @@ import { useResponsive } from '@/components/system/composables/useResponsive'
 import { webserverFeatures } from '@/utils'
 
 import AdvancedTab from './edit/AdvancedTab.vue'
+import CertSummary from './edit/CertSummary.vue'
 import { generateId } from './edit/id'
 import ProxyCard from './edit/ProxyCard.vue'
 import UpstreamCard from './edit/UpstreamCard.vue'
@@ -654,30 +655,13 @@ const removeCustomConfig = (index: number) => {
         </n-tab-pane>
         <n-tab-pane name="https" tab="HTTPS">
           <n-flex vertical>
-            <n-card v-if="setting.ssl && setting.ssl_issuer != ''">
-              <n-descriptions :column="isMobile ? 1 : 3">
-                <n-descriptions-item>
-                  <template #label>{{ $gettext('Certificate Validity') }}</template>
-                  <n-flex>
-                    <n-tag>{{ setting.ssl_not_before }}</n-tag>
-                    -
-                    <n-tag>{{ setting.ssl_not_after }}</n-tag>
-                  </n-flex>
-                </n-descriptions-item>
-                <n-descriptions-item>
-                  <template #label>{{ $gettext('Issuer') }}</template>
-                  <n-flex>
-                    <n-tag>{{ setting.ssl_issuer }}</n-tag>
-                  </n-flex>
-                </n-descriptions-item>
-                <n-descriptions-item>
-                  <template #label>{{ $gettext('Domains') }}</template>
-                  <n-flex>
-                    <n-tag v-for="item in setting.ssl_dns_names" :key="item">{{ item }}</n-tag>
-                  </n-flex>
-                </n-descriptions-item>
-              </n-descriptions>
-            </n-card>
+            <cert-summary
+              v-if="setting.ssl && setting.ssl_issuer != ''"
+              :not-before="setting.ssl_not_before"
+              :not-after="setting.ssl_not_after"
+              :issuer="setting.ssl_issuer"
+              :domains="setting.ssl_dns_names ?? []"
+            />
             <n-form>
               <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
                 <n-form-item-gi :span="12" :label="$gettext('Main Switch')">

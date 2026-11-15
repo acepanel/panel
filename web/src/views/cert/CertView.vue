@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NSpace, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NPopover, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
@@ -124,21 +124,44 @@ const columns: any = [
     minWidth: 200,
     resizable: true,
     render(row: any) {
-      if (row.domains == null || row.domains.length == 0) {
-        return h(NTag, null, { default: () => $gettext('None') })
+      const domains: string[] = row.domains ?? []
+      if (domains.length == 0) {
+        return h('span', { class: 'text-text-tertiary' }, $gettext('None'))
       }
-      return h(NFlex, null, {
-        default: () =>
-          row.domains.map((domain: any) =>
-            h(
-              NTag,
-              { type: 'primary' },
-              {
-                default: () => domain,
-              },
-            ),
+      // 只摆第一个，其余收进悬浮列表，多域名证书不会把整行撑高
+      const [first, ...rest] = domains
+      return h(NFlex, { align: 'center', size: 8, wrap: false }, () => [
+        h('span', { class: 'truncate', title: first }, first),
+        rest.length > 0 &&
+          h(
+            NPopover,
+            {
+              trigger: 'hover',
+              placement: 'bottom-start',
+              scrollable: true,
+              style: 'max-height: 280px',
+            },
+            {
+              trigger: () =>
+                h(
+                  NTag,
+                  {
+                    size: 'small',
+                    round: true,
+                    bordered: false,
+                    class: 'flex-none cursor-default',
+                  },
+                  () => `+${rest.length}`,
+                ),
+              default: () =>
+                h(
+                  'div',
+                  { class: 'flex flex-col gap-1 py-0.5' },
+                  domains.map((domain) => h('span', { class: 'text-13px' }, domain)),
+                ),
+            },
           ),
-      })
+      ])
     },
   },
   {
@@ -191,7 +214,7 @@ const columns: any = [
     resizable: true,
     render(row: any) {
       if (!row.website_ids?.length) {
-        return h(NTag, null, { default: () => $gettext('None') })
+        return h('span', { class: 'text-text-tertiary' }, $gettext('None'))
       }
       return h(NFlex, null, {
         default: () =>

@@ -17,15 +17,16 @@ import (
 	"time"
 )
 
-// 1000 分对应的单线程每秒执行次数，不取自某台实测的机器，按主流云服务器的单核水平估算后取整
+// 1000 分对应的单线程每秒执行次数，取一台主流 x86 云服务器的实测值后取整。
+// 不按 Apple 芯片等比折算：ARM 与 x86 在浮点除法、开方上差得很远，折算出来各项会严重失衡
 const (
-	imageBaseline       = 400
-	matrixBaseline      = 600
-	sortBaseline        = 300
-	encryptionBaseline  = 1000
-	compressionBaseline = 250
-	physicsBaseline     = 500
-	jsonBaseline        = 600
+	imageBaseline       = 450
+	matrixBaseline      = 1000
+	sortBaseline        = 400
+	encryptionBaseline  = 800
+	compressionBaseline = 275
+	physicsBaseline     = 250
+	jsonBaseline        = 500
 )
 
 // ErrUnknownTest 没有这一项测试

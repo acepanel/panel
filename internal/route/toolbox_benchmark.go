@@ -11,6 +11,7 @@ func ToolboxBenchmarkRoutes(toolboxBenchmarkService *service.ToolboxBenchmarkSer
 	svc := toolboxBenchmarkService
 
 	return Endpoints{
+		{Method: http.MethodGet, Path: "/api/toolbox_benchmark/machine", Handler: svc.Machine},
 		{Method: http.MethodPost, Path: "/api/toolbox_benchmark/test", Handler: svc.Test},
 	}
 }

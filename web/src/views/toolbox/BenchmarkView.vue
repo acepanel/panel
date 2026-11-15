@@ -6,10 +6,18 @@ defineOptions({
 import { useGettext } from 'vue3-gettext'
 
 import benchmark from '@/api/panel/toolbox-benchmark'
-import type { BenchmarkCpu, BenchmarkDisk, BenchmarkMemory } from '@/api/panel/toolbox-benchmark'
+import type {
+  BenchmarkCpu,
+  BenchmarkDisk,
+  BenchmarkMachine,
+  BenchmarkMemory,
+} from '@/api/panel/toolbox-benchmark'
 import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
+
+// 1000 分对应主流云服务器的水平，条形图上画一道参考线
+const BASELINE = 1000
 
 const cpuTests = [
   { name: 'image', title: $gettext('Image Processing') },
@@ -26,9 +34,12 @@ const tests = [
   { name: 'disk', title: $gettext('Disk') },
 ]
 
+const { data: machineData } = useRequest(benchmark.machine)
+const machine = computed(() => machineData.value as BenchmarkMachine | undefined)
+
 const running = ref(false)
 const current = ref('')
-const progress = ref(0)
+const done = ref(0)
 
 const cpu = ref<Record<string, BenchmarkCpu>>({})
 const memory = ref<BenchmarkMemory>()
@@ -55,10 +66,78 @@ const cpuFailure = computed(
   () => cpuTests.map((test) => failures.value[test.name]).find((reason) => reason) ?? '',
 )
 
-const formatScore = (score?: number) => (score === undefined ? '-' : score.toLocaleString())
-const formatSpeed = (speed?: number) => (speed === undefined ? '-' : `${formatBytes(speed)}/s`)
-const formatIops = (iops?: number) =>
-  iops === undefined ? '-' : `${Math.round(iops).toLocaleString()} IOPS`
+const threads = computed(() => cpuTotal.value?.threads ?? machine.value?.threads)
+
+const summary = computed(() => [
+  {
+    key: 'single',
+    label: $gettext('Single-Core'),
+    icon: 'mdi:cpu-64-bit',
+    score: cpuTotal.value?.single,
+    failure: cpuFailure.value,
+  },
+  {
+    key: 'multi',
+    label: threads.value
+      ? $gettext('Multi-Core (×%{ threads })', { threads: threads.value })
+      : $gettext('Multi-Core'),
+    icon: 'mdi:chip',
+    score: cpuTotal.value?.multi,
+    failure: cpuFailure.value,
+  },
+  {
+    key: 'memory',
+    label: $gettext('Memory'),
+    icon: 'mdi:memory',
+    score: memory.value?.score,
+    failure: failures.value.memory,
+  },
+  {
+    key: 'disk',
+    label: $gettext('Disk'),
+    icon: 'mdi:harddisk',
+    score: disk.value?.score,
+    failure: failures.value.disk,
+  },
+])
+
+// 条形图满格至少是两倍基准，有更高的成绩时按最高分放大
+const barScale = computed(() =>
+  Math.max(
+    2 * BASELINE,
+    ...cpuTests.flatMap((test) => {
+      const result = cpu.value[test.name]
+      return result ? [result.single, result.multi] : []
+    }),
+  ),
+)
+const barWidth = (score?: number) => `${score ? (score / barScale.value) * 100 : 0}%`
+const baselineLeft = computed(() => `${(BASELINE / barScale.value) * 100}%`)
+
+// 数值与单位分开排版，单位用小一号的字
+const splitBytes = (bytes?: number) => {
+  if (bytes === undefined) return { value: '-', unit: '' }
+  const [value = '-', unit = ''] = String(formatBytes(bytes)).split(' ')
+  return { value, unit: `${unit}/s` }
+}
+const memoryMetrics = computed(() => [
+  { label: $gettext('Memory Bandwidth'), ...splitBytes(memory.value?.bandwidth) },
+  {
+    label: $gettext('Memory Latency'),
+    value: memory.value ? memory.value.latency.toFixed(1) : '-',
+    unit: memory.value ? 'ns' : '',
+  },
+])
+const iops = (value?: number) => ({
+  value: value === undefined ? '-' : Math.round(value).toLocaleString(),
+  unit: value === undefined ? '' : 'IOPS',
+})
+const diskMetrics = computed(() => [
+  { label: $gettext('Sequential Read'), ...splitBytes(disk.value?.seq_read) },
+  { label: $gettext('Sequential Write'), ...splitBytes(disk.value?.seq_write) },
+  { label: $gettext('4K Random Read'), ...iops(disk.value?.rand_read) },
+  { label: $gettext('4K Random Write'), ...iops(disk.value?.rand_write) },
+])
 
 let mounted = true
 onBeforeUnmount(() => {
@@ -67,13 +146,13 @@ onBeforeUnmount(() => {
 
 const handleTest = async () => {
   running.value = true
-  progress.value = 0
+  done.value = 0
   cpu.value = {}
   memory.value = undefined
   disk.value = undefined
   failures.value = {}
 
-  for (const [index, test] of tests.entries()) {
+  for (const test of tests) {
     // 离开页面后不再让服务器白跑剩下的项目
     if (!mounted) break
     current.value = test.title
@@ -85,7 +164,7 @@ const handleTest = async () => {
     } catch (error: any) {
       failures.value[test.name] = error.message
     }
-    progress.value = Math.round(((index + 1) / tests.length) * 100)
+    done.value++
   }
   running.value = false
 }
@@ -93,146 +172,164 @@ const handleTest = async () => {
 
 <template>
   <n-flex vertical :size="16">
-    <n-alert type="warning">
-      {{
-        $gettext(
-          'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!',
-        )
-      }}
-    </n-alert>
-    <template v-if="running">
-      <n-alert :title="$gettext('Benchmarking in progress, it may take some time...')" type="info">
-        {{ $gettext('Current project: %{ current }', { current: current }) }}
-      </n-alert>
-      <n-progress :percentage="progress" processing />
-    </template>
-
-    <n-card size="small" :title="$gettext('CPU')">
-      <template #header-extra>
-        <the-icon :size="22" icon="mdi:cpu-64-bit" />
-      </template>
-      <n-flex vertical :size="16">
-        <n-alert v-if="cpuFailure" type="error">{{ cpuFailure }}</n-alert>
-        <n-grid v-else :cols="2" :x-gap="16">
-          <n-gi>
-            <n-statistic :label="$gettext('Single-Core')">
-              <n-number-animation v-if="cpuTotal" :from="0" :to="cpuTotal.single" show-separator />
-              <span v-else class="text-base text-text-tertiary">
-                {{ $gettext('Pending benchmark') }}
+    <n-card size="small">
+      <n-flex align="center" justify="space-between" :size="16">
+        <n-flex align="center" :size="12" :wrap="false" class="min-w-0">
+          <div
+            class="text-brand rounded-lg bg-brand-subtle flex flex-none size-11 items-center justify-center"
+          >
+            <the-icon icon="mdi:speedometer" :size="24" />
+          </div>
+          <div class="min-w-0">
+            <div class="text-15px font-medium truncate">
+              {{ machine?.model || $gettext('Unknown') }}
+            </div>
+            <n-flex :size="[16, 0]" class="text-13px text-text-tertiary">
+              <span v-if="machine?.cores">{{ $gettext('Cores') }} {{ machine.cores }}</span>
+              <span v-if="machine?.threads">{{ $gettext('Threads') }} {{ machine.threads }}</span>
+              <span v-if="machine?.memory">
+                {{ $gettext('Memory') }} {{ formatBytes(machine.memory) }}
               </span>
-            </n-statistic>
-          </n-gi>
-          <n-gi>
-            <n-statistic
-              :label="
-                cpuTotal
-                  ? $gettext('Multi-Core (×%{ threads })', { threads: cpuTotal.threads })
-                  : $gettext('Multi-Core')
-              "
-            >
-              <n-number-animation v-if="cpuTotal" :from="0" :to="cpuTotal.multi" show-separator />
-              <span v-else class="text-base text-text-tertiary">
-                {{ $gettext('Pending benchmark') }}
-              </span>
-            </n-statistic>
-          </n-gi>
-        </n-grid>
-        <n-table :single-line="false" size="small" striped>
-          <thead>
-            <tr>
-              <th>{{ $gettext('Test') }}</th>
-              <th>{{ $gettext('Single-Core') }}</th>
-              <th>{{ $gettext('Multi-Core') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="test in cpuTests" :key="test.name">
-              <td>{{ test.title }}</td>
-              <td>{{ formatScore(cpu[test.name]?.single) }}</td>
-              <td>{{ formatScore(cpu[test.name]?.multi) }}</td>
-            </tr>
-          </tbody>
-        </n-table>
+            </n-flex>
+          </div>
+        </n-flex>
+        <n-button type="primary" :loading="running" :disabled="running" @click="handleTest">
+          {{ running ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
+        </n-button>
       </n-flex>
+      <div v-if="running" class="mt-4">
+        <n-flex justify="space-between" class="text-13px text-text-secondary mb-1.5">
+          <span>{{ $gettext('Current project: %{ current }', { current }) }}</span>
+          <span class="tabular-nums">{{ done }} / {{ tests.length }}</span>
+        </n-flex>
+        <n-progress
+          :percentage="Math.round((done / tests.length) * 100)"
+          :show-indicator="false"
+          :height="6"
+          color="var(--color-brand)"
+          processing
+        />
+      </div>
+      <div class="text-12px text-text-tertiary mt-3">
+        {{ $gettext('A score of 1000 is roughly the level of a mainstream cloud server.') }}
+        {{
+          $gettext(
+            'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!',
+          )
+        }}
+      </div>
     </n-card>
 
-    <n-grid cols="1 m:2" responsive="screen" :x-gap="16" :y-gap="16">
-      <n-gi>
-        <n-card size="small" :title="$gettext('Memory')" h-full>
-          <template #header-extra>
-            <the-icon :size="22" icon="mdi:memory" />
-          </template>
-          <n-alert v-if="failures.memory" type="error">{{ failures.memory }}</n-alert>
-          <n-flex v-else vertical :size="16">
-            <n-statistic :label="$gettext('Score')">
-              <n-number-animation v-if="memory" :from="0" :to="memory.score" show-separator />
-              <span v-else class="text-base text-text-tertiary">
-                {{ $gettext('Pending benchmark') }}
-              </span>
-            </n-statistic>
-            <n-table :single-line="false" size="small" striped>
-              <tbody>
-                <tr>
-                  <td>{{ $gettext('Memory Bandwidth') }}</td>
-                  <td>{{ formatSpeed(memory?.bandwidth) }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $gettext('Memory Latency') }}</td>
-                  <td>{{ memory ? `${memory.latency.toFixed(1)} ns` : '-' }}</td>
-                </tr>
-              </tbody>
-            </n-table>
+    <n-grid cols="2 l:4" responsive="screen" :x-gap="16" :y-gap="16">
+      <n-gi v-for="item in summary" :key="item.key">
+        <n-card size="small" class="h-full">
+          <n-flex align="center" :size="8" :wrap="false">
+            <div
+              class="text-brand rounded-md bg-brand-subtle flex flex-none size-7 items-center justify-center"
+            >
+              <the-icon :icon="item.icon" :size="16" />
+            </div>
+            <span class="text-13px text-text-secondary truncate">{{ item.label }}</span>
           </n-flex>
-        </n-card>
-      </n-gi>
-      <n-gi>
-        <n-card size="small" :title="$gettext('Disk')" h-full>
-          <template #header-extra>
-            <the-icon :size="22" icon="mdi:harddisk" />
-          </template>
-          <n-alert v-if="failures.disk" type="error">{{ failures.disk }}</n-alert>
-          <n-flex v-else vertical :size="16">
-            <n-statistic :label="$gettext('Score')">
-              <n-number-animation v-if="disk" :from="0" :to="disk.score" show-separator />
-              <span v-else class="text-base text-text-tertiary">
-                {{ $gettext('Pending benchmark') }}
-              </span>
-            </n-statistic>
-            <n-table :single-line="false" size="small" striped>
-              <tbody>
-                <tr>
-                  <td>{{ $gettext('Sequential Read') }}</td>
-                  <td>{{ formatSpeed(disk?.seq_read) }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $gettext('Sequential Write') }}</td>
-                  <td>{{ formatSpeed(disk?.seq_write) }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $gettext('4K Random Read') }}</td>
-                  <td>{{ formatIops(disk?.rand_read) }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $gettext('4K Random Write') }}</td>
-                  <td>{{ formatIops(disk?.rand_write) }}</td>
-                </tr>
-              </tbody>
-            </n-table>
-          </n-flex>
+          <div class="text-28px leading-9 font-semibold mt-2 tabular-nums">
+            <n-number-animation v-if="item.score" :from="0" :to="item.score" show-separator />
+            <span v-else class="text-text-disabled">-</span>
+          </div>
+          <div v-if="item.failure" class="text-12px text-error mt-1 truncate" :title="item.failure">
+            {{ item.failure }}
+          </div>
+          <div v-else-if="!item.score" class="text-12px text-text-tertiary mt-1">
+            {{ $gettext('Pending benchmark') }}
+          </div>
         </n-card>
       </n-gi>
     </n-grid>
 
-    <n-flex justify="center">
-      <n-button
-        type="primary"
-        size="large"
-        :disabled="running"
-        :loading="running"
-        @click="handleTest"
-      >
-        {{ running ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
-      </n-button>
-    </n-flex>
+    <n-grid cols="1 l:5" responsive="screen" :x-gap="16" :y-gap="16">
+      <n-gi span="1 l:3">
+        <n-card size="small" :title="$gettext('CPU')" class="h-full">
+          <template #header-extra>
+            <n-flex align="center" :size="16" class="text-12px text-text-tertiary">
+              <n-flex align="center" :size="6">
+                <span class="rounded-full bg-brand size-2" />
+                {{ $gettext('Single-Core') }}
+              </n-flex>
+              <n-flex align="center" :size="6">
+                <span class="rounded-full bg-brand opacity-40 size-2" />
+                {{ $gettext('Multi-Core') }}
+              </n-flex>
+              <n-flex align="center" :size="6">
+                <span class="border-l border-text-tertiary border-dashed h-3" />
+                {{ BASELINE }}
+              </n-flex>
+            </n-flex>
+          </template>
+          <n-alert v-if="cpuFailure" type="error" class="mb-3">{{ cpuFailure }}</n-alert>
+          <div class="flex flex-col gap-3.5">
+            <div
+              v-for="test in cpuTests"
+              :key="test.name"
+              class="gap-x-4 gap-y-1.5 grid grid-cols-[1fr_auto_auto] items-center md:grid-cols-[8rem_1fr_4.5rem_4.5rem]"
+            >
+              <span class="text-13px truncate">{{ test.title }}</span>
+              <div class="col-span-3 row-start-2 relative md:col-span-1 md:row-start-auto">
+                <div class="rounded-full bg-bg-subtle h-1.5 overflow-hidden">
+                  <div
+                    class="rounded-full bg-brand h-full transition-all duration-500"
+                    :style="{ width: barWidth(cpu[test.name]?.single) }"
+                  />
+                </div>
+                <div class="mt-1 rounded-full bg-bg-subtle h-1.5 overflow-hidden">
+                  <div
+                    class="rounded-full bg-brand opacity-40 h-full transition-all duration-500"
+                    :style="{ width: barWidth(cpu[test.name]?.multi) }"
+                  />
+                </div>
+                <span
+                  class="border-l border-text-tertiary border-dashed absolute -inset-y-0.5"
+                  :style="{ left: baselineLeft }"
+                />
+              </div>
+              <span class="text-13px text-right tabular-nums">
+                {{ cpu[test.name]?.single.toLocaleString() ?? '-' }}
+              </span>
+              <span class="text-13px text-text-secondary text-right tabular-nums">
+                {{ cpu[test.name]?.multi.toLocaleString() ?? '-' }}
+              </span>
+            </div>
+          </div>
+        </n-card>
+      </n-gi>
+      <n-gi span="1 l:2">
+        <n-flex vertical :size="16" class="h-full">
+          <n-card
+            v-for="group in [
+              { key: 'memory', title: $gettext('Memory'), metrics: memoryMetrics, cols: 2 },
+              { key: 'disk', title: $gettext('Disk'), metrics: diskMetrics, cols: 2 },
+            ]"
+            :key="group.key"
+            size="small"
+            :title="group.title"
+          >
+            <n-alert v-if="failures[group.key]" type="error">{{ failures[group.key] }}</n-alert>
+            <div v-else class="gap-3 grid grid-cols-2">
+              <div
+                v-for="metric in group.metrics"
+                :key="metric.label"
+                class="px-3 py-2.5 rounded-md bg-bg-subtle"
+              >
+                <div class="text-12px text-text-tertiary truncate">{{ metric.label }}</div>
+                <div class="mt-1 truncate tabular-nums">
+                  <span class="text-18px font-medium">{{ metric.value }}</span>
+                  <span v-if="metric.unit" class="text-12px text-text-secondary ml-1">
+                    {{ metric.unit }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </n-card>
+        </n-flex>
+      </n-gi>
+    </n-grid>
   </n-flex>
 </template>

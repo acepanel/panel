@@ -23,8 +23,12 @@ interface CredentialField {
 // 各服务商的凭据字段，顺序即表单中的展示顺序
 const credentialFields: Record<string, CredentialField[]> = {
   aliyun: [
-    { key: 'ak', label: 'Access Key', placeholder: $gettext('Enter Aliyun Access Key') },
-    { key: 'sk', label: 'Secret Key', placeholder: $gettext('Enter Aliyun Secret Key') },
+    { key: 'ak', label: 'AccessKey ID', placeholder: $gettext('Enter Aliyun AccessKey ID') },
+    {
+      key: 'sk',
+      label: 'AccessKey Secret',
+      placeholder: $gettext('Enter Aliyun AccessKey Secret'),
+    },
   ],
   tencent: [
     { key: 'ak', label: 'SecretId', placeholder: $gettext('Enter Tencent Cloud SecretId') },

@@ -21,6 +21,11 @@ func NewToolboxBenchmarkService(t *gotext.Locale) *ToolboxBenchmarkService {
 	}
 }
 
+// Machine 被测机器的概况
+func (s *ToolboxBenchmarkService) Machine(w http.ResponseWriter, r *http.Request) {
+	Success(w, benchmark.Machine(r.Context()))
+}
+
 // Test 运行测试
 func (s *ToolboxBenchmarkService) Test(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxBenchmarkTest](r)
