@@ -378,7 +378,7 @@ watch(selected, (val) => {
         <n-button type="primary"> {{ $gettext('Create') }} </n-button>
       </n-popselect>
       <n-button @click="handleUp">
-        <i-mdi-arrow-up class="text-base" />
+        <i-mdi-arrow-up class="text-lg" />
       </n-button>
       <n-input-group class="flex-1 min-w-0">
         <n-tag size="large" v-if="!isInput" class="path-tag flex-1 min-w-0" @click="handleInput">
@@ -406,7 +406,7 @@ watch(selected, (val) => {
         />
       </n-input-group>
       <n-button @click="reload">
-        <i-mdi-refresh class="text-base" />
+        <i-mdi-refresh class="text-lg" />
       </n-button>
     </n-flex>
     <n-data-table

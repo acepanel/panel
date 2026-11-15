@@ -191,7 +191,7 @@ const handleSortSelect = (key: string) => {
     <n-popselect :options="sortOptions" :value="fileStore.sortKey" @update:value="handleSortSelect">
       <n-button>
         <template #icon>
-          <i-mdi-sort class="text-base" />
+          <i-mdi-sort class="text-lg" />
         </template>
         {{ currentSortLabel }}
       </n-button>
@@ -199,8 +199,8 @@ const handleSortSelect = (key: string) => {
     <n-tooltip>
       <template #trigger>
         <n-button @click="toggleViewType">
-          <i-mdi-view-list v-if="fileStore.viewType === 'list'" class="text-base" />
-          <i-mdi-view-grid v-else class="text-base" />
+          <i-mdi-view-list v-if="fileStore.viewType === 'list'" class="text-lg" />
+          <i-mdi-view-grid v-else class="text-lg" />
         </n-button>
       </template>
       {{

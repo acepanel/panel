@@ -387,7 +387,7 @@ onUnmounted(() => {
           </button>
           <n-dropdown trigger="click" :options="hostDropdownOptions" @select="handleSelectHost">
             <button class="tab-add" :title="$gettext('New Session')">
-              <i-mdi-plus class="text-base" />
+              <i-mdi-plus class="text-lg" />
             </button>
           </n-dropdown>
         </div>
@@ -397,7 +397,7 @@ onUnmounted(() => {
           <n-popover trigger="click" placement="bottom-end">
             <template #trigger>
               <button class="action-btn" :title="$gettext('Settings')">
-                <i-mdi-cog class="text-base" />
+                <i-mdi-cog class="text-lg" />
               </button>
             </template>
             <div class="settings-popover">
@@ -414,15 +414,15 @@ onUnmounted(() => {
             </div>
           </n-popover>
           <button class="action-btn" :title="$gettext('Manage Hosts')" @click="showHosts = true">
-            <i-mdi-server class="text-base" />
+            <i-mdi-server class="text-lg" />
           </button>
           <button
             class="action-btn"
             :title="isFullscreen ? $gettext('Exit Fullscreen') : $gettext('Fullscreen')"
             @click="toggleFullscreen"
           >
-            <i-mdi-fullscreen v-if="!isFullscreen" class="text-base" />
-            <i-mdi-fullscreen-exit v-else class="text-base" />
+            <i-mdi-fullscreen v-if="!isFullscreen" class="text-lg" />
+            <i-mdi-fullscreen-exit v-else class="text-lg" />
           </button>
         </div>
       </header>
