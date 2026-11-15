@@ -22,9 +22,9 @@ const (
 	// memoryWindow 带宽和延迟各自的测量时长
 	memoryWindow = time.Second
 
-	// 基准机的拷贝带宽（字节/秒）与随机访问延迟（纳秒）
-	memoryBandwidthBaseline = 40 << 30
-	memoryLatencyBaseline   = 120
+	// 1000 分对应的拷贝带宽（字节/秒）与随机访问延迟（纳秒），按主流云服务器估算
+	memoryBandwidthBaseline = 10 << 30
+	memoryLatencyBaseline   = 100
 )
 
 // ErrNoMemory 可用内存放不下测试缓冲区，硬跑只会测到交换分区或者触发 OOM

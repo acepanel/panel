@@ -70,9 +70,9 @@ func measure(ctx context.Context, t timing, ops []op) float64 {
 	return best
 }
 
-// score 把相对基准机的倍数换算成分数
+// score 把相对基准的倍数换算成分数
 func score(ratio float64) int {
-	// baseScore 基准机上每一项的得分
+	// baseScore 与基准持平时每一项的得分
 	const baseScore = 1000
 
 	if math.IsNaN(ratio) || math.IsInf(ratio, 0) {

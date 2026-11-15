@@ -17,15 +17,16 @@ import (
 	"time"
 )
 
-// 基准机单线程每秒执行各项 op 的次数，取多次实测里最好的成绩
+// 1000 分对应的单线程每秒执行次数。不取自某台实测的机器，按主流云服务器的单核水平估算：
+// 约为 Apple M4 实测值的四成，有硬件指令加速的 AES 取五成
 const (
-	imageBaseline       = 1000
-	matrixBaseline      = 1550
-	sortBaseline        = 770
-	encryptionBaseline  = 1830
-	compressionBaseline = 650
-	physicsBaseline     = 1180
-	jsonBaseline        = 1450
+	imageBaseline       = 400
+	matrixBaseline      = 630
+	sortBaseline        = 320
+	encryptionBaseline  = 940
+	compressionBaseline = 265
+	physicsBaseline     = 475
+	jsonBaseline        = 590
 )
 
 // ErrUnknownTest 没有这一项测试
