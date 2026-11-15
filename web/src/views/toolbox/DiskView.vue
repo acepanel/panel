@@ -417,7 +417,7 @@ const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
           <div v-for="diskItem in diskList" :key="diskItem.name" class="disk-card">
             <div class="disk-card__head">
               <div class="disk-card__title">
-                <i-mdi-harddisk class="text-lg text-brand" />
+                <i-mdi-harddisk class="text-xl text-brand" />
                 <span class="disk-card__name">{{ diskItem.name }}</span>
                 <n-tag v-if="diskItem.isSystemDisk" type="error" size="small" :bordered="false">
                   {{ $gettext('System Disk') }}

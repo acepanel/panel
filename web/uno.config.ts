@@ -1,6 +1,19 @@
 import type { UserConfig } from 'unocss'
 import { defineConfig, presetAttributify, presetWind4 } from 'unocss'
-import { breakpoint, radius, typography, zIndex } from './src/design/tokens'
+import { breakpoint, radius, typography } from './src/design/tokens'
+
+// 各级字号的行高：正文用 normal，大标题收紧
+const textLeading: Record<keyof typeof typography.fontSize, number> = {
+  xs: typography.lineHeight.normal,
+  sm: typography.lineHeight.normal,
+  base: typography.lineHeight.normal,
+  md: typography.lineHeight.normal,
+  lg: typography.lineHeight.normal,
+  xl: typography.lineHeight.snug,
+  '2xl': typography.lineHeight.snug,
+  '3xl': typography.lineHeight.tight,
+  '4xl': typography.lineHeight.tight
+}
 
 const config: UserConfig = {
   content: {
@@ -51,7 +64,8 @@ const config: UserConfig = {
         subtle: 'var(--color-info-bg)'
       }
     },
-    borderRadius: {
+    // 以下键名按 presetWind4 的主题定义：写成 wind3 的 fontSize、borderRadius、boxShadow 等会被静默忽略，退回预设的默认值
+    radius: {
       none: radius.none,
       sm: radius.sm,
       DEFAULT: radius.md,
@@ -61,7 +75,7 @@ const config: UserConfig = {
       '2xl': radius['2xl'],
       full: radius.full
     },
-    boxShadow: {
+    shadow: {
       none: 'none',
       xs: 'var(--shadow-xs)',
       sm: 'var(--shadow-sm)',
@@ -71,21 +85,25 @@ const config: UserConfig = {
       xl: 'var(--shadow-xl)',
       focus: 'var(--shadow-focus)'
     },
-    fontSize: typography.fontSize,
+    text: Object.fromEntries(
+      Object.entries(typography.fontSize).map(([key, fontSize]) => [
+        key,
+        { fontSize, lineHeight: String(textLeading[key as keyof typeof textLeading]) }
+      ])
+    ),
     fontWeight: {
       regular: String(typography.fontWeight.regular),
       medium: String(typography.fontWeight.medium),
       semibold: String(typography.fontWeight.semibold),
       bold: String(typography.fontWeight.bold)
     },
-    lineHeight: {
+    leading: {
       tight: String(typography.lineHeight.tight),
       snug: String(typography.lineHeight.snug),
       normal: String(typography.lineHeight.normal),
       relaxed: String(typography.lineHeight.relaxed)
     },
-    breakpoints: breakpoint,
-    zIndex: Object.fromEntries(Object.entries(zIndex).map(([k, v]) => [k, String(v)]))
+    breakpoint
   },
 
   shortcuts: [

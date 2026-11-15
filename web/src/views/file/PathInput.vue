@@ -138,7 +138,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleBack">
-            <i-mdi-arrow-left class="text-base" />
+            <i-mdi-arrow-left class="text-lg" />
           </n-button>
         </template>
         {{ $gettext('Back') }}
@@ -146,7 +146,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleForward">
-            <i-mdi-arrow-right class="text-base" />
+            <i-mdi-arrow-right class="text-lg" />
           </n-button>
         </template>
         {{ $gettext('Forward') }}
@@ -154,7 +154,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleUp">
-            <i-mdi-arrow-up class="text-base" />
+            <i-mdi-arrow-up class="text-lg" />
           </n-button>
         </template>
         {{ $gettext('Up') }}
@@ -162,7 +162,7 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="handleRefresh">
-            <i-mdi-refresh class="text-base" />
+            <i-mdi-refresh class="text-lg" />
           </n-button>
         </template>
         {{ $gettext('Refresh') }}
@@ -170,8 +170,8 @@ watch(
       <n-tooltip>
         <template #trigger>
           <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">
-            <i-mdi-eye v-if="fileStore.showHidden" class="text-base" />
-            <i-mdi-eye-off v-else class="text-base" />
+            <i-mdi-eye v-if="fileStore.showHidden" class="text-lg" />
+            <i-mdi-eye-off v-else class="text-lg" />
           </n-button>
         </template>
         {{ fileStore.showHidden ? $gettext('Hide hidden files') : $gettext('Show hidden files') }}
@@ -186,8 +186,8 @@ watch(
       >
         <template #trigger>
           <n-button :type="isFavorite ? 'primary' : 'default'">
-            <i-mdi-star v-if="isFavorite" class="text-base" />
-            <i-mdi-star-outline v-else class="text-base" />
+            <i-mdi-star v-if="isFavorite" class="text-lg" />
+            <i-mdi-star-outline v-else class="text-lg" />
           </n-button>
         </template>
         <div class="favorites" :class="{ 'is-mobile': isMobile }">
@@ -286,7 +286,7 @@ watch(
         </template>
       </n-input>
       <n-button type="primary" @click="handleSearch">
-        <i-mdi-search class="text-base" />
+        <i-mdi-search class="text-lg" />
       </n-button>
     </n-input-group>
   </n-flex>

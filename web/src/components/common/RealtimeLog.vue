@@ -629,19 +629,19 @@ defineExpose({ clear })
           :title="followMode ? $gettext('Pause Auto-scroll') : $gettext('Resume Auto-scroll')"
           @click="toggleFollow"
         >
-          <i-mdi-pause v-if="followMode" class="text-base" />
-          <i-mdi-play v-else class="text-base" />
+          <i-mdi-pause v-if="followMode" class="text-lg" />
+          <i-mdi-play v-else class="text-lg" />
         </button>
         <button class="action-btn" :title="$gettext('Jump to Top')" @click="scrollToTop">
-          <i-mdi-arrow-collapse-up class="text-base" />
+          <i-mdi-arrow-collapse-up class="text-lg" />
         </button>
         <button class="action-btn" :title="$gettext('Jump to Bottom')" @click="scrollToBottom">
-          <i-mdi-arrow-collapse-down class="text-base" />
+          <i-mdi-arrow-collapse-down class="text-lg" />
         </button>
         <n-popover trigger="click" placement="bottom-end" :to="popoverTo">
           <template #trigger>
             <button class="action-btn" :title="$gettext('Search')">
-              <i-mdi-magnify class="text-base" />
+              <i-mdi-magnify class="text-lg" />
             </button>
           </template>
           <n-flex vertical size="small" class="w-70">
@@ -672,17 +672,17 @@ defineExpose({ clear })
           :title="wrapLines ? $gettext('Disable Line Wrap') : $gettext('Enable Line Wrap')"
           @click="toggleWrap"
         >
-          <i-mdi-wrap class="text-base" />
+          <i-mdi-wrap class="text-lg" />
         </button>
         <button class="action-btn" :title="$gettext('Copy All')" @click="copyAll">
-          <i-mdi-content-copy class="text-base" />
+          <i-mdi-content-copy class="text-lg" />
         </button>
         <div class="action-divider"></div>
         <button class="action-btn" :title="$gettext('Decrease Font Size')" @click="decreaseFont">
-          <i-mdi-format-font-size-decrease class="text-base" />
+          <i-mdi-format-font-size-decrease class="text-lg" />
         </button>
         <button class="action-btn" :title="$gettext('Increase Font Size')" @click="increaseFont">
-          <i-mdi-format-font-size-increase class="text-base" />
+          <i-mdi-format-font-size-increase class="text-lg" />
         </button>
         <div class="action-divider"></div>
         <button
@@ -690,8 +690,8 @@ defineExpose({ clear })
           :title="isFullscreen ? $gettext('Exit Fullscreen') : $gettext('Fullscreen')"
           @click="toggleFullscreen"
         >
-          <i-mdi-fullscreen-exit v-if="isFullscreen" class="text-base" />
-          <i-mdi-fullscreen v-else class="text-base" />
+          <i-mdi-fullscreen-exit v-if="isFullscreen" class="text-lg" />
+          <i-mdi-fullscreen v-else class="text-lg" />
         </button>
       </div>
       <transition name="pill">
@@ -729,7 +729,7 @@ defineExpose({ clear })
 
     <transition name="pill">
       <button v-if="pendingNew > 0" class="new-logs-pill" @click="resumeFollow">
-        <i-mdi-arrow-down class="text-sm" />
+        <i-mdi-arrow-down class="text-base" />
         {{
           $ngettext('%{ count } new line', '%{ count } new lines', pendingNew, {
             count: String(pendingNew),

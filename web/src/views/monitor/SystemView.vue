@@ -19,6 +19,7 @@ import { useGettext } from 'vue3-gettext'
 
 import monitor from '@/api/panel/monitor'
 import { formatBytes } from '@/utils/file'
+import DeviceFilter from '@/views/monitor/DeviceFilter.vue'
 import TimeRangePicker, { type TimePreset } from '@/views/monitor/TimeRangePicker.vue'
 
 const { $gettext } = useGettext()
@@ -204,18 +205,17 @@ const availableDisks = computed(() => {
   return diskIOData.value?.disk_io?.map((d: { name: string }) => d.name) || []
 })
 
-// 当数据加载完成后，默认选中所有设备
-watch(availableNetDevices, (devices) => {
-  if (devices.length > 0 && selectedNetDevices.value.length === 0) {
-    selectedNetDevices.value = [...devices]
+// 第一次拿到设备列表时默认全选；之后换时间段重新加载不再重置，用户全不选也保持全不选
+const selectAllOnce = (selected: Ref<string[]>) => {
+  let initialized = false
+  return (devices: string[]) => {
+    if (initialized || devices.length === 0) return
+    initialized = true
+    selected.value = [...devices]
   }
-})
-
-watch(availableDisks, (disks) => {
-  if (disks.length > 0 && selectedDisks.value.length === 0) {
-    selectedDisks.value = [...disks]
-  }
-})
+}
+watch(availableNetDevices, selectAllOnce(selectedNetDevices))
+watch(availableDisks, selectAllOnce(selectedDisks))
 
 // 格式化字节速率 (KB/s -> MB/s -> GB/s)
 function formatSpeed(value: number | string): string {
@@ -682,19 +682,11 @@ const diskIOOption = computed<EChartsOption>(() => {
                 @change="(preset, range) => updateTimeRange('diskIO', preset, range)"
               />
             </div>
-            <n-checkbox-group
+            <device-filter
               v-if="availableDisks.length > 0"
               v-model:value="selectedDisks"
-              class="flex flex-wrap gap-x-1 gap-y-1"
-            >
-              <n-checkbox
-                v-for="disk in availableDisks"
-                :key="disk"
-                :value="disk"
-                :label="disk"
-                size="small"
-              />
-            </n-checkbox-group>
+              :options="availableDisks"
+            />
           </div>
         </template>
         <n-spin :show="diskIOLoading">
@@ -713,19 +705,11 @@ const diskIOOption = computed<EChartsOption>(() => {
                 @change="(preset, range) => updateTimeRange('net', preset, range)"
               />
             </div>
-            <n-checkbox-group
+            <device-filter
               v-if="availableNetDevices.length > 0"
               v-model:value="selectedNetDevices"
-              class="flex flex-wrap gap-x-1 gap-y-1"
-            >
-              <n-checkbox
-                v-for="device in availableNetDevices"
-                :key="device"
-                :value="device"
-                :label="device"
-                size="small"
-              />
-            </n-checkbox-group>
+              :options="availableNetDevices"
+            />
           </div>
         </template>
         <n-spin :show="netLoading">
