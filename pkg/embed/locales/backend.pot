@@ -5218,7 +5218,7 @@ msgstr ""
 msgid "failed to roll back network interface: %v"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:47
+#: internal/service/toolbox_benchmark.go:52
 msgid "failed to run benchmark: %v"
 msgstr ""
 
@@ -6274,11 +6274,11 @@ msgstr ""
 msgid "nodejs registry viewed"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:60
+#: internal/service/toolbox_benchmark.go:65
 msgid "not enough available memory to run the memory benchmark"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:66
+#: internal/service/toolbox_benchmark.go:71
 msgid "not enough free space in the panel directory to run the disk benchmark"
 msgstr ""
 
@@ -7341,7 +7341,7 @@ msgstr ""
 msgid "the default domain cannot be deleted"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:64
+#: internal/service/toolbox_benchmark.go:69
 msgid "the file system of the panel directory does not support direct IO, disk performance cannot be measured"
 msgstr ""
 
@@ -7356,7 +7356,7 @@ msgstr ""
 msgid "the name is reserved by AcePanel"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:62
+#: internal/service/toolbox_benchmark.go:67
 msgid "the panel directory is on a memory file system, disk performance cannot be measured"
 msgstr ""
 
@@ -7514,7 +7514,7 @@ msgstr ""
 msgid "unknown storage type"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:58
+#: internal/service/toolbox_benchmark.go:63
 msgid "unknown test type"
 msgstr ""
 
