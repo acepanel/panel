@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-15 16:48\n"
+"PO-Revision-Date: 2026-11-15 18:02\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -5226,7 +5226,7 @@ msgstr "回滚网络接口失败"
 msgid "failed to roll back network interface: %v"
 msgstr "回滚网络接口失败：%v"
 
-#: internal/service/toolbox_benchmark.go:47
+#: internal/service/toolbox_benchmark.go:52
 msgid "failed to run benchmark: %v"
 msgstr "跑分失败：%v"
 
@@ -6282,11 +6282,11 @@ msgstr "Node.js 注册表已设置"
 msgid "nodejs registry viewed"
 msgstr "已查看 Node.js 注册表"
 
-#: internal/service/toolbox_benchmark.go:60
+#: internal/service/toolbox_benchmark.go:65
 msgid "not enough available memory to run the memory benchmark"
 msgstr "可用内存不足，无法进行内存跑分"
 
-#: internal/service/toolbox_benchmark.go:66
+#: internal/service/toolbox_benchmark.go:71
 msgid "not enough free space in the panel directory to run the disk benchmark"
 msgstr "面板目录的剩余空间不足，无法进行磁盘跑分"
 
@@ -7349,7 +7349,7 @@ msgstr "数据库已导入，但无法获取源密码；请重置数据库用户
 msgid "the default domain cannot be deleted"
 msgstr "默认域名不能删除"
 
-#: internal/service/toolbox_benchmark.go:64
+#: internal/service/toolbox_benchmark.go:69
 msgid "the file system of the panel directory does not support direct IO, disk performance cannot be measured"
 msgstr "面板目录所在的文件系统不支持直接 IO，无法测量磁盘性能"
 
@@ -7364,7 +7364,7 @@ msgstr "名称包含 AcePanel 不允许的字符"
 msgid "the name is reserved by AcePanel"
 msgstr "该名称已被 AcePanel 保留"
 
-#: internal/service/toolbox_benchmark.go:62
+#: internal/service/toolbox_benchmark.go:67
 msgid "the panel directory is on a memory file system, disk performance cannot be measured"
 msgstr "面板目录位于内存文件系统上，无法测量磁盘性能"
 
@@ -7522,7 +7522,7 @@ msgstr "未知服务"
 msgid "unknown storage type"
 msgstr "未知存储类型"
 
-#: internal/service/toolbox_benchmark.go:58
+#: internal/service/toolbox_benchmark.go:63
 msgid "unknown test type"
 msgstr "未知测试类型"
 
