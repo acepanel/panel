@@ -27,11 +27,9 @@ const (
 	tmpfsMagic = 0x01021994
 	ramfsMagic = 0x858458f6
 
-	// 基准机的顺序读写速度（字节/秒）与 4K 随机读写 IOPS，测的是 Docker Desktop 虚拟机的虚拟磁盘
-	diskSeqReadBaseline   = 7500 << 20
-	diskSeqWriteBaseline  = 7000 << 20
-	diskRandReadBaseline  = 95000
-	diskRandWriteBaseline = 25000
+	// 1000 分对应的顺序读写速度（字节/秒）与 4K 随机读写 IOPS，取主流云盘入门规格的水平，读写同一个限额
+	diskSeqBaseline  = 125 << 20
+	diskRandBaseline = 3000
 )
 
 // Disk 测试 dir 所在硬盘的读写性能
@@ -78,10 +76,10 @@ func disk(ctx context.Context, dir string, fileSize int64, window time.Duration)
 	}
 
 	result.Score = score(geomean(
-		result.SeqRead/diskSeqReadBaseline,
-		result.SeqWrite/diskSeqWriteBaseline,
-		result.RandRead/diskRandReadBaseline,
-		result.RandWrite/diskRandWriteBaseline,
+		result.SeqRead/diskSeqBaseline,
+		result.SeqWrite/diskSeqBaseline,
+		result.RandRead/diskRandBaseline,
+		result.RandWrite/diskRandBaseline,
 	))
 	return result, nil
 }
