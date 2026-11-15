@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync/atomic"
 	"syscall"
 	"time"
 	"unsafe"
@@ -65,13 +66,10 @@ func disk(ctx context.Context, dir string, fileSize int64, window time.Duration)
 	if result.SeqRead, err = sequentialRead(ctx, file, size, window); err != nil {
 		return DiskResult{}, err
 	}
-	if result.RandWrite, err = random(ctx, size, window, file.WriteAt); err != nil {
+	if result.RandWrite, err = random(ctx, size, window, file.WriteAt, file.Sync); err != nil {
 		return DiskResult{}, err
 	}
-	if err = file.Sync(); err != nil {
-		return DiskResult{}, err
-	}
-	if result.RandRead, err = random(ctx, size, window, file.ReadAt); err != nil {
+	if result.RandRead, err = random(ctx, size, window, file.ReadAt, nil); err != nil {
 		return DiskResult{}, err
 	}
 
@@ -123,16 +121,17 @@ func sequentialWrite(ctx context.Context, file *os.File, limit int64, window tim
 	return min(written, limit), float64(written) / time.Since(start).Seconds(), nil
 }
 
-// sequentialRead 从头按块读到 size 后回到开头继续
+// sequentialRead 从头按块读，读完 size 或到时间就停。
+// 不绕回开头重读：重读的数据大多已在缓存里，宿主机或存储一侧的缓存会让成绩远超磁盘本身
 func sequentialRead(ctx context.Context, file *os.File, size int64, window time.Duration) (float64, error) {
 	block := alignedBlock(diskSeqBlock, 10)
 	var read int64
 	start := time.Now()
-	for read == 0 || time.Since(start) < window {
+	for read < size && (read == 0 || time.Since(start) < window) {
 		if err := ctx.Err(); err != nil {
 			return 0, err
 		}
-		if _, err := file.ReadAt(block, read%size); err != nil {
+		if _, err := file.ReadAt(block, read); err != nil {
 			return 0, err
 		}
 		read += diskSeqBlock
@@ -140,30 +139,60 @@ func sequentialRead(ctx context.Context, file *os.File, size int64, window time.
 	return float64(read) / time.Since(start).Seconds(), nil
 }
 
-// random 多个 worker 同时在文件的前 size 字节里随机读或写 4K 块，返回 IOPS
+// random 多个 worker 同时在文件的前 size 字节里随机读或写 4K 块，返回 IOPS。
+// 和 fio 默认的做法一样，所有块按打乱的顺序各访问一遍之后才会重复，重复访问的块多半命中缓存。
+// flush 不为空时把它的耗时也算进去：写入先进了宿主机或磁盘的写缓存时，只有落盘才算写完
 func random(
 	ctx context.Context,
 	size int64,
 	window time.Duration,
 	transfer func([]byte, int64) (int, error),
+	flush func() error,
 ) (float64, error) {
 	ctx, cancel := context.WithCancelCause(ctx)
 	defer cancel(nil)
 
+	cursor := newBlockCursor(size)
 	ops := make([]op, diskRandWorkers)
 	for i := range ops {
 		block := alignedBlock(diskRandBlock, byte(i))
-		r := rand.New(rand.NewPCG(uint64(i), 11)) //nolint:gosec
 		ops[i] = func() uint64 {
-			n, err := transfer(block, r.Int64N(size/diskRandBlock)*diskRandBlock)
+			n, err := transfer(block, cursor.next())
 			if err != nil {
 				cancel(err)
 			}
 			return uint64(n) //nolint:gosec
 		}
 	}
+
+	start := time.Now()
 	iops := measure(ctx, timing{window: window, rounds: 1}, ops)
-	return iops, context.Cause(ctx)
+	if err := context.Cause(ctx); err != nil {
+		return 0, err
+	}
+	if flush == nil {
+		return iops, nil
+	}
+	if err := flush(); err != nil {
+		return 0, err
+	}
+	// 陪跑阶段写下的块也要落盘，按实际写出的总块数和含落盘的总时长算
+	return float64(cursor.taken.Load()) / time.Since(start).Seconds(), nil
+}
+
+// blockCursor 按打乱的顺序发放 4K 块的偏移，全部发完一遍才从头再来，多个 worker 共用
+type blockCursor struct {
+	order []int
+	taken atomic.Int64
+}
+
+func newBlockCursor(size int64) *blockCursor {
+	return &blockCursor{order: rand.Perm(int(size / diskRandBlock))} //nolint:gosec
+}
+
+func (c *blockCursor) next() int64 {
+	i := (c.taken.Add(1) - 1) % int64(len(c.order))
+	return int64(c.order[i]) * diskRandBlock
 }
 
 // alignedBlock 返回一块地址按 diskAlign 对齐、填满随机内容的缓冲区，全零的数据会被带压缩或精简配置的存储优化掉

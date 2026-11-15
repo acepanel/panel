@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"slices"
 	"syscall"
 	"testing"
 	"time"
@@ -102,9 +103,45 @@ func TestRandomError(t *testing.T) {
 	failure := errors.New("io failure")
 	iops, err := random(t.Context(), testFileSize, 10*time.Second, func([]byte, int64) (int, error) {
 		return 0, failure
-	})
+	}, nil)
 	check.ErrorIs(t, err, failure)
 	check.Equal(t, iops, 0.0)
+
+	// 落盘失败同样不能给出成绩
+	iops, err = random(t.Context(), testFileSize, testWindow, func(b []byte, _ int64) (int, error) {
+		return len(b), nil
+	}, func() error { return failure })
+	check.ErrorIs(t, err, failure)
+	check.Equal(t, iops, 0.0)
+}
+
+// 每个块都发过一遍之后才会重复，第二遍还是同样的顺序
+func TestBlockCursor(t *testing.T) {
+	const blocks = 64
+	cursor := newBlockCursor(blocks * diskRandBlock)
+	first := make([]int64, blocks)
+	for i := range first {
+		first[i] = cursor.next()
+		check.Equal(t, first[i]%diskRandBlock, 0)
+	}
+	check.Len(t, slices.Compact(slices.Sorted(slices.Values(first))), blocks)
+	for i := range blocks {
+		check.Equal(t, cursor.next(), first[i])
+	}
+	check.Equal(t, cursor.taken.Load(), int64(2*blocks))
+}
+
+// 写的成绩要把落盘的时间算进去
+func TestRandomCountsFlush(t *testing.T) {
+	write := func(b []byte, _ int64) (int, error) { return len(b), nil }
+	fast, err := random(t.Context(), testFileSize, testWindow, write, func() error { return nil })
+	must.NoError(t, err)
+	slow, err := random(t.Context(), testFileSize, testWindow, write, func() error {
+		time.Sleep(time.Second)
+		return nil
+	})
+	must.NoError(t, err)
+	check.Less(t, slow, fast/2)
 }
 
 func TestCreateDirect(t *testing.T) {
