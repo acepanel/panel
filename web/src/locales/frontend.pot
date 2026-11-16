@@ -21,8 +21,8 @@ msgstr ""
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:335
 #: src/views/backup/ListView.vue:377
-#: src/views/cert/CertModal.vue:129
-#: src/views/cert/CertView.vue:463
+#: src/views/cert/CertModal.vue:132
+#: src/views/cert/CertView.vue:467
 #: src/views/home/IndexView.vue:94
 #: src/views/log/OperationLog.vue:26
 #: src/views/project/ProxyModal.vue:307
@@ -400,7 +400,7 @@ msgstr ""
 #: src/components/common/DraggableWindow.vue:335
 #: src/components/file-editor/EditorPane.vue:286
 #: src/layouts/tab/components/ContextMenu.vue:29
-#: src/views/cert/ObtainModal.vue:178
+#: src/views/cert/ObtainModal.vue:176
 #: src/views/ssh/IndexView.vue:384
 msgid "Close"
 msgstr ""
@@ -636,9 +636,9 @@ msgstr ""
 #: src/views/app/TemplateDeployModal.vue:245
 #: src/views/backup/StorageModal.vue:148
 #: src/views/cert/AccountModal.vue:65
-#: src/views/cert/CertModal.vue:86
+#: src/views/cert/CertModal.vue:89
 #: src/views/cert/DnsModal.vue:107
-#: src/views/cert/UploadCertModal.vue:26
+#: src/views/cert/UploadCertModal.vue:30
 #: src/views/container/ComposeView.vue:217
 #: src/views/container/ContainerCreate.vue:228
 #: src/views/container/NetworkView.vue:181
@@ -907,7 +907,6 @@ msgstr[1] ""
 #: src/views/apps/supervisor/IndexView.vue:121
 #: src/views/container/ContainerView.vue:150
 #: src/views/project/ListView.vue:177
-#: src/views/project/ListView.vue:361
 #: src/views/task/CronView.vue:148
 #: src/views/task/TaskView.vue:88
 msgid "Logs"
@@ -1333,6 +1332,7 @@ msgstr ""
 #: src/views/apps/redis/RedisPerformanceView.vue:149
 #: src/views/apps/redis/RedisPerformanceView.vue:165
 #: src/views/apps/stalwart/QueueView.vue:179
+#: src/views/cert/CertView.vue:328
 #: src/views/environment/PHPView.vue:376
 #: src/views/environment/PHPView.vue:397
 #: src/views/file/PathInput.vue:168
@@ -1353,6 +1353,7 @@ msgid "Refresh"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:89
+#: src/views/cert/ObtainModal.vue:36
 msgid "Refreshed successfully"
 msgstr ""
 
@@ -1648,7 +1649,7 @@ msgstr ""
 #: src/views/backup/ListView.vue:314
 #: src/views/backup/StorageView.vue:79
 #: src/views/cert/AccountView.vue:101
-#: src/views/cert/CertView.vue:376
+#: src/views/cert/CertView.vue:378
 #: src/views/cert/DnsView.vue:95
 #: src/views/container/ComposeView.vue:201
 #: src/views/container/ComposeView.vue:271
@@ -1943,10 +1944,9 @@ msgstr ""
 
 #: src/locales/menu.ts:9
 #: src/views/apps/stalwart/StatusView.vue:272
-#: src/views/cert/CertModal.vue:173
-#: src/views/cert/CertView.vue:518
+#: src/views/cert/CertView.vue:522
 #: src/views/cert/IndexView.vue:96
-#: src/views/cert/UploadCertModal.vue:38
+#: src/views/cert/UploadFields.vue:52
 #: src/views/log/OperationLog.vue:31
 #: src/views/setting/SettingSafe.vue:303
 #: src/views/website/EditModal.vue:710
@@ -2464,8 +2464,8 @@ msgstr ""
 
 #: src/views/app/TemplateDeployModal.vue:266
 #: src/views/cert/AccountModal.vue:65
-#: src/views/cert/CertModal.vue:86
-#: src/views/cert/CertView.vue:408
+#: src/views/cert/CertModal.vue:89
+#: src/views/cert/CertView.vue:412
 #: src/views/cert/DnsModal.vue:107
 #: src/views/container/ComposeView.vue:235
 msgid "Update successful"
@@ -3231,7 +3231,7 @@ msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:94
 #: src/views/apps/stalwart/SettingView.vue:310
-#: src/views/cert/CertView.vue:343
+#: src/views/cert/CertView.vue:345
 #: src/views/database/ElasticsearchDataView.vue:188
 #: src/views/database/RedisDataView.vue:143
 msgid "View"
@@ -3391,11 +3391,11 @@ msgstr ""
 #: src/views/backup/ListView.vue:404
 #: src/views/backup/StorageModal.vue:328
 #: src/views/cert/AccountModal.vue:136
-#: src/views/cert/CertModal.vue:207
-#: src/views/cert/CertView.vue:506
+#: src/views/cert/CertModal.vue:195
+#: src/views/cert/CertView.vue:510
 #: src/views/cert/DnsModal.vue:162
-#: src/views/cert/ObtainModal.vue:175
-#: src/views/cert/UploadCertModal.vue:56
+#: src/views/cert/ObtainModal.vue:173
+#: src/views/cert/UploadCertModal.vue:45
 #: src/views/container/ComposeView.vue:308
 #: src/views/container/ComposeView.vue:326
 #: src/views/container/ContainerView.vue:446
@@ -5503,7 +5503,7 @@ msgid "PHP Version"
 msgstr ""
 
 #: src/views/apps/openlitespeed/IndexView.vue:66
-#: src/views/cert/CertView.vue:488
+#: src/views/cert/CertView.vue:492
 #: src/views/tamper/TamperView.vue:318
 #: src/views/toolbox/DiskView.vue:201
 msgid "Available"
@@ -6643,7 +6643,7 @@ msgstr ""
 
 #: src/views/apps/stalwart/DomainView.vue:45
 #: src/views/apps/stalwart/DomainView.vue:360
-#: src/views/cert/CertModal.vue:113
+#: src/views/cert/CertModal.vue:116
 #: src/views/cert/CertView.vue:122
 #: src/views/project/ProxyForm.vue:9
 #: src/views/project/ProxyModal.vue:341
@@ -7320,9 +7320,8 @@ msgstr ""
 
 #: src/views/backup/StorageModal.vue:36
 #: src/views/backup/StorageModal.vue:290
-#: src/views/cert/CertModal.vue:181
-#: src/views/cert/CertView.vue:521
-#: src/views/cert/UploadCertModal.vue:46
+#: src/views/cert/CertView.vue:525
+#: src/views/cert/UploadFields.vue:60
 #: src/views/setting/SettingSafe.vue:310
 #: src/views/ssh/HostModal.vue:88
 #: src/views/ssh/HostModal.vue:99
@@ -7511,12 +7510,12 @@ msgstr ""
 
 #: src/views/cert/AccountModal.vue:102
 #: src/views/cert/AccountView.vue:60
-#: src/views/cert/CertModal.vue:121
+#: src/views/cert/CertModal.vue:124
 msgid "Key Type"
 msgstr ""
 
 #: src/views/cert/AccountModal.vue:105
-#: src/views/cert/CertModal.vue:124
+#: src/views/cert/CertModal.vue:127
 msgid "Select key type"
 msgstr ""
 
@@ -7533,7 +7532,7 @@ msgid "Enter HMAC"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:83
-#: src/views/cert/CertView.vue:358
+#: src/views/cert/CertView.vue:360
 #: src/views/cert/DnsView.vue:77
 #: src/views/database/ServerList.vue:215
 #: src/views/database/UserList.vue:152
@@ -7547,82 +7546,70 @@ msgid "Are you sure you want to delete the account?"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:96
-#: src/views/cert/CertView.vue:372
+#: src/views/cert/CertView.vue:374
 #: src/views/cert/DnsView.vue:91
 msgid "Deletion successful"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:98
+#: src/views/cert/CertModal.vue:101
 msgid "Modify Certificate"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:98
+#: src/views/cert/CertModal.vue:101
 #: src/views/cert/IndexView.vue:107
 msgid "Create Certificate"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:104
+#: src/views/cert/CertModal.vue:107
 msgid "You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates."
 msgstr ""
 
-#: src/views/cert/CertModal.vue:107
+#: src/views/cert/CertModal.vue:110
 msgid "You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:132
+#: src/views/cert/CertModal.vue:135
 msgid "Select websites for certificate deployment"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:138
+#: src/views/cert/CertModal.vue:141
 #: src/views/cert/IndexView.vue:97
 msgid "Account"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:141
+#: src/views/cert/CertModal.vue:144
 msgid "Select account for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:146
+#: src/views/cert/CertModal.vue:149
 #: src/views/cert/DnsModal.vue:127
 #: src/views/cert/IndexView.vue:98
 #: src/views/website/EditModal.vue:1013
 msgid "DNS"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:149
+#: src/views/cert/CertModal.vue:152
 #: src/views/website/EditModal.vue:1016
 msgid "Select DNS for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:154
+#: src/views/cert/CertModal.vue:157
 msgid "DNS Alias"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:160
+#: src/views/cert/CertModal.vue:163
 msgid "Original domain, e.g. example.com"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:166
+#: src/views/cert/CertModal.vue:169
 msgid "Alias record, e.g. _acme-challenge.delegated.com"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:177
-#: src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditModal.vue:714
-msgid "Enter the content of the PEM certificate file"
-msgstr ""
-
-#: src/views/cert/CertModal.vue:185
-#: src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditModal.vue:724
-msgid "Enter the content of the KEY private key file"
-msgstr ""
-
-#: src/views/cert/CertModal.vue:192
+#: src/views/cert/CertModal.vue:180
 msgid "Deployment Script"
 msgstr ""
 
-#: src/views/cert/CertModal.vue:198
+#: src/views/cert/CertModal.vue:186
 msgid "The {cert} and {key} in the script will be replaced with the certificate and private key content"
 msgstr ""
 
@@ -7669,35 +7656,35 @@ msgstr ""
 msgid "Issue"
 msgstr ""
 
-#: src/views/cert/CertView.vue:326
+#: src/views/cert/CertView.vue:328
 msgid "Renewal"
 msgstr ""
 
-#: src/views/cert/CertView.vue:367
+#: src/views/cert/CertView.vue:369
 msgid "Are you sure you want to delete the certificate?"
 msgstr ""
 
-#: src/views/cert/CertView.vue:425
+#: src/views/cert/CertView.vue:429
 msgid "Deployment successful"
 msgstr ""
 
-#: src/views/cert/CertView.vue:460
+#: src/views/cert/CertView.vue:464
 msgid "Deploy Certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:472
+#: src/views/cert/CertView.vue:476
 msgid "Match Websites"
 msgstr ""
 
-#: src/views/cert/CertView.vue:489
+#: src/views/cert/CertView.vue:493
 msgid "Selected"
 msgstr ""
 
-#: src/views/cert/CertView.vue:496
+#: src/views/cert/CertView.vue:500
 msgid "Enable HTTPS"
 msgstr ""
 
-#: src/views/cert/CertView.vue:513
+#: src/views/cert/CertView.vue:517
 msgid "View Certificate"
 msgstr ""
 
@@ -7804,47 +7791,90 @@ msgid "Are you sure you want to delete the DNS?"
 msgstr ""
 
 #: src/views/cert/IndexView.vue:104
-#: src/views/cert/UploadCertModal.vue:35
+#: src/views/cert/UploadCertModal.vue:39
 msgid "Upload Certificate"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:31
+#: src/views/cert/ObtainModal.vue:34
+msgid "Renew Certificate"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:34
+msgid "Renewal successful"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:36
+#: src/views/setting/IndexView.vue:177
+msgid "Refresh Certificate"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:38
+msgid "Issue Certificate"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:38
+#: src/views/cert/ObtainModal.vue:118
+msgid "Issuance successful"
+msgstr ""
+
+#: src/views/cert/ObtainModal.vue:43
 #: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Automatic"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:32
+#: src/views/cert/ObtainModal.vue:44
 msgid "Self-signed"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:67
-#: src/views/cert/ObtainModal.vue:162
-msgid "Renewal successful"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:68
-#: src/views/cert/ObtainModal.vue:110
-#: src/views/cert/ObtainModal.vue:162
-msgid "Issuance successful"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:84
-#: src/views/cert/ObtainModal.vue:90
+#: src/views/cert/ObtainModal.vue:92
+#: src/views/cert/ObtainModal.vue:98
 #: src/views/home/UpdateView.vue:106
 #: src/views/home/UpdateView.vue:111
 msgid "WebSocket connection failed"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:124
-msgid "Renew Certificate"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:124
-msgid "Issue Certificate"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:141
+#: src/views/cert/ObtainModal.vue:145
 msgid "Issuance Mode"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:45
+msgid "Import Method"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:47
+msgid "Paste Content"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:48
+msgid "From Path"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:56
+#: src/views/website/EditModal.vue:714
+msgid "Enter the content of the PEM certificate file"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:64
+#: src/views/website/EditModal.vue:724
+msgid "Enter the content of the KEY private key file"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:72
+msgid "The panel re-reads both files every day and redeploys the certificate to associated websites when the content changes. Turn off Auto Renewal in the list to stop following the files."
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:77
+msgid "Certificate Path"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:85
+#: src/views/cert/UploadFields.vue:97
+#: src/views/database/ServerModal.vue:144
+msgid "Select"
+msgstr ""
+
+#: src/views/cert/UploadFields.vue:89
+msgid "Private Key Path"
 msgstr ""
 
 #: src/views/container/composables/useImagePull.ts:54
@@ -8929,10 +8959,6 @@ msgstr ""
 
 #: src/views/database/ServerModal.vue:132
 msgid "Enter SQLite database file path, e.g. /data/app.db"
-msgstr ""
-
-#: src/views/database/ServerModal.vue:144
-msgid "Select"
 msgstr ""
 
 #: src/views/database/ServerModal.vue:156
@@ -12058,10 +12084,6 @@ msgstr ""
 
 #: src/views/setting/IndexView.vue:145
 msgid "Safe"
-msgstr ""
-
-#: src/views/setting/IndexView.vue:177
-msgid "Refresh Certificate"
 msgstr ""
 
 #: src/views/setting/IndexView.vue:178
