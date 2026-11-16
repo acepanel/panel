@@ -358,8 +358,6 @@ useBus('project:refresh', refresh)
       :pagination="pagination"
     />
   </n-flex>
-  <app-modal v-model:show="logModal" :title="$gettext('Logs')" @mask-click="logModal = false">
-    <realtime-log :service="logService" />
-  </app-modal>
+  <realtime-log-modal v-model:show="logModal" :service="logService" />
   <proxy-modal v-model:show="proxyModal" :project="proxyProject" />
 </template>
