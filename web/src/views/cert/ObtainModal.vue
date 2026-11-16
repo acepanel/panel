@@ -5,7 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import cert from '@/api/panel/cert'
 import ws from '@/api/ws'
 
-const { $gettext } = useGettext()
+const { $gettext, $pgettext } = useGettext()
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
@@ -33,7 +33,11 @@ const texts = computed(() => {
     case 'renew':
       return { title: $gettext('Renew Certificate'), success: $gettext('Renewal successful') }
     case 'refresh':
-      return { title: $gettext('Refresh Certificate'), success: $gettext('Refreshed successfully') }
+      // 设置页的同名按钮是重新签发面板证书，加上下文让两处可以分开翻译
+      return {
+        title: $pgettext('cert from path', 'Refresh Certificate'),
+        success: $gettext('Refreshed successfully'),
+      }
     default:
       return { title: $gettext('Issue Certificate'), success: $gettext('Issuance successful') }
   }
