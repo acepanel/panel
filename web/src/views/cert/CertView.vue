@@ -60,7 +60,7 @@ const deployWebsiteOptions = computed(() =>
 )
 const obtain = ref(false)
 const obtainCert = ref(0)
-const obtainMode = ref<'obtain' | 'renew'>('obtain')
+const obtainMode = ref<'obtain' | 'renew' | 'refresh'>('obtain')
 
 const normalizeDomain = (domain: string) => {
   const value = domain.trim().toLowerCase().replace(/\.$/, '')
@@ -310,7 +310,9 @@ const columns: any = [
           ),
         )
       }
-      if (row.cert_url != '' && row.type != 'upload') {
+      // 从路径导入的证书没有续签一说，重新读取文件叫刷新
+      const fromPath = row.type == 'upload'
+      if (fromPath ? row.cert_path != '' : row.cert_url != '') {
         items.push(
           h(
             NButton,
@@ -318,12 +320,12 @@ const columns: any = [
               size: 'small',
               type: 'success',
               onClick: () => {
-                obtainMode.value = 'renew'
+                obtainMode.value = fromPath ? 'refresh' : 'renew'
                 obtainCert.value = row.id
                 obtain.value = true
               },
             },
-            { default: () => $gettext('Renewal') },
+            { default: () => (fromPath ? $gettext('Refresh') : $gettext('Renewal')) },
           ),
         )
       }
@@ -400,6 +402,8 @@ const handleAutoRenewalUpdate = (row: any) => {
       auto_renewal: !row.auto_renewal,
       cert: row.cert,
       key: row.key,
+      cert_path: row.cert_path,
+      key_path: row.key_path,
       script: row.script,
     }),
   )

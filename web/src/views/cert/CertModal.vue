@@ -2,6 +2,7 @@
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import UploadFields from '@/views/cert/UploadFields.vue'
 
 const { $gettext } = useGettext()
 
@@ -64,6 +65,8 @@ watch(show, (val) => {
     auto_renewal: item.auto_renewal,
     cert: item.cert,
     key: item.key,
+    cert_path: item.cert_path,
+    key_path: item.key_path,
     script: item.script,
   }
   aliasList.value = Object.entries(item.alias || {}).map(([key, value]) => ({
@@ -170,22 +173,7 @@ const handleSubmit = () => {
             </template>
           </n-dynamic-input>
         </n-form-item>
-        <n-form-item v-if="model.type == 'upload'" path="cert" :label="$gettext('Certificate')">
-          <n-input
-            v-model:value="model.cert"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the PEM certificate file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
-        <n-form-item v-if="model.type == 'upload'" path="key" :label="$gettext('Private Key')">
-          <n-input
-            v-model:value="model.key"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the KEY private key file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
+        <upload-fields v-if="model.type == 'upload'" v-model:value="model" />
         <n-form-item
           v-if="isEdit && model.type != 'upload'"
           path="key"

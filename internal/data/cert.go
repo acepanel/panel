@@ -58,6 +58,8 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			NextRenewal: cert.RenewalInfo.SelectedTime,
 			Cert:        cert.Cert,
 			Key:         cert.Key,
+			CertPath:    cert.CertPath,
+			KeyPath:     cert.KeyPath,
 			CertURL:     cert.CertURL,
 			Script:      cert.Script,
 			CreatedAt:   cert.CreatedAt,
@@ -122,6 +124,8 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		Type:        req.Type,
 		Cert:        req.Cert,
 		Key:         req.Key,
+		CertPath:    req.CertPath,
+		KeyPath:     req.KeyPath,
 		Script:      req.Script,
 		Domains:     req.Domains,
 		Alias:       req.Alias,
@@ -265,6 +269,20 @@ func (r *certRepo) HTTPConfs(cert *biz.Cert, webServer string) (map[string]strin
 	}
 
 	return confs, fallback
+}
+
+// ReadCertFiles 读取证书与私钥文件
+func (r *certRepo) ReadCertFiles(certPath, keyPath string) (string, string, error) {
+	crt, err := io.Read(certPath)
+	if err != nil {
+		return "", "", err
+	}
+	key, err := io.Read(keyPath)
+	if err != nil {
+		return "", "", err
+	}
+
+	return crt, key, nil
 }
 
 // WriteCertFiles 写入证书与私钥文件

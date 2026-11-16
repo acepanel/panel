@@ -70,29 +70,32 @@ func (r *CertRenew) Run(ctx context.Context) error {
 			return err
 		}
 
-		// 跳过上传类型或未开启自动续签的证书
-		if cert.Type == "upload" || !cert.AutoRenewal {
+		// 跳过未开启自动续签的证书，粘贴上传的证书没有可续签的来源
+		if !cert.AutoRenewal || (cert.Type == "upload" && cert.CertPath == "") {
 			continue
 		}
 
-		// 刷新续签信息
-		if cert.RenewalInfo.NeedsRefresh() {
-			renewInfo, err := r.certRepo.RefreshRenewalInfo(ctx, cert.ID)
-			if err != nil {
-				r.log.Warn(r.t.Get("failed to refresh renewal info"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
+		// 从路径导入的证书每次都重新读取文件，其余证书等到建议的续签时间
+		if cert.Type != "upload" {
+			// 刷新续签信息
+			if cert.RenewalInfo.NeedsRefresh() {
+				renewInfo, err := r.certRepo.RefreshRenewalInfo(ctx, cert.ID)
+				if err != nil {
+					r.log.Warn(r.t.Get("failed to refresh renewal info"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
+					continue
+				}
+				cert.RenewalInfo = renewInfo
+			}
+			if time.Now().Before(cert.RenewalInfo.SelectedTime) {
 				continue
 			}
-			cert.RenewalInfo = renewInfo
 		}
 
-		// 到达建议时间，续签证书
-		if time.Now().After(cert.RenewalInfo.SelectedTime) {
-			if _, err := r.certRepo.RenewWithProgressCallback(ctx, cert.ID, nil); err != nil {
-				r.log.Warn(r.t.Get("failed to renew certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
-				// ctx 取消不是证书本身的问题，告警了也只是噪音
-				if ctx.Err() == nil {
-					r.notifyFailed(strings.Join(cert.Domains, ", "), err)
-				}
+		if _, err := r.certRepo.RenewWithProgressCallback(ctx, cert.ID, nil); err != nil {
+			r.log.Warn(r.t.Get("failed to renew certificate"), slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Any("err", err))
+			// ctx 取消不是证书本身的问题，告警了也只是噪音
+			if ctx.Err() == nil {
+				r.notifyFailed(strings.Join(cert.Domains, ", "), err)
 			}
 		}
 	}

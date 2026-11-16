@@ -14,6 +14,8 @@ type CertList struct {
 	NextRenewal time.Time         `json:"next_renewal"`
 	Cert        string            `json:"cert"`
 	Key         string            `json:"key"`
+	CertPath    string            `json:"cert_path"`
+	KeyPath     string            `json:"key_path"`
 	CertURL     string            `json:"cert_url"`
 	Script      string            `json:"script"`
 	NotBefore   time.Time         `json:"not_before"`

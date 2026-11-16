@@ -12,7 +12,7 @@ const id = defineModel<number>('id', { type: Number, required: true })
 
 const props = defineProps({
   mode: {
-    type: String as () => 'obtain' | 'renew',
+    type: String as () => 'obtain' | 'renew' | 'refresh',
     default: 'obtain',
   },
 })
@@ -26,6 +26,18 @@ const progressLogs = ref<string[]>([])
 const errorMsg = ref('')
 const isComplete = ref(false)
 let currentWs: WebSocket | null = null
+
+// 续签与刷新共用续签接口，后端按证书来源决定走 ACME 还是重新读取文件
+const texts = computed(() => {
+  switch (props.mode) {
+    case 'renew':
+      return { title: $gettext('Renew Certificate'), success: $gettext('Renewal successful') }
+    case 'refresh':
+      return { title: $gettext('Refresh Certificate'), success: $gettext('Refreshed successfully') }
+    default:
+      return { title: $gettext('Issue Certificate'), success: $gettext('Issuance successful') }
+  }
+})
 
 const options = [
   { label: $gettext('Automatic'), value: 'auto' },
@@ -46,7 +58,7 @@ const handleWsObtainOrRenew = () => {
   loading.value = true
   resetState()
 
-  const wsFactory = props.mode === 'renew' ? ws.certRenew : ws.certObtain
+  const wsFactory = props.mode === 'obtain' ? ws.certObtain : ws.certRenew
   wsFactory(id.value)
     .then((socket) => {
       currentWs = socket
@@ -62,11 +74,7 @@ const handleWsObtainOrRenew = () => {
           loading.value = false
           window.$bus.emit('cert:refresh-cert')
           window.$bus.emit('cert:refresh-async')
-          window.$message.success(
-            props.mode === 'renew'
-              ? $gettext('Renewal successful')
-              : $gettext('Issuance successful'),
-          )
+          window.$message.success(texts.value.success)
         } else if (data.status === 'error') {
           errorMsg.value = data.msg
           loading.value = false
@@ -93,7 +101,7 @@ const handleWsObtainOrRenew = () => {
 }
 
 const handleSubmit = () => {
-  if (props.mode === 'renew') {
+  if (props.mode !== 'obtain') {
     handleWsObtainOrRenew()
     return
   }
@@ -120,10 +128,6 @@ const handleClose = () => {
   model.value.type = 'auto'
 }
 
-const modalTitle = computed(() => {
-  return props.mode === 'renew' ? $gettext('Renew Certificate') : $gettext('Issue Certificate')
-})
-
 const showProgress = computed(() => {
   return progressLogs.value.length > 0 || !!errorMsg.value || isComplete.value
 })
@@ -132,12 +136,12 @@ const showProgress = computed(() => {
 <template>
   <app-modal
     v-model:show="show"
-    :title="modalTitle"
+    :title="texts.title"
     :mask-closable="!loading"
     :closable="!loading"
     @after-leave="handleClose"
   >
-    <n-form v-if="mode !== 'renew'" :model="model">
+    <n-form v-if="mode === 'obtain'" :model="model">
       <n-form-item path="type" :label="$gettext('Issuance Mode')">
         <n-select
           v-model:value="model.type"
@@ -155,13 +159,7 @@ const showProgress = computed(() => {
         :content="log"
       />
       <n-timeline-item v-if="errorMsg" type="error" :content="errorMsg" />
-      <n-timeline-item
-        v-if="isComplete"
-        type="success"
-        :content="
-          mode === 'renew' ? $gettext('Renewal successful') : $gettext('Issuance successful')
-        "
-      />
+      <n-timeline-item v-if="isComplete" type="success" :content="texts.success" />
     </n-timeline>
 
     <n-button

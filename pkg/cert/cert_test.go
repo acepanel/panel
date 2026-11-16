@@ -26,3 +26,20 @@ func TestGenerateSelfSigned(t *testing.T) {
 	must.NotNil(t, keyDecoded)
 	check.Equal(t, keyDecoded.Type, "PRIVATE KEY")
 }
+
+func TestMatch(t *testing.T) {
+	certPEM, keyPEM, err := GenerateSelfSigned([]string{"haozi.dev"})
+	must.NoError(t, err)
+	_, otherPEM, err := GenerateSelfSigned([]string{"haozi.dev"})
+	must.NoError(t, err)
+
+	cert, err := ParseCert(certPEM)
+	must.NoError(t, err)
+	key, err := ParseKey(keyPEM)
+	must.NoError(t, err)
+	other, err := ParseKey(otherPEM)
+	must.NoError(t, err)
+
+	check.True(t, Match(cert, key))
+	check.False(t, Match(cert, other))
+}

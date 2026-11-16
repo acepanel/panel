@@ -71,6 +71,12 @@ func ParseKey(key []byte) (crypto.Signer, error) {
 	return x509.ParseECPrivateKey(keyBlockDER.Bytes)
 }
 
+// Match 判断私钥与证书是否成对
+func Match(cert x509.Certificate, key crypto.Signer) bool {
+	pub, ok := cert.PublicKey.(interface{ Equal(crypto.PublicKey) bool })
+	return ok && pub.Equal(key.Public())
+}
+
 func EncodeKey(key crypto.Signer) ([]byte, error) {
 	var pemType string
 	var keyBytes []byte
