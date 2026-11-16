@@ -193,4 +193,10 @@ func init() {
 			return tx.AutoMigrate(&biz.FileFavorite{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261116-add-cert-path",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Cert{})
+		},
+	})
 }

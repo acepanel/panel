@@ -63,6 +63,9 @@ var _ biz.CertRepo = &CertRepo{}
 //			ObtainPanelFunc: func(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
 //				panic("mock out the ObtainPanel method")
 //			},
+//			ReadCertFilesFunc: func(certPath string, keyPath string) (string, string, error) {
+//				panic("mock out the ReadCertFiles method")
+//			},
 //			ReloadWebserverFunc: func(ctx context.Context, webServer string) error {
 //				panic("mock out the ReloadWebserver method")
 //			},
@@ -123,6 +126,9 @@ type CertRepo struct {
 
 	// ObtainPanelFunc mocks the ObtainPanel method.
 	ObtainPanelFunc func(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error)
+
+	// ReadCertFilesFunc mocks the ReadCertFiles method.
+	ReadCertFilesFunc func(certPath string, keyPath string) (string, string, error)
 
 	// ReloadWebserverFunc mocks the ReloadWebserver method.
 	ReloadWebserverFunc func(ctx context.Context, webServer string) error
@@ -230,6 +236,13 @@ type CertRepo struct {
 			// WebServer is the webServer argument value.
 			WebServer string
 		}
+		// ReadCertFiles holds details about calls to the ReadCertFiles method.
+		ReadCertFiles []struct {
+			// CertPath is the certPath argument value.
+			CertPath string
+			// KeyPath is the keyPath argument value.
+			KeyPath string
+		}
 		// ReloadWebserver holds details about calls to the ReloadWebserver method.
 		ReloadWebserver []struct {
 			// Ctx is the ctx argument value.
@@ -277,6 +290,7 @@ type CertRepo struct {
 	lockList               sync.RWMutex
 	lockLoadWebsites       sync.RWMutex
 	lockObtainPanel        sync.RWMutex
+	lockReadCertFiles      sync.RWMutex
 	lockReloadWebserver    sync.RWMutex
 	lockRunScript          sync.RWMutex
 	lockSave               sync.RWMutex
@@ -745,6 +759,42 @@ func (mock *CertRepo) ObtainPanelCalls() []struct {
 	mock.lockObtainPanel.RLock()
 	calls = mock.calls.ObtainPanel
 	mock.lockObtainPanel.RUnlock()
+	return calls
+}
+
+// ReadCertFiles calls ReadCertFilesFunc.
+func (mock *CertRepo) ReadCertFiles(certPath string, keyPath string) (string, string, error) {
+	if mock.ReadCertFilesFunc == nil {
+		panic("CertRepo.ReadCertFilesFunc: method is nil but CertRepo.ReadCertFiles was just called")
+	}
+	callInfo := struct {
+		CertPath string
+		KeyPath  string
+	}{
+		CertPath: certPath,
+		KeyPath:  keyPath,
+	}
+	mock.lockReadCertFiles.Lock()
+	mock.calls.ReadCertFiles = append(mock.calls.ReadCertFiles, callInfo)
+	mock.lockReadCertFiles.Unlock()
+	return mock.ReadCertFilesFunc(certPath, keyPath)
+}
+
+// ReadCertFilesCalls gets all the calls that were made to ReadCertFiles.
+// Check the length with:
+//
+//	len(mockedCertRepo.ReadCertFilesCalls())
+func (mock *CertRepo) ReadCertFilesCalls() []struct {
+	CertPath string
+	KeyPath  string
+} {
+	var calls []struct {
+		CertPath string
+		KeyPath  string
+	}
+	mock.lockReadCertFiles.RLock()
+	calls = mock.calls.ReadCertFiles
+	mock.lockReadCertFiles.RUnlock()
 	return calls
 }
 

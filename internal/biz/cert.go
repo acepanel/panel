@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"crypto/x509"
 	"errors"
 	"log/slog"
 	"path/filepath"
@@ -33,6 +34,8 @@ type Cert struct {
 	CertURL     string                `gorm:"not null;default:''" json:"cert_url"`                       // 证书 URL (续签时使用)
 	Cert        string                `gorm:"not null;default:''" json:"cert"`                           // 证书内容
 	Key         string                `gorm:"not null;default:''" json:"key"`                            // 私钥内容
+	CertPath    string                `gorm:"not null;default:''" json:"cert_path"`                      // 证书文件路径 (从路径导入时使用)
+	KeyPath     string                `gorm:"not null;default:''" json:"key_path"`                       // 私钥文件路径 (从路径导入时使用)
 	Script      string                `gorm:"not null;default:''" json:"script"`                         // 部署脚本
 	CreatedAt   time.Time             `json:"created_at"`
 	UpdatedAt   time.Time             `json:"updated_at"`
@@ -65,6 +68,7 @@ type CertRepo interface {
 	LoadWebsites(websiteIDs []uint) ([]*Website, error)
 	BindWebsites(certID uint, websiteIDs []uint) error
 	HTTPConfs(cert *Cert, webServer string) (map[string]string, []string)
+	ReadCertFiles(certPath, keyPath string) (string, string, error)
 	WriteCertFiles(cert *Cert, certPath, keyPath string) error
 	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error
 	ReloadWebserver(ctx context.Context, webServer string) error
@@ -111,38 +115,49 @@ func (uc *CertUsecase) Create(ctx context.Context, req *request.CertCreate) (*Ce
 }
 
 func (uc *CertUsecase) Upload(ctx context.Context, req *request.CertUpload) (*Cert, error) {
-	info, err := pkgcert.ParseCert([]byte(req.Cert))
-	if err != nil {
-		return nil, errors.New(uc.t.Get("failed to parse certificate: %v", err))
-	}
-	if _, err = pkgcert.ParseKey([]byte(req.Key)); err != nil {
-		return nil, errors.New(uc.t.Get("failed to parse private key: %v", err))
-	}
-
-	domains := pkgcert.SANs(info)
 	cert := &Cert{
-		Type:    "upload",
-		Domains: domains,
-		Cert:    req.Cert,
-		Key:     req.Key,
+		Type:     "upload",
+		Cert:     req.Cert,
+		Key:      req.Key,
+		CertPath: req.CertPath,
+		KeyPath:  req.KeyPath,
+		// 从路径导入就是为了跟随文件更新
+		AutoRenewal: req.CertPath != "",
+	}
+	info, err := uc.loadUploaded(cert)
+	if err != nil {
+		return nil, err
 	}
 	if err = uc.repo.CreateUploaded(cert); err != nil {
 		return nil, err
 	}
 
 	// 记录日志
-	uc.log.Info(uc.t.Get("cert uploaded"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", domains), slog.Time("not_after", info.NotAfter))
+	uc.log.Info(uc.t.Get("cert uploaded"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Time("not_after", info.NotAfter), slog.String("cert_path", cert.CertPath), slog.String("key_path", cert.KeyPath))
 
 	return cert, nil
 }
 
 func (uc *CertUsecase) Update(ctx context.Context, req *request.CertUpdate) error {
+	if req.Type == "upload" {
+		if req.CertPath != "" {
+			// 内容以文件为准，保存前同步一次，路径填错能当场报出来
+			cert, err := uc.repo.Get(req.ID)
+			if err != nil {
+				return err
+			}
+			cert.CertPath, cert.KeyPath = req.CertPath, req.KeyPath
+			if err = uc.reload(ctx, cert, uc.progressReporter(nil)); err != nil {
+				return err
+			}
+			req.Cert, req.Key = cert.Cert, cert.Key
+		} else if req.AutoRenewal {
+			return errors.New(uc.t.Get("upload certificate cannot be set to auto renewal"))
+		}
+	}
 	info, err := pkgcert.ParseCert([]byte(req.Cert))
 	if err == nil && req.Type == "upload" {
 		req.Domains = pkgcert.SANs(info)
-	}
-	if req.Type == "upload" && req.AutoRenewal {
-		return errors.New(uc.t.Get("upload certificate cannot be set to auto renewal"))
 	}
 
 	if err = uc.repo.Update(req); err != nil {
@@ -150,7 +165,7 @@ func (uc *CertUsecase) Update(ctx context.Context, req *request.CertUpdate) erro
 	}
 
 	// 记录日志
-	uc.log.Info(uc.t.Get("cert updated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.Any("domains", req.Domains), slog.String("cert_type", req.Type), slog.Bool("auto_renewal", req.AutoRenewal), slog.Any("website_ids", req.WebsiteIDs))
+	uc.log.Info(uc.t.Get("cert updated"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.Any("domains", req.Domains), slog.String("cert_type", req.Type), slog.Bool("auto_renewal", req.AutoRenewal), slog.Any("website_ids", req.WebsiteIDs), slog.String("cert_path", req.CertPath), slog.String("key_path", req.KeyPath))
 
 	return nil
 }
@@ -215,12 +230,17 @@ func (uc *CertUsecase) RenewWithProgressCallback(
 ) (*acme.Certificate, error) {
 	report := uc.progressReporter(progressCallback)
 
-	report(uc.t.Get("preparing renewal"))
 	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return nil, err
 	}
 
+	// 上传的证书没有 ACME 订单，续签就是重新读取文件
+	if cert.Type == "upload" {
+		return nil, uc.reload(ctx, cert, report)
+	}
+
+	report(uc.t.Get("preparing renewal"))
 	client, err := uc.repo.GetClient(ctx, cert)
 	if err != nil {
 		return nil, err
@@ -346,6 +366,58 @@ func (uc *CertUsecase) progressReporter(callback func(string)) func(string) {
 		return func(string) {}
 	}
 	return callback
+}
+
+// loadUploaded 校验上传的证书并回填域名，从路径导入的先读入文件内容
+func (uc *CertUsecase) loadUploaded(cert *Cert) (x509.Certificate, error) {
+	if cert.CertPath != "" {
+		crt, key, err := uc.repo.ReadCertFiles(cert.CertPath, cert.KeyPath)
+		if err != nil {
+			return x509.Certificate{}, errors.New(uc.t.Get("failed to read certificate files: %v", err))
+		}
+		cert.Cert, cert.Key = crt, key
+	}
+
+	info, err := pkgcert.ParseCert([]byte(cert.Cert))
+	if err != nil {
+		return x509.Certificate{}, errors.New(uc.t.Get("failed to parse certificate: %v", err))
+	}
+	key, err := pkgcert.ParseKey([]byte(cert.Key))
+	if err != nil {
+		return x509.Certificate{}, errors.New(uc.t.Get("failed to parse private key: %v", err))
+	}
+	// 不成对的证书部署后 Web 服务器会重载失败
+	if !pkgcert.Match(info, key) {
+		return x509.Certificate{}, errors.New(uc.t.Get("the private key does not match the certificate"))
+	}
+	cert.Domains = pkgcert.SANs(info)
+
+	return info, nil
+}
+
+// reload 重新读取从路径导入的证书，内容有变化才保存并分发
+func (uc *CertUsecase) reload(ctx context.Context, cert *Cert, report func(string)) error {
+	if cert.CertPath == "" {
+		return errors.New(uc.t.Get("this certificate was not imported from a path and cannot be renewed"))
+	}
+
+	report(uc.t.Get("reading certificate files"))
+	oldCert, oldKey := cert.Cert, cert.Key
+	info, err := uc.loadUploaded(cert)
+	if err != nil {
+		return err
+	}
+	if cert.Cert == oldCert && cert.Key == oldKey {
+		report(uc.t.Get("certificate files have not changed"))
+		return nil
+	}
+	if err = uc.afterIssue(ctx, cert, report); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("cert reloaded from files"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.Any("domains", cert.Domains), slog.Time("not_after", info.NotAfter), slog.Any("website_ids", cert.WebsiteIDs()))
+
+	return nil
 }
 
 // prepareChallenge 关联了 DNS 的证书走 DNS 验证，否则借关联网站走 HTTP 验证

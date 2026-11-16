@@ -3,14 +3,19 @@ import { NButton, NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import UploadFields from '@/views/cert/UploadFields.vue'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 
-const model = ref<any>({
+const defaultModel = () => ({
   cert: '',
   key: '',
+  cert_path: '',
+  key_path: '',
 })
+
+const model = ref<any>(defaultModel())
 
 const loading = ref(false)
 
@@ -21,8 +26,7 @@ const handleSubmit = () => {
       window.$bus.emit('cert:refresh-cert')
       window.$bus.emit('cert:refresh-async')
       show.value = false
-      model.value.cert = ''
-      model.value.key = ''
+      model.value = defaultModel()
       window.$message.success($gettext('Created successfully'))
     })
     .onComplete(() => {
@@ -35,22 +39,7 @@ const handleSubmit = () => {
   <app-modal v-model:show="show" :title="$gettext('Upload Certificate')">
     <n-space vertical>
       <n-form :model="model">
-        <n-form-item :label="$gettext('Certificate')">
-          <n-input
-            v-model:value="model.cert"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the PEM certificate file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
-        <n-form-item :label="$gettext('Private Key')">
-          <n-input
-            v-model:value="model.key"
-            type="textarea"
-            :placeholder="$gettext('Enter the content of the KEY private key file')"
-            :autosize="{ minRows: 10, maxRows: 15 }"
-          />
-        </n-form-item>
+        <upload-fields v-model:value="model" />
       </n-form>
       <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{
         $gettext('Submit')
