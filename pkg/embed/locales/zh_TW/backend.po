@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-11-15 18:50\n"
+"PO-Revision-Date: 2026-11-16 07:51\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -442,7 +442,7 @@ msgstr "Calendar 是一個用於處理日期的庫"
 msgid "Cannot connect to any remote mail server on port 25. Most cloud providers block it by default; configure an outbound relay in settings or ask your provider to unblock it"
 msgstr "無法透過 25 連接埠連線任何遠端郵件伺服器。多數雲端服務商預設封鎖該連接埠，請在設定中配置出站中繼，或聯絡服務商解封"
 
-#: internal/job/cert_renew.go:189
+#: internal/job/cert_renew.go:192
 #: internal/request/attributes.go:25
 msgid "Certificate"
 msgstr "證書"
@@ -450,6 +450,10 @@ msgstr "證書"
 #: internal/command/cert.go:27
 msgid "Certificate ID"
 msgstr "證書 ID"
+
+#: internal/request/attributes.go:26
+msgid "Certificate Path"
+msgstr "證書路徑"
 
 #: internal/command/website.go:128
 msgid "Certificate file path (fullchain)"
@@ -478,7 +482,7 @@ msgstr "修改 AcePanel 監聽連接埠"
 #: internal/biz/notify.go:187
 #: internal/command/app.go:19
 #: internal/command/app.go:42
-#: internal/request/attributes.go:26
+#: internal/request/attributes.go:27
 msgid "Channel"
 msgstr "渠道"
 
@@ -486,7 +490,7 @@ msgstr "渠道"
 msgid "Chinese full-text search parser based on SCWS"
 msgstr "基於 SCWS 的中文全文檢索解析器"
 
-#: internal/request/attributes.go:27
+#: internal/request/attributes.go:28
 msgid "Chunk Count"
 msgstr "分塊數量"
 
@@ -535,7 +539,7 @@ msgstr "叢集名稱"
 msgid "Cluster Status"
 msgstr "叢集狀態"
 
-#: internal/request/attributes.go:28
+#: internal/request/attributes.go:29
 #: pkg/tui/tui.go:69
 msgid "Command"
 msgstr "命令"
@@ -544,7 +548,7 @@ msgstr "命令"
 msgid "Commands Per Second"
 msgstr "每秒執行命令數"
 
-#: internal/request/attributes.go:29
+#: internal/request/attributes.go:30
 msgid "Compose"
 msgstr "編排"
 
@@ -556,7 +560,7 @@ msgstr "未安裝 Composer"
 msgid "Compress %v"
 msgstr "壓縮 %v"
 
-#: internal/request/attributes.go:30
+#: internal/request/attributes.go:31
 msgid "Config"
 msgstr "配置"
 
@@ -654,7 +658,7 @@ msgstr "目前連線數"
 msgid "Current Value"
 msgstr "目前值"
 
-#: internal/request/attributes.go:31
+#: internal/request/attributes.go:32
 msgid "Custom Logo"
 msgstr "自定義 Logo"
 
@@ -662,7 +666,7 @@ msgstr "自定義 Logo"
 msgid "DESCRIPTION"
 msgstr "描述"
 
-#: internal/request/attributes.go:36
+#: internal/request/attributes.go:37
 msgid "Data"
 msgstr "資料"
 
@@ -679,27 +683,27 @@ msgid "Data synchronized successfully"
 msgstr "資料同步成功"
 
 #: internal/apps/grafana/app.go:96
-#: internal/request/attributes.go:37
+#: internal/request/attributes.go:38
 msgid "Database"
 msgstr "資料庫"
 
-#: internal/request/attributes.go:32
+#: internal/request/attributes.go:33
 msgid "Database Name"
 msgstr "資料庫名稱"
 
-#: internal/request/attributes.go:33
+#: internal/request/attributes.go:34
 msgid "Database Password"
 msgstr "資料庫密碼"
 
-#: internal/request/attributes.go:41
+#: internal/request/attributes.go:42
 msgid "Database Path"
 msgstr "資料庫路徑"
 
-#: internal/request/attributes.go:34
+#: internal/request/attributes.go:35
 msgid "Database Type"
 msgstr "資料庫類型"
 
-#: internal/request/attributes.go:35
+#: internal/request/attributes.go:36
 msgid "Database User"
 msgstr "資料庫使用者"
 
@@ -742,7 +746,7 @@ msgid "Database: %s, username: %s, password: %s"
 msgstr "資料庫：%s，使用者名稱：%s，密碼：%s"
 
 #: internal/apps/clickhouse/app.go:101
-#: internal/request/attributes.go:38
+#: internal/request/attributes.go:39
 msgid "Databases"
 msgstr "資料庫"
 
@@ -754,11 +758,11 @@ msgstr "資料集占比"
 msgid "Dataset Size"
 msgstr "資料集大小"
 
-#: internal/request/attributes.go:39
+#: internal/request/attributes.go:40
 msgid "Date"
 msgstr "日期"
 
-#: internal/request/attributes.go:40
+#: internal/request/attributes.go:41
 msgid "Days"
 msgstr "天數"
 
@@ -786,23 +790,23 @@ msgstr "已刪除任務的日誌：%d 個檔案"
 msgid "Detail"
 msgstr "詳情"
 
-#: internal/request/attributes.go:42
+#: internal/request/attributes.go:43
 msgid "Detail Max Keys"
 msgstr "詳情鍵最大值"
 
-#: internal/request/attributes.go:43
+#: internal/request/attributes.go:44
 msgid "Device"
 msgstr "設備"
 
-#: internal/request/attributes.go:44
+#: internal/request/attributes.go:45
 msgid "Devices"
 msgstr "設備"
 
-#: internal/request/attributes.go:46
+#: internal/request/attributes.go:47
 msgid "Direction"
 msgstr "方向"
 
-#: internal/request/attributes.go:45
+#: internal/request/attributes.go:46
 msgid "Directory"
 msgstr "目錄"
 
@@ -846,7 +850,7 @@ msgstr "Docker 容器日誌：%d 個檔案"
 msgid "Domain"
 msgstr "域名"
 
-#: internal/request/attributes.go:47
+#: internal/request/attributes.go:48
 msgid "Domains"
 msgstr "域名"
 
@@ -875,11 +879,11 @@ msgstr "下載遠端檔案 %v"
 msgid "Downloading new version..."
 msgstr "正在下載新版本……"
 
-#: internal/request/attributes.go:48
+#: internal/request/attributes.go:49
 msgid "Driver"
 msgstr "驅動程式"
 
-#: internal/request/attributes.go:49
+#: internal/request/attributes.go:50
 msgid "Duration"
 msgstr "持續時間"
 
@@ -887,7 +891,7 @@ msgstr "持續時間"
 msgid "Elasticsearch metrics"
 msgstr "Elasticsearch 指標"
 
-#: internal/request/attributes.go:50
+#: internal/request/attributes.go:51
 msgid "Email"
 msgstr "電子郵件"
 
@@ -923,19 +927,19 @@ msgstr "啟用或禁用計劃任務"
 msgid "Enchant is a spell-checking library"
 msgstr "Enchant 是一個拼寫檢查庫"
 
-#: internal/request/attributes.go:51
+#: internal/request/attributes.go:52
 msgid "End"
 msgstr "結束"
 
-#: internal/request/attributes.go:125
+#: internal/request/attributes.go:127
 msgid "End Port"
 msgstr "結束連接埠"
 
-#: internal/request/attributes.go:52
+#: internal/request/attributes.go:53
 msgid "Entrance"
 msgstr "入口"
 
-#: internal/request/attributes.go:53
+#: internal/request/attributes.go:54
 msgid "Entrance Error"
 msgstr "安全入口錯誤"
 
@@ -960,17 +964,17 @@ msgstr "入口，如 /mypanel，不填則隨機產生"
 msgid "Entrance: %s"
 msgstr "入口： %s"
 
-#: internal/request/attributes.go:54
+#: internal/request/attributes.go:55
 msgid "Environment"
 msgstr "環境"
 
 #: internal/biz/backup.go:157
-#: internal/job/cert_renew.go:190
+#: internal/job/cert_renew.go:193
 #: internal/taskqueue/runner.go:188
 msgid "Error"
 msgstr "錯誤"
 
-#: internal/request/attributes.go:55
+#: internal/request/attributes.go:56
 msgid "Error Buffer Max"
 msgstr "錯誤緩衝區上限"
 
@@ -998,11 +1002,11 @@ msgstr "結束代碼"
 msgid "Exit code"
 msgstr "結束代碼"
 
-#: internal/request/attributes.go:57
+#: internal/request/attributes.go:58
 msgid "Expiration Time"
 msgstr "過期時間"
 
-#: internal/request/attributes.go:56
+#: internal/request/attributes.go:57
 msgid "Expire Hours"
 msgstr "過期小時數"
 
@@ -1198,19 +1202,19 @@ msgstr "更新兩步驗證失敗： %v"
 msgid "Failed: %v"
 msgstr "失敗：%v"
 
-#: internal/request/attributes.go:58
+#: internal/request/attributes.go:59
 msgid "Family"
 msgstr "地址族"
 
-#: internal/request/attributes.go:59
+#: internal/request/attributes.go:60
 msgid "File"
 msgstr "檔案"
 
-#: internal/request/attributes.go:60
+#: internal/request/attributes.go:61
 msgid "File Hash"
 msgstr "檔案哈希"
 
-#: internal/request/attributes.go:61
+#: internal/request/attributes.go:62
 msgid "File Name"
 msgstr "檔案名稱"
 
@@ -1222,11 +1226,11 @@ msgstr "Fileinfo 是一個用於識別檔案類型的函式庫"
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr "檔案正常，無需修復，請執行 acepanel update 更新面板"
 
-#: internal/request/attributes.go:63
+#: internal/request/attributes.go:64
 msgid "Filesystem Type"
 msgstr "檔案系統類型"
 
-#: internal/request/attributes.go:62
+#: internal/request/attributes.go:63
 msgid "Find Time"
 msgstr "查找時間"
 
@@ -1322,11 +1326,11 @@ msgstr "Go-%s 未安裝"
 msgid "Goroutine Count"
 msgstr "Goroutine 數量"
 
-#: internal/request/attributes.go:64
+#: internal/request/attributes.go:65
 msgid "Group"
 msgstr "群組"
 
-#: internal/request/attributes.go:65
+#: internal/request/attributes.go:66
 msgid "HTTP Port"
 msgstr "HTTP 連接埠"
 
@@ -1350,11 +1354,11 @@ msgstr "HTTPS 已啟用"
 msgid "Hardware and OS metrics"
 msgstr "硬體和作業系統指標"
 
-#: internal/request/attributes.go:66
+#: internal/request/attributes.go:67
 msgid "Host"
 msgstr "主機"
 
-#: internal/request/attributes.go:67
+#: internal/request/attributes.go:68
 msgid "Hostname"
 msgstr "主機名"
 
@@ -1370,7 +1374,7 @@ msgstr "華為雲"
 msgid "Hypothetical indexes for query plan testing"
 msgstr "用於查詢計劃測試的假想索引"
 
-#: internal/request/attributes.go:68
+#: internal/request/attributes.go:69
 msgid "ID"
 msgstr "ID"
 
@@ -1401,22 +1405,22 @@ msgstr "IMAP 模組允許 PHP 讀取、搜尋、刪除、下載和管理郵件"
 #: internal/biz/alert_ssh.go:62
 #: internal/biz/alert_ssh.go:76
 #: internal/command/entrance.go:67
-#: internal/request/attributes.go:69
+#: internal/request/attributes.go:70
 #: internal/service/user.go:189
 #: internal/service/user.go:414
 #: internal/service/user_passkey.go:321
 msgid "IP"
 msgstr "IP"
 
-#: internal/request/attributes.go:70
+#: internal/request/attributes.go:71
 msgid "IP Database Type"
 msgstr "IP 資料庫類型"
 
-#: internal/request/attributes.go:72
+#: internal/request/attributes.go:73
 msgid "IP List"
 msgstr "IP 列表"
 
-#: internal/request/attributes.go:71
+#: internal/request/attributes.go:72
 msgid "IP Max Keys"
 msgstr "IP 鍵最大值"
 
@@ -1444,7 +1448,7 @@ msgstr "如果您仍然無法存取，請嘗試執行 `acepanel https off` 關�
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr "Igbinary 是一個用於序列化與反序列化資料的函式庫"
 
-#: internal/request/attributes.go:73
+#: internal/request/attributes.go:74
 msgid "Image"
 msgstr "鏡像"
 
@@ -1456,7 +1460,7 @@ msgstr "ImageMagick 是一套用於建立、編輯與合成影像的免費軟體
 msgid "Incremental view maintenance for materialized views"
 msgstr "實體化檢視的增量維護"
 
-#: internal/request/attributes.go:74
+#: internal/request/attributes.go:75
 msgid "Index"
 msgstr "索引"
 
@@ -1510,11 +1514,11 @@ msgstr "安裝應用程式"
 msgid "Install environment %s"
 msgstr "安裝環境 %s"
 
-#: internal/request/attributes.go:75
+#: internal/request/attributes.go:76
 msgid "Interfaces"
 msgstr "網路介面"
 
-#: internal/request/attributes.go:76
+#: internal/request/attributes.go:77
 msgid "Interval"
 msgstr "間隔"
 
@@ -1526,7 +1530,7 @@ msgstr "Intl 是一個處理國際化和本地化的庫"
 msgid "Item"
 msgstr "項目"
 
-#: internal/request/attributes.go:77
+#: internal/request/attributes.go:78
 msgid "Items"
 msgstr "項目"
 
@@ -1542,18 +1546,18 @@ msgstr "Journal 日誌"
 msgid "Kafka metrics"
 msgstr "Kafka 指標"
 
-#: internal/request/attributes.go:78
+#: internal/request/attributes.go:79
 msgid "Keep"
 msgstr "保留數量"
 
 #: internal/command/setting.go:20
 #: internal/command/setting.go:27
 #: internal/command/setting.go:34
-#: internal/request/attributes.go:79
+#: internal/request/attributes.go:80
 msgid "Key"
 msgstr "鍵"
 
-#: internal/request/attributes.go:80
+#: internal/request/attributes.go:82
 msgid "Key Type"
 msgstr "密鑰類型"
 
@@ -1581,7 +1585,7 @@ msgstr "最近一次 fork() 操作耗費的毫秒數"
 msgid "Level"
 msgstr "級別"
 
-#: internal/request/attributes.go:81
+#: internal/request/attributes.go:83
 msgid "Lifetime"
 msgstr "生命週期"
 
@@ -1589,7 +1593,7 @@ msgstr "生命週期"
 msgid "Lightweight message queue"
 msgstr "輕量級訊息佇列"
 
-#: internal/request/attributes.go:82
+#: internal/request/attributes.go:84
 msgid "Limit"
 msgstr "數量限制"
 
@@ -1637,16 +1641,16 @@ msgstr "網站關聯的監聽地址列表"
 msgid "Listed on %s, delivery to major providers will be rejected until delisted"
 msgstr "已被 %s 列入黑名單，解除前寄往主流信箱的郵件會被拒收"
 
-#: internal/request/attributes.go:83
+#: internal/request/attributes.go:85
 msgid "Listen Address"
 msgstr "監聽地址"
 
-#: internal/request/attributes.go:85
+#: internal/request/attributes.go:87
 msgid "Listen Addresses"
 msgstr "監聽地址"
 
 #: internal/apps/rocketmq/app.go:75
-#: internal/request/attributes.go:84
+#: internal/request/attributes.go:86
 msgid "Listen Port"
 msgstr "監聽連接埠"
 
@@ -1679,7 +1683,7 @@ msgstr "本地 IPv6： %s://[%s]:%d%s"
 msgid "Local Storage"
 msgstr "本機儲存"
 
-#: internal/request/attributes.go:86
+#: internal/request/attributes.go:88
 msgid "Locale"
 msgstr "語言"
 
@@ -1692,7 +1696,7 @@ msgstr "日誌"
 msgid "Log Dirs"
 msgstr "日誌目錄"
 
-#: internal/request/attributes.go:87
+#: internal/request/attributes.go:89
 msgid "Log Level"
 msgstr "日誌級別"
 
@@ -1720,7 +1724,7 @@ msgstr "郵件伺服器尚未初始化"
 msgid "Max Active Processes"
 msgstr "最大活躍處理程序數"
 
-#: internal/request/attributes.go:120
+#: internal/request/attributes.go:122
 msgid "Max Children"
 msgstr "最大子處理程序數"
 
@@ -1728,39 +1732,39 @@ msgstr "最大子處理程序數"
 msgid "Max Children Reached"
 msgstr "達到處理程序上限次數"
 
-#: internal/request/attributes.go:88
+#: internal/request/attributes.go:90
 msgid "Max Clients"
 msgstr "最大客戶端數"
 
-#: internal/request/attributes.go:89
+#: internal/request/attributes.go:91
 msgid "Max Clients Per IP"
 msgstr "單 IP 最大客戶端數"
 
-#: internal/request/attributes.go:90
+#: internal/request/attributes.go:92
 msgid "Max Connections"
 msgstr "最大連接數"
 
-#: internal/request/attributes.go:91
+#: internal/request/attributes.go:93
 msgid "Max Disk Usage"
 msgstr "最大磁碟使用率"
 
-#: internal/request/attributes.go:92
+#: internal/request/attributes.go:94
 msgid "Max Execution Time"
 msgstr "最大執行時間"
 
-#: internal/request/attributes.go:93
+#: internal/request/attributes.go:95
 msgid "Max File Uploads"
 msgstr "最大檔案上傳數"
 
-#: internal/request/attributes.go:94
+#: internal/request/attributes.go:96
 msgid "Max Idle Time"
 msgstr "最大空閒時間"
 
-#: internal/request/attributes.go:95
+#: internal/request/attributes.go:97
 msgid "Max Input Time"
 msgstr "最大輸入時間"
 
-#: internal/request/attributes.go:96
+#: internal/request/attributes.go:98
 msgid "Max Input Vars"
 msgstr "最大輸入變數數"
 
@@ -1768,19 +1772,19 @@ msgstr "最大輸入變數數"
 msgid "Max Listen Queue"
 msgstr "最大監聽佇列"
 
-#: internal/request/attributes.go:97
+#: internal/request/attributes.go:99
 msgid "Max Message Size"
 msgstr "最大訊息大小"
 
-#: internal/request/attributes.go:133
+#: internal/request/attributes.go:135
 msgid "Max Restarts"
 msgstr "最大重啟次數"
 
-#: internal/request/attributes.go:98
+#: internal/request/attributes.go:100
 msgid "Max Retry"
 msgstr "最大重試次數"
 
-#: internal/request/attributes.go:121
+#: internal/request/attributes.go:123
 msgid "Max Spare Servers"
 msgstr "最大閒置處理程序數"
 
@@ -1794,7 +1798,7 @@ msgstr "Memcached 指標"
 
 #: internal/apps/apache/app.go:83
 #: internal/apps/nginx/app.go:102
-#: internal/request/attributes.go:99
+#: internal/request/attributes.go:101
 msgid "Memory"
 msgstr "記憶體"
 
@@ -1802,7 +1806,7 @@ msgstr "記憶體"
 msgid "Memory Fragmentation Ratio"
 msgstr "記憶體碎片比率"
 
-#: internal/request/attributes.go:100
+#: internal/request/attributes.go:102
 msgid "Memory Limit"
 msgstr "記憶體限制"
 
@@ -1831,15 +1835,15 @@ msgstr "遷移完成"
 msgid "Migration started"
 msgstr "遷移已開始"
 
-#: internal/request/attributes.go:122
+#: internal/request/attributes.go:124
 msgid "Min Spare Servers"
 msgstr "最小閒置處理程序數"
 
-#: internal/request/attributes.go:101
+#: internal/request/attributes.go:103
 msgid "Mirror"
 msgstr "鏡像源"
 
-#: internal/request/attributes.go:102
+#: internal/request/attributes.go:104
 msgid "Mode"
 msgstr "模式"
 
@@ -1847,7 +1851,7 @@ msgstr "模式"
 msgid "MongoDB metrics"
 msgstr "MongoDB 指標"
 
-#: internal/request/attributes.go:103
+#: internal/request/attributes.go:105
 msgid "Mount Point"
 msgstr "掛載點"
 
@@ -1867,7 +1871,7 @@ msgstr "MySQL 資料庫指標"
 msgid "NAME"
 msgstr "名稱"
 
-#: internal/request/attributes.go:104
+#: internal/request/attributes.go:106
 msgid "Name"
 msgstr "名稱"
 
@@ -1887,11 +1891,11 @@ msgstr "NameServer 狀態"
 msgid "NameSilo"
 msgstr "NameSilo"
 
-#: internal/request/attributes.go:105
+#: internal/request/attributes.go:107
 msgid "New Key"
 msgstr "新鍵名"
 
-#: internal/request/attributes.go:106
+#: internal/request/attributes.go:108
 msgid "New Strategy"
 msgstr "新策略"
 
@@ -1911,7 +1915,7 @@ msgstr "Nginx 指標"
 msgid "No"
 msgstr "否"
 
-#: internal/request/attributes.go:107
+#: internal/request/attributes.go:109
 msgid "No Anonymous"
 msgstr "無匿名"
 
@@ -1959,7 +1963,7 @@ msgstr "不使用"
 msgid "Num Partitions"
 msgstr "分區數量"
 
-#: internal/request/attributes.go:108
+#: internal/request/attributes.go:110
 msgid "Number"
 msgstr "數量"
 
@@ -1999,7 +2003,7 @@ msgstr "OPcache 將 PHP 腳本預編譯的位元組碼儲存到共享記憶體�
 msgid "Obtain a free certificate or generate a self-signed certificate"
 msgstr "簽發免費證書或產生自簽名證書"
 
-#: internal/request/attributes.go:109
+#: internal/request/attributes.go:111
 msgid "Old Key"
 msgstr "舊鍵名"
 
@@ -2040,11 +2044,11 @@ msgid "Operate AcePanel users"
 msgstr "操作 AcePanel 使用者"
 
 #: internal/biz/tamper.go:456
-#: internal/request/attributes.go:110
+#: internal/request/attributes.go:112
 msgid "Operation"
 msgstr "操作"
 
-#: internal/request/attributes.go:111
+#: internal/request/attributes.go:113
 msgid "Operator"
 msgstr "操作員"
 
@@ -2052,7 +2056,7 @@ msgstr "操作員"
 msgid "Oracle compatibility functions"
 msgstr "Oracle 相容函數"
 
-#: internal/request/attributes.go:112
+#: internal/request/attributes.go:114
 msgid "Order"
 msgstr "排序方向"
 
@@ -2072,7 +2076,7 @@ msgstr "輸出 AcePanel 基本資訊"
 msgid "Output in JSON format (list commands only)"
 msgstr "以 JSON 格式輸出（僅適用於列表命令）"
 
-#: internal/request/attributes.go:113
+#: internal/request/attributes.go:115
 msgid "Owner"
 msgstr "擁有者"
 
@@ -2092,7 +2096,7 @@ msgstr "PHP-%d 後端未執行，無法取得 OPcache 狀態"
 msgid "PHP-%d is not installed"
 msgstr "PHP-%d 未安裝"
 
-#: internal/request/attributes.go:114
+#: internal/request/attributes.go:116
 msgid "PID"
 msgstr "PID"
 
@@ -2100,7 +2104,7 @@ msgstr "PID"
 msgid "PTR records are set in your cloud provider's console, not in your DNS zone"
 msgstr "PTR 記錄需要在雲端服務商控制台設定，而不是在 DNS 解析裡"
 
-#: internal/request/attributes.go:115
+#: internal/request/attributes.go:117
 msgid "Page"
 msgstr "頁碼"
 
@@ -2121,7 +2125,7 @@ msgstr "通行金鑰"
 
 #: internal/command/user.go:26
 #: internal/command/user.go:57
-#: internal/request/attributes.go:116
+#: internal/request/attributes.go:118
 msgid "Password"
 msgstr "密碼"
 
@@ -2147,7 +2151,7 @@ msgid "Password: ******* (use -f to force reset)"
 msgstr "密碼：******* (使用 -f 強制重設)"
 
 #: internal/biz/tamper.go:455
-#: internal/request/attributes.go:117
+#: internal/request/attributes.go:119
 msgid "Path"
 msgstr "路徑"
 
@@ -2160,7 +2164,7 @@ msgstr "網站的存放路徑（不填則使用預設路徑）"
 msgid "Path: %s"
 msgstr "路徑：%s"
 
-#: internal/request/attributes.go:118
+#: internal/request/attributes.go:120
 msgid "Paths"
 msgstr "路徑"
 
@@ -2204,7 +2208,7 @@ msgstr "請輸入新密碼： "
 msgid "Please enter the password: "
 msgstr "請輸入密碼： "
 
-#: internal/biz/cert.go:321
+#: internal/biz/cert.go:341
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr "請先在設定中設定面板 IP 以產生 ACME 憑證"
 
@@ -2236,7 +2240,7 @@ msgstr "Podman 容器日誌：%d 個檔案"
 msgid "Porkbun"
 msgstr "Porkbun"
 
-#: internal/request/attributes.go:124
+#: internal/request/attributes.go:126
 msgid "Port"
 msgstr "連接埠"
 
@@ -2289,12 +2293,16 @@ msgstr "PostgreSQL 資料庫指標"
 msgid "Preparing to update to %s..."
 msgstr "正在準備更新至 %s……"
 
+#: internal/request/attributes.go:81
+msgid "Private Key Path"
+msgstr "私鑰路徑"
+
 #: internal/command/website.go:134
 msgid "Private key file path"
 msgstr "私鑰檔案路徑"
 
 #: internal/biz/tamper.go:457
-#: internal/request/attributes.go:127
+#: internal/request/attributes.go:129
 msgid "Process"
 msgstr "處理程序"
 
@@ -2302,7 +2310,7 @@ msgstr "處理程序"
 msgid "Process Count"
 msgstr "處理程序數"
 
-#: internal/request/attributes.go:119
+#: internal/request/attributes.go:121
 #: internal/service/environment_php.go:205
 msgid "Process Manager"
 msgstr "處理程序管理方式"
@@ -2311,11 +2319,11 @@ msgstr "處理程序管理方式"
 msgid "Process PID"
 msgstr "處理程序 PID"
 
-#: internal/request/attributes.go:128
+#: internal/request/attributes.go:130
 msgid "Project Path"
 msgstr "專案路徑"
 
-#: internal/request/attributes.go:129
+#: internal/request/attributes.go:131
 msgid "Protocol"
 msgstr "協議"
 
@@ -2323,11 +2331,11 @@ msgstr "協議"
 msgid "Protocol (tcp, udp, tcp/udp)"
 msgstr "協議（tcp、udp、tcp/udp）"
 
-#: internal/request/attributes.go:130
+#: internal/request/attributes.go:132
 msgid "Proxy"
 msgstr "代理"
 
-#: internal/request/attributes.go:131
+#: internal/request/attributes.go:133
 msgid "Proxy Pass"
 msgstr "代理目標"
 
@@ -2391,7 +2399,7 @@ msgstr "重建目前 Web 伺服器的所有網站設定"
 msgid "Redis metrics"
 msgstr "Redis 指標"
 
-#: internal/request/attributes.go:132
+#: internal/request/attributes.go:134
 msgid "Registry"
 msgstr "倉庫源"
 
@@ -2455,7 +2463,7 @@ msgstr "常駐記憶體（MB）"
 msgid "Restart AcePanel service"
 msgstr "重啟 AcePanel 服務"
 
-#: internal/request/attributes.go:134
+#: internal/request/attributes.go:136
 msgid "Restart Policy"
 msgstr "重啟策略"
 
@@ -2483,11 +2491,11 @@ msgstr "反向解析 (PTR)"
 msgid "Rollbacks per Second"
 msgstr "每秒回滾"
 
-#: internal/request/attributes.go:135
+#: internal/request/attributes.go:137
 msgid "Root"
 msgstr "執行目錄"
 
-#: internal/request/attributes.go:136
+#: internal/request/attributes.go:138
 msgid "Root Directory"
 msgstr "根目錄"
 
@@ -2531,11 +2539,11 @@ msgstr "SSH 登入成功"
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr "SSH2 是一個用於連接 SSH 伺服器的程式庫"
 
-#: internal/request/attributes.go:137
+#: internal/request/attributes.go:139
 msgid "SSL Certificate"
 msgstr "SSL 證書"
 
-#: internal/request/attributes.go:138
+#: internal/request/attributes.go:140
 msgid "SSL Certificate Key"
 msgstr "SSL 私鑰"
 
@@ -2547,23 +2555,23 @@ msgstr "掃描 %s 大型鍵"
 msgid "Schedule"
 msgstr "執行週期"
 
-#: internal/request/attributes.go:139
+#: internal/request/attributes.go:141
 msgid "Schema"
 msgstr "結構描述"
 
-#: internal/request/attributes.go:140
+#: internal/request/attributes.go:142
 msgid "Scope"
 msgstr "範圍"
 
-#: internal/request/attributes.go:141
+#: internal/request/attributes.go:143
 msgid "Script"
 msgstr "腳本"
 
-#: internal/request/attributes.go:151
+#: internal/request/attributes.go:153
 msgid "Secret Key"
 msgstr "Secret Key"
 
-#: internal/request/attributes.go:142
+#: internal/request/attributes.go:144
 msgid "Server"
 msgstr "伺服器"
 
@@ -2596,19 +2604,19 @@ msgstr "伺服器類型（mysql、postgresql、mongodb、clickhouse、redis、el
 msgid "Server username"
 msgstr "伺服器使用者名稱"
 
-#: internal/request/attributes.go:143
+#: internal/request/attributes.go:145
 msgid "Servers"
 msgstr "伺服器"
 
-#: internal/request/attributes.go:144
+#: internal/request/attributes.go:146
 msgid "Service"
 msgstr "服務"
 
-#: internal/request/attributes.go:145
+#: internal/request/attributes.go:147
 msgid "Session Cookie Lifetime"
 msgstr "Cookie 生命週期"
 
-#: internal/request/attributes.go:146
+#: internal/request/attributes.go:148
 msgid "Session GC Max Lifetime"
 msgstr "GC 最大生命週期"
 
@@ -2632,19 +2640,19 @@ msgstr "設定管理"
 msgid "Setting not exists"
 msgstr "設定不存在"
 
-#: internal/request/attributes.go:147
+#: internal/request/attributes.go:149
 msgid "Settings"
 msgstr "設定"
 
-#: internal/request/attributes.go:148
+#: internal/request/attributes.go:150
 msgid "Signal"
 msgstr "訊號"
 
-#: internal/request/attributes.go:149
+#: internal/request/attributes.go:151
 msgid "Silence"
 msgstr "靜默期"
 
-#: internal/request/attributes.go:150
+#: internal/request/attributes.go:152
 msgid "Size"
 msgstr "大小"
 
@@ -2657,7 +2665,7 @@ msgstr "慢請求"
 #: internal/command/app.go:31
 #: internal/command/app.go:42
 #: internal/command/app.go:49
-#: internal/request/attributes.go:152
+#: internal/request/attributes.go:154
 msgid "Slug"
 msgstr "標識"
 
@@ -2665,11 +2673,11 @@ msgstr "標識"
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr "Slug：%s，渠道：%s，版本：%s"
 
-#: internal/request/attributes.go:153
+#: internal/request/attributes.go:155
 msgid "Slugs"
 msgstr "標識"
 
-#: internal/request/attributes.go:154
+#: internal/request/attributes.go:156
 msgid "Sort"
 msgstr "排序"
 
@@ -2677,11 +2685,11 @@ msgstr "排序"
 msgid "Sort Merge Passes"
 msgstr "排序後的合併次數"
 
-#: internal/request/attributes.go:155
+#: internal/request/attributes.go:157
 msgid "Source"
 msgstr "來源"
 
-#: internal/request/attributes.go:156
+#: internal/request/attributes.go:158
 msgid "Source Panel"
 msgstr "源面板"
 
@@ -2693,7 +2701,7 @@ msgstr "支援空間與地理物件"
 msgid "Stalwart mail server reverse proxy"
 msgstr "Stalwart 郵件服務反向代理"
 
-#: internal/request/attributes.go:157
+#: internal/request/attributes.go:159
 msgid "Start"
 msgstr "開始"
 
@@ -2701,11 +2709,11 @@ msgstr "開始"
 msgid "Start AcePanel service"
 msgstr "啟動 AcePanel 服務"
 
-#: internal/request/attributes.go:126
+#: internal/request/attributes.go:128
 msgid "Start Port"
 msgstr "起始連接埠"
 
-#: internal/request/attributes.go:123
+#: internal/request/attributes.go:125
 msgid "Start Servers"
 msgstr "啟動處理程序數"
 
@@ -2715,7 +2723,7 @@ msgstr "啟動處理程序數"
 msgid "Start Time"
 msgstr "啟動時間"
 
-#: internal/request/attributes.go:174
+#: internal/request/attributes.go:176
 msgid "Start Timeout"
 msgstr "啟動超時"
 
@@ -2723,11 +2731,11 @@ msgstr "啟動超時"
 msgid "Startup Allocated"
 msgstr "啟動時已配置"
 
-#: internal/request/attributes.go:158
+#: internal/request/attributes.go:160
 msgid "Status"
 msgstr "狀態"
 
-#: internal/request/attributes.go:159
+#: internal/request/attributes.go:161
 msgid "Stop"
 msgstr "停止頁面"
 
@@ -2735,7 +2743,7 @@ msgstr "停止頁面"
 msgid "Stop AcePanel service"
 msgstr "停止 AcePanel 服務"
 
-#: internal/request/attributes.go:175
+#: internal/request/attributes.go:177
 msgid "Stop Timeout"
 msgstr "停止超時"
 
@@ -2761,11 +2769,11 @@ msgstr "儲存保留"
 msgid "Storage Usage"
 msgstr "儲存空間使用量"
 
-#: internal/request/attributes.go:160
+#: internal/request/attributes.go:162
 msgid "Strategy"
 msgstr "策略"
 
-#: internal/request/attributes.go:161
+#: internal/request/attributes.go:163
 msgid "Sub Type"
 msgstr "子類型"
 
@@ -2793,7 +2801,7 @@ msgstr "同步 AcePanel 雲端快取資料"
 msgid "Sync server time with NTP"
 msgstr "透過 NTP 同步伺服器時間"
 
-#: internal/request/attributes.go:162
+#: internal/request/attributes.go:164
 msgid "System Log Path"
 msgstr "系統日誌路徑"
 
@@ -2810,19 +2818,19 @@ msgid "Sysvshm is a library for handling System V shared memory"
 msgstr "Sysvshm 是一個處理系統 V 共享記憶體的庫"
 
 #: internal/apps/redis/app.go:122
-#: internal/request/attributes.go:163
+#: internal/request/attributes.go:165
 msgid "TCP Port"
 msgstr "TCP 連接埠"
 
-#: internal/request/attributes.go:164
+#: internal/request/attributes.go:166
 msgid "TLS"
 msgstr "TLS"
 
-#: internal/request/attributes.go:165
+#: internal/request/attributes.go:167
 msgid "TLS Versions"
 msgstr "TLS 版本"
 
-#: internal/request/attributes.go:166
+#: internal/request/attributes.go:168
 msgid "Table"
 msgstr "表"
 
@@ -2835,15 +2843,15 @@ msgid "Tables"
 msgstr "表"
 
 #: internal/biz/backup.go:156
-#: internal/request/attributes.go:167
+#: internal/request/attributes.go:169
 msgid "Target"
 msgstr "目標"
 
-#: internal/request/attributes.go:168
+#: internal/request/attributes.go:170
 msgid "Target IP"
 msgstr "目標 IP"
 
-#: internal/request/attributes.go:169
+#: internal/request/attributes.go:171
 msgid "Target Port"
 msgstr "目標連接埠"
 
@@ -2855,7 +2863,7 @@ msgstr "目標名稱"
 msgid "Target username (the first user if not filled)"
 msgstr "目標使用者名稱（不填則使用第一個使用者）"
 
-#: internal/request/attributes.go:170
+#: internal/request/attributes.go:172
 msgid "Targets"
 msgstr "目標"
 
@@ -2868,7 +2876,7 @@ msgstr "任務"
 msgid "Tasks cleared successfully"
 msgstr "任務已成功清除"
 
-#: internal/request/attributes.go:177
+#: internal/request/attributes.go:179
 msgid "Temp Path"
 msgstr "臨時路徑"
 
@@ -2888,7 +2896,7 @@ msgstr "此欄位為必填"
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
 msgstr "這是一則來自 AcePanel 的測試通知，收到即表示該渠道設定正確。"
 
-#: internal/request/attributes.go:171
+#: internal/request/attributes.go:173
 msgid "Threads"
 msgstr "執行緒"
 
@@ -2903,8 +2911,8 @@ msgstr "閾值"
 #: internal/biz/backup.go:158
 #: internal/biz/notify.go:188
 #: internal/biz/tamper.go:458
-#: internal/job/cert_renew.go:191
-#: internal/request/attributes.go:172
+#: internal/job/cert_renew.go:194
+#: internal/request/attributes.go:174
 #: internal/service/cli_cron.go:90
 #: internal/service/user.go:191
 #: internal/service/user.go:418
@@ -2921,11 +2929,11 @@ msgstr "時間同步成功"
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr "時間序列資料庫引擎，安裝後需要重啟 PostgreSQL"
 
-#: internal/request/attributes.go:173
+#: internal/request/attributes.go:175
 msgid "Timeout"
 msgstr "超時"
 
-#: internal/request/attributes.go:176
+#: internal/request/attributes.go:178
 msgid "Timezone"
 msgstr "時區"
 
@@ -2933,7 +2941,7 @@ msgstr "時區"
 msgid "Toggle two-factor authentication for a user"
 msgstr "切換使用者的兩步驟驗證"
 
-#: internal/request/attributes.go:178
+#: internal/request/attributes.go:180
 msgid "Token"
 msgstr "令牌"
 
@@ -3003,15 +3011,15 @@ msgid "Transactions per Second"
 msgstr "每秒事務"
 
 #: internal/biz/backup.go:155
-#: internal/request/attributes.go:179
+#: internal/request/attributes.go:181
 msgid "Type"
 msgstr "類型"
 
-#: internal/request/attributes.go:180
+#: internal/request/attributes.go:182
 msgid "UDP Port"
 msgstr "UDP 連接埠"
 
-#: internal/request/attributes.go:181
+#: internal/request/attributes.go:183
 msgid "URL"
 msgstr "URL"
 
@@ -3019,7 +3027,7 @@ msgstr "URL"
 msgid "USAGE"
 msgstr "使用"
 
-#: internal/request/attributes.go:182
+#: internal/request/attributes.go:184
 msgid "UV Max Keys"
 msgstr "UV 鍵最大值"
 
@@ -3132,8 +3140,8 @@ msgstr "執行時間（秒）"
 msgid "Uptime in Days"
 msgstr "已運作天數"
 
-#: internal/request/attributes.go:183
-#: internal/request/attributes.go:184
+#: internal/request/attributes.go:185
+#: internal/request/attributes.go:186
 msgid "User"
 msgstr "使用者"
 
@@ -3170,7 +3178,7 @@ msgstr "User-Agent"
 #: internal/command/user.go:56
 #: internal/command/user.go:64
 #: internal/command/user.go:70
-#: internal/request/attributes.go:185
+#: internal/request/attributes.go:187
 #: internal/service/user.go:188
 #: internal/service/user.go:415
 #: internal/service/user_passkey.go:319
@@ -3198,7 +3206,7 @@ msgid "VERSION"
 msgstr "版本"
 
 #: internal/command/setting.go:27
-#: internal/request/attributes.go:187
+#: internal/request/attributes.go:189
 msgid "Value"
 msgstr "值"
 
@@ -3221,7 +3229,7 @@ msgstr "驗證下載檔案……"
 msgid "Version"
 msgstr "版本"
 
-#: internal/request/attributes.go:186
+#: internal/request/attributes.go:188
 msgid "Volume Group"
 msgstr "卷組"
 
@@ -3262,15 +3270,15 @@ msgstr "網站 %s 移除成功"
 msgid "Website %s written successfully"
 msgstr "網站 %s 寫入成功"
 
-#: internal/request/attributes.go:189
+#: internal/request/attributes.go:191
 msgid "Website Mode"
 msgstr "網站模式"
 
-#: internal/request/attributes.go:190
+#: internal/request/attributes.go:192
 msgid "Website Name"
 msgstr "網站名稱"
 
-#: internal/request/attributes.go:191
+#: internal/request/attributes.go:193
 msgid "Website Path"
 msgstr "網站路徑"
 
@@ -3307,7 +3315,7 @@ msgstr "網站狀態"
 msgid "Website type (proxy, static, php)"
 msgstr "網站類型（proxy、static、php）"
 
-#: internal/request/attributes.go:188
+#: internal/request/attributes.go:190
 msgid "Websites"
 msgstr "網站"
 
@@ -3323,7 +3331,7 @@ msgstr "西部數碼"
 msgid "Whether the website has SSL enabled"
 msgstr "網站是否啟用 SSL"
 
-#: internal/request/attributes.go:192
+#: internal/request/attributes.go:194
 msgid "Whitelist"
 msgstr "白名單"
 
@@ -3388,7 +3396,7 @@ msgstr "[AcePanel] 背景任務失敗"
 msgid "[AcePanel] Backup Failed"
 msgstr "[AcePanel] 備份失敗"
 
-#: internal/job/cert_renew.go:188
+#: internal/job/cert_renew.go:191
 msgid "[AcePanel] Certificate Renewal Failed"
 msgstr "[AcePanel] 證書續簽失敗"
 
@@ -3847,15 +3855,15 @@ msgstr "憑證帳戶已更新"
 msgid "cert account viewed"
 msgstr "已查看憑證帳戶"
 
-#: internal/biz/cert.go:108
+#: internal/biz/cert.go:112
 msgid "cert created"
 msgstr "憑證已建立"
 
-#: internal/biz/cert.go:169
+#: internal/biz/cert.go:184
 msgid "cert deleted"
 msgstr "憑證已刪除"
 
-#: internal/biz/cert.go:338
+#: internal/biz/cert.go:358
 msgid "cert deployed"
 msgstr "憑證已部署"
 
@@ -3887,19 +3895,23 @@ msgstr "憑證鉤子執行失敗"
 msgid "cert list viewed"
 msgstr "已查看憑證列表"
 
-#: internal/biz/cert.go:206
+#: internal/biz/cert.go:221
 msgid "cert obtained"
 msgstr "憑證已簽發"
 
-#: internal/biz/cert.go:251
+#: internal/biz/cert.go:418
+msgid "cert reloaded from files"
+msgstr "憑證已從檔案重新整理"
+
+#: internal/biz/cert.go:271
 msgid "cert renewed"
 msgstr "憑證已續簽"
 
-#: internal/biz/cert.go:153
+#: internal/biz/cert.go:168
 msgid "cert updated"
 msgstr "憑證已更新"
 
-#: internal/biz/cert.go:134
+#: internal/biz/cert.go:136
 msgid "cert uploaded"
 msgstr "憑證已上傳"
 
@@ -3915,7 +3927,11 @@ msgstr "證書 %s 將在 %s 天後到期"
 msgid "certificate expiry"
 msgstr "證書到期"
 
-#: internal/job/cert_renew.go:188
+#: internal/biz/cert.go:411
+msgid "certificate files have not changed"
+msgstr "證書檔案沒有變化"
+
+#: internal/job/cert_renew.go:191
 msgid "certificate renewal failed"
 msgstr "證書續簽失敗"
 
@@ -4238,7 +4254,7 @@ msgstr "資料來源 %s 不存在"
 msgid "default site is not supported by the current web server"
 msgstr "目前 Web 伺服器不支援預設網站"
 
-#: internal/biz/cert.go:427
+#: internal/biz/cert.go:499
 msgid "deploying certificate to website"
 msgstr "部署證書到網站"
 
@@ -4704,7 +4720,7 @@ msgstr "格式化分區失敗：%v"
 msgid "failed to generate SSH key: %v"
 msgstr "生成 SSH 密鑰失敗：%v"
 
-#: internal/job/cert_renew.go:119
+#: internal/job/cert_renew.go:122
 msgid "failed to generate self-signed certificate"
 msgstr "產生自簽名憑證失敗"
 
@@ -4788,7 +4804,7 @@ msgstr "無法取得 ZeroSSL EAB"
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr "無法取得 ZeroSSL EAB：%v"
 
-#: internal/job/cert_renew.go:155
+#: internal/job/cert_renew.go:158
 msgid "failed to get a panel user"
 msgstr "取得面板使用者失敗"
 
@@ -4852,7 +4868,7 @@ msgstr "獲取網路介面失敗：%v"
 msgid "failed to get nginx workers: %v"
 msgstr "無法取得 nginx 工作處理程序：%v"
 
-#: internal/job/cert_renew.go:160
+#: internal/job/cert_renew.go:163
 msgid "failed to get panel ACME account"
 msgstr "取得面板 ACME 帳戶失敗"
 
@@ -4963,7 +4979,7 @@ msgstr "登入 phpMyAdmin 失敗，請檢查伺服器 %s 的憑證與狀態"
 msgid "failed to mount partition: %v"
 msgstr "無法掛載分區：%v"
 
-#: internal/job/cert_renew.go:166
+#: internal/job/cert_renew.go:169
 msgid "failed to obtain panel certificate via ACME"
 msgstr "透過 ACME 取得面板憑證失敗"
 
@@ -4971,7 +4987,7 @@ msgstr "透過 ACME 取得面板憑證失敗"
 msgid "failed to open sftp session on %s: %v"
 msgstr "在 %s 上開啟 SFTP 工作階段失敗：%v"
 
-#: internal/biz/cert.go:116
+#: internal/biz/cert.go:383
 #: internal/biz/setting.go:174
 #: internal/biz/setting.go:305
 #: internal/data/website.go:579
@@ -4979,8 +4995,8 @@ msgstr "在 %s 上開啟 SFTP 工作階段失敗：%v"
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
-#: internal/job/cert_renew.go:114
-#: internal/job/cert_renew.go:150
+#: internal/job/cert_renew.go:117
+#: internal/job/cert_renew.go:153
 msgid "failed to parse panel certificate"
 msgstr "解析面板憑證失敗"
 
@@ -4992,7 +5008,7 @@ msgstr "解析 pgAdmin 登入頁面失敗"
 msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登入頁面失敗"
 
-#: internal/biz/cert.go:119
+#: internal/biz/cert.go:387
 #: internal/biz/setting.go:177
 #: internal/biz/setting.go:308
 #: internal/data/website.go:582
@@ -5036,6 +5052,10 @@ msgstr "拉取鏡像失敗：%v"
 #: internal/job/website_expire.go:48
 msgid "failed to query expired websites"
 msgstr "查詢到期網站失敗"
+
+#: internal/biz/cert.go:376
+msgid "failed to read certificate files: %v"
+msgstr "讀取證書檔案失敗：%v"
 
 #: internal/service/ws.go:101
 msgid "failed to read command output: %v"
@@ -5132,7 +5152,7 @@ msgstr "在目標端重新生成網站配置失敗：%v"
 msgid "failed to reconcile tamper protection"
 msgstr "恢復防竄改保護失敗"
 
-#: internal/job/cert_renew.go:82
+#: internal/job/cert_renew.go:84
 msgid "failed to refresh renewal info"
 msgstr "重新整理續簽資訊失敗"
 
@@ -5176,7 +5196,7 @@ msgstr "刪除卷組失敗：%v"
 msgid "failed to rename systemd config"
 msgstr "重命名 systemd 配置失敗"
 
-#: internal/job/cert_renew.go:91
+#: internal/job/cert_renew.go:95
 msgid "failed to renew certificate"
 msgstr "續簽憑證失敗"
 
@@ -5379,8 +5399,8 @@ msgstr "更新網路介面失敗：%v"
 msgid "failed to update panel"
 msgstr "更新面板失敗"
 
-#: internal/job/cert_renew.go:127
-#: internal/job/cert_renew.go:175
+#: internal/job/cert_renew.go:130
+#: internal/job/cert_renew.go:178
 msgid "failed to update panel certificate"
 msgstr "更新面板憑證失敗"
 
@@ -5788,7 +5808,7 @@ msgstr "鏡像已拉取"
 msgid "images pruned"
 msgstr "鏡像已清理"
 
-#: internal/biz/cert.go:185
+#: internal/biz/cert.go:200
 msgid "initializing ACME client"
 msgstr "初始化 ACME 客戶端"
 
@@ -5898,7 +5918,7 @@ msgstr "ipdb 已重載"
 msgid "ipdb updated"
 msgstr "ipdb 已更新"
 
-#: internal/biz/cert.go:200
+#: internal/biz/cert.go:215
 msgid "issuing certificate, domains: %s"
 msgstr "簽發證書，域名：%s"
 
@@ -6334,7 +6354,7 @@ msgstr "NTP 伺服器已更新"
 msgid "ntp servers viewed"
 msgstr "已查看 NTP 伺服器"
 
-#: internal/biz/cert.go:411
+#: internal/biz/cert.go:483
 msgid "obtaining and saving certificate"
 msgstr "取得並儲存憑證"
 
@@ -6354,11 +6374,11 @@ msgstr "開啟上傳檔案錯誤：%v"
 msgid "panel binary is missing after update"
 msgstr "更新後缺少面板二進位檔"
 
-#: internal/job/cert_renew.go:120
-#: internal/job/cert_renew.go:128
-#: internal/job/cert_renew.go:161
-#: internal/job/cert_renew.go:167
-#: internal/job/cert_renew.go:176
+#: internal/job/cert_renew.go:123
+#: internal/job/cert_renew.go:131
+#: internal/job/cert_renew.go:164
+#: internal/job/cert_renew.go:170
+#: internal/job/cert_renew.go:179
 msgid "panel certificate"
 msgstr "面板證書"
 
@@ -6367,7 +6387,7 @@ msgstr "面板證書"
 msgid "panel certificate obtained"
 msgstr "面板憑證已取得"
 
-#: internal/job/cert_renew.go:180
+#: internal/job/cert_renew.go:183
 msgid "panel certificate renewed"
 msgstr "面板憑證已續簽"
 
@@ -6412,7 +6432,7 @@ msgstr "面板已重啟"
 msgid "panel runtime info viewed"
 msgstr "已查看面板執行階段資訊"
 
-#: internal/job/cert_renew.go:131
+#: internal/job/cert_renew.go:134
 msgid "panel self-signed certificate renewed"
 msgstr "面板自簽名憑證已續簽"
 
@@ -6653,7 +6673,7 @@ msgstr "已查看 PostgreSQL 工作階段列表"
 msgid "postgresql session terminated"
 msgstr "PostgreSQL 工作階段已終止"
 
-#: internal/biz/cert.go:218
+#: internal/biz/cert.go:243
 msgid "preparing renewal"
 msgstr "準備續簽"
 
@@ -6770,6 +6790,10 @@ msgstr "已查看 RAID 資訊"
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr "rdkafka 是一個用於連接 Apache Kafka 的庫"
 
+#: internal/biz/cert.go:404
+msgid "reading certificate files"
+msgstr "讀取證書檔案"
+
 #: internal/apps/stalwart/app.go:295
 msgid "recovery credential not found in %s, please reinstall the app"
 msgstr "在 %s 中找不到引導帳號密碼，請重新安裝應用程式"
@@ -6810,11 +6834,11 @@ msgstr "請填寫中繼密碼"
 msgid "remote download task created"
 msgstr "遠端下載任務已建立"
 
-#: internal/biz/cert.go:242
+#: internal/biz/cert.go:262
 msgid "renewal failed, attempting re-issuance"
 msgstr "續簽失敗，嘗試重新簽發"
 
-#: internal/biz/cert.go:237
+#: internal/biz/cert.go:257
 msgid "renewing certificate, domains: %s"
 msgstr "續簽證書，域名：%s"
 
@@ -6919,7 +6943,7 @@ msgstr "已查看掃描事件列表"
 msgid "scan events cleared"
 msgstr "掃描事件已清除"
 
-#: internal/biz/cert.go:303
+#: internal/biz/cert.go:323
 msgid "self-signed cert generated"
 msgstr "自簽名憑證已產生"
 
@@ -7022,7 +7046,7 @@ msgstr "已查看 SMART 資訊"
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr "未安裝 smartmontools，請先安裝它（例如：apt install smartmontools 或 dnf install smartmontools）"
 
-#: internal/data/cert.go:229
+#: internal/data/cert.go:233
 msgid "some of the selected websites do not exist"
 msgstr "所選網站中有部分不存在"
 
@@ -7368,6 +7392,10 @@ msgstr "該名稱已被 AcePanel 保留"
 msgid "the panel directory is on a memory file system, disk performance cannot be measured"
 msgstr "面板目錄位於記憶體檔案系統上，無法測量磁碟效能"
 
+#: internal/biz/cert.go:391
+msgid "the private key does not match the certificate"
+msgstr "私鑰與證書不匹配"
+
 #: internal/biz/toolbox_migration_import.go:389
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr "項目已遷移，但其反向代理網站已存在於目標端"
@@ -7453,21 +7481,25 @@ msgstr "不支援自動遷移此類 1Panel 網站：%s"
 msgid "this certificate has not been obtained successfully"
 msgstr "該憑證尚未簽發成功"
 
-#: internal/biz/cert.go:455
+#: internal/biz/cert.go:527
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr "此證書尚未成功簽發，無法部署"
 
-#: internal/biz/cert.go:230
+#: internal/biz/cert.go:250
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr "此證書尚未成功簽發，無法續期"
 
-#: internal/biz/cert.go:364
+#: internal/biz/cert.go:436
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr "此證書未與任何網站關聯，無法簽發。您可以嘗試使用手動簽發"
 
-#: internal/data/cert.go:152
+#: internal/data/cert.go:156
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr "此證書未與 ACME 帳戶關聯，無法簽發"
+
+#: internal/biz/cert.go:401
+msgid "this certificate was not imported from a path and cannot be renewed"
+msgstr "此證書不是從路徑匯入的，無法續簽"
 
 #: internal/service/toolbox_system.go:189
 msgid "timezone updated"
@@ -7596,7 +7628,7 @@ msgstr "SSH 工作階段 WebSocket 升級錯誤"
 msgid "upgrade ssh transfer ws error"
 msgstr "SSH 傳輸 WebSocket 升級錯誤"
 
-#: internal/biz/cert.go:145
+#: internal/biz/cert.go:155
 msgid "upload certificate cannot be set to auto renewal"
 msgstr "上傳的憑證無法設定為自動續期"
 
@@ -7895,7 +7927,7 @@ msgstr "網站已更新"
 msgid "websocket upgrade error"
 msgstr "WebSocket 升級錯誤"
 
-#: internal/biz/cert.go:370
+#: internal/biz/cert.go:442
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-11-15 18:50\n"
+"PO-Revision-Date: 2026-11-16 07:51\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:508
@@ -31,8 +31,8 @@ msgstr "QQ 群"
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:335
 #: src/views/backup/ListView.vue:377
-#: src/views/cert/CertModal.vue:129
-#: src/views/cert/CertView.vue:463
+#: src/views/cert/CertModal.vue:132
+#: src/views/cert/CertView.vue:467
 #: src/views/home/IndexView.vue:94
 #: src/views/log/OperationLog.vue:26
 #: src/views/project/ProxyModal.vue:307
@@ -410,7 +410,7 @@ msgstr "最大化"
 #: src/components/common/DraggableWindow.vue:335
 #: src/components/file-editor/EditorPane.vue:286
 #: src/layouts/tab/components/ContextMenu.vue:29
-#: src/views/cert/ObtainModal.vue:178
+#: src/views/cert/ObtainModal.vue:176
 #: src/views/ssh/IndexView.vue:384
 msgid "Close"
 msgstr "关闭"
@@ -646,9 +646,9 @@ msgstr "无效的名称"
 #: src/views/app/TemplateDeployModal.vue:245
 #: src/views/backup/StorageModal.vue:148
 #: src/views/cert/AccountModal.vue:65
-#: src/views/cert/CertModal.vue:86
+#: src/views/cert/CertModal.vue:89
 #: src/views/cert/DnsModal.vue:107
-#: src/views/cert/UploadCertModal.vue:26
+#: src/views/cert/UploadCertModal.vue:30
 #: src/views/container/ComposeView.vue:217
 #: src/views/container/ContainerCreate.vue:228
 #: src/views/container/NetworkView.vue:181
@@ -916,7 +916,6 @@ msgstr[0] "%{ count } 行新日志"
 #: src/views/apps/supervisor/IndexView.vue:121
 #: src/views/container/ContainerView.vue:150
 #: src/views/project/ListView.vue:177
-#: src/views/project/ListView.vue:361
 #: src/views/task/CronView.vue:148
 #: src/views/task/TaskView.vue:88
 msgid "Logs"
@@ -1342,6 +1341,7 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/apps/redis/RedisPerformanceView.vue:149
 #: src/views/apps/redis/RedisPerformanceView.vue:165
 #: src/views/apps/stalwart/QueueView.vue:179
+#: src/views/cert/CertView.vue:328
 #: src/views/environment/PHPView.vue:376
 #: src/views/environment/PHPView.vue:397
 #: src/views/file/PathInput.vue:168
@@ -1362,6 +1362,7 @@ msgid "Refresh"
 msgstr "刷新"
 
 #: src/components/file-editor/EditorToolbar.vue:89
+#: src/views/cert/ObtainModal.vue:36
 msgid "Refreshed successfully"
 msgstr "刷新成功"
 
@@ -1657,7 +1658,7 @@ msgstr "重命名"
 #: src/views/backup/ListView.vue:314
 #: src/views/backup/StorageView.vue:79
 #: src/views/cert/AccountView.vue:101
-#: src/views/cert/CertView.vue:376
+#: src/views/cert/CertView.vue:378
 #: src/views/cert/DnsView.vue:95
 #: src/views/container/ComposeView.vue:201
 #: src/views/container/ComposeView.vue:271
@@ -1952,10 +1953,9 @@ msgstr "备份"
 
 #: src/locales/menu.ts:9
 #: src/views/apps/stalwart/StatusView.vue:272
-#: src/views/cert/CertModal.vue:173
-#: src/views/cert/CertView.vue:518
+#: src/views/cert/CertView.vue:522
 #: src/views/cert/IndexView.vue:96
-#: src/views/cert/UploadCertModal.vue:38
+#: src/views/cert/UploadFields.vue:52
 #: src/views/log/OperationLog.vue:31
 #: src/views/setting/SettingSafe.vue:303
 #: src/views/website/EditModal.vue:710
@@ -2473,8 +2473,8 @@ msgstr "请选择一个编排"
 
 #: src/views/app/TemplateDeployModal.vue:266
 #: src/views/cert/AccountModal.vue:65
-#: src/views/cert/CertModal.vue:86
-#: src/views/cert/CertView.vue:408
+#: src/views/cert/CertModal.vue:89
+#: src/views/cert/CertView.vue:412
 #: src/views/cert/DnsModal.vue:107
 #: src/views/container/ComposeView.vue:235
 msgid "Update successful"
@@ -3240,7 +3240,7 @@ msgstr "查找时间"
 
 #: src/views/apps/fail2ban/IndexView.vue:94
 #: src/views/apps/stalwart/SettingView.vue:310
-#: src/views/cert/CertView.vue:343
+#: src/views/cert/CertView.vue:345
 #: src/views/database/ElasticsearchDataView.vue:188
 #: src/views/database/RedisDataView.vue:143
 msgid "View"
@@ -3400,11 +3400,11 @@ msgstr "保护路径"
 #: src/views/backup/ListView.vue:404
 #: src/views/backup/StorageModal.vue:328
 #: src/views/cert/AccountModal.vue:136
-#: src/views/cert/CertModal.vue:207
-#: src/views/cert/CertView.vue:506
+#: src/views/cert/CertModal.vue:195
+#: src/views/cert/CertView.vue:510
 #: src/views/cert/DnsModal.vue:162
-#: src/views/cert/ObtainModal.vue:175
-#: src/views/cert/UploadCertModal.vue:56
+#: src/views/cert/ObtainModal.vue:173
+#: src/views/cert/UploadCertModal.vue:45
 #: src/views/container/ComposeView.vue:308
 #: src/views/container/ComposeView.vue:326
 #: src/views/container/ContainerView.vue:446
@@ -5512,7 +5512,7 @@ msgid "PHP Version"
 msgstr "PHP 版本"
 
 #: src/views/apps/openlitespeed/IndexView.vue:66
-#: src/views/cert/CertView.vue:488
+#: src/views/cert/CertView.vue:492
 #: src/views/tamper/TamperView.vue:318
 #: src/views/toolbox/DiskView.vue:201
 msgid "Available"
@@ -6652,7 +6652,7 @@ msgstr "修改密码会让所有客户端下线，并清除该邮箱的应用密
 
 #: src/views/apps/stalwart/DomainView.vue:45
 #: src/views/apps/stalwart/DomainView.vue:360
-#: src/views/cert/CertModal.vue:113
+#: src/views/cert/CertModal.vue:116
 #: src/views/cert/CertView.vue:122
 #: src/views/project/ProxyForm.vue:9
 #: src/views/project/ProxyModal.vue:341
@@ -7329,9 +7329,8 @@ msgstr "Amazon S3（中国区）"
 
 #: src/views/backup/StorageModal.vue:36
 #: src/views/backup/StorageModal.vue:290
-#: src/views/cert/CertModal.vue:181
-#: src/views/cert/CertView.vue:521
-#: src/views/cert/UploadCertModal.vue:46
+#: src/views/cert/CertView.vue:525
+#: src/views/cert/UploadFields.vue:60
 #: src/views/setting/SettingSafe.vue:310
 #: src/views/ssh/HostModal.vue:88
 #: src/views/ssh/HostModal.vue:99
@@ -7520,12 +7519,12 @@ msgstr "选择 CA"
 
 #: src/views/cert/AccountModal.vue:102
 #: src/views/cert/AccountView.vue:60
-#: src/views/cert/CertModal.vue:121
+#: src/views/cert/CertModal.vue:124
 msgid "Key Type"
 msgstr "密钥类型"
 
 #: src/views/cert/AccountModal.vue:105
-#: src/views/cert/CertModal.vue:124
+#: src/views/cert/CertModal.vue:127
 msgid "Select key type"
 msgstr "选择密钥类型"
 
@@ -7542,7 +7541,7 @@ msgid "Enter HMAC"
 msgstr "输入 HMAC"
 
 #: src/views/cert/AccountView.vue:83
-#: src/views/cert/CertView.vue:358
+#: src/views/cert/CertView.vue:360
 #: src/views/cert/DnsView.vue:77
 #: src/views/database/ServerList.vue:215
 #: src/views/database/UserList.vue:152
@@ -7556,82 +7555,70 @@ msgid "Are you sure you want to delete the account?"
 msgstr "您确定要删除该账户吗？"
 
 #: src/views/cert/AccountView.vue:96
-#: src/views/cert/CertView.vue:372
+#: src/views/cert/CertView.vue:374
 #: src/views/cert/DnsView.vue:91
 msgid "Deletion successful"
 msgstr "删除成功"
 
-#: src/views/cert/CertModal.vue:98
+#: src/views/cert/CertModal.vue:101
 msgid "Modify Certificate"
 msgstr "修改证书"
 
-#: src/views/cert/CertModal.vue:98
+#: src/views/cert/CertModal.vue:101
 #: src/views/cert/IndexView.vue:107
 msgid "Create Certificate"
 msgstr "创建证书"
 
-#: src/views/cert/CertModal.vue:104
+#: src/views/cert/CertModal.vue:107
 msgid "You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates."
 msgstr "您可以通过选择任何网站 / DNS 自动颁发和部署证书，或手动输入域名并设置 DNS 解析以颁发证书，或填写部署脚本以自动部署证书。"
 
-#: src/views/cert/CertModal.vue:107
+#: src/views/cert/CertModal.vue:110
 msgid "You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates"
 msgstr "您可以通过选择网站或 DNS 来自动颁发和部署证书，或者手动输入域名并设置 DNS 解析以颁发证书"
 
-#: src/views/cert/CertModal.vue:132
+#: src/views/cert/CertModal.vue:135
 msgid "Select websites for certificate deployment"
 msgstr "选择要部署证书的网站"
 
-#: src/views/cert/CertModal.vue:138
+#: src/views/cert/CertModal.vue:141
 #: src/views/cert/IndexView.vue:97
 msgid "Account"
 msgstr "账户"
 
-#: src/views/cert/CertModal.vue:141
+#: src/views/cert/CertModal.vue:144
 msgid "Select account for certificate issuance"
 msgstr "选择用于证书颁发的账户"
 
-#: src/views/cert/CertModal.vue:146
+#: src/views/cert/CertModal.vue:149
 #: src/views/cert/DnsModal.vue:127
 #: src/views/cert/IndexView.vue:98
 #: src/views/website/EditModal.vue:1013
 msgid "DNS"
 msgstr "DNS"
 
-#: src/views/cert/CertModal.vue:149
+#: src/views/cert/CertModal.vue:152
 #: src/views/website/EditModal.vue:1016
 msgid "Select DNS for certificate issuance"
 msgstr "选择用于证书颁发的 DNS"
 
-#: src/views/cert/CertModal.vue:154
+#: src/views/cert/CertModal.vue:157
 msgid "DNS Alias"
 msgstr "DNS 别名"
 
-#: src/views/cert/CertModal.vue:160
+#: src/views/cert/CertModal.vue:163
 msgid "Original domain, e.g. example.com"
 msgstr "原始域名，例如 example.com"
 
-#: src/views/cert/CertModal.vue:166
+#: src/views/cert/CertModal.vue:169
 msgid "Alias record, e.g. _acme-challenge.delegated.com"
 msgstr "别名记录，例如 _acme-challenge.delegated.com"
 
-#: src/views/cert/CertModal.vue:177
-#: src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditModal.vue:714
-msgid "Enter the content of the PEM certificate file"
-msgstr "输入 PEM 证书文件的内容"
-
-#: src/views/cert/CertModal.vue:185
-#: src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditModal.vue:724
-msgid "Enter the content of the KEY private key file"
-msgstr "输入 KEY 私钥文件的内容"
-
-#: src/views/cert/CertModal.vue:192
+#: src/views/cert/CertModal.vue:180
 msgid "Deployment Script"
 msgstr "部署脚本"
 
-#: src/views/cert/CertModal.vue:198
+#: src/views/cert/CertModal.vue:186
 msgid "The {cert} and {key} in the script will be replaced with the certificate and private key content"
 msgstr "脚本中的 {cert} 和 {key} 将被替换为证书和私钥内容"
 
@@ -7678,35 +7665,35 @@ msgstr "自动续签"
 msgid "Issue"
 msgstr "签发"
 
-#: src/views/cert/CertView.vue:326
+#: src/views/cert/CertView.vue:328
 msgid "Renewal"
 msgstr "续签"
 
-#: src/views/cert/CertView.vue:367
+#: src/views/cert/CertView.vue:369
 msgid "Are you sure you want to delete the certificate?"
 msgstr "您确定要删除证书吗？"
 
-#: src/views/cert/CertView.vue:425
+#: src/views/cert/CertView.vue:429
 msgid "Deployment successful"
 msgstr "部署成功"
 
-#: src/views/cert/CertView.vue:460
+#: src/views/cert/CertView.vue:464
 msgid "Deploy Certificate"
 msgstr "部署证书"
 
-#: src/views/cert/CertView.vue:472
+#: src/views/cert/CertView.vue:476
 msgid "Match Websites"
 msgstr "匹配网站"
 
-#: src/views/cert/CertView.vue:489
+#: src/views/cert/CertView.vue:493
 msgid "Selected"
 msgstr "已选择"
 
-#: src/views/cert/CertView.vue:496
+#: src/views/cert/CertView.vue:500
 msgid "Enable HTTPS"
 msgstr "启用 HTTPS"
 
-#: src/views/cert/CertView.vue:513
+#: src/views/cert/CertView.vue:517
 msgid "View Certificate"
 msgstr "查看证书"
 
@@ -7813,48 +7800,91 @@ msgid "Are you sure you want to delete the DNS?"
 msgstr "您确定要删除 DNS 吗？"
 
 #: src/views/cert/IndexView.vue:104
-#: src/views/cert/UploadCertModal.vue:35
+#: src/views/cert/UploadCertModal.vue:39
 msgid "Upload Certificate"
 msgstr "上传证书"
 
-#: src/views/cert/ObtainModal.vue:31
+#: src/views/cert/ObtainModal.vue:34
+msgid "Renew Certificate"
+msgstr "续签证书"
+
+#: src/views/cert/ObtainModal.vue:34
+msgid "Renewal successful"
+msgstr "续签成功"
+
+#: src/views/cert/ObtainModal.vue:36
+#: src/views/setting/IndexView.vue:177
+msgid "Refresh Certificate"
+msgstr "刷新证书"
+
+#: src/views/cert/ObtainModal.vue:38
+msgid "Issue Certificate"
+msgstr "签发证书"
+
+#: src/views/cert/ObtainModal.vue:38
+#: src/views/cert/ObtainModal.vue:118
+msgid "Issuance successful"
+msgstr "签发成功"
+
+#: src/views/cert/ObtainModal.vue:43
 #: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Automatic"
 msgstr "自动"
 
-#: src/views/cert/ObtainModal.vue:32
+#: src/views/cert/ObtainModal.vue:44
 msgid "Self-signed"
 msgstr "自签名"
 
-#: src/views/cert/ObtainModal.vue:67
-#: src/views/cert/ObtainModal.vue:162
-msgid "Renewal successful"
-msgstr "续签成功"
-
-#: src/views/cert/ObtainModal.vue:68
-#: src/views/cert/ObtainModal.vue:110
-#: src/views/cert/ObtainModal.vue:162
-msgid "Issuance successful"
-msgstr "签发成功"
-
-#: src/views/cert/ObtainModal.vue:84
-#: src/views/cert/ObtainModal.vue:90
+#: src/views/cert/ObtainModal.vue:92
+#: src/views/cert/ObtainModal.vue:98
 #: src/views/home/UpdateView.vue:106
 #: src/views/home/UpdateView.vue:111
 msgid "WebSocket connection failed"
 msgstr "WebSocket 连接失败"
 
-#: src/views/cert/ObtainModal.vue:124
-msgid "Renew Certificate"
-msgstr "续签证书"
-
-#: src/views/cert/ObtainModal.vue:124
-msgid "Issue Certificate"
-msgstr "签发证书"
-
-#: src/views/cert/ObtainModal.vue:141
+#: src/views/cert/ObtainModal.vue:145
 msgid "Issuance Mode"
 msgstr "签发模式"
+
+#: src/views/cert/UploadFields.vue:45
+msgid "Import Method"
+msgstr "导入方式"
+
+#: src/views/cert/UploadFields.vue:47
+msgid "Paste Content"
+msgstr "粘贴内容"
+
+#: src/views/cert/UploadFields.vue:48
+msgid "From Path"
+msgstr "从路径导入"
+
+#: src/views/cert/UploadFields.vue:56
+#: src/views/website/EditModal.vue:714
+msgid "Enter the content of the PEM certificate file"
+msgstr "输入 PEM 证书文件的内容"
+
+#: src/views/cert/UploadFields.vue:64
+#: src/views/website/EditModal.vue:724
+msgid "Enter the content of the KEY private key file"
+msgstr "输入 KEY 私钥文件的内容"
+
+#: src/views/cert/UploadFields.vue:72
+msgid "The panel re-reads both files every day and redeploys the certificate to associated websites when the content changes. Turn off Auto Renewal in the list to stop following the files."
+msgstr "面板每天重新读取这两个文件，内容有变化时更新证书并重新部署到关联的网站。在列表中关闭自动续签即可停止跟随文件。"
+
+#: src/views/cert/UploadFields.vue:77
+msgid "Certificate Path"
+msgstr "证书路径"
+
+#: src/views/cert/UploadFields.vue:85
+#: src/views/cert/UploadFields.vue:97
+#: src/views/database/ServerModal.vue:144
+msgid "Select"
+msgstr "选择"
+
+#: src/views/cert/UploadFields.vue:89
+msgid "Private Key Path"
+msgstr "私钥路径"
 
 #: src/views/container/composables/useImagePull.ts:54
 msgid "Pulling image..."
@@ -8939,10 +8969,6 @@ msgstr "文件路径"
 #: src/views/database/ServerModal.vue:132
 msgid "Enter SQLite database file path, e.g. /data/app.db"
 msgstr "输入 SQLite 数据库文件路径，例如 /data/app.db"
-
-#: src/views/database/ServerModal.vue:144
-msgid "Select"
-msgstr "选择"
 
 #: src/views/database/ServerModal.vue:156
 msgid "Enter database server host"
@@ -12067,10 +12093,6 @@ msgstr "证书刷新成功"
 #: src/views/setting/IndexView.vue:145
 msgid "Safe"
 msgstr "安全"
-
-#: src/views/setting/IndexView.vue:177
-msgid "Refresh Certificate"
-msgstr "刷新证书"
 
 #: src/views/setting/IndexView.vue:178
 msgid "Regenerate Certificate"
