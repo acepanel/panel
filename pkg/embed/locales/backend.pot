@@ -434,13 +434,17 @@ msgstr ""
 msgid "Cannot connect to any remote mail server on port 25. Most cloud providers block it by default; configure an outbound relay in settings or ask your provider to unblock it"
 msgstr ""
 
-#: internal/job/cert_renew.go:189
+#: internal/job/cert_renew.go:192
 #: internal/request/attributes.go:25
 msgid "Certificate"
 msgstr ""
 
 #: internal/command/cert.go:27
 msgid "Certificate ID"
+msgstr ""
+
+#: internal/request/attributes.go:26
+msgid "Certificate Path"
 msgstr ""
 
 #: internal/command/website.go:128
@@ -470,7 +474,7 @@ msgstr ""
 #: internal/biz/notify.go:187
 #: internal/command/app.go:19
 #: internal/command/app.go:42
-#: internal/request/attributes.go:26
+#: internal/request/attributes.go:27
 msgid "Channel"
 msgstr ""
 
@@ -478,7 +482,7 @@ msgstr ""
 msgid "Chinese full-text search parser based on SCWS"
 msgstr ""
 
-#: internal/request/attributes.go:27
+#: internal/request/attributes.go:28
 msgid "Chunk Count"
 msgstr ""
 
@@ -527,7 +531,7 @@ msgstr ""
 msgid "Cluster Status"
 msgstr ""
 
-#: internal/request/attributes.go:28
+#: internal/request/attributes.go:29
 #: pkg/tui/tui.go:69
 msgid "Command"
 msgstr ""
@@ -536,7 +540,7 @@ msgstr ""
 msgid "Commands Per Second"
 msgstr ""
 
-#: internal/request/attributes.go:29
+#: internal/request/attributes.go:30
 msgid "Compose"
 msgstr ""
 
@@ -548,7 +552,7 @@ msgstr ""
 msgid "Compress %v"
 msgstr ""
 
-#: internal/request/attributes.go:30
+#: internal/request/attributes.go:31
 msgid "Config"
 msgstr ""
 
@@ -646,7 +650,7 @@ msgstr ""
 msgid "Current Value"
 msgstr ""
 
-#: internal/request/attributes.go:31
+#: internal/request/attributes.go:32
 msgid "Custom Logo"
 msgstr ""
 
@@ -654,7 +658,7 @@ msgstr ""
 msgid "DESCRIPTION"
 msgstr ""
 
-#: internal/request/attributes.go:36
+#: internal/request/attributes.go:37
 msgid "Data"
 msgstr ""
 
@@ -671,27 +675,27 @@ msgid "Data synchronized successfully"
 msgstr ""
 
 #: internal/apps/grafana/app.go:96
-#: internal/request/attributes.go:37
+#: internal/request/attributes.go:38
 msgid "Database"
 msgstr ""
 
-#: internal/request/attributes.go:32
+#: internal/request/attributes.go:33
 msgid "Database Name"
 msgstr ""
 
-#: internal/request/attributes.go:33
+#: internal/request/attributes.go:34
 msgid "Database Password"
 msgstr ""
 
-#: internal/request/attributes.go:41
+#: internal/request/attributes.go:42
 msgid "Database Path"
 msgstr ""
 
-#: internal/request/attributes.go:34
+#: internal/request/attributes.go:35
 msgid "Database Type"
 msgstr ""
 
-#: internal/request/attributes.go:35
+#: internal/request/attributes.go:36
 msgid "Database User"
 msgstr ""
 
@@ -734,7 +738,7 @@ msgid "Database: %s, username: %s, password: %s"
 msgstr ""
 
 #: internal/apps/clickhouse/app.go:101
-#: internal/request/attributes.go:38
+#: internal/request/attributes.go:39
 msgid "Databases"
 msgstr ""
 
@@ -746,11 +750,11 @@ msgstr ""
 msgid "Dataset Size"
 msgstr ""
 
-#: internal/request/attributes.go:39
+#: internal/request/attributes.go:40
 msgid "Date"
 msgstr ""
 
-#: internal/request/attributes.go:40
+#: internal/request/attributes.go:41
 msgid "Days"
 msgstr ""
 
@@ -778,23 +782,23 @@ msgstr ""
 msgid "Detail"
 msgstr ""
 
-#: internal/request/attributes.go:42
+#: internal/request/attributes.go:43
 msgid "Detail Max Keys"
 msgstr ""
 
-#: internal/request/attributes.go:43
+#: internal/request/attributes.go:44
 msgid "Device"
 msgstr ""
 
-#: internal/request/attributes.go:44
+#: internal/request/attributes.go:45
 msgid "Devices"
 msgstr ""
 
-#: internal/request/attributes.go:46
+#: internal/request/attributes.go:47
 msgid "Direction"
 msgstr ""
 
-#: internal/request/attributes.go:45
+#: internal/request/attributes.go:46
 msgid "Directory"
 msgstr ""
 
@@ -838,7 +842,7 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
-#: internal/request/attributes.go:47
+#: internal/request/attributes.go:48
 msgid "Domains"
 msgstr ""
 
@@ -867,11 +871,11 @@ msgstr ""
 msgid "Downloading new version..."
 msgstr ""
 
-#: internal/request/attributes.go:48
+#: internal/request/attributes.go:49
 msgid "Driver"
 msgstr ""
 
-#: internal/request/attributes.go:49
+#: internal/request/attributes.go:50
 msgid "Duration"
 msgstr ""
 
@@ -879,7 +883,7 @@ msgstr ""
 msgid "Elasticsearch metrics"
 msgstr ""
 
-#: internal/request/attributes.go:50
+#: internal/request/attributes.go:51
 msgid "Email"
 msgstr ""
 
@@ -915,19 +919,19 @@ msgstr ""
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
-#: internal/request/attributes.go:51
+#: internal/request/attributes.go:52
 msgid "End"
 msgstr ""
 
-#: internal/request/attributes.go:125
+#: internal/request/attributes.go:127
 msgid "End Port"
 msgstr ""
 
-#: internal/request/attributes.go:52
+#: internal/request/attributes.go:53
 msgid "Entrance"
 msgstr ""
 
-#: internal/request/attributes.go:53
+#: internal/request/attributes.go:54
 msgid "Entrance Error"
 msgstr ""
 
@@ -952,17 +956,17 @@ msgstr ""
 msgid "Entrance: %s"
 msgstr ""
 
-#: internal/request/attributes.go:54
+#: internal/request/attributes.go:55
 msgid "Environment"
 msgstr ""
 
 #: internal/biz/backup.go:157
-#: internal/job/cert_renew.go:190
+#: internal/job/cert_renew.go:193
 #: internal/taskqueue/runner.go:188
 msgid "Error"
 msgstr ""
 
-#: internal/request/attributes.go:55
+#: internal/request/attributes.go:56
 msgid "Error Buffer Max"
 msgstr ""
 
@@ -990,11 +994,11 @@ msgstr ""
 msgid "Exit code"
 msgstr ""
 
-#: internal/request/attributes.go:57
+#: internal/request/attributes.go:58
 msgid "Expiration Time"
 msgstr ""
 
-#: internal/request/attributes.go:56
+#: internal/request/attributes.go:57
 msgid "Expire Hours"
 msgstr ""
 
@@ -1190,19 +1194,19 @@ msgstr ""
 msgid "Failed: %v"
 msgstr ""
 
-#: internal/request/attributes.go:58
+#: internal/request/attributes.go:59
 msgid "Family"
 msgstr ""
 
-#: internal/request/attributes.go:59
+#: internal/request/attributes.go:60
 msgid "File"
 msgstr ""
 
-#: internal/request/attributes.go:60
+#: internal/request/attributes.go:61
 msgid "File Hash"
 msgstr ""
 
-#: internal/request/attributes.go:61
+#: internal/request/attributes.go:62
 msgid "File Name"
 msgstr ""
 
@@ -1214,11 +1218,11 @@ msgstr ""
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr ""
 
-#: internal/request/attributes.go:63
+#: internal/request/attributes.go:64
 msgid "Filesystem Type"
 msgstr ""
 
-#: internal/request/attributes.go:62
+#: internal/request/attributes.go:63
 msgid "Find Time"
 msgstr ""
 
@@ -1314,11 +1318,11 @@ msgstr ""
 msgid "Goroutine Count"
 msgstr ""
 
-#: internal/request/attributes.go:64
+#: internal/request/attributes.go:65
 msgid "Group"
 msgstr ""
 
-#: internal/request/attributes.go:65
+#: internal/request/attributes.go:66
 msgid "HTTP Port"
 msgstr ""
 
@@ -1342,11 +1346,11 @@ msgstr ""
 msgid "Hardware and OS metrics"
 msgstr ""
 
-#: internal/request/attributes.go:66
+#: internal/request/attributes.go:67
 msgid "Host"
 msgstr ""
 
-#: internal/request/attributes.go:67
+#: internal/request/attributes.go:68
 msgid "Hostname"
 msgstr ""
 
@@ -1362,7 +1366,7 @@ msgstr ""
 msgid "Hypothetical indexes for query plan testing"
 msgstr ""
 
-#: internal/request/attributes.go:68
+#: internal/request/attributes.go:69
 msgid "ID"
 msgstr ""
 
@@ -1393,22 +1397,22 @@ msgstr ""
 #: internal/biz/alert_ssh.go:62
 #: internal/biz/alert_ssh.go:76
 #: internal/command/entrance.go:67
-#: internal/request/attributes.go:69
+#: internal/request/attributes.go:70
 #: internal/service/user.go:189
 #: internal/service/user.go:414
 #: internal/service/user_passkey.go:321
 msgid "IP"
 msgstr ""
 
-#: internal/request/attributes.go:70
+#: internal/request/attributes.go:71
 msgid "IP Database Type"
 msgstr ""
 
-#: internal/request/attributes.go:72
+#: internal/request/attributes.go:73
 msgid "IP List"
 msgstr ""
 
-#: internal/request/attributes.go:71
+#: internal/request/attributes.go:72
 msgid "IP Max Keys"
 msgstr ""
 
@@ -1436,7 +1440,7 @@ msgstr ""
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/request/attributes.go:73
+#: internal/request/attributes.go:74
 msgid "Image"
 msgstr ""
 
@@ -1448,7 +1452,7 @@ msgstr ""
 msgid "Incremental view maintenance for materialized views"
 msgstr ""
 
-#: internal/request/attributes.go:74
+#: internal/request/attributes.go:75
 msgid "Index"
 msgstr ""
 
@@ -1502,11 +1506,11 @@ msgstr ""
 msgid "Install environment %s"
 msgstr ""
 
-#: internal/request/attributes.go:75
+#: internal/request/attributes.go:76
 msgid "Interfaces"
 msgstr ""
 
-#: internal/request/attributes.go:76
+#: internal/request/attributes.go:77
 msgid "Interval"
 msgstr ""
 
@@ -1518,7 +1522,7 @@ msgstr ""
 msgid "Item"
 msgstr ""
 
-#: internal/request/attributes.go:77
+#: internal/request/attributes.go:78
 msgid "Items"
 msgstr ""
 
@@ -1534,18 +1538,18 @@ msgstr ""
 msgid "Kafka metrics"
 msgstr ""
 
-#: internal/request/attributes.go:78
+#: internal/request/attributes.go:79
 msgid "Keep"
 msgstr ""
 
 #: internal/command/setting.go:20
 #: internal/command/setting.go:27
 #: internal/command/setting.go:34
-#: internal/request/attributes.go:79
+#: internal/request/attributes.go:80
 msgid "Key"
 msgstr ""
 
-#: internal/request/attributes.go:80
+#: internal/request/attributes.go:82
 msgid "Key Type"
 msgstr ""
 
@@ -1573,7 +1577,7 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
-#: internal/request/attributes.go:81
+#: internal/request/attributes.go:83
 msgid "Lifetime"
 msgstr ""
 
@@ -1581,7 +1585,7 @@ msgstr ""
 msgid "Lightweight message queue"
 msgstr ""
 
-#: internal/request/attributes.go:82
+#: internal/request/attributes.go:84
 msgid "Limit"
 msgstr ""
 
@@ -1629,16 +1633,16 @@ msgstr ""
 msgid "Listed on %s, delivery to major providers will be rejected until delisted"
 msgstr ""
 
-#: internal/request/attributes.go:83
+#: internal/request/attributes.go:85
 msgid "Listen Address"
 msgstr ""
 
-#: internal/request/attributes.go:85
+#: internal/request/attributes.go:87
 msgid "Listen Addresses"
 msgstr ""
 
 #: internal/apps/rocketmq/app.go:75
-#: internal/request/attributes.go:84
+#: internal/request/attributes.go:86
 msgid "Listen Port"
 msgstr ""
 
@@ -1671,7 +1675,7 @@ msgstr ""
 msgid "Local Storage"
 msgstr ""
 
-#: internal/request/attributes.go:86
+#: internal/request/attributes.go:88
 msgid "Locale"
 msgstr ""
 
@@ -1684,7 +1688,7 @@ msgstr ""
 msgid "Log Dirs"
 msgstr ""
 
-#: internal/request/attributes.go:87
+#: internal/request/attributes.go:89
 msgid "Log Level"
 msgstr ""
 
@@ -1712,7 +1716,7 @@ msgstr ""
 msgid "Max Active Processes"
 msgstr ""
 
-#: internal/request/attributes.go:120
+#: internal/request/attributes.go:122
 msgid "Max Children"
 msgstr ""
 
@@ -1720,39 +1724,39 @@ msgstr ""
 msgid "Max Children Reached"
 msgstr ""
 
-#: internal/request/attributes.go:88
+#: internal/request/attributes.go:90
 msgid "Max Clients"
 msgstr ""
 
-#: internal/request/attributes.go:89
+#: internal/request/attributes.go:91
 msgid "Max Clients Per IP"
 msgstr ""
 
-#: internal/request/attributes.go:90
+#: internal/request/attributes.go:92
 msgid "Max Connections"
 msgstr ""
 
-#: internal/request/attributes.go:91
+#: internal/request/attributes.go:93
 msgid "Max Disk Usage"
 msgstr ""
 
-#: internal/request/attributes.go:92
+#: internal/request/attributes.go:94
 msgid "Max Execution Time"
 msgstr ""
 
-#: internal/request/attributes.go:93
+#: internal/request/attributes.go:95
 msgid "Max File Uploads"
 msgstr ""
 
-#: internal/request/attributes.go:94
+#: internal/request/attributes.go:96
 msgid "Max Idle Time"
 msgstr ""
 
-#: internal/request/attributes.go:95
+#: internal/request/attributes.go:97
 msgid "Max Input Time"
 msgstr ""
 
-#: internal/request/attributes.go:96
+#: internal/request/attributes.go:98
 msgid "Max Input Vars"
 msgstr ""
 
@@ -1760,19 +1764,19 @@ msgstr ""
 msgid "Max Listen Queue"
 msgstr ""
 
-#: internal/request/attributes.go:97
+#: internal/request/attributes.go:99
 msgid "Max Message Size"
 msgstr ""
 
-#: internal/request/attributes.go:133
+#: internal/request/attributes.go:135
 msgid "Max Restarts"
 msgstr ""
 
-#: internal/request/attributes.go:98
+#: internal/request/attributes.go:100
 msgid "Max Retry"
 msgstr ""
 
-#: internal/request/attributes.go:121
+#: internal/request/attributes.go:123
 msgid "Max Spare Servers"
 msgstr ""
 
@@ -1786,7 +1790,7 @@ msgstr ""
 
 #: internal/apps/apache/app.go:83
 #: internal/apps/nginx/app.go:102
-#: internal/request/attributes.go:99
+#: internal/request/attributes.go:101
 msgid "Memory"
 msgstr ""
 
@@ -1794,7 +1798,7 @@ msgstr ""
 msgid "Memory Fragmentation Ratio"
 msgstr ""
 
-#: internal/request/attributes.go:100
+#: internal/request/attributes.go:102
 msgid "Memory Limit"
 msgstr ""
 
@@ -1823,15 +1827,15 @@ msgstr ""
 msgid "Migration started"
 msgstr ""
 
-#: internal/request/attributes.go:122
+#: internal/request/attributes.go:124
 msgid "Min Spare Servers"
 msgstr ""
 
-#: internal/request/attributes.go:101
+#: internal/request/attributes.go:103
 msgid "Mirror"
 msgstr ""
 
-#: internal/request/attributes.go:102
+#: internal/request/attributes.go:104
 msgid "Mode"
 msgstr ""
 
@@ -1839,7 +1843,7 @@ msgstr ""
 msgid "MongoDB metrics"
 msgstr ""
 
-#: internal/request/attributes.go:103
+#: internal/request/attributes.go:105
 msgid "Mount Point"
 msgstr ""
 
@@ -1859,7 +1863,7 @@ msgstr ""
 msgid "NAME"
 msgstr ""
 
-#: internal/request/attributes.go:104
+#: internal/request/attributes.go:106
 msgid "Name"
 msgstr ""
 
@@ -1879,11 +1883,11 @@ msgstr ""
 msgid "NameSilo"
 msgstr ""
 
-#: internal/request/attributes.go:105
+#: internal/request/attributes.go:107
 msgid "New Key"
 msgstr ""
 
-#: internal/request/attributes.go:106
+#: internal/request/attributes.go:108
 msgid "New Strategy"
 msgstr ""
 
@@ -1903,7 +1907,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: internal/request/attributes.go:107
+#: internal/request/attributes.go:109
 msgid "No Anonymous"
 msgstr ""
 
@@ -1951,7 +1955,7 @@ msgstr ""
 msgid "Num Partitions"
 msgstr ""
 
-#: internal/request/attributes.go:108
+#: internal/request/attributes.go:110
 msgid "Number"
 msgstr ""
 
@@ -1991,7 +1995,7 @@ msgstr ""
 msgid "Obtain a free certificate or generate a self-signed certificate"
 msgstr ""
 
-#: internal/request/attributes.go:109
+#: internal/request/attributes.go:111
 msgid "Old Key"
 msgstr ""
 
@@ -2032,11 +2036,11 @@ msgid "Operate AcePanel users"
 msgstr ""
 
 #: internal/biz/tamper.go:456
-#: internal/request/attributes.go:110
+#: internal/request/attributes.go:112
 msgid "Operation"
 msgstr ""
 
-#: internal/request/attributes.go:111
+#: internal/request/attributes.go:113
 msgid "Operator"
 msgstr ""
 
@@ -2044,7 +2048,7 @@ msgstr ""
 msgid "Oracle compatibility functions"
 msgstr ""
 
-#: internal/request/attributes.go:112
+#: internal/request/attributes.go:114
 msgid "Order"
 msgstr ""
 
@@ -2064,7 +2068,7 @@ msgstr ""
 msgid "Output in JSON format (list commands only)"
 msgstr ""
 
-#: internal/request/attributes.go:113
+#: internal/request/attributes.go:115
 msgid "Owner"
 msgstr ""
 
@@ -2084,7 +2088,7 @@ msgstr ""
 msgid "PHP-%d is not installed"
 msgstr ""
 
-#: internal/request/attributes.go:114
+#: internal/request/attributes.go:116
 msgid "PID"
 msgstr ""
 
@@ -2092,7 +2096,7 @@ msgstr ""
 msgid "PTR records are set in your cloud provider's console, not in your DNS zone"
 msgstr ""
 
-#: internal/request/attributes.go:115
+#: internal/request/attributes.go:117
 msgid "Page"
 msgstr ""
 
@@ -2113,7 +2117,7 @@ msgstr ""
 
 #: internal/command/user.go:26
 #: internal/command/user.go:57
-#: internal/request/attributes.go:116
+#: internal/request/attributes.go:118
 msgid "Password"
 msgstr ""
 
@@ -2139,7 +2143,7 @@ msgid "Password: ******* (use -f to force reset)"
 msgstr ""
 
 #: internal/biz/tamper.go:455
-#: internal/request/attributes.go:117
+#: internal/request/attributes.go:119
 msgid "Path"
 msgstr ""
 
@@ -2152,7 +2156,7 @@ msgstr ""
 msgid "Path: %s"
 msgstr ""
 
-#: internal/request/attributes.go:118
+#: internal/request/attributes.go:120
 msgid "Paths"
 msgstr ""
 
@@ -2196,7 +2200,7 @@ msgstr ""
 msgid "Please enter the password: "
 msgstr ""
 
-#: internal/biz/cert.go:321
+#: internal/biz/cert.go:341
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr ""
 
@@ -2228,7 +2232,7 @@ msgstr ""
 msgid "Porkbun"
 msgstr ""
 
-#: internal/request/attributes.go:124
+#: internal/request/attributes.go:126
 msgid "Port"
 msgstr ""
 
@@ -2281,12 +2285,16 @@ msgstr ""
 msgid "Preparing to update to %s..."
 msgstr ""
 
+#: internal/request/attributes.go:81
+msgid "Private Key Path"
+msgstr ""
+
 #: internal/command/website.go:134
 msgid "Private key file path"
 msgstr ""
 
 #: internal/biz/tamper.go:457
-#: internal/request/attributes.go:127
+#: internal/request/attributes.go:129
 msgid "Process"
 msgstr ""
 
@@ -2294,7 +2302,7 @@ msgstr ""
 msgid "Process Count"
 msgstr ""
 
-#: internal/request/attributes.go:119
+#: internal/request/attributes.go:121
 #: internal/service/environment_php.go:205
 msgid "Process Manager"
 msgstr ""
@@ -2303,11 +2311,11 @@ msgstr ""
 msgid "Process PID"
 msgstr ""
 
-#: internal/request/attributes.go:128
+#: internal/request/attributes.go:130
 msgid "Project Path"
 msgstr ""
 
-#: internal/request/attributes.go:129
+#: internal/request/attributes.go:131
 msgid "Protocol"
 msgstr ""
 
@@ -2315,11 +2323,11 @@ msgstr ""
 msgid "Protocol (tcp, udp, tcp/udp)"
 msgstr ""
 
-#: internal/request/attributes.go:130
+#: internal/request/attributes.go:132
 msgid "Proxy"
 msgstr ""
 
-#: internal/request/attributes.go:131
+#: internal/request/attributes.go:133
 msgid "Proxy Pass"
 msgstr ""
 
@@ -2383,7 +2391,7 @@ msgstr ""
 msgid "Redis metrics"
 msgstr ""
 
-#: internal/request/attributes.go:132
+#: internal/request/attributes.go:134
 msgid "Registry"
 msgstr ""
 
@@ -2447,7 +2455,7 @@ msgstr ""
 msgid "Restart AcePanel service"
 msgstr ""
 
-#: internal/request/attributes.go:134
+#: internal/request/attributes.go:136
 msgid "Restart Policy"
 msgstr ""
 
@@ -2475,11 +2483,11 @@ msgstr ""
 msgid "Rollbacks per Second"
 msgstr ""
 
-#: internal/request/attributes.go:135
+#: internal/request/attributes.go:137
 msgid "Root"
 msgstr ""
 
-#: internal/request/attributes.go:136
+#: internal/request/attributes.go:138
 msgid "Root Directory"
 msgstr ""
 
@@ -2523,11 +2531,11 @@ msgstr ""
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
-#: internal/request/attributes.go:137
+#: internal/request/attributes.go:139
 msgid "SSL Certificate"
 msgstr ""
 
-#: internal/request/attributes.go:138
+#: internal/request/attributes.go:140
 msgid "SSL Certificate Key"
 msgstr ""
 
@@ -2539,23 +2547,23 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: internal/request/attributes.go:139
+#: internal/request/attributes.go:141
 msgid "Schema"
 msgstr ""
 
-#: internal/request/attributes.go:140
+#: internal/request/attributes.go:142
 msgid "Scope"
 msgstr ""
 
-#: internal/request/attributes.go:141
+#: internal/request/attributes.go:143
 msgid "Script"
 msgstr ""
 
-#: internal/request/attributes.go:151
+#: internal/request/attributes.go:153
 msgid "Secret Key"
 msgstr ""
 
-#: internal/request/attributes.go:142
+#: internal/request/attributes.go:144
 msgid "Server"
 msgstr ""
 
@@ -2588,19 +2596,19 @@ msgstr ""
 msgid "Server username"
 msgstr ""
 
-#: internal/request/attributes.go:143
+#: internal/request/attributes.go:145
 msgid "Servers"
 msgstr ""
 
-#: internal/request/attributes.go:144
+#: internal/request/attributes.go:146
 msgid "Service"
 msgstr ""
 
-#: internal/request/attributes.go:145
+#: internal/request/attributes.go:147
 msgid "Session Cookie Lifetime"
 msgstr ""
 
-#: internal/request/attributes.go:146
+#: internal/request/attributes.go:148
 msgid "Session GC Max Lifetime"
 msgstr ""
 
@@ -2624,19 +2632,19 @@ msgstr ""
 msgid "Setting not exists"
 msgstr ""
 
-#: internal/request/attributes.go:147
+#: internal/request/attributes.go:149
 msgid "Settings"
 msgstr ""
 
-#: internal/request/attributes.go:148
+#: internal/request/attributes.go:150
 msgid "Signal"
 msgstr ""
 
-#: internal/request/attributes.go:149
+#: internal/request/attributes.go:151
 msgid "Silence"
 msgstr ""
 
-#: internal/request/attributes.go:150
+#: internal/request/attributes.go:152
 msgid "Size"
 msgstr ""
 
@@ -2649,7 +2657,7 @@ msgstr ""
 #: internal/command/app.go:31
 #: internal/command/app.go:42
 #: internal/command/app.go:49
-#: internal/request/attributes.go:152
+#: internal/request/attributes.go:154
 msgid "Slug"
 msgstr ""
 
@@ -2657,11 +2665,11 @@ msgstr ""
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr ""
 
-#: internal/request/attributes.go:153
+#: internal/request/attributes.go:155
 msgid "Slugs"
 msgstr ""
 
-#: internal/request/attributes.go:154
+#: internal/request/attributes.go:156
 msgid "Sort"
 msgstr ""
 
@@ -2669,11 +2677,11 @@ msgstr ""
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/request/attributes.go:155
+#: internal/request/attributes.go:157
 msgid "Source"
 msgstr ""
 
-#: internal/request/attributes.go:156
+#: internal/request/attributes.go:158
 msgid "Source Panel"
 msgstr ""
 
@@ -2685,7 +2693,7 @@ msgstr ""
 msgid "Stalwart mail server reverse proxy"
 msgstr ""
 
-#: internal/request/attributes.go:157
+#: internal/request/attributes.go:159
 msgid "Start"
 msgstr ""
 
@@ -2693,11 +2701,11 @@ msgstr ""
 msgid "Start AcePanel service"
 msgstr ""
 
-#: internal/request/attributes.go:126
+#: internal/request/attributes.go:128
 msgid "Start Port"
 msgstr ""
 
-#: internal/request/attributes.go:123
+#: internal/request/attributes.go:125
 msgid "Start Servers"
 msgstr ""
 
@@ -2707,7 +2715,7 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
-#: internal/request/attributes.go:174
+#: internal/request/attributes.go:176
 msgid "Start Timeout"
 msgstr ""
 
@@ -2715,11 +2723,11 @@ msgstr ""
 msgid "Startup Allocated"
 msgstr ""
 
-#: internal/request/attributes.go:158
+#: internal/request/attributes.go:160
 msgid "Status"
 msgstr ""
 
-#: internal/request/attributes.go:159
+#: internal/request/attributes.go:161
 msgid "Stop"
 msgstr ""
 
@@ -2727,7 +2735,7 @@ msgstr ""
 msgid "Stop AcePanel service"
 msgstr ""
 
-#: internal/request/attributes.go:175
+#: internal/request/attributes.go:177
 msgid "Stop Timeout"
 msgstr ""
 
@@ -2753,11 +2761,11 @@ msgstr ""
 msgid "Storage Usage"
 msgstr ""
 
-#: internal/request/attributes.go:160
+#: internal/request/attributes.go:162
 msgid "Strategy"
 msgstr ""
 
-#: internal/request/attributes.go:161
+#: internal/request/attributes.go:163
 msgid "Sub Type"
 msgstr ""
 
@@ -2785,7 +2793,7 @@ msgstr ""
 msgid "Sync server time with NTP"
 msgstr ""
 
-#: internal/request/attributes.go:162
+#: internal/request/attributes.go:164
 msgid "System Log Path"
 msgstr ""
 
@@ -2802,19 +2810,19 @@ msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
 #: internal/apps/redis/app.go:122
-#: internal/request/attributes.go:163
+#: internal/request/attributes.go:165
 msgid "TCP Port"
 msgstr ""
 
-#: internal/request/attributes.go:164
+#: internal/request/attributes.go:166
 msgid "TLS"
 msgstr ""
 
-#: internal/request/attributes.go:165
+#: internal/request/attributes.go:167
 msgid "TLS Versions"
 msgstr ""
 
-#: internal/request/attributes.go:166
+#: internal/request/attributes.go:168
 msgid "Table"
 msgstr ""
 
@@ -2827,15 +2835,15 @@ msgid "Tables"
 msgstr ""
 
 #: internal/biz/backup.go:156
-#: internal/request/attributes.go:167
+#: internal/request/attributes.go:169
 msgid "Target"
 msgstr ""
 
-#: internal/request/attributes.go:168
+#: internal/request/attributes.go:170
 msgid "Target IP"
 msgstr ""
 
-#: internal/request/attributes.go:169
+#: internal/request/attributes.go:171
 msgid "Target Port"
 msgstr ""
 
@@ -2847,7 +2855,7 @@ msgstr ""
 msgid "Target username (the first user if not filled)"
 msgstr ""
 
-#: internal/request/attributes.go:170
+#: internal/request/attributes.go:172
 msgid "Targets"
 msgstr ""
 
@@ -2860,7 +2868,7 @@ msgstr ""
 msgid "Tasks cleared successfully"
 msgstr ""
 
-#: internal/request/attributes.go:177
+#: internal/request/attributes.go:179
 msgid "Temp Path"
 msgstr ""
 
@@ -2880,7 +2888,7 @@ msgstr ""
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
 msgstr ""
 
-#: internal/request/attributes.go:171
+#: internal/request/attributes.go:173
 msgid "Threads"
 msgstr ""
 
@@ -2895,8 +2903,8 @@ msgstr ""
 #: internal/biz/backup.go:158
 #: internal/biz/notify.go:188
 #: internal/biz/tamper.go:458
-#: internal/job/cert_renew.go:191
-#: internal/request/attributes.go:172
+#: internal/job/cert_renew.go:194
+#: internal/request/attributes.go:174
 #: internal/service/cli_cron.go:90
 #: internal/service/user.go:191
 #: internal/service/user.go:418
@@ -2913,11 +2921,11 @@ msgstr ""
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr ""
 
-#: internal/request/attributes.go:173
+#: internal/request/attributes.go:175
 msgid "Timeout"
 msgstr ""
 
-#: internal/request/attributes.go:176
+#: internal/request/attributes.go:178
 msgid "Timezone"
 msgstr ""
 
@@ -2925,7 +2933,7 @@ msgstr ""
 msgid "Toggle two-factor authentication for a user"
 msgstr ""
 
-#: internal/request/attributes.go:178
+#: internal/request/attributes.go:180
 msgid "Token"
 msgstr ""
 
@@ -2995,15 +3003,15 @@ msgid "Transactions per Second"
 msgstr ""
 
 #: internal/biz/backup.go:155
-#: internal/request/attributes.go:179
+#: internal/request/attributes.go:181
 msgid "Type"
 msgstr ""
 
-#: internal/request/attributes.go:180
+#: internal/request/attributes.go:182
 msgid "UDP Port"
 msgstr ""
 
-#: internal/request/attributes.go:181
+#: internal/request/attributes.go:183
 msgid "URL"
 msgstr ""
 
@@ -3011,7 +3019,7 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/request/attributes.go:182
+#: internal/request/attributes.go:184
 msgid "UV Max Keys"
 msgstr ""
 
@@ -3124,8 +3132,8 @@ msgstr ""
 msgid "Uptime in Days"
 msgstr ""
 
-#: internal/request/attributes.go:183
-#: internal/request/attributes.go:184
+#: internal/request/attributes.go:185
+#: internal/request/attributes.go:186
 msgid "User"
 msgstr ""
 
@@ -3162,7 +3170,7 @@ msgstr ""
 #: internal/command/user.go:56
 #: internal/command/user.go:64
 #: internal/command/user.go:70
-#: internal/request/attributes.go:185
+#: internal/request/attributes.go:187
 #: internal/service/user.go:188
 #: internal/service/user.go:415
 #: internal/service/user_passkey.go:319
@@ -3190,7 +3198,7 @@ msgid "VERSION"
 msgstr ""
 
 #: internal/command/setting.go:27
-#: internal/request/attributes.go:187
+#: internal/request/attributes.go:189
 msgid "Value"
 msgstr ""
 
@@ -3213,7 +3221,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: internal/request/attributes.go:186
+#: internal/request/attributes.go:188
 msgid "Volume Group"
 msgstr ""
 
@@ -3254,15 +3262,15 @@ msgstr ""
 msgid "Website %s written successfully"
 msgstr ""
 
-#: internal/request/attributes.go:189
+#: internal/request/attributes.go:191
 msgid "Website Mode"
 msgstr ""
 
-#: internal/request/attributes.go:190
+#: internal/request/attributes.go:192
 msgid "Website Name"
 msgstr ""
 
-#: internal/request/attributes.go:191
+#: internal/request/attributes.go:193
 msgid "Website Path"
 msgstr ""
 
@@ -3299,7 +3307,7 @@ msgstr ""
 msgid "Website type (proxy, static, php)"
 msgstr ""
 
-#: internal/request/attributes.go:188
+#: internal/request/attributes.go:190
 msgid "Websites"
 msgstr ""
 
@@ -3315,7 +3323,7 @@ msgstr ""
 msgid "Whether the website has SSL enabled"
 msgstr ""
 
-#: internal/request/attributes.go:192
+#: internal/request/attributes.go:194
 msgid "Whitelist"
 msgstr ""
 
@@ -3380,7 +3388,7 @@ msgstr ""
 msgid "[AcePanel] Backup Failed"
 msgstr ""
 
-#: internal/job/cert_renew.go:188
+#: internal/job/cert_renew.go:191
 msgid "[AcePanel] Certificate Renewal Failed"
 msgstr ""
 
@@ -3839,15 +3847,15 @@ msgstr ""
 msgid "cert account viewed"
 msgstr ""
 
-#: internal/biz/cert.go:108
+#: internal/biz/cert.go:112
 msgid "cert created"
 msgstr ""
 
-#: internal/biz/cert.go:169
+#: internal/biz/cert.go:184
 msgid "cert deleted"
 msgstr ""
 
-#: internal/biz/cert.go:338
+#: internal/biz/cert.go:358
 msgid "cert deployed"
 msgstr ""
 
@@ -3879,19 +3887,23 @@ msgstr ""
 msgid "cert list viewed"
 msgstr ""
 
-#: internal/biz/cert.go:206
+#: internal/biz/cert.go:221
 msgid "cert obtained"
 msgstr ""
 
-#: internal/biz/cert.go:251
+#: internal/biz/cert.go:418
+msgid "cert reloaded from files"
+msgstr ""
+
+#: internal/biz/cert.go:271
 msgid "cert renewed"
 msgstr ""
 
-#: internal/biz/cert.go:153
+#: internal/biz/cert.go:168
 msgid "cert updated"
 msgstr ""
 
-#: internal/biz/cert.go:134
+#: internal/biz/cert.go:136
 msgid "cert uploaded"
 msgstr ""
 
@@ -3907,7 +3919,11 @@ msgstr ""
 msgid "certificate expiry"
 msgstr ""
 
-#: internal/job/cert_renew.go:188
+#: internal/biz/cert.go:411
+msgid "certificate files have not changed"
+msgstr ""
+
+#: internal/job/cert_renew.go:191
 msgid "certificate renewal failed"
 msgstr ""
 
@@ -4230,7 +4246,7 @@ msgstr ""
 msgid "default site is not supported by the current web server"
 msgstr ""
 
-#: internal/biz/cert.go:427
+#: internal/biz/cert.go:499
 msgid "deploying certificate to website"
 msgstr ""
 
@@ -4696,7 +4712,7 @@ msgstr ""
 msgid "failed to generate SSH key: %v"
 msgstr ""
 
-#: internal/job/cert_renew.go:119
+#: internal/job/cert_renew.go:122
 msgid "failed to generate self-signed certificate"
 msgstr ""
 
@@ -4780,7 +4796,7 @@ msgstr ""
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr ""
 
-#: internal/job/cert_renew.go:155
+#: internal/job/cert_renew.go:158
 msgid "failed to get a panel user"
 msgstr ""
 
@@ -4844,7 +4860,7 @@ msgstr ""
 msgid "failed to get nginx workers: %v"
 msgstr ""
 
-#: internal/job/cert_renew.go:160
+#: internal/job/cert_renew.go:163
 msgid "failed to get panel ACME account"
 msgstr ""
 
@@ -4955,7 +4971,7 @@ msgstr ""
 msgid "failed to mount partition: %v"
 msgstr ""
 
-#: internal/job/cert_renew.go:166
+#: internal/job/cert_renew.go:169
 msgid "failed to obtain panel certificate via ACME"
 msgstr ""
 
@@ -4963,7 +4979,7 @@ msgstr ""
 msgid "failed to open sftp session on %s: %v"
 msgstr ""
 
-#: internal/biz/cert.go:116
+#: internal/biz/cert.go:383
 #: internal/biz/setting.go:174
 #: internal/biz/setting.go:305
 #: internal/data/website.go:579
@@ -4971,8 +4987,8 @@ msgstr ""
 msgid "failed to parse certificate: %v"
 msgstr ""
 
-#: internal/job/cert_renew.go:114
-#: internal/job/cert_renew.go:150
+#: internal/job/cert_renew.go:117
+#: internal/job/cert_renew.go:153
 msgid "failed to parse panel certificate"
 msgstr ""
 
@@ -4984,7 +5000,7 @@ msgstr ""
 msgid "failed to parse phpMyAdmin login page"
 msgstr ""
 
-#: internal/biz/cert.go:119
+#: internal/biz/cert.go:387
 #: internal/biz/setting.go:177
 #: internal/biz/setting.go:308
 #: internal/data/website.go:582
@@ -5027,6 +5043,10 @@ msgstr ""
 
 #: internal/job/website_expire.go:48
 msgid "failed to query expired websites"
+msgstr ""
+
+#: internal/biz/cert.go:376
+msgid "failed to read certificate files: %v"
 msgstr ""
 
 #: internal/service/ws.go:101
@@ -5124,7 +5144,7 @@ msgstr ""
 msgid "failed to reconcile tamper protection"
 msgstr ""
 
-#: internal/job/cert_renew.go:82
+#: internal/job/cert_renew.go:84
 msgid "failed to refresh renewal info"
 msgstr ""
 
@@ -5168,7 +5188,7 @@ msgstr ""
 msgid "failed to rename systemd config"
 msgstr ""
 
-#: internal/job/cert_renew.go:91
+#: internal/job/cert_renew.go:95
 msgid "failed to renew certificate"
 msgstr ""
 
@@ -5371,8 +5391,8 @@ msgstr ""
 msgid "failed to update panel"
 msgstr ""
 
-#: internal/job/cert_renew.go:127
-#: internal/job/cert_renew.go:175
+#: internal/job/cert_renew.go:130
+#: internal/job/cert_renew.go:178
 msgid "failed to update panel certificate"
 msgstr ""
 
@@ -5780,7 +5800,7 @@ msgstr ""
 msgid "images pruned"
 msgstr ""
 
-#: internal/biz/cert.go:185
+#: internal/biz/cert.go:200
 msgid "initializing ACME client"
 msgstr ""
 
@@ -5890,7 +5910,7 @@ msgstr ""
 msgid "ipdb updated"
 msgstr ""
 
-#: internal/biz/cert.go:200
+#: internal/biz/cert.go:215
 msgid "issuing certificate, domains: %s"
 msgstr ""
 
@@ -6326,7 +6346,7 @@ msgstr ""
 msgid "ntp servers viewed"
 msgstr ""
 
-#: internal/biz/cert.go:411
+#: internal/biz/cert.go:483
 msgid "obtaining and saving certificate"
 msgstr ""
 
@@ -6346,11 +6366,11 @@ msgstr ""
 msgid "panel binary is missing after update"
 msgstr ""
 
-#: internal/job/cert_renew.go:120
-#: internal/job/cert_renew.go:128
-#: internal/job/cert_renew.go:161
-#: internal/job/cert_renew.go:167
-#: internal/job/cert_renew.go:176
+#: internal/job/cert_renew.go:123
+#: internal/job/cert_renew.go:131
+#: internal/job/cert_renew.go:164
+#: internal/job/cert_renew.go:170
+#: internal/job/cert_renew.go:179
 msgid "panel certificate"
 msgstr ""
 
@@ -6359,7 +6379,7 @@ msgstr ""
 msgid "panel certificate obtained"
 msgstr ""
 
-#: internal/job/cert_renew.go:180
+#: internal/job/cert_renew.go:183
 msgid "panel certificate renewed"
 msgstr ""
 
@@ -6404,7 +6424,7 @@ msgstr ""
 msgid "panel runtime info viewed"
 msgstr ""
 
-#: internal/job/cert_renew.go:131
+#: internal/job/cert_renew.go:134
 msgid "panel self-signed certificate renewed"
 msgstr ""
 
@@ -6645,7 +6665,7 @@ msgstr ""
 msgid "postgresql session terminated"
 msgstr ""
 
-#: internal/biz/cert.go:218
+#: internal/biz/cert.go:243
 msgid "preparing renewal"
 msgstr ""
 
@@ -6762,6 +6782,10 @@ msgstr ""
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
+#: internal/biz/cert.go:404
+msgid "reading certificate files"
+msgstr ""
+
 #: internal/apps/stalwart/app.go:295
 msgid "recovery credential not found in %s, please reinstall the app"
 msgstr ""
@@ -6802,11 +6826,11 @@ msgstr ""
 msgid "remote download task created"
 msgstr ""
 
-#: internal/biz/cert.go:242
+#: internal/biz/cert.go:262
 msgid "renewal failed, attempting re-issuance"
 msgstr ""
 
-#: internal/biz/cert.go:237
+#: internal/biz/cert.go:257
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
@@ -6911,7 +6935,7 @@ msgstr ""
 msgid "scan events cleared"
 msgstr ""
 
-#: internal/biz/cert.go:303
+#: internal/biz/cert.go:323
 msgid "self-signed cert generated"
 msgstr ""
 
@@ -7014,7 +7038,7 @@ msgstr ""
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
-#: internal/data/cert.go:229
+#: internal/data/cert.go:233
 msgid "some of the selected websites do not exist"
 msgstr ""
 
@@ -7360,6 +7384,10 @@ msgstr ""
 msgid "the panel directory is on a memory file system, disk performance cannot be measured"
 msgstr ""
 
+#: internal/biz/cert.go:391
+msgid "the private key does not match the certificate"
+msgstr ""
+
 #: internal/biz/toolbox_migration_import.go:389
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr ""
@@ -7445,20 +7473,24 @@ msgstr ""
 msgid "this certificate has not been obtained successfully"
 msgstr ""
 
-#: internal/biz/cert.go:455
+#: internal/biz/cert.go:527
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr ""
 
-#: internal/biz/cert.go:230
+#: internal/biz/cert.go:250
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr ""
 
-#: internal/biz/cert.go:364
+#: internal/biz/cert.go:436
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
-#: internal/data/cert.go:152
+#: internal/data/cert.go:156
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
+msgstr ""
+
+#: internal/biz/cert.go:401
+msgid "this certificate was not imported from a path and cannot be renewed"
 msgstr ""
 
 #: internal/service/toolbox_system.go:189
@@ -7588,7 +7620,7 @@ msgstr ""
 msgid "upgrade ssh transfer ws error"
 msgstr ""
 
-#: internal/biz/cert.go:145
+#: internal/biz/cert.go:155
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
@@ -7887,7 +7919,7 @@ msgstr ""
 msgid "websocket upgrade error"
 msgstr ""
 
-#: internal/biz/cert.go:370
+#: internal/biz/cert.go:442
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
