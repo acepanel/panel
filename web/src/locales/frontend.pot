@@ -400,7 +400,7 @@ msgstr ""
 #: src/components/common/DraggableWindow.vue:335
 #: src/components/file-editor/EditorPane.vue:286
 #: src/layouts/tab/components/ContextMenu.vue:29
-#: src/views/cert/ObtainModal.vue:176
+#: src/views/cert/ObtainModal.vue:180
 #: src/views/ssh/IndexView.vue:384
 msgid "Close"
 msgstr ""
@@ -1353,7 +1353,7 @@ msgid "Refresh"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:89
-#: src/views/cert/ObtainModal.vue:36
+#: src/views/cert/ObtainModal.vue:39
 msgid "Refreshed successfully"
 msgstr ""
 
@@ -3394,7 +3394,7 @@ msgstr ""
 #: src/views/cert/CertModal.vue:195
 #: src/views/cert/CertView.vue:510
 #: src/views/cert/DnsModal.vue:162
-#: src/views/cert/ObtainModal.vue:173
+#: src/views/cert/ObtainModal.vue:177
 #: src/views/cert/UploadCertModal.vue:45
 #: src/views/container/ComposeView.vue:308
 #: src/views/container/ComposeView.vue:326
@@ -7803,37 +7803,37 @@ msgstr ""
 msgid "Renewal successful"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:36
-#: src/views/setting/IndexView.vue:177
+#: src/views/cert/ObtainModal.vue:38
+msgctxt "cert from path"
 msgid "Refresh Certificate"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:38
+#: src/views/cert/ObtainModal.vue:42
 msgid "Issue Certificate"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:38
-#: src/views/cert/ObtainModal.vue:118
+#: src/views/cert/ObtainModal.vue:42
+#: src/views/cert/ObtainModal.vue:122
 msgid "Issuance successful"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:43
+#: src/views/cert/ObtainModal.vue:47
 #: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Automatic"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:44
+#: src/views/cert/ObtainModal.vue:48
 msgid "Self-signed"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:92
-#: src/views/cert/ObtainModal.vue:98
+#: src/views/cert/ObtainModal.vue:96
+#: src/views/cert/ObtainModal.vue:102
 #: src/views/home/UpdateView.vue:106
 #: src/views/home/UpdateView.vue:111
 msgid "WebSocket connection failed"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:145
+#: src/views/cert/ObtainModal.vue:149
 msgid "Issuance Mode"
 msgstr ""
 
@@ -12084,6 +12084,10 @@ msgstr ""
 
 #: src/views/setting/IndexView.vue:145
 msgid "Safe"
+msgstr ""
+
+#: src/views/setting/IndexView.vue:177
+msgid "Refresh Certificate"
 msgstr ""
 
 #: src/views/setting/IndexView.vue:178
