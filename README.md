@@ -1,14 +1,14 @@
 <p align="right">
-[简体中文] | [<a href="README_EN.md">English</a>]
+[English] | [<a href="README_ZH.md">简体中文</a>]
 </p>
 
 <p align="center"><a href="https://acepanel.net"><img src=".github/assets/logo-full.png" alt="AcePanel" width="300" /></a></p>
 
-<p align="center">新一代全能服务器运维管理面板<br>简单轻量，高效运维</p>
+<p align="center">A next-generation, all-in-one server management panel<br>Simple, lightweight, and efficient</p>
 
 <div align="center">
 
-官网：[acepanel.net](https://acepanel.net) | QQ群：[12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | 微信群：[复制此链接](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
+Website: [acepanel.net](https://acepanel.net) | QQ Group: [12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | WeChat Group: [copy this link](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
 
 </div>
 
@@ -23,32 +23,32 @@
 
 </div>
 
-## 优势
+## Why AcePanel
 
-1. **极低占用:** Go 语言开发，安装包小，占用低，单文件运行，不会对系统性能造成影响
-2. **低破坏性:** 设计为尽可能减少对系统的额外修改，具备良好的向前向后兼容性
-3. **追随时代:** 整体设计走在时代前沿，对新系统兼容性好，在同类产品中处于领先地位
-4. **高效运维:** 功能完善，自定义能力强，既可快速部署小型网站，也可基于定制化需求部署复杂应用
-5. **离线运行:** 支持离线模式，甚至可以在部署完成后停止面板进程，不会对已有服务造成任何影响
-6. **安全稳定:** 面板采用业界多种技术保障本体安全性，已在我们的多个生产环境中长期稳定运行
-7. **全面开源:** 少有的全开源面板，您可以在遵守开源协议的前提下对面板自由修改、二次开发
-8. **免费使用:** 承诺面板本体未来不会引入任何收费/授权功能，免费使用
+1. **Lightweight:** Written in Go and shipped as a single small binary, with a footprint low enough that it won't affect system performance.
+2. **Non-intrusive:** Designed to make as few changes to your system as possible, with good forward and backward compatibility.
+3. **Modern:** A forward-looking design with strong support for the latest operating systems, ahead of comparable panels.
+4. **Efficient:** Full-featured and highly customizable. Spin up a small website in minutes, or deploy complex applications tailored to your needs.
+5. **Works offline:** Supports an offline mode. You can even stop the panel process once deployment is done without affecting any running services.
+6. **Secure and stable:** Hardened with multiple industry-standard techniques, and proven by long-term stable operation in several of our own production environments.
+7. **Fully open source:** One of the few panels that is entirely open source. You are free to modify it and build on it under the terms of the license.
+8. **Free to use:** We promise the panel itself will never introduce paid or license-gated features.
 
-## 快速安装
+## Quick Install
 
-支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://acepanel.github.io/quickstart/install)。
+AcePanel runs on clean installs of mainstream Linux distributions on `amd64` and `arm64`. See the [installation guide](https://acepanel.github.io/en/quickstart/install) for the full list of supported systems.
 
 ```shell
 bash <(curl -sSLm 10 https://dl.acepanel.net/helper.sh)
 ```
 
-## UI 截图
+## Screenshot
 
-![UI 截图](.github/assets/ui.png)
+![AcePanel UI](.github/assets/ui.png)
 
-## 合作伙伴
+## Partners
 
-如果 AcePanel 对您有帮助，欢迎[赞助我们](https://github.com/acepanel/panel/issues/90)，同时感谢以下支持者/赞助商的支持：
+If AcePanel is useful to you, please consider [sponsoring us](https://github.com/acepanel/panel/issues/90). Our thanks go to the following supporters and sponsors:
 
 <p align="center">
   <a href="https://www.weixiaoduo.com/">
@@ -77,7 +77,7 @@ bash <(curl -sSLm 10 https://dl.acepanel.net/helper.sh)
   </a>
 </p>
 
-## Star 历史
+## Star History
 
 <a href="https://www.star-history.com/?repos=acepanel%2Fpanel&type=date&legend=top-left">
  <picture>
