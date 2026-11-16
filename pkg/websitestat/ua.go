@@ -1,10 +1,13 @@
 package websitestat
 
 import (
+	"sync"
+
 	ua "github.com/medama-io/go-useragent"
 )
 
-var uaParser = ua.NewParser()
+// 字典树常驻约 5 MB，推迟到收到首条访问日志再构建
+var uaParser = sync.OnceValue(ua.NewParser)
 
 // classifyUA 单次解析 UA
 func classifyUA(rawUA string) (spider, browser, os string) {
@@ -12,7 +15,7 @@ func classifyUA(rawUA string) (spider, browser, os string) {
 		return spider, "", ""
 	}
 
-	agent := uaParser.Parse(rawUA)
+	agent := uaParser().Parse(rawUA)
 	if agent.IsBot() {
 		return "Other", "", ""
 	}

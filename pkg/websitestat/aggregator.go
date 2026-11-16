@@ -1,6 +1,7 @@
 package websitestat
 
 import (
+	"hash/maphash"
 	"maps"
 	"runtime"
 	"sync"
@@ -12,6 +13,7 @@ import (
 type Aggregator struct {
 	mu   sync.Mutex
 	days map[string]map[string]*siteDay // date -> site -> stats
+	seed maphash.Seed
 
 	// 错误日志缓冲
 	errBuf []*ErrorEntry
@@ -31,8 +33,8 @@ type siteDay struct {
 	pv, requests, errors, spiders, bandwidth      uint64
 	bandwidthIn, requestTimeSum, requestTimeCount uint64
 	status2xx, status3xx, status4xx, status5xx    uint64
-	ips                                           map[string]struct{}
-	uvs                                           map[string]struct{}
+	ips                                           map[uint64]struct{}
+	uvs                                           map[uint64]struct{}
 	hours                                         [24]*hourBucket
 
 	// drain 后记录 set 大小，用于计算增量
@@ -49,8 +51,8 @@ type hourBucket struct {
 	pv, requests, errors, spiders, bandwidth      uint64
 	bandwidthIn, requestTimeSum, requestTimeCount uint64
 	status2xx, status3xx, status4xx, status5xx    uint64
-	ips                                           map[string]struct{}
-	uvs                                           map[string]struct{}
+	ips                                           map[uint64]struct{}
+	uvs                                           map[uint64]struct{}
 
 	// drain 后记录 set 大小，用于计算增量
 	lastUVCount, lastIPCount uint64
@@ -84,6 +86,7 @@ type rtSlot struct {
 func NewAggregator() *Aggregator {
 	return &Aggregator{
 		days:          make(map[string]map[string]*siteDay),
+		seed:          maphash.MakeSeed(),
 		ErrBufMaxSize: 10000,
 		UVMaxKeys:     1000000,
 		IPMaxKeys:     500000,
@@ -94,8 +97,8 @@ func NewAggregator() *Aggregator {
 
 func newSiteDay() *siteDay {
 	return &siteDay{
-		ips:          make(map[string]struct{}),
-		uvs:          make(map[string]struct{}),
+		ips:          make(map[uint64]struct{}),
+		uvs:          make(map[uint64]struct{}),
 		spiderCounts: make(map[string]uint64),
 		clientCounts: make(map[string]*clientCount),
 		ipCounts:     make(map[string]*ipCount),
@@ -111,7 +114,9 @@ func (a *Aggregator) Record(entry *LogEntry) {
 
 	// 锁外预计算 CPU 密集操作
 	spiderName, browser, os := classifyUA(entry.UA)
-	uvKey := entry.IP + "|" + entry.UA
+	// 去重集合只存 64 位哈希，存原文时大流量站点一天要多占几十 MB
+	uvKey := maphash.Comparable(a.seed, [2]string{entry.IP, entry.UA})
+	ipKey := maphash.String(a.seed, entry.IP)
 	isErr := entry.Status >= 400 && entry.Status < 600
 	isPV := isPageView(entry)
 	isStatic := isStaticResource(entry.URI)
@@ -135,8 +140,8 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	hb := sd.hours[hour]
 	if hb == nil {
 		hb = &hourBucket{
-			ips: make(map[string]struct{}),
-			uvs: make(map[string]struct{}),
+			ips: make(map[uint64]struct{}),
+			uvs: make(map[uint64]struct{}),
 		}
 		sd.hours[hour] = hb
 	}
@@ -186,10 +191,10 @@ func (a *Aggregator) Record(entry *LogEntry) {
 
 	// IP 去重（每日 + 每小时），超限后不再插入
 	if len(sd.ips) < a.IPMaxKeys {
-		sd.ips[entry.IP] = struct{}{}
+		sd.ips[ipKey] = struct{}{}
 	}
 	if len(hb.ips) < a.IPMaxKeys {
-		hb.ips[entry.IP] = struct{}{}
+		hb.ips[ipKey] = struct{}{}
 	}
 
 	// PV 判定
