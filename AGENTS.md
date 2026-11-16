@@ -1,196 +1,100 @@
-## 项目概述
+# AGENTS.md
 
-AcePanel 是基于 Go 语言开发的新一代 Linux 服务器运维管理面板。项目采用前后端分离架构：
+本文件为在此仓库工作的编码代理提供指引，`CLAUDE.md` 是指向它的软链接。
 
-- 后端：Go 1.26 + go-chi 路由 + GORM + Wire 依赖注入
-- 前端：Vue 3 + Vite + Pinia + Naive UI + pnpm + xterm.js + Alova.js
+AcePanel 是 Go 写的 Linux 服务器运维面板，前后端分离。后端：Go + go-chi + GORM（SQLite）+ Wire。前端在 `web/`：Vue 3 + Vite + Naive UI + UnoCSS + Alova，构建产物经 `pkg/embed` 嵌进后端二进制。
 
-## 核心原则
+## 协作约定
 
-- **效率至上**：快速单元式开发，所有代码注释、文档和回复使用简体中文
-- **不写文档**：只写代码，不创建 README、GUIDE 等各种文档
-- **改完即退**：完成代码修改后立即退出，用户会手动测试
-- **简洁执念**：消除边界情况永远优于增加条件判断，复杂性是万恶之源
-- **实用主义**：解决实际问题，而不是假想的威胁
-- **闭嘴**：非用户要求不输出任何内容，静默改完代码后直接退出
+- 注释、提交说明、回复一律用简体中文。
+- 只写代码，不创建 README、GUIDE、设计说明这类文档文件。
+- 回复只说结论和必要信息，没被问到的不展开；改完直接结束，功能由维护者手动测试。
+- 消除边界情况优于增加条件判断；只解决实际存在的问题，不为假想的场景加代码。
+- 发现语义缺陷直接修，不为向后兼容保留错误行为。
+- 不必处理命令注入、SQL 注入、文件上传这类问题：面板的登录用户都是服务器管理员。
+- 不熟悉的库或功能，改代码前先查官方文档（Context7）或 GitHub 上的真实用例。
 
-## 构建和测试
+## 命令
 
-### 后端构建
+后端，在仓库根目录执行：
 
-构建主程序：
+- 构建：`go build -o ace ./cmd/ace`（面板）、`go build -o cli ./cmd/cli`（命令行工具）
+- 测试：`go test ./...`，单个测试 `go test ./internal/biz/ -run TestCertRenewFromPath`
+- Lint：`GOOS=linux golangci-lint run ./...`
+- 依赖注入：改了构造函数或 `wire.go` 后执行 `go generate ./cmd/...`，校验用 `go tool wire check ./...`
+- Mock：改了 `internal/biz` 里的接口后执行 `go run github.com/vektra/mockery/v3@v3.9.0`
 
-```bash
-go build -o ace ./cmd/ace
-```
+面板只运行在 Linux，不少文件带 `//go:build linux`。在其它系统上构建和 lint 要加 `GOOS=linux`，否则这些文件不会被编译和检查。
 
-构建 CLI 工具：
+前端，在 `web/` 目录执行，包管理器是 pnpm：
 
-```bash
-go build -o cli ./cmd/cli
-```
+- `pnpm install`，`pnpm dev`（带热重载）
+- 检查：`pnpm type-check`、`pnpm lint`（oxlint 加 eslint，会自动修复）、`pnpm format`
+- `pnpm build`：类型检查、打包，并把 `dist` 复制到 `pkg/embed/frontend`
+- 前端没有单元测试
 
-### 前端构建和测试
-
-进入前端目录：
-
-```bash
-cd web
-```
-
-安装依赖：
-
-```bash
-pnpm install
-```
-
-开发模式（带热重载）：
-
-```bash
-pnpm dev
-```
-
-构建生产版本：
-
-```bash
-pnpm build
-```
-
-## 代码架构
-
-项目采用类 DDD 分层架构，依赖关系为：route -> service -> biz <- data
-
-### 核心目录结构
-
-- **`cmd/`**: 程序入口
-    - `ace/`: 面板主程序
-    - `cli/`: 命令行工具
-
-- **`internal/app/`**: 应用入口和配置
-
-- **`internal/route/`**: HTTP 路由定义
-    - 定义路由规则
-    - 注入所需的 service 依赖
-
-- **`internal/service/`**: 服务层（类似 DDD 的 application 层）
-    - 处理 HTTP 请求/响应
-    - DTO 到 DO 的转换
-    - 协调多个 biz 接口完成业务流程
-    - **不应处理复杂业务逻辑**
-
-- **`internal/biz/`**: 业务逻辑层（类似 DDD 的 domain 层）
-    - 定义业务接口（Repository 模式）
-    - 定义领域模型和数据结构
-    - 使用依赖倒置原则：biz 定义接口，data 实现接口
-
-- **`internal/data/`**: 数据访问层（类似 DDD 的 repository 层）
-    - 实现 biz 中定义的业务接口
-    - 封装数据库、缓存等操作
-    - 处理数据持久化逻辑
-
-- **`internal/middleware/`**: 自定义中间件
-
-- **`internal/request/`**: 请求结构体定义
-
-- **`internal/rule/`**: 自定义验证规则
-
-- **`internal/apps/`**: 面板子应用实现
-
-- **`internal/mocks/`**: mockery 生成的 biz 接口 mock，改接口后跑 `go run github.com/vektra/mockery/v3@v3.9.0` 重新生成
-
-- **`internal/bootstrap/`**: 各模块启动引导
-
-- **`internal/migration/`**: 数据库迁移
-
-- **`internal/job/`**: 定时任务
-
-- **`internal/taskqueue/`**: 任务队列运行器（基于 DB 轮询，实现 `types.TaskRunner` 接口）
-
-- **`pkg/`**: 工具函数和通用包
-    - 包含各种独立的工具模块
-    - 可被项目任何部分引用
-
-- **`web/`**: Vue 3 前端项目
-
-## 开发新功能的标准流程
-
-1. **在 `internal/route/` 中添加路由**
-    - 参考已有路由文件（如 `http.go`）
-    - 注入需要的 service 依赖
-    - 定义路由规则和 handler 映射
-
-2. **在 `internal/service/` 中实现服务方法**
-    - **先阅读已有的类似服务**以了解代码风格
-    - 处理请求验证和响应格式化
-    - 使用 `Success()` 返回成功响应
-    - 使用 `Error()` 返回错误响应
-    - 使用 `ErrorSystem()` 返回系统严重错误
-    - 调用 biz 层接口完成业务逻辑
-
-3. **在 `internal/biz/` 中定义业务接口**
-    - **先阅读已有的类似接口定义**
-    - 定义 Repository 接口（如 `WebsiteRepo`）
-    - 定义领域模型结构体（如 `Website`）
-    - 保持接口简洁明确
-
-4. **在 `internal/data/` 中实现 biz 接口**
-    - **先阅读已有的类似实现**
-    - 创建 repo 结构体（如 `websiteRepo`）
-    - 实现构造函数（如 `NewWebsiteRepo`）
-    - 实现所有接口方法
-    - 处理数据库操作和缓存逻辑
-
-5. **使用 Wire 进行依赖注入**
-    - 在对应的 wire.go 文件中添加 provider
-    - 运行 `go generate` 生成依赖注入代码
-
-## 技术栈特定注意事项
-
-### 助手函数（service 层）
-
-在 service 层使用以下助手函数：
-
-- `Success(w, data)`: 返回成功响应
-- `Error(w, statusCode, format, args...)`: 返回错误响应
-- `ErrorSystem(w, format, args...)`: 返回系统严重错误（500）
-- `Bind[T](r)`: 绑定请求参数到泛型类型 T
-- `Paginate[T](...)`: 构建分页响应
-
-## 代码风格
-
-- 复杂逻辑添加注释说明，简单逻辑不添加注释
-- 使用 `github.com/samber/lo` 进行函数式编程辅助
-- 后端对外返回的字符串需要尽可能使用 gotext 进行翻译处理
-- 前端使用 gettext 进行国际化处理，所有用户可见的字符串都必须使用 gettext 包裹以支持翻译
-- 禁止手动编辑前后端的翻译文件，项目由外部 Crowdin 自动化管理
-- 前端 HTTP 请求使用 Alova.js 的 useRequest 等助手函数，无需添加 onError 错误处理
-- 后端使用 Wire 依赖注入，添加新依赖时需要 `go generate ./...` 重新生成代码
-- 无需关注命令注入，SQL注入，文件上传等安全问题（这是服务器面板，所有登录的用户都被视为管理员）
-
-
-## 配置文件
-
-后端开发配置：
+首次开发前准备配置：
 
 ```bash
 cp config.example.yml config.yml
+cd web && cp .env.production .env && cp config/proxy-config.example.ts config/proxy-config.ts
 ```
 
-前端开发配置：
+CI 会跑 golangci-lint、`go tool wire check`、带 `-race` 的全量测试、mock 是否最新、`pnpm lint`，提交前相关检查应当能过。
 
-```bash
-cd web
-cp .env.production .env
-cp settings/proxy-config.example.ts settings/proxy-config.ts
-```
+## 后端架构
 
-## 工具使用
+依赖方向是 `route → service → biz ← data`：biz 定义接口和领域模型，data 实现接口。
 
-对于不熟悉的库或功能，必须在修改代码前先使用以下工具进行调研：
+- `internal/route`：路由表。每个端点是一条 `Endpoint`，除 Method、Path、Handler 外要写 Summary、Tags 和 `Describe[请求, 响应]()`，API 文档由此生成；默认要求登录，公开端点设 `Public: true`。
+- `internal/service`：解析请求、调用 biz、组织响应，不放业务逻辑。统一用 `Bind[T](r)`、`Success`、`Error`、`ErrorSystem`、`Paginate`。
+- `internal/request`：请求结构体和校验标签；自定义校验规则在 `internal/rule`。
+- `internal/biz`：`XxxRepo` 接口、`XxxUsecase` 和模型。`internal/data`：Repo 的实现，数据库、文件和系统命令都在这一层。
+- `internal/apps/<slug>`：子应用（Nginx、MySQL、Redis 等），实现 `types.App` 的 `Route` 和 `Status`，挂在 `/api/apps/<slug>`，公共逻辑在 `internal/apps/common`。
+- `internal/command`：CLI 命令定义，逻辑在 service 的 `CliService`。
+- `internal/job` 定时任务，`internal/taskqueue` 后台任务队列，`internal/migration` 数据库迁移，`internal/bootstrap` 启动装配。
+- `pkg/webserver`：Web 服务器抽象，nginx、apache、caddy、openlitespeed 各是一个方言。网站和证书逻辑通过 `webserver.Get(类型)` 取方言，不直接拼某一种服务器的配置。
+- `pkg/` 下其余是与面板业务无关的独立工具包。
 
-1. **查看官方文档**
-    - `resolve-library-id` - 解析库名到 Context7 ID
-    - `get-library-docs` - 获取最新官方文档
+新增功能按层落位：route 加端点、service 加方法、biz 加接口和用例、data 加实现，再到各层的 `wire.go` 里 `Provide` 新的构造函数。动手前先读同层一个相近的现有实现。
 
-2. **搜索真实代码**
-    - `searchGitHub` - 搜索 GitHub 上的实际使用案例
+容易踩的坑：
+
+- 模型加字段后，要在 `internal/migration/v1.go` 末尾追加一条迁移（ID 形如 `20261116-add-cert-path`，内容是 `AutoMigrate`），否则已安装的面板不会加列。
+- 校验器开了严格 required，`required` 会拒绝零值。规则之间用 `&&` 连接，跨字段规则引用 Go 字段名，如 `required_if:Auth,true`、`required_with:CertPath`。新字段的显示名登记在 `internal/request/attributes.go`。
+- `internal/mocks` 里的 mock 带编译期接口断言，biz 接口一改不重新生成就编译不过。
+- 测试断言用 `github.com/libtnb/assert` 的 `check` 和 `must`。mock 上没设桩的方法被调用会 panic，可以借此断言“不应调用”。
+
+## 后端约定
+
+- 对外返回或写进日志的文案都用 `t.Get("english text")`，msgid 必须是字符串字面量，翻译提取靠它。
+- 操作日志：变更类操作成功后在 biz 层记一条，读操作（列表、详情、配置、日志查看）在 service 层记。写法：
+
+  ```go
+  uc.log.Info(uc.t.Get("cert uploaded"), slog.String("type", OperationTypeCert), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)))
+  ```
+
+  删除、清空、卸载这类用 `Warn`；后台任务的 `operator_id` 写 0；属性名用 snake_case，不记密码、密钥、令牌。
+- 只为某个类型服务的辅助函数写成它的未导出方法，不堆包级函数；新声明放到所属位置，不追加在文件末尾。
+- 注释只写非显然的原因，一行以内；`//nolint:xxx` 后面不带理由。
+- 集合处理用 `github.com/samber/lo`。
+- 某种 Web 服务器不支持的配置项：前端不显示，后端不写入。
+
+## 前端约定
+
+- `ref`、`computed`、`useRequest`、VueUse 的函数都已自动导入，`src/components` 下的组件自动注册；`views/` 下的组件要显式 import。
+- 页面路由写在各模块的 `views/<模块>/route.ts`，自动收集；子应用页面是 `views/apps/<slug>/IndexView.vue`；接口定义在 `src/api/panel/<模块>/index.ts`。
+- 请求用 Alova 的 `useRequest` 等助手，不写 `onError`，错误已全局处理。
+- 用户可见的文案都用 `$gettext('English text')` 包裹，源文案写英文。同一句英文在不同场景含义不同时，用 `$pgettext('context', 'English text')` 区分。
+- 弹窗用 `<app-modal size="sm|md|lg|full">`，不直接写 `n-modal`，`preset="dialog"` 除外。
+- 响应式：手机断点 768px，用 `useResponsive()` 的 `isMobile` 判断；表单布局用 `useFormLayout`，表格分页用 `usePagedTable` 或 `useTablePagination`；栅格用 `n-grid` 加 `responsive="screen"`。
+- 表格列宽按中英文里更长的那份文案估算，避免表头换行。
+- 图标用 `<i-mdi-xxx />`，工具类样式用 UnoCSS。样式问题在组件或主题里解决，不用全局 `!important` 覆盖。
+
+## 翻译
+
+译文和 `.pot` 文件（`web/src/locales/`、`pkg/embed/locales/`）由 Crowdin 和手动触发的 L10n 工作流（`.github/workflows/l10n.yml`）维护，不要手动编辑。新文案在译文同步之前显示英文原文，属于正常现象。
+
+## 提交
+
+提交说明写成 `type(scope): 中文概述`，正文分点写用户能感知到的变化。
