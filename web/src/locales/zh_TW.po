@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-11-16 07:51\n"
+"PO-Revision-Date: 2026-11-16 08:01\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:508
@@ -410,7 +410,7 @@ msgstr "最大化"
 #: src/components/common/DraggableWindow.vue:335
 #: src/components/file-editor/EditorPane.vue:286
 #: src/layouts/tab/components/ContextMenu.vue:29
-#: src/views/cert/ObtainModal.vue:176
+#: src/views/cert/ObtainModal.vue:180
 #: src/views/ssh/IndexView.vue:384
 msgid "Close"
 msgstr "關閉"
@@ -1362,7 +1362,7 @@ msgid "Refresh"
 msgstr "重新整理"
 
 #: src/components/file-editor/EditorToolbar.vue:89
-#: src/views/cert/ObtainModal.vue:36
+#: src/views/cert/ObtainModal.vue:39
 msgid "Refreshed successfully"
 msgstr "重新整理成功"
 
@@ -3403,7 +3403,7 @@ msgstr "保護路徑"
 #: src/views/cert/CertModal.vue:195
 #: src/views/cert/CertView.vue:510
 #: src/views/cert/DnsModal.vue:162
-#: src/views/cert/ObtainModal.vue:173
+#: src/views/cert/ObtainModal.vue:177
 #: src/views/cert/UploadCertModal.vue:45
 #: src/views/container/ComposeView.vue:308
 #: src/views/container/ComposeView.vue:326
@@ -7812,37 +7812,37 @@ msgstr "續簽憑證"
 msgid "Renewal successful"
 msgstr "續期成功"
 
-#: src/views/cert/ObtainModal.vue:36
-#: src/views/setting/IndexView.vue:177
-msgid "Refresh Certificate"
-msgstr "更新憑證"
-
 #: src/views/cert/ObtainModal.vue:38
+msgctxt "cert from path"
+msgid "Refresh Certificate"
+msgstr "重新整理證書"
+
+#: src/views/cert/ObtainModal.vue:42
 msgid "Issue Certificate"
 msgstr "簽發證書"
 
-#: src/views/cert/ObtainModal.vue:38
-#: src/views/cert/ObtainModal.vue:118
+#: src/views/cert/ObtainModal.vue:42
+#: src/views/cert/ObtainModal.vue:122
 msgid "Issuance successful"
 msgstr "簽發成功"
 
-#: src/views/cert/ObtainModal.vue:43
+#: src/views/cert/ObtainModal.vue:47
 #: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Automatic"
 msgstr "自動"
 
-#: src/views/cert/ObtainModal.vue:44
+#: src/views/cert/ObtainModal.vue:48
 msgid "Self-signed"
 msgstr "自簽名"
 
-#: src/views/cert/ObtainModal.vue:92
-#: src/views/cert/ObtainModal.vue:98
+#: src/views/cert/ObtainModal.vue:96
+#: src/views/cert/ObtainModal.vue:102
 #: src/views/home/UpdateView.vue:106
 #: src/views/home/UpdateView.vue:111
 msgid "WebSocket connection failed"
 msgstr "WebSocket 連線失敗"
 
-#: src/views/cert/ObtainModal.vue:145
+#: src/views/cert/ObtainModal.vue:149
 msgid "Issuance Mode"
 msgstr "簽發模式"
 
@@ -12093,6 +12093,10 @@ msgstr "憑證重新整理成功"
 #: src/views/setting/IndexView.vue:145
 msgid "Safe"
 msgstr "安全"
+
+#: src/views/setting/IndexView.vue:177
+msgid "Refresh Certificate"
+msgstr "更新憑證"
 
 #: src/views/setting/IndexView.vue:178
 msgid "Regenerate Certificate"
