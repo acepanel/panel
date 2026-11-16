@@ -57,23 +57,11 @@ bash <(curl -sSLm 10 https://dl.acepanel.net/helper.sh)
   <a href="https://www.dkdun.cn/aff/MQZZNVHQ">
     <img height="60" src=".github/assets/dk.png" alt="林枫云">
   </a>
-  <a href="https://cloud.panguidc.com/aff/DMRRFVJX">
-    <img height="60" src=".github/assets/pangu.png" alt="盘古云">
-  </a>
   <a href="https://waf.pro/">
     <img height="60" src=".github/assets/wafpro.png" alt="WAFPRO">
   </a>
-  <a href="https://scdn.ddunyun.com/">
-    <img height="60" src=".github/assets/ddunyun.png" alt="盾云SCDN">
-  </a>
   <a href="https://1ms.run/">
     <img height="60" src=".github/assets/1ms.svg" alt="毫秒镜像">
-  </a>
-</p>
-
-<p align="center">
-  <a target="_blank" href="https://afdian.com/a/tnborg">
-    <img alt="sponsors" src="https://github.com/tnborg/sponsor/blob/main/sponsors.svg?raw=true"/>
   </a>
 </p>
 
