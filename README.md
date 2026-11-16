@@ -17,7 +17,6 @@ Website: [acepanel.net](https://acepanel.net) | QQ Group: [12370907](https://jq.
 [![Go](https://img.shields.io/github/go-mod/go-version/acepanel/panel)](https://go.dev/)
 [![Release](https://img.shields.io/github/release/acepanel/panel.svg)](https://github.com/acepanel/panel/releases)
 [![Test](https://github.com/acepanel/panel/actions/workflows/test.yml/badge.svg)](https://github.com/acepanel/panel/actions)
-[![Report Card](https://goreportcard.com/badge/github.com/acepanel/panel/v3)](https://goreportcard.com/report/github.com/acepanel/panel/v3)
 [![Stars](https://img.shields.io/github/stars/acepanel/panel?style=flat)](https://github.com/acepanel/panel)
 [![License](https://img.shields.io/github/license/acepanel/panel)](https://opensource.org/license/bsd-3-clause)
 
