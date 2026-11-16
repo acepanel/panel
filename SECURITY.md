@@ -11,7 +11,7 @@
 If you find any security issues while using AcePanel, please do not submit an Issue. You can contact us directly through the following methods:
 
 - (Recommend) [GitHub Security Advisories](https://github.com/acepanel/panel/security/advisories/new)
-- Email: [admin@haozi.net](mailto:admin@haozi.net)
+- Email: [devhaozi@gmail.com](mailto:devhaozi@gmail.com)
 - Telegram: @devhaozi
 
 Please do not apply for CVE, CNVD, or similar vulnerability IDs without contacting us first. Once an issue has been confirmed and fixed, we will assist with the related disclosure process. Thank you in advance for your support and cooperation!
@@ -23,7 +23,7 @@ Please do not apply for CVE, CNVD, or similar vulnerability IDs without contacti
 如果您在 AcePanel 中发现任何安全问题，请勿提交 Issue，可通过以下方式直接联系我们：
 
 - （推荐）[GitHub Security Advisories](https://github.com/acepanel/panel/security/advisories/new)
-- 邮箱：[admin@haozi.net](mailto:admin@haozi.net)
+- 邮箱：[devhaozi@gmail.com](mailto:devhaozi@gmail.com)
 - QQ：826896000
 
 请勿在未与我们沟通的情况下直接申请 CVE、CNVD 等漏洞编号，相关问题确认并修复后我们会协助处理。提前感谢您的支持与配合！
