@@ -267,8 +267,8 @@ importers:
         specifier: 5.0.5
         version: 5.0.5(vue@3.5.45(typescript@6.0.3))
       '@tsconfig/node26':
-        specifier: 26.0.0
-        version: 26.0.0
+        specifier: 26.0.2
+        version: 26.0.2
       '@types/luxon':
         specifier: 3.7.6
         version: 3.7.6
@@ -1396,8 +1396,8 @@ packages:
   '@simplewebauthn/browser@14.0.0':
     resolution: {integrity: sha512-1odWVqeEBTl7lJ9zMKLEsmTlnyrDO5iRcTvfMKKk1WThUnp/i8JJdffdj2icP+tty159s4PgwE3BiMoEW9NFow==}
 
-  '@tsconfig/node26@26.0.0':
-    resolution: {integrity: sha512-AlW882moMu/JzvTVjdGqJEsrqD5nSWHiFD7Aeuw6Rb58S4Aig+09mDUFFlXJx/y6/y77NwGYLlqhWxvolcC0sw==}
+  '@tsconfig/node26@26.0.2':
+    resolution: {integrity: sha512-RIBSoNGQxUQ8r4hSrEzS6TrUneoKaCuX6BjL4zF3wqttGq2w06zCea4d8P1gRvM/HZyDT1FQJ8trZSyy/63oMg==}
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -3929,7 +3929,7 @@ snapshots:
 
   '@simplewebauthn/browser@14.0.0': {}
 
-  '@tsconfig/node26@26.0.0': {}
+  '@tsconfig/node26@26.0.2': {}
 
   '@types/esrecurse@4.3.1': {}
 
