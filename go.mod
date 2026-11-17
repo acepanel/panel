@@ -22,7 +22,7 @@ require (
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-chi/httplog/v3 v3.5.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.7
-	github.com/go-sql-driver/mysql v1.10.1
+	github.com/go-sql-driver/mysql v1.10.2
 	github.com/go-webauthn/webauthn v0.18.2
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/go-cmp v0.7.0
@@ -73,7 +73,7 @@ require (
 	github.com/xuri/excelize/v2 v2.11.1
 	go.yaml.in/yaml/v4 v4.0.0
 	golang.org/x/crypto v0.59.0
-	golang.org/x/net v0.62.0
+	golang.org/x/net v0.63.0
 	golang.org/x/sync v0.25.0
 	golang.org/x/sys v0.50.0
 	golang.org/x/term v0.48.0
