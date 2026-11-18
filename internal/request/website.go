@@ -62,9 +62,9 @@ type WebsiteUpdate struct {
 	SSLProtocols []string `json:"ssl_protocols"`
 
 	// PHP 相关
-	PHP         uint   `form:"php" json:"php"`
-	Rewrite     string `form:"rewrite" json:"rewrite"`
-	OpenBasedir bool   `form:"open_basedir" json:"open_basedir"`
+	PHP         uint    `form:"php" json:"php"`
+	Rewrite     *string `form:"rewrite" json:"rewrite"` // 不传则不动现有规则
+	OpenBasedir bool    `form:"open_basedir" json:"open_basedir"`
 
 	// 反向代理
 	Upstreams []types.Upstream `json:"upstreams"`

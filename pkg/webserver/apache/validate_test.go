@@ -89,9 +89,11 @@ func TestValidateWithApache(t *testing.T) {
 			site, err := newPHPVhost(presetDir)
 			must.NoError(t, err)
 			must.NoError(t, site.SetServerName([]string{name + ".preset.test"}))
-			must.NoError(t, site.SetRoot(filepath.Join(sites, "preset-"+name, "public")))
+			root := filepath.Join(sites, "preset-"+name, "public")
+			must.NoError(t, site.SetRoot(root))
 			must.NoError(t, site.SetPHP(84))
-			must.NoError(t, site.SetRawConfig("010-rewrite.conf", types.ScopeSite, string(content)))
+			// 预设实际写在 .htaccess 里，请求时才解析；包一层 <Directory> 交给 httpd -t 校验目录级语法
+			must.NoError(t, site.SetRawConfig("800-preset.conf", types.ScopeSite, "<Directory "+root+">\n"+string(content)+"</Directory>\n"))
 			save(site, presetDir)
 		})
 	}

@@ -115,6 +115,24 @@ func TestPHPVhostRoot(t *testing.T) {
 	check.Equal(t, vhost.Root(), root)
 }
 
+func TestPHPVhostRewrite(t *testing.T) {
+	vhost, _ := setupPHPVhost(t)
+	root := t.TempDir()
+	must.NoError(t, vhost.SetRoot(root))
+
+	rules := "RewriteEngine On\nRewriteRule ^ /index.php [L]\n"
+	must.NoError(t, vhost.SetRewrite(rules))
+	content, err := os.ReadFile(filepath.Join(root, ".htaccess"))
+	must.NoError(t, err)
+	check.Equal(t, string(content), rules)
+	check.Equal(t, vhost.Rewrite(), rules)
+	// 规则跟着根目录走，不落进站点配置
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "")
+
+	must.NoError(t, vhost.SetRoot(t.TempDir()))
+	check.Equal(t, vhost.Rewrite(), "")
+}
+
 func TestPHPVhostIndex(t *testing.T) {
 	vhost, _ := setupPHPVhost(t)
 

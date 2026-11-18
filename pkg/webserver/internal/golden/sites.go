@@ -94,7 +94,7 @@ func Build(t *testing.T, d types.Dialect, root, prefix, cert, key, custom string
 	must.NoError(t, php.SetConfig("001-acme.conf", types.ScopeSite, ""))
 	must.NoError(t, php.SetConfig("010-error-404.conf", types.ScopeSite, d.ErrorPageConf()))
 	must.NoError(t, php.SetConfig("010-cache.conf", types.ScopeSite, d.PHPCacheConf()))
-	must.NoError(t, php.SetRawConfig("010-rewrite.conf", types.ScopeSite, ""))
+	must.NoError(t, php.SetRewrite(""))
 	if shared, site := d.StatConf(prefix + "php"); site != "" {
 		if shared != "" {
 			must.NoError(t, php.SetConfig("010-stat-format.conf", types.ScopeShared, shared))

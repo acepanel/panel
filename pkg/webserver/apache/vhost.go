@@ -124,6 +124,14 @@ func (v *phpVhost) SetPHP(version uint) error {
 	return v.SetConfig("010-php.conf", "site", Export(cfg)+"\n")
 }
 
+func (v *phpVhost) Rewrite() string {
+	return types.Htaccess(v.Root()).Read()
+}
+
+func (v *phpVhost) SetRewrite(content string) error {
+	return types.Htaccess(v.Root()).Write(content)
+}
+
 // SetEnable 停用时把证书验证之外的请求都重写到停用页。停用页不要认证，也不受反代规则的 IP 限制：
 // <If> 在所有 <Location> 之后合并，嵌在 <Directory> 里的又排在站点自己的 <If> 之后，这里的放行最后生效
 func (v *baseVhost) SetEnable(enable bool) error {

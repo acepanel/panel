@@ -83,7 +83,7 @@ func TestValidateWithCaddy(t *testing.T) {
 			must.NoError(t, site.SetServerName([]string{name + ".preset.test"}))
 			must.NoError(t, site.SetRoot(filepath.Join(sites, "preset-"+name, "public")))
 			must.NoError(t, site.SetPHP(84))
-			must.NoError(t, site.SetRawConfig("010-rewrite.conf", types.ScopeSite, string(content)))
+			must.NoError(t, site.SetRewrite(string(content)))
 			must.NoError(t, site.Save())
 		})
 	}

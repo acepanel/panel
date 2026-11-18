@@ -25,7 +25,7 @@ export interface WebServerFeatures {
   upstreamRequestRewrite: boolean // 代理到上游时能改 Host 与请求头
   upstreamTuning: boolean // 代理到上游时能按规则设超时与缓冲
   redirect404Options: boolean // 404 重定向的状态码与保留 URI
-  rewritePresets: boolean // 伪静态预设
+  htaccess: boolean // 伪静态写在运行目录的 .htaccess
   stat: boolean // 访问统计
   defaultSite: boolean // 默认站点
   errorLog: boolean // 站点级错误日志
@@ -65,7 +65,7 @@ const features: Record<string, WebServerFeatures> = {
     upstreamRequestRewrite: true,
     upstreamTuning: true,
     redirect404Options: true,
-    rewritePresets: true,
+    htaccess: false,
     stat: true,
     defaultSite: true,
     errorLog: true,
@@ -101,7 +101,7 @@ const features: Record<string, WebServerFeatures> = {
     upstreamRequestRewrite: true,
     upstreamTuning: false,
     redirect404Options: true,
-    rewritePresets: false,
+    htaccess: true,
     stat: false,
     defaultSite: false,
     errorLog: true,
@@ -137,7 +137,7 @@ const features: Record<string, WebServerFeatures> = {
     upstreamRequestRewrite: false,
     upstreamTuning: false,
     redirect404Options: false,
-    rewritePresets: true,
+    htaccess: true,
     stat: false,
     defaultSite: false,
     errorLog: true,
@@ -173,7 +173,7 @@ const features: Record<string, WebServerFeatures> = {
     upstreamRequestRewrite: true,
     upstreamTuning: true,
     redirect404Options: true,
-    rewritePresets: true,
+    htaccess: false,
     stat: true,
     defaultSite: true,
     errorLog: false,
@@ -211,7 +211,7 @@ const unknown: WebServerFeatures = {
   upstreamRequestRewrite: false,
   upstreamTuning: false,
   redirect404Options: false,
-  rewritePresets: false,
+  htaccess: false,
   stat: false,
   defaultSite: false,
   errorLog: true,

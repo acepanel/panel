@@ -708,7 +708,14 @@ const removeCustomConfig = (index: number) => {
         </n-tab-pane>
         <n-tab-pane v-if="setting.type == 'php'" name="rewrite" :tab="$gettext('Rewrite')">
           <n-flex vertical>
-            <n-form v-if="features.rewritePresets" v-bind="presetFormLayout">
+            <n-alert v-if="features.htaccess" type="info">
+              {{
+                $gettext(
+                  'Rewrite rules are stored in the .htaccess file of the running directory, which the application itself may also modify',
+                )
+              }}
+            </n-alert>
+            <n-form v-if="rewriteOptions.length > 0" v-bind="presetFormLayout">
               <n-form-item :label="$gettext('Presets')">
                 <n-select
                   v-model:value="rewriteValue"

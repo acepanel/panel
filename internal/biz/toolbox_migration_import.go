@@ -18,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 	webtypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -235,7 +236,7 @@ func (uc *ToolboxMigrationUsecase) importWebsite(
 		Index: lo.Ternary(len(website.Index) > 0, website.Index, []string{"index.php", "index.html", "index.htm"}),
 		SSL:   website.SSL, SSLCert: website.SSLCert, SSLKey: website.SSLKey, SSLProtocols: website.SSLProtocols,
 		HSTS: website.HSTS, OCSP: website.OCSP, HTTPRedirect: website.HTTPRedirect,
-		PHP: website.PHP, Rewrite: website.Rewrite, OpenBasedir: website.OpenBasedir,
+		PHP: website.PHP, Rewrite: uc.configRewrite(website.Rewrite), OpenBasedir: website.OpenBasedir,
 	}
 	for _, proxy := range website.Proxies {
 		update.Proxies = append(update.Proxies, webtypes.Proxy{
@@ -516,6 +517,15 @@ func (uc *ToolboxMigrationUsecase) removeDependencies(root string, typ types.Pro
 		_ = os.RemoveAll(path) //nolint:gosec
 		return filepath.SkipDir
 	})
+}
+
+// configRewrite 本机把伪静态写在 .htaccess 时规则随网站文件迁移，返回 nil 让接收方保持文件原样
+func (uc *ToolboxMigrationUsecase) configRewrite(rewrite string) *string {
+	webServer, _ := uc.setting.Get(SettingKeyWebserver)
+	if d, err := webserver.Get(webserver.Type(webServer)); err == nil && d.Features().Htaccess {
+		return nil
+	}
+	return &rewrite
 }
 
 // relocate 将来源路径按根目录映射到目标路径

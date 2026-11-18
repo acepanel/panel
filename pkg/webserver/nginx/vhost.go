@@ -113,6 +113,14 @@ func (v *phpVhost) SetPHP(version uint) error {
 	return v.SetConfig("010-php.conf", types.ScopeSite, content)
 }
 
+func (v *phpVhost) Rewrite() string {
+	return v.Config("010-rewrite.conf", types.ScopeSite)
+}
+
+func (v *phpVhost) SetRewrite(content string) error {
+	return v.SetRawConfig("010-rewrite.conf", types.ScopeSite, content)
+}
+
 // SetEnable 停用时把证书验证之外的请求都重写到停用页，停用页不要认证
 func (v *baseVhost) SetEnable(enable bool) error {
 	return v.SetEnableWith(enable, fmt.Sprintf(`rewrite ^(?!/\.well-known/acme-challenge/) /stop.html last;

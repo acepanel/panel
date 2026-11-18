@@ -100,6 +100,16 @@ func TestRoot(t *testing.T) {
 	check.Equal(t, vhost.Root(), root)
 }
 
+func TestRewrite(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := newPHPVhost(configDir)
+	must.NoError(t, err)
+
+	must.NoError(t, vhost.SetRewrite("location / { try_files $uri $uri/ /index.php$is_args$args; }\n"))
+	check.Equal(t, vhost.Rewrite(), "location / { try_files $uri $uri/ /index.php$is_args$args; }")
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "location / { try_files $uri $uri/ /index.php$is_args$args; }")
+}
+
 func TestIndex(t *testing.T) {
 	vhost, _ := setupPHPVhost(t)
 

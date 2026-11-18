@@ -6,6 +6,7 @@ type Features struct {
 	Stat        bool // 访问统计
 	DefaultSite bool // 默认站点切换
 	LSCache     bool // LiteSpeed 页面缓存
+	Htaccess    bool // 伪静态写在网站根目录的 .htaccess，随网站文件走而不属于站点配置
 }
 
 // Dialect 收敛某种 Web 服务器在面板层面的全部差异，新增服务器只需实现此接口并在 webserver 包中注册

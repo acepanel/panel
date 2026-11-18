@@ -92,6 +92,64 @@ func TestWebsiteUpdateUserIni(t *testing.T) {
 	check.Equal(t, save(sitePath), generated)
 }
 
+type apacheSetting struct{ nginxSetting }
+
+func (apacheSetting) Get(biz.SettingKey, ...string) (string, error) { return "apache", nil }
+
+// Apache 的伪静态在运行目录的 .htaccess 里，它是网站文件：不传就不动，换运行目录时也不能带着旧目录的内容去覆盖
+func TestWebsiteUpdateHtaccess(t *testing.T) {
+	repo, siteDir := newWebsiteRepoForTest(t)
+	repo.setting = apacheSetting{}
+	sitePath := filepath.Join(siteDir, "public")
+	subRoot := filepath.Join(sitePath, "web")
+	must.NoError(t, os.MkdirAll(subRoot, 0755))
+	website := &biz.Website{Name: "demo", Type: biz.WebsiteTypePHP, Status: true, Path: sitePath}
+	must.NoError(t, repo.db.Create(website).Error)
+
+	save := func(runRoot string, rewrite *string) {
+		t.Helper()
+		_, err := repo.Update(context.Background(), &request.WebsiteUpdate{
+			ID:      website.ID,
+			Listens: []webservertypes.Listen{{Address: "80"}},
+			Domains: []string{"demo.test"},
+			Path:    sitePath,
+			Root:    runRoot,
+			Index:   []string{"index.php"},
+			Rewrite: rewrite,
+		})
+		must.NoError(t, err)
+	}
+	read := func(dir string) string {
+		t.Helper()
+		content, _ := io.Read(filepath.Join(dir, ".htaccess"))
+		return content
+	}
+	shipped := "RewriteEngine On\nRewriteRule ^ index.php [L]\n"
+	must.NoError(t, io.Write(filepath.Join(sitePath, ".htaccess"), shipped, 0644))
+	must.NoError(t, io.Write(filepath.Join(subRoot, ".htaccess"), "# web\n", 0644))
+
+	save(sitePath, nil)
+	check.Equal(t, read(sitePath), shipped)
+	setting, err := repo.Get(website.ID)
+	must.NoError(t, err)
+	check.Equal(t, setting.Rewrite, shipped)
+
+	edited := "RewriteEngine On\nRewriteRule ^ /index.php?s=/$1 [QSA,L]\n"
+	save(sitePath, &edited)
+	check.Equal(t, read(sitePath), edited)
+
+	save(subRoot, &edited)
+	check.Equal(t, read(subRoot), "# web\n")
+	setting, err = repo.Get(website.ID)
+	must.NoError(t, err)
+	check.Equal(t, setting.Rewrite, "# web\n")
+
+	empty := ""
+	save(subRoot, &empty)
+	check.False(t, io.Exists(filepath.Join(subRoot, ".htaccess")))
+	check.Equal(t, read(sitePath), edited)
+}
+
 func TestWebsiteRestoreConfig(t *testing.T) {
 	repo, siteDir := newWebsiteRepoForTest(t)
 	configDir := filepath.Join(siteDir, "config")

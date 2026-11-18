@@ -253,7 +253,9 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 
 	// 只迁移各服务器通用的设置，伪静态、自定义配置（含代理规则的自定义指令）、限流与真实 IP 是各自的语法或语义，直接丢弃
 	var notes []string
-	if setting.Rewrite != "" || len(setting.CustomConfigs) > 0 || customProxy || setting.RateLimit != nil || setting.RealIP != nil {
+	// 两边都把伪静态写在 .htaccess 时规则原样可用
+	rewriteLost := setting.Rewrite != "" && (!source.Features().Htaccess || !d.Features().Htaccess)
+	if rewriteLost || len(setting.CustomConfigs) > 0 || customProxy || setting.RateLimit != nil || setting.RealIP != nil {
 		notes = append(notes, r.t.Get("rewrite rules, custom configs, rate limit and real IP settings are not migrated"))
 	}
 

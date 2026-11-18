@@ -113,6 +113,14 @@ func (v *phpVhost) SetPHP(version uint) error {
 	return nil
 }
 
+func (v *phpVhost) Rewrite() string {
+	return types.Htaccess(v.Root()).Read()
+}
+
+func (v *phpVhost) SetRewrite(content string) error {
+	return types.Htaccess(v.Root()).Write(content)
+}
+
 // SetEnable 停用片段只是标记，停用规则在生成 vhconf 时按标记写入
 func (v *baseVhost) SetEnable(enable bool) error {
 	return v.SetEnableWith(enable, "")

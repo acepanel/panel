@@ -104,6 +104,14 @@ func (v *phpVhost) SetPHP(version uint) error {
 	return nil
 }
 
+func (v *phpVhost) Rewrite() string {
+	return v.Config("010-rewrite.conf", types.ScopeSite)
+}
+
+func (v *phpVhost) SetRewrite(content string) error {
+	return v.SetRawConfig("010-rewrite.conf", types.ScopeSite, content)
+}
+
 // SetEnable 停用片段只是标记，只含注释，被 import 无副作用
 func (v *baseVhost) SetEnable(enable bool) error {
 	return v.SetEnableWith(enable, "")

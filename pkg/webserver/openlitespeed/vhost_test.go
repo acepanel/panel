@@ -540,6 +540,26 @@ func TestFragments(t *testing.T) {
 	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "RewriteCond %{REQUEST_FILENAME} !-f\nRewriteRule ^ /index.php [L]")
 }
 
+func TestRewrite(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := newPHPVhost(configDir)
+	must.NoError(t, err)
+	root := t.TempDir()
+	must.NoError(t, vhost.SetRoot(root))
+
+	rules := "RewriteEngine On\nRewriteRule ^ /index.php [L]\n"
+	must.NoError(t, vhost.SetRewrite(rules))
+	content, err := os.ReadFile(filepath.Join(root, ".htaccess"))
+	must.NoError(t, err)
+	check.Equal(t, string(content), rules)
+	check.Equal(t, vhost.Rewrite(), rules)
+	// 规则跟着根目录走，不落进站点配置
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "")
+
+	must.NoError(t, vhost.SetRoot(t.TempDir()))
+	check.Equal(t, vhost.Rewrite(), "")
+}
+
 func TestLocationToURI(t *testing.T) {
 	cases := map[string]string{
 		"^~ /":         "/",

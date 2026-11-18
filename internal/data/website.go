@@ -180,7 +180,7 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
 		setting.PHP = phpVhost.PHP()
 		// 伪静态
-		setting.Rewrite = phpVhost.Config("010-rewrite.conf", webservertypes.ScopeSite)
+		setting.Rewrite = phpVhost.Rewrite()
 	}
 
 	// 反向代理
@@ -386,9 +386,6 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		if err = phpVhost.SetIndex([]string{"index.php", "index.html"}); err != nil {
 			return nil, err
 		}
-		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, ""); err != nil {
-			return nil, err
-		}
 	}
 
 	// 初始化网站目录
@@ -554,6 +551,12 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 	if !io.Exists(req.Root) {
 		return errors.New(r.t.Get("runtime directory does not exist"))
 	}
+	// 伪静态可能存在运行目录的 .htaccess 里，表单内容读自旧目录，要赶在换目录之前写回
+	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok && req.Rewrite != nil {
+		if err = phpVhost.SetRewrite(*req.Rewrite); err != nil {
+			return err
+		}
+	}
 	// .user.ini 的内容由运行目录与网站目录决定，趁两者还是旧值先比较
 	dirChanged := req.Root != vhost.Root() || req.Path != website.Path
 	if err = vhost.SetRoot(req.Root); err != nil {
@@ -631,10 +634,6 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 	// PHP
 	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
 		if err = phpVhost.SetPHP(req.PHP); err != nil {
-			return err
-		}
-		// 伪静态
-		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, req.Rewrite); err != nil {
 			return err
 		}
 		// 防跨站

@@ -258,7 +258,7 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 		Path: targetPath, Root: uc.relocate(website.Root, website.Path, targetPath), Index: website.Index,
 		SSL: website.SSL, SSLCert: website.SSLCert, SSLKey: website.SSLKey, SSLProtocols: website.SSLProtocols,
 		HSTS: website.HSTS, OCSP: website.OCSP, HTTPRedirect: website.HTTPRedirect,
-		PHP: website.PHP, Rewrite: website.Rewrite, OpenBasedir: website.OpenBasedir,
+		PHP: website.PHP, Rewrite: uc.configRewrite(website.Rewrite), OpenBasedir: website.OpenBasedir,
 		Upstreams: website.Upstreams, Proxies: website.Proxies, Redirects: website.Redirects,
 		StatEnabled: website.StatEnabled, RateLimit: website.RateLimit, RealIP: website.RealIP, BasicAuth: website.BasicAuth,
 	}

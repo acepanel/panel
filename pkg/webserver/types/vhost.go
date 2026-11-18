@@ -98,6 +98,10 @@ type VhostPHP interface {
 	// PHP 取 PHP 版本，如: 84, 81, 80, 0 表示未启用 PHP
 	PHP() uint
 	SetPHP(version uint) error
+
+	// Rewrite 取伪静态规则，存放位置各服务器不同：站点级片段，或网站根目录的 .htaccess
+	Rewrite() string
+	SetRewrite(content string) error
 }
 
 type VhostRedirect interface {

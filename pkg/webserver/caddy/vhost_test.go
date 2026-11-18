@@ -530,6 +530,16 @@ func TestVhostConfigFragments(t *testing.T) {
 	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "")
 }
 
+func TestRewrite(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := newPHPVhost(configDir)
+	must.NoError(t, err)
+
+	must.NoError(t, vhost.SetRewrite("try_files {path} {path}/ /index.php?{query}\n"))
+	check.Equal(t, vhost.Rewrite(), "try_files {path} {path}/ /index.php?{query}")
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "try_files {path} {path}/ /index.php?{query}")
+}
+
 func TestDialect(t *testing.T) {
 	d := Dialect{}
 	check.Equal(t, d.Service(), "caddy")

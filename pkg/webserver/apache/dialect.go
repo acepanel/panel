@@ -73,7 +73,7 @@ func (Dialect) PanelACMEConf() string {
 }
 
 func (Dialect) Features() types.Features {
-	return types.Features{}
+	return types.Features{Htaccess: true}
 }
 
 func (Dialect) HTTPSListenArgs() []string {
