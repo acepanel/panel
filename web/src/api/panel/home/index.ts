@@ -14,9 +14,7 @@ export default {
   countInfo: (): any => http.Get('/home/count_info'),
   // 已安装的环境
   installedEnvironment: (): any => http.Get('/home/installed_environment'),
-  // 检查更新
-  checkUpdate: (): any => http.Get('/home/check_update'),
-  // 更新日志
+  // 更新信息：是否有新版本及要展示的更新日志
   updateInfo: (): any => http.Get('/home/update_info', { meta: { noAlert: true } }),
   // 重启面板
   restart: (): any => http.Post('/home/restart'),

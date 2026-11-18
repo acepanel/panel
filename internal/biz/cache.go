@@ -34,6 +34,7 @@ type CacheRepo interface {
 	FetchTemplates() (*api.Templates, error)
 	FetchLatestVersion(channel string) (*api.Version, error)
 	FetchIntermediateVersions(channel string) (*api.Versions, error)
+	FetchVersions(channel string) (*api.Versions, error)
 }
 
 // CacheUpdate 一项云端数据缓存的刷新动作

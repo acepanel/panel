@@ -67,3 +67,7 @@ func (r *cacheRepo) FetchLatestVersion(channel string) (*api.Version, error) {
 func (r *cacheRepo) FetchIntermediateVersions(channel string) (*api.Versions, error) {
 	return r.api.IntermediateVersions(channel)
 }
+
+func (r *cacheRepo) FetchVersions(channel string) (*api.Versions, error) {
+	return r.api.Versions(channel)
+}

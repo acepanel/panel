@@ -345,18 +345,24 @@ func (s *HomeService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to parse version: %v", err))
 		return
 	}
-	if !newer {
-		Error(w, http.StatusInternalServerError, s.t.Get("the current version is the latest version"))
-		return
-	}
 
-	versions, err := s.backupRepo.PanelChangelog()
+	// 有更新时列出待更新的各个版本，已是最新时给出运行中版本自身的更新日志
+	changelog := s.backupRepo.CurrentPanelChangelog
+	if newer {
+		changelog = s.backupRepo.PanelChangelog
+	}
+	versions, err := changelog()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the update information: %v", err))
 		return
 	}
 
-	Success(w, versions)
+	Success(w, chix.M{
+		"update":   newer,
+		"current":  app.Version,
+		"latest":   latest.Version,
+		"versions": versions,
+	})
 }
 
 func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {

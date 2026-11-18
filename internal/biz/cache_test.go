@@ -14,6 +14,7 @@ type stubCacheRepo struct {
 	CacheRepo
 	channel string
 	latest  *api.Version
+	all     api.Versions
 	err     error
 	failed  CacheKey
 	sets    []CacheKey
@@ -22,6 +23,11 @@ type stubCacheRepo struct {
 func (s *stubCacheRepo) FetchLatestVersion(channel string) (*api.Version, error) {
 	s.channel = channel
 	return s.latest, s.err
+}
+
+func (s *stubCacheRepo) FetchVersions(channel string) (*api.Versions, error) {
+	s.channel = channel
+	return &s.all, s.err
 }
 
 func (s *stubCacheRepo) FetchCategories() (*api.Categories, error) {

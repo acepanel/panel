@@ -46,3 +46,8 @@ func (r *API) LatestVersion(channel string) (*Version, error) {
 func (r *API) IntermediateVersions(channel string) (*Versions, error) {
 	return get[Versions](r, "/version/intermediate", map[string]string{"start": r.panelVersion, "channel": channel})
 }
+
+// Versions 返回指定类型的全部版本，beta 不含稳定版
+func (r *API) Versions(channel string) (*Versions, error) {
+	return get[Versions](r, "/versions", map[string]string{"channel": channel})
+}

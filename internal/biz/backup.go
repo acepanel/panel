@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/collect"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/api"
@@ -246,6 +247,24 @@ func (uc *BackupUsecase) LatestPanel() (*PanelRelease, error) {
 func (uc *BackupUsecase) PanelChangelog() (*api.Versions, error) {
 	channel, _ := uc.setting.Get(SettingKeyChannel)
 	return uc.cache.FetchIntermediateVersions(channel)
+}
+
+// CurrentPanelChangelog 取运行中版本自身的更新日志，上游没有这个版本（如开发版）时为空
+func (uc *BackupUsecase) CurrentPanelChangelog() (*api.Versions, error) {
+	current, err := version.NewVersion(app.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	// 上游按类型分开列出版本，预发布版只在 beta 里
+	versions, err := uc.cache.FetchVersions(lo.Ternary(current.Prerelease() == "", "stable", "beta"))
+	if err != nil {
+		return nil, err
+	}
+
+	return new(lo.Filter(*versions, func(item api.Version, _ int) bool {
+		return item.Version == app.Version
+	})), nil
 }
 
 func (uc *BackupUsecase) UpdatePanel(ctx context.Context, release *PanelRelease, progress func(string)) error {

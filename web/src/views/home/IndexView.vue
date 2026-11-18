@@ -396,15 +396,6 @@ const handleRestartSelect = async (key: string) => {
   }
 }
 
-const handleUpdate = async () => {
-  const data = await home.checkUpdate()
-  if (data.update) {
-    router.push({ name: 'home-update' })
-  } else {
-    window.$message.success($gettext('Current version is the latest'))
-  }
-}
-
 const toSponsor = () => {
   window.open('https://afdian.com/a/tnborg')
 }
@@ -534,9 +525,9 @@ if (import.meta.hot) {
                     {{ $gettext('Restart') }}
                   </n-button>
                 </n-dropdown>
-                <app-button type="info" @click="handleUpdate">
+                <n-button type="info" @click="router.push({ name: 'home-update' })">
                   {{ $gettext('Update') }}
-                </app-button>
+                </n-button>
               </n-flex>
             </template>
           </n-page-header>

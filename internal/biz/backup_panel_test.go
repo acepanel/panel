@@ -81,3 +81,32 @@ func TestBackupUsecaseLatestPanel(t *testing.T) {
 	_, err = uc.LatestPanel()
 	check.Error(t, err)
 }
+
+func TestBackupUsecaseCurrentPanelChangelog(t *testing.T) {
+	old := app.Version
+	t.Cleanup(func() { app.Version = old })
+
+	cache := &stubCacheRepo{all: api.Versions{{Version: "3.1.1"}, {Version: "3.1.0", Description: "notes"}}}
+	uc := &BackupUsecase{cache: cache}
+
+	app.Version = "3.1.0"
+	versions, err := uc.CurrentPanelChangelog()
+	must.NoError(t, err)
+	check.Equal(t, cache.channel, "stable")
+	check.DeepEqual(t, *versions, api.Versions{{Version: "3.1.0", Description: "notes"}})
+
+	// 预发布版在 beta 里找，上游没有这个版本时为空
+	app.Version = "3.2.0-beta.1"
+	versions, err = uc.CurrentPanelChangelog()
+	must.NoError(t, err)
+	check.Equal(t, cache.channel, "beta")
+	check.Equal(t, len(*versions), 0)
+
+	cache.err = errors.New("boom")
+	_, err = uc.CurrentPanelChangelog()
+	check.Error(t, err)
+
+	app.Version = "dev build"
+	_, err = uc.CurrentPanelChangelog()
+	check.Error(t, err)
+}

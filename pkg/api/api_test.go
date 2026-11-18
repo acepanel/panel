@@ -51,6 +51,12 @@ func TestGetIntermediateVersions(t *testing.T) {
 	check.NoError(t, err)
 }
 
+func TestGetVersions(t *testing.T) {
+	versions, err := newTestAPI().Versions("stable")
+	must.NoError(t, err)
+	check.NotEmpty(t, *versions)
+}
+
 func TestGetCategories(t *testing.T) {
 	categories, err := newTestAPI().Categories()
 	must.NoError(t, err)

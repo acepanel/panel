@@ -39,6 +39,9 @@ var _ biz.CacheRepo = &CacheRepo{}
 //			FetchTemplatesFunc: func() (*api.Templates, error) {
 //				panic("mock out the FetchTemplates method")
 //			},
+//			FetchVersionsFunc: func(channel string) (*api.Versions, error) {
+//				panic("mock out the FetchVersions method")
+//			},
 //			GetFunc: func(key biz.CacheKey, defaultValue ...string) (string, error) {
 //				panic("mock out the Get method")
 //			},
@@ -70,6 +73,9 @@ type CacheRepo struct {
 	// FetchTemplatesFunc mocks the FetchTemplates method.
 	FetchTemplatesFunc func() (*api.Templates, error)
 
+	// FetchVersionsFunc mocks the FetchVersions method.
+	FetchVersionsFunc func(channel string) (*api.Versions, error)
+
 	// GetFunc mocks the Get method.
 	GetFunc func(key biz.CacheKey, defaultValue ...string) (string, error)
 
@@ -100,6 +106,11 @@ type CacheRepo struct {
 		// FetchTemplates holds details about calls to the FetchTemplates method.
 		FetchTemplates []struct {
 		}
+		// FetchVersions holds details about calls to the FetchVersions method.
+		FetchVersions []struct {
+			// Channel is the channel argument value.
+			Channel string
+		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
 			// Key is the key argument value.
@@ -121,6 +132,7 @@ type CacheRepo struct {
 	lockFetchIntermediateVersions sync.RWMutex
 	lockFetchLatestVersion        sync.RWMutex
 	lockFetchTemplates            sync.RWMutex
+	lockFetchVersions             sync.RWMutex
 	lockGet                       sync.RWMutex
 	lockSet                       sync.RWMutex
 }
@@ -294,6 +306,38 @@ func (mock *CacheRepo) FetchTemplatesCalls() []struct {
 	mock.lockFetchTemplates.RLock()
 	calls = mock.calls.FetchTemplates
 	mock.lockFetchTemplates.RUnlock()
+	return calls
+}
+
+// FetchVersions calls FetchVersionsFunc.
+func (mock *CacheRepo) FetchVersions(channel string) (*api.Versions, error) {
+	if mock.FetchVersionsFunc == nil {
+		panic("CacheRepo.FetchVersionsFunc: method is nil but CacheRepo.FetchVersions was just called")
+	}
+	callInfo := struct {
+		Channel string
+	}{
+		Channel: channel,
+	}
+	mock.lockFetchVersions.Lock()
+	mock.calls.FetchVersions = append(mock.calls.FetchVersions, callInfo)
+	mock.lockFetchVersions.Unlock()
+	return mock.FetchVersionsFunc(channel)
+}
+
+// FetchVersionsCalls gets all the calls that were made to FetchVersions.
+// Check the length with:
+//
+//	len(mockedCacheRepo.FetchVersionsCalls())
+func (mock *CacheRepo) FetchVersionsCalls() []struct {
+	Channel string
+} {
+	var calls []struct {
+		Channel string
+	}
+	mock.lockFetchVersions.RLock()
+	calls = mock.calls.FetchVersions
+	mock.lockFetchVersions.RUnlock()
 	return calls
 }
 
