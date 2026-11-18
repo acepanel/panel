@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-11-18 11:13\n"
+"PO-Revision-Date: 2026-11-18 22:26\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -459,7 +459,7 @@ msgstr "證書路徑"
 msgid "Certificate file path (fullchain)"
 msgstr "證書檔案路徑（fullchain）"
 
-#: internal/service/cli_website.go:182
+#: internal/service/cli_website.go:188
 msgid "Certificate for website %s updated successfully"
 msgstr "網站 %s 的證書更新成功"
 
@@ -968,7 +968,7 @@ msgstr "入口： %s"
 msgid "Environment"
 msgstr "環境"
 
-#: internal/biz/backup.go:157
+#: internal/biz/backup.go:158
 #: internal/job/cert_renew.go:193
 #: internal/taskqueue/runner.go:188
 msgid "Error"
@@ -1119,7 +1119,7 @@ msgstr "無法取得使用者清單：%v"
 msgid "Failed to get user: %v"
 msgstr "無法取得使用者：%v"
 
-#: internal/service/cli_website.go:210
+#: internal/service/cli_website.go:216
 msgid "Failed to get website: %v"
 msgstr "獲取網站失敗：%v"
 
@@ -1131,7 +1131,7 @@ msgstr "無法透過 ACME 取得面板憑證，使用自簽憑證：%v"
 msgid "Failed to optimize database: %v"
 msgstr "優化資料庫失敗：%v"
 
-#: internal/service/cli_website.go:162
+#: internal/service/cli_website.go:168
 msgid "Failed to read certificate file: %v"
 msgstr "讀取證書檔案失敗：%v"
 
@@ -1140,7 +1140,7 @@ msgstr "讀取證書檔案失敗：%v"
 msgid "Failed to read input: %v"
 msgstr "讀取輸入失敗： %v"
 
-#: internal/service/cli_website.go:166
+#: internal/service/cli_website.go:172
 msgid "Failed to read private key file: %v"
 msgstr "讀取私鑰檔案失敗：%v"
 
@@ -1162,7 +1162,7 @@ msgstr "無法儲存設定：%v"
 msgid "Failed to save user info: %v"
 msgstr "無法儲存使用者資訊：%v"
 
-#: internal/service/cli_website.go:220
+#: internal/service/cli_website.go:226
 msgid "Failed to save website: %v"
 msgstr "儲存網站失敗：%v"
 
@@ -1390,7 +1390,7 @@ msgstr "ID：%d，名稱：%s，類型：%s，地址：%s:%d，使用者名稱�
 msgid "ID: %d, Name: %s, Type: %s, Schedule: %s, Status: %s"
 msgstr "ID：%d，名稱：%s，類型：%s，執行週期：%s，狀態：%s"
 
-#: internal/service/cli_website.go:153
+#: internal/service/cli_website.go:159
 msgid "ID: %d, Name: %s, Type: %s, Status: %s, Path: %s"
 msgstr "ID：%d，名稱：%s，類型：%s，狀態：%s，路徑：%s"
 
@@ -1823,7 +1823,7 @@ msgstr "方式"
 msgid "Metric"
 msgstr "指標"
 
-#: internal/biz/toolbox_migration_import.go:347
+#: internal/biz/toolbox_migration_import.go:348
 msgid "Migrated from %s"
 msgstr "從 %s 遷移"
 
@@ -1939,7 +1939,7 @@ msgstr "沒有可檢測的公網 IPv4 位址"
 msgid "Node ID"
 msgstr "節點 ID"
 
-#: internal/biz/toolbox_migration_import.go:360
+#: internal/biz/toolbox_migration_import.go:361
 msgid "Node.js dependencies were not installed; install dependencies and start the project manually"
 msgstr "未安裝 Node.js 依賴；請安裝依賴並手動開始項目"
 
@@ -2079,6 +2079,10 @@ msgstr "以 JSON 格式輸出（僅適用於列表命令）"
 #: internal/request/attributes.go:115
 msgid "Owner"
 msgstr "擁有者"
+
+#: internal/data/website_rebuild.go:289
+msgid "PHP is not installed"
+msgstr "未安裝 PHP"
 
 #: internal/command/website.go:55
 msgid "PHP version used by the website (not used if not filled, php type only)"
@@ -2842,7 +2846,7 @@ msgstr "等待表鎖定"
 msgid "Tables"
 msgstr "表"
 
-#: internal/biz/backup.go:156
+#: internal/biz/backup.go:157
 #: internal/request/attributes.go:169
 msgid "Target"
 msgstr "目標"
@@ -2908,7 +2912,7 @@ msgstr "閾值"
 #: internal/biz/alert_evaluate.go:412
 #: internal/biz/alert_ssh.go:64
 #: internal/biz/alert_ssh.go:78
-#: internal/biz/backup.go:158
+#: internal/biz/backup.go:159
 #: internal/biz/notify.go:188
 #: internal/biz/tamper.go:458
 #: internal/job/cert_renew.go:194
@@ -3010,7 +3014,7 @@ msgstr "總請求數"
 msgid "Transactions per Second"
 msgstr "每秒事務"
 
-#: internal/biz/backup.go:155
+#: internal/biz/backup.go:156
 #: internal/request/attributes.go:181
 msgid "Type"
 msgstr "類型"
@@ -3075,7 +3079,7 @@ msgstr "不支援的協議：%s"
 msgid "Unsupported rotation type: %s"
 msgstr "不支援的輪轉類型：%s"
 
-#: internal/service/cli_website.go:191
+#: internal/service/cli_website.go:197
 msgid "Unsupported website type: %s"
 msgstr "不支援的網站類型：%s"
 
@@ -3258,15 +3262,15 @@ msgstr "網站"
 msgid "Website %s created successfully"
 msgstr "網站 %s 建立成功"
 
-#: internal/service/cli_website.go:137
+#: internal/service/cli_website.go:143
 msgid "Website %s deleted successfully"
 msgstr "網站 %s 刪除成功"
 
-#: internal/service/cli_website.go:118
+#: internal/service/cli_website.go:124
 msgid "Website %s removed successfully"
 msgstr "網站 %s 移除成功"
 
-#: internal/service/cli_website.go:223
+#: internal/service/cli_website.go:229
 msgid "Website %s written successfully"
 msgstr "網站 %s 寫入成功"
 
@@ -3297,7 +3301,7 @@ msgstr "網站管理"
 msgid "Website name"
 msgstr "網站名稱"
 
-#: internal/service/cli_website.go:203
+#: internal/service/cli_website.go:209
 msgid "Website path must be an absolute path"
 msgstr "網站路徑必須是絕對路徑"
 
@@ -3392,7 +3396,7 @@ msgstr "[AcePanel] 警示：%s"
 msgid "[AcePanel] Background Task Failed"
 msgstr "[AcePanel] 背景任務失敗"
 
-#: internal/biz/backup.go:154
+#: internal/biz/backup.go:155
 msgid "[AcePanel] Backup Failed"
 msgstr "[AcePanel] 備份失敗"
 
@@ -3437,11 +3441,11 @@ msgstr "[AcePanel] 測試通知"
 msgid "[AcePanel] Website Expired"
 msgstr "[AcePanel] 網站已到期"
 
-#: internal/biz/toolbox_migration_import.go:71
+#: internal/biz/toolbox_migration_import.go:72
 msgid "a database with the same name already exists on the target server"
 msgstr "目標伺服器上已存在同名資料庫"
 
-#: internal/biz/toolbox_migration_import.go:83
+#: internal/biz/toolbox_migration_import.go:84
 msgid "a project with the same name already exists on the target server"
 msgstr "目標伺服器上已存在同名項目"
 
@@ -3453,7 +3457,7 @@ msgstr "必需的依賴項未能成功遷移"
 msgid "a required dependency was not selected"
 msgstr "未選擇必需的依賴項"
 
-#: internal/biz/toolbox_migration_import.go:42
+#: internal/biz/toolbox_migration_import.go:43
 msgid "a website with the same name already exists on the target server"
 msgstr "目標伺服器上已存在同名網站"
 
@@ -3725,12 +3729,12 @@ msgstr "背景任務執行失敗"
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "背景任務正在執行，禁止修改部分設定，請稍後再試"
 
-#: internal/service/home.go:395
-#: internal/service/home.go:406
+#: internal/service/home.go:401
+#: internal/service/home.go:412
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr "背景任務正在執行，禁止重啟，請稍後再試"
 
-#: internal/service/home.go:369
+#: internal/service/home.go:375
 #: internal/service/ws.go:472
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr "背景任務正在執行，禁止更新，請稍後再試"
@@ -3739,7 +3743,7 @@ msgstr "背景任務正在執行，禁止更新，請稍後再試"
 msgid "backup created"
 msgstr "備份已建立"
 
-#: internal/biz/backup.go:176
+#: internal/biz/backup.go:177
 msgid "backup deleted"
 msgstr "備份已刪除"
 
@@ -3760,7 +3764,7 @@ msgstr "備份檔案不存在"
 msgid "backup list viewed"
 msgstr "已查看備份列表"
 
-#: internal/biz/backup.go:187
+#: internal/biz/backup.go:188
 msgid "backup restored"
 msgstr "備份已恢復"
 
@@ -3792,7 +3796,7 @@ msgstr "已查看備份儲存"
 msgid "backup task created"
 msgstr "備份任務已建立"
 
-#: internal/biz/backup.go:154
+#: internal/biz/backup.go:155
 msgid "backup task failed"
 msgstr "備份任務執行失敗"
 
@@ -3819,7 +3823,7 @@ msgstr "btrfs 檔案系統未掛載，邏輯卷已擴展但檔案系統未調整
 msgid "can't download a directory"
 msgstr "無法下載目錄"
 
-#: internal/biz/website.go:404
+#: internal/biz/website.go:410
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 資料庫伺服器，請先新增"
 
@@ -4168,7 +4172,7 @@ msgstr "資料庫不存在：%s"
 msgid "database export failed: %v"
 msgstr "資料庫匯出失敗：%v"
 
-#: internal/biz/toolbox_migration_import.go:145
+#: internal/biz/toolbox_migration_import.go:146
 msgid "database import failed: %v"
 msgstr "資料庫匯入失敗：%v"
 
@@ -4573,12 +4577,12 @@ msgstr "建立 .ssh 目錄失敗：%v"
 msgid "failed to create database on target: %v"
 msgstr "在目標端建立資料庫失敗：%v"
 
-#: internal/biz/toolbox_migration_import.go:175
+#: internal/biz/toolbox_migration_import.go:176
 #: internal/biz/toolbox_migration_push.go:189
 msgid "failed to create database user on target: %v"
 msgstr "在目標端建立資料庫使用者失敗：%v"
 
-#: internal/biz/website.go:162
+#: internal/biz/website.go:163
 msgid "failed to create database: %v"
 msgstr "建立資料庫失敗：%v"
 
@@ -4846,7 +4850,7 @@ msgstr "取得 grafana 狀態失敗：%v"
 msgid "failed to get home apps: %v"
 msgstr "無法取得首頁應用：%v"
 
-#: internal/data/website.go:408
+#: internal/data/website.go:405
 msgid "failed to get index template file: %v"
 msgstr "取得首頁範本檔案失敗：%v"
 
@@ -4910,14 +4914,14 @@ msgstr "取得掃描設定失敗"
 msgid "failed to get system info: %v"
 msgstr "無法取得系統資訊：%v"
 
-#: internal/service/home.go:379
+#: internal/service/home.go:385
 #: internal/service/ws.go:481
 msgid "failed to get the latest version download link"
 msgstr "無法取得最新版本下載連結"
 
 #: internal/service/home.go:318
 #: internal/service/home.go:340
-#: internal/service/home.go:375
+#: internal/service/home.go:381
 #: internal/service/ws.go:477
 msgid "failed to get the latest version: %v"
 msgstr "無法取得最新版本：%v"
@@ -4926,7 +4930,7 @@ msgstr "無法取得最新版本：%v"
 msgid "failed to get the status of rule %s: %v"
 msgstr "獲取規則 %s 的狀態失敗：%v"
 
-#: internal/service/home.go:355
+#: internal/service/home.go:356
 msgid "failed to get the update information: %v"
 msgstr "無法取得更新資訊：%v"
 
@@ -4990,8 +4994,8 @@ msgstr "在 %s 上開啟 SFTP 工作階段失敗：%v"
 #: internal/biz/cert.go:383
 #: internal/biz/setting.go:175
 #: internal/biz/setting.go:306
-#: internal/data/website.go:579
-#: internal/data/website.go:854
+#: internal/data/website.go:582
+#: internal/data/website.go:853
 msgid "failed to parse certificate: %v"
 msgstr "無法解析證書：%v"
 
@@ -5011,8 +5015,8 @@ msgstr "解析 phpMyAdmin 登入頁面失敗"
 #: internal/biz/cert.go:387
 #: internal/biz/setting.go:178
 #: internal/biz/setting.go:309
-#: internal/data/website.go:582
-#: internal/data/website.go:857
+#: internal/data/website.go:585
+#: internal/data/website.go:856
 msgid "failed to parse private key: %v"
 msgstr "解析私鑰失敗：%v"
 
@@ -5172,7 +5176,7 @@ msgstr "重新載入 %s 服務失敗：%v"
 msgid "failed to reload ipdb"
 msgstr "重載 ipdb 失敗"
 
-#: internal/biz/website.go:158
+#: internal/biz/website.go:159
 msgid "failed to reload web server: %v"
 msgstr "重載 Web 伺服器失敗：%v"
 
@@ -5283,7 +5287,7 @@ msgstr "選擇資料庫失敗：%v"
 msgid "failed to send alert notification"
 msgstr "發送警示通知失敗"
 
-#: internal/biz/backup.go:160
+#: internal/biz/backup.go:161
 msgid "failed to send backup failure notification"
 msgstr "發送備份失敗通知失敗"
 
@@ -5886,7 +5890,7 @@ msgstr "無效的大小"
 msgid "invalid slot name"
 msgstr "槽名稱無效"
 
-#: internal/service/home.go:431
+#: internal/service/home.go:437
 msgid "invalid type"
 msgstr "無效的類型"
 
@@ -6268,8 +6272,8 @@ msgstr "Nginx Stream 上游已更新"
 msgid "no RAID configuration detected"
 msgstr "未偵測到 RAID 配置"
 
-#: internal/biz/toolbox_migration_import.go:108
-#: internal/biz/toolbox_migration_import.go:168
+#: internal/biz/toolbox_migration_import.go:109
+#: internal/biz/toolbox_migration_import.go:169
 msgid "no compatible database server is installed on the target"
 msgstr "目標端未安裝相容的資料庫伺服器"
 
@@ -6395,7 +6399,7 @@ msgstr "面板憑證已續簽"
 msgid "panel certificate updated"
 msgstr "面板憑證已更新"
 
-#: internal/service/home.go:514
+#: internal/service/home.go:520
 msgid "panel goroutines viewed"
 msgstr "已查看面板 Goroutine"
 
@@ -6424,11 +6428,11 @@ msgstr "偵測到面板登入"
 msgid "panel reported a health issue"
 msgstr "面板回報了健康問題"
 
-#: internal/service/home.go:400
+#: internal/service/home.go:406
 msgid "panel restarted"
 msgstr "面板已重啟"
 
-#: internal/service/home.go:440
+#: internal/service/home.go:446
 msgid "panel runtime info viewed"
 msgstr "已查看面板執行階段資訊"
 
@@ -6448,7 +6452,7 @@ msgstr "面板設定已更新"
 msgid "panel settings viewed"
 msgstr "已查看面板設定"
 
-#: internal/biz/backup.go:257
+#: internal/biz/backup.go:276
 msgid "panel updated"
 msgstr "面板已更新"
 
@@ -6855,9 +6859,9 @@ msgstr "源伺服器上已不存在該資源"
 msgid "restore task created"
 msgstr "恢復任務已建立"
 
-#: internal/data/website_rebuild.go:256
+#: internal/data/website_rebuild.go:259
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
-msgstr "偽靜態規則、自訂設定、速率限制和真實 IP 設定不會遷移"
+msgstr "重寫規則、自訂設定、速率限制和真實 IP 設定不會遷移"
 
 #: internal/service/toolbox_ssh.go:196
 msgid "root password updated"
@@ -6903,11 +6907,11 @@ msgstr "找不到規則"
 #: internal/service/cli_cron.go:28
 #: internal/service/cli_firewall.go:25
 #: internal/service/cli_service.go:21
-#: internal/service/cli_website.go:151
+#: internal/service/cli_website.go:157
 msgid "running"
 msgstr "執行中"
 
-#: internal/data/website.go:555
+#: internal/data/website.go:552
 msgid "runtime directory does not exist"
 msgstr "執行目錄不存在"
 
@@ -6964,7 +6968,7 @@ msgstr "伺服器不是 Redis 類型"
 msgid "server not found"
 msgstr "未找到伺服器"
 
-#: internal/service/home.go:411
+#: internal/service/home.go:417
 msgid "server restarted"
 msgstr "伺服器已重啟"
 
@@ -7129,7 +7133,7 @@ msgstr "已開啟 SSH 工作階段"
 #: internal/service/cli_cron.go:26
 #: internal/service/cli_firewall.go:23
 #: internal/service/cli_service.go:23
-#: internal/service/cli_website.go:149
+#: internal/service/cli_website.go:155
 msgid "stopped"
 msgstr "已停止"
 
@@ -7361,11 +7365,7 @@ msgstr "與目標伺服器的連接已中斷"
 msgid "the created website could not be found on target"
 msgstr "在目標端找不到已建立的網站"
 
-#: internal/service/home.go:349
-msgid "the current version is the latest version"
-msgstr "當前版本是最新版本"
-
-#: internal/biz/toolbox_migration_import.go:129
+#: internal/biz/toolbox_migration_import.go:130
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
 msgstr "資料庫已匯入，但無法獲取源密碼；請重設資料庫使用者密碼並手動更新網站配置"
 
@@ -7377,14 +7377,14 @@ msgstr "預設域名不能刪除"
 msgid "the file system of the panel directory does not support direct IO, disk performance cannot be measured"
 msgstr "面板目錄所在的檔案系統不支援直接 IO，無法測量磁碟效能"
 
-#: internal/biz/toolbox_migration_import.go:39
-#: internal/biz/toolbox_migration_import.go:61
-#: internal/biz/toolbox_migration_import.go:75
-#: internal/biz/toolbox_migration_import.go:80
+#: internal/biz/toolbox_migration_import.go:40
+#: internal/biz/toolbox_migration_import.go:62
+#: internal/biz/toolbox_migration_import.go:76
+#: internal/biz/toolbox_migration_import.go:81
 msgid "the name contains characters not allowed by AcePanel"
 msgstr "名稱包含 AcePanel 不允許的字元"
 
-#: internal/biz/toolbox_migration_import.go:37
+#: internal/biz/toolbox_migration_import.go:38
 msgid "the name is reserved by AcePanel"
 msgstr "該名稱已被 AcePanel 保留"
 
@@ -7396,23 +7396,23 @@ msgstr "面板目錄位於記憶體檔案系統上，無法測量磁碟效能"
 msgid "the private key does not match the certificate"
 msgstr "私鑰與證書不匹配"
 
-#: internal/biz/toolbox_migration_import.go:389
+#: internal/biz/toolbox_migration_import.go:390
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr "項目已遷移，但其反向代理網站已存在於目標端"
 
-#: internal/biz/toolbox_migration_import.go:399
+#: internal/biz/toolbox_migration_import.go:400
 msgid "the project was migrated, but its reverse proxy website could not be created: %v"
 msgstr "項目已遷移，但無法建立其反向代理網站：%v"
 
-#: internal/biz/toolbox_migration_import.go:366
+#: internal/biz/toolbox_migration_import.go:367
 msgid "the project was not started; start it manually"
 msgstr "項目未啟動；請手動啟動"
 
-#: internal/biz/toolbox_migration_import.go:115
+#: internal/biz/toolbox_migration_import.go:116
 msgid "the source PostgreSQL major version is newer than the target version"
 msgstr "源 PostgreSQL 主版本高於目標版本"
 
-#: internal/biz/toolbox_migration_import.go:362
+#: internal/biz/toolbox_migration_import.go:363
 msgid "the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually"
 msgstr "未遷移源 Python 虛擬環境；請建立環境、安裝依賴並手動開始項目"
 
@@ -7422,7 +7422,7 @@ msgstr "未遷移源 Python 虛擬環境；請建立環境、安裝依賴並手�
 msgid "the source backup did not finish in time"
 msgstr "源備份未能及時完成"
 
-#: internal/biz/toolbox_migration_import.go:134
+#: internal/biz/toolbox_migration_import.go:135
 msgid "the source is MariaDB and the target is MySQL"
 msgstr "源端為 MariaDB，目標端為 MySQL"
 
@@ -7430,12 +7430,12 @@ msgstr "源端為 MariaDB，目標端為 MySQL"
 msgid "the source path is empty"
 msgstr "源路徑為空"
 
-#: internal/biz/toolbox_migration_import.go:323
+#: internal/biz/toolbox_migration_import.go:324
 #: internal/data/toolbox_migration_baota.go:580
 msgid "the source project start command is missing"
 msgstr "源項目缺少啟動命令"
 
-#: internal/biz/toolbox_migration_import.go:218
+#: internal/biz/toolbox_migration_import.go:219
 msgid "the source reverse proxy target could not be determined"
 msgstr "無法確定源反向代理目標"
 
@@ -7444,32 +7444,32 @@ msgstr "無法確定源反向代理目標"
 msgid "the source task failed"
 msgstr "源任務執行失敗"
 
-#: internal/biz/toolbox_migration_import.go:293
+#: internal/biz/toolbox_migration_import.go:294
 msgid "the source uses PHP %d, the target does not have it installed, PHP %d was used instead"
 msgstr "源伺服器使用 PHP %d，目標伺服器未安裝該版本，已改用 PHP %d"
 
-#: internal/biz/toolbox_migration_import.go:338
+#: internal/biz/toolbox_migration_import.go:339
 msgid "the target project directory is not empty"
 msgstr "目標項目目錄不為空"
 
-#: internal/biz/toolbox_migration_import.go:65
+#: internal/biz/toolbox_migration_import.go:66
 msgid "the target server does not have a compatible %s database server"
 msgstr "目標伺服器上沒有相容的 %s 資料庫伺服器"
 
-#: internal/biz/toolbox_migration_import.go:327
-#: internal/biz/toolbox_migration_import.go:86
+#: internal/biz/toolbox_migration_import.go:328
+#: internal/biz/toolbox_migration_import.go:87
 msgid "the target server does not have a compatible %s runtime for version %s"
 msgstr "目標伺服器上沒有與 %s 版本 %s 相容的執行環境"
 
-#: internal/biz/toolbox_migration_import.go:484
+#: internal/biz/toolbox_migration_import.go:485
 msgid "the target server does not have user %s"
 msgstr "目標伺服器上不存在使用者 %s"
 
-#: internal/biz/toolbox_migration_import.go:274
+#: internal/biz/toolbox_migration_import.go:275
 msgid "the target server has no PHP installed, the website was created without PHP"
 msgstr "目標伺服器未安裝 PHP，已建立不使用 PHP 的網站"
 
-#: internal/biz/toolbox_migration_import.go:189
+#: internal/biz/toolbox_migration_import.go:190
 msgid "the target website directory is not empty"
 msgstr "目標網站目錄不為空"
 
@@ -7526,7 +7526,7 @@ msgstr "面板登入失敗次數過多"
 msgid "unable to check for updates in offline mode"
 msgstr "離線模式下無法檢查更新"
 
-#: internal/service/home.go:364
+#: internal/service/home.go:370
 #: internal/service/ws.go:468
 msgid "unable to update in offline mode"
 msgstr "離線模式下無法更新"
@@ -7535,8 +7535,8 @@ msgstr "離線模式下無法更新"
 msgid "uncompressed backup is empty, restore aborted"
 msgstr "解壓縮後的備份為空，已中止恢復"
 
-#: internal/biz/toolbox_migration_import.go:329
-#: internal/biz/toolbox_migration_import.go:88
+#: internal/biz/toolbox_migration_import.go:330
+#: internal/biz/toolbox_migration_import.go:89
 #: internal/service/cli_service.go:18
 msgid "unknown"
 msgstr "未知"
@@ -7807,11 +7807,11 @@ msgstr "網站本小時 5xx 回應數"
 msgid "website backup failed: %v"
 msgstr "網站備份失敗：%v"
 
-#: internal/biz/website.go:310
+#: internal/biz/website.go:316
 msgid "website cert updated"
 msgstr "網站憑證已更新"
 
-#: internal/biz/website.go:263
+#: internal/biz/website.go:264
 msgid "website config reset"
 msgstr "網站配置已重設"
 
@@ -7819,15 +7819,15 @@ msgstr "網站配置已重設"
 msgid "website config viewed"
 msgstr "已查看網站配置"
 
-#: internal/biz/toolbox_migration_import.go:253
+#: internal/biz/toolbox_migration_import.go:254
 msgid "website configuration import failed: %v"
 msgstr "網站配置匯入失敗：%v"
 
-#: internal/biz/website.go:166
+#: internal/biz/website.go:167
 msgid "website created"
 msgstr "網站已建立"
 
-#: internal/biz/website.go:125
+#: internal/biz/website.go:126
 msgid "website default config saved"
 msgstr "網站預設配置已儲存"
 
@@ -7839,11 +7839,11 @@ msgstr "已查看網站預設配置"
 msgid "website default site updated"
 msgstr "預設網站已更新"
 
-#: internal/biz/website.go:235
+#: internal/biz/website.go:236
 msgid "website deleted"
 msgstr "網站已刪除"
 
-#: internal/data/website.go:564
+#: internal/data/website.go:567
 msgid "website directory does not exist"
 msgstr "網站目錄不存在"
 
@@ -7851,7 +7851,7 @@ msgstr "網站目錄不存在"
 msgid "website error rate this hour"
 msgstr "網站本小時錯誤率"
 
-#: internal/biz/website.go:300
+#: internal/biz/website.go:306
 msgid "website expire time updated"
 msgstr "網站過期時間已更新"
 
@@ -7863,7 +7863,7 @@ msgstr "網站已到期並已停用"
 msgid "website expiry"
 msgstr "網站到期"
 
-#: internal/biz/toolbox_migration_import.go:229
+#: internal/biz/toolbox_migration_import.go:230
 msgid "website file import failed: %v"
 msgstr "網站檔案匯入失敗：%v"
 
@@ -7875,11 +7875,11 @@ msgstr "已查看網站列表"
 msgid "website not found"
 msgstr "網站不存在"
 
-#: internal/biz/website.go:325
+#: internal/biz/website.go:331
 msgid "website project updated"
 msgstr "網站所屬專案已更新"
 
-#: internal/biz/website.go:249
+#: internal/biz/website.go:250
 msgid "website remark updated"
 msgstr "網站備註已更新"
 
@@ -7907,19 +7907,19 @@ msgstr "網站統計資料已清除"
 msgid "website stats viewed"
 msgstr "已查看網站統計資料"
 
-#: internal/biz/website.go:282
+#: internal/biz/website.go:288
 msgid "website status updated"
 msgstr "網站狀態已更新"
 
-#: internal/data/website_rebuild.go:45
+#: internal/data/website_rebuild.go:46
 msgid "website type is unchanged"
 msgstr "網站類型未更改"
 
-#: internal/biz/website.go:189
+#: internal/biz/website.go:190
 msgid "website type switched"
 msgstr "網站類型已切換"
 
-#: internal/biz/website.go:178
+#: internal/biz/website.go:179
 msgid "website updated"
 msgstr "網站已更新"
 
@@ -7931,7 +7931,7 @@ msgstr "WebSocket 升級錯誤"
 msgid "wildcard domains cannot use HTTP verification"
 msgstr "萬用字元網域無法使用 HTTP 驗證"
 
-#: internal/biz/website.go:360
+#: internal/biz/website.go:366
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr "萬用字元域名需要 DNS 驗證，請選擇一個 DNS 提供商"
 
