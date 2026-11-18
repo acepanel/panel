@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 import pgadmin from '@/api/apps/pgadmin'
 
 const { $gettext } = useGettext()
+const currentTab = ref('status')
 const hostname = ref(window.location.hostname)
 const port = ref(0)
 const email = ref('')
@@ -76,81 +77,93 @@ onMounted(() => {
 
 <template>
   <PageContainer :show-footer="true">
-    <n-flex vertical>
-      <n-card :title="$gettext('Access Information')">
+    <n-tabs v-model:value="currentTab" type="line" animated>
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
-          <n-alert type="info">
-            {{ $gettext('Access URL:') }} <a :href="url" target="_blank">{{ url }}</a>
-          </n-alert>
-          <n-descriptions label-placement="left" :column="1" bordered>
-            <n-descriptions-item :label="$gettext('Login Email')">
-              {{ email }}
-            </n-descriptions-item>
-            <n-descriptions-item :label="$gettext('Login Password')">
-              {{ password }}
-            </n-descriptions-item>
-          </n-descriptions>
-          <n-text depth="3">
+          <service-status service="pgadmin" />
+          <n-card :title="$gettext('Access Information')">
+            <n-flex vertical>
+              <n-alert type="info">
+                {{ $gettext('Access URL:') }} <a :href="url" target="_blank">{{ url }}</a>
+              </n-alert>
+              <n-descriptions label-placement="left" :column="1" bordered>
+                <n-descriptions-item :label="$gettext('Login Email')">
+                  {{ email }}
+                </n-descriptions-item>
+                <n-descriptions-item :label="$gettext('Login Password')">
+                  {{ password }}
+                </n-descriptions-item>
+              </n-descriptions>
+              <n-text depth="3">
+                {{
+                  $gettext(
+                    'If the password has been changed in pgAdmin, the actual password shall prevail.',
+                  )
+                }}
+              </n-text>
+            </n-flex>
+          </n-card>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="settings" :tab="$gettext('Settings')">
+        <n-flex vertical>
+          <n-card :title="$gettext('Modify Port')">
+            <n-flex>
+              <n-input-number v-model:value="newPort" :min="1" :max="65535" />
+              <n-button
+                type="primary"
+                :loading="savePortLoading"
+                :disabled="savePortLoading"
+                @click="handleSavePort"
+              >
+                {{ $gettext('Save') }}
+              </n-button>
+            </n-flex>
+            {{ $gettext('Modify pgAdmin access port') }}
+          </n-card>
+          <n-card :title="$gettext('Modify Username')">
+            <n-flex>
+              <n-input v-model:value="newUsername" class="md:!w-60" :placeholder="email" />
+              <n-button
+                type="warning"
+                :loading="updateUsernameLoading"
+                :disabled="updateUsernameLoading || !newUsername"
+                @click="handleUpdateUsername"
+              >
+                {{ $gettext('Save') }}
+              </n-button>
+            </n-flex>
             {{
               $gettext(
-                'If the password has been changed in pgAdmin, the actual password shall prevail.',
+                'Modify the login email of the pgAdmin administrator account, server configurations will be migrated automatically',
               )
             }}
-          </n-text>
+          </n-card>
+          <n-card :title="$gettext('Reset Password')">
+            <n-flex>
+              <n-input
+                v-model:value="newPassword"
+                type="password"
+                show-password-on="click"
+                class="md:!w-60"
+                :placeholder="$gettext('New password')"
+              />
+              <n-button
+                type="warning"
+                :loading="resetPasswordLoading"
+                :disabled="resetPasswordLoading || !newPassword"
+                @click="handleResetPassword"
+              >
+                {{ $gettext('Reset') }}
+              </n-button>
+            </n-flex>
+            {{ $gettext('Reset the login password of the pgAdmin administrator account') }}
+          </n-card>
         </n-flex>
-      </n-card>
-      <n-card :title="$gettext('Modify Port')">
-        <n-flex>
-          <n-input-number v-model:value="newPort" :min="1" :max="65535" />
-          <n-button
-            type="primary"
-            :loading="savePortLoading"
-            :disabled="savePortLoading"
-            @click="handleSavePort"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-        </n-flex>
-        {{ $gettext('Modify pgAdmin access port') }}
-      </n-card>
-      <n-card :title="$gettext('Modify Username')">
-        <n-flex>
-          <n-input v-model:value="newUsername" class="md:!w-60" :placeholder="email" />
-          <n-button
-            type="warning"
-            :loading="updateUsernameLoading"
-            :disabled="updateUsernameLoading || !newUsername"
-            @click="handleUpdateUsername"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-        </n-flex>
-        {{
-          $gettext(
-            'Modify the login email of the pgAdmin administrator account, server configurations will be migrated automatically',
-          )
-        }}
-      </n-card>
-      <n-card :title="$gettext('Reset Password')">
-        <n-flex>
-          <n-input
-            v-model:value="newPassword"
-            type="password"
-            show-password-on="click"
-            class="md:!w-60"
-            :placeholder="$gettext('New password')"
-          />
-          <n-button
-            type="warning"
-            :loading="resetPasswordLoading"
-            :disabled="resetPasswordLoading || !newPassword"
-            @click="handleResetPassword"
-          >
-            {{ $gettext('Reset') }}
-          </n-button>
-        </n-flex>
-        {{ $gettext('Reset the login password of the pgAdmin administrator account') }}
-      </n-card>
-    </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
+        <realtime-log service="pgadmin" />
+      </n-tab-pane>
+    </n-tabs>
   </PageContainer>
 </template>
