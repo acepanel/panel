@@ -147,7 +147,7 @@ msgstr "Saved successfully"
 #: src/views/environment/PHPView.vue:333 src/views/environment/PHPView.vue:351
 #: src/views/environment/PHPView.vue:495
 #: src/views/environment/RuntimeView.vue:202 src/views/file/EditModal.vue:90
-#: src/views/firewall/SettingView.vue:156
+#: src/views/firewall/SettingView.vue:167
 #: src/views/monitor/AlertRuleModal.vue:194
 #: src/views/monitor/ChannelModal.vue:149 src/views/monitor/SettingView.vue:239
 #: src/views/monitor/SettingView.vue:300 src/views/project/EditModal.vue:674
@@ -3227,7 +3227,7 @@ msgid "Unbanned successfully"
 msgstr "Unbanned successfully"
 
 #: src/views/apps/fail2ban/IndexView.vue:275
-#: src/views/firewall/SettingView.vue:149
+#: src/views/firewall/SettingView.vue:160
 msgid "IP Whitelist"
 msgstr "IP Whitelist"
 
@@ -9276,7 +9276,7 @@ msgid "Enter JSON document"
 msgstr "Enter SK key"
 
 #: src/views/database/RedisDataView.vue:112
-#: src/views/firewall/SettingView.vue:145
+#: src/views/firewall/SettingView.vue:148
 #, fuzzy
 msgid "Permanent"
 msgstr "HTTP Redirect"
@@ -10863,7 +10863,7 @@ msgstr "IP Rules"
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
-#: src/views/firewall/IndexView.vue:47 src/views/firewall/SettingView.vue:116
+#: src/views/firewall/IndexView.vue:47 src/views/firewall/SettingView.vue:119
 msgid "Scan Awareness"
 msgstr ""
 
@@ -11044,50 +11044,59 @@ msgid ""
 msgstr ""
 
 #: src/views/firewall/SettingView.vue:29 src/views/firewall/SettingView.vue:39
-#: src/views/firewall/SettingView.vue:91
+#: src/views/firewall/SettingView.vue:94
 msgid "Settings saved successfully"
 msgstr "Settings saved successfully"
 
-#: src/views/firewall/SettingView.vue:101
+#: src/views/firewall/SettingView.vue:104
 msgid "System Firewall"
 msgstr "System Firewall"
 
-#: src/views/firewall/SettingView.vue:108
+#: src/views/firewall/SettingView.vue:111
 msgid "Allow Ping"
 msgstr "Allow Ping"
 
-#: src/views/firewall/SettingView.vue:120
+#: src/views/firewall/SettingView.vue:123
 #, fuzzy
 msgid "Retention Days"
 msgstr "Retention Count"
 
-#: src/views/firewall/SettingView.vue:123
+#: src/views/firewall/SettingView.vue:126
 #, fuzzy
 msgid "Network Interfaces"
 msgstr "Network Name"
 
-#: src/views/firewall/SettingView.vue:129
+#: src/views/firewall/SettingView.vue:132
 #, fuzzy
 msgid "Auto detect"
 msgstr "Auto Update"
 
-#: src/views/firewall/SettingView.vue:132
+#: src/views/firewall/SettingView.vue:135
 #, fuzzy
 msgid "Auto Block"
 msgstr "Locked"
 
-#: src/views/firewall/SettingView.vue:136
+#: src/views/firewall/SettingView.vue:139
 #, fuzzy
 msgid "Block Threshold"
 msgstr "Threads"
 
-#: src/views/firewall/SettingView.vue:139
+#: src/views/firewall/SettingView.vue:142
 #, fuzzy
 msgid "Time Window (minutes)"
 msgstr "Cache time (minutes)"
 
-#: src/views/firewall/SettingView.vue:142
+#: src/views/firewall/SettingView.vue:145
 msgid "Block Duration (hours)"
+msgstr ""
+
+#: src/views/firewall/SettingView.vue:152
+#, fuzzy
+msgid "Block Outbound"
+msgstr "Outbound"
+
+#: src/views/firewall/SettingView.vue:156
+msgid "Also drop traffic from this server to blocked IPs"
 msgstr ""
 
 #: src/views/home/IndexView.vue:79

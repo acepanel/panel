@@ -3696,11 +3696,11 @@ msgstr ""
 msgid "app updated"
 msgstr ""
 
-#: internal/job/firewall_scan.go:344
+#: internal/job/firewall_scan.go:349
 msgid "auto blocked IP"
 msgstr ""
 
-#: internal/job/firewall_scan.go:132
+#: internal/job/firewall_scan.go:135
 msgid "auto unblocked IP (expired)"
 msgstr ""
 
@@ -3712,8 +3712,8 @@ msgstr ""
 msgid "background task failed"
 msgstr ""
 
-#: internal/biz/setting.go:211
-#: internal/biz/setting.go:302
+#: internal/biz/setting.go:212
+#: internal/biz/setting.go:303
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -4322,7 +4322,7 @@ msgstr ""
 msgid "eBPF scan detector detached"
 msgstr ""
 
-#: internal/job/firewall_scan.go:148
+#: internal/job/firewall_scan.go:151
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr ""
 
@@ -4463,7 +4463,7 @@ msgstr ""
 msgid "failed to attach scan detector, skip interface"
 msgstr ""
 
-#: internal/job/firewall_scan.go:336
+#: internal/job/firewall_scan.go:341
 msgid "failed to auto block IP"
 msgstr ""
 
@@ -4504,7 +4504,7 @@ msgstr ""
 msgid "failed to clear expired ip stats"
 msgstr ""
 
-#: internal/job/firewall_scan.go:363
+#: internal/job/firewall_scan.go:368
 msgid "failed to clear expired scan data"
 msgstr ""
 
@@ -4666,7 +4666,7 @@ msgstr ""
 msgid "failed to disable expired website"
 msgstr ""
 
-#: internal/biz/setting.go:277
+#: internal/biz/setting.go:278
 #: internal/job/panel_task.go:159
 msgid "failed to download ipdb"
 msgstr ""
@@ -4716,7 +4716,7 @@ msgstr ""
 msgid "failed to generate self-signed certificate"
 msgstr ""
 
-#: internal/biz/setting.go:165
+#: internal/biz/setting.go:166
 msgid "failed to generate self-signed certificate: %v"
 msgstr ""
 
@@ -4826,7 +4826,7 @@ msgid "failed to get filesystem type: %v"
 msgstr ""
 
 #: internal/job/firewall_scan.go:114
-#: internal/job/firewall_scan.go:269
+#: internal/job/firewall_scan.go:272
 msgid "failed to get firewall status"
 msgstr ""
 
@@ -4980,8 +4980,8 @@ msgid "failed to open sftp session on %s: %v"
 msgstr ""
 
 #: internal/biz/cert.go:383
-#: internal/biz/setting.go:174
-#: internal/biz/setting.go:305
+#: internal/biz/setting.go:175
+#: internal/biz/setting.go:306
 #: internal/data/website.go:579
 #: internal/data/website.go:854
 msgid "failed to parse certificate: %v"
@@ -5001,8 +5001,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr ""
 
 #: internal/biz/cert.go:387
-#: internal/biz/setting.go:177
-#: internal/biz/setting.go:308
+#: internal/biz/setting.go:178
+#: internal/biz/setting.go:309
 #: internal/data/website.go:582
 #: internal/data/website.go:857
 msgid "failed to parse private key: %v"
@@ -5093,7 +5093,7 @@ msgid "failed to read ring buffer"
 msgstr ""
 
 #: internal/job/firewall_scan.go:105
-#: internal/job/firewall_scan.go:311
+#: internal/job/firewall_scan.go:314
 msgid "failed to read scan blocks"
 msgstr ""
 
@@ -5262,8 +5262,8 @@ msgstr ""
 msgid "failed to save alert record"
 msgstr ""
 
-#: internal/job/firewall_scan.go:128
-#: internal/job/firewall_scan.go:332
+#: internal/job/firewall_scan.go:131
+#: internal/job/firewall_scan.go:337
 msgid "failed to save scan blocks"
 msgstr ""
 
@@ -5321,7 +5321,7 @@ msgstr ""
 msgid "failed to start container terminal: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:156
+#: internal/job/firewall_scan.go:159
 msgid "failed to start eBPF scan detector"
 msgstr ""
 
@@ -5349,7 +5349,7 @@ msgstr ""
 msgid "failed to umount partition: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:124
+#: internal/job/firewall_scan.go:127
 msgid "failed to unblock IP"
 msgstr ""
 
@@ -5436,7 +5436,7 @@ msgstr ""
 msgid "failed to upsert ip stats"
 msgstr ""
 
-#: internal/job/firewall_scan.go:251
+#: internal/job/firewall_scan.go:254
 msgid "failed to upsert scan events"
 msgstr ""
 
@@ -5890,7 +5890,7 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
-#: internal/biz/setting.go:279
+#: internal/biz/setting.go:280
 msgid "ipdb downloaded"
 msgstr ""
 
@@ -6432,7 +6432,7 @@ msgstr ""
 msgid "panel service file is missing"
 msgstr ""
 
-#: internal/biz/setting.go:295
+#: internal/biz/setting.go:296
 msgid "panel settings updated"
 msgstr ""
 
@@ -6629,7 +6629,7 @@ msgstr ""
 msgid "please select at least one migration resource"
 msgstr ""
 
-#: internal/biz/setting.go:192
+#: internal/biz/setting.go:193
 msgid "port is already in use"
 msgstr ""
 
@@ -6923,15 +6923,15 @@ msgstr ""
 msgid "save chunk error: %v"
 msgstr ""
 
-#: internal/biz/scan_event.go:279
+#: internal/biz/scan_event.go:289
 msgid "scan aware setting updated"
 msgstr ""
 
-#: internal/service/firewall_scan.go:162
+#: internal/service/firewall_scan.go:163
 msgid "scan event list viewed"
 msgstr ""
 
-#: internal/biz/scan_event.go:168
+#: internal/biz/scan_event.go:170
 msgid "scan events cleared"
 msgstr ""
 
@@ -7026,7 +7026,7 @@ msgstr ""
 msgid "skip unavailable optional LSM hook"
 msgstr ""
 
-#: internal/job/firewall_scan.go:300
+#: internal/job/firewall_scan.go:303
 msgid "skip whitelisted IP"
 msgstr ""
 
