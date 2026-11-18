@@ -120,7 +120,10 @@ func (r *FirewallScan) unblockExpired(ctx context.Context) {
 	}
 
 	ips := lo.Map(blocks, func(block *biz.ScanBlock, _ int) string { return block.IP })
-	if err = r.fw.RichRulesBatch(ctx, lo.Map(ips, r.blockRule), firewall.OperationRemove); err != nil {
+	rules := lo.FlatMap(blocks, func(block *biz.ScanBlock, _ int) []firewall.FireInfo {
+		return r.blockRules(block.IP, block.Outbound)
+	})
+	if err = r.fw.RichRulesBatch(ctx, rules, firewall.OperationRemove); err != nil {
 		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(ips)), slog.Any("err", err))
 		return
 	}
@@ -323,11 +326,13 @@ func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) 
 		expiresAt = now.Add(time.Duration(setting.BlockDuration) * time.Hour).Unix() //nolint:gosec
 	}
 	ips := lo.Keys(counts)
-	rules := lo.Map(ips, r.blockRule)
+	rules := lo.FlatMap(ips, func(ip string, _ int) []firewall.FireInfo {
+		return r.blockRules(ip, setting.BlockOutbound)
+	})
 
 	// 先落库再下发规则：中途被杀只会留下一条到期后空删的记录，不会留下没人解封的规则
 	if err = r.scanRepo.AddBlocks(lo.Map(ips, func(ip string, _ int) *biz.ScanBlock {
-		return &biz.ScanBlock{IP: ip, ExpiresAt: expiresAt}
+		return &biz.ScanBlock{IP: ip, ExpiresAt: expiresAt, Outbound: setting.BlockOutbound}
 	})); err != nil {
 		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
 		return
@@ -364,14 +369,21 @@ func (r *FirewallScan) cleanup() {
 	}
 }
 
-// blockRule 屏蔽指定 IP 全部入站流量的规则
-func (r *FirewallScan) blockRule(ip string, _ int) firewall.FireInfo {
-	return firewall.FireInfo{
+// blockRules 屏蔽指定 IP 全部入站流量的规则，outbound 为真时再加一条屏蔽出站的
+func (r *FirewallScan) blockRules(ip string, outbound bool) []firewall.FireInfo {
+	rule := firewall.FireInfo{
 		Family:    r.ipFamily(ip),
 		Address:   ip,
 		Strategy:  firewall.StrategyDrop,
 		Direction: firewall.DirectionIn,
 	}
+	if !outbound {
+		return []firewall.FireInfo{rule}
+	}
+
+	out := rule
+	out.Direction = firewall.DirectionOut
+	return []firewall.FireInfo{rule, out}
 }
 
 // ipFamily 根据 IP 地址返回协议族

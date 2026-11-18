@@ -52,12 +52,14 @@ func (s scanBlockStore) repo() biz.ScanEventRepo {
 }
 
 // fakeFirewall 只记屏蔽了哪些 IP 和重载了几次
+// outbound 不初始化时，下发出站规则会 panic
 type fakeFirewall struct {
 	firewall.Firewall
-	running bool
-	blocked map[string]bool
-	reloads int
-	addErr  error
+	running  bool
+	blocked  map[string]bool
+	outbound map[string]bool
+	reloads  int
+	addErr   error
 }
 
 func (f *fakeFirewall) Status(context.Context) (bool, error) {
@@ -69,10 +71,14 @@ func (f *fakeFirewall) RichRulesBatch(_ context.Context, rules []firewall.FireIn
 		return f.addErr
 	}
 	for _, rule := range rules {
+		blocked := f.blocked
+		if rule.Direction == firewall.DirectionOut {
+			blocked = f.outbound
+		}
 		if operation == firewall.OperationAdd {
-			f.blocked[rule.Address] = true
+			blocked[rule.Address] = true
 		} else {
-			delete(f.blocked, rule.Address)
+			delete(blocked, rule.Address)
 		}
 	}
 	f.reloads++
@@ -216,4 +222,40 @@ func TestFirewallScanAutoBlock(t *testing.T) {
 	task.autoBlockForTest(t)
 	check.MapNotContainsKey(t, store, "198.51.100.5")
 	check.False(t, fw.blocked["198.51.100.5"])
+}
+
+// 开了出站屏蔽后入站出站一起下发；解封按屏蔽当时的记录删，不看现在的开关
+func TestFirewallScanBlockOutbound(t *testing.T) {
+	store := scanBlockStore{}
+	fw := &fakeFirewall{running: true, blocked: map[string]bool{}, outbound: map[string]bool{}}
+	settings := autoBlockSettings()
+	settings[biz.SettingKeyScanAwareBlockOutbound] = "true"
+	task := newFirewallScanForTest(store, settings, fw)
+
+	task.ipCounters["198.51.100.1"] = &ipCounter{count: 20, firstSeen: time.Now()}
+	task.autoBlockForTest(t)
+	check.DeepEqual(t, fw.blocked, map[string]bool{"198.51.100.1": true})
+	check.DeepEqual(t, fw.outbound, map[string]bool{"198.51.100.1": true})
+	check.Equal(t, fw.reloads, 1, check.Msgf("入站出站同一批下发"))
+	must.MapContainsKey(t, store, "198.51.100.1")
+	check.True(t, store["198.51.100.1"].Outbound)
+
+	// 关掉开关后新屏蔽的只有入站
+	settings[biz.SettingKeyScanAwareBlockOutbound] = "false"
+	task.ipCounters["198.51.100.2"] = &ipCounter{count: 20, firstSeen: time.Now()}
+	task.autoBlockForTest(t)
+	check.DeepEqual(t, fw.blocked, map[string]bool{"198.51.100.1": true, "198.51.100.2": true})
+	check.DeepEqual(t, fw.outbound, map[string]bool{"198.51.100.1": true})
+	must.MapContainsKey(t, store, "198.51.100.2")
+	check.False(t, store["198.51.100.2"].Outbound)
+
+	// 没屏蔽过出站的 IP 解封时不碰出站规则
+	fw.outbound["198.51.100.2"] = true
+	for _, block := range store {
+		block.ExpiresAt = time.Now().Add(-time.Second).Unix()
+	}
+	must.NoError(t, task.Run(t.Context()))
+	check.Len(t, fw.blocked, 0)
+	check.DeepEqual(t, fw.outbound, map[string]bool{"198.51.100.2": true})
+	check.Len(t, store, 0)
 }

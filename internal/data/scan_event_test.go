@@ -33,7 +33,7 @@ func TestScanBlocks(t *testing.T) {
 	now := time.Now()
 
 	must.NoError(t, repo.AddBlocks([]*biz.ScanBlock{
-		{IP: "1.1.1.1", ExpiresAt: now.Add(-time.Minute).Unix()},
+		{IP: "1.1.1.1", ExpiresAt: now.Add(-time.Minute).Unix(), Outbound: true},
 		{IP: "2.2.2.2", ExpiresAt: now.Add(time.Hour).Unix()},
 		{IP: "2001:db8::1"},
 	}))
@@ -49,6 +49,7 @@ func TestScanBlocks(t *testing.T) {
 	must.NoError(t, err)
 	must.Len(t, expired, 1)
 	check.Equal(t, expired[0].IP, "1.1.1.1")
+	check.True(t, expired[0].Outbound)
 	check.False(t, expired[0].CreatedAt.IsZero())
 
 	// 永久屏蔽不会到期

@@ -59,6 +59,7 @@ const (
 	SettingKeyScanAwareAutoBlock        SettingKey = "scan_aware_auto_block"
 	SettingKeyScanAwareBlockThreshold   SettingKey = "scan_aware_block_threshold"
 	SettingKeyScanAwareBlockWindow      SettingKey = "scan_aware_block_window"
+	SettingKeyScanAwareBlockOutbound    SettingKey = "scan_aware_block_outbound"
 	SettingKeyScanAwareBlockDuration    SettingKey = "scan_aware_block_duration" // 小时，0=永久
 	SettingKeyScanAwareWhitelist        SettingKey = "scan_aware_whitelist"      // JSON 数组
 	SettingKeyWebsiteStatDays           SettingKey = "website_stat_days"

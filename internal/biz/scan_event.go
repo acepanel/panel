@@ -41,6 +41,7 @@ type ScanSource struct {
 type ScanBlock struct {
 	IP        string    `gorm:"primaryKey" json:"ip"`
 	ExpiresAt int64     `gorm:"not null;default:0;index" json:"expires_at"` // Unix 秒，0 为永久
+	Outbound  bool      `gorm:"not null;default:false" json:"outbound"`     // 出站是否一并屏蔽，解封时据此删规则
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -87,6 +88,7 @@ type ScanSetting struct {
 	BlockThreshold uint     `json:"block_threshold"` // 扫描次数阈值
 	BlockWindow    uint     `json:"block_window"`    // 检测窗口（分钟）
 	BlockDuration  uint     `json:"block_duration"`  // 屏蔽时长（小时），0=永久
+	BlockOutbound  bool     `json:"block_outbound"`  // 屏蔽时连出站一并屏蔽
 	Whitelist      []string `json:"whitelist"`       // IP/CIDR 白名单
 }
 
@@ -225,6 +227,10 @@ func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
 	if err != nil {
 		return nil, err
 	}
+	blockOutbound, err := uc.setting.GetBool(SettingKeyScanAwareBlockOutbound)
+	if err != nil {
+		return nil, err
+	}
 
 	whitelist, err := uc.setting.GetSlice(SettingKeyScanAwareWhitelist)
 	if err != nil {
@@ -239,6 +245,7 @@ func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
 		BlockThreshold: uint(blockThreshold),
 		BlockWindow:    uint(blockWindow),
 		BlockDuration:  uint(blockDuration),
+		BlockOutbound:  blockOutbound,
 		Whitelist:      whitelist,
 	}, nil
 }
@@ -271,11 +278,14 @@ func (uc *ScanEventUsecase) UpdateSetting(ctx context.Context, setting *ScanSett
 	if err = uc.setting.Set(SettingKeyScanAwareBlockDuration, cast.ToString(setting.BlockDuration)); err != nil {
 		return err
 	}
+	if err = uc.setting.Set(SettingKeyScanAwareBlockOutbound, cast.ToString(setting.BlockOutbound)); err != nil {
+		return err
+	}
 
 	if err = uc.setting.SetSlice(SettingKeyScanAwareWhitelist, setting.Whitelist); err != nil {
 		return err
 	}
 
-	uc.log.Info(uc.t.Get("scan aware setting updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Bool("auto_block", setting.AutoBlock), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("block_threshold", uint64(setting.BlockThreshold)), slog.Uint64("block_window", uint64(setting.BlockWindow)), slog.Uint64("block_duration", uint64(setting.BlockDuration)), slog.Any("whitelist", setting.Whitelist))
+	uc.log.Info(uc.t.Get("scan aware setting updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Bool("auto_block", setting.AutoBlock), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("block_threshold", uint64(setting.BlockThreshold)), slog.Uint64("block_window", uint64(setting.BlockWindow)), slog.Uint64("block_duration", uint64(setting.BlockDuration)), slog.Bool("block_outbound", setting.BlockOutbound), slog.Any("whitelist", setting.Whitelist))
 	return nil
 }

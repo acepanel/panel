@@ -58,6 +58,7 @@ func (s *FirewallScanService) UpdateSetting(w http.ResponseWriter, r *http.Reque
 		BlockThreshold: req.BlockThreshold,
 		BlockWindow:    req.BlockWindow,
 		BlockDuration:  req.BlockDuration,
+		BlockOutbound:  req.BlockOutbound,
 		Whitelist:      req.Whitelist,
 	}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)

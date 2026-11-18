@@ -96,4 +96,10 @@ var ScanMigrations = []*gormigrate.Migration{
 			return tx.AutoMigrate(&biz.ScanBlock{})
 		},
 	},
+	{
+		ID: "20261118-add-scan-block-outbound",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.ScanBlock{})
+		},
+	},
 }

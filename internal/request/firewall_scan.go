@@ -9,5 +9,6 @@ type FirewallScanSetting struct {
 	BlockThreshold uint     `json:"block_threshold" validate:"min:1 && max:100000"`
 	BlockWindow    uint     `json:"block_window" validate:"min:1 && max:1440"`
 	BlockDuration  uint     `json:"block_duration" validate:"max:87600"`
+	BlockOutbound  bool     `json:"block_outbound"`
 	Whitelist      []string `json:"whitelist" validate:"unique && dive && ipcidr"`
 }

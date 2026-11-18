@@ -53,6 +53,7 @@ const autoBlock = ref(false)
 const blockThreshold = ref(100)
 const blockWindow = ref(5)
 const blockDuration = ref(0)
+const blockOutbound = ref(false)
 const whitelist = ref<string[]>([])
 
 useRequest(firewall.scanSetting()).onSuccess(({ data }) => {
@@ -63,6 +64,7 @@ useRequest(firewall.scanSetting()).onSuccess(({ data }) => {
   blockThreshold.value = data.block_threshold || 100
   blockWindow.value = data.block_window || 5
   blockDuration.value = data.block_duration || 0
+  blockOutbound.value = data.block_outbound || false
   whitelist.value = data.whitelist || []
 })
 
@@ -84,6 +86,7 @@ const handleSaveScanSetting = () => {
       block_threshold: blockThreshold.value,
       block_window: blockWindow.value,
       block_duration: blockDuration.value,
+      block_outbound: blockOutbound.value,
       whitelist: whitelist.value,
     }),
   )
@@ -145,6 +148,14 @@ const handleSaveScanSetting = () => {
               <n-text v-if="blockDuration === 0" depth="3">{{ $gettext('Permanent') }}</n-text>
             </template>
           </n-input-number>
+        </n-form-item>
+        <n-form-item :label="$gettext('Block Outbound')">
+          <n-flex align="center">
+            <n-switch v-model:value="blockOutbound" />
+            <n-text depth="3">
+              {{ $gettext('Also drop traffic from this server to blocked IPs') }}
+            </n-text>
+          </n-flex>
         </n-form-item>
         <n-form-item :label="$gettext('IP Whitelist')">
           <n-dynamic-tags v-model:value="whitelist" />
