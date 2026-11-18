@@ -17,7 +17,7 @@ import (
 )
 
 // outPolicy 出站规则所在的策略：区域只过滤入站，本机出站要靠 HOST 到 ANY 的策略
-const outPolicy = "acepanel"
+const outPolicy = "acepanel-out"
 
 type firewalld struct {
 	forwardListRegex *regexp.Regexp
