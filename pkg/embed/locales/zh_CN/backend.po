@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-16 08:01\n"
+"PO-Revision-Date: 2026-11-18 11:13\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -3704,11 +3704,11 @@ msgstr "应用已卸载"
 msgid "app updated"
 msgstr "应用已更新"
 
-#: internal/job/firewall_scan.go:344
+#: internal/job/firewall_scan.go:349
 msgid "auto blocked IP"
 msgstr "已自动屏蔽 IP"
 
-#: internal/job/firewall_scan.go:132
+#: internal/job/firewall_scan.go:135
 msgid "auto unblocked IP (expired)"
 msgstr "已自动解除屏蔽 IP（已过期）"
 
@@ -3720,8 +3720,8 @@ msgstr "后台任务未能完成"
 msgid "background task failed"
 msgstr "后台任务执行失败"
 
-#: internal/biz/setting.go:211
-#: internal/biz/setting.go:302
+#: internal/biz/setting.go:212
+#: internal/biz/setting.go:303
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
@@ -4330,7 +4330,7 @@ msgstr "eBPF 扫描检测器已挂载"
 msgid "eBPF scan detector detached"
 msgstr "eBPF 扫描检测器已卸载"
 
-#: internal/job/firewall_scan.go:148
+#: internal/job/firewall_scan.go:151
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr "当前内核不支持 eBPF 扫描检测器（TCX 挂载需要 6.6+）"
 
@@ -4471,7 +4471,7 @@ msgstr "应用 PostgreSQL 配置失败：%v"
 msgid "failed to attach scan detector, skip interface"
 msgstr "挂载扫描检测器失败，跳过该网络接口"
 
-#: internal/job/firewall_scan.go:336
+#: internal/job/firewall_scan.go:341
 msgid "failed to auto block IP"
 msgstr "自动屏蔽 IP 失败"
 
@@ -4512,7 +4512,7 @@ msgstr "清除过期文件分享失败"
 msgid "failed to clear expired ip stats"
 msgstr "清除过期 IP 统计失败"
 
-#: internal/job/firewall_scan.go:363
+#: internal/job/firewall_scan.go:368
 msgid "failed to clear expired scan data"
 msgstr "清除过期扫描数据失败"
 
@@ -4674,7 +4674,7 @@ msgstr "禁用 %s 服务失败：%v"
 msgid "failed to disable expired website"
 msgstr "停用到期网站失败"
 
-#: internal/biz/setting.go:277
+#: internal/biz/setting.go:278
 #: internal/job/panel_task.go:159
 msgid "failed to download ipdb"
 msgstr "下载 ipdb 失败"
@@ -4724,7 +4724,7 @@ msgstr "生成 SSH 密钥失败：%v"
 msgid "failed to generate self-signed certificate"
 msgstr "生成自签名证书失败"
 
-#: internal/biz/setting.go:165
+#: internal/biz/setting.go:166
 msgid "failed to generate self-signed certificate: %v"
 msgstr "生成自签名证书失败：%v"
 
@@ -4834,7 +4834,7 @@ msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
 #: internal/job/firewall_scan.go:114
-#: internal/job/firewall_scan.go:269
+#: internal/job/firewall_scan.go:272
 msgid "failed to get firewall status"
 msgstr "获取防火墙状态失败"
 
@@ -4988,8 +4988,8 @@ msgid "failed to open sftp session on %s: %v"
 msgstr "在 %s 上打开 SFTP 会话失败：%v"
 
 #: internal/biz/cert.go:383
-#: internal/biz/setting.go:174
-#: internal/biz/setting.go:305
+#: internal/biz/setting.go:175
+#: internal/biz/setting.go:306
 #: internal/data/website.go:579
 #: internal/data/website.go:854
 msgid "failed to parse certificate: %v"
@@ -5009,8 +5009,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登录页面失败"
 
 #: internal/biz/cert.go:387
-#: internal/biz/setting.go:177
-#: internal/biz/setting.go:308
+#: internal/biz/setting.go:178
+#: internal/biz/setting.go:309
 #: internal/data/website.go:582
 #: internal/data/website.go:857
 msgid "failed to parse private key: %v"
@@ -5101,7 +5101,7 @@ msgid "failed to read ring buffer"
 msgstr "读取环形缓冲区失败"
 
 #: internal/job/firewall_scan.go:105
-#: internal/job/firewall_scan.go:311
+#: internal/job/firewall_scan.go:314
 msgid "failed to read scan blocks"
 msgstr "读取扫描屏蔽记录失败"
 
@@ -5270,8 +5270,8 @@ msgstr "保存 MongoDB 管理员密码失败：%v"
 msgid "failed to save alert record"
 msgstr "保存告警记录失败"
 
-#: internal/job/firewall_scan.go:128
-#: internal/job/firewall_scan.go:332
+#: internal/job/firewall_scan.go:131
+#: internal/job/firewall_scan.go:337
 msgid "failed to save scan blocks"
 msgstr "保存扫描屏蔽记录失败"
 
@@ -5329,7 +5329,7 @@ msgstr "启动 %s 服务失败： %v"
 msgid "failed to start container terminal: %v"
 msgstr "启动容器终端失败：%v"
 
-#: internal/job/firewall_scan.go:156
+#: internal/job/firewall_scan.go:159
 msgid "failed to start eBPF scan detector"
 msgstr "启动 eBPF 扫描检测器失败"
 
@@ -5357,7 +5357,7 @@ msgstr "同步服务器到 pgAdmin 失败：%v"
 msgid "failed to umount partition: %v"
 msgstr "卸载分区失败：%v"
 
-#: internal/job/firewall_scan.go:124
+#: internal/job/firewall_scan.go:127
 msgid "failed to unblock IP"
 msgstr "解除屏蔽 IP 失败"
 
@@ -5444,7 +5444,7 @@ msgstr "写入客户端统计失败"
 msgid "failed to upsert ip stats"
 msgstr "写入 IP 统计失败"
 
-#: internal/job/firewall_scan.go:251
+#: internal/job/firewall_scan.go:254
 msgid "failed to upsert scan events"
 msgstr "写入扫描事件失败"
 
@@ -5898,7 +5898,7 @@ msgstr "无效的用户ID，请重新登录"
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）"
 
-#: internal/biz/setting.go:279
+#: internal/biz/setting.go:280
 msgid "ipdb downloaded"
 msgstr "ipdb 已下载"
 
@@ -6440,7 +6440,7 @@ msgstr "面板自签名证书已续签"
 msgid "panel service file is missing"
 msgstr "面板服务文件丢失"
 
-#: internal/biz/setting.go:295
+#: internal/biz/setting.go:296
 msgid "panel settings updated"
 msgstr "面板设置已更新"
 
@@ -6637,7 +6637,7 @@ msgstr "请填写源面板 API 密钥"
 msgid "please select at least one migration resource"
 msgstr "请至少选择一个迁移资源"
 
-#: internal/biz/setting.go:192
+#: internal/biz/setting.go:193
 msgid "port is already in use"
 msgstr "端口已被占用"
 
@@ -6931,15 +6931,15 @@ msgstr "已查看 S3fs 挂载列表"
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
-#: internal/biz/scan_event.go:279
+#: internal/biz/scan_event.go:289
 msgid "scan aware setting updated"
 msgstr "扫描感知设置已更新"
 
-#: internal/service/firewall_scan.go:162
+#: internal/service/firewall_scan.go:163
 msgid "scan event list viewed"
 msgstr "已查看扫描事件列表"
 
-#: internal/biz/scan_event.go:168
+#: internal/biz/scan_event.go:170
 msgid "scan events cleared"
 msgstr "扫描事件已清除"
 
@@ -7034,7 +7034,7 @@ msgstr "签名已过期"
 msgid "skip unavailable optional LSM hook"
 msgstr "跳过不可用的可选 LSM 钩子"
 
-#: internal/job/firewall_scan.go:300
+#: internal/job/firewall_scan.go:303
 msgid "skip whitelisted IP"
 msgstr "跳过白名单 IP"
 

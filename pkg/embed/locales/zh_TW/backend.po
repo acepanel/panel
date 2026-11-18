@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2026-11-16 08:01\n"
+"PO-Revision-Date: 2026-11-18 11:13\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -3704,11 +3704,11 @@ msgstr "應用程式已卸載"
 msgid "app updated"
 msgstr "應用程式已更新"
 
-#: internal/job/firewall_scan.go:344
+#: internal/job/firewall_scan.go:349
 msgid "auto blocked IP"
 msgstr "已自動屏蔽 IP"
 
-#: internal/job/firewall_scan.go:132
+#: internal/job/firewall_scan.go:135
 msgid "auto unblocked IP (expired)"
 msgstr "已自動解除屏蔽 IP（已過期）"
 
@@ -3720,8 +3720,8 @@ msgstr "背景任務未能完成"
 msgid "background task failed"
 msgstr "背景任務執行失敗"
 
-#: internal/biz/setting.go:211
-#: internal/biz/setting.go:302
+#: internal/biz/setting.go:212
+#: internal/biz/setting.go:303
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "背景任務正在執行，禁止修改部分設定，請稍後再試"
 
@@ -4330,7 +4330,7 @@ msgstr "eBPF 掃描偵測器已掛載"
 msgid "eBPF scan detector detached"
 msgstr "eBPF 掃描偵測器已卸載"
 
-#: internal/job/firewall_scan.go:148
+#: internal/job/firewall_scan.go:151
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr "目前核心不支援 eBPF 掃描偵測器（TCX 掛載需要 6.6+）"
 
@@ -4471,7 +4471,7 @@ msgstr "無法應用 PostgreSQL 配置：%v"
 msgid "failed to attach scan detector, skip interface"
 msgstr "掛載掃描偵測器失敗，跳過該網路介面"
 
-#: internal/job/firewall_scan.go:336
+#: internal/job/firewall_scan.go:341
 msgid "failed to auto block IP"
 msgstr "自動屏蔽 IP 失敗"
 
@@ -4512,7 +4512,7 @@ msgstr "清除過期檔案分享失敗"
 msgid "failed to clear expired ip stats"
 msgstr "清除過期 IP 統計失敗"
 
-#: internal/job/firewall_scan.go:363
+#: internal/job/firewall_scan.go:368
 msgid "failed to clear expired scan data"
 msgstr "清除過期掃描資料失敗"
 
@@ -4674,7 +4674,7 @@ msgstr "禁用 %s 服務失敗：%v"
 msgid "failed to disable expired website"
 msgstr "停用到期網站失敗"
 
-#: internal/biz/setting.go:277
+#: internal/biz/setting.go:278
 #: internal/job/panel_task.go:159
 msgid "failed to download ipdb"
 msgstr "下載 ipdb 失敗"
@@ -4724,7 +4724,7 @@ msgstr "生成 SSH 密鑰失敗：%v"
 msgid "failed to generate self-signed certificate"
 msgstr "產生自簽名憑證失敗"
 
-#: internal/biz/setting.go:165
+#: internal/biz/setting.go:166
 msgid "failed to generate self-signed certificate: %v"
 msgstr "生成自簽名證書失敗：%v"
 
@@ -4834,7 +4834,7 @@ msgid "failed to get filesystem type: %v"
 msgstr "取得檔案系統類型失敗：%v"
 
 #: internal/job/firewall_scan.go:114
-#: internal/job/firewall_scan.go:269
+#: internal/job/firewall_scan.go:272
 msgid "failed to get firewall status"
 msgstr "取得防火牆狀態失敗"
 
@@ -4988,8 +4988,8 @@ msgid "failed to open sftp session on %s: %v"
 msgstr "在 %s 上開啟 SFTP 工作階段失敗：%v"
 
 #: internal/biz/cert.go:383
-#: internal/biz/setting.go:174
-#: internal/biz/setting.go:305
+#: internal/biz/setting.go:175
+#: internal/biz/setting.go:306
 #: internal/data/website.go:579
 #: internal/data/website.go:854
 msgid "failed to parse certificate: %v"
@@ -5009,8 +5009,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr "解析 phpMyAdmin 登入頁面失敗"
 
 #: internal/biz/cert.go:387
-#: internal/biz/setting.go:177
-#: internal/biz/setting.go:308
+#: internal/biz/setting.go:178
+#: internal/biz/setting.go:309
 #: internal/data/website.go:582
 #: internal/data/website.go:857
 msgid "failed to parse private key: %v"
@@ -5101,7 +5101,7 @@ msgid "failed to read ring buffer"
 msgstr "讀取環形緩衝區失敗"
 
 #: internal/job/firewall_scan.go:105
-#: internal/job/firewall_scan.go:311
+#: internal/job/firewall_scan.go:314
 msgid "failed to read scan blocks"
 msgstr "讀取掃描屏蔽記錄失敗"
 
@@ -5270,8 +5270,8 @@ msgstr "儲存 MongoDB 管理員密碼失敗：%v"
 msgid "failed to save alert record"
 msgstr "儲存警示記錄失敗"
 
-#: internal/job/firewall_scan.go:128
-#: internal/job/firewall_scan.go:332
+#: internal/job/firewall_scan.go:131
+#: internal/job/firewall_scan.go:337
 msgid "failed to save scan blocks"
 msgstr "儲存掃描屏蔽記錄失敗"
 
@@ -5329,7 +5329,7 @@ msgstr "啟動 %s 服務失敗：%v"
 msgid "failed to start container terminal: %v"
 msgstr "啟動容器終端失敗：%v"
 
-#: internal/job/firewall_scan.go:156
+#: internal/job/firewall_scan.go:159
 msgid "failed to start eBPF scan detector"
 msgstr "啟動 eBPF 掃描偵測器失敗"
 
@@ -5357,7 +5357,7 @@ msgstr "同步伺服器到 pgAdmin 失敗：%v"
 msgid "failed to umount partition: %v"
 msgstr "卸載分區失敗：%v"
 
-#: internal/job/firewall_scan.go:124
+#: internal/job/firewall_scan.go:127
 msgid "failed to unblock IP"
 msgstr "解除屏蔽 IP 失敗"
 
@@ -5444,7 +5444,7 @@ msgstr "寫入客戶端統計失敗"
 msgid "failed to upsert ip stats"
 msgstr "寫入 IP 統計失敗"
 
-#: internal/job/firewall_scan.go:251
+#: internal/job/firewall_scan.go:254
 msgid "failed to upsert scan events"
 msgstr "寫入掃描事件失敗"
 
@@ -5898,7 +5898,7 @@ msgstr "無效的使用者 ID，請重新登入"
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一個專業級的 PHP 加密解密工具（需在 OPcache 之後安裝）"
 
-#: internal/biz/setting.go:279
+#: internal/biz/setting.go:280
 msgid "ipdb downloaded"
 msgstr "ipdb 已下載"
 
@@ -6440,7 +6440,7 @@ msgstr "面板自簽名憑證已續簽"
 msgid "panel service file is missing"
 msgstr "面板服務檔案遺失"
 
-#: internal/biz/setting.go:295
+#: internal/biz/setting.go:296
 msgid "panel settings updated"
 msgstr "面板設定已更新"
 
@@ -6637,7 +6637,7 @@ msgstr "請填寫源面板 API 金鑰"
 msgid "please select at least one migration resource"
 msgstr "請至少選擇一個遷移資源"
 
-#: internal/biz/setting.go:192
+#: internal/biz/setting.go:193
 msgid "port is already in use"
 msgstr "連接埠已被佔用"
 
@@ -6931,15 +6931,15 @@ msgstr "已查看 S3fs 掛載列表"
 msgid "save chunk error: %v"
 msgstr "儲存分塊錯誤：%v"
 
-#: internal/biz/scan_event.go:279
+#: internal/biz/scan_event.go:289
 msgid "scan aware setting updated"
 msgstr "掃描感知設定已更新"
 
-#: internal/service/firewall_scan.go:162
+#: internal/service/firewall_scan.go:163
 msgid "scan event list viewed"
 msgstr "已查看掃描事件列表"
 
-#: internal/biz/scan_event.go:168
+#: internal/biz/scan_event.go:170
 msgid "scan events cleared"
 msgstr "掃描事件已清除"
 
@@ -7034,7 +7034,7 @@ msgstr "簽名已過期"
 msgid "skip unavailable optional LSM hook"
 msgstr "跳過不可用的選用 LSM 掛鉤"
 
-#: internal/job/firewall_scan.go:300
+#: internal/job/firewall_scan.go:303
 msgid "skip whitelisted IP"
 msgstr "跳過白名單 IP"
 
