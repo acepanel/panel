@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -268,6 +269,43 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 	return true, notes, nil
 }
 
+// RebuildPHPMyAdmin phpMyAdmin 的站点不在库里，沿用原端口为当前 Web 服务器重建，返回是否重建
+func (r *websiteRepo) RebuildPHPMyAdmin() (bool, error) {
+	d, err := r.dialect()
+	if err != nil {
+		return false, err
+	}
+	configDir := filepath.Join(app.Root, "sites", "phpmyadmin", "config")
+	source, ok := r.sourceDialect(configDir)
+	if !ok || source.Type == d.Type {
+		return false, nil
+	}
+
+	// 没有 PHP 时生成的站点会把源码当静态文件输出
+	php := r.latestPHP()
+	if php == 0 {
+		return false, errors.New(r.t.Get("PHP is not installed"))
+	}
+	oldVhost, err := source.NewPHPVhost(configDir)
+	if err != nil {
+		return false, err
+	}
+	listens := lo.Map(r.listenPorts(oldVhost.Listen()), func(port string, _ int) webservertypes.Listen {
+		return webservertypes.Listen{Address: port}
+	})
+
+	backupDir := fmt.Sprintf("%s.rebuild-backup-%d", configDir, time.Now().UnixNano())
+	if err = os.Rename(configDir, backupDir); err != nil {
+		return false, err
+	}
+	if err = r.buildPHPMyAdmin(d, configDir, listens, php); err != nil {
+		return false, errors.Join(err, io.Remove(configDir), os.Rename(backupDir, configDir))
+	}
+
+	_ = io.Remove(backupDir)
+	return true, nil
+}
+
 // sourceDialect 按站点目录里最新修改的主配置文件识别上一个 Web 服务器
 func (r *websiteRepo) sourceDialect(configDir string) (webserver.Dialect, bool) {
 	var latest webserver.Dialect
@@ -285,6 +323,45 @@ func (r *websiteRepo) sourceDialect(configDir string) (webserver.Dialect, bool) 
 	}
 
 	return latest, !modTime.IsZero()
+}
+
+// buildPHPMyAdmin 站点没有域名，靠默认站点标志接住端口上的全部请求，路径与安装脚本一致
+func (r *websiteRepo) buildPHPMyAdmin(
+	d webserver.Dialect,
+	configDir string,
+	listens []webservertypes.Listen,
+	php uint,
+) error {
+	if err := r.makeConfigDirs(configDir); err != nil {
+		return err
+	}
+	vhost, err := d.NewPHPVhost(configDir)
+	if err != nil {
+		return err
+	}
+
+	logFile := filepath.Join(filepath.Dir(configDir), "log", "phpmyadmin.log")
+	if err = errors.Join(
+		vhost.SetListen(listens),
+		vhost.SetDefault(true),
+		vhost.SetRoot(filepath.Join(app.Root, "server", "phpmyadmin")),
+		vhost.SetIndex([]string{"index.php"}),
+		vhost.SetPHP(php),
+		vhost.SetAccessLog(logFile),
+		vhost.SetErrorLog(logFile),
+	); err != nil {
+		return err
+	}
+
+	return vhost.Save()
+}
+
+// latestPHP 取已安装的最高 PHP 版本，没有安装时为 0
+func (r *websiteRepo) latestPHP() uint {
+	bins, _ := filepath.Glob(filepath.Join(app.Root, "server", "php", "*", "bin", "php"))
+	return lo.Max(lo.Map(bins, func(bin string, _ int) uint {
+		return cast.ToUint(filepath.Base(filepath.Dir(filepath.Dir(bin))))
+	}))
 }
 
 // carryOverUpdate 只含类型切换与换服务器重建都原样沿用的设置，其余字段由两边各自取舍

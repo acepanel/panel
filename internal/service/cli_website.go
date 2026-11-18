@@ -99,6 +99,12 @@ func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error
 		}
 	}
 
+	if rebuilt, err := s.websiteRepo.RebuildPHPMyAdmin(); err != nil {
+		fmt.Printf("[ERROR] phpmyadmin: %v\n", err)
+	} else if rebuilt {
+		fmt.Println("[OK] phpmyadmin")
+	}
+
 	return s.ReloadWebserver(ctx, cmd)
 }
 

@@ -102,6 +102,27 @@ func TestEnable(t *testing.T) {
 	check.NotContains(t, readConf(t, configDir), stopURI)
 }
 
+func TestDefault(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := newPHPVhost(configDir)
+	must.NoError(t, err)
+	check.False(t, vhost.Default())
+	check.NoError(t, vhost.SetDefault(true))
+	check.NoError(t, vhost.Save())
+
+	// 通配域名排在最后，监听器汇总靠它判断是否还要默认站点兜底
+	listen, err := os.ReadFile(filepath.Join(configDir, listenConfName))
+	must.NoError(t, err)
+	check.Contains(t, string(listen), "domain                   localhost *")
+
+	reloaded, err := newPHPVhost(configDir)
+	must.NoError(t, err)
+	check.True(t, reloaded.Default())
+	check.NoError(t, reloaded.SetDefault(false))
+	check.False(t, reloaded.Default())
+	check.DeepEqual(t, reloaded.ServerName(), []string{"localhost"})
+}
+
 func TestSSL(t *testing.T) {
 	configDir := newConfigDir(t)
 	vhost, err := newStaticVhost(configDir)

@@ -67,6 +67,7 @@ type WebsiteRepo interface {
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(ctx context.Context, id uint) error
 	Rebuild(ctx context.Context, website *Website) (bool, []string, error)
+	RebuildPHPMyAdmin() (bool, error)
 	UpdateStatus(ctx context.Context, id uint, status bool) error
 	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error
@@ -268,6 +269,11 @@ func (uc *WebsiteUsecase) ResetConfig(ctx context.Context, id uint) error {
 // Rebuild 按当前 Web 服务器重建站点配置
 func (uc *WebsiteUsecase) Rebuild(ctx context.Context, website *Website) (bool, []string, error) {
 	return uc.repo.Rebuild(ctx, website)
+}
+
+// RebuildPHPMyAdmin 按当前 Web 服务器重建 phpMyAdmin 的站点配置
+func (uc *WebsiteUsecase) RebuildPHPMyAdmin() (bool, error) {
+	return uc.repo.RebuildPHPMyAdmin()
 }
 
 func (uc *WebsiteUsecase) UpdateStatus(ctx context.Context, id uint, status bool) error {

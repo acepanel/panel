@@ -54,6 +54,9 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			RebuildFunc: func(ctx context.Context, website *biz.Website) (bool, []string, error) {
 //				panic("mock out the Rebuild method")
 //			},
+//			RebuildPHPMyAdminFunc: func() (bool, error) {
+//				panic("mock out the RebuildPHPMyAdmin method")
+//			},
 //			ReloadWebServerFunc: func(ctx context.Context) error {
 //				panic("mock out the ReloadWebServer method")
 //			},
@@ -126,6 +129,9 @@ type WebsiteRepo struct {
 
 	// RebuildFunc mocks the Rebuild method.
 	RebuildFunc func(ctx context.Context, website *biz.Website) (bool, []string, error)
+
+	// RebuildPHPMyAdminFunc mocks the RebuildPHPMyAdmin method.
+	RebuildPHPMyAdminFunc func() (bool, error)
 
 	// ReloadWebServerFunc mocks the ReloadWebServer method.
 	ReloadWebServerFunc func(ctx context.Context) error
@@ -220,6 +226,9 @@ type WebsiteRepo struct {
 			Ctx context.Context
 			// Website is the website argument value.
 			Website *biz.Website
+		}
+		// RebuildPHPMyAdmin holds details about calls to the RebuildPHPMyAdmin method.
+		RebuildPHPMyAdmin []struct {
 		}
 		// ReloadWebServer holds details about calls to the ReloadWebServer method.
 		ReloadWebServer []struct {
@@ -316,6 +325,7 @@ type WebsiteRepo struct {
 	lockGetRewrites         sync.RWMutex
 	lockList                sync.RWMutex
 	lockRebuild             sync.RWMutex
+	lockRebuildPHPMyAdmin   sync.RWMutex
 	lockReloadWebServer     sync.RWMutex
 	lockRemoveFiles         sync.RWMutex
 	lockResetConfig         sync.RWMutex
@@ -656,6 +666,33 @@ func (mock *WebsiteRepo) RebuildCalls() []struct {
 	mock.lockRebuild.RLock()
 	calls = mock.calls.Rebuild
 	mock.lockRebuild.RUnlock()
+	return calls
+}
+
+// RebuildPHPMyAdmin calls RebuildPHPMyAdminFunc.
+func (mock *WebsiteRepo) RebuildPHPMyAdmin() (bool, error) {
+	if mock.RebuildPHPMyAdminFunc == nil {
+		panic("WebsiteRepo.RebuildPHPMyAdminFunc: method is nil but WebsiteRepo.RebuildPHPMyAdmin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockRebuildPHPMyAdmin.Lock()
+	mock.calls.RebuildPHPMyAdmin = append(mock.calls.RebuildPHPMyAdmin, callInfo)
+	mock.lockRebuildPHPMyAdmin.Unlock()
+	return mock.RebuildPHPMyAdminFunc()
+}
+
+// RebuildPHPMyAdminCalls gets all the calls that were made to RebuildPHPMyAdmin.
+// Check the length with:
+//
+//	len(mockedWebsiteRepo.RebuildPHPMyAdminCalls())
+func (mock *WebsiteRepo) RebuildPHPMyAdminCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockRebuildPHPMyAdmin.RLock()
+	calls = mock.calls.RebuildPHPMyAdmin
+	mock.lockRebuildPHPMyAdmin.RUnlock()
 	return calls
 }
 

@@ -118,6 +118,19 @@ func (v *baseVhost) SetEnable(enable bool) error {
 	return v.SetEnableWith(enable, "")
 }
 
+// Default 监听器按域名映射站点，通配域名承接未匹配的请求
+func (v *baseVhost) Default() bool {
+	return slices.Contains(v.Domains, "*")
+}
+
+func (v *baseVhost) SetDefault(enable bool) error {
+	v.Domains = slices.DeleteFunc(v.Domains, func(domain string) bool { return domain == "*" })
+	if enable {
+		v.Domains = append(v.Domains, "*")
+	}
+	return nil
+}
+
 func (v *baseVhost) Save() error {
 	if err := os.WriteFile(filepath.Join(v.ConfigDir, vhostConfName), []byte(Export(v.build())), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)

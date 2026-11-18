@@ -139,3 +139,51 @@ func TestWebsiteRestoreConfig(t *testing.T) {
 	check.Equal(t, restored.CertID, website.CertID)
 	check.True(t, restored.UpdatedAt.Equal(website.UpdatedAt))
 }
+
+func TestWebsiteRebuildPHPMyAdmin(t *testing.T) {
+	// 配置目录按 0600 创建，非 root 进不去
+	if os.Geteuid() != 0 {
+		t.Skip("需要 root")
+	}
+	repo, _ := newWebsiteRepoForTest(t)
+	configDir := filepath.Join(app.Root, "sites", "phpmyadmin", "config")
+	oldConf := filepath.Join(configDir, "openlitespeed.conf")
+	// 安装脚本为 OpenLiteSpeed 手写的站点配置
+	must.NoError(t, io.Write(filepath.Join(configDir, "openlitespeed.listen.conf"), "listen                   8888\ndomain                   *\n", 0644))
+	must.NoError(t, io.Write(oldConf, "docRoot                  /opt/ace/server/phpmyadmin\n\nscripthandler {\n  include                /opt/ace/server/openlitespeed/conf/panel/php/83.conf\n}\n", 0644))
+
+	// 没有 PHP 时不动旧配置
+	rebuilt, err := repo.RebuildPHPMyAdmin()
+	check.Error(t, err)
+	check.False(t, rebuilt)
+	check.True(t, io.Exists(oldConf))
+
+	for _, version := range []string{"83", "84"} {
+		must.NoError(t, io.Write(filepath.Join(app.Root, "server", "php", version, "bin", "php"), "", 0755))
+	}
+	rebuilt, err = repo.RebuildPHPMyAdmin()
+	must.NoError(t, err)
+	check.True(t, rebuilt)
+
+	// 旧服务器的配置连同备份都不留
+	entries, err := os.ReadDir(filepath.Dir(configDir))
+	must.NoError(t, err)
+	check.Len(t, entries, 1)
+	check.False(t, io.Exists(oldConf))
+	check.False(t, io.Exists(filepath.Join(configDir, "openlitespeed.listen.conf")))
+
+	d, err := repo.dialect()
+	must.NoError(t, err)
+	vhost, err := d.NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, vhost.Listen(), []webservertypes.Listen{{Address: "8888", Args: []string{"default_server"}}})
+	check.Equal(t, vhost.Root(), filepath.Join(app.Root, "server", "phpmyadmin"))
+	check.DeepEqual(t, vhost.Index(), []string{"index.php"})
+	check.Equal(t, vhost.PHP(), uint(84))
+	check.Equal(t, vhost.AccessLog(), filepath.Join(app.Root, "sites", "phpmyadmin", "log", "phpmyadmin.log"))
+
+	// 已是当前服务器的配置，不再重建
+	rebuilt, err = repo.RebuildPHPMyAdmin()
+	must.NoError(t, err)
+	check.False(t, rebuilt)
+}

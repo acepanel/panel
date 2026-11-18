@@ -47,15 +47,6 @@ func New(configDir string) State {
 	}
 }
 
-// Default 默认站点切换只在 nginx 与 Caddy 支持，Caddy 自行覆盖
-func (s *State) Default() bool {
-	return false
-}
-
-func (s *State) SetDefault(bool) error {
-	return nil
-}
-
 func (s *State) Listen() []types.Listen {
 	return s.Listens
 }
