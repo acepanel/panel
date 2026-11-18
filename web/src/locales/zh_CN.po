@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-11-16 08:01\n"
+"PO-Revision-Date: 2026-11-18 11:13\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:508
@@ -171,7 +171,7 @@ msgstr "保存成功"
 #: src/views/environment/PHPView.vue:495
 #: src/views/environment/RuntimeView.vue:202
 #: src/views/file/EditModal.vue:90
-#: src/views/firewall/SettingView.vue:156
+#: src/views/firewall/SettingView.vue:167
 #: src/views/monitor/AlertRuleModal.vue:194
 #: src/views/monitor/ChannelModal.vue:149
 #: src/views/monitor/SettingView.vue:239
@@ -3284,7 +3284,7 @@ msgid "Unbanned successfully"
 msgstr "解封成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:275
-#: src/views/firewall/SettingView.vue:149
+#: src/views/firewall/SettingView.vue:160
 msgid "IP Whitelist"
 msgstr "IP 白名单"
 
@@ -8835,7 +8835,7 @@ msgid "Enter JSON document"
 msgstr "输入 JSON 文档"
 
 #: src/views/database/RedisDataView.vue:112
-#: src/views/firewall/SettingView.vue:145
+#: src/views/firewall/SettingView.vue:148
 msgid "Permanent"
 msgstr "永久"
 
@@ -10310,7 +10310,7 @@ msgid "Port Forwarding"
 msgstr "端口转发"
 
 #: src/views/firewall/IndexView.vue:47
-#: src/views/firewall/SettingView.vue:116
+#: src/views/firewall/SettingView.vue:119
 msgid "Scan Awareness"
 msgstr "扫描感知"
 
@@ -10480,45 +10480,53 @@ msgstr "扫描感知运行在系统防火墙之前，因此被拉黑的 IP 仍�
 
 #: src/views/firewall/SettingView.vue:29
 #: src/views/firewall/SettingView.vue:39
-#: src/views/firewall/SettingView.vue:91
+#: src/views/firewall/SettingView.vue:94
 msgid "Settings saved successfully"
 msgstr "设置保存成功"
 
-#: src/views/firewall/SettingView.vue:101
+#: src/views/firewall/SettingView.vue:104
 msgid "System Firewall"
 msgstr "系统防火墙"
 
-#: src/views/firewall/SettingView.vue:108
+#: src/views/firewall/SettingView.vue:111
 msgid "Allow Ping"
 msgstr "允许 Ping"
 
-#: src/views/firewall/SettingView.vue:120
+#: src/views/firewall/SettingView.vue:123
 msgid "Retention Days"
 msgstr "保存天数"
 
-#: src/views/firewall/SettingView.vue:123
+#: src/views/firewall/SettingView.vue:126
 msgid "Network Interfaces"
 msgstr "网络接口"
 
-#: src/views/firewall/SettingView.vue:129
+#: src/views/firewall/SettingView.vue:132
 msgid "Auto detect"
 msgstr "自动检测"
 
-#: src/views/firewall/SettingView.vue:132
+#: src/views/firewall/SettingView.vue:135
 msgid "Auto Block"
 msgstr "自动屏蔽"
 
-#: src/views/firewall/SettingView.vue:136
+#: src/views/firewall/SettingView.vue:139
 msgid "Block Threshold"
 msgstr "屏蔽阈值"
 
-#: src/views/firewall/SettingView.vue:139
+#: src/views/firewall/SettingView.vue:142
 msgid "Time Window (minutes)"
 msgstr "时间窗口（分钟）"
 
-#: src/views/firewall/SettingView.vue:142
+#: src/views/firewall/SettingView.vue:145
 msgid "Block Duration (hours)"
 msgstr "屏蔽时长（小时）"
+
+#: src/views/firewall/SettingView.vue:152
+msgid "Block Outbound"
+msgstr "阻止出站"
+
+#: src/views/firewall/SettingView.vue:156
+msgid "Also drop traffic from this server to blocked IPs"
+msgstr "同时丢弃从该服务器发往被封禁 IP 的流量"
 
 #: src/views/home/IndexView.vue:79
 msgid "Order updated"
