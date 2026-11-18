@@ -1,6 +1,7 @@
 package firewall
 
 import (
+	"cmp"
 	"testing"
 
 	"github.com/libtnb/assert/check"
@@ -10,9 +11,10 @@ import (
 func TestFirewalldParseRichRule(t *testing.T) {
 	fw := newFirewalld()
 	tests := []struct {
-		name string
-		rule string
-		want FireInfo
+		name      string
+		direction Direction
+		rule      string
+		want      FireInfo
 	}{
 		{
 			name: "源地址单端口 accept",
@@ -25,9 +27,10 @@ func TestFirewalldParseRichRule(t *testing.T) {
 			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "10.0.0.0/8", PortStart: 3000, PortEnd: 4000, Protocol: ProtocolTCP, Strategy: StrategyDrop, Direction: DirectionIn},
 		},
 		{
-			name: "目标地址算出站",
-			rule: `rule family="ipv4" destination address="203.0.113.0/24" port port="443" protocol="tcp" reject`,
-			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "203.0.113.0/24", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyReject, Direction: DirectionOut},
+			name:      "出站策略里的目标地址",
+			direction: DirectionOut,
+			rule:      `rule family="ipv4" destination address="203.0.113.0/24" port port="443" protocol="tcp" reject`,
+			want:      FireInfo{Type: TypeRich, Family: "ipv4", Address: "203.0.113.0/24", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyReject, Direction: DirectionOut},
 		},
 		{
 			name: "ipv6",
@@ -57,7 +60,7 @@ func TestFirewalldParseRichRule(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			info, err := fw.parseRichRule(tt.rule)
+			info, err := fw.parseRichRule(tt.rule, cmp.Or(tt.direction, DirectionIn))
 			must.NoError(t, err)
 			check.DeepEqual(t, info, tt.want)
 		})
@@ -67,15 +70,18 @@ func TestFirewalldParseRichRule(t *testing.T) {
 func TestFirewalldParseRichRuleInvalid(t *testing.T) {
 	fw := newFirewalld()
 	tests := []struct {
-		name string
-		rule string
+		name      string
+		direction Direction
+		rule      string
 	}{
-		{"非规则文本", `this is not a valid rule`},
-		{"空字符串", ``},
+		{"非规则文本", DirectionIn, `this is not a valid rule`},
+		{"空字符串", DirectionIn, ``},
+		{"区域里按目标地址匹配的仍是入站流量", DirectionIn, `rule family="ipv4" destination address="203.0.113.7" drop`},
+		{"出站策略里按来源地址匹配", DirectionOut, `rule family="ipv4" source address="203.0.113.7" drop`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := fw.parseRichRule(tt.rule)
+			_, err := fw.parseRichRule(tt.rule, tt.direction)
 			check.Error(t, err)
 		})
 	}

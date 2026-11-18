@@ -16,6 +16,9 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 )
 
+// outPolicy 出站规则所在的策略：区域只过滤入站，本机出站要靠 HOST 到 ANY 的策略
+const outPolicy = "acepanel"
+
 type firewalld struct {
 	forwardListRegex *regexp.Regexp
 	richRuleRegex    *regexp.Regexp
@@ -49,8 +52,9 @@ func (r *firewalld) Disable(ctx context.Context) error {
 func (r *firewalld) ListRule(ctx context.Context) ([]FireInfo, error) {
 	var wg sync.WaitGroup
 	var portRules []FireInfo
-	var richRules []FireInfo
-	wg.Add(2)
+	var inRules []FireInfo
+	var outRules []FireInfo
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -85,16 +89,17 @@ func (r *firewalld) ListRule(ctx context.Context) ([]FireInfo, error) {
 	}()
 	go func() {
 		defer wg.Done()
-		rich, err := r.listRichRule(ctx)
-		if err != nil {
-			return
-		}
-		richRules = rich
+		inRules, _ = r.listRichRule(ctx, DirectionIn)
+	}()
+	go func() {
+		defer wg.Done()
+		// 没加过出站规则时策略还不存在，命令报错即没有规则
+		outRules, _ = r.listRichRule(ctx, DirectionOut)
 	}()
 
 	wg.Wait()
 
-	return slices.Concat(portRules, richRules), nil
+	return slices.Concat(portRules, inRules, outRules), nil
 }
 
 func (r *firewalld) Port(ctx context.Context, rule FireInfo, operation Operation) error {
@@ -134,22 +139,31 @@ func (r *firewalld) RichRulesBatch(ctx context.Context, rules []FireInfo, operat
 	// richRuleChunk 单条 firewall-cmd 携带的规则数上限，避免命令行过长
 	const richRuleChunk = 200
 
-	var options []string
+	options := make(map[string][]string) // 按作用域分组
 	for _, rule := range rules {
-		// 出站规则下，必须指定具体的地址，否则会添加成入站规则
-		if rule.Direction == "out" && rule.Address == "" {
+		// 出站规则下，必须指定具体的地址
+		if rule.Direction == DirectionOut && rule.Address == "" {
 			return errors.New("outbound rules must specify an address")
 		}
+		scope := r.scope(rule.Direction)
 		for _, protocol := range buildProtocols(rule.Protocol) {
-			options = append(options, fmt.Sprintf("--%s-rich-rule '%s'", operation, r.buildRichRuleStr(rule, protocol)))
+			options[scope] = append(options[scope], fmt.Sprintf("--%s-rich-rule '%s'", operation, r.buildRichRuleStr(rule, protocol)))
+		}
+	}
+
+	if operation == OperationAdd && len(options[r.scope(DirectionOut)]) > 0 {
+		if err := r.ensureOutPolicy(ctx); err != nil {
+			return err
 		}
 	}
 
 	// 删除时忽略错误（规则可能已不存在）
-	for chunk := range slices.Chunk(options, richRuleChunk) {
-		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --permanent %s", strings.Join(chunk, " "))
-		if err != nil && operation != OperationRemove {
-			return err
+	for _, scope := range []string{r.scope(DirectionIn), r.scope(DirectionOut)} {
+		for chunk := range slices.Chunk(options[scope], richRuleChunk) {
+			_, err := shell.Execf(ctx, "firewall-cmd %s --permanent %s", scope, strings.Join(chunk, " "))
+			if err != nil && operation != OperationRemove {
+				return err
+			}
 		}
 	}
 
@@ -243,8 +257,35 @@ func (r *firewalld) UpdatePingStatus(ctx context.Context, status bool) error {
 	return err
 }
 
-func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
-	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
+// scope 返回该方向的规则所在的 firewall-cmd 作用域
+func (r *firewalld) scope(direction Direction) string {
+	if direction == DirectionOut {
+		return "--policy=" + outPolicy
+	}
+	return "--zone=public"
+}
+
+// ensureOutPolicy 确保出站策略存在
+// 出口区域最后才设，查到它就说明策略已建完整
+func (r *firewalld) ensureOutPolicy(ctx context.Context) error {
+	if _, err := shell.Execf(ctx, "firewall-cmd --permanent --policy=%s --query-egress-zone=ANY", outPolicy); err == nil {
+		return nil
+	}
+
+	// 上次建到一半时策略已在，新建会报重名
+	_, _ = shell.Execf(ctx, "firewall-cmd --permanent --new-policy=%s", outPolicy)
+	// firewall-cmd 不允许一条命令同时设入口和出口区域
+	for _, zone := range []string{"--add-ingress-zone=HOST", "--add-egress-zone=ANY"} {
+		if _, err := shell.Execf(ctx, "firewall-cmd --permanent --policy=%s %s", outPolicy, zone); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *firewalld) listRichRule(ctx context.Context, direction Direction) ([]FireInfo, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd %s --list-rich-rules", r.scope(direction))
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +296,7 @@ func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
 		if len(rule) == 0 {
 			continue
 		}
-		if richRules, err := r.parseRichRule(rule); err == nil {
+		if richRules, err := r.parseRichRule(rule, direction); err == nil {
 			data = append(data, richRules)
 		}
 	}
@@ -263,7 +304,9 @@ func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
 	return data, nil
 }
 
-func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
+// parseRichRule 解析 direction 方向作用域里的一条富规则
+// 面板模型里入站的地址是来源、出站的地址是目标，反过来的规则无法表示
+func (r *firewalld) parseRichRule(line string, direction Direction) (FireInfo, error) {
 	if !r.richRuleRegex.MatchString(line) {
 		return FireInfo{}, errors.New("invalid rich rule format")
 	}
@@ -273,19 +316,19 @@ func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
 		return FireInfo{}, errors.New("invalid rich rule")
 	}
 
-	fireInfo := FireInfo{
-		Type:     TypeRich,
-		Family:   match[1],
-		Address:  match[3],
-		Protocol: Protocol(match[5]),
-		Strategy: Strategy(match[6]),
+	if match[2] != "" && (match[2] == "destination") != (direction == DirectionOut) {
+		return FireInfo{}, errors.New("unsupported rich rule")
 	}
 
-	if match[2] == "destination" {
-		fireInfo.Direction = "out"
-	} else {
-		fireInfo.Direction = "in"
+	fireInfo := FireInfo{
+		Type:      TypeRich,
+		Family:    match[1],
+		Address:   match[3],
+		Protocol:  Protocol(match[5]),
+		Strategy:  Strategy(match[6]),
+		Direction: direction,
 	}
+
 	if fireInfo.Protocol == "" {
 		fireInfo.Protocol = "tcp/udp"
 	}
@@ -314,7 +357,7 @@ func (r *firewalld) buildRichRuleStr(rule FireInfo, protocol string) string {
 
 	if rule.Address != "" {
 		switch rule.Direction {
-		case "out":
+		case DirectionOut:
 			_, _ = fmt.Fprintf(&sb, `destination address="%s" `, rule.Address)
 		default:
 			_, _ = fmt.Fprintf(&sb, `source address="%s" `, rule.Address)
