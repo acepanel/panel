@@ -218,8 +218,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       js-sha256:
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 1.1.0
+        version: 1.1.0
       luxon:
         specifier: 3.7.2
         version: 3.7.2
@@ -2239,8 +2239,8 @@ packages:
   js-base64@3.9.6:
     resolution: {integrity: sha512-LjkzbLtU6Lx6fjXMYGEACEB7rdtqZtxkBe9aS1ZpDNUyWgUivw3yBEIhQ37OVygJYRt+C+9e9fVT8PpFzH2Hww==}
 
-  js-sha256@1.0.1:
-    resolution: {integrity: sha512-Yg8xatzNAnKt9xjwLGoXVGdHBsUwlSTwaDOtIwO88pYWZs/B8ZTIEYhJ7LSnq8p9dgyHhoXWkN4pSTdrS5Ne0A==}
+  js-sha256@1.1.0:
+    resolution: {integrity: sha512-1RbCPZbbTi4BuTGrbREOz/AvAuLFcKowsALy9LhBrRMmlTMiNSwA1MwcqYbCFfVg6rvbFwJ/qqJlw8aBz3S9oA==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -4905,7 +4905,7 @@ snapshots:
 
   js-base64@3.9.6: {}
 
-  js-sha256@1.0.1: {}
+  js-sha256@1.1.0: {}
 
   js-tokens@10.0.0: {}
 
