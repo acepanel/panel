@@ -451,7 +451,7 @@ msgstr ""
 msgid "Certificate file path (fullchain)"
 msgstr ""
 
-#: internal/service/cli_website.go:182
+#: internal/service/cli_website.go:188
 msgid "Certificate for website %s updated successfully"
 msgstr ""
 
@@ -960,7 +960,7 @@ msgstr ""
 msgid "Environment"
 msgstr ""
 
-#: internal/biz/backup.go:157
+#: internal/biz/backup.go:158
 #: internal/job/cert_renew.go:193
 #: internal/taskqueue/runner.go:188
 msgid "Error"
@@ -1111,7 +1111,7 @@ msgstr ""
 msgid "Failed to get user: %v"
 msgstr ""
 
-#: internal/service/cli_website.go:210
+#: internal/service/cli_website.go:216
 msgid "Failed to get website: %v"
 msgstr ""
 
@@ -1123,7 +1123,7 @@ msgstr ""
 msgid "Failed to optimize database: %v"
 msgstr ""
 
-#: internal/service/cli_website.go:162
+#: internal/service/cli_website.go:168
 msgid "Failed to read certificate file: %v"
 msgstr ""
 
@@ -1132,7 +1132,7 @@ msgstr ""
 msgid "Failed to read input: %v"
 msgstr ""
 
-#: internal/service/cli_website.go:166
+#: internal/service/cli_website.go:172
 msgid "Failed to read private key file: %v"
 msgstr ""
 
@@ -1154,7 +1154,7 @@ msgstr ""
 msgid "Failed to save user info: %v"
 msgstr ""
 
-#: internal/service/cli_website.go:220
+#: internal/service/cli_website.go:226
 msgid "Failed to save website: %v"
 msgstr ""
 
@@ -1382,7 +1382,7 @@ msgstr ""
 msgid "ID: %d, Name: %s, Type: %s, Schedule: %s, Status: %s"
 msgstr ""
 
-#: internal/service/cli_website.go:153
+#: internal/service/cli_website.go:159
 msgid "ID: %d, Name: %s, Type: %s, Status: %s, Path: %s"
 msgstr ""
 
@@ -1815,7 +1815,7 @@ msgstr ""
 msgid "Metric"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:347
+#: internal/biz/toolbox_migration_import.go:348
 msgid "Migrated from %s"
 msgstr ""
 
@@ -1931,7 +1931,7 @@ msgstr ""
 msgid "Node ID"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:360
+#: internal/biz/toolbox_migration_import.go:361
 msgid "Node.js dependencies were not installed; install dependencies and start the project manually"
 msgstr ""
 
@@ -2070,6 +2070,10 @@ msgstr ""
 
 #: internal/request/attributes.go:115
 msgid "Owner"
+msgstr ""
+
+#: internal/data/website_rebuild.go:289
+msgid "PHP is not installed"
 msgstr ""
 
 #: internal/command/website.go:55
@@ -2834,7 +2838,7 @@ msgstr ""
 msgid "Tables"
 msgstr ""
 
-#: internal/biz/backup.go:156
+#: internal/biz/backup.go:157
 #: internal/request/attributes.go:169
 msgid "Target"
 msgstr ""
@@ -2900,7 +2904,7 @@ msgstr ""
 #: internal/biz/alert_evaluate.go:412
 #: internal/biz/alert_ssh.go:64
 #: internal/biz/alert_ssh.go:78
-#: internal/biz/backup.go:158
+#: internal/biz/backup.go:159
 #: internal/biz/notify.go:188
 #: internal/biz/tamper.go:458
 #: internal/job/cert_renew.go:194
@@ -3002,7 +3006,7 @@ msgstr ""
 msgid "Transactions per Second"
 msgstr ""
 
-#: internal/biz/backup.go:155
+#: internal/biz/backup.go:156
 #: internal/request/attributes.go:181
 msgid "Type"
 msgstr ""
@@ -3067,7 +3071,7 @@ msgstr ""
 msgid "Unsupported rotation type: %s"
 msgstr ""
 
-#: internal/service/cli_website.go:191
+#: internal/service/cli_website.go:197
 msgid "Unsupported website type: %s"
 msgstr ""
 
@@ -3250,15 +3254,15 @@ msgstr ""
 msgid "Website %s created successfully"
 msgstr ""
 
-#: internal/service/cli_website.go:137
+#: internal/service/cli_website.go:143
 msgid "Website %s deleted successfully"
 msgstr ""
 
-#: internal/service/cli_website.go:118
+#: internal/service/cli_website.go:124
 msgid "Website %s removed successfully"
 msgstr ""
 
-#: internal/service/cli_website.go:223
+#: internal/service/cli_website.go:229
 msgid "Website %s written successfully"
 msgstr ""
 
@@ -3289,7 +3293,7 @@ msgstr ""
 msgid "Website name"
 msgstr ""
 
-#: internal/service/cli_website.go:203
+#: internal/service/cli_website.go:209
 msgid "Website path must be an absolute path"
 msgstr ""
 
@@ -3384,7 +3388,7 @@ msgstr ""
 msgid "[AcePanel] Background Task Failed"
 msgstr ""
 
-#: internal/biz/backup.go:154
+#: internal/biz/backup.go:155
 msgid "[AcePanel] Backup Failed"
 msgstr ""
 
@@ -3429,11 +3433,11 @@ msgstr ""
 msgid "[AcePanel] Website Expired"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:71
+#: internal/biz/toolbox_migration_import.go:72
 msgid "a database with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:83
+#: internal/biz/toolbox_migration_import.go:84
 msgid "a project with the same name already exists on the target server"
 msgstr ""
 
@@ -3445,7 +3449,7 @@ msgstr ""
 msgid "a required dependency was not selected"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:42
+#: internal/biz/toolbox_migration_import.go:43
 msgid "a website with the same name already exists on the target server"
 msgstr ""
 
@@ -3717,12 +3721,12 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:395
-#: internal/service/home.go:406
+#: internal/service/home.go:401
+#: internal/service/home.go:412
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:369
+#: internal/service/home.go:375
 #: internal/service/ws.go:472
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
@@ -3731,7 +3735,7 @@ msgstr ""
 msgid "backup created"
 msgstr ""
 
-#: internal/biz/backup.go:176
+#: internal/biz/backup.go:177
 msgid "backup deleted"
 msgstr ""
 
@@ -3752,7 +3756,7 @@ msgstr ""
 msgid "backup list viewed"
 msgstr ""
 
-#: internal/biz/backup.go:187
+#: internal/biz/backup.go:188
 msgid "backup restored"
 msgstr ""
 
@@ -3784,7 +3788,7 @@ msgstr ""
 msgid "backup task created"
 msgstr ""
 
-#: internal/biz/backup.go:154
+#: internal/biz/backup.go:155
 msgid "backup task failed"
 msgstr ""
 
@@ -3811,7 +3815,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/biz/website.go:404
+#: internal/biz/website.go:410
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -4160,7 +4164,7 @@ msgstr ""
 msgid "database export failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:145
+#: internal/biz/toolbox_migration_import.go:146
 msgid "database import failed: %v"
 msgstr ""
 
@@ -4565,12 +4569,12 @@ msgstr ""
 msgid "failed to create database on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:175
+#: internal/biz/toolbox_migration_import.go:176
 #: internal/biz/toolbox_migration_push.go:189
 msgid "failed to create database user on target: %v"
 msgstr ""
 
-#: internal/biz/website.go:162
+#: internal/biz/website.go:163
 msgid "failed to create database: %v"
 msgstr ""
 
@@ -4838,7 +4842,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:408
+#: internal/data/website.go:405
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -4902,14 +4906,14 @@ msgstr ""
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:379
+#: internal/service/home.go:385
 #: internal/service/ws.go:481
 msgid "failed to get the latest version download link"
 msgstr ""
 
 #: internal/service/home.go:318
 #: internal/service/home.go:340
-#: internal/service/home.go:375
+#: internal/service/home.go:381
 #: internal/service/ws.go:477
 msgid "failed to get the latest version: %v"
 msgstr ""
@@ -4918,7 +4922,7 @@ msgstr ""
 msgid "failed to get the status of rule %s: %v"
 msgstr ""
 
-#: internal/service/home.go:355
+#: internal/service/home.go:356
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -4982,8 +4986,8 @@ msgstr ""
 #: internal/biz/cert.go:383
 #: internal/biz/setting.go:175
 #: internal/biz/setting.go:306
-#: internal/data/website.go:579
-#: internal/data/website.go:854
+#: internal/data/website.go:582
+#: internal/data/website.go:853
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -5003,8 +5007,8 @@ msgstr ""
 #: internal/biz/cert.go:387
 #: internal/biz/setting.go:178
 #: internal/biz/setting.go:309
-#: internal/data/website.go:582
-#: internal/data/website.go:857
+#: internal/data/website.go:585
+#: internal/data/website.go:856
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -5164,7 +5168,7 @@ msgstr ""
 msgid "failed to reload ipdb"
 msgstr ""
 
-#: internal/biz/website.go:158
+#: internal/biz/website.go:159
 msgid "failed to reload web server: %v"
 msgstr ""
 
@@ -5275,7 +5279,7 @@ msgstr ""
 msgid "failed to send alert notification"
 msgstr ""
 
-#: internal/biz/backup.go:160
+#: internal/biz/backup.go:161
 msgid "failed to send backup failure notification"
 msgstr ""
 
@@ -5878,7 +5882,7 @@ msgstr ""
 msgid "invalid slot name"
 msgstr ""
 
-#: internal/service/home.go:431
+#: internal/service/home.go:437
 msgid "invalid type"
 msgstr ""
 
@@ -6260,8 +6264,8 @@ msgstr ""
 msgid "no RAID configuration detected"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:108
-#: internal/biz/toolbox_migration_import.go:168
+#: internal/biz/toolbox_migration_import.go:109
+#: internal/biz/toolbox_migration_import.go:169
 msgid "no compatible database server is installed on the target"
 msgstr ""
 
@@ -6387,7 +6391,7 @@ msgstr ""
 msgid "panel certificate updated"
 msgstr ""
 
-#: internal/service/home.go:514
+#: internal/service/home.go:520
 msgid "panel goroutines viewed"
 msgstr ""
 
@@ -6416,11 +6420,11 @@ msgstr ""
 msgid "panel reported a health issue"
 msgstr ""
 
-#: internal/service/home.go:400
+#: internal/service/home.go:406
 msgid "panel restarted"
 msgstr ""
 
-#: internal/service/home.go:440
+#: internal/service/home.go:446
 msgid "panel runtime info viewed"
 msgstr ""
 
@@ -6440,7 +6444,7 @@ msgstr ""
 msgid "panel settings viewed"
 msgstr ""
 
-#: internal/biz/backup.go:257
+#: internal/biz/backup.go:276
 msgid "panel updated"
 msgstr ""
 
@@ -6847,7 +6851,7 @@ msgstr ""
 msgid "restore task created"
 msgstr ""
 
-#: internal/data/website_rebuild.go:256
+#: internal/data/website_rebuild.go:259
 msgid "rewrite rules, custom configs, rate limit and real IP settings are not migrated"
 msgstr ""
 
@@ -6895,11 +6899,11 @@ msgstr ""
 #: internal/service/cli_cron.go:28
 #: internal/service/cli_firewall.go:25
 #: internal/service/cli_service.go:21
-#: internal/service/cli_website.go:151
+#: internal/service/cli_website.go:157
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:555
+#: internal/data/website.go:552
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -6956,7 +6960,7 @@ msgstr ""
 msgid "server not found"
 msgstr ""
 
-#: internal/service/home.go:411
+#: internal/service/home.go:417
 msgid "server restarted"
 msgstr ""
 
@@ -7121,7 +7125,7 @@ msgstr ""
 #: internal/service/cli_cron.go:26
 #: internal/service/cli_firewall.go:23
 #: internal/service/cli_service.go:23
-#: internal/service/cli_website.go:149
+#: internal/service/cli_website.go:155
 msgid "stopped"
 msgstr ""
 
@@ -7353,11 +7357,7 @@ msgstr ""
 msgid "the created website could not be found on target"
 msgstr ""
 
-#: internal/service/home.go:349
-msgid "the current version is the latest version"
-msgstr ""
-
-#: internal/biz/toolbox_migration_import.go:129
+#: internal/biz/toolbox_migration_import.go:130
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
 msgstr ""
 
@@ -7369,14 +7369,14 @@ msgstr ""
 msgid "the file system of the panel directory does not support direct IO, disk performance cannot be measured"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:39
-#: internal/biz/toolbox_migration_import.go:61
-#: internal/biz/toolbox_migration_import.go:75
-#: internal/biz/toolbox_migration_import.go:80
+#: internal/biz/toolbox_migration_import.go:40
+#: internal/biz/toolbox_migration_import.go:62
+#: internal/biz/toolbox_migration_import.go:76
+#: internal/biz/toolbox_migration_import.go:81
 msgid "the name contains characters not allowed by AcePanel"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:37
+#: internal/biz/toolbox_migration_import.go:38
 msgid "the name is reserved by AcePanel"
 msgstr ""
 
@@ -7388,23 +7388,23 @@ msgstr ""
 msgid "the private key does not match the certificate"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:389
+#: internal/biz/toolbox_migration_import.go:390
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:399
+#: internal/biz/toolbox_migration_import.go:400
 msgid "the project was migrated, but its reverse proxy website could not be created: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:366
+#: internal/biz/toolbox_migration_import.go:367
 msgid "the project was not started; start it manually"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:115
+#: internal/biz/toolbox_migration_import.go:116
 msgid "the source PostgreSQL major version is newer than the target version"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:362
+#: internal/biz/toolbox_migration_import.go:363
 msgid "the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually"
 msgstr ""
 
@@ -7414,7 +7414,7 @@ msgstr ""
 msgid "the source backup did not finish in time"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:134
+#: internal/biz/toolbox_migration_import.go:135
 msgid "the source is MariaDB and the target is MySQL"
 msgstr ""
 
@@ -7422,12 +7422,12 @@ msgstr ""
 msgid "the source path is empty"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:323
+#: internal/biz/toolbox_migration_import.go:324
 #: internal/data/toolbox_migration_baota.go:580
 msgid "the source project start command is missing"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:218
+#: internal/biz/toolbox_migration_import.go:219
 msgid "the source reverse proxy target could not be determined"
 msgstr ""
 
@@ -7436,32 +7436,32 @@ msgstr ""
 msgid "the source task failed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:293
+#: internal/biz/toolbox_migration_import.go:294
 msgid "the source uses PHP %d, the target does not have it installed, PHP %d was used instead"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:338
+#: internal/biz/toolbox_migration_import.go:339
 msgid "the target project directory is not empty"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:65
+#: internal/biz/toolbox_migration_import.go:66
 msgid "the target server does not have a compatible %s database server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:327
-#: internal/biz/toolbox_migration_import.go:86
+#: internal/biz/toolbox_migration_import.go:328
+#: internal/biz/toolbox_migration_import.go:87
 msgid "the target server does not have a compatible %s runtime for version %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:484
+#: internal/biz/toolbox_migration_import.go:485
 msgid "the target server does not have user %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:274
+#: internal/biz/toolbox_migration_import.go:275
 msgid "the target server has no PHP installed, the website was created without PHP"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:189
+#: internal/biz/toolbox_migration_import.go:190
 msgid "the target website directory is not empty"
 msgstr ""
 
@@ -7518,7 +7518,7 @@ msgstr ""
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:364
+#: internal/service/home.go:370
 #: internal/service/ws.go:468
 msgid "unable to update in offline mode"
 msgstr ""
@@ -7527,8 +7527,8 @@ msgstr ""
 msgid "uncompressed backup is empty, restore aborted"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:329
-#: internal/biz/toolbox_migration_import.go:88
+#: internal/biz/toolbox_migration_import.go:330
+#: internal/biz/toolbox_migration_import.go:89
 #: internal/service/cli_service.go:18
 msgid "unknown"
 msgstr ""
@@ -7799,11 +7799,11 @@ msgstr ""
 msgid "website backup failed: %v"
 msgstr ""
 
-#: internal/biz/website.go:310
+#: internal/biz/website.go:316
 msgid "website cert updated"
 msgstr ""
 
-#: internal/biz/website.go:263
+#: internal/biz/website.go:264
 msgid "website config reset"
 msgstr ""
 
@@ -7811,15 +7811,15 @@ msgstr ""
 msgid "website config viewed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:253
+#: internal/biz/toolbox_migration_import.go:254
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/biz/website.go:166
+#: internal/biz/website.go:167
 msgid "website created"
 msgstr ""
 
-#: internal/biz/website.go:125
+#: internal/biz/website.go:126
 msgid "website default config saved"
 msgstr ""
 
@@ -7831,11 +7831,11 @@ msgstr ""
 msgid "website default site updated"
 msgstr ""
 
-#: internal/biz/website.go:235
+#: internal/biz/website.go:236
 msgid "website deleted"
 msgstr ""
 
-#: internal/data/website.go:564
+#: internal/data/website.go:567
 msgid "website directory does not exist"
 msgstr ""
 
@@ -7843,7 +7843,7 @@ msgstr ""
 msgid "website error rate this hour"
 msgstr ""
 
-#: internal/biz/website.go:300
+#: internal/biz/website.go:306
 msgid "website expire time updated"
 msgstr ""
 
@@ -7855,7 +7855,7 @@ msgstr ""
 msgid "website expiry"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:229
+#: internal/biz/toolbox_migration_import.go:230
 msgid "website file import failed: %v"
 msgstr ""
 
@@ -7867,11 +7867,11 @@ msgstr ""
 msgid "website not found"
 msgstr ""
 
-#: internal/biz/website.go:325
+#: internal/biz/website.go:331
 msgid "website project updated"
 msgstr ""
 
-#: internal/biz/website.go:249
+#: internal/biz/website.go:250
 msgid "website remark updated"
 msgstr ""
 
@@ -7899,19 +7899,19 @@ msgstr ""
 msgid "website stats viewed"
 msgstr ""
 
-#: internal/biz/website.go:282
+#: internal/biz/website.go:288
 msgid "website status updated"
 msgstr ""
 
-#: internal/data/website_rebuild.go:45
+#: internal/data/website_rebuild.go:46
 msgid "website type is unchanged"
 msgstr ""
 
-#: internal/biz/website.go:189
+#: internal/biz/website.go:190
 msgid "website type switched"
 msgstr ""
 
-#: internal/biz/website.go:178
+#: internal/biz/website.go:179
 msgid "website updated"
 msgstr ""
 
@@ -7923,7 +7923,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/biz/website.go:360
+#: internal/biz/website.go:366
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
