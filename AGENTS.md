@@ -87,6 +87,8 @@ CI 会跑 golangci-lint、`go tool wire check`、带 `-race` 的全量测试、m
 - 请求用 Alova 的 `useRequest` 等助手，不写 `onError`，错误已全局处理。
 - 用户可见的文案都用 `$gettext('English text')` 包裹，源文案写英文。同一句英文在不同场景含义不同时，用 `$pgettext('context', 'English text')` 区分。
 - 弹窗用 `<app-modal size="sm|md|lg|full">`，不直接写 `n-modal`，`preset="dialog"` 除外。
+- 点击后发请求的按钮用 `<app-button>`（渲染函数里 import `AppButton`），处理函数写成 `async` 并 `await` 请求，按钮自动进入加载态，不手写 loading 变量；`ConfirmDialog` 的触发按钮同样用它，`@confirm` 的处理函数也要返回 Promise。
+- 其它由用户操作触发请求的控件（失焦保存的输入框、即点即生效的开关和选择器、下拉菜单项等）请求期间同样要禁用并显示加载态，表格行内的按行记状态；没有触发按钮的确认操作（右键菜单、快捷键）把请求放进 `useConfirm` 的 `onConfirm`。
 - 响应式：手机断点 768px，用 `useResponsive()` 的 `isMobile` 判断；表单布局用 `useFormLayout`，表格分页用 `usePagedTable` 或 `useTablePagination`；栅格用 `n-grid` 加 `responsive="screen"`。
 - 表格列宽按中英文里更长的那份文案估算，避免表头换行。
 - 图标用 `<i-mdi-xxx />`，工具类样式用 UnoCSS。样式问题在组件或主题里解决，不用全局 `!important` 覆盖。

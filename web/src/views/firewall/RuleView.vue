@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import {
-  NButton,
-  NDataTable,
-  NFlex,
-  NPopover,
-  NRadioButton,
-  NRadioGroup,
-  NSpin,
-  NTag,
-} from 'naive-ui'
+import { NDataTable, NFlex, NPopover, NRadioButton, NRadioGroup, NSpin, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import CreateModal from '@/views/firewall/CreateModal.vue'
@@ -306,7 +298,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -314,7 +306,7 @@ const columns: any = [
             const ok = await confirmDelete({
               content: $gettext('Are you sure you want to delete?'),
             })
-            if (ok) handleDelete(row)
+            if (ok) await handleDelete(row)
           },
         },
         { default: () => $gettext('Delete') },
@@ -329,35 +321,28 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
 
 const selectedRowKeys = ref<any>([])
 const importing = ref(false)
-const selectingUnused = ref(false)
 
 // 端口未占用不代表出站或拒绝规则无用，只勾选入站放行规则
 // 后端 limit 校验上限 10000，规则总数超限时按 total 循环拉取所有分页
 const selectUnused = async () => {
-  selectingUnused.value = true
-  try {
-    const unused: any[] = []
-    let total = Infinity
-    for (let page = 1; (page - 1) * 10000 < total; page++) {
-      await useRequest(firewall.rules(page, 10000)).onSuccess(({ data }: any) => {
-        total = data.total
-        unused.push(
-          ...data.items.filter(
-            (row: any) =>
-              row.direction === 'in' &&
-              row.strategy === 'accept' &&
-              !row.in_use &&
-              !row.forwards?.length,
-          ),
-        )
-      })
-    }
-    selectedRowKeys.value = unused.map((row) => JSON.stringify(row))
-    if (selectedRowKeys.value.length === 0) {
-      window.$message.info($gettext('No inbound allow rules with unoccupied ports'))
-    }
-  } finally {
-    selectingUnused.value = false
+  const unused: any[] = []
+  let total = Infinity
+  for (let page = 1; (page - 1) * 10000 < total; page++) {
+    const data = await firewall.rules(page, 10000)
+    total = data.total
+    unused.push(
+      ...data.items.filter(
+        (row: any) =>
+          row.direction === 'in' &&
+          row.strategy === 'accept' &&
+          !row.in_use &&
+          !row.forwards?.length,
+      ),
+    )
+  }
+  selectedRowKeys.value = unused.map((row) => JSON.stringify(row))
+  if (selectedRowKeys.value.length === 0) {
+    window.$message.info($gettext('No inbound allow rules with unoccupied ports'))
   }
 }
 
@@ -382,18 +367,12 @@ const handleImport = ({ file }: any) => {
 }
 
 const handleDelete = async (row: any) => {
-  useRequest(firewall.deleteRule(row)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await firewall.deleteRule(row)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const batchDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select rules to delete'))
-    return
-  }
-
+const deleteSelected = async () => {
   const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
     return firewall.deleteRule(rule)
@@ -404,6 +383,15 @@ const batchDelete = async () => {
   refresh()
   window.$message.success($gettext('Deleted successfully'))
 }
+
+// 未勾选时同步返回，避免删除按钮闪一下加载图标
+const batchDelete = () => {
+  if (selectedRowKeys.value.length === 0) {
+    window.$message.info($gettext('Please select rules to delete'))
+    return
+  }
+  return deleteSelected()
+}
 </script>
 
 <template>
@@ -412,18 +400,18 @@ const batchDelete = async () => {
       <n-button type="primary" @click="createModalShow = true">
         {{ $gettext('Create Rule') }}
       </n-button>
-      <n-button :loading="selectingUnused" :disabled="selectingUnused" ghost @click="selectUnused">
+      <app-button ghost @click="selectUnused">
         {{ $gettext('Select Unused Port Rules') }}
-      </n-button>
+      </app-button>
       <ConfirmDialog
         type="danger"
         :content="$gettext('Are you sure you want to delete the selected rules?')"
         @confirm="batchDelete"
       >
         <template #trigger>
-          <n-button type="error" ghost>
+          <app-button type="error" ghost>
             {{ $gettext('Delete') }}
-          </n-button>
+          </app-button>
         </template>
       </ConfirmDialog>
       <n-button tag="a" :href="firewall.ruleExportUrl" target="_blank" ghost>

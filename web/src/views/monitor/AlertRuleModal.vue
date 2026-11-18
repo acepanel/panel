@@ -17,7 +17,6 @@ const props = defineProps<{
 const emit = defineEmits(['saved'])
 
 const isEdit = computed(() => !!props.rule)
-const loading = ref(false)
 
 const model = ref({
   name: '',
@@ -103,25 +102,23 @@ watch(show, (val) => {
   }
 })
 
+const save = async () => {
+  const req = isEdit.value
+    ? alert.updateRule(props.rule.id, model.value)
+    : alert.createRule(model.value)
+  await req
+  window.$message.success($gettext('Saved successfully'))
+  show.value = false
+  emit('saved')
+}
+
+// 校验不通过时同步返回，避免保存按钮闪一下加载图标
 const handleSubmit = () => {
   if (currentMetric.value.target === 'required' && !model.value.target) {
     window.$message.error($gettext('Please enter the target'))
     return
   }
-
-  loading.value = true
-  const req = isEdit.value
-    ? alert.updateRule(props.rule.id, model.value)
-    : alert.createRule(model.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      show.value = false
-      emit('saved')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  return save()
 }
 </script>
 
@@ -190,9 +187,9 @@ const handleSubmit = () => {
     <template #footer>
       <n-flex justify="end">
         <n-button @click="show = false">{{ $gettext('Cancel') }}</n-button>
-        <n-button type="primary" :loading="loading" :disabled="loading" @click="handleSubmit">
+        <app-button type="primary" @click="handleSubmit">
           {{ $gettext('Save') }}
-        </n-button>
+        </app-button>
       </n-flex>
     </template>
   </app-modal>

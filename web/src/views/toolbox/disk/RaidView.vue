@@ -48,14 +48,17 @@ const loading = ref(true)
 
 const loadRaidInfo = () => {
   loading.value = true
-  useRequest(disk.raidInfo()).onSuccess(({ data }) => {
-    loading.value = false
-    available.value = data.available
-    unavailableMessage.value = data.message || ''
-    raidType.value = data.type || ''
-    controllers.value = data.controllers || []
-    arrays.value = data.arrays || []
-  })
+  useRequest(disk.raidInfo())
+    .onSuccess(({ data }) => {
+      available.value = data.available
+      unavailableMessage.value = data.message || ''
+      raidType.value = data.type || ''
+      controllers.value = data.controllers || []
+      arrays.value = data.arrays || []
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 
 onMounted(() => {

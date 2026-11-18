@@ -31,6 +31,7 @@ const { isMobile } = useResponsive()
 const [DefineGroup, ReuseGroup] = createReusableTemplate<{ group: TuneGroup }>()
 
 const fields = props.groups.flatMap((group) => group.fields)
+// 每个标签页各有一个保存按钮，共用状态才能在切换标签页后仍禁止重复保存
 const saveLoading = ref(false)
 const showPresetModal = ref(false)
 

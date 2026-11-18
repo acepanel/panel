@@ -22,6 +22,7 @@ const defaultModel = () => ({
 const createModel = ref(defaultModel())
 
 const servers = ref<{ label: string; value: string }[]>([])
+const serversLoading = ref(false)
 
 const hostTypeOptions = [
   { label: $gettext('Local (localhost)'), value: 'localhost' },
@@ -29,8 +30,6 @@ const hostTypeOptions = [
   { label: $gettext('Specific'), value: 'specific' },
 ]
 const hostType = ref('localhost')
-
-const loading = ref(false)
 
 // 监听 hostType 变化，同步到 createModel.host
 watch(hostType, (val) => {
@@ -41,17 +40,11 @@ watch(hostType, (val) => {
   }
 })
 
-const handleCreate = () => {
-  loading.value = true
-  useRequest(() => database.create(createModel.value))
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Created successfully'))
-      window.$bus.emit('database:refresh')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleCreate = async () => {
+  await database.create(createModel.value)
+  show.value = false
+  window.$message.success($gettext('Created successfully'))
+  window.$bus.emit('database:refresh')
 }
 
 watch(
@@ -61,15 +54,20 @@ watch(
       // 弹窗复用同一实例，重新打开时重置表单，避免残留上一种数据库类型选中的服务器
       createModel.value = defaultModel()
       hostType.value = 'localhost'
-      useRequest(database.serverList(1, 10000, props.type)).onSuccess(({ data }: { data: any }) => {
-        servers.value = []
-        for (const server of data.items) {
-          servers.value.push({
-            label: server.name,
-            value: server.id,
-          })
-        }
-      })
+      serversLoading.value = true
+      useRequest(database.serverList(1, 10000, props.type))
+        .onSuccess(({ data }: { data: any }) => {
+          servers.value = []
+          for (const server of data.items) {
+            servers.value.push({
+              label: server.name,
+              value: server.id,
+            })
+          }
+        })
+        .onComplete(() => {
+          serversLoading.value = false
+        })
     }
   },
 )
@@ -84,6 +82,7 @@ watch(
           @keydown.enter.prevent
           :placeholder="$gettext('Select server')"
           :options="servers"
+          :loading="serversLoading"
         />
       </n-form-item>
       <n-form-item path="database" :label="$gettext('Database Name')">
@@ -156,9 +155,9 @@ watch(
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

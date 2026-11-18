@@ -4,6 +4,7 @@ import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -104,6 +105,8 @@ const columns: any = [
         size: 'small',
         class: 'w-full',
         value: row.remark,
+        disabled: saving.has(row.id),
+        loading: saving.has(row.id) || undefined,
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
@@ -152,7 +155,7 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -161,7 +164,7 @@ const columns: any = [
                 content: $gettext('Are you sure you want to delete the user?'),
                 countdown: 5,
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -175,17 +178,23 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   database.userList(page, pageSize, props.type),
 )
 
-const handleDelete = (id: number) => {
-  useRequest(database.userDelete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: number) => {
+  await database.userDelete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleRemark = (row: any) => {
-  useRequest(database.userRemark(row.id, row.remark)).onSuccess(() => {
+const saving = reactive(new Set<number>())
+
+const handleRemark = async (row: any) => {
+  if (saving.has(row.id)) return
+  saving.add(row.id)
+  try {
+    await database.userRemark(row.id, row.remark)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(row.id)
+  }
 }
 
 useBus('database-user:refresh', refresh)

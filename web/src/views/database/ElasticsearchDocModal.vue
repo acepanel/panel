@@ -44,26 +44,16 @@ watch(
   },
 )
 
-const saveLoading = ref(false)
-
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(
-    database.esDocumentSet({
-      server_id: props.serverId,
-      index: props.index,
-      id: model.value.id || undefined,
-      body: model.value.body,
-    }),
-  )
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Saved successfully'))
-      emit('saved')
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+const handleSave = async () => {
+  await database.esDocumentSet({
+    server_id: props.serverId,
+    index: props.index,
+    id: model.value.id || undefined,
+    body: model.value.body,
+  })
+  show.value = false
+  window.$message.success($gettext('Saved successfully'))
+  emit('saved')
 }
 </script>
 
@@ -91,8 +81,8 @@ const handleSave = () => {
         </n-form-item>
       </n-form>
     </n-spin>
-    <n-button type="info" block :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+    <app-button type="info" block :disabled="loading" @click="handleSave">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

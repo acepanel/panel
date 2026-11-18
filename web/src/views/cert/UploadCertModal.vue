@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NSpace } from 'naive-ui'
+import { NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
@@ -17,21 +17,13 @@ const defaultModel = () => ({
 
 const model = ref<any>(defaultModel())
 
-const loading = ref(false)
-
-const handleSubmit = () => {
-  loading.value = true
-  useRequest(cert.certUpload(model.value))
-    .onSuccess(() => {
-      window.$bus.emit('cert:refresh-cert')
-      window.$bus.emit('cert:refresh-async')
-      show.value = false
-      model.value = defaultModel()
-      window.$message.success($gettext('Created successfully'))
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleSubmit = async () => {
+  await cert.certUpload(model.value)
+  window.$bus.emit('cert:refresh-cert')
+  window.$bus.emit('cert:refresh-async')
+  show.value = false
+  model.value = defaultModel()
+  window.$message.success($gettext('Created successfully'))
 }
 </script>
 
@@ -41,9 +33,7 @@ const handleSubmit = () => {
       <n-form :model="model">
         <upload-fields v-model:value="model" />
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">{{
-        $gettext('Submit')
-      }}</n-button>
+      <app-button type="info" block @click="handleSubmit">{{ $gettext('Submit') }}</app-button>
     </n-space>
   </app-modal>
 </template>

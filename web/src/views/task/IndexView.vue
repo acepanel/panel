@@ -37,9 +37,9 @@ const cronViewRef = ref<InstanceType<typeof CronView>>()
           @confirm="cronViewRef?.bulkDelete"
         >
           <template #trigger>
-            <n-button type="error" :disabled="!cronViewRef?.selectedRowKeys?.length" ghost>
+            <app-button type="error" :disabled="!cronViewRef?.selectedRowKeys?.length" ghost>
               {{ $gettext('Delete') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>

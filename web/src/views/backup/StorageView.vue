@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import storage from '@/api/panel/backup-storage'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -64,7 +65,7 @@ const columns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -73,7 +74,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this storage?'),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -97,11 +98,10 @@ const handleEdit = (row: any) => {
   modalShow.value = true
 }
 
-const handleDelete = (id: number) => {
-  useRequest(storage.delete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: number) => {
+  await storage.delete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 </script>
 

@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import task from '@/api/panel/task'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -14,12 +15,11 @@ const logModal = ref(false)
 const logPath = ref('')
 const logModalRef = ref<{ clear: () => void } | null>(null)
 
-const handleClearLog = () => {
+const handleClearLog = async () => {
   if (!logPath.value) return
-  useRequest(file.truncate(logPath.value)).onSuccess(() => {
-    logModalRef.value?.clear()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await file.truncate(logPath.value)
+  logModalRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 const columns: any = [
@@ -92,7 +92,7 @@ const columns: any = [
       if (row.status == 'waiting' || row.status == 'running') {
         items.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'error',
@@ -104,7 +104,7 @@ const columns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleCancel(row.id)
+                if (ok) await handleCancel(row.id)
               },
             },
             { default: () => $gettext('Cancel') },
@@ -113,7 +113,7 @@ const columns: any = [
       } else {
         items.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'error',
@@ -121,7 +121,7 @@ const columns: any = [
                 const ok = await confirmDelete({
                   content: $gettext('Are you sure you want to delete?'),
                 })
-                if (ok) handleDelete(row.id)
+                if (ok) await handleDelete(row.id)
               },
             },
             { default: () => $gettext('Delete') },
@@ -137,18 +137,16 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   task.list(page, pageSize),
 )
 
-const handleDelete = (id: number) => {
-  useRequest(task.delete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: number) => {
+  await task.delete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleCancel = (id: number) => {
-  useRequest(task.cancel(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Canceled successfully'))
-  })
+const handleCancel = async (id: number) => {
+  await task.cancel(id)
+  refresh()
+  window.$message.success($gettext('Canceled successfully'))
 }
 </script>
 

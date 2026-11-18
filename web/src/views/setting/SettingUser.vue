@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NInput, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -21,6 +22,7 @@ const twoFaModal = ref(false)
 const tokenModal = ref(false)
 const passkeyModal = ref(false)
 const switching = reactive(new Set<number>())
+const saving = reactive(new Set<string>())
 
 const columns: any = [
   {
@@ -32,6 +34,8 @@ const columns: any = [
       return h(NInput, {
         size: 'small',
         value: row.username,
+        disabled: saving.has(`${row.id}:username`),
+        loading: saving.has(`${row.id}:username`) || undefined,
         onBlur: () => handleUsername(row),
         onUpdateValue(v) {
           row.username = v
@@ -48,6 +52,8 @@ const columns: any = [
       return h(NInput, {
         size: 'small',
         value: row.email,
+        disabled: saving.has(`${row.id}:email`),
+        loading: saving.has(`${row.id}:email`) || undefined,
         onBlur: () => handleEmail(row),
         onUpdateValue(v) {
           row.email = v
@@ -135,7 +141,7 @@ const columns: any = [
           { default: () => $gettext('Change Password') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -143,7 +149,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this user?'),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -157,23 +163,34 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   user.list(page, pageSize),
 )
 
-const handleUsername = (row: any) => {
-  useRequest(user.updateUsername(row.id, row.username)).onSuccess(() => {
+const handleUsername = async (row: any) => {
+  const key = `${row.id}:username`
+  if (saving.has(key)) return
+  saving.add(key)
+  try {
+    await user.updateUsername(row.id, row.username)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(key)
+  }
 }
 
-const handleEmail = (row: any) => {
-  useRequest(user.updateEmail(row.id, row.email)).onSuccess(() => {
+const handleEmail = async (row: any) => {
+  const key = `${row.id}:email`
+  if (saving.has(key)) return
+  saving.add(key)
+  try {
+    await user.updateEmail(row.id, row.email)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(key)
+  }
 }
 
-const handleDelete = (id: number) => {
-  useRequest(user.delete(id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refresh()
-  })
+const handleDelete = async (id: number) => {
+  await user.delete(id)
+  window.$message.success($gettext('Deleted successfully'))
+  refresh()
 }
 
 useBus('user:refresh', refresh)
@@ -190,7 +207,7 @@ useBus('user:refresh', refresh)
       :loading="loading"
       :columns="columns"
       :data="data"
-      :row-key="(row: any) => row.name"
+      :row-key="(row: any) => row.id"
       :pagination="pagination"
     />
   </n-flex>

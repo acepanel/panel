@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NPopover, NSpace, NSwitch, NTag } from 'nai
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -360,7 +361,7 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -369,10 +370,9 @@ const columns: any = [
                 content: $gettext('Are you sure you want to delete the certificate?'),
               })
               if (!ok) return
-              useRequest(cert.certDelete(row.id)).onSuccess(() => {
-                refresh()
-                window.$message.success($gettext('Deletion successful'))
-              })
+              await cert.certDelete(row.id)
+              refresh()
+              window.$message.success($gettext('Deletion successful'))
             },
           },
           { default: () => $gettext('Delete') },
@@ -416,18 +416,19 @@ const handleAutoRenewalUpdate = (row: any) => {
     })
 }
 
-const handleDeployCert = () => {
-  useRequest(
-    cert.deploy(deployModel.value.id, deployModel.value.websites, deployModel.value.enable_https),
-  ).onSuccess(() => {
-    refresh()
-    deployModal.value = false
-    deployModel.value.id = null
-    deployModel.value.websites = []
-    deployModel.value.enable_https = true
-    deployDomains.value = []
-    window.$message.success($gettext('Deployment successful'))
-  })
+const handleDeployCert = async () => {
+  await cert.deploy(
+    deployModel.value.id,
+    deployModel.value.websites,
+    deployModel.value.enable_https,
+  )
+  refresh()
+  deployModal.value = false
+  deployModel.value.id = null
+  deployModel.value.websites = []
+  deployModel.value.enable_https = true
+  deployDomains.value = []
+  window.$message.success($gettext('Deployment successful'))
 }
 
 const handleShowModalClose = () => {
@@ -501,14 +502,14 @@ useBus('cert:refresh-cert', refresh)
           <n-switch v-model:value="deployModel.enable_https" />
         </n-form-item>
       </n-form>
-      <n-button
+      <app-button
         type="info"
         block
         :disabled="deployModel.websites.length === 0"
         @click="handleDeployCert"
       >
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal

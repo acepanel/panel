@@ -16,7 +16,6 @@ const props = defineProps<{
 }>()
 
 const isEdit = computed(() => !!props.editItem)
-const loading = ref(false)
 
 const defaultModel = () => ({
   domains: [],
@@ -75,23 +74,17 @@ watch(show, (val) => {
   }))
 })
 
-const handleSubmit = () => {
-  loading.value = true
+const handleSubmit = async () => {
   const req = isEdit.value
     ? cert.certUpdate(props.editItem.id, model.value)
     : cert.certCreate(model.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$bus.emit('cert:refresh-cert')
-      window.$bus.emit('cert:refresh-async')
-      show.value = false
-      window.$message.success(
-        isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
-      )
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  await req
+  window.$bus.emit('cert:refresh-cert')
+  window.$bus.emit('cert:refresh-async')
+  show.value = false
+  window.$message.success(
+    isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
+  )
 }
 </script>
 
@@ -191,9 +184,9 @@ const handleSubmit = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
+      <app-button type="info" block @click="handleSubmit">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-space>
   </app-modal>
 </template>

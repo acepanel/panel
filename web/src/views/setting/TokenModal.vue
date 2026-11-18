@@ -4,6 +4,7 @@ import { NAlert, NButton, NDataTable, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -15,7 +16,6 @@ const id = defineModel<number>('id', { type: Number, required: true })
 
 // 创建与编辑共用一个弹窗，editId 为 0 表示创建
 const formModal = ref(false)
-const formLoading = ref(false)
 const editId = ref(0)
 const defaultTokenModel = () => ({
   ips: [] as Array<string>,
@@ -79,7 +79,7 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -87,7 +87,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this access token?'),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -102,82 +102,69 @@ const { loading, data, page, pageSize, refresh, reload, pagination } = usePagedT
   { immediate: false },
 )
 
-const handleDelete = (id: number) => {
-  useRequest(() => user.tokenDelete(id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refresh()
+const handleDelete = async (id: number) => {
+  await user.tokenDelete(id)
+  window.$message.success($gettext('Deleted successfully'))
+  refresh()
+}
+
+const handleCreate = async () => {
+  const data = await user.tokenCreate(id.value, model.value.ips, model.value.expired_at)
+  formModal.value = false
+  window.$dialog.success({
+    title: $gettext('Created successfully'),
+    content: () => {
+      return [
+        h(
+          NFlex,
+          {
+            vertical: true,
+          },
+          {
+            default: () => [
+              h(
+                NAlert,
+                {
+                  type: 'warning',
+                },
+                {
+                  default: () =>
+                    $gettext(
+                      'Token is only displayed once, please save it before closing the dialog.',
+                    ),
+                },
+              ),
+              h(NInput, {
+                value: data.token,
+                type: 'password',
+                showPasswordOn: 'click',
+                readonly: true,
+              }),
+            ],
+          },
+        ),
+      ]
+    },
+    maskClosable: false,
+    positiveText: $gettext('Copy and close'),
+    onPositiveClick: () => {
+      copy2clipboard(data.token)
+        .then(() => {
+          window.$message.success($gettext('Copied successfully'))
+        })
+        .catch(() => {
+          window.$message.error($gettext('Copy failed'))
+        })
+    },
   })
+  refresh()
 }
 
-const handleCreate = () => {
-  formLoading.value = true
-  useRequest(() => user.tokenCreate(id.value, model.value.ips, model.value.expired_at))
-    .onSuccess(({ data }) => {
-      formModal.value = false
-      window.$dialog.success({
-        title: $gettext('Created successfully'),
-        content: () => {
-          return [
-            h(
-              NFlex,
-              {
-                vertical: true,
-              },
-              {
-                default: () => [
-                  h(
-                    NAlert,
-                    {
-                      type: 'warning',
-                    },
-                    {
-                      default: () =>
-                        $gettext(
-                          'Token is only displayed once, please save it before closing the dialog.',
-                        ),
-                    },
-                  ),
-                  h(NInput, {
-                    value: data.token,
-                    type: 'password',
-                    showPasswordOn: 'click',
-                    readonly: true,
-                  }),
-                ],
-              },
-            ),
-          ]
-        },
-        maskClosable: false,
-        positiveText: $gettext('Copy and close'),
-        onPositiveClick: () => {
-          copy2clipboard(data.token)
-            .then(() => {
-              window.$message.success($gettext('Copied successfully'))
-            })
-            .catch(() => {
-              window.$message.error($gettext('Copy failed'))
-            })
-        },
-      })
-      refresh()
-    })
-    .onComplete(() => {
-      formLoading.value = false
-    })
-}
-
-const handleUpdate = () => {
-  formLoading.value = true
-  useRequest(() => user.tokenUpdate(editId.value, model.value.ips, model.value.expired_at))
-    .onSuccess(() => {
-      window.$message.success($gettext('Updated successfully'))
-      formModal.value = false
-      refresh()
-    })
-    .onComplete(() => {
-      formLoading.value = false
-    })
+const handleUpdate = async () => {
+  await user.tokenUpdate(editId.value, model.value.ips, model.value.expired_at)
+  window.$message.success($gettext('Updated successfully'))
+  formModal.value = false
+  refresh()
 }
 
 watch(
@@ -208,7 +195,7 @@ watch(
         :loading="loading"
         :columns="columns"
         :data="data"
-        :row-key="(row: any) => row.name"
+        :row-key="(row: any) => row.id"
         :pagination="pagination"
       />
     </n-flex>
@@ -235,14 +222,9 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button
-        type="primary"
-        :loading="formLoading"
-        :disabled="formLoading"
-        @click="editId ? handleUpdate() : handleCreate()"
-      >
+      <app-button type="primary" @click="editId ? handleUpdate() : handleCreate()">
         {{ editId ? $gettext('Update') : $gettext('Create') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

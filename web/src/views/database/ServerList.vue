@@ -4,6 +4,7 @@ import { NButton, NFlex, NInput, NInputGroup, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -130,6 +131,8 @@ const columns: any = [
         size: 'small',
         class: 'w-full',
         value: row.remark,
+        disabled: saving.has(row.id),
+        loading: saving.has(row.id) || undefined,
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
@@ -178,7 +181,7 @@ const columns: any = [
       if (!['redis', 'mongodb', 'sqlite', 'elasticsearch'].includes(row.type)) {
         items.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'success',
@@ -191,10 +194,9 @@ const columns: any = [
                   ),
                 })
                 if (!ok) return
-                useRequest(database.serverSync(row.id)).onSuccess(() => {
-                  refresh()
-                  window.$message.success($gettext('Synchronized successfully'))
-                })
+                await database.serverSync(row.id)
+                refresh()
+                window.$message.success($gettext('Synchronized successfully'))
               },
             },
             { default: () => $gettext('Sync') },
@@ -215,11 +217,12 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
-            onClick: async () => {
+            // 内置服务器直接提示，不返回 Promise，否则按钮会闪一下加载图标
+            onClick: () => {
               const builtIns = [
                 'local_mysql',
                 'local_postgresql',
@@ -238,11 +241,7 @@ const columns: any = [
                 )
                 return
               }
-              const ok = await confirmDelete({
-                content: $gettext('Are you sure you want to delete the server?'),
-                countdown: 5,
-              })
-              if (ok) handleDelete(row.id)
+              return handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -257,18 +256,29 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   database.serverList(page, pageSize, props.type),
 )
 
-const handleDelete = (id: number) => {
-  useRequest(database.serverDelete(id)).onSuccess(() => {
-    // 广播刷新,数据库页需要同步更新类型标签页
-    window.$bus.emit('database-server:refresh')
-    window.$message.success($gettext('Deleted successfully'))
+const handleDelete = async (id: number) => {
+  const ok = await confirmDelete({
+    content: $gettext('Are you sure you want to delete the server?'),
+    countdown: 5,
   })
+  if (!ok) return
+  await database.serverDelete(id)
+  // 广播刷新,数据库页需要同步更新类型标签页
+  window.$bus.emit('database-server:refresh')
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleRemark = (row: any) => {
-  useRequest(database.serverRemark(row.id, row.remark)).onSuccess(() => {
+const saving = reactive(new Set<number>())
+
+const handleRemark = async (row: any) => {
+  if (saving.has(row.id)) return
+  saving.add(row.id)
+  try {
+    await database.serverRemark(row.id, row.remark)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(row.id)
+  }
 }
 
 useBus('database-server:refresh', refresh)

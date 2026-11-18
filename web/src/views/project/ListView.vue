@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
@@ -130,7 +131,7 @@ const columns: any = [
     render(row: any) {
       const buttons = [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: row.status === 'active' ? 'warning' : 'success',
@@ -144,7 +145,7 @@ const columns: any = [
       if (row.status === 'active') {
         buttons.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'warning',
@@ -154,7 +155,7 @@ const columns: any = [
             { default: () => $gettext('Restart') },
           ),
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'info',
@@ -221,7 +222,7 @@ const columns: any = [
                 ),
               ]),
             trigger: () =>
-              h(NButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
+              h(AppButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
           },
         ),
       )
@@ -239,32 +240,28 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   },
 )
 
-const handleToggleStatus = (row: any) => {
+const handleToggleStatus = async (row: any) => {
   if (row.status === 'active') {
-    useRequest(systemctl.stop(row.name)).onSuccess(() => {
-      row.status = 'inactive'
-      window.$message.success($gettext('Stopped successfully'))
-    })
+    await systemctl.stop(row.name)
+    row.status = 'inactive'
+    window.$message.success($gettext('Stopped successfully'))
   } else {
-    useRequest(systemctl.start(row.name)).onSuccess(() => {
-      row.status = 'active'
-      window.$message.success($gettext('Started successfully'))
-    })
+    await systemctl.start(row.name)
+    row.status = 'active'
+    window.$message.success($gettext('Started successfully'))
   }
 }
 
-const handleRestart = (row: any) => {
-  useRequest(systemctl.restart(row.name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Restarted successfully'))
-  })
+const handleRestart = async (row: any) => {
+  await systemctl.restart(row.name)
+  refresh()
+  window.$message.success($gettext('Restarted successfully'))
 }
 
-const handleReload = (row: any) => {
-  useRequest(systemctl.reload(row.name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Reloaded successfully'))
-  })
+const handleReload = async (row: any) => {
+  await systemctl.reload(row.name)
+  refresh()
+  window.$message.success($gettext('Reloaded successfully'))
 }
 
 const switching = reactive(new Set<string>())
@@ -296,13 +293,12 @@ const handleEdit = (row: any) => {
   editModal.value = true
 }
 
-const handleDelete = (id: number) => {
-  useRequest(project.delete(id, deleteWebsites.value)).onSuccess(() => {
-    if (deleteWebsites.value) window.$bus.emit('website:refresh')
-    deleteWebsites.value = false
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: number) => {
+  await project.delete(id, deleteWebsites.value)
+  if (deleteWebsites.value) window.$bus.emit('website:refresh')
+  deleteWebsites.value = false
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const bulkDelete = async () => {
@@ -331,9 +327,9 @@ useBus('project:refresh', refresh)
           @confirm="bulkDelete"
         >
           <template #trigger>
-            <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
               {{ $gettext('Delete') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>

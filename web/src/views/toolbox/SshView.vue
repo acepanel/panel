@@ -27,11 +27,9 @@ const rootKey = ref('')
 
 // 加载状态
 const loading = ref(false)
-const portLoading = ref(false)
 const passwordLoading = ref(false)
 const pubkeyLoading = ref(false)
 const rootLoginLoading = ref(false)
-const rootPasswordLoading = ref(false)
 const keyLoading = ref(false)
 
 const rootLoginOptions = [
@@ -61,13 +59,8 @@ const loadData = async () => {
 }
 
 const handleUpdatePort = async () => {
-  portLoading.value = true
-  try {
-    await toolboxSSH.updatePort(sshPort.value)
-    window.$message.success($gettext('SSH port updated'))
-  } finally {
-    portLoading.value = false
-  }
+  await toolboxSSH.updatePort(sshPort.value)
+  window.$message.success($gettext('SSH port updated'))
 }
 
 const handleRandomPort = () => {
@@ -107,19 +100,19 @@ const handleUpdateRootLogin = async (value: string) => {
   }
 }
 
-const handleUpdateRootPassword = async () => {
+const updateRootPassword = async () => {
+  await toolboxSSH.updateRootPassword(rootPassword.value)
+  rootPassword.value = ''
+  window.$message.success($gettext('Root password updated'))
+}
+
+// 校验不通过时同步返回，避免重置按钮闪一下加载图标
+const handleUpdateRootPassword = () => {
   if (!rootPassword.value) {
     window.$message.warning($gettext('Please enter a password'))
     return
   }
-  rootPasswordLoading.value = true
-  try {
-    await toolboxSSH.updateRootPassword(rootPassword.value)
-    rootPassword.value = ''
-    window.$message.success($gettext('Root password updated'))
-  } finally {
-    rootPasswordLoading.value = false
-  }
+  return updateRootPassword()
 }
 
 const handleGeneratePassword = () => {
@@ -217,14 +210,9 @@ onMounted(() => {
                     <i-mdi-refresh />
                   </template>
                 </n-button>
-                <n-button
-                  type="primary"
-                  :loading="portLoading"
-                  :disabled="portLoading"
-                  @click="handleUpdatePort"
-                >
+                <app-button type="primary" @click="handleUpdatePort">
                   {{ $gettext('Save') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </div>
 
@@ -279,6 +267,7 @@ onMounted(() => {
                 :value="rootLogin"
                 :options="rootLoginOptions"
                 :loading="rootLoginLoading"
+                :disabled="rootLoginLoading"
                 class="md:!w-87"
                 @update:value="handleUpdateRootLogin"
               />
@@ -312,13 +301,9 @@ onMounted(() => {
                     <i-mdi-refresh />
                   </template>
                 </n-button>
-                <n-button
-                  type="warning"
-                  :loading="rootPasswordLoading"
-                  @click="handleUpdateRootPassword"
-                >
+                <app-button type="warning" @click="handleUpdateRootPassword">
                   {{ $gettext('Reset') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </div>
 

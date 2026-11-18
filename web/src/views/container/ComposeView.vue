@@ -3,6 +3,7 @@ import { NButton, NCheckbox, NDataTable, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useFileStore } from '@/stores'
@@ -107,18 +108,17 @@ const columns: any = [
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
-            onClick: () => {
-              useRequest(container.composeGet(row.name)).onSuccess(({ data }: { data: any }) => {
-                updateModel.value = {
-                  name: row.name,
-                  compose: data.compose,
-                  envs: data.envs,
-                }
-                updateModal.value = true
-              })
+            onClick: async () => {
+              const data = await container.composeGet(row.name)
+              updateModel.value = {
+                name: row.name,
+                compose: data.compose,
+                envs: data.envs,
+              }
+              updateModal.value = true
             },
           },
           { default: () => $gettext('Edit') },
@@ -153,7 +153,7 @@ const columns: any = [
           { default: () => $gettext('Start') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'warning',
@@ -169,19 +169,20 @@ const columns: any = [
               const messageReactive = window.$message.loading($gettext('Stopping...'), {
                 duration: 0,
               })
-              useRequest(container.composeDown(row.name))
-                .onSuccess(() => {
-                  refresh()
-                  forcePull.value = false
-                  window.$message.success($gettext('Stop successful'))
-                })
-                .onComplete(() => messageReactive?.destroy())
+              try {
+                await container.composeDown(row.name)
+                refresh()
+                forcePull.value = false
+                window.$message.success($gettext('Stop successful'))
+              } finally {
+                messageReactive?.destroy()
+              }
             },
           },
           { default: () => $gettext('Stop') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -192,10 +193,9 @@ const columns: any = [
                 }),
               })
               if (!ok) return
-              useRequest(container.composeRemove(row.name)).onSuccess(() => {
-                refresh()
-                window.$message.success($gettext('Delete successful'))
-              })
+              await container.composeRemove(row.name)
+              refresh()
+              window.$message.success($gettext('Delete successful'))
             },
           },
           { default: () => $gettext('Delete') },
@@ -267,9 +267,9 @@ const handleBatchDelete = async () => {
         @confirm="handleBatchDelete"
       >
         <template #trigger>
-          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+          <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
-          </n-button>
+          </app-button>
         </template>
       </ConfirmDialog>
     </n-flex>

@@ -12,7 +12,6 @@ const props = defineProps<{
 }>()
 
 const isEdit = computed(() => !!props.editItem)
-const loading = ref(false)
 
 interface CredentialField {
   key: 'ak' | 'sk'
@@ -93,23 +92,17 @@ watch(show, (val) => {
     : defaultModel()
 })
 
-const handleSubmit = () => {
-  loading.value = true
+const handleSubmit = async () => {
   const req = isEdit.value
     ? cert.dnsUpdate(props.editItem.id, model.value)
     : cert.dnsCreate(model.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$bus.emit('cert:refresh-dns')
-      window.$bus.emit('cert:refresh-async')
-      show.value = false
-      window.$message.success(
-        isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
-      )
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  await req
+  window.$bus.emit('cert:refresh-dns')
+  window.$bus.emit('cert:refresh-async')
+  show.value = false
+  window.$message.success(
+    isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
+  )
 }
 </script>
 
@@ -158,9 +151,9 @@ const handleSubmit = () => {
           </n-text>
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
+      <app-button type="info" block @click="handleSubmit">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-space>
   </app-modal>
 </template>

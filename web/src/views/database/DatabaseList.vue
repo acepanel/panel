@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NInput, NTag } from 'naive-ui'
+import { NInput, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -54,10 +55,13 @@ const columns: any = computed(() => {
       minWidth: 250,
       resizable: true,
       render(row: any) {
+        const busy = saving.has(`${row.server_id}:${row.name}`)
         return h(NInput, {
           size: 'small',
           class: 'w-full',
           value: row.comment,
+          disabled: busy,
+          loading: busy || undefined,
           onBlur: () => handleComment(row),
           onUpdateValue(v: string) {
             row.comment = v
@@ -74,7 +78,7 @@ const columns: any = computed(() => {
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -83,7 +87,7 @@ const columns: any = computed(() => {
               content: $gettext('Are you sure you want to delete this database?'),
               countdown: 5,
             })
-            if (ok) handleDelete(row.server_id, row.name)
+            if (ok) await handleDelete(row.server_id, row.name)
           },
         },
         { default: () => $gettext('Delete') },
@@ -102,17 +106,24 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable(
   },
 )
 
-const handleDelete = (serverID: number, name: string) => {
-  useRequest(database.delete(serverID, name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (serverID: number, name: string) => {
+  await database.delete(serverID, name)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleComment = (row: any) => {
-  useRequest(database.comment(row.server_id, row.name, row.comment)).onSuccess(() => {
+const saving = reactive(new Set<string>())
+
+const handleComment = async (row: any) => {
+  const key = `${row.server_id}:${row.name}`
+  if (saving.has(key)) return
+  saving.add(key)
+  try {
+    await database.comment(row.server_id, row.name, row.comment)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(key)
+  }
 }
 
 useBus('database:refresh', refresh)

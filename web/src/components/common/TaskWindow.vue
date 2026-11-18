@@ -55,9 +55,8 @@ const handleCancel = async (item: QueueTask) => {
     content: $gettext('Are you sure you want to cancel task %{ name }?', { name: item.name }),
   })
   if (!ok) return
-  useRequest(task.cancel(item.id)).onSuccess(() => {
-    window.$message.success($gettext('Canceled successfully'))
-  })
+  await task.cancel(item.id)
+  window.$message.success($gettext('Canceled successfully'))
 }
 </script>
 
@@ -102,7 +101,7 @@ const handleCancel = async (item: QueueTask) => {
               <n-tag size="small" :bordered="false" :type="statusMeta[item.status].type">
                 {{ statusMeta[item.status].label }}
               </n-tag>
-              <n-button
+              <app-button
                 v-if="isActive(item)"
                 size="tiny"
                 quaternary
@@ -110,7 +109,7 @@ const handleCancel = async (item: QueueTask) => {
                 @click.stop="handleCancel(item)"
               >
                 {{ $gettext('Cancel') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </div>
         </n-flex>

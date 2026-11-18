@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput } from 'naive-ui'
+import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
@@ -12,22 +12,14 @@ const model = ref({
   email: '',
 })
 
-const loading = ref(false)
-
-const handleCreate = () => {
-  loading.value = true
-  useRequest(() => user.create(model.value.username, model.value.password, model.value.email))
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Created successfully'))
-      window.$bus.emit('user:refresh')
-      model.value.username = ''
-      model.value.password = ''
-      model.value.email = ''
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleCreate = async () => {
+  await user.create(model.value.username, model.value.password, model.value.email)
+  show.value = false
+  window.$message.success($gettext('Created successfully'))
+  window.$bus.emit('user:refresh')
+  model.value.username = ''
+  model.value.password = ''
+  model.value.email = ''
 }
 </script>
 
@@ -58,9 +50,7 @@ const handleCreate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{
-      $gettext('Submit')
-    }}</n-button>
+    <app-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</app-button>
   </app-modal>
 </template>
 

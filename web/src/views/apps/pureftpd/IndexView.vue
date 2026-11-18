@@ -7,6 +7,7 @@ import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { generateRandomString } from '@/utils'
@@ -16,9 +17,6 @@ import PureftpdConfigTuneView from './PureftpdConfigTuneView.vue'
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
-const savePortLoading = ref(false)
-const addUserLoading = ref(false)
-const changePasswordLoading = ref(false)
 const port = ref(0)
 const addUserModal = ref(false)
 const changePasswordModal = ref(false)
@@ -71,7 +69,7 @@ const userColumns: any = [
           { default: () => $gettext('Change Password') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -81,7 +79,7 @@ const userColumns: any = [
                   username: row.username,
                 }),
               })
-              if (ok) handleDeleteUser(row.username)
+              if (ok) await handleDeleteUser(row.username)
             },
           },
           { default: () => $gettext('Delete') },
@@ -100,54 +98,38 @@ const getPort = async () => {
 }
 
 const handleSavePort = async () => {
-  savePortLoading.value = true
-  useRequest(pureftpd.updatePort(port.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      savePortLoading.value = false
-    })
+  await pureftpd.updatePort(port.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const handleAddUser = async () => {
-  addUserLoading.value = true
-  useRequest(
-    pureftpd.add(addUserModel.value.username, addUserModel.value.password, addUserModel.value.path),
+  await pureftpd.add(
+    addUserModel.value.username,
+    addUserModel.value.password,
+    addUserModel.value.path,
   )
-    .onSuccess(() => {
-      refresh()
-      addUserModal.value = false
-      addUserModel.value.username = ''
-      addUserModel.value.password = generateRandomString(16)
-      addUserModel.value.path = ''
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      addUserLoading.value = false
-    })
+  refresh()
+  addUserModal.value = false
+  addUserModel.value.username = ''
+  addUserModel.value.password = generateRandomString(16)
+  addUserModel.value.path = ''
+  window.$message.success($gettext('Added successfully'))
 }
 
 const handleChangePassword = async () => {
-  changePasswordLoading.value = true
-  useRequest(
-    pureftpd.changePassword(changePasswordModel.value.username, changePasswordModel.value.password),
+  await pureftpd.changePassword(
+    changePasswordModel.value.username,
+    changePasswordModel.value.password,
   )
-    .onSuccess(() => {
-      refresh()
-      changePasswordModal.value = false
-      window.$message.success($gettext('Modified successfully'))
-    })
-    .onComplete(() => {
-      changePasswordLoading.value = false
-    })
+  refresh()
+  changePasswordModal.value = false
+  window.$message.success($gettext('Modified successfully'))
 }
 
 const handleDeleteUser = async (username: string) => {
-  useRequest(pureftpd.delete(username)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await pureftpd.delete(username)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 onMounted(() => {
@@ -164,14 +146,9 @@ onMounted(() => {
           <n-card :title="$gettext('Port Settings')">
             <n-flex>
               <n-input-number v-model:value="port" :min="1" :max="65535" />
-              <n-button
-                type="primary"
-                :loading="savePortLoading"
-                :disabled="savePortLoading"
-                @click="handleSavePort"
-              >
+              <app-button type="primary" @click="handleSavePort">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
             {{ $gettext('Modify Pure-Ftpd listening port') }}
           </n-card>
@@ -236,15 +213,9 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="addUserLoading"
-      :disabled="addUserLoading"
-      @click="handleAddUser"
-    >
+    <app-button type="info" block @click="handleAddUser">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <app-modal v-model:show="changePasswordModal" :title="$gettext('Change Password')">
     <n-form :model="changePasswordModel">
@@ -259,14 +230,8 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="changePasswordLoading"
-      :disabled="changePasswordLoading"
-      @click="handleChangePassword"
-    >
+    <app-button type="info" block @click="handleChangePassword">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

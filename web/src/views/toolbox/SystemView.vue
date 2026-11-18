@@ -28,13 +28,6 @@ const ntpServiceType = ref('')
 const showNtpModal = ref(false)
 const editingNtpServers = ref<string[]>([])
 
-// loading 状态
-const swapLoading = ref(false)
-const hostLoading = ref(false)
-const timeLoading = ref(false)
-const syncTimeLoading = ref(false)
-const ntpLoading = ref(false)
-
 useRequest(system.swap()).onSuccess(({ data }) => {
   swap.value = data.size
   swapFree.value = data.free
@@ -57,54 +50,27 @@ useRequest(system.ntpServers()).onSuccess(({ data }) => {
   ntpServiceType.value = data.service_type || ''
 })
 
-const handleUpdateSwap = () => {
-  swapLoading.value = true
-  useRequest(system.updateSwap(swap.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      swapLoading.value = false
-    })
+const handleUpdateSwap = async () => {
+  await system.updateSwap(swap.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleUpdateHost = () => {
-  hostLoading.value = true
-  Promise.all([
-    useRequest(system.updateHostname(hostname.value)),
-    useRequest(system.updateHosts(hosts.value)),
+const handleUpdateHost = async () => {
+  await Promise.all([system.updateHostname(hostname.value), system.updateHosts(hosts.value)])
+  window.$message.success($gettext('Saved successfully'))
+}
+
+const handleUpdateTime = async () => {
+  await Promise.all([
+    system.updateTime(String(DateTime.fromMillis(time.value).toISO())),
+    system.updateTimezone(timezone.value),
   ])
-    .then(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .finally(() => {
-      hostLoading.value = false
-    })
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleUpdateTime = () => {
-  timeLoading.value = true
-  Promise.all([
-    useRequest(system.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
-    useRequest(system.updateTimezone(timezone.value)),
-  ])
-    .then(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .finally(() => {
-      timeLoading.value = false
-    })
-}
-
-const handleSyncTime = () => {
-  syncTimeLoading.value = true
-  useRequest(system.syncTime(syncServer.value || undefined))
-    .onSuccess(() => {
-      window.$message.success($gettext('Synchronized successfully'))
-    })
-    .onComplete(() => {
-      syncTimeLoading.value = false
-    })
+const handleSyncTime = async () => {
+  await system.syncTime(syncServer.value || undefined)
+  window.$message.success($gettext('Synchronized successfully'))
 }
 
 const handleOpenNtpSettings = () => {
@@ -124,6 +90,14 @@ const handleResetNtpServers = () => {
   editingNtpServers.value = [...builtinNtpServers.value]
 }
 
+const saveNtpServers = async (servers: string[]) => {
+  await system.updateNtpServers(servers)
+  ntpServers.value = servers
+  showNtpModal.value = false
+  window.$message.success($gettext('Saved successfully'))
+}
+
+// 校验不通过时同步返回，避免保存按钮闪一下加载图标
 const handleSaveNtpServers = () => {
   // 过滤空字符串
   const servers = editingNtpServers.value.filter((s) => s.trim() !== '')
@@ -131,16 +105,7 @@ const handleSaveNtpServers = () => {
     window.$message.error($gettext('At least one NTP server is required'))
     return
   }
-  ntpLoading.value = true
-  useRequest(system.updateNtpServers(servers))
-    .onSuccess(() => {
-      ntpServers.value = servers
-      showNtpModal.value = false
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      ntpLoading.value = false
-    })
+  return saveNtpServers(servers)
 }
 </script>
 
@@ -164,14 +129,9 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="swapLoading"
-            :disabled="swapLoading"
-            @click="handleUpdateSwap"
-          >
+          <app-button type="primary" @click="handleUpdateSwap">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-tab-pane>
@@ -187,14 +147,9 @@ const handleSaveNtpServers = () => {
           <common-editor v-model:value="hosts" height="60vh" />
         </n-form-item>
       </n-form>
-      <n-button
-        type="primary"
-        :loading="hostLoading"
-        :disabled="hostLoading"
-        @click="handleUpdateHost"
-      >
+      <app-button type="primary" @click="handleUpdateHost">
         {{ $gettext('Save') }}
-      </n-button>
+      </app-button>
     </n-tab-pane>
     <n-tab-pane name="time" :tab="$gettext('Time')">
       <n-flex vertical>
@@ -230,22 +185,12 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="timeLoading"
-            :disabled="timeLoading"
-            @click="handleUpdateTime"
-          >
+          <app-button type="primary" @click="handleUpdateTime">
             {{ $gettext('Save') }}
-          </n-button>
-          <n-button
-            type="info"
-            :loading="syncTimeLoading"
-            :disabled="syncTimeLoading"
-            @click="handleSyncTime"
-          >
+          </app-button>
+          <app-button type="info" @click="handleSyncTime">
             {{ $gettext('Synchronize Time') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-tab-pane>
@@ -304,14 +249,9 @@ const handleSaveNtpServers = () => {
             {{ $gettext('Reset to Default') }}
           </n-button>
         </n-flex>
-        <n-button
-          type="primary"
-          :loading="ntpLoading"
-          :disabled="ntpLoading"
-          @click="handleSaveNtpServers"
-        >
+        <app-button type="primary" @click="handleSaveNtpServers">
           {{ $gettext('Save') }}
-        </n-button>
+        </app-button>
       </n-flex>
     </n-flex>
   </app-modal>

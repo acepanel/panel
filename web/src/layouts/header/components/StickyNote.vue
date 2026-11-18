@@ -22,12 +22,18 @@ watch(show, (visible) => {
   if (visible) send()
 })
 
-const handleBlur = () => {
-  if (content.value === saved.value) return
-  useRequest(settingApi.updateMemo(content.value)).onSuccess(() => {
+const saving = ref(false)
+
+const handleBlur = async () => {
+  if (saving.value || content.value === saved.value) return
+  saving.value = true
+  try {
+    await settingApi.updateMemo(content.value)
     saved.value = content.value
     window.$message.success($gettext('Sticky note saved'))
-  })
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 
@@ -58,6 +64,8 @@ const handleBlur = () => {
         type="textarea"
         :rows="8"
         :placeholder="$gettext('Write something...')"
+        :disabled="saving"
+        :loading="saving || undefined"
         class="w-full"
         @blur="handleBlur"
       />
@@ -75,6 +83,8 @@ const handleBlur = () => {
         type="textarea"
         :rows="8"
         :placeholder="$gettext('Write something...')"
+        :disabled="saving"
+        :loading="saving || undefined"
         @blur="handleBlur"
       />
     </n-spin>

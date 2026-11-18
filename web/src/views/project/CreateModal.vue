@@ -101,7 +101,6 @@ const createModel = ref(defaultCreateModel())
 const runtime = ref(defaultRuntime())
 const proxyEnabled = ref(false)
 const proxyForm = ref<ProxyWebsiteForm>({ name: '', domains: [], port: null })
-const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {},
@@ -196,24 +195,17 @@ const handlePathSelected = (path: string) => {
   runtime.value.entry = path
 }
 
-const handleCreate = () => {
+const handleCreate = async () => {
   createModel.value.type = type.value == 'all' ? 'general' : type.value
   proxyForm.value.name = createModel.value.name
   if (proxyEnabled.value && !validateProxyWebsite(proxyForm.value)) return
 
-  loading.value = true
-  useRequest(project.create(createModel.value))
-    .onSuccess(async ({ data }) => {
-      window.$bus.emit('project:refresh')
-      window.$message.success($gettext('Project created successfully'))
-      // 项目已建好，反代网站创建失败也关闭弹窗，可以到项目的反向代理里重试
-      if (proxyEnabled.value) await createProxyWebsite(data, proxyForm.value)
-      loading.value = false
-      show.value = false
-    })
-    .onError(() => {
-      loading.value = false
-    })
+  const data = await project.create(createModel.value)
+  window.$bus.emit('project:refresh')
+  window.$message.success($gettext('Project created successfully'))
+  // 项目已建好，反代网站创建失败也关闭弹窗，可以到项目的反向代理里重试
+  if (proxyEnabled.value) await createProxyWebsite(data, proxyForm.value)
+  show.value = false
 }
 
 // 根据类型获取标题
@@ -359,16 +351,9 @@ const versionLabels: Record<string, { label: string; placeholder: string }> = {
       <proxy-form v-if="proxyEnabled" v-model:value="proxyForm" />
     </n-form>
 
-    <n-button
-      type="info"
-      block
-      class="mt-6"
-      :loading="loading"
-      :disabled="loading"
-      @click="handleCreate"
-    >
+    <app-button type="info" block class="mt-6" @click="handleCreate">
       {{ $gettext('Create') }}
-    </n-button>
+    </app-button>
   </app-modal>
 
   <path-selector

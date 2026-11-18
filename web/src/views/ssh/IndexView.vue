@@ -121,13 +121,12 @@ const handleConfirmDeleteHost = async (id: number) => {
   const ok = await confirmDelete({
     content: $gettext('Are you sure you want to delete this host?'),
   })
-  if (ok) handleDeleteHost(id)
+  if (ok) await handleDeleteHost(id)
 }
 
-const handleDeleteHost = (id: number) => {
-  useRequest(ssh.delete(id)).onSuccess(() => {
-    hostList.value = hostList.value.filter((item: any) => item.key !== id)
-  })
+const handleDeleteHost = async (id: number) => {
+  await ssh.delete(id)
+  hostList.value = hostList.value.filter((item: any) => item.key !== id)
 }
 
 const handleSelectHost = (key: number | string) => {
@@ -484,7 +483,7 @@ onUnmounted(() => {
                   <i-mdi-pencil />
                 </template>
               </n-button>
-              <n-button
+              <app-button
                 quaternary
                 circle
                 size="tiny"
@@ -495,7 +494,7 @@ onUnmounted(() => {
                 <template #icon>
                   <i-mdi-delete-outline />
                 </template>
-              </n-button>
+              </app-button>
             </div>
           </div>
         </div>
@@ -789,6 +788,11 @@ onUnmounted(() => {
     .host-card__actions {
       opacity: 1;
     }
+  }
+
+  // 删除确认与请求期间鼠标已离开卡片，转圈的按钮不能随悬停一起隐藏
+  &:has(.n-button--loading) .host-card__actions {
+    opacity: 1;
   }
 }
 

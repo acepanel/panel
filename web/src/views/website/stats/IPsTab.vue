@@ -22,7 +22,7 @@ const { loading, items, total, pagination } = useStatQuery(({ start, end, sites,
 )
 
 // ISP 分布数据
-const { items: ispItems } = useStatQuery(({ start, end, sites }) =>
+const { loading: ispLoading, items: ispItems } = useStatQuery(({ start, end, sites }) =>
   website.statGeos(start, end, sites, 'isp', undefined, 15),
 )
 
@@ -99,7 +99,7 @@ const columns = computed(() => [
 
 <template>
   <n-flex vertical :size="20">
-    <n-spin :show="loading">
+    <n-spin :show="loading || ispLoading">
       <n-card :bordered="false" :title="$gettext('ISP Distribution')" v-if="ispItems.length > 0">
         <v-chart class="h-300px" :option="ispBarOption" autoresize />
       </n-card>

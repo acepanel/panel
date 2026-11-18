@@ -154,16 +154,14 @@ if (runtime.mirror) {
     })
 }
 
-const handleSetCli = () => {
-  useRequest(runtime.setCli(slug)).onSuccess(() => {
-    window.$message.success($gettext('Set successfully'))
-  })
+const handleSetCli = async () => {
+  await runtime.setCli(slug)
+  window.$message.success($gettext('Set successfully'))
 }
 
-const handleSaveMirror = () => {
-  useRequest(runtime.mirror!.set(slug, mirror.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+const handleSaveMirror = async () => {
+  await runtime.mirror!.set(slug, mirror.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 </script>
 
@@ -173,9 +171,9 @@ const handleSaveMirror = () => {
       <n-card>
         <template #header> {{ runtime.title }} {{ slug }} {{ runtime.subtitle }} </template>
         <template #header-extra>
-          <n-button type="info" @click="handleSetCli">
+          <app-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
-          </n-button>
+          </app-button>
         </template>
         <n-alert v-if="runtime.description" type="info" :show-icon="false">
           {{ runtime.description }}
@@ -198,9 +196,9 @@ const handleSaveMirror = () => {
               />
             </n-form-item>
             <n-flex>
-              <n-button type="primary" @click="handleSaveMirror">
+              <app-button type="primary" @click="handleSaveMirror">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </n-flex>
         </n-spin>

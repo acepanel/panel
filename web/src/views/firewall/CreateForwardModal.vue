@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const loading = ref(false)
 
 const protocols = [
   {
@@ -30,22 +28,16 @@ const createModel = ref({
   target_port: 80,
 })
 
-const handleCreate = () => {
-  loading.value = true
-  useRequest(firewall.createForward(createModel.value))
-    .onSuccess(() => {
-      show.value = false
-      createModel.value = {
-        protocol: 'tcp',
-        port: 8080,
-        target_ip: '127.0.0.1',
-        target_port: 80,
-      }
-      window.$message.success($gettext('Created successfully'))
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleCreate = async () => {
+  await firewall.createForward(createModel.value)
+  show.value = false
+  createModel.value = {
+    protocol: 'tcp',
+    port: 8080,
+    target_ip: '127.0.0.1',
+    target_port: 80,
+  }
+  window.$message.success($gettext('Created successfully'))
 }
 </script>
 
@@ -77,9 +69,9 @@ const handleCreate = () => {
         </n-form-item-gi>
       </n-grid>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

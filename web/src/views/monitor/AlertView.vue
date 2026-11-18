@@ -3,6 +3,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import alert from '@/api/panel/alert'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -43,10 +44,9 @@ const handleDeleteRule = async (row: any) => {
     content: $gettext('Are you sure to delete this rule?'),
   })
   if (!ok) return
-  useRequest(alert.deleteRule(row.id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refreshRules()
-  })
+  await alert.deleteRule(row.id)
+  window.$message.success($gettext('Deleted successfully'))
+  refreshRules()
 }
 
 const ruleColumns: any = [
@@ -110,7 +110,7 @@ const ruleColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -170,10 +170,9 @@ const handleClearRecords = async () => {
     content: $gettext('Are you sure to clear all alert records?'),
   })
   if (!ok) return
-  useRequest(alert.clearRecords()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-    refreshRecords()
-  })
+  await alert.clearRecords()
+  window.$message.success($gettext('Cleared successfully'))
+  refreshRecords()
 }
 </script>
 
@@ -214,12 +213,12 @@ const handleClearRecords = async () => {
     <n-tab-pane name="record" :tab="$gettext('Alert Records')">
       <n-flex vertical :size="16">
         <n-flex>
-          <n-button type="error" secondary @click="handleClearRecords">
+          <app-button type="error" secondary @click="handleClearRecords">
             <template #icon>
               <i-mdi-delete-outline />
             </template>
             {{ $gettext('Clear Records') }}
-          </n-button>
+          </app-button>
           <n-button secondary @click="() => refreshRecords()">
             <template #icon>
               <i-mdi-refresh />

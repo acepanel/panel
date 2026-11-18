@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import monitor from '@/api/panel/monitor'
 import notify from '@/api/panel/notify'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -22,7 +23,6 @@ const setting = ref({
   interval: 1,
   alert_days: 30,
 })
-const settingLoading = ref(false)
 
 const loadSetting = () => {
   useRequest(monitor.setting()).onSuccess(({ data }: any) => {
@@ -31,15 +31,9 @@ const loadSetting = () => {
 }
 loadSetting()
 
-const handleSaveSetting = () => {
-  settingLoading.value = true
-  useRequest(monitor.updateSetting(setting.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      settingLoading.value = false
-    })
+const handleSaveSetting = async () => {
+  await monitor.updateSetting(setting.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const handleClearMonitor = async () => {
@@ -48,15 +42,13 @@ const handleClearMonitor = async () => {
     content: $gettext('Are you sure you want to clear?'),
   })
   if (!ok) return
-  useRequest(monitor.clear()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await monitor.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 // 通知渠道
 const channelModalShow = ref(false)
 const editingChannel = ref<any>(null)
-const testing = ref(0)
 
 const {
   loading: channelsLoading,
@@ -84,22 +76,15 @@ const handleDeleteChannel = async (row: any) => {
     content: $gettext('Are you sure to delete this channel?'),
   })
   if (!ok) return
-  useRequest(notify.deleteChannel(row.id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refreshChannels()
-    loadNotifySetting()
-  })
+  await notify.deleteChannel(row.id)
+  window.$message.success($gettext('Deleted successfully'))
+  refreshChannels()
+  loadNotifySetting()
 }
 
-const handleTestChannel = (row: any) => {
-  testing.value = row.id
-  useRequest(notify.testChannel(row.id))
-    .onSuccess(() => {
-      window.$message.success($gettext('Test notification sent'))
-    })
-    .onComplete(() => {
-      testing.value = 0
-    })
+const handleTestChannel = async (row: any) => {
+  await notify.testChannel(row.id)
+  window.$message.success($gettext('Test notification sent'))
 }
 
 const channelColumns: any = [
@@ -134,11 +119,10 @@ const channelColumns: any = [
     render(row: any) {
       return h(NFlex, { justify: 'center', size: 8 }, () => [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             secondary: true,
-            loading: testing.value === row.id,
             onClick: () => handleTestChannel(row),
           },
           () => $gettext('Test'),
@@ -147,7 +131,7 @@ const channelColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -166,7 +150,6 @@ const notifySetting = ref({
   events: [] as string[],
   channels: [] as number[],
 })
-const notifyLoading = ref(false)
 const channelOptions = ref<{ label: string; value: number }[]>([])
 
 const loadNotifySetting = () => {
@@ -179,15 +162,9 @@ const loadNotifySetting = () => {
 }
 loadNotifySetting()
 
-const handleSaveNotifySetting = () => {
-  notifyLoading.value = true
-  useRequest(notify.updateSetting(notifySetting.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      notifyLoading.value = false
-    })
+const handleSaveNotifySetting = async () => {
+  await notify.updateSetting(notifySetting.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const handleChannelSaved = () => {
@@ -230,17 +207,12 @@ const handleChannelSaved = () => {
         </n-form-item>
         <n-form-item>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="settingLoading"
-              :disabled="settingLoading"
-              @click="handleSaveSetting"
-            >
+            <app-button type="primary" @click="handleSaveSetting">
               {{ $gettext('Save') }}
-            </n-button>
-            <n-button type="error" secondary @click="handleClearMonitor">
+            </app-button>
+            <app-button type="error" secondary @click="handleClearMonitor">
               {{ $gettext('Clear Monitoring Records') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-form-item>
       </n-form>
@@ -291,14 +263,9 @@ const handleChannelSaved = () => {
           />
         </n-form-item>
         <n-form-item>
-          <n-button
-            type="primary"
-            :loading="notifyLoading"
-            :disabled="notifyLoading"
-            @click="handleSaveNotifySetting"
-          >
+          <app-button type="primary" @click="handleSaveNotifySetting">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-form-item>
       </n-form>
     </n-card>

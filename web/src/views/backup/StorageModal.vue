@@ -13,7 +13,6 @@ const props = defineProps<{
 const emit = defineEmits(['saved'])
 
 const isEdit = computed(() => !!props.editItem)
-const loading = ref(false)
 
 const typeOptions = [
   { label: 'S3', value: 's3' },
@@ -131,26 +130,20 @@ const buildPayload = () => {
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (model.value.type === 's3' && preset.value && !region.value) {
     window.$message.warning($gettext('Please select a region'))
     return
   }
-  loading.value = true
   const req = isEdit.value
     ? storage.update(props.editItem.id, buildPayload())
     : storage.create(buildPayload())
-  useRequest(req)
-    .onSuccess(() => {
-      show.value = false
-      emit('saved')
-      window.$message.success(
-        isEdit.value ? $gettext('Updated successfully') : $gettext('Created successfully'),
-      )
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  await req
+  show.value = false
+  emit('saved')
+  window.$message.success(
+    isEdit.value ? $gettext('Updated successfully') : $gettext('Created successfully'),
+  )
 }
 </script>
 
@@ -324,8 +317,8 @@ const handleSubmit = () => {
         </n-form-item>
       </template>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
+    <app-button type="info" block @click="handleSubmit">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

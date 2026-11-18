@@ -13,7 +13,7 @@ const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const uploadStore = useUploadStore()
 const taskQueue = useTaskQueueStore()
-const { handlePaste: doPaste } = usePaste()
+const { pasting, handlePaste: doPaste } = usePaste()
 const { deletePaths, markClipboard } = useFileOps()
 const { isMobile } = useResponsive()
 const { confirmDelete } = useConfirm()
@@ -38,7 +38,6 @@ watch(terminalModal, (show) => {
 })
 
 const download = ref(false)
-const downloadLoading = ref(false)
 const downloadModel = ref({
   path: '',
   url: '',
@@ -49,23 +48,18 @@ const showCreate = (value: string) => {
   window.$bus.emit('file:inline-create', value !== 'file')
 }
 
-const handleDownload = () => {
+const handleDownload = async () => {
   if (!checkName(downloadModel.value.path)) {
     window.$message.error($gettext('Invalid name'))
     return
   }
 
-  downloadLoading.value = true
-  useRequest(
-    file.remoteDownload(joinPath(path.value, downloadModel.value.path), downloadModel.value.url),
+  const data = await file.remoteDownload(
+    joinPath(path.value, downloadModel.value.path),
+    downloadModel.value.url,
   )
-    .onSuccess(({ data }) => {
-      download.value = false
-      taskQueue.add(data)
-    })
-    .onComplete(() => {
-      downloadLoading.value = false
-    })
+  download.value = false
+  taskQueue.add(data)
 }
 
 const handleCopy = () => {
@@ -88,11 +82,10 @@ const handleCancel = () => {
   fileStore.clearClipboard()
 }
 
-const handlePaste = () => {
-  doPaste(path.value)
-}
+const handlePaste = () => doPaste(path.value)
 
 const bulkDelete = () => deletePaths(selected.value)
+const batchDeleting = ref(false)
 
 // 批量操作：桌面按钮组，手机放不下改下拉，下拉里的删除改用对话框确认
 const batchActions = computed(() => [
@@ -108,7 +101,12 @@ const batchMobileActions = computed(() => [
     key: 'delete',
     handler: async () => {
       if (await confirmDelete({ content: $gettext('Are you sure you want to delete in bulk?') })) {
-        bulkDelete()
+        batchDeleting.value = true
+        try {
+          await bulkDelete()
+        } finally {
+          batchDeleting.value = false
+        }
       }
     },
   },
@@ -214,17 +212,24 @@ const handleSortSelect = (key: string) => {
         <n-button v-if="marked.length" secondary type="error" @click="handleCancel">
           {{ $gettext('Cancel') }}
         </n-button>
-        <n-button v-if="marked.length" secondary type="primary" @click="handlePaste">
+        <app-button
+          v-if="marked.length"
+          secondary
+          type="primary"
+          :loading="pasting"
+          @click="handlePaste"
+        >
           {{ $gettext('Paste') }}
-        </n-button>
+        </app-button>
         <template v-if="selected.length">
           <n-dropdown
             v-if="isMobile"
             trigger="click"
             :options="batchMobileActions"
+            :disabled="batchDeleting"
             @select="handleBatchSelect"
           >
-            <n-button>{{ $gettext('Actions') }}</n-button>
+            <n-button :loading="batchDeleting">{{ $gettext('Actions') }}</n-button>
           </n-dropdown>
           <n-button-group v-else>
             <n-button v-for="item in batchActions" :key="item.key" @click="item.handler">
@@ -236,9 +241,9 @@ const handleSortSelect = (key: string) => {
               @confirm="bulkDelete"
             >
               <template #trigger>
-                <n-button :disabled="selected.length === 0" ghost>
+                <app-button :disabled="selected.length === 0" ghost>
                   {{ $gettext('Delete') }}
-                </n-button>
+                </app-button>
               </template>
             </ConfirmDialog>
           </n-button-group>
@@ -256,14 +261,7 @@ const handleSortSelect = (key: string) => {
           <n-input v-model:value="downloadModel.path" />
         </n-form-item>
       </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="downloadLoading"
-        :disabled="downloadLoading"
-        @click="handleDownload"
-        >{{ $gettext('Submit') }}</n-button
-      >
+      <app-button type="info" block @click="handleDownload">{{ $gettext('Submit') }}</app-button>
     </n-space>
   </app-modal>
   <!-- 终端弹窗 -->

@@ -3,17 +3,16 @@ defineOptions({
   name: 'apps-s3fs-index',
 })
 
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import s3fs from '@/api/apps/s3fs'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const addMountModal = ref(false)
-const addMountLoading = ref(false)
 
 const addMountModel = ref({
   ak: '',
@@ -39,7 +38,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -50,7 +49,7 @@ const columns: any = [
               }),
               positiveText: $gettext('Unmount'),
             })
-            if (ok) handleDeleteMount(row.id)
+            if (ok) await handleDeleteMount(row.id)
           },
         },
         { default: () => $gettext('Unmount') },
@@ -63,24 +62,17 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   s3fs.mounts(page, pageSize),
 )
 
-const handleAddMount = () => {
-  addMountLoading.value = true
-  useRequest(s3fs.add(addMountModel.value))
-    .onSuccess(() => {
-      refresh()
-      addMountModal.value = false
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      addMountLoading.value = false
-    })
+const handleAddMount = async () => {
+  await s3fs.add(addMountModel.value)
+  refresh()
+  addMountModal.value = false
+  window.$message.success($gettext('Added successfully'))
 }
 
-const handleDeleteMount = (id: number) => {
-  useRequest(s3fs.delete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDeleteMount = async (id: number) => {
+  await s3fs.delete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 </script>
 
@@ -153,14 +145,8 @@ const handleDeleteMount = (id: number) => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="addMountLoading"
-      :disabled="addMountLoading"
-      @click="handleAddMount"
-    >
+    <app-button type="info" block @click="handleAddMount">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

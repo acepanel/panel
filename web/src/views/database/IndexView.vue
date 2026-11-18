@@ -36,7 +36,6 @@ const phpMyAdminInstalled = ref(false)
 const phpMyAdminLoading = ref(false)
 
 const pgAdminInstalled = ref(false)
-const pgAdminLoading = ref(false)
 
 useRequest(app.isInstalled('phpmyadmin')).onSuccess(({ data }: any) => {
   phpMyAdminInstalled.value = data
@@ -102,15 +101,9 @@ const handlePhpMyAdmin = (serverID: number) => {
     })
 }
 
-const handlePgAdmin = () => {
-  pgAdminLoading.value = true
-  useRequest(pgadmin.login())
-    .onSuccess(({ data }: any) => {
-      window.open(`http://${window.location.hostname}:${data.port}/`, '_blank')
-    })
-    .onComplete(() => {
-      pgAdminLoading.value = false
-    })
+const handlePgAdmin = async () => {
+  const data = await pgadmin.login()
+  window.open(`http://${window.location.hostname}:${data.port}/`, '_blank')
 }
 </script>
 
@@ -148,6 +141,7 @@ const handlePgAdmin = () => {
               v-if="mysqlServers.length > 1"
               :options="serverOptions"
               trigger="click"
+              :disabled="phpMyAdminLoading"
               @select="handlePhpMyAdmin"
             >
               <n-button :loading="phpMyAdminLoading" :disabled="phpMyAdminLoading">
@@ -169,17 +163,15 @@ const handlePgAdmin = () => {
               phpMyAdmin
             </n-button>
           </template>
-          <n-button
+          <app-button
             v-if="currentTab === 'postgresql' && pgAdminInstalled && postgresqlServers.length > 0"
-            :loading="pgAdminLoading"
-            :disabled="pgAdminLoading"
             @click="handlePgAdmin"
           >
             <template #icon>
               <component :is="pgAdminIcon" />
             </template>
             pgAdmin
-          </n-button>
+          </app-button>
           <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
             {{ $gettext('Create User') }}
           </n-button>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
@@ -12,7 +11,6 @@ const type = defineModel<string>('type', { type: String, required: true })
 const { $gettext } = useGettext()
 
 const bulkCreate = ref('')
-const loading = ref(false)
 
 // 弹窗复用同一实例，每次打开时清空上次的批量内容，避免重复创建
 watch(show, (value) => {
@@ -115,14 +113,12 @@ const handleCreate = async () => {
   if (filteredLines.length === 0) return
   // PHP 类型需要额外的 php_version 列，最少 5 列
   const minParts = effectiveType.value === 'php' ? 5 : 4
-  loading.value = true
-  let remaining = filteredLines.length
+  const requests: Promise<unknown>[] = []
   // 解析每一行
   for (const line of filteredLines) {
     const parts = line.split('|')
     if (parts.length < minParts) {
       window.$message.error($gettext('The format is incorrect, please check'))
-      loading.value = false
       return
     }
     // 去除空格
@@ -162,16 +158,15 @@ const handleCreate = async () => {
     }
     // 端口中去掉 443 端口，nginx 不允许在未配置证书下监听 443 端口
     model.listens = model.listens.filter((item) => item !== '443')
-    useRequest(website.create(model))
-      .onSuccess(({ data }) => {
+    requests.push(
+      website.create(model).then((data: any) => {
         notifyWebsiteCreated(model.name, data.warnings)
         window.$bus.emit('website:refresh')
-      })
-      .onComplete(() => {
-        remaining--
-        if (remaining <= 0) loading.value = false
-      })
+      }),
+    )
   }
+  // 各行并发提交，全部结束（无论成败）才退出加载态
+  await Promise.allSettled(requests)
 }
 </script>
 
@@ -228,9 +223,9 @@ const handleCreate = async () => {
       <n-text>
         {{ $gettext('Remark: The remark of the website, can be empty.') }}
       </n-text>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+      <app-button type="info" block @click="handleCreate">
         {{ $gettext('Create') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

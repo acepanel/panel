@@ -22,6 +22,7 @@ const defaultModel = () => ({
 const createModel = ref(defaultModel())
 
 const servers = ref<{ label: string; value: string; type: string }[]>([])
+const serversLoading = ref(false)
 
 // 仅这些数据库类型支持用户管理
 const userSupportedTypes = ['mysql', 'postgresql', 'clickhouse']
@@ -38,8 +39,6 @@ const hostTypeOptions = [
 ]
 const hostType = ref('localhost')
 
-const loading = ref(false)
-
 // 监听 hostType 变化，同步到 createModel.host
 watch(hostType, (val) => {
   if (val !== 'specific') {
@@ -49,17 +48,11 @@ watch(hostType, (val) => {
   }
 })
 
-const handleCreate = () => {
-  loading.value = true
-  useRequest(() => database.userCreate(createModel.value))
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Created successfully'))
-      window.$bus.emit('database-user:refresh')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleCreate = async () => {
+  await database.userCreate(createModel.value)
+  show.value = false
+  window.$message.success($gettext('Created successfully'))
+  window.$bus.emit('database-user:refresh')
 }
 
 watch(
@@ -69,19 +62,24 @@ watch(
       // 弹窗复用同一实例，重新打开时重置表单，避免残留上次创建的用户信息
       createModel.value = defaultModel()
       hostType.value = 'localhost'
-      useRequest(database.serverList(1, 10000, props.type)).onSuccess(({ data }: { data: any }) => {
-        servers.value = []
-        for (const server of data.items) {
-          if (!userSupportedTypes.includes(server.type)) {
-            continue
+      serversLoading.value = true
+      useRequest(database.serverList(1, 10000, props.type))
+        .onSuccess(({ data }: { data: any }) => {
+          servers.value = []
+          for (const server of data.items) {
+            if (!userSupportedTypes.includes(server.type)) {
+              continue
+            }
+            servers.value.push({
+              label: server.name,
+              value: server.id,
+              type: server.type,
+            })
           }
-          servers.value.push({
-            label: server.name,
-            value: server.id,
-            type: server.type,
-          })
-        }
-      })
+        })
+        .onComplete(() => {
+          serversLoading.value = false
+        })
     }
   },
 )
@@ -102,6 +100,7 @@ watch(
             @keydown.enter.prevent
             :placeholder="$gettext('Select server')"
             :options="servers"
+            :loading="serversLoading"
           />
         </n-form-item>
         <n-form-item path="username" :label="$gettext('Username')">
@@ -165,9 +164,9 @@ watch(
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+      <app-button type="info" block @click="handleCreate">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

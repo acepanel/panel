@@ -77,14 +77,21 @@ const handlePathInput = (value: string) => {
   path.value = value.trim() || '/'
 }
 
-const handleMkdir = () => {
+// 输入框回车与按钮共用，请求期间两者都禁用
+const creating = ref(false)
+
+const handleMkdir = async () => {
   const name = mkdirName.value.trim()
-  if (!name) return
-  useRequest(ssh.mkdir(apiId.value, joinPath(path.value, name))).onSuccess(() => {
+  if (!name || creating.value) return
+  creating.value = true
+  try {
+    await ssh.mkdir(apiId.value, joinPath(path.value, name))
     showMkdir.value = false
     mkdirName.value = ''
     refresh()
-  })
+  } finally {
+    creating.value = false
+  }
 }
 
 const formatTime = (ts: number) => {
@@ -150,9 +157,11 @@ defineExpose({ selectedFiles, refresh, hostId, path })
               size="small"
               :placeholder="$gettext('Directory name')"
               class="w-40"
+              :disabled="creating"
+              :loading="creating || undefined"
               @keydown.enter="handleMkdir"
             />
-            <n-button size="small" type="primary" @click="handleMkdir">
+            <n-button size="small" type="primary" :loading="creating" @click="handleMkdir">
               {{ $gettext('Create') }}
             </n-button>
           </n-flex>

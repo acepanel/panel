@@ -15,20 +15,13 @@ const { $gettext } = useGettext()
 
 const show = ref(false)
 const date = ref<string | null>(null)
-const loading = ref(false)
 
-const handleClean = () => {
-  loading.value = true
-  useRequest(log.clean(props.type, date.value!))
-    .onSuccess(() => {
-      show.value = false
-      date.value = null
-      window.$message.success($gettext('Cleaned successfully'))
-      emit('cleaned')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleClean = async () => {
+  await log.clean(props.type, date.value!)
+  show.value = false
+  date.value = null
+  window.$message.success($gettext('Cleaned successfully'))
+  emit('cleaned')
 }
 </script>
 
@@ -51,9 +44,9 @@ const handleClean = () => {
       <n-text depth="3">
         {{ $gettext('Delete logs on and before the selected date') }}
       </n-text>
-      <n-button type="error" block :disabled="!date" :loading="loading" @click="handleClean">
+      <app-button type="error" block :disabled="!date" @click="handleClean">
         {{ $gettext('Clean') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </n-popover>
 </template>

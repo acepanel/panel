@@ -7,6 +7,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
@@ -79,7 +80,7 @@ const columns: any = [
           { default: () => $gettext('Configure') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -89,7 +90,7 @@ const columns: any = [
                   name: row.name,
                 }),
               })
-              if (ok) handleDelete(row.name)
+              if (ok) await handleDelete(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -103,11 +104,10 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   frp.visitors(page, pageSize),
 )
 
-const handleDelete = (name: string) => {
-  useRequest(frp.deleteVisitor(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (name: string) => {
+  await frp.deleteVisitor(name)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const handleAdd = () => {

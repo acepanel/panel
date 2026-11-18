@@ -12,7 +12,6 @@ import { WEBSERVER_SLUGS } from '@/utils'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const loading = ref(false)
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -99,7 +98,6 @@ watch(showPathSelector, (val) => {
 })
 
 const handleSubmit = async () => {
-  loading.value = true
   // 提交前将 headerList 同步到 headers map
   const headersMap: Record<string, string> = {}
   for (const item of headerList.value) {
@@ -109,22 +107,13 @@ const handleSubmit = async () => {
   }
   formModel.value.headers = headersMap
   const data = { ...formModel.value }
-  const request = props.mode === 'create' ? cron.create(data) : cron.update(data.id, data)
-
-  useRequest(request)
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success(
-        props.mode === 'create'
-          ? $gettext('Created successfully')
-          : $gettext('Modified successfully'),
-      )
-      emit('saved')
-      window.$bus.emit('task:refresh-cron')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  await (props.mode === 'create' ? cron.create(data) : cron.update(data.id, data))
+  show.value = false
+  window.$message.success(
+    props.mode === 'create' ? $gettext('Created successfully') : $gettext('Modified successfully'),
+  )
+  emit('saved')
+  window.$bus.emit('task:refresh-cron')
 }
 
 const generateTaskName = () => {
@@ -194,24 +183,44 @@ watch(
   },
 )
 
+// 连续切换类型时只认最后一次请求，先发后到的结果不能覆盖列表或提前结束加载态
+let containersSeq = 0
+let databasesSeq = 0
+
 // 加载容器列表
+const containersLoading = ref(false)
 const loadContainers = () => {
-  useRequest(container.containerList(1, 10000)).onSuccess(({ data }: { data: any }) => {
-    containers.value = (data.items || []).map((item: any) => ({
-      label: item.name,
-      value: item.name,
-    }))
-  })
+  const current = ++containersSeq
+  containersLoading.value = true
+  useRequest(container.containerList(1, 10000))
+    .onSuccess(({ data }: { data: any }) => {
+      if (current !== containersSeq) return
+      containers.value = (data.items || []).map((item: any) => ({
+        label: item.name,
+        value: item.name,
+      }))
+    })
+    .onComplete(() => {
+      if (current === containersSeq) containersLoading.value = false
+    })
 }
 
 // 加载数据库列表
+const databasesLoading = ref(false)
 const loadDatabases = (type: string) => {
-  useRequest(database.list(1, 10000, type)).onSuccess(({ data }: { data: any }) => {
-    databases.value = (data.items || []).map((item: any) => ({
-      label: `${item.name} (${item.server_name || 'local'})`,
-      value: item.name,
-    }))
-  })
+  const current = ++databasesSeq
+  databasesLoading.value = true
+  useRequest(database.list(1, 10000, type))
+    .onSuccess(({ data }: { data: any }) => {
+      if (current !== databasesSeq) return
+      databases.value = (data.items || []).map((item: any) => ({
+        label: `${item.name} (${item.server_name || 'local'})`,
+        value: item.name,
+      }))
+    })
+    .onComplete(() => {
+      if (current === databasesSeq) databasesLoading.value = false
+    })
 }
 
 // 显示时初始化数据
@@ -491,6 +500,7 @@ onMounted(() => {
         <n-select
           v-model:value="formModel.targets"
           :options="databases"
+          :loading="databasesLoading"
           multiple
           :placeholder="$gettext('Select Database')"
         />
@@ -523,6 +533,7 @@ onMounted(() => {
         <n-select
           v-model:value="formModel.targets"
           :options="containers"
+          :loading="containersLoading"
           multiple
           :placeholder="$gettext('Select Container')"
         />
@@ -539,9 +550,9 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" :loading="loading" :disabled="loading" @click="handleSubmit" mt-10 block>
+    <app-button type="info" @click="handleSubmit" mt-10 block>
       {{ mode === 'create' ? $gettext('Submit') : $gettext('Save') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <!-- 目录选择器 -->
   <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />

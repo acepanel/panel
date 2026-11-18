@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -83,7 +84,7 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -92,10 +93,9 @@ const columns: any = [
                 content: $gettext('Are you sure you want to delete the account?'),
               })
               if (!ok) return
-              useRequest(cert.accountDelete(row.id)).onSuccess(() => {
-                window.$message.success($gettext('Deletion successful'))
-                refresh()
-              })
+              await cert.accountDelete(row.id)
+              window.$message.success($gettext('Deletion successful'))
+              refresh()
             },
           },
           { default: () => $gettext('Delete') },

@@ -5,6 +5,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { formatDateTime } from '@/utils'
@@ -50,17 +51,18 @@ const refresh = () => {
     })
 }
 
-const handleCreate = () => {
-  useRequest(
-    file.shareCreate(path.value, createModel.value.maxDownloads, createModel.value.expireHours),
-  ).onSuccess(({ data }: any) => {
-    window.$message.success($gettext('Share link created successfully'))
-    copy2clipboard(shareUrl(data.token)).then(() => {
-      window.$message.success($gettext('Link copied to clipboard'))
-    })
-    refresh()
-    emit('refresh')
+const handleCreate = async () => {
+  const data = await file.shareCreate(
+    path.value,
+    createModel.value.maxDownloads,
+    createModel.value.expireHours,
+  )
+  window.$message.success($gettext('Share link created successfully'))
+  copy2clipboard(shareUrl(data.token)).then(() => {
+    window.$message.success($gettext('Link copied to clipboard'))
   })
+  refresh()
+  emit('refresh')
 }
 
 const handleCopy = (row: any) => {
@@ -75,11 +77,10 @@ const handleDelete = async (row: any) => {
     content: $gettext('Are you sure you want to cancel this share?'),
   })
   if (!ok) return
-  useRequest(file.shareDelete(row.id)).onSuccess(() => {
-    window.$message.success($gettext('Share cancelled successfully'))
-    refresh()
-    emit('refresh')
-  })
+  await file.shareDelete(row.id)
+  window.$message.success($gettext('Share cancelled successfully'))
+  refresh()
+  emit('refresh')
 }
 
 const columns = computed<DataTableColumns<any>>(() => [
@@ -119,7 +120,7 @@ const columns = computed<DataTableColumns<any>>(() => [
           { default: () => $gettext('Copy Link') },
         ),
         h(
-          NButton,
+          AppButton,
           { size: 'tiny', type: 'error', tertiary: true, onClick: () => handleDelete(row) },
           { default: () => $gettext('Cancel Share') },
         ),
@@ -158,9 +159,9 @@ watch(
           </n-input-number>
         </n-form-item>
         <n-form-item :show-label="false">
-          <n-button type="primary" @click="handleCreate">
+          <app-button type="primary" @click="handleCreate">
             {{ $gettext('Create Share Link') }}
-          </n-button>
+          </app-button>
         </n-form-item>
       </n-form>
       <n-data-table

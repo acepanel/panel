@@ -2,6 +2,7 @@
 import type { SelectOption } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import type { WebServerFeatures } from '@/utils'
 
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 const formLayout = useFormLayout(140)
 
 // ========== 网站类型切换 ==========
@@ -53,10 +55,10 @@ const canSwitchType = computed(() => {
   return true
 })
 
-const handleSwitchType = () => {
+const handleSwitchType = async () => {
   const from = websiteTypeLabel(setting.value.type)
   const to = websiteTypeLabel(targetType.value)
-  window.$dialog.warning({
+  const ok = await confirmAction({
     title: $gettext('Confirm Website Type Switch'),
     content: $gettext(
       'Switch the website type from %{ from } to %{ to }? Common settings and website files will be preserved. The original type-specific configuration will be deleted and rebuilt for the new type.',
@@ -64,13 +66,12 @@ const handleSwitchType = () => {
     ),
     positiveText: $gettext('Confirm Switch'),
     negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      emit('switchType', {
-        type: targetType.value,
-        php: targetType.value === 'php' ? targetPHP.value : 0,
-        proxy: targetType.value === 'proxy' ? targetProxy.value.trim() : '',
-      })
-    },
+  })
+  if (!ok) return
+  emit('switchType', {
+    type: targetType.value,
+    php: targetType.value === 'php' ? targetPHP.value : 0,
+    proxy: targetType.value === 'proxy' ? targetProxy.value.trim() : '',
   })
 }
 
@@ -189,14 +190,14 @@ const setBasicAuthScope = (auth: any, scope: string) => {
             )
           }}
         </n-alert>
-        <n-button
+        <app-button
           type="warning"
           :loading="switching"
           :disabled="!canSwitchType || switching || loading"
           @click="handleSwitchType"
         >
           {{ $gettext('Switch Website Type') }}
-        </n-button>
+        </app-button>
       </n-form>
     </n-collapse-item>
 

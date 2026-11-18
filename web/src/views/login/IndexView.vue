@@ -50,6 +50,7 @@ const isRemember = useStorage('isRemember', false)
 const showTwoFA = ref(false)
 const captchaRequired = ref(false)
 const captchaImage = ref('')
+const captchaLoading = ref(false)
 
 // 通行密钥相关状态
 const passkeyAvailable = ref(false)
@@ -121,6 +122,8 @@ const checkPasskeyAvailable = async () => {
 
 // 刷新验证码
 const refreshCaptcha = () => {
+  if (captchaLoading.value) return
+  captchaLoading.value = true
   useRequest(user.captcha())
     .onSuccess(({ data }) => {
       captchaRequired.value = data.required
@@ -130,6 +133,9 @@ const refreshCaptcha = () => {
     .onError(() => {
       captchaRequired.value = false
       captchaImage.value = ''
+    })
+    .onComplete(() => {
+      captchaLoading.value = false
     })
 }
 
@@ -286,12 +292,14 @@ onMounted(() => {
                 style="flex: 1"
                 type="text"
               />
-              <n-image
-                :src="captchaImage"
-                preview-disabled
-                class="rounded h-12 cursor-pointer"
-                @click="refreshCaptcha"
-              />
+              <n-spin :show="captchaLoading" size="small" content-class="flex">
+                <n-image
+                  :src="captchaImage"
+                  preview-disabled
+                  class="rounded h-12 cursor-pointer"
+                  @click="refreshCaptcha"
+                />
+              </n-spin>
             </n-flex>
 
             <n-flex class="mt-5">

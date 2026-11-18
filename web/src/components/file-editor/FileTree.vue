@@ -6,12 +6,14 @@ import { useGettext } from 'vue3-gettext'
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useEditorStore } from '@/stores'
 import { getExt, getIconByExt } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
 const { openInEditor } = useEditorOps()
+const { confirmAction } = useConfirm()
 const themeVars = useThemeVars()
 
 const props = defineProps<{
@@ -258,8 +260,9 @@ function cancelInlineCreate() {
   inlineCreateParentPath.value = ''
 }
 
-// 确认内联新建
+// 确认内联新建，回车与失焦都会触发
 async function confirmInlineCreate() {
+  if (inlineCreateLoading.value) return
   if (!inlineCreateName.value.trim()) {
     cancelInlineCreate()
     return
@@ -269,27 +272,26 @@ async function confirmInlineCreate() {
   const isDir = inlineCreateType.value === 'dir'
 
   inlineCreateLoading.value = true
-  useRequest(file.create(fullPath, isDir))
-    .onSuccess(async () => {
-      window.$message.success($gettext('Created successfully'))
+  try {
+    await file.create(fullPath, isDir)
+  } finally {
+    inlineCreateLoading.value = false
+  }
+  window.$message.success($gettext('Created successfully'))
 
-      // 保存当前新建的类型和路径
-      const parentPath = inlineCreateParentPath.value
-      const createdPath = fullPath
+  // 保存当前新建的类型和路径
+  const parentPath = inlineCreateParentPath.value
+  const createdPath = fullPath
 
-      // 取消内联状态
-      cancelInlineCreate()
+  // 取消内联状态
+  cancelInlineCreate()
 
-      await reloadParent(parentPath)
+  await reloadParent(parentPath)
 
-      // 如果是文件，自动打开
-      if (!isDir) {
-        editorStore.openFile(createdPath, '')
-      }
-    })
-    .onComplete(() => {
-      inlineCreateLoading.value = false
-    })
+  // 如果是文件，自动打开
+  if (!isDir) {
+    editorStore.openFile(createdPath, '')
+  }
 }
 
 // 搜索文件，序号保护同 initTree
@@ -326,6 +328,7 @@ function renderLabel({ option }: { option: TreeOption }) {
         inlineCreateType.value === 'dir' ? $gettext('Folder name') : $gettext('File name'),
       autofocus: true,
       disabled: inlineCreateLoading.value,
+      loading: inlineCreateLoading.value || undefined,
       style: { width: '120px' },
       onKeyup: (e: KeyboardEvent) => {
         e.stopPropagation()
@@ -362,6 +365,7 @@ function renderLabel({ option }: { option: TreeOption }) {
       size: 'tiny',
       autofocus: true,
       disabled: inlineRenameLoading.value,
+      loading: inlineRenameLoading.value || undefined,
       style: { width: '120px' },
       onKeyup: (e: KeyboardEvent) => {
         e.stopPropagation()
@@ -487,8 +491,9 @@ function cancelInlineRename() {
   inlineRenameName.value = ''
 }
 
-// 确认内联重命名
-function confirmInlineRename() {
+// 确认内联重命名，回车与失焦都会触发
+async function confirmInlineRename() {
+  if (inlineRenameLoading.value) return
   if (!inlineRenameKey.value || !inlineRenameName.value.trim()) {
     cancelInlineRename()
     return
@@ -507,60 +512,51 @@ function confirmInlineRename() {
   const newPath = `${parentPath}/${newName}`.replace(/\/+/g, '/')
 
   inlineRenameLoading.value = true
-  // 后端对已存在的目标会静默跳过，先检查避免假成功
-  useRequest(file.exist([newPath]))
-    .onSuccess(({ data: exists }) => {
-      if (exists[0]) {
-        inlineRenameLoading.value = false
-        window.$message.error($gettext('Target name already exists'))
-        return
-      }
+  try {
+    // 后端对已存在的目标会静默跳过，先检查避免假成功
+    const exists = await file.exist([newPath])
+    if (exists[0]) {
+      window.$message.error($gettext('Target name already exists'))
+      return
+    }
+    await file.move([{ source: oldPath, target: newPath, force: false }])
+  } finally {
+    inlineRenameLoading.value = false
+  }
+  window.$message.success($gettext('Renamed successfully'))
 
-      useRequest(file.move([{ source: oldPath, target: newPath, force: false }]))
-        .onSuccess(async () => {
-          window.$message.success($gettext('Renamed successfully'))
+  // 同步编辑器中已打开的标签页路径(含重命名目录下的子文件)
+  editorStore.movePath(oldPath, newPath)
 
-          // 同步编辑器中已打开的标签页路径(含重命名目录下的子文件)
-          editorStore.movePath(oldPath, newPath)
+  // 同步树的展开与选中状态，重命名后的目录保持展开
+  const migrate = (key: string) => {
+    if (key === oldPath) return newPath
+    if (key.startsWith(oldPath + '/')) return newPath + key.slice(oldPath.length)
+    return key
+  }
+  expandedKeys.value = expandedKeys.value.map(migrate)
+  selectedKeys.value = selectedKeys.value.map(migrate)
 
-          // 同步树的展开与选中状态，重命名后的目录保持展开
-          const migrate = (key: string) => {
-            if (key === oldPath) return newPath
-            if (key.startsWith(oldPath + '/')) return newPath + key.slice(oldPath.length)
-            return key
-          }
-          expandedKeys.value = expandedKeys.value.map(migrate)
-          selectedKeys.value = selectedKeys.value.map(migrate)
+  cancelInlineRename()
 
-          cancelInlineRename()
-
-          await reloadParent(parentPath)
-        })
-        .onComplete(() => {
-          inlineRenameLoading.value = false
-        })
-    })
-    .onError(() => {
-      inlineRenameLoading.value = false
-    })
+  await reloadParent(parentPath)
 }
 
 // 删除文件/目录
 function handleDelete(path: string, name: string) {
-  window.$dialog.warning({
+  confirmAction({
     title: $gettext('Delete'),
     content: $gettext('Are you sure you want to delete %{ name }?', { name }),
     positiveText: $gettext('Delete'),
-    negativeText: $gettext('Cancel'),
-    onPositiveClick: async () => {
-      useRequest(file.delete(path)).onSuccess(async () => {
-        window.$message.success($gettext('Deleted successfully'))
+    onConfirm: async () => {
+      await file.delete(path)
+      window.$message.success($gettext('Deleted successfully'))
 
-        // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
-        editorStore.closePath(path)
+      // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
+      editorStore.closePath(path)
 
-        await reloadParent(path.substring(0, path.lastIndexOf('/')) || '/')
-      })
+      // 刷新失败不该让已成功的删除停在确认弹窗里，不等待
+      reloadParent(path.substring(0, path.lastIndexOf('/')) || '/')
     },
   })
 }

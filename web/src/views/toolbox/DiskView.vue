@@ -5,11 +5,12 @@ defineOptions({
 
 import { useRequest } from 'alova/client'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NProgress, NTag } from 'naive-ui'
+import { NProgress, NTag } from 'naive-ui'
 import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import disk from '@/api/panel/toolbox-disk'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { formatBytes } from '@/utils'
@@ -252,7 +253,7 @@ const partitionColumns = computed<DataTableColumns<PartitionData>>(() => [
     render(row) {
       if (row.mountpoint) {
         return h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'warning',
@@ -279,11 +280,7 @@ onMounted(() => {
   loadFstabList()
 })
 
-const handleMount = async () => {
-  if (!selectedDevice.value || !mountPath.value) {
-    window.$message.error($gettext('Please fill in all fields'))
-    return
-  }
+const mount = async () => {
   const confirmContent = mountWriteFstab.value
     ? $gettext(
         'Are you sure you want to mount %{ device } to %{ path } and write to fstab for auto-mount on boot?',
@@ -295,17 +292,23 @@ const handleMount = async () => {
       })
   const ok = await confirmAction({ title: $gettext('Confirm'), content: confirmContent })
   if (!ok) return
-  useRequest(
-    disk.mount(selectedDevice.value, mountPath.value, mountWriteFstab.value, mountOption.value),
-  ).onSuccess(() => {
-    window.$message.success($gettext('Mounted successfully'))
-    loadDiskList()
-    if (mountWriteFstab.value) loadFstabList()
-    selectedDevice.value = ''
-    mountPath.value = ''
-    mountWriteFstab.value = false
-    mountOption.value = ''
-  })
+  await disk.mount(selectedDevice.value, mountPath.value, mountWriteFstab.value, mountOption.value)
+  window.$message.success($gettext('Mounted successfully'))
+  loadDiskList()
+  if (mountWriteFstab.value) loadFstabList()
+  selectedDevice.value = ''
+  mountPath.value = ''
+  mountWriteFstab.value = false
+  mountOption.value = ''
+}
+
+// 校验不通过时同步返回，避免挂载按钮闪一下加载图标
+const handleMount = () => {
+  if (!selectedDevice.value || !mountPath.value) {
+    window.$message.error($gettext('Please fill in all fields'))
+    return
+  }
+  return mount()
 }
 
 const handleUmount = async (path: string) => {
@@ -314,17 +317,12 @@ const handleUmount = async (path: string) => {
     content: $gettext('Are you sure you want to unmount this partition?'),
   })
   if (!ok) return
-  useRequest(disk.umount(path)).onSuccess(() => {
-    window.$message.success($gettext('Unmounted successfully'))
-    loadDiskList()
-  })
+  await disk.umount(path)
+  window.$message.success($gettext('Unmounted successfully'))
+  loadDiskList()
 }
 
-const handleFormat = async () => {
-  if (!formatDevice.value) {
-    window.$message.error($gettext('Please select a device'))
-    return
-  }
+const formatPartition = async () => {
   const ok = await confirmAction({
     type: 'error',
     title: $gettext('Dangerous Operation'),
@@ -334,19 +332,23 @@ const handleFormat = async () => {
     positiveText: $gettext('Confirm Format'),
   })
   if (!ok) return
-  useRequest(disk.format(formatDevice.value, formatFsType.value)).onSuccess(() => {
-    window.$message.success($gettext('Formatted successfully'))
-    loadDiskList()
-    formatDevice.value = ''
-    formatFsType.value = 'ext4'
-  })
+  await disk.format(formatDevice.value, formatFsType.value)
+  window.$message.success($gettext('Formatted successfully'))
+  loadDiskList()
+  formatDevice.value = ''
+  formatFsType.value = 'ext4'
 }
 
-const handleInit = async () => {
-  if (!initDevice.value) {
-    window.$message.error($gettext('Please enter disk name'))
+// 校验不通过时同步返回，避免格式化按钮闪一下加载图标
+const handleFormat = () => {
+  if (!formatDevice.value) {
+    window.$message.error($gettext('Please select a device'))
     return
   }
+  return formatPartition()
+}
+
+const initDisk = async () => {
   const ok = await confirmAction({
     type: 'error',
     title: $gettext('Dangerous Operation'),
@@ -357,12 +359,20 @@ const handleInit = async () => {
     positiveText: $gettext('Confirm Initialize'),
   })
   if (!ok) return
-  useRequest(disk.init(initDevice.value, initFsType.value)).onSuccess(() => {
-    window.$message.success($gettext('Disk initialized successfully'))
-    loadDiskList()
-    initDevice.value = ''
-    initFsType.value = 'ext4'
-  })
+  await disk.init(initDevice.value, initFsType.value)
+  window.$message.success($gettext('Disk initialized successfully'))
+  loadDiskList()
+  initDevice.value = ''
+  initFsType.value = 'ext4'
+}
+
+// 校验不通过时同步返回，避免初始化按钮闪一下加载图标
+const handleInit = () => {
+  if (!initDevice.value) {
+    window.$message.error($gettext('Please enter disk name'))
+    return
+  }
+  return initDisk()
 }
 
 const handleDeleteFstab = async (mountPoint: string) => {
@@ -375,10 +385,9 @@ const handleDeleteFstab = async (mountPoint: string) => {
     ),
   })
   if (!ok) return
-  useRequest(disk.fstabDelete(mountPoint)).onSuccess(() => {
-    window.$message.success($gettext('Fstab entry removed successfully'))
-    loadFstabList()
-  })
+  await disk.fstabDelete(mountPoint)
+  window.$message.success($gettext('Fstab entry removed successfully'))
+  loadFstabList()
 }
 
 const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
@@ -393,7 +402,7 @@ const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
     render(row: FstabEntry) {
       if (row.mount_point === '/') return null
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -491,9 +500,9 @@ const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
                 </n-gi>
               </n-grid>
               <n-flex justify="end">
-                <n-button type="primary" @click="handleMount">
+                <app-button type="primary" @click="handleMount">
                   {{ $gettext('Mount') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </n-flex>
           </n-tab-pane>
@@ -519,9 +528,9 @@ const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
                 </n-gi>
               </n-grid>
               <n-flex justify="end">
-                <n-button type="error" @click="handleFormat">
+                <app-button type="error" @click="handleFormat">
                   {{ $pgettext('disk action', 'Format') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </n-flex>
           </n-tab-pane>
@@ -551,9 +560,9 @@ const fstabColumns = computed<DataTableColumns<FstabEntry>>(() => [
                 </n-gi>
               </n-grid>
               <n-flex justify="end">
-                <n-button type="error" @click="handleInit">
+                <app-button type="error" @click="handleInit">
                   {{ $gettext('Initialize') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </n-flex>
           </n-tab-pane>

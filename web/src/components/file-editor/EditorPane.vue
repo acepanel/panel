@@ -5,6 +5,7 @@ import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
+import AppButton from '@/components/system/AppButton.vue'
 import type { EditorSettings, EditorTab } from '@/stores'
 import { useEditorStore, useThemeStore } from '@/stores'
 import { getMonaco } from '@/utils/monaco'
@@ -158,6 +159,8 @@ function handleCloseTab(path: string, e: MouseEvent) {
   e.stopPropagation()
   const tab = editorStore.tabs.find((t) => t.path === path)
   if (tab?.modified) {
+    // 保存期间不能再选其它项或按 Esc 关闭，否则保存成功后仍会关掉用户选择保留的标签页
+    const saving = ref(false)
     const d = window.$dialog.warning({
       title: $gettext('Unsaved Changes'),
       content: $gettext('This file has unsaved changes. Are you sure you want to close it?'),
@@ -168,6 +171,7 @@ function handleCloseTab(path: string, e: MouseEvent) {
           h(
             NButton,
             {
+              disabled: saving.value,
               onClick: () => {
                 d.destroy() // 返回，不关闭标签页
               },
@@ -178,6 +182,7 @@ function handleCloseTab(path: string, e: MouseEvent) {
             NButton,
             {
               type: 'warning',
+              disabled: saving.value,
               onClick: () => {
                 d.destroy()
                 editorStore.closeTab(path) // 放弃更改，关闭标签页
@@ -186,10 +191,12 @@ function handleCloseTab(path: string, e: MouseEvent) {
             () => $gettext('Discard'),
           ),
           h(
-            NButton,
+            AppButton,
             {
               type: 'primary',
               onClick: async () => {
+                saving.value = true
+                d.closeOnEsc = false
                 if (await saveTab(tab.path)) {
                   window.$message.success($gettext('Saved successfully'))
                   d.destroy()

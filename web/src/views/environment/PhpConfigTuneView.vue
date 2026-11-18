@@ -117,7 +117,6 @@ const handlePreset = (profile: TuneProfile) => {
   }
   window.$message.success($gettext('Generated, review the values and save'))
 }
-const cleanSessionLoading = ref(false)
 
 // 解析 Redis save_path 为可视化字段
 const parseRedisSavePath = (path: string) => {
@@ -218,15 +217,9 @@ const handleSave = () => {
 }
 
 // 清理 Session 文件
-const handleCleanSession = () => {
-  cleanSessionLoading.value = true
-  useRequest(php.cleanSession(props.slug))
-    .onSuccess(() => {
-      window.$message.success($gettext('Cleaned successfully'))
-    })
-    .onComplete(() => {
-      cleanSessionLoading.value = false
-    })
+const handleCleanSession = async () => {
+  await php.cleanSession(props.slug)
+  window.$message.success($gettext('Cleaned successfully'))
 }
 
 // Session save_handler 选项
@@ -640,13 +633,9 @@ const sizeUnitOptions = unitOptions(['K', 'M', 'G'])
               @confirm="handleCleanSession"
             >
               <template #trigger>
-                <n-button
-                  type="warning"
-                  :loading="cleanSessionLoading"
-                  :disabled="cleanSessionLoading"
-                >
+                <app-button type="warning">
                   {{ $gettext('Clean Session Files') }}
-                </n-button>
+                </app-button>
               </template>
             </ConfirmDialog>
           </n-flex>

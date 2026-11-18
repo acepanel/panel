@@ -17,14 +17,11 @@ const { $gettext } = useGettext()
 const formLayout = useFormLayout(140)
 
 const hostname = ref('')
-const hostnameLoading = ref(false)
 
 const certID = ref(0)
 const certs = ref<any[]>([])
-const certLoading = ref(false)
 
 const listeners = ref({ submission: true, imap: false, pop3: false })
-const listenersLoading = ref(false)
 
 const relay = ref({
   enabled: false,
@@ -34,10 +31,8 @@ const relay = ref({
   password: '',
   implicit_tls: false,
 })
-const relayLoading = ref(false)
 
 const admin = ref<{ username: string; password: string } | null>(null)
-const adminLoading = ref(false)
 
 const certOptions = computed(() => [
   { label: $gettext('Not bound (self-signed certificate)'), value: 0 },
@@ -57,62 +52,31 @@ const loadSettings = async () => {
   relay.value = { ...data.relay, password: '' }
 }
 
-const handleSaveHostname = () => {
-  hostnameLoading.value = true
-  useRequest(stalwart.saveHostname(hostname.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      emit('refresh')
-    })
-    .onComplete(() => {
-      hostnameLoading.value = false
-    })
+const handleSaveHostname = async () => {
+  await stalwart.saveHostname(hostname.value)
+  window.$message.success($gettext('Saved successfully'))
+  emit('refresh')
 }
 
-const handleSaveCert = () => {
-  certLoading.value = true
-  useRequest(stalwart.saveCert(certID.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      certLoading.value = false
-    })
+const handleSaveCert = async () => {
+  await stalwart.saveCert(certID.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleSaveListeners = () => {
-  listenersLoading.value = true
-  useRequest(stalwart.saveListeners(listeners.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      emit('refresh')
-    })
-    .onComplete(() => {
-      listenersLoading.value = false
-    })
+const handleSaveListeners = async () => {
+  await stalwart.saveListeners(listeners.value)
+  window.$message.success($gettext('Saved successfully'))
+  emit('refresh')
 }
 
-const handleSaveRelay = () => {
-  relayLoading.value = true
-  useRequest(stalwart.saveRelay(relay.value))
-    .onSuccess(() => {
-      relay.value.password = ''
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      relayLoading.value = false
-    })
+const handleSaveRelay = async () => {
+  await stalwart.saveRelay(relay.value)
+  relay.value.password = ''
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleViewAdmin = () => {
-  adminLoading.value = true
-  useRequest(stalwart.admin())
-    .onSuccess(({ data }) => {
-      admin.value = data
-    })
-    .onComplete(() => {
-      adminLoading.value = false
-    })
+const handleViewAdmin = async () => {
+  admin.value = await stalwart.admin()
 }
 
 const copy = (text: string) => {
@@ -142,14 +106,9 @@ onMounted(() => {
         </n-text>
         <n-flex>
           <n-input v-model:value="hostname" class="md:!w-80" placeholder="mail.example.com" />
-          <n-button
-            type="primary"
-            :loading="hostnameLoading"
-            :disabled="hostnameLoading || !hostname"
-            @click="handleSaveHostname"
-          >
+          <app-button type="primary" :disabled="!hostname" @click="handleSaveHostname">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -164,14 +123,9 @@ onMounted(() => {
         </n-text>
         <n-flex>
           <n-select v-model:value="certID" class="md:!w-120" :options="certOptions" />
-          <n-button
-            type="primary"
-            :loading="certLoading"
-            :disabled="certLoading"
-            @click="handleSaveCert"
-          >
+          <app-button type="primary" @click="handleSaveCert">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -207,14 +161,9 @@ onMounted(() => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="listenersLoading"
-            :disabled="listenersLoading"
-            @click="handleSaveListeners"
-          >
+          <app-button type="primary" @click="handleSaveListeners">
             {{ $gettext('Save and Restart') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -270,14 +219,9 @@ onMounted(() => {
           </template>
         </n-form>
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="relayLoading"
-            :disabled="relayLoading"
-            @click="handleSaveRelay"
-          >
+          <app-button type="primary" @click="handleSaveRelay">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -306,9 +250,9 @@ onMounted(() => {
           <n-text depth="3">{{ $gettext('Click a value to copy it') }}</n-text>
         </n-flex>
         <n-flex v-else>
-          <n-button :loading="adminLoading" :disabled="adminLoading" @click="handleViewAdmin">
+          <app-button @click="handleViewAdmin">
             {{ $gettext('View') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>

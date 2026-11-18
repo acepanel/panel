@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NSpace, NTag } from 'naive-ui'
+import { NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type mysql from '@/api/apps/mysql'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 
@@ -22,16 +23,17 @@ const databaseOptions = computed(() => [
   { label: $gettext('All databases'), value: '' },
   ...(databases.value as string[]).map((name) => ({ label: name, value: name })),
 ])
-const { data: tables, send: sendTables } = useRequest(
-  () => props.api.tables(selectedDatabase.value),
-  {
-    initialData: [],
-  },
-)
+const {
+  data: tables,
+  loading: tablesLoading,
+  send: sendTables,
+} = useRequest(() => props.api.tables(selectedDatabase.value), {
+  initialData: [],
+})
 const checkedTables = ref<string[]>([])
 const refreshTables = () => {
   checkedTables.value = []
-  sendTables()
+  return sendTables()
 }
 const tableRowKey = (row: any) => `${row.database}|${row.table}`
 const { data: binlog, send: refreshBinlogs } = useRequest(props.api.binlogs, {
@@ -65,14 +67,11 @@ const handleMaintenance = async (
     content,
   })
   if (!ok) return
-  useRequest(
-    props.api.runMaintenance({
-      tables: batch,
-      operation,
-    }),
-  ).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  await props.api.runMaintenance({
+    tables: batch,
+    operation,
   })
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 
 const handleBatchMaintenance = (operation: string) => {
@@ -80,7 +79,7 @@ const handleBatchMaintenance = (operation: string) => {
     const [database, table] = key.split('|')
     return { database: database!, table: table! }
   })
-  handleMaintenance(batch, operation)
+  return handleMaintenance(batch, operation)
 }
 
 const tableColumns: any = [
@@ -118,7 +117,7 @@ const tableColumns: any = [
         {
           default: () => [
             h(
-              NButton,
+              AppButton,
               {
                 size: 'small',
                 type: 'warning',
@@ -127,7 +126,7 @@ const tableColumns: any = [
               { default: () => 'OPTIMIZE' },
             ),
             h(
-              NButton,
+              AppButton,
               { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
               { default: () => 'ANALYZE' },
             ),
@@ -152,7 +151,7 @@ const binlogColumns: any = [
     width: 160,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -166,7 +165,7 @@ const binlogColumns: any = [
               positiveText: $gettext('Purge'),
               countdown: 5,
             })
-            if (ok) handlePurge(row.name)
+            if (ok) await handlePurge(row.name)
           },
         },
         { default: () => $gettext('Purge to Here') },
@@ -175,11 +174,10 @@ const binlogColumns: any = [
   },
 ]
 
-const handlePurge = (file: string) => {
-  useRequest(props.api.purgeBinlog(file)).onSuccess(() => {
-    window.$message.success($gettext('Purged successfully'))
-    refreshBinlogs()
-  })
+const handlePurge = async (file: string) => {
+  await props.api.purgeBinlog(file)
+  window.$message.success($gettext('Purged successfully'))
+  refreshBinlogs()
 }
 
 const replicationRunning = (value: string) => {
@@ -200,23 +198,24 @@ const replicationRunning = (value: string) => {
             class="md:!w-60"
             @update:value="refreshTables"
           />
-          <n-button type="primary" @click="() => refreshTables()">
+          <app-button type="primary" @click="() => refreshTables()">
             {{ $gettext('Refresh') }}
-          </n-button>
-          <n-button
+          </app-button>
+          <app-button
             type="warning"
             :disabled="!checkedTables.length"
             @click="handleBatchMaintenance('optimize')"
           >
             OPTIMIZE
-          </n-button>
-          <n-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
+          </app-button>
+          <app-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
             ANALYZE
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           v-model:checked-row-keys="checkedTables"
           striped
+          :loading="tablesLoading"
           :columns="tableColumns"
           :data="tables"
           :row-key="tableRowKey"
@@ -232,9 +231,9 @@ const replicationRunning = (value: string) => {
         </n-alert>
         <template v-else>
           <n-flex>
-            <n-button type="primary" @click="() => refreshBinlogs()">
+            <app-button type="primary" @click="() => refreshBinlogs()">
               {{ $gettext('Refresh') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <n-card>
             <n-flex>
@@ -259,9 +258,9 @@ const replicationRunning = (value: string) => {
     <n-tab-pane name="replication" :tab="$gettext('Replication')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshReplication()">
+          <app-button type="primary" @click="() => refreshReplication()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-alert v-if="!replication.enabled" type="info">
           {{ $gettext('This instance is not a replica.') }}

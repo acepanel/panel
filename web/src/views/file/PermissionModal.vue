@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput } from 'naive-ui'
+import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
@@ -28,18 +28,26 @@ const normalizeMode = (modeStr: string): string => {
   return trimmed.padStart(3, '0') || '755'
 }
 
+// 初值返回前表单还是上次的值，期间遮住表单，避免按旧值提交
+const infoLoading = ref(false)
+
 // 打开弹窗时拉取第一个选中文件的信息作为初值，避免依赖调用方传入导致残留旧值
 watch(
   () => show.value,
   (newVal) => {
     if (!newVal || !selected.value.length) return
     recursive.value = false
-    useRequest(file.info(selected.value[0]!)).onSuccess(({ data }) => {
-      mode.value = normalizeMode(data.mode)
-      owner.value = data.owner || 'www'
-      group.value = data.group || 'www'
-      updateCheckboxes()
-    })
+    infoLoading.value = true
+    useRequest(file.info(selected.value[0]!))
+      .onSuccess(({ data }) => {
+        mode.value = normalizeMode(data.mode)
+        owner.value = data.owner || 'www'
+        group.value = data.group || 'www'
+        updateCheckboxes()
+      })
+      .onComplete(() => {
+        infoLoading.value = false
+      })
   },
 )
 
@@ -106,48 +114,50 @@ watch(mode, updateCheckboxes, { immediate: true })
 
 <template>
   <app-modal v-model:show="show" :title="title">
-    <n-flex vertical>
-      <n-form>
-        <n-grid cols="1 m:24" responsive="screen">
-          <n-form-item-gi :span="8" :label="$gettext('Owner')">
-            <n-checkbox-group v-model:value="checkbox.owner" @update:value="calculateMode">
-              <n-checkbox value="read" :label="$gettext('Read')" />
-              <n-checkbox value="write" :label="$gettext('Write')" />
-              <n-checkbox value="execute" :label="$gettext('Execute')" />
-            </n-checkbox-group>
-          </n-form-item-gi>
-          <n-form-item-gi :span="8" :label="$gettext('Group')">
-            <n-checkbox-group v-model:value="checkbox.group" @update:value="calculateMode">
-              <n-checkbox value="read" :label="$gettext('Read')" />
-              <n-checkbox value="write" :label="$gettext('Write')" />
-              <n-checkbox value="execute" :label="$gettext('Execute')" />
-            </n-checkbox-group>
-          </n-form-item-gi>
-          <n-form-item-gi :span="8" :label="$gettext('Others')">
-            <n-checkbox-group v-model:value="checkbox.other" @update:value="calculateMode">
-              <n-checkbox value="read" :label="$gettext('Read')" />
-              <n-checkbox value="write" :label="$gettext('Write')" />
-              <n-checkbox value="execute" :label="$gettext('Execute')" />
-            </n-checkbox-group>
-          </n-form-item-gi>
-        </n-grid>
-        <n-form-item :label="$gettext('Permission')">
-          <n-input v-model:value="mode" />
-        </n-form-item>
-        <n-form-item :label="$gettext('Owner')">
-          <n-input v-model:value="owner" />
-        </n-form-item>
-        <n-form-item :label="$gettext('Group')">
-          <n-input v-model:value="group" />
-        </n-form-item>
-        <n-form-item :show-label="false">
-          <n-checkbox v-model:checked="recursive">
-            {{ $gettext('Apply to all files and subdirectories') }}
-          </n-checkbox>
-        </n-form-item>
-      </n-form>
-      <n-button type="primary" @click="handlePermission"> {{ $gettext('Modify') }} </n-button>
-    </n-flex>
+    <n-spin :show="infoLoading">
+      <n-flex vertical>
+        <n-form>
+          <n-grid cols="1 m:24" responsive="screen">
+            <n-form-item-gi :span="8" :label="$gettext('Owner')">
+              <n-checkbox-group v-model:value="checkbox.owner" @update:value="calculateMode">
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
+              </n-checkbox-group>
+            </n-form-item-gi>
+            <n-form-item-gi :span="8" :label="$gettext('Group')">
+              <n-checkbox-group v-model:value="checkbox.group" @update:value="calculateMode">
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
+              </n-checkbox-group>
+            </n-form-item-gi>
+            <n-form-item-gi :span="8" :label="$gettext('Others')">
+              <n-checkbox-group v-model:value="checkbox.other" @update:value="calculateMode">
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
+              </n-checkbox-group>
+            </n-form-item-gi>
+          </n-grid>
+          <n-form-item :label="$gettext('Permission')">
+            <n-input v-model:value="mode" />
+          </n-form-item>
+          <n-form-item :label="$gettext('Owner')">
+            <n-input v-model:value="owner" />
+          </n-form-item>
+          <n-form-item :label="$gettext('Group')">
+            <n-input v-model:value="group" />
+          </n-form-item>
+          <n-form-item :show-label="false">
+            <n-checkbox v-model:checked="recursive">
+              {{ $gettext('Apply to all files and subdirectories') }}
+            </n-checkbox>
+          </n-form-item>
+        </n-form>
+        <app-button type="primary" @click="handlePermission"> {{ $gettext('Modify') }} </app-button>
+      </n-flex>
+    </n-spin>
   </app-modal>
 </template>
 

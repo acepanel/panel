@@ -20,6 +20,7 @@ import draggable from 'vuedraggable'
 
 import app from '@/api/panel/app'
 import home from '@/api/panel/home'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { router } from '@/router'
@@ -41,6 +42,7 @@ use([
 ])
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 const themeVars = useThemeVars()
 const tabStore = useTabStore()
 const { isMobile } = useResponsive()
@@ -73,10 +75,18 @@ const { data: apps, loading: appLoading } = useRequest(home.apps, {
   initialData: [],
 })
 
+const ordering = ref(false)
+
 const handleAppOrderChange = async () => {
-  const slugs = apps.value.map((item: { slug: string }) => item.slug)
-  await app.updateOrder(slugs)
-  window.$message.success($gettext('Order updated'))
+  if (ordering.value) return
+  ordering.value = true
+  try {
+    const slugs = apps.value.map((item: { slug: string }) => item.slug)
+    await app.updateOrder(slugs)
+    window.$message.success($gettext('Order updated'))
+  } finally {
+    ordering.value = false
+  }
 }
 const { data: countInfo } = useRequest(home.countInfo, {
   initialData: {
@@ -336,23 +346,28 @@ const fetchCurrent = () => {
     })
 }
 
-const handleRestartPanel = () => {
+const handleRestartPanel = async () => {
   clearInterval(homeInterval)
   window.$message.loading($gettext('Panel restarting...'))
-  useRequest(home.restart()).onSuccess(() => {
-    window.$message.success($gettext('Panel restarted successfully'))
-    setTimeout(() => {
-      tabStore.reloadTab(tabStore.active)
-    }, 3000)
-  })
+  await home.restart()
+  window.$message.success($gettext('Panel restarted successfully'))
+  setTimeout(() => {
+    tabStore.reloadTab(tabStore.active)
+  }, 3000)
 }
 
-const showRestartServerConfirm = ref(false)
-
-const handleRestartServer = () => {
+const handleRestartServer = async () => {
+  const ok = await confirmAction({
+    type: 'warning',
+    title: $gettext('Restart Server'),
+    content: $gettext(
+      'Are you sure you want to restart the server? This will disconnect all connections.',
+    ),
+  })
+  if (!ok) return
   clearInterval(homeInterval)
   window.$message.loading($gettext('Server restarting...'))
-  useRequest(home.restartServer())
+  await home.restartServer()
 }
 
 const restartOptions = computed(() => [
@@ -366,29 +381,28 @@ const restartOptions = computed(() => [
   },
 ])
 
-const handleRestartSelect = (key: string) => {
-  if (key === 'panel') {
-    handleRestartPanel()
-  } else if (key === 'server') {
-    showRestartServerConfirm.value = true
+const restarting = ref(false)
+
+const handleRestartSelect = async (key: string) => {
+  restarting.value = true
+  try {
+    if (key === 'panel') {
+      await handleRestartPanel()
+    } else if (key === 'server') {
+      await handleRestartServer()
+    }
+  } finally {
+    restarting.value = false
   }
 }
 
-const checkUpdateLoading = ref(false)
-
-const handleUpdate = () => {
-  checkUpdateLoading.value = true
-  useRequest(home.checkUpdate())
-    .onSuccess(({ data }) => {
-      if (data.update) {
-        router.push({ name: 'home-update' })
-      } else {
-        window.$message.success($gettext('Current version is the latest'))
-      }
-    })
-    .onComplete(() => {
-      checkUpdateLoading.value = false
-    })
+const handleUpdate = async () => {
+  const data = await home.checkUpdate()
+  if (data.update) {
+    router.push({ name: 'home-update' })
+  } else {
+    window.$message.success($gettext('Current version is the latest'))
+  }
 }
 
 const toSponsor = () => {
@@ -511,17 +525,18 @@ if (import.meta.hot) {
                 <n-button type="primary" @click="toSponsor">
                   {{ $gettext('Sponsor Support') }}
                 </n-button>
-                <n-dropdown :options="restartOptions" @select="handleRestartSelect">
-                  <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
-                </n-dropdown>
-                <n-button
-                  type="info"
-                  :loading="checkUpdateLoading"
-                  :disabled="checkUpdateLoading"
-                  @click="handleUpdate"
+                <n-dropdown
+                  :options="restartOptions"
+                  :disabled="restarting"
+                  @select="handleRestartSelect"
                 >
+                  <n-button type="warning" :loading="restarting">
+                    {{ $gettext('Restart') }}
+                  </n-button>
+                </n-dropdown>
+                <app-button type="info" @click="handleUpdate">
                   {{ $gettext('Update') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </template>
           </n-page-header>
@@ -759,45 +774,48 @@ if (import.meta.hot) {
             <n-flex vertical>
               <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-85>
                 <n-scrollbar class="max-h-68">
-                  <draggable
-                    v-if="!appLoading"
-                    v-model="apps"
-                    item-key="slug"
-                    handle=".drag-handle"
-                    class="app-grid"
-                    @end="handleAppOrderChange"
-                  >
-                    <template #item="{ element: item }">
-                      <div relative>
-                        <n-card
-                          :segmented="true"
-                          size="small"
-                          cursor-pointer
-                          class="app-card"
-                          @click="handleManageApp(item.slug)"
-                        >
-                          <div class="drag-handle" cursor-grab>
-                            <the-icon icon="mdi:drag" :size="20" />
-                          </div>
-                          <n-flex>
-                            <n-thing>
-                              <template #avatar>
-                                <div class="mt-2">
-                                  <the-icon-local type="app" :size="30" :icon="item.slug" />
-                                </div>
-                              </template>
-                              <template #header>
-                                {{ item.name }}
-                              </template>
-                              <template #description>
-                                {{ item.version }}
-                              </template>
-                            </n-thing>
-                          </n-flex>
-                        </n-card>
-                      </div>
-                    </template>
-                  </draggable>
+                  <n-spin :show="ordering">
+                    <draggable
+                      v-if="!appLoading"
+                      v-model="apps"
+                      item-key="slug"
+                      handle=".drag-handle"
+                      class="app-grid"
+                      :disabled="ordering"
+                      @end="handleAppOrderChange"
+                    >
+                      <template #item="{ element: item }">
+                        <div relative>
+                          <n-card
+                            :segmented="true"
+                            size="small"
+                            cursor-pointer
+                            class="app-card"
+                            @click="handleManageApp(item.slug)"
+                          >
+                            <div class="drag-handle" cursor-grab>
+                              <the-icon icon="mdi:drag" :size="20" />
+                            </div>
+                            <n-flex>
+                              <n-thing>
+                                <template #avatar>
+                                  <div class="mt-2">
+                                    <the-icon-local type="app" :size="30" :icon="item.slug" />
+                                  </div>
+                                </template>
+                                <template #header>
+                                  {{ item.name }}
+                                </template>
+                                <template #description>
+                                  {{ item.version }}
+                                </template>
+                              </n-thing>
+                            </n-flex>
+                          </n-card>
+                        </div>
+                      </template>
+                    </draggable>
+                  </n-spin>
                 </n-scrollbar>
                 <n-text v-if="!appLoading && !apps.length">
                   {{ $gettext('You have not set any apps to display here!') }}
@@ -932,20 +950,6 @@ if (import.meta.hot) {
       </n-space>
     </div>
   </PageContainer>
-
-  <!-- 服务器重启确认弹窗 -->
-  <n-modal
-    v-model:show="showRestartServerConfirm"
-    preset="dialog"
-    type="warning"
-    :title="$gettext('Restart Server')"
-    :content="
-      $gettext('Are you sure you want to restart the server? This will disconnect all connections.')
-    "
-    :positive-text="$gettext('Confirm')"
-    :negative-text="$gettext('Cancel')"
-    @positive-click="handleRestartServer"
-  />
 </template>
 
 <style scoped>

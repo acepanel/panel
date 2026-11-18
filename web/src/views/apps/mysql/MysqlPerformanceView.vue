@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NTag } from 'naive-ui'
+import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type mysql from '@/api/apps/mysql'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const props = defineProps<{
@@ -11,8 +12,6 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
-
-const enableTopSQLLoading = ref(false)
 
 const { data: processes, send: refreshProcesses } = useRequest(props.api.processes, {
   initialData: [],
@@ -24,16 +23,15 @@ const { data: topSQL, send: refreshTopSQL } = useRequest(props.api.topSQL, {
   initialData: { supported: true, enabled: true, pending_restart: false, items: [] },
 })
 
-const handleKill = (id: number, refresh: () => void) => {
-  useRequest(props.api.killProcess(id)).onSuccess(() => {
-    window.$message.success($gettext('Terminated successfully'))
-    refresh()
-  })
+const handleKill = async (id: number, refresh: () => void) => {
+  await props.api.killProcess(id)
+  window.$message.success($gettext('Terminated successfully'))
+  refresh()
 }
 
 const killButton = (id: number, refresh: () => void) =>
   h(
-    NButton,
+    AppButton,
     {
       size: 'small',
       type: 'error',
@@ -45,7 +43,7 @@ const killButton = (id: number, refresh: () => void) =>
           }),
           positiveText: $gettext('Terminate'),
         })
-        if (ok) handleKill(id, refresh)
+        if (ok) await handleKill(id, refresh)
       },
     },
     { default: () => $gettext('Terminate') },
@@ -133,7 +131,7 @@ const lockWaitColumns: any = [
     width: 180,
     render: (row: any) =>
       h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -146,7 +144,7 @@ const lockWaitColumns: any = [
               ),
               positiveText: $gettext('Terminate'),
             })
-            if (ok) handleKill(row.blocking_thread_id, refreshTransactions)
+            if (ok) await handleKill(row.blocking_thread_id, refreshTransactions)
           },
         },
         { default: () => $gettext('Terminate Blocker') },
@@ -198,15 +196,9 @@ const handleEnableTopSQL = async () => {
     ),
   })
   if (!ok) return
-  enableTopSQLLoading.value = true
-  useRequest(props.api.enableTopSQL())
-    .onSuccess(() => {
-      window.$message.success($gettext('Enabled, please restart the service to take effect'))
-      refreshTopSQL()
-    })
-    .onComplete(() => {
-      enableTopSQLLoading.value = false
-    })
+  await props.api.enableTopSQL()
+  window.$message.success($gettext('Enabled, please restart the service to take effect'))
+  refreshTopSQL()
 }
 
 const handleResetTopSQL = async () => {
@@ -216,10 +208,9 @@ const handleResetTopSQL = async () => {
     content: $gettext('Are you sure you want to reset all SQL statistics?'),
   })
   if (!ok) return
-  useRequest(props.api.resetTopSQL()).onSuccess(() => {
-    window.$message.success($gettext('Reset successfully'))
-    refreshTopSQL()
-  })
+  await props.api.resetTopSQL()
+  window.$message.success($gettext('Reset successfully'))
+  refreshTopSQL()
 }
 </script>
 
@@ -228,9 +219,9 @@ const handleResetTopSQL = async () => {
     <n-tab-pane name="processes" :tab="$gettext('Processes')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshProcesses()">
+          <app-button type="primary" @click="() => refreshProcesses()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           striped
@@ -244,9 +235,9 @@ const handleResetTopSQL = async () => {
     <n-tab-pane name="transactions" :tab="$gettext('Transactions & Locks')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshTransactions()">
+          <app-button type="primary" @click="() => refreshTransactions()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-alert v-if="transactions.lock_waits.length" type="warning">
           {{ $gettext('Lock waits detected, check the blocking connections below.') }}
@@ -288,24 +279,19 @@ const handleResetTopSQL = async () => {
             }}
           </n-alert>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="enableTopSQLLoading"
-              :disabled="enableTopSQLLoading"
-              @click="handleEnableTopSQL"
-            >
+            <app-button type="primary" @click="handleEnableTopSQL">
               {{ $gettext('Enable') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </template>
         <template v-if="topSQL.enabled">
           <n-flex>
-            <n-button type="primary" @click="() => refreshTopSQL()">
+            <app-button type="primary" @click="() => refreshTopSQL()">
               {{ $gettext('Refresh') }}
-            </n-button>
-            <n-button type="warning" @click="handleResetTopSQL">
+            </app-button>
+            <app-button type="warning" @click="handleResetTopSQL">
               {{ $gettext('Reset Statistics') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <n-data-table
             striped

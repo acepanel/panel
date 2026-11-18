@@ -26,31 +26,25 @@ const meta = {
 }[props.type]
 
 const visible = ref(false)
-const loading = ref(false)
 const list = ref<ProcessStat[]>([])
 
+const show = async () => {
+  list.value = await home.topProcesses(props.type)
+  visible.value = true
+}
+
+// 收起时不能返回 Promise，否则按钮会闪一下加载图标
 const toggle = () => {
-  if (visible.value) {
-    visible.value = false
-    return
-  }
-  loading.value = true
-  useRequest(home.topProcesses(props.type))
-    .onSuccess(({ data }) => {
-      list.value = data
-      visible.value = true
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  if (!visible.value) return show()
+  visible.value = false
 }
 </script>
 
 <template>
   <n-flex justify="center">
-    <n-button text type="primary" size="small" :loading="loading" @click="toggle">
+    <app-button text type="primary" size="small" @click="toggle">
       {{ meta.title }} {{ visible ? '∧' : '>' }}
-    </n-button>
+    </app-button>
   </n-flex>
   <n-table
     v-if="visible && list.length"

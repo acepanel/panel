@@ -4,6 +4,7 @@ import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import webhook from '@/api/panel/webhook'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -21,7 +22,6 @@ const defaultModel = () => ({
 
 // 创建与编辑共用一个弹窗，editId 为 0 表示创建
 const formModal = ref(false)
-const formLoading = ref(false)
 const editId = ref(0)
 const model = ref(defaultModel())
 
@@ -152,7 +152,7 @@ const columns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -160,7 +160,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this WebHook?'),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -219,38 +219,36 @@ const handleEdit = (row: any) => {
   formModal.value = true
 }
 
-const handleDelete = (id: number) => {
-  useRequest(webhook.delete(id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refresh()
-  })
+const handleDelete = async (id: number) => {
+  await webhook.delete(id)
+  window.$message.success($gettext('Deleted successfully'))
+  refresh()
 }
 
-const handleSubmit = () => {
+const submit = async () => {
   const { name, script, raw, user, status } = model.value
-  if (!name) {
-    window.$message.warning($gettext('Please enter a name'))
-    return
-  }
-  if (!script) {
-    window.$message.warning($gettext('Please enter a script'))
-    return
-  }
-  formLoading.value = true
   const req = editId.value
     ? webhook.update(editId.value, { name, script, raw, user, status })
     : webhook.create({ name, script, raw, user })
-  useRequest(req)
-    .onSuccess(() => {
-      formModal.value = false
-      window.$message.success(
-        editId.value ? $gettext('Modified successfully') : $gettext('Created successfully'),
-      )
-      refresh()
-    })
-    .onComplete(() => {
-      formLoading.value = false
-    })
+  await req
+  formModal.value = false
+  window.$message.success(
+    editId.value ? $gettext('Modified successfully') : $gettext('Created successfully'),
+  )
+  refresh()
+}
+
+// 校验不通过时同步返回，避免提交按钮闪一下加载图标
+const handleSubmit = () => {
+  if (!model.value.name) {
+    window.$message.warning($gettext('Please enter a name'))
+    return
+  }
+  if (!model.value.script) {
+    window.$message.warning($gettext('Please enter a script'))
+    return
+  }
+  return submit()
 }
 </script>
 
@@ -302,15 +300,9 @@ const handleSubmit = () => {
         <common-editor v-model:value="model.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      :loading="formLoading"
-      :disabled="formLoading"
-      @click="handleSubmit"
-      block
-    >
+    <app-button type="info" @click="handleSubmit" block>
       {{ editId ? $gettext('Save') : $gettext('Create') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

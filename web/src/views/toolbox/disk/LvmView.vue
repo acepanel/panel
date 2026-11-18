@@ -17,7 +17,7 @@ interface OverviewItem {
   name: string
   meta: string
   path?: string
-  remove: () => void
+  remove: () => Promise<void>
 }
 
 const props = defineProps<{
@@ -128,11 +128,7 @@ onMounted(() => {
   loadLVMInfo()
 })
 
-const handleCreatePV = async () => {
-  if (!pvDevice.value) {
-    window.$message.error($gettext('Please select a device'))
-    return
-  }
+const createPV = async () => {
   const ok = await confirmAction({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to create a physical volume on %{ device }?', {
@@ -140,11 +136,19 @@ const handleCreatePV = async () => {
     }),
   })
   if (!ok) return
-  useRequest(disk.createPV(pvDevice.value)).onSuccess(() => {
-    window.$message.success($gettext('Physical volume created successfully'))
-    loadLVMInfo()
-    pvDevice.value = ''
-  })
+  await disk.createPV(pvDevice.value)
+  window.$message.success($gettext('Physical volume created successfully'))
+  loadLVMInfo()
+  pvDevice.value = ''
+}
+
+// 校验不通过时同步返回，避免创建按钮闪一下加载图标
+const handleCreatePV = () => {
+  if (!pvDevice.value) {
+    window.$message.error($gettext('Please select a device'))
+    return
+  }
+  return createPV()
 }
 
 const handleRemovePV = async (device: string) => {
@@ -156,17 +160,12 @@ const handleRemovePV = async (device: string) => {
     }),
   })
   if (!ok) return
-  useRequest(disk.removePV(device)).onSuccess(() => {
-    window.$message.success($gettext('Physical volume removed successfully'))
-    loadLVMInfo()
-  })
+  await disk.removePV(device)
+  window.$message.success($gettext('Physical volume removed successfully'))
+  loadLVMInfo()
 }
 
-const handleCreateVG = async () => {
-  if (!vgName.value || vgDevices.value.length === 0) {
-    window.$message.error($gettext('Please fill in all fields'))
-    return
-  }
+const createVG = async () => {
   const ok = await confirmAction({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to create volume group %{ name }?', {
@@ -174,12 +173,20 @@ const handleCreateVG = async () => {
     }),
   })
   if (!ok) return
-  useRequest(disk.createVG(vgName.value, vgDevices.value)).onSuccess(() => {
-    window.$message.success($gettext('Volume group created successfully'))
-    loadLVMInfo()
-    vgName.value = ''
-    vgDevices.value = []
-  })
+  await disk.createVG(vgName.value, vgDevices.value)
+  window.$message.success($gettext('Volume group created successfully'))
+  loadLVMInfo()
+  vgName.value = ''
+  vgDevices.value = []
+}
+
+// 校验不通过时同步返回，避免创建按钮闪一下加载图标
+const handleCreateVG = () => {
+  if (!vgName.value || vgDevices.value.length === 0) {
+    window.$message.error($gettext('Please fill in all fields'))
+    return
+  }
+  return createVG()
 }
 
 const handleRemoveVG = async (name: string) => {
@@ -192,17 +199,12 @@ const handleRemoveVG = async (name: string) => {
     ),
   })
   if (!ok) return
-  useRequest(disk.removeVG(name)).onSuccess(() => {
-    window.$message.success($gettext('Volume group removed successfully'))
-    loadLVMInfo()
-  })
+  await disk.removeVG(name)
+  window.$message.success($gettext('Volume group removed successfully'))
+  loadLVMInfo()
 }
 
-const handleCreateLV = async () => {
-  if (!lvName.value || !lvVgName.value || lvSize.value < 1) {
-    window.$message.error($gettext('Please fill in all fields'))
-    return
-  }
+const createLV = async () => {
   const ok = await confirmAction({
     title: $gettext('Confirm'),
     content: $gettext(
@@ -211,13 +213,21 @@ const handleCreateLV = async () => {
     ),
   })
   if (!ok) return
-  useRequest(disk.createLV(lvName.value, lvVgName.value, lvSize.value)).onSuccess(() => {
-    window.$message.success($gettext('Logical volume created successfully'))
-    loadLVMInfo()
-    lvName.value = ''
-    lvVgName.value = ''
-    lvSize.value = 1
-  })
+  await disk.createLV(lvName.value, lvVgName.value, lvSize.value)
+  window.$message.success($gettext('Logical volume created successfully'))
+  loadLVMInfo()
+  lvName.value = ''
+  lvVgName.value = ''
+  lvSize.value = 1
+}
+
+// 校验不通过时同步返回，避免创建按钮闪一下加载图标
+const handleCreateLV = () => {
+  if (!lvName.value || !lvVgName.value || lvSize.value < 1) {
+    window.$message.error($gettext('Please fill in all fields'))
+    return
+  }
+  return createLV()
 }
 
 const handleRemoveLV = async (path: string) => {
@@ -230,17 +240,12 @@ const handleRemoveLV = async (path: string) => {
     ),
   })
   if (!ok) return
-  useRequest(disk.removeLV(path)).onSuccess(() => {
-    window.$message.success($gettext('Logical volume removed successfully'))
-    loadLVMInfo()
-  })
+  await disk.removeLV(path)
+  window.$message.success($gettext('Logical volume removed successfully'))
+  loadLVMInfo()
 }
 
-const handleExtendLV = async () => {
-  if (!extendLvPath.value || extendSize.value < 1) {
-    window.$message.error($gettext('Please fill in all fields'))
-    return
-  }
+const extendLV = async () => {
   const ok = await confirmAction({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to extend %{ path } by %{ size }GB?', {
@@ -249,14 +254,20 @@ const handleExtendLV = async () => {
     }),
   })
   if (!ok) return
-  useRequest(disk.extendLV(extendLvPath.value, extendSize.value, extendResize.value)).onSuccess(
-    () => {
-      window.$message.success($gettext('Logical volume extended successfully'))
-      loadLVMInfo()
-      extendLvPath.value = ''
-      extendSize.value = 1
-    },
-  )
+  await disk.extendLV(extendLvPath.value, extendSize.value, extendResize.value)
+  window.$message.success($gettext('Logical volume extended successfully'))
+  loadLVMInfo()
+  extendLvPath.value = ''
+  extendSize.value = 1
+}
+
+// 校验不通过时同步返回，避免扩容按钮闪一下加载图标
+const handleExtendLV = () => {
+  if (!extendLvPath.value || extendSize.value < 1) {
+    window.$message.error($gettext('Please fill in all fields'))
+    return
+  }
+  return extendLV()
 }
 </script>
 
@@ -279,11 +290,11 @@ const handleExtendLV = async () => {
                 <div class="lvm-item__meta">{{ item.meta }}</div>
                 <div v-if="item.path" class="lvm-item__path">{{ item.path }}</div>
               </div>
-              <n-button size="tiny" quaternary type="error" @click="item.remove">
+              <app-button size="tiny" quaternary type="error" @click="item.remove">
                 <template #icon>
                   <i-mdi-close />
                 </template>
-              </n-button>
+              </app-button>
             </div>
             <n-empty v-if="!card.items.length" size="small" :description="card.empty" />
           </div>
@@ -315,9 +326,9 @@ const handleExtendLV = async () => {
             />
           </div>
           <n-flex justify="end">
-            <n-button type="primary" @click="handleCreatePV">
+            <app-button type="primary" @click="handleCreatePV">
               {{ $gettext('Create PV') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -339,9 +350,9 @@ const handleExtendLV = async () => {
             />
           </div>
           <n-flex justify="end">
-            <n-button type="primary" @click="handleCreateVG">
+            <app-button type="primary" @click="handleCreateVG">
               {{ $gettext('Create VG') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -368,9 +379,9 @@ const handleExtendLV = async () => {
             </n-gi>
           </n-grid>
           <n-flex justify="end">
-            <n-button type="primary" @click="handleCreateLV">
+            <app-button type="primary" @click="handleCreateLV">
               {{ $gettext('Create LV') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -397,9 +408,9 @@ const handleExtendLV = async () => {
             </n-gi>
           </n-grid>
           <n-flex justify="end">
-            <n-button type="primary" @click="handleExtendLV">
+            <app-button type="primary" @click="handleExtendLV">
               {{ $gettext('Extend LV') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>

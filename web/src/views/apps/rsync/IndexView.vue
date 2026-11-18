@@ -7,6 +7,7 @@ import { NButton, NFlex, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { generateRandomString } from '@/utils'
@@ -14,7 +15,6 @@ import { generateRandomString } from '@/utils'
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
-const modelAddLoading = ref(false)
 
 const addModuleModal = ref(false)
 const addModuleModel = ref({
@@ -93,7 +93,7 @@ const processColumns: any = [
           { default: () => $gettext('Configure') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -103,7 +103,7 @@ const processColumns: any = [
                   name: row.name,
                 }),
               })
-              if (ok) handleModelDelete(row.name)
+              if (ok) await handleModelDelete(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -118,32 +118,25 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
 )
 
 const handleModelAdd = async () => {
-  modelAddLoading.value = true
-  useRequest(rsync.addModule(addModuleModel.value))
-    .onSuccess(() => {
-      refresh()
-      addModuleModal.value = false
-      addModuleModel.value = {
-        name: '',
-        path: '/opt/ace',
-        comment: '',
-        auth_user: '',
-        secret: generateRandomString(16),
-        hosts_allow: '0.0.0.0/0',
-        read_only: false,
-      }
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      modelAddLoading.value = false
-    })
+  await rsync.addModule(addModuleModel.value)
+  refresh()
+  addModuleModal.value = false
+  addModuleModel.value = {
+    name: '',
+    path: '/opt/ace',
+    comment: '',
+    auth_user: '',
+    secret: generateRandomString(16),
+    hosts_allow: '0.0.0.0/0',
+    read_only: false,
+  }
+  window.$message.success($gettext('Added successfully'))
 }
 
 const handleModelDelete = async (name: string) => {
-  useRequest(rsync.deleteModule(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await rsync.deleteModule(name)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const handleModelEdit = async (row: any) => {
@@ -158,13 +151,10 @@ const handleModelEdit = async (row: any) => {
 }
 
 const handleSaveModuleConfig = async () => {
-  useRequest(rsync.updateModule(editModuleModel.value.name, editModuleModel.value)).onSuccess(
-    () => {
-      editModuleModal.value = false
-      refresh()
-      window.$message.success($gettext('Saved successfully'))
-    },
-  )
+  await rsync.updateModule(editModuleModel.value.name, editModuleModel.value)
+  editModuleModal.value = false
+  refresh()
+  window.$message.success($gettext('Saved successfully'))
 }
 </script>
 
@@ -266,15 +256,9 @@ const handleSaveModuleConfig = async () => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="modelAddLoading"
-      :disabled="modelAddLoading"
-      @click="handleModelAdd"
-    >
+    <app-button type="info" block @click="handleModelAdd">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <app-modal v-model:show="editModuleModal" :title="$gettext('Module Configuration')">
     <n-form :model="editModuleModel">
@@ -323,6 +307,8 @@ const handleSaveModuleConfig = async () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleSaveModuleConfig">{{ $gettext('Save') }}</n-button>
+    <app-button type="info" block @click="handleSaveModuleConfig">
+      {{ $gettext('Save') }}
+    </app-button>
   </app-modal>
 </template>

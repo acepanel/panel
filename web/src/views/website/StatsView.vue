@@ -108,10 +108,9 @@ const siteOptions = ref<Array<{ label: string; value: string }>>([])
 
 // ============ 清空数据 ============
 
-const handleClear = () => {
-  useRequest(website.statClear()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-  })
+const handleClear = async () => {
+  await website.statClear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 // ============ Tab ============
@@ -220,9 +219,9 @@ provide('statContext', {
           @confirm="handleClear"
         >
           <template #trigger>
-            <n-button type="error" ghost size="small">
+            <app-button type="error" ghost size="small">
               {{ $gettext('Clear Data') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </div>

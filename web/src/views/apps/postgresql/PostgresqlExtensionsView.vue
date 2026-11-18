@@ -7,6 +7,7 @@ import { NButton, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
@@ -16,12 +17,15 @@ const showEnableModal = ref(false)
 const enableSlug = ref('')
 const enableExtName = ref('')
 const enableDatabase = ref('')
-const enableLoading = ref(false)
 
 const { data: extensions, send: refreshExtensions } = useRequest(postgresql.extensions, {
   initialData: [],
 })
-const { data: databases, send: fetchDatabases } = useRequest(postgresql.databases, {
+const {
+  data: databases,
+  loading: databasesLoading,
+  send: fetchDatabases,
+} = useRequest(postgresql.databases, {
   immediate: false,
   initialData: [],
 })
@@ -74,7 +78,7 @@ const columns: any = [
     render(row: any) {
       if (!row.installed) {
         return h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'info',
@@ -86,7 +90,7 @@ const columns: any = [
                   name: row.name,
                 }),
               })
-              if (ok) handleInstall(row.slug)
+              if (ok) await handleInstall(row.slug)
             },
           },
           { default: () => $gettext('Install') },
@@ -107,7 +111,7 @@ const columns: any = [
               { default: () => $gettext('Enable') },
             ),
             h(
-              NButton,
+              AppButton,
               {
                 size: 'small',
                 onClick: async () => {
@@ -119,13 +123,13 @@ const columns: any = [
                       { name: row.name },
                     ),
                   })
-                  if (ok) handleInstall(row.slug)
+                  if (ok) await handleInstall(row.slug)
                 },
               },
               { default: () => $gettext('Reinstall') },
             ),
             h(
-              NButton,
+              AppButton,
               {
                 size: 'small',
                 type: 'error',
@@ -139,7 +143,7 @@ const columns: any = [
                     positiveText: $gettext('Uninstall'),
                     countdown: 5,
                   })
-                  if (ok) handleUninstall(row.slug)
+                  if (ok) await handleUninstall(row.slug)
                 },
               },
               { default: () => $gettext('Uninstall') },
@@ -159,31 +163,23 @@ const handleOpenEnable = (row: any) => {
   showEnableModal.value = true
 }
 
-const handleEnable = () => {
+const handleEnable = async () => {
   if (!enableDatabase.value) return
-  enableLoading.value = true
-  useRequest(postgresql.enableExtension(enableSlug.value, enableDatabase.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Enabled successfully'))
-      showEnableModal.value = false
-    })
-    .onComplete(() => {
-      enableLoading.value = false
-    })
+  await postgresql.enableExtension(enableSlug.value, enableDatabase.value)
+  window.$message.success($gettext('Enabled successfully'))
+  showEnableModal.value = false
 }
 
-const handleInstall = (slug: string) => {
-  useRequest(postgresql.installExtension(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-    refreshExtensions()
-  })
+const handleInstall = async (slug: string) => {
+  await postgresql.installExtension(slug)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  refreshExtensions()
 }
 
-const handleUninstall = (slug: string) => {
-  useRequest(postgresql.uninstallExtension(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-    refreshExtensions()
-  })
+const handleUninstall = async (slug: string) => {
+  await postgresql.uninstallExtension(slug)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  refreshExtensions()
 }
 </script>
 
@@ -213,18 +209,14 @@ const handleUninstall = (slug: string) => {
         </n-alert>
         <n-select
           v-model:value="enableDatabase"
+          :loading="databasesLoading"
           :options="databaseOptions"
           :placeholder="$gettext('Select database')"
         />
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="enableLoading"
-            :disabled="enableLoading || !enableDatabase"
-            @click="handleEnable"
-          >
+          <app-button type="primary" :disabled="!enableDatabase" @click="handleEnable">
             {{ $gettext('Enable') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </app-modal>

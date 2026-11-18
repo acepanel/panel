@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -77,7 +78,7 @@ const columns: any = [
           { default: () => $gettext('Modify') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -86,10 +87,9 @@ const columns: any = [
                 content: $gettext('Are you sure you want to delete the DNS?'),
               })
               if (!ok) return
-              useRequest(cert.dnsDelete(row.id)).onSuccess(() => {
-                refresh()
-                window.$message.success($gettext('Deletion successful'))
-              })
+              await cert.dnsDelete(row.id)
+              refresh()
+              window.$message.success($gettext('Deletion successful'))
             },
           },
           { default: () => $gettext('Delete') },

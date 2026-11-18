@@ -15,6 +15,7 @@ import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 import TheIcon from '@/components/custom/TheIcon.vue'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
@@ -229,6 +230,7 @@ const columns: any = [
         type: 'datetime',
         size: 'small',
         clearable: true,
+        disabled: saving.has(`${row.id}:expire_at`),
         value: row.expire_at ? new Date(row.expire_at).getTime() : null,
         onUpdateValue: (v: number | null) => {
           handleExpireAt(row, v)
@@ -246,6 +248,8 @@ const columns: any = [
         size: 'small',
         class: 'w-full',
         value: row.remark,
+        disabled: saving.has(`${row.id}:remark`),
+        loading: saving.has(`${row.id}:remark`) || undefined,
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
           row.remark = v
@@ -313,7 +317,7 @@ const columns: any = [
                 },
               ),
             trigger: () =>
-              h(NButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
+              h(AppButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
           },
         ),
       ])
@@ -353,9 +357,14 @@ const handleStatusChange = (row: any) => {
     .onComplete(() => switching.delete(row.id))
 }
 
+// 行内保存中的单元格，键为 `id:列名`
+const saving = reactive(new Set<string>())
+
 // 修改到期时间
-const handleExpireAt = (row: any, timestamp: number | null) => {
+const handleExpireAt = async (row: any, timestamp: number | null) => {
   if (isNullOrUndef(row.id)) return
+  const key = `${row.id}:expire_at`
+  if (saving.has(key)) return
 
   const expireAt = timestamp
     ? new Date(timestamp)
@@ -369,16 +378,26 @@ const handleExpireAt = (row: any, timestamp: number | null) => {
         })
         .replace('T', ' ')
     : ''
-  useRequest(website.updateExpireAt(row.id, expireAt)).onSuccess(() => {
+  saving.add(key)
+  try {
+    await website.updateExpireAt(row.id, expireAt)
     row.expire_at = timestamp ? new Date(timestamp).toISOString() : null
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(key)
+  }
 }
 
-const handleRemark = (row: any) => {
-  useRequest(website.updateRemark(row.id, row.remark)).onSuccess(() => {
+const handleRemark = async (row: any) => {
+  const key = `${row.id}:remark`
+  if (saving.has(key)) return
+  saving.add(key)
+  try {
+    await website.updateRemark(row.id, row.remark)
     window.$message.success($gettext('Modified successfully'))
-  })
+  } finally {
+    saving.delete(key)
+  }
 }
 
 const handleEdit = (row: any) => {
@@ -386,12 +405,11 @@ const handleEdit = (row: any) => {
   editModal.value = true
 }
 
-const handleDelete = (id: number) => {
-  useRequest(website.delete(id, deleteModel.value.path, deleteModel.value.db)).onSuccess(() => {
-    refresh()
-    deleteModel.value.path = true
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: number) => {
+  await website.delete(id, deleteModel.value.path, deleteModel.value.db)
+  refresh()
+  deleteModel.value.path = true
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const bulkDelete = async () => {
@@ -427,9 +445,9 @@ useBus('website:refresh', refresh)
           @confirm="bulkDelete"
         >
           <template #trigger>
-            <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
               {{ $gettext('Delete') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>

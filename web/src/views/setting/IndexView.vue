@@ -20,8 +20,6 @@ const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 const currentTab = ref('base')
 const createModal = ref(false)
-const isObtainCert = ref(false)
-const saveLoading = ref(false)
 
 // 记录已保存的 HTTPS 相关设置，用于判断是否有未保存的修改
 const savedHttpsState = ref({ tls: 'off', public_ip: '[]' })
@@ -73,63 +71,54 @@ const { data: model } = useRequest(setting.list, {
 // 数据加载完成后快照 HTTPS 状态
 watch(model, () => snapshotHttpsState(), { once: true, deep: true })
 
-const handleSave = () => {
+const handleSave = async () => {
   model.value.entrance = '/' + model.value.entrance.trim().replace(/^\/+|\/+$/g, '')
-  saveLoading.value = true
-  useRequest(setting.update(model.value))
-    .onSuccess(({ data }) => {
-      window.$message.success($gettext('Saved successfully'))
+  const data = await setting.update(model.value)
+  window.$message.success($gettext('Saved successfully'))
 
-      // 更新 HTTPS 快照
-      snapshotHttpsState()
+  // 更新 HTTPS 快照
+  snapshotHttpsState()
 
-      // 更新语言设置
-      if (model.value.locale !== themeStore.locale) {
-        themeStore.setLocale(model.value.locale)
-      }
+  // 更新语言设置
+  if (model.value.locale !== themeStore.locale) {
+    themeStore.setLocale(model.value.locale)
+  }
 
-      // 更新隐藏菜单和自定义 Logo
-      themeStore.setLogo(model.value.custom_logo || '')
-      permissionStore.setHiddenRoutes(model.value.hidden_menu || [])
+  // 更新隐藏菜单和自定义 Logo
+  themeStore.setLogo(model.value.custom_logo || '')
+  permissionStore.setHiddenRoutes(model.value.hidden_menu || [])
 
-      // 如果需要重启，则自动刷新页面
-      if (data.restart) {
-        window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
-        setTimeout(() => {
-          const protocol = model.value.tls !== 'off' ? 'https:' : 'http:'
-          const hostname = window.location.hostname
-          const port = model.value.port
-          const entrance = model.value.entrance || '/'
-          // 构建新的 URL
-          window.location.href = `${protocol}//${hostname}:${port}${entrance}`
-        }, 5000)
-      }
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+  // 如果需要重启，则自动刷新页面
+  if (data.restart) {
+    window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+    setTimeout(() => {
+      const protocol = model.value.tls !== 'off' ? 'https:' : 'http:'
+      const hostname = window.location.hostname
+      const port = model.value.port
+      const entrance = model.value.entrance || '/'
+      // 构建新的 URL
+      window.location.href = `${protocol}//${hostname}:${port}${entrance}`
+    }, 5000)
+  }
 }
 
-const handleObtainCert = () => {
-  isObtainCert.value = true
+const handleObtainCert = async () => {
   messageReactive = window.$message.loading($gettext('Please wait...'), {
     duration: 0,
   })
-  useRequest(setting.obtainCert())
-    .onSuccess(() => {
-      window.$message.success($gettext('Certificate refreshed successfully'))
-      window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
-      setTimeout(() => {
-        const hostname = window.location.hostname
-        const port = model.value.port
-        const entrance = model.value.entrance || '/'
-        window.location.href = `https://${hostname}:${port}${entrance}`
-      }, 5000)
-    })
-    .onComplete(() => {
-      isObtainCert.value = false
-      messageReactive?.destroy()
-    })
+  try {
+    await setting.obtainCert()
+    window.$message.success($gettext('Certificate refreshed successfully'))
+    window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+    setTimeout(() => {
+      const hostname = window.location.hostname
+      const port = model.value.port
+      const entrance = model.value.entrance || '/'
+      window.location.href = `https://${hostname}:${port}${entrance}`
+    }, 5000)
+  } finally {
+    messageReactive?.destroy()
+  }
 }
 
 const handleCreate = () => {
@@ -156,20 +145,13 @@ const handleCreate = () => {
       <setting-safe v-if="currentTab === 'safe'" v-model:model="model" />
       <setting-user v-if="currentTab === 'user'" />
       <n-flex>
-        <n-button
-          v-if="currentTab != 'user'"
-          type="primary"
-          :loading="saveLoading"
-          :disabled="saveLoading"
-          @click="handleSave"
-        >
+        <app-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
           {{ $gettext('Save') }}
-        </n-button>
-        <n-button
+        </app-button>
+        <app-button
           v-if="currentTab === 'safe' && (model.tls === 'acme' || model.tls === 'self-signed')"
           type="info"
-          :loading="isObtainCert"
-          :disabled="httpsSettingsDirty || isObtainCert"
+          :disabled="httpsSettingsDirty"
           @click="handleObtainCert"
         >
           {{
@@ -177,7 +159,7 @@ const handleCreate = () => {
               ? $gettext('Refresh Certificate')
               : $gettext('Regenerate Certificate')
           }}
-        </n-button>
+        </app-button>
       </n-flex>
     </n-flex>
   </PageContainer>

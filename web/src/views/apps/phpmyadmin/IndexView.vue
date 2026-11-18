@@ -9,7 +9,6 @@ import phpmyadmin from '@/api/apps/phpmyadmin'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const saveLoading = ref(false)
 const hostname = ref(window.location.hostname)
 const port = ref(0)
 const path = ref('')
@@ -25,16 +24,10 @@ const getInfo = async () => {
   newPort.value = data.port
 }
 
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(phpmyadmin.port(newPort.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      getInfo()
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+const handleSave = async () => {
+  await phpmyadmin.port(newPort.value)
+  window.$message.success($gettext('Saved successfully'))
+  getInfo()
 }
 
 onMounted(() => {
@@ -55,14 +48,9 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Port')">
             <n-flex>
               <n-input-number v-model:value="newPort" :min="1" :max="65535" />
-              <n-button
-                type="primary"
-                :loading="saveLoading"
-                :disabled="saveLoading"
-                @click="handleSave"
-              >
+              <app-button type="primary" @click="handleSave">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
             {{ $gettext('Modify phpMyAdmin access port') }}
           </n-card>

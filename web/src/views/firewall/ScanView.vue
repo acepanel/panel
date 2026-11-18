@@ -4,11 +4,11 @@ import { LineChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { NButton } from 'naive-ui'
 import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatDateTime } from '@/utils'
@@ -73,13 +73,11 @@ const searchLocation = ref('')
 
 const loadSummary = () => {
   summaryLoading.value = true
-  useRequest(firewall.scanSummary(startDate.value, endDate.value))
-    .onSuccess(({ data }) => {
+  const requests: Promise<void>[] = [
+    firewall.scanSummary(startDate.value, endDate.value).then((data: any) => {
       summary.value = data
-    })
-    .onComplete(() => {
-      summaryLoading.value = false
-    })
+    }),
+  ]
 
   // 获取上一个同长度周期的数据用于对比
   if (dateRange.value) {
@@ -87,12 +85,16 @@ const loadSummary = () => {
     const oneDayMs = 24 * 60 * 60 * 1000
     const prevEnd = dateRange.value[0] - oneDayMs
     const prevStart = prevEnd - rangeMs
-    useRequest(firewall.scanSummary(formatDate(prevStart), formatDate(prevEnd))).onSuccess(
-      ({ data }) => {
+    requests.push(
+      firewall.scanSummary(formatDate(prevStart), formatDate(prevEnd)).then((data: any) => {
         prevSummary.value = data
-      },
+      }),
     )
   }
+
+  void Promise.allSettled(requests).finally(() => {
+    summaryLoading.value = false
+  })
 }
 
 const loadTrend = () => {
@@ -238,19 +240,16 @@ const trendOption = computed<EChartsOption>(() => ({
 }))
 
 // 拉黑 IP
-const handleBlock = (ip: string) => {
+const handleBlock = async (ip: string) => {
   const family = ip.includes(':') ? 'ipv6' : 'ipv4'
-  useRequest(
-    firewall.createIpRule({
-      family,
-      protocol: 'tcp/udp',
-      address: ip,
-      strategy: 'drop',
-      direction: 'in',
-    }),
-  ).onSuccess(() => {
-    window.$message.success($gettext('%{ address } blocked successfully', { address: ip }))
+  await firewall.createIpRule({
+    family,
+    protocol: 'tcp/udp',
+    address: ip,
+    strategy: 'drop',
+    direction: 'in',
   })
+  window.$message.success($gettext('%{ address } blocked successfully', { address: ip }))
 }
 
 // 操作列：拉黑按钮
@@ -260,7 +259,7 @@ const blockColumn = {
   width: 100,
   render: (row: any) =>
     h(
-      NButton,
+      AppButton,
       {
         size: 'tiny',
         type: 'error',
@@ -270,7 +269,7 @@ const blockColumn = {
             title: $pgettext('firewall', 'Block IP'),
             content: $pgettext('firewall', 'Block %{ ip }?', { ip: row.source_ip }),
           })
-          if (ok) handleBlock(row.source_ip)
+          if (ok) await handleBlock(row.source_ip)
         },
       },
       () => $pgettext('firewall', 'Block'),
@@ -333,12 +332,11 @@ const eventColumns: any = [
   blockColumn,
 ]
 
-const handleClear = () => {
-  useRequest(firewall.scanClear()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-    refreshOverview()
-    loadEvents()
-  })
+const handleClear = async () => {
+  await firewall.scanClear()
+  window.$message.success($gettext('Cleared successfully'))
+  refreshOverview()
+  loadEvents()
 }
 </script>
 
@@ -402,9 +400,9 @@ const handleClear = () => {
           @confirm="handleClear"
         >
           <template #trigger>
-            <n-button type="error" ghost>
+            <app-button type="error" ghost>
               {{ $gettext('Clear Data') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>
@@ -413,43 +411,47 @@ const handleClear = () => {
     <!-- 概览 -->
     <template v-if="currentTab === 'overview'">
       <!-- 统计卡片 -->
-      <n-grid cols="2 m:3" responsive="screen" :x-gap="16" :y-gap="16">
-        <n-gi>
-          <n-card :bordered="false">
-            <n-statistic :label="$gettext('Total Scans')" :value="summary.total_count">
-              <template #suffix>
-                <n-text :type="summary.total_count > prevSummary.total_count ? 'error' : 'success'">
-                  {{ summary.total_count > prevSummary.total_count ? '↑' : '↓' }}
-                </n-text>
-              </template>
-            </n-statistic>
-          </n-card>
-        </n-gi>
-        <n-gi>
-          <n-card :bordered="false">
-            <n-statistic :label="$gettext('Scanned Ports')" :value="summary.unique_ports">
-              <template #suffix>
-                <n-text
-                  :type="summary.unique_ports > prevSummary.unique_ports ? 'error' : 'success'"
-                >
-                  {{ summary.unique_ports > prevSummary.unique_ports ? '↑' : '↓' }}
-                </n-text>
-              </template>
-            </n-statistic>
-          </n-card>
-        </n-gi>
-        <n-gi>
-          <n-card :bordered="false">
-            <n-statistic :label="$gettext('Source IPs')" :value="summary.unique_ips">
-              <template #suffix>
-                <n-text :type="summary.unique_ips > prevSummary.unique_ips ? 'error' : 'success'">
-                  {{ summary.unique_ips > prevSummary.unique_ips ? '↑' : '↓' }}
-                </n-text>
-              </template>
-            </n-statistic>
-          </n-card>
-        </n-gi>
-      </n-grid>
+      <n-spin :show="summaryLoading">
+        <n-grid cols="2 m:3" responsive="screen" :x-gap="16" :y-gap="16">
+          <n-gi>
+            <n-card :bordered="false">
+              <n-statistic :label="$gettext('Total Scans')" :value="summary.total_count">
+                <template #suffix>
+                  <n-text
+                    :type="summary.total_count > prevSummary.total_count ? 'error' : 'success'"
+                  >
+                    {{ summary.total_count > prevSummary.total_count ? '↑' : '↓' }}
+                  </n-text>
+                </template>
+              </n-statistic>
+            </n-card>
+          </n-gi>
+          <n-gi>
+            <n-card :bordered="false">
+              <n-statistic :label="$gettext('Scanned Ports')" :value="summary.unique_ports">
+                <template #suffix>
+                  <n-text
+                    :type="summary.unique_ports > prevSummary.unique_ports ? 'error' : 'success'"
+                  >
+                    {{ summary.unique_ports > prevSummary.unique_ports ? '↑' : '↓' }}
+                  </n-text>
+                </template>
+              </n-statistic>
+            </n-card>
+          </n-gi>
+          <n-gi>
+            <n-card :bordered="false">
+              <n-statistic :label="$gettext('Source IPs')" :value="summary.unique_ips">
+                <template #suffix>
+                  <n-text :type="summary.unique_ips > prevSummary.unique_ips ? 'error' : 'success'">
+                    {{ summary.unique_ips > prevSummary.unique_ips ? '↑' : '↓' }}
+                  </n-text>
+                </template>
+              </n-statistic>
+            </n-card>
+          </n-gi>
+        </n-grid>
+      </n-spin>
 
       <!-- 趋势图 -->
       <n-card :bordered="false" :title="$gettext('Scan Trend')">

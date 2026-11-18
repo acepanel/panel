@@ -7,6 +7,7 @@ import { NButton, NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import grafana from '@/api/apps/grafana'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
@@ -21,7 +22,6 @@ const { data: datasources, send: refreshList } = useRequest(grafana.datasources,
 const showModal = ref(false)
 const editMode = ref(false)
 const editOldName = ref('')
-const saveLoading = ref(false)
 
 const formModel = ref({
   name: '',
@@ -113,7 +113,7 @@ const columns: any = [
               { default: () => $gettext('Edit') },
             ),
             h(
-              NButton,
+              AppButton,
               {
                 size: 'small',
                 type: 'error',
@@ -123,7 +123,7 @@ const columns: any = [
                       name: row.name,
                     }),
                   })
-                  if (ok) handleDelete(row.name)
+                  if (ok) await handleDelete(row.name)
                 },
               },
               { default: () => $gettext('Delete') },
@@ -166,27 +166,19 @@ const handleEdit = (row: any) => {
   showModal.value = true
 }
 
-const handleSave = () => {
-  saveLoading.value = true
-  const req = editMode.value
+const handleSave = async () => {
+  await (editMode.value
     ? grafana.updateDatasource(editOldName.value, formModel.value)
-    : grafana.createDatasource(formModel.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      showModal.value = false
-      refreshList()
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+    : grafana.createDatasource(formModel.value))
+  window.$message.success($gettext('Saved successfully'))
+  showModal.value = false
+  refreshList()
 }
 
-const handleDelete = (name: string) => {
-  useRequest(grafana.deleteDatasource(name)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refreshList()
-  })
+const handleDelete = async (name: string) => {
+  await grafana.deleteDatasource(name)
+  window.$message.success($gettext('Deleted successfully'))
+  refreshList()
 }
 </script>
 
@@ -238,14 +230,9 @@ const handleDelete = (name: string) => {
       <template #footer>
         <n-flex justify="end">
           <n-button @click="showModal = false">{{ $gettext('Cancel') }}</n-button>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
+          <app-button type="primary" @click="handleSave">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </template>
     </app-modal>

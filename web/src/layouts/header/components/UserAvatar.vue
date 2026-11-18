@@ -2,12 +2,14 @@
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
 import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const userStore = useUserStore()
+const { confirmAction } = useConfirm()
 
 const options = [
   {
@@ -24,16 +26,14 @@ const options = [
 
 const handleSelect = (key: string) => {
   if (key === 'logout') {
-    window.$dialog.info({
-      content: $gettext('Confirm logout?'),
+    confirmAction({
+      type: 'info',
       title: $gettext('Prompt'),
-      positiveText: $gettext('Confirm'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick() {
-        user.logout().then(() => {
-          userStore.logout()
-        })
+      content: $gettext('Confirm logout?'),
+      onConfirm: async () => {
+        await user.logout()
         window.$message.success($gettext('Logged out successfully!'))
+        userStore.logout()
       },
     })
   }

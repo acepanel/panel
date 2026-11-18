@@ -16,8 +16,6 @@ const { $gettext } = useGettext()
 const currentTab = ref('frps')
 const frpsTab = ref('status')
 const frpcTab = ref('status')
-const saveUserFrpsLoading = ref(false)
-const saveUserFrpcLoading = ref(false)
 const userInfo = ref({
   frpc: { user: '', group: '' },
   frps: { user: '', group: '' },
@@ -35,17 +33,10 @@ const getUser = async () => {
   ])
 }
 
-const handleSaveUser = (service: string) => {
+const handleSaveUser = async (service: string) => {
   const info = userInfo.value[service as keyof typeof userInfo.value]
-  const loadingRef = service === 'frps' ? saveUserFrpsLoading : saveUserFrpcLoading
-  loadingRef.value = true
-  useRequest(frp.saveUser(service, info.user, info.group))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      loadingRef.value = false
-    })
+  await frp.saveUser(service, info.user, info.group)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 onMounted(() => {
@@ -86,14 +77,9 @@ onMounted(() => {
                 </n-form-item>
               </n-form>
               <n-flex>
-                <n-button
-                  type="primary"
-                  :loading="saveUserFrpsLoading"
-                  :disabled="saveUserFrpsLoading"
-                  @click="handleSaveUser('frps')"
-                >
+                <app-button type="primary" @click="handleSaveUser('frps')">
                   {{ $gettext('Save') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </n-flex>
           </n-tab-pane>
@@ -138,14 +124,9 @@ onMounted(() => {
                 </n-form-item>
               </n-form>
               <n-flex>
-                <n-button
-                  type="primary"
-                  :loading="saveUserFrpcLoading"
-                  :disabled="saveUserFrpcLoading"
-                  @click="handleSaveUser('frpc')"
-                >
+                <app-button type="primary" @click="handleSaveUser('frpc')">
                   {{ $gettext('Save') }}
-                </n-button>
+                </app-button>
               </n-flex>
             </n-flex>
           </n-tab-pane>

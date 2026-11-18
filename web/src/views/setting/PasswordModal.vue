@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput } from 'naive-ui'
+import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
@@ -11,8 +11,6 @@ const model = ref({
   password: '',
 })
 
-const loading = ref(false)
-
 // 弹窗按用户复用，每次打开时清空上次输入的密码
 watch(show, (value) => {
   if (value) {
@@ -20,17 +18,11 @@ watch(show, (value) => {
   }
 })
 
-const handleUpdate = () => {
-  loading.value = true
-  useRequest(() => user.updatePassword(id.value, model.value.password))
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Updated successfully'))
-      window.$bus.emit('user:refresh')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleUpdate = async () => {
+  await user.updatePassword(id.value, model.value.password)
+  show.value = false
+  window.$message.success($gettext('Updated successfully'))
+  window.$bus.emit('user:refresh')
 }
 </script>
 
@@ -47,9 +39,7 @@ const handleUpdate = () => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{
-      $gettext('Submit')
-    }}</n-button>
+    <app-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</app-button>
   </app-modal>
 </template>
 

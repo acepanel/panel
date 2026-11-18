@@ -2,6 +2,7 @@ import { NButton, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
@@ -32,20 +33,18 @@ export function useAppColumns(
       .onComplete(() => switching.delete(row.slug))
   }
 
-  const handleUpdate = (slug: string) => {
-    useRequest(app.update(slug)).onSuccess(() => {
-      window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks'),
-      )
-    })
+  const handleUpdate = async (slug: string) => {
+    await app.update(slug)
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks'),
+    )
   }
 
-  const handleUninstall = (slug: string) => {
-    useRequest(app.uninstall(slug)).onSuccess(() => {
-      window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks'),
-      )
-    })
+  const handleUninstall = async (slug: string) => {
+    await app.uninstall(slug)
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks'),
+    )
   }
 
   const handleManage = (slug: string) => {
@@ -120,7 +119,7 @@ export function useAppColumns(
                 row.channels?.find((ch: any) => ch.slug === row.installed_channel)?.version ?? ''
               items.push(
                 h(
-                  NButton,
+                  AppButton,
                   {
                     size: 'small',
                     type: 'warning',
@@ -133,7 +132,7 @@ export function useAppColumns(
                           { app: row.name, version: targetVersion },
                         ),
                       })
-                      if (ok) handleUpdate(row.slug)
+                      if (ok) await handleUpdate(row.slug)
                     },
                   },
                   { default: () => $gettext('Update') },
@@ -152,7 +151,7 @@ export function useAppColumns(
                   { default: () => $gettext('Manage') },
                 ),
                 h(
-                  NButton,
+                  AppButton,
                   {
                     size: 'small',
                     type: 'error',
@@ -167,7 +166,7 @@ export function useAppColumns(
                         positiveText: $gettext('Uninstall'),
                         countdown: 5,
                       })
-                      if (ok) handleUninstall(row.slug)
+                      if (ok) await handleUninstall(row.slug)
                     },
                   },
                   { default: () => $gettext('Uninstall') },

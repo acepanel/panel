@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput } from 'naive-ui'
+import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
@@ -15,28 +15,27 @@ const updateModel = ref({
 
 const loading = ref(false)
 
-const handleUpdate = () => {
-  loading.value = true
-  useRequest(() => database.userUpdate(id.value, updateModel.value))
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Modified successfully'))
-      window.$bus.emit('database-user:refresh')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleUpdate = async () => {
+  await database.userUpdate(id.value, updateModel.value)
+  show.value = false
+  window.$message.success($gettext('Modified successfully'))
+  window.$bus.emit('database-user:refresh')
 }
 
 watch(
   () => show.value,
   (value) => {
     if (value && id.value) {
-      useRequest(database.userGet(id.value)).onSuccess(({ data }: { data: any }) => {
-        updateModel.value.password = data.password
-        updateModel.value.privileges = data.privileges
-        updateModel.value.remark = data.remark
-      })
+      loading.value = true
+      useRequest(database.userGet(id.value))
+        .onSuccess(({ data }: { data: any }) => {
+          updateModel.value.password = data.password
+          updateModel.value.privileges = data.privileges
+          updateModel.value.remark = data.remark
+        })
+        .onComplete(() => {
+          loading.value = false
+        })
     }
   },
 )
@@ -50,34 +49,36 @@ watch(
           $gettext('If the privilege databases does not exist, it will be created automatically.')
         }}
       </n-alert>
-      <n-form :model="updateModel">
-        <n-form-item path="password" :label="$gettext('Password')">
-          <n-input
-            v-model:value="updateModel.password"
-            type="password"
-            show-password-on="click"
-            @keydown.enter.prevent
-            :placeholder="$gettext('Enter password')"
-          />
-        </n-form-item>
-        <n-form-item path="privileges" :label="$gettext('Privileges')">
-          <ListInput
-            v-model:value="updateModel.privileges"
-            :placeholder="$gettext('Enter database name')"
-          />
-        </n-form-item>
-        <n-form-item path="remark" :label="$gettext('Comment')">
-          <n-input
-            v-model:value="updateModel.remark"
-            type="textarea"
-            @keydown.enter.prevent
-            :placeholder="$gettext('Enter database user comment')"
-          />
-        </n-form-item>
-      </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">{{
+      <n-spin :show="loading">
+        <n-form :model="updateModel">
+          <n-form-item path="password" :label="$gettext('Password')">
+            <n-input
+              v-model:value="updateModel.password"
+              type="password"
+              show-password-on="click"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter password')"
+            />
+          </n-form-item>
+          <n-form-item path="privileges" :label="$gettext('Privileges')">
+            <ListInput
+              v-model:value="updateModel.privileges"
+              :placeholder="$gettext('Enter database name')"
+            />
+          </n-form-item>
+          <n-form-item path="remark" :label="$gettext('Comment')">
+            <n-input
+              v-model:value="updateModel.remark"
+              type="textarea"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter database user comment')"
+            />
+          </n-form-item>
+        </n-form>
+      </n-spin>
+      <app-button type="info" block :disabled="loading" @click="handleUpdate">{{
         $gettext('Submit')
-      }}</n-button>
+      }}</app-button>
     </n-flex>
   </app-modal>
 </template>

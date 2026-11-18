@@ -14,7 +14,6 @@ const props = defineProps<{
 const emit = defineEmits(['saved'])
 
 const isEdit = computed(() => !!props.channel)
-const loading = ref(false)
 
 const types = computed(() => [{ label: $gettext('SMTP Email'), value: 'smtp' }])
 
@@ -62,20 +61,14 @@ watch(show, (val) => {
   }
 })
 
-const handleSubmit = () => {
-  loading.value = true
+const handleSubmit = async () => {
   const req = isEdit.value
     ? notify.updateChannel(props.channel.id, model.value)
     : notify.createChannel(model.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      show.value = false
-      emit('saved')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  await req
+  window.$message.success($gettext('Saved successfully'))
+  show.value = false
+  emit('saved')
 }
 </script>
 
@@ -145,9 +138,9 @@ const handleSubmit = () => {
     <template #footer>
       <n-flex justify="end">
         <n-button @click="show = false">{{ $gettext('Cancel') }}</n-button>
-        <n-button type="primary" :loading="loading" :disabled="loading" @click="handleSubmit">
+        <app-button type="primary" @click="handleSubmit">
           {{ $gettext('Save') }}
-        </n-button>
+        </app-button>
       </n-flex>
     </template>
   </app-modal>

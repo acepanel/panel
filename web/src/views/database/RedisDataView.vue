@@ -3,6 +3,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -20,6 +21,7 @@ const serverLoading = ref(false)
 // DB 选择
 const selectedDB = ref(0)
 const dbCount = ref(16)
+const dbLoading = ref(false)
 const dbOptions = computed(() => {
   const opts = []
   for (let i = 0; i < dbCount.value; i++) {
@@ -74,14 +76,24 @@ const loadServers = () => {
     })
 }
 
+// 连续切换服务器时只认最后一次请求，先发后到的结果不能覆盖 DB 数量或提前结束加载态
+let dbSeq = 0
+
 // 切换服务器时获取 DB 数量
 watch(selectedServer, (val) => {
   if (!val) return
+  const current = ++dbSeq
   selectedDB.value = 0
-  useRequest(database.redisDatabases(val)).onSuccess(({ data }: { data: any }) => {
-    dbCount.value = data || 16
-    refresh()
-  })
+  dbLoading.value = true
+  useRequest(database.redisDatabases(val))
+    .onSuccess(({ data }: { data: any }) => {
+      if (current !== dbSeq) return
+      dbCount.value = data || 16
+      refresh()
+    })
+    .onComplete(() => {
+      if (current === dbSeq) dbLoading.value = false
+    })
 })
 
 const columns: any = [
@@ -170,7 +182,7 @@ const columns: any = [
           { default: () => $gettext('Rename') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -178,7 +190,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this key?'),
               })
-              if (ok) handleDelete(row.key)
+              if (ok) await handleDelete(row.key)
             },
           },
           { default: () => $gettext('Delete') },
@@ -202,39 +214,32 @@ const handleSearch = () => {
   page.value = 1
 }
 
-const handleDelete = (key: string) => {
+const handleDelete = async (key: string) => {
   if (!selectedServer.value) return
-  useRequest(database.redisKeyDelete(selectedServer.value, selectedDB.value, key)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await database.redisKeyDelete(selectedServer.value, selectedDB.value, key)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleSetTTL = () => {
+const handleSetTTL = async () => {
   if (!selectedServer.value) return
-  useRequest(
-    database.redisKeyTTL(selectedServer.value, selectedDB.value, ttlKey.value, ttlValue.value),
-  ).onSuccess(() => {
-    ttlModalShow.value = false
-    refresh()
-    window.$message.success($gettext('Modified successfully'))
-  })
+  await database.redisKeyTTL(selectedServer.value, selectedDB.value, ttlKey.value, ttlValue.value)
+  ttlModalShow.value = false
+  refresh()
+  window.$message.success($gettext('Modified successfully'))
 }
 
-const handleRename = () => {
+const handleRename = async () => {
   if (!selectedServer.value) return
-  useRequest(
-    database.redisKeyRename(
-      selectedServer.value,
-      selectedDB.value,
-      renameOldKey.value,
-      renameNewKey.value,
-    ),
-  ).onSuccess(() => {
-    renameModalShow.value = false
-    refresh()
-    window.$message.success($gettext('Renamed successfully'))
-  })
+  await database.redisKeyRename(
+    selectedServer.value,
+    selectedDB.value,
+    renameOldKey.value,
+    renameNewKey.value,
+  )
+  renameModalShow.value = false
+  refresh()
+  window.$message.success($gettext('Renamed successfully'))
 }
 
 const openCreate = () => {
@@ -243,12 +248,11 @@ const openCreate = () => {
   keyModalShow.value = true
 }
 
-const handleClear = () => {
+const handleClear = async () => {
   if (!selectedServer.value) return
-  useRequest(database.redisClear(selectedServer.value, selectedDB.value)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await database.redisClear(selectedServer.value, selectedDB.value)
+  refresh()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 onMounted(() => {
@@ -269,7 +273,12 @@ useBus('database-server:refresh', loadServers)
           :placeholder="$gettext('Select Server')"
           class="md:!w-62.5"
         />
-        <n-select v-model:value="selectedDB" :options="dbOptions" class="md:!w-30" />
+        <n-select
+          v-model:value="selectedDB"
+          :options="dbOptions"
+          :loading="dbLoading"
+          class="md:!w-30"
+        />
       </n-flex>
       <n-flex class="w-full md:w-auto">
         <n-input-group class="md:!w-auto">
@@ -293,9 +302,9 @@ useBus('database-server:refresh', loadServers)
           @confirm="handleClear"
         >
           <template #trigger>
-            <n-button type="error">
+            <app-button type="error">
               {{ $gettext('Clear DB') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>
@@ -336,9 +345,9 @@ useBus('database-server:refresh', loadServers)
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleSetTTL">
+    <app-button type="info" block @click="handleSetTTL">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <!-- Rename 弹窗 -->
   <app-modal size="sm" v-model:show="renameModalShow" :title="$gettext('Rename Key')">
@@ -350,8 +359,8 @@ useBus('database-server:refresh', loadServers)
         <n-input v-model:value="renameNewKey" :placeholder="$gettext('Enter new key name')" />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRename">
+    <app-button type="info" block @click="handleRename">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

@@ -15,7 +15,6 @@ const props = defineProps<{
 
 const isEdit = computed(() => !!props.editItem)
 let messageReactive: MessageReactive | null = null
-const loading = ref(false)
 
 const defaultModel = () => ({
   hmac_encoded: '',
@@ -45,8 +44,7 @@ watch(show, (val) => {
     : defaultModel()
 })
 
-const handleSubmit = () => {
-  loading.value = true
+const handleSubmit = async () => {
   messageReactive = window.$message.loading(
     $gettext('Registering account with CA, please wait patiently'),
     {
@@ -56,19 +54,17 @@ const handleSubmit = () => {
   const req = isEdit.value
     ? cert.accountUpdate(props.editItem.id, model.value)
     : cert.accountCreate(model.value)
-  useRequest(req)
-    .onSuccess(() => {
-      window.$bus.emit('cert:refresh-account')
-      window.$bus.emit('cert:refresh-async')
-      show.value = false
-      window.$message.success(
-        isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
-      )
-    })
-    .onComplete(() => {
-      loading.value = false
-      messageReactive?.destroy()
-    })
+  try {
+    await req
+    window.$bus.emit('cert:refresh-account')
+    window.$bus.emit('cert:refresh-async')
+    show.value = false
+    window.$message.success(
+      isEdit.value ? $gettext('Update successful') : $gettext('Created successfully'),
+    )
+  } finally {
+    messageReactive?.destroy()
+  }
 }
 </script>
 
@@ -132,9 +128,9 @@ const handleSubmit = () => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
+      <app-button type="info" block @click="handleSubmit">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-space>
   </app-modal>
 </template>

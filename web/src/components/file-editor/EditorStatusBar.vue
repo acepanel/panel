@@ -3,11 +3,13 @@ import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useEditorStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
 const { loadTab } = useEditorOps()
+const { confirmAction } = useConfirm()
 const themeVars = useThemeVars()
 
 // 支持的语言列表
@@ -122,14 +124,11 @@ function handleEncodingSelect(key: string) {
 
   // 重新解码需从磁盘取原始字节，未保存的修改会丢失
   if (tab.modified) {
-    window.$dialog.warning({
+    confirmAction({
       title: $gettext('Unsaved Changes'),
       content: $gettext('This file has unsaved changes. Reopening will discard them. Continue?'),
       positiveText: $gettext('Reopen'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: () => {
-        loadTab(tab.path, encoding)
-      },
+      onConfirm: () => loadTab(tab.path, encoding),
     })
   } else {
     loadTab(tab.path, encoding)
@@ -201,6 +200,7 @@ function handleIndentChange(value: string) {
       trigger="click"
       placement="top-end"
       :options="encodingOptions"
+      :disabled="editorStore.activeTab.loading"
       @select="handleEncodingSelect"
     >
       <div class="status-item clickable">

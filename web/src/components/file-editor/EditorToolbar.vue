@@ -3,11 +3,13 @@ import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useEditorStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
 const { loadTab, saveTab, saveTabs } = useEditorOps()
+const { confirmAction } = useConfirm()
 const themeVars = useThemeVars()
 
 const emit = defineEmits<{
@@ -20,8 +22,9 @@ const emit = defineEmits<{
 const saving = ref(false)
 const savingAll = ref(false)
 
-// 保存当前文件
+// 保存当前文件，快捷键不受按钮加载态限制，进行中直接返回
 async function handleSave() {
+  if (saving.value) return
   const tab = editorStore.activeTab
   if (!tab) {
     window.$message.warning($gettext('No file to save'))
@@ -42,6 +45,7 @@ async function handleSave() {
 
 // 保存所有文件
 async function handleSaveAll() {
+  if (savingAll.value) return
   const paths = editorStore.unsavedTabs.map((t) => t.path)
   if (paths.length === 0) {
     window.$message.info($gettext('No changes to save'))
@@ -67,17 +71,14 @@ async function handleSaveAll() {
 // 刷新当前文件
 function handleRefresh() {
   const tab = editorStore.activeTab
-  if (!tab) return
+  if (!tab || tab.loading) return
 
   if (tab.modified) {
-    window.$dialog.warning({
+    confirmAction({
       title: $gettext('Unsaved Changes'),
       content: $gettext('This file has unsaved changes. Refreshing will discard them. Continue?'),
       positiveText: $gettext('Refresh'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: () => {
-        doRefresh(tab.path)
-      },
+      onConfirm: () => doRefresh(tab.path),
     })
   } else {
     doRefresh(tab.path)

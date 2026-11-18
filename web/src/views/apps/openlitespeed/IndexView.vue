@@ -22,7 +22,6 @@ const { data: phpList, send: fetchPHP } = useRequest(openlitespeed.php, {
 const { data: realIP } = useRequest(openlitespeed.realIP, {
   initialData: { enabled: false, trusted: [] },
 })
-const realIPLoading = ref(false)
 
 // 可信代理列表，多行文本与数组双向转换
 const realIPTrusted = computed({
@@ -35,15 +34,9 @@ const realIPTrusted = computed({
   },
 })
 
-const handleSaveRealIP = () => {
-  realIPLoading.value = true
-  useRequest(openlitespeed.setRealIP(realIP.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      realIPLoading.value = false
-    })
+const handleSaveRealIP = async () => {
+  await openlitespeed.setRealIP(realIP.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const phpColumns: any = [
@@ -158,14 +151,9 @@ const handleSetPHP = (version: number, lsapi: boolean) => {
             </n-form-item>
           </n-form>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="realIPLoading"
-              :disabled="realIPLoading"
-              @click="handleSaveRealIP"
-            >
+            <app-button type="primary" @click="handleSaveRealIP">
               {{ $gettext('Save') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>

@@ -3,10 +3,11 @@ defineOptions({
   name: 'stalwart-queue',
 })
 
-import { NButton, NFlex, NTag, NText, NTooltip } from 'naive-ui'
+import { NFlex, NTag, NText, NTooltip } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatBytes, formatDateTime } from '@/utils'
@@ -15,7 +16,6 @@ const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 
 const keyword = ref('')
-const retrying = reactive(new Set<string>())
 
 const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
   stalwart.queue(page, pageSize, keyword.value),
@@ -115,18 +115,17 @@ const columns: any = [
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center', wrap: false }, () => [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'primary',
             secondary: true,
-            loading: retrying.has(row.id),
             onClick: () => handleRetry(row.id),
           },
           { default: () => $gettext('Retry Now') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -136,7 +135,7 @@ const columns: any = [
                   'Are you sure you want to delete this message from the queue? The sender will not be notified.',
                 ),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -146,21 +145,16 @@ const columns: any = [
   },
 ]
 
-const handleRetry = (id: string) => {
-  retrying.add(id)
-  useRequest(stalwart.queueRetry(id))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Retry scheduled'))
-    })
-    .onComplete(() => retrying.delete(id))
+const handleRetry = async (id: string) => {
+  await stalwart.queueRetry(id)
+  refresh()
+  window.$message.success($gettext('Retry scheduled'))
 }
 
-const handleDelete = (id: string) => {
-  useRequest(stalwart.queueDelete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: string) => {
+  await stalwart.queueDelete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 </script>
 

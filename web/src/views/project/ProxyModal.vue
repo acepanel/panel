@@ -79,7 +79,6 @@ const handleStatus = (item: any, status: boolean) => {
 const setting = ref<any>(null)
 const quick = ref({ domains: [] as string[], port: null as number | null })
 const detailLoading = ref(false)
-const saving = ref(false)
 
 // 只有根路径代理到本机端口时才能快捷改端口，其余写法交给完整设置
 const LOCAL_PASS = /^(https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])):(\d+)\/?$/
@@ -110,7 +109,7 @@ watch(selectedId, (id) => {
   if (id) loadSetting(id)
 })
 
-const handleSave = () => {
+const handleSave = async () => {
   const domains = quick.value.domains.filter((d) => d.trim() !== '')
   if (domains.length === 0) {
     window.$message.warning($gettext('Please enter at least one domain'))
@@ -121,22 +120,15 @@ const handleSave = () => {
     rootProxy.value.pass = `${localPass.value[1]}:${quick.value.port}`
   }
 
-  saving.value = true
-  useRequest(website.saveConfig(current.value.id, setting.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      window.$bus.emit('website:refresh')
-    })
-    .onComplete(() => {
-      saving.value = false
-    })
+  await website.saveConfig(current.value.id, setting.value)
+  window.$message.success($gettext('Saved successfully'))
+  window.$bus.emit('website:refresh')
 }
 
-const handleUnbind = () => {
-  useRequest(website.updateProject(current.value.id, 0)).onSuccess(() => {
-    window.$message.success($gettext('Unbound successfully'))
-    window.$bus.emit('website:refresh')
-  })
+const handleUnbind = async () => {
+  await website.updateProject(current.value.id, 0)
+  window.$message.success($gettext('Unbound successfully'))
+  window.$bus.emit('website:refresh')
 }
 
 // 网站编辑弹窗挂载时会拉证书等数据，首次打开时才挂载
@@ -158,7 +150,6 @@ useBus('website:refresh', handleWebsiteRefresh)
 
 // ==================== 新建 ====================
 const createForm = ref<ProxyWebsiteForm>({ name: '', domains: [], port: null })
-const creating = ref(false)
 
 function openCreate() {
   // 网站名不能重复，第一个沿用项目名，之后加序号
@@ -172,18 +163,15 @@ function openCreate() {
 
 const handleCreate = async () => {
   if (!validateProxyWebsite(createForm.value)) return
-  creating.value = true
   if (await createProxyWebsite(props.project, createForm.value)) {
     await loadWebsites()
     const created = list.value.find((item) => item.name === createForm.value.name)
     if (created) handleSelect(created.id)
   }
-  creating.value = false
 }
 
 // ==================== 绑定已有 ====================
 const bindId = ref<number | null>(null)
-const binding = ref(false)
 const {
   data: candidates,
   loading: candidatesLoading,
@@ -216,19 +204,13 @@ const openBind = () => {
   searchCandidates('')
 }
 
-const handleBind = () => {
+const handleBind = async () => {
   if (!bindId.value) return
   const id = bindId.value
-  binding.value = true
-  useRequest(website.updateProject(id, props.project.id))
-    .onSuccess(async () => {
-      window.$message.success($gettext('Bound successfully'))
-      await loadWebsites()
-      handleSelect(id)
-    })
-    .onComplete(() => {
-      binding.value = false
-    })
+  await website.updateProject(id, props.project.id)
+  window.$message.success($gettext('Bound successfully'))
+  await loadWebsites()
+  handleSelect(id)
 }
 </script>
 
@@ -296,9 +278,9 @@ const handleBind = () => {
           </n-form-item>
           <proxy-form v-model:value="createForm" />
           <n-flex justify="end">
-            <n-button type="primary" :loading="creating" :disabled="creating" @click="handleCreate">
+            <app-button type="primary" @click="handleCreate">
               {{ $gettext('Create') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-form>
 
@@ -324,14 +306,9 @@ const handleBind = () => {
             </template>
           </n-form-item>
           <n-flex justify="end">
-            <n-button
-              type="primary"
-              :loading="binding"
-              :disabled="!bindId || binding"
-              @click="handleBind"
-            >
+            <app-button type="primary" :disabled="!bindId" @click="handleBind">
               {{ $gettext('Bind') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-form>
 
@@ -371,18 +348,13 @@ const handleBind = () => {
               @confirm="handleUnbind"
             >
               <template #trigger>
-                <n-button>{{ $gettext('Unbind') }}</n-button>
+                <app-button>{{ $gettext('Unbind') }}</app-button>
               </template>
             </ConfirmDialog>
             <n-button @click="openFullSettings">{{ $gettext('Full Settings') }}</n-button>
-            <n-button
-              type="primary"
-              :loading="saving"
-              :disabled="saving || !setting"
-              @click="handleSave"
-            >
+            <app-button type="primary" :disabled="!setting" @click="handleSave">
               {{ $gettext('Save') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-spin>
       </n-layout-content>

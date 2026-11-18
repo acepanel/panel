@@ -137,10 +137,9 @@ const addDns = () => addItems(dnsInput, 'dns')
 const addHost = () => addItems(hostInput, 'hosts')
 
 // 保存设置
-const handleSaveSettings = () => {
-  useRequest(docker.updateSettings(settings.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+const handleSaveSettings = async () => {
+  await docker.updateSettings(settings.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 // 监听 tab 切换，加载设置
@@ -406,9 +405,9 @@ watch(currentTab, (tab) => {
 
             <!-- 保存按钮 -->
             <n-flex>
-              <n-button type="primary" @click="handleSaveSettings">
+              <app-button type="primary" @click="handleSaveSettings">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </n-flex>
         </n-spin>

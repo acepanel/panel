@@ -3,19 +3,18 @@ defineOptions({
   name: 'apps-supervisor-index',
 })
 
-import { NButton, NFlex } from 'naive-ui'
+import { NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import supervisor from '@/api/apps/supervisor'
 import file from '@/api/panel/file'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 const currentTab = ref('status')
-const saveProcessConfigLoading = ref(false)
-const createProcessLoading = ref(false)
 const processLog = ref('')
 const processLogModalRef = ref<{ clear: () => void } | null>(null)
 const daemonLogPath = '/var/log/supervisor/supervisord.log'
@@ -35,7 +34,6 @@ const createProcessModel = ref({
 
 const editProcessModal = ref(false)
 const editProcessTab = ref('setting')
-const saveProcessSettingLoading = ref(false)
 const editProcessModel = ref({
   process: '',
   config: '',
@@ -111,7 +109,7 @@ const processColumns: any = [
     render(row: any) {
       const items: any[] = [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'warning',
@@ -121,7 +119,7 @@ const processColumns: any = [
           { default: () => $gettext('Logs') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'info',
@@ -133,7 +131,7 @@ const processColumns: any = [
       if (row.status != 'RUNNING') {
         items.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'primary',
@@ -146,7 +144,7 @@ const processColumns: any = [
       } else {
         items.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'warning',
@@ -158,13 +156,13 @@ const processColumns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleProcessStop(row.name)
+                if (ok) await handleProcessStop(row.name)
               },
             },
             { default: () => $gettext('Stop') },
           ),
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'primary',
@@ -176,7 +174,7 @@ const processColumns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleProcessRestart(row.name)
+                if (ok) await handleProcessRestart(row.name)
               },
             },
             { default: () => $gettext('Restart') },
@@ -185,7 +183,7 @@ const processColumns: any = [
       }
       items.push(
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -195,7 +193,7 @@ const processColumns: any = [
                   name: row.name,
                 }),
               })
-              if (ok) handleProcessDelete(row.name)
+              if (ok) await handleProcessDelete(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -212,45 +210,35 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
 
 const clearDaemonLog = () => file.truncate(daemonLogPath)
 
-const handleCreateProcess = () => {
-  createProcessLoading.value = true
-  useRequest(supervisor.createProcess(createProcessModel.value))
-    .onSuccess(() => {
-      refresh()
-      createProcessModal.value = false
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      createProcessLoading.value = false
-    })
+const handleCreateProcess = async () => {
+  await supervisor.createProcess(createProcessModel.value)
+  refresh()
+  createProcessModal.value = false
+  window.$message.success($gettext('Added successfully'))
 }
 
-const handleProcessStart = (name: string) => {
-  useRequest(supervisor.startProcess(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Started successfully'))
-  })
+const handleProcessStart = async (name: string) => {
+  await supervisor.startProcess(name)
+  refresh()
+  window.$message.success($gettext('Started successfully'))
 }
 
-const handleProcessStop = (name: string) => {
-  useRequest(supervisor.stopProcess(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Stopped successfully'))
-  })
+const handleProcessStop = async (name: string) => {
+  await supervisor.stopProcess(name)
+  refresh()
+  window.$message.success($gettext('Stopped successfully'))
 }
 
-const handleProcessRestart = (name: string) => {
-  useRequest(supervisor.restartProcess(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Restarted successfully'))
-  })
+const handleProcessRestart = async (name: string) => {
+  await supervisor.restartProcess(name)
+  refresh()
+  window.$message.success($gettext('Restarted successfully'))
 }
 
-const handleProcessDelete = (name: string) => {
-  useRequest(supervisor.deleteProcess(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleProcessDelete = async (name: string) => {
+  await supervisor.deleteProcess(name)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const handleShowProcessLog = async (row: any) => {
@@ -258,11 +246,10 @@ const handleShowProcessLog = async (row: any) => {
   processLogModal.value = true
 }
 
-const handleClearProcessLog = () => {
-  useRequest(file.truncate(processLog.value)).onSuccess(() => {
-    processLogModalRef.value?.clear()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+const handleClearProcessLog = async () => {
+  await file.truncate(processLog.value)
+  processLogModalRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 const handleEditProcess = async (name: string) => {
@@ -281,32 +268,18 @@ const getProcessConfig = async (name: string) => {
   settingModel.value = { ...settingModel.value, ...setting }
 }
 
-const handleSaveProcessSetting = () => {
-  saveProcessSettingLoading.value = true
-  useRequest(supervisor.saveProcessSetting(editProcessModel.value.process, settingModel.value))
-    .onSuccess(() => {
-      editProcessModal.value = false
-      refresh()
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveProcessSettingLoading.value = false
-    })
+const handleSaveProcessSetting = async () => {
+  await supervisor.saveProcessSetting(editProcessModel.value.process, settingModel.value)
+  editProcessModal.value = false
+  refresh()
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleSaveProcessConfig = () => {
-  saveProcessConfigLoading.value = true
-  useRequest(
-    supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config),
-  )
-    .onSuccess(() => {
-      editProcessModal.value = false
-      refresh()
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveProcessConfigLoading.value = false
-    })
+const handleSaveProcessConfig = async () => {
+  await supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
+  editProcessModal.value = false
+  refresh()
+  window.$message.success($gettext('Saved successfully'))
 }
 </script>
 
@@ -395,15 +368,9 @@ const handleSaveProcessConfig = () => {
         <n-input-number v-model:value="createProcessModel.num" :min="1" />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="createProcessLoading"
-      :disabled="createProcessLoading"
-      @click="handleCreateProcess"
-    >
+    <app-button type="info" block @click="handleCreateProcess">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <realtime-log-modal
     ref="processLogModalRef"
@@ -483,29 +450,17 @@ const handleSaveProcessConfig = () => {
               />
             </n-form-item>
           </n-form>
-          <n-button
-            type="info"
-            block
-            :loading="saveProcessSettingLoading"
-            :disabled="saveProcessSettingLoading"
-            @click="handleSaveProcessSetting"
-          >
+          <app-button type="info" block @click="handleSaveProcessSetting">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Raw Configuration')">
         <n-flex vertical>
           <common-editor v-model:value="editProcessModel.config" height="60vh" />
-          <n-button
-            type="info"
-            block
-            :loading="saveProcessConfigLoading"
-            :disabled="saveProcessConfigLoading"
-            @click="handleSaveProcessConfig"
-          >
+          <app-button type="info" block @click="handleSaveProcessConfig">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-tab-pane>
     </n-tabs>

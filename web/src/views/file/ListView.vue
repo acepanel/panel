@@ -17,6 +17,7 @@ import file from '@/api/panel/file'
 import tamper from '@/api/panel/tamper'
 import { hasOpenWindow } from '@/components/common/composables/useWindowStack'
 import { useBus } from '@/components/system/composables/useBus'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { useFileStore, useTaskQueueStore } from '@/stores'
@@ -34,8 +35,9 @@ const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const fileStore = useFileStore()
 const taskQueue = useTaskQueueStore()
-const { handlePaste: doPaste } = usePaste()
+const { pasting, handlePaste: doPaste } = usePaste()
 const { deletePaths, markClipboard, toggleFavorite } = useFileOps()
+const { confirmAction } = useConfirm()
 const { isMobile } = useResponsive()
 
 const props = defineProps<{
@@ -84,6 +86,7 @@ const dropdownX = ref(0)
 const dropdownY = ref(0)
 
 const {
+  inlineSubmitting,
   inlineCreateActive,
   inlineCreateIsDir,
   inlineCreateName,
@@ -175,9 +178,9 @@ const refreshProtected = (list: any[]) => {
   })
 }
 
-// 添加/移除保护(二次确认)
-const handleProtect = (item: any, protect: boolean) => {
-  window.$dialog.warning({
+// 添加/移除保护(二次确认)，右键菜单没有按钮可转圈，请求放在确认框里
+const handleProtect = async (item: any, protect: boolean) => {
+  await confirmAction({
     title: protect ? $gettext('Add Protection') : $gettext('Remove Protection'),
     content: protect
       ? $gettext('Add tamper protection for %{ name }?', { name: item.name })
@@ -187,11 +190,10 @@ const handleProtect = (item: any, protect: boolean) => {
         ),
     positiveText: $gettext('Yes'),
     negativeText: $gettext('No'),
-    onPositiveClick: () => {
-      useRequest(tamper.protect(item.full, protect)).onSuccess(() => {
-        window.$message.success($gettext('Operation successful'))
-        refresh()
-      })
+    onConfirm: async () => {
+      await tamper.protect(item.full, protect)
+      window.$message.success($gettext('Operation successful'))
+      refresh()
     },
   })
 }
@@ -218,23 +220,18 @@ const openShare = (item: any) => {
   shareModal.value = true
 }
 
-// 检查是否有 immutable 属性
-const confirmImmutableOperation = (row: any, callback: () => void) => {
-  if (row.immutable) {
-    window.$dialog.warning({
-      title: $gettext('Warning'),
-      content: $gettext(
-        '%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
-        { name: row.name },
-      ),
-      positiveText: $gettext('Continue'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: callback,
-    })
-  } else {
-    callback()
-  }
-}
+// 带 immutable 属性时的操作确认，传了 onConfirm 就在确认框里执行
+const confirmImmutable = (row: any, onConfirm?: () => unknown) =>
+  confirmAction({
+    title: $gettext('Warning'),
+    content: $gettext(
+      '%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
+      { name: row.name },
+    ),
+    positiveText: $gettext('Continue'),
+    negativeText: $gettext('Cancel'),
+    onConfirm,
+  })
 
 // 判断是否多选
 const isMultiSelect = computed(() => selected.value.length > 1)
@@ -386,6 +383,7 @@ const openPermissionModal = (row: any) => {
 
 // 计算目录大小（列表视图用）
 const calculateDirSize = (dirPath: string) => {
+  if (sizeLoading.value.get(dirPath)) return
   sizeLoading.value.set(dirPath, true)
   useRequest(file.size(dirPath))
     .onSuccess(({ data }) => {
@@ -585,21 +583,23 @@ const openProperty = (item: any) => {
 }
 
 // 启动内联重命名
-const openRename = (item: any) => {
-  confirmImmutableOperation(item, () => startInlineRename(item))
+const openRename = async (item: any) => {
+  if (item.immutable && !(await confirmImmutable(item))) return
+  startInlineRename(item)
 }
 
-// 执行删除（不带确认）
-const doDelete = (items: any[]) => {
-  if (items.length === 1) {
-    confirmImmutableOperation(items[0], () => deletePaths([items[0].full]))
+// 执行删除（不带删除确认），immutable 的先确认，删除请求放在该确认框里
+const doDelete = async (items: any[]) => {
+  const paths = items.map((item: any) => item.full)
+  if (items.length === 1 && items[0].immutable) {
+    await confirmImmutable(items[0], () => deletePaths(paths))
   } else {
-    deletePaths(items.map((item: any) => item.full))
+    await deletePaths(paths)
   }
 }
 
-// 删除文件（右键菜单/键盘 Delete 入口，带二次确认）
-const deleteFiles = (items: any[]) => {
+// 删除文件（右键菜单/键盘 Delete 入口，带二次确认），没有按钮可转圈，请求放在确认框里
+const deleteFiles = async (items: any[]) => {
   if (items.length > 1) {
     const hasImmutable = items.some((item: any) => item.immutable)
     if (hasImmutable) {
@@ -611,13 +611,16 @@ const deleteFiles = (items: any[]) => {
     items.length === 1
       ? $gettext('Are you sure you want to delete %{ name }?', { name: items[0].name })
       : $gettext('Are you sure you want to delete %{count} items?', { count: items.length })
-  window.$dialog.warning({
+  // immutable 的还要再确认一次，请求留给第二个确认框，避免两个确认框叠在一起
+  const immutable = items.length === 1 && items[0].immutable
+  const ok = await confirmAction({
     title: $gettext('Warning'),
     content,
     positiveText: $gettext('Yes'),
     negativeText: $gettext('No'),
-    onPositiveClick: () => doDelete(items),
+    onConfirm: immutable ? undefined : () => doDelete(items),
   })
+  if (ok && immutable) await doDelete(items)
 }
 
 // 复制路径到剪贴板
@@ -628,17 +631,15 @@ const copyPath = (item: any) => {
 }
 
 // ==================== 处理粘贴 ====================
-const handlePaste = () => {
-  doPaste(path.value)
-}
+const handlePaste = () => doPaste(path.value)
 
 // 菜单动作统一分发：右键菜单、桌面行内按钮、「更多」菜单与手机下拉共用，单项动作取 items 的第一项
+// 会发请求的动作返回 Promise，供触发按钮或列表遮罩显示加载态
 const handleAction = (key: string, items: any[]) => {
   const item = items[0]
   switch (key) {
     case 'paste':
-      handlePaste()
-      break
+      return handlePaste()
     case 'new-file':
       startInlineCreate(false)
       break
@@ -676,24 +677,40 @@ const handleAction = (key: string, items: any[]) => {
       openTerminal(item)
       break
     case 'favorite':
-      toggleFavorite(item.full)
-      break
+      return toggleFavorite(item.full)
     case 'protect':
-      handleProtect(item, !isProtected(item))
-      break
+      return handleProtect(item, !isProtected(item))
     case 'properties':
       openProperty(item)
       break
     case 'delete':
-      deleteFiles(items)
-      break
+      return deleteFiles(items)
+  }
+}
+
+// 右键菜单与快捷键没有触发按钮，直接执行的请求用列表的加载遮罩反馈，进行中不再响应
+// 遮罩挡得住鼠标挡不住键盘，快捷键靠开头的判断
+const listActing = ref(false)
+
+const withListMask = async (run: () => unknown) => {
+  if (listActing.value) return
+  const result = run()
+  if (!result) return
+  listActing.value = true
+  try {
+    await result
+  } finally {
+    listActing.value = false
   }
 }
 
 // 右键菜单：多选时作用于全部选中项，否则作用于右键点中的那一项
 const handleSelect = (key: string) => {
-  handleAction(key, isMultiSelect.value ? getSelectedItems() : [selectedRow.value])
+  const items = isMultiSelect.value ? getSelectedItems() : [selectedRow.value]
   onCloseDropdown()
+  // 删除与保护的请求在确认框里转圈，不用遮罩
+  if (key === 'delete' || key === 'protect') return handleAction(key, items)
+  return withListMask(() => handleAction(key, items))
 }
 
 const onCloseDropdown = () => {
@@ -702,8 +719,20 @@ const onCloseDropdown = () => {
 }
 
 // 行内删除按钮已经过气泡确认，直接执行
-const handleDeleteClick = (item: any) => {
-  doDelete([item])
+const handleDeleteClick = (item: any) => doDelete([item])
+
+// 「更多」菜单与手机下拉的触发按钮在请求结束前保持加载态
+const acting = reactive(new Set<string>())
+
+const handleRowAction = async (key: string, item: any) => {
+  const result = handleAction(key, [item])
+  if (!result) return
+  acting.add(item.full)
+  try {
+    await result
+  } finally {
+    acting.delete(item.full)
+  }
 }
 
 // 桌面「更多」菜单，n-popselect 的选项用 value 而不是 key
@@ -817,7 +846,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
         // Ctrl/Cmd + V: 粘贴
         if (marked.value.length > 0) {
           event.preventDefault()
-          handlePaste()
+          withListMask(handlePaste)
         }
         break
       case 't':
@@ -895,7 +924,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
         break
       case 'Delete':
         // Delete: 删除选中项
-        if (selected.value.length > 0) {
+        // 确认框打开期间（含删除请求进行中）上面的弹窗判断已挡住快捷键
+        if (selected.value.length > 0 && !listActing.value && !pasting.value) {
           event.preventDefault()
           deleteFiles(getSelectedItems())
         }
@@ -919,7 +949,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
   }
 }
 
-const handleUnCompress = () => {
+const handleUnCompress = async () => {
   if (
     !unCompressModel.value.path.startsWith('/') ||
     !checkPath(unCompressModel.value.path.slice(1))
@@ -927,12 +957,9 @@ const handleUnCompress = () => {
     window.$message.error($gettext('Invalid path'))
     return
   }
-  useRequest(file.unCompress(unCompressModel.value.file, unCompressModel.value.path)).onSuccess(
-    ({ data }) => {
-      unCompressModal.value = false
-      taskQueue.add(data)
-    },
-  )
+  const data = await file.unCompress(unCompressModel.value.file, unCompressModel.value.path)
+  unCompressModal.value = false
+  taskQueue.add(data)
 }
 
 const { loading, data, page, pageSize, refresh, reload, pagination } = usePagedTable(
@@ -1025,7 +1052,10 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-col flex-1 gap-1 min-h-0" :style="themeStyles">
-    <n-spin :show="loading" class="flex flex-col flex-1 min-h-0">
+    <n-spin
+      :show="loading || listActing || inlineSubmitting || pasting"
+      class="flex flex-col flex-1 min-h-0"
+    >
       <!-- 切换视图时整块重建 -->
       <div
         :key="fileStore.viewType"
@@ -1094,6 +1124,7 @@ onUnmounted(() => {
               v-model="inlineCreateName"
               class="inline-rename-input"
               :placeholder="inlineCreateIsDir ? $gettext('Folder name') : $gettext('File name')"
+              :readonly="inlineSubmitting"
               @blur="submitInlineCreate"
               @keydown="handleInlineCreateKeydown"
               @click.stop
@@ -1115,6 +1146,7 @@ onUnmounted(() => {
                 v-model="inlineCreateName"
                 class="inline-rename-input list-mode"
                 :placeholder="inlineCreateIsDir ? $gettext('Folder name') : $gettext('File name')"
+                :readonly="inlineSubmitting"
                 @blur="submitInlineCreate"
                 @keydown="handleInlineCreateKeydown"
                 @click.stop
@@ -1162,6 +1194,7 @@ onUnmounted(() => {
               :ref="setInlineRenameRef"
               v-model="inlineRenameName"
               class="inline-rename-input"
+              :readonly="inlineSubmitting"
               @blur="submitInlineRename"
               @keydown="handleInlineRenameKeydown"
               @click.stop
@@ -1194,6 +1227,7 @@ onUnmounted(() => {
                 :ref="setInlineRenameRef"
                 v-model="inlineRenameName"
                 class="inline-rename-input list-mode"
+                :readonly="inlineSubmitting"
                 @blur="submitInlineRename"
                 @keydown="handleInlineRenameKeydown"
                 @click.stop
@@ -1259,13 +1293,20 @@ onUnmounted(() => {
                 v-if="isMobile"
                 trigger="click"
                 :options="getRowMenuOptions(item)"
-                @select="(key: string) => handleAction(key, [item])"
+                :disabled="acting.has(item.full)"
+                @select="(key: string) => handleRowAction(key, item)"
               >
-                <n-button size="small" quaternary circle @click.stop>
+                <app-button
+                  size="small"
+                  quaternary
+                  circle
+                  :loading="acting.has(item.full)"
+                  @click.stop
+                >
                   <template #icon>
                     <the-icon icon="mdi:dots-vertical" :size="18" />
                   </template>
-                </n-button>
+                </app-button>
               </n-dropdown>
               <n-flex v-else :size="4">
                 <!-- 文件夹操作 -->
@@ -1323,19 +1364,20 @@ onUnmounted(() => {
                   @confirm="handleDeleteClick(item)"
                 >
                   <template #trigger>
-                    <n-button size="tiny" type="error" tertiary @click.stop>
+                    <app-button size="tiny" type="error" tertiary @click.stop>
                       {{ $gettext('Delete') }}
-                    </n-button>
+                    </app-button>
                   </template>
                 </ConfirmDialog>
                 <n-popselect
                   :options="getMoreOptions(item)"
                   trigger="click"
-                  @update:value="(key: string) => handleAction(key, [item])"
+                  :disabled="acting.has(item.full)"
+                  @update:value="(key: string) => handleRowAction(key, item)"
                 >
-                  <n-button size="tiny" tertiary @click.stop>
+                  <app-button size="tiny" tertiary :loading="acting.has(item.full)" @click.stop>
                     {{ $gettext('More') }}
-                  </n-button>
+                  </app-button>
                 </n-popselect>
               </n-flex>
             </div>
@@ -1396,7 +1438,7 @@ onUnmounted(() => {
           <n-input v-model:value="unCompressModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="primary" @click="handleUnCompress">{{ $gettext('Uncompress') }}</n-button>
+      <app-button type="primary" @click="handleUnCompress">{{ $gettext('Uncompress') }}</app-button>
     </n-flex>
   </app-modal>
   <!-- 属性弹窗 -->

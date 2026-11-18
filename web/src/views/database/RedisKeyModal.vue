@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput, NInputNumber, NSelect } from 'naive-ui'
+import { NInput, NInputNumber, NSelect } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
@@ -58,28 +58,18 @@ watch(
   },
 )
 
-const saveLoading = ref(false)
-
-const handleSave = () => {
-  saveLoading.value = true
-  useRequest(
-    database.redisKeySet({
-      server_id: props.serverId,
-      db: props.db,
-      key: model.value.key,
-      value: model.value.value,
-      type: model.value.type,
-      ttl: model.value.ttl > 0 ? model.value.ttl : 0,
-    }),
-  )
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success($gettext('Saved successfully'))
-      emit('saved')
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+const handleSave = async () => {
+  await database.redisKeySet({
+    server_id: props.serverId,
+    db: props.db,
+    key: model.value.key,
+    value: model.value.value,
+    type: model.value.type,
+    ttl: model.value.ttl > 0 ? model.value.ttl : 0,
+  })
+  show.value = false
+  window.$message.success($gettext('Saved successfully'))
+  emit('saved')
 }
 </script>
 
@@ -120,8 +110,8 @@ const handleSave = () => {
         </n-form-item>
       </n-form>
     </n-spin>
-    <n-button type="info" block :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+    <app-button type="info" block :disabled="loading" @click="handleSave">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

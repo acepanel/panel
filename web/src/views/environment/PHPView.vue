@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { NButton, NDataTable } from 'naive-ui'
+import { NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import openlitespeed from '@/api/apps/openlitespeed'
 import php from '@/api/panel/environment/php'
 import file from '@/api/panel/file'
 import home from '@/api/panel/home'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatBytes } from '@/utils/file'
 import PhpConfigTuneView from '@/views/environment/PhpConfigTuneView.vue'
@@ -32,10 +33,18 @@ const showPHPInfoModal = ref(false)
 const phpinfoContent = ref('')
 const phpinfoLoading = ref(false)
 
-const { data: config, send: refreshConfig } = useRequest(php.config(slug), {
+const {
+  data: config,
+  loading: configLoading,
+  send: refreshConfig,
+} = useRequest(php.config(slug), {
   initialData: '',
 })
-const { data: fpmConfig, send: refreshFpmConfig } = useRequest(php.fpmConfig(slug), {
+const {
+  data: fpmConfig,
+  loading: fpmConfigLoading,
+  send: refreshFpmConfig,
+} = useRequest(php.fpmConfig(slug), {
   initialData: '',
 })
 
@@ -135,7 +144,7 @@ const moduleColumns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         row.installed
           ? {
               size: 'small',
@@ -148,7 +157,7 @@ const moduleColumns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleUninstallModule(row.slug)
+                if (ok) await handleUninstallModule(row.slug)
               },
             }
           : {
@@ -162,7 +171,7 @@ const moduleColumns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleInstallModule(row.slug)
+                if (ok) await handleInstallModule(row.slug)
               },
             },
         { default: () => (row.installed ? $gettext('Delete') : $gettext('Install')) },
@@ -188,9 +197,8 @@ const loadColumns: any = [
 ]
 
 const handleSetCli = async () => {
-  useRequest(php.setCli(slug)).onSuccess(() => {
-    window.$message.success($gettext('Set successfully'))
-  })
+  await php.setCli(slug)
+  window.$message.success($gettext('Set successfully'))
 }
 
 const handlePHPInfo = async () => {
@@ -206,41 +214,35 @@ const handlePHPInfo = async () => {
 }
 
 const handleSaveConfig = async () => {
-  useRequest(php.saveConfig(slug, config.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  await php.saveConfig(slug, config.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const handleSaveFPMConfig = async () => {
-  useRequest(php.saveFPMConfig(slug, fpmConfig.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  await php.saveFPMConfig(slug, fpmConfig.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const handleClearLog = async () => {
-  useRequest(file.truncate(log.value)).onSuccess(() => {
-    logRef.value?.clear()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await file.truncate(log.value)
+  logRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 const handleClearSlowLog = async () => {
-  useRequest(file.truncate(slowLog.value)).onSuccess(() => {
-    slowLogRef.value?.clear()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await file.truncate(slowLog.value)
+  slowLogRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 const handleInstallModule = async (module: string) => {
-  useRequest(php.installModule(slug, module)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-  })
+  await php.installModule(slug, module)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 
 const handleUninstallModule = async (module: string) => {
-  useRequest(php.uninstallModule(slug, module)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-  })
+  await php.uninstallModule(slug, module)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 
 const handleResetOpcache = async () => {
@@ -252,23 +254,20 @@ const handleResetOpcache = async () => {
     ),
   })
   if (!ok) return
-  useRequest(php.resetOpcache(slug)).onSuccess(() => {
-    window.$message.success($gettext('Reset successfully'))
-    refreshOpcache()
-  })
+  await php.resetOpcache(slug)
+  window.$message.success($gettext('Reset successfully'))
+  refreshOpcache()
 }
 
 const handleInstallComposer = async () => {
-  useRequest(php.installComposer(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-  })
+  await php.installComposer(slug)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 
 const handleSaveComposerMirror = async () => {
-  useRequest(php.setComposerMirror(slug, composerMirror.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    refreshComposer()
-  })
+  await php.setComposerMirror(slug, composerMirror.value)
+  window.$message.success($gettext('Saved successfully'))
+  refreshComposer()
 }
 </script>
 
@@ -282,9 +281,9 @@ const handleSaveComposerMirror = async () => {
             <template #header> PHP {{ slug }} </template>
             <template #header-extra>
               <n-flex>
-                <n-button type="info" @click="handleSetCli">
+                <app-button type="info" @click="handleSetCli">
                   {{ $gettext('Set as CLI Default Version') }}
-                </n-button>
+                </app-button>
                 <n-button type="primary" @click="handlePHPInfo">
                   {{ $gettext('View PHPInfo') }}
                 </n-button>
@@ -327,11 +326,13 @@ const handleSaveComposerMirror = async () => {
               )
             }}
           </n-alert>
-          <common-editor v-model:value="config" height="60vh" />
+          <n-spin :show="configLoading">
+            <common-editor v-model:value="config" height="60vh" />
+          </n-spin>
           <n-flex>
-            <n-button type="primary" @click="handleSaveConfig">
+            <app-button type="primary" @click="handleSaveConfig">
               {{ $gettext('Save') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -345,11 +346,13 @@ const handleSaveComposerMirror = async () => {
               )
             }}
           </n-alert>
-          <common-editor v-model:value="fpmConfig" height="60vh" />
+          <n-spin :show="fpmConfigLoading">
+            <common-editor v-model:value="fpmConfig" height="60vh" />
+          </n-spin>
           <n-flex>
-            <n-button type="primary" @click="handleSaveFPMConfig">
+            <app-button type="primary" @click="handleSaveFPMConfig">
               {{ $gettext('Save') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -372,9 +375,9 @@ const handleSaveComposerMirror = async () => {
           />
           <n-card :title="$gettext('FPM Processes')">
             <template #header-extra>
-              <n-button size="small" type="primary" @click="() => refreshProcesses()">
+              <app-button size="small" type="primary" @click="() => refreshProcesses()">
                 {{ $gettext('Refresh') }}
-              </n-button>
+              </app-button>
             </template>
             <n-data-table
               striped
@@ -393,12 +396,12 @@ const handleSaveComposerMirror = async () => {
           </n-alert>
           <template v-else>
             <n-flex>
-              <n-button type="primary" @click="() => refreshOpcache()">
+              <app-button type="primary" @click="() => refreshOpcache()">
                 {{ $gettext('Refresh') }}
-              </n-button>
-              <n-button type="warning" @click="handleResetOpcache">
+              </app-button>
+              <app-button type="warning" @click="handleResetOpcache">
                 {{ $gettext('Reset OPcache') }}
-              </n-button>
+              </app-button>
             </n-flex>
             <n-card :title="$gettext('Cache Statistics')">
               <n-flex>
@@ -458,17 +461,17 @@ const handleSaveComposerMirror = async () => {
               {{ $gettext('Composer is not installed.') }}
             </n-alert>
             <n-flex>
-              <n-button type="primary" @click="handleInstallComposer">
+              <app-button type="primary" @click="handleInstallComposer">
                 {{ $gettext('Install') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </template>
           <template v-else>
             <n-card :title="$gettext('Composer')">
               <template #header-extra>
-                <n-button size="small" type="primary" @click="handleInstallComposer">
+                <app-button size="small" type="primary" @click="handleInstallComposer">
                   {{ $gettext('Update') }}
-                </n-button>
+                </app-button>
               </template>
               <n-descriptions label-placement="left" :column="1">
                 <n-descriptions-item :label="$gettext('Version')">
@@ -491,9 +494,9 @@ const handleSaveComposerMirror = async () => {
                     :options="composerMirrorOptions"
                     class="md:!w-80"
                   />
-                  <n-button type="primary" @click="handleSaveComposerMirror">
+                  <app-button type="primary" @click="handleSaveComposerMirror">
                     {{ $gettext('Save') }}
-                  </n-button>
+                  </app-button>
                 </n-flex>
               </n-flex>
             </n-card>
@@ -506,9 +509,9 @@ const handleSaveComposerMirror = async () => {
       <n-tab-pane name="log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearLog">
+            <app-button type="primary" @click="handleClearLog">
               {{ $gettext('Clear Log') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <realtime-log ref="logRef" :path="log" />
         </n-flex>
@@ -516,9 +519,9 @@ const handleSaveComposerMirror = async () => {
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Logs')">
         <n-flex vertical>
           <n-flex>
-            <n-button type="primary" @click="handleClearSlowLog">
+            <app-button type="primary" @click="handleClearSlowLog">
               {{ $gettext('Clear Slow Log') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <realtime-log ref="slowLogRef" :path="slowLog" />
         </n-flex>

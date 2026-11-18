@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NDataTable } from 'naive-ui'
+import { NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { formatDateTime } from '@/utils'
@@ -20,7 +21,6 @@ const createModel = ref({
 const options = [{ label: 'local', value: 'local' }]
 
 const createModal = ref(false)
-const pruneLoading = ref(false)
 
 const selectedRowKeys = ref<any>([])
 
@@ -70,7 +70,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -92,22 +92,15 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
 )
 
 const handleDelete = async (row: any) => {
-  useRequest(container.volumeRemove(row.name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Delete successful'))
-  })
+  await container.volumeRemove(row.name)
+  refresh()
+  window.$message.success($gettext('Delete successful'))
 }
 
-const handlePrune = () => {
-  pruneLoading.value = true
-  useRequest(container.volumePrune())
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Cleanup successful'))
-    })
-    .onComplete(() => {
-      pruneLoading.value = false
-    })
+const handlePrune = async () => {
+  await container.volumePrune()
+  refresh()
+  window.$message.success($gettext('Cleanup successful'))
 }
 
 const handleBulkDelete = async () => {
@@ -139,24 +132,18 @@ const handleCreate = () => {
       <n-button type="primary" @click="createModal = true">{{
         $gettext('Create Volume')
       }}</n-button>
-      <n-button
-        type="primary"
-        ghost
-        :loading="pruneLoading"
-        :disabled="pruneLoading"
-        @click="handlePrune"
-      >
+      <app-button type="primary" ghost @click="handlePrune">
         {{ $gettext('Cleanup Volumes') }}
-      </n-button>
+      </app-button>
       <ConfirmDialog
         type="danger"
         :content="$gettext('Are you sure you want to delete the selected volumes?')"
         @confirm="handleBulkDelete"
       >
         <template #trigger>
-          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+          <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
-          </n-button>
+          </app-button>
         </template>
       </ConfirmDialog>
     </n-flex>

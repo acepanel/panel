@@ -20,8 +20,11 @@ export function useStatQuery(fetch: (params: StatQueryParams) => any) {
   const total = computed<number>(() => data.value?.total || 0)
   const page = ref(1)
   const limit = ref(50)
+  // 连续切换筛选时只认最后一次请求，先发后到的结果不能覆盖数据或提前结束加载态
+  let seq = 0
 
   const load = () => {
+    const current = ++seq
     loading.value = true
     useRequest(
       fetch({
@@ -33,10 +36,10 @@ export function useStatQuery(fetch: (params: StatQueryParams) => any) {
       }),
     )
       .onSuccess(({ data: res }: any) => {
-        data.value = res
+        if (current === seq) data.value = res
       })
       .onComplete(() => {
-        loading.value = false
+        if (current === seq) loading.value = false
       })
   }
 

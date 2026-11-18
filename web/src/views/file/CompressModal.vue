@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NInput } from 'naive-ui'
+import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
@@ -16,7 +16,6 @@ const paths = ref<string[]>([])
 // 不含扩展名，扩展名由格式决定
 const file = ref('')
 const format = ref('.zip')
-const loading = ref(false)
 
 // 搜索子目录时可能是多级相对路径
 const relative = (item: string) => item.slice(path.value.length).replace(/^\//, '')
@@ -29,17 +28,11 @@ const generateName = () => {
   return `${path.value}/${lastDirectory(path.value)}-${suffix}`
 }
 
-const handleArchive = () => {
-  loading.value = true
-  useRequest(api.compress(path.value, paths.value.map(relative), file.value + format.value))
-    .onSuccess(({ data }) => {
-      show.value = false
-      fileStore.selected[fileStore.activeTabId] = []
-      taskQueue.add(data)
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+const handleArchive = async () => {
+  const data = await api.compress(path.value, paths.value.map(relative), file.value + format.value)
+  show.value = false
+  fileStore.selected[fileStore.activeTabId] = []
+  taskQueue.add(data)
 }
 
 // gzip 仅支持压缩单个文件
@@ -98,9 +91,9 @@ watch(show, (val) => {
           </n-input-group>
         </n-form-item>
       </n-form>
-      <n-button :loading="loading" :disabled="loading" type="primary" @click="handleArchive">
+      <app-button type="primary" @click="handleArchive">
         {{ $gettext('Compress') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

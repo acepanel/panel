@@ -2,31 +2,30 @@ import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import environment from '@/api/panel/environment'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
 
 // 环境列表与已安装列表共用的表格列
 export function useEnvColumns(
-  options: { showLatest?: boolean; onInstall?: (row: any) => void } = {},
+  options: { showLatest?: boolean; onInstall?: (row: any) => void | Promise<void> } = {},
 ) {
   const { $gettext } = useGettext()
   const { confirmDelete, confirmAction } = useConfirm()
 
-  const handleUpdate = (type: string, slug: string) => {
-    useRequest(environment.update(type, slug)).onSuccess(() => {
-      window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks'),
-      )
-    })
+  const handleUpdate = async (type: string, slug: string) => {
+    await environment.update(type, slug)
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks'),
+    )
   }
 
-  const handleUninstall = (type: string, slug: string) => {
-    useRequest(environment.uninstall(type, slug)).onSuccess(() => {
-      window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks'),
-      )
-    })
+  const handleUninstall = async (type: string, slug: string) => {
+    await environment.uninstall(type, slug)
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks'),
+    )
   }
 
   const handleManage = (type: string, slug: string) => {
@@ -81,7 +80,7 @@ export function useEnvColumns(
             if (row.installed && row.has_update) {
               items.push(
                 h(
-                  NButton,
+                  AppButton,
                   {
                     size: 'small',
                     type: 'warning',
@@ -93,7 +92,7 @@ export function useEnvColumns(
                           environment: row.name,
                         }),
                       })
-                      if (ok) handleUpdate(row.type, row.slug)
+                      if (ok) await handleUpdate(row.type, row.slug)
                     },
                   },
                   { default: () => $gettext('Update') },
@@ -112,7 +111,7 @@ export function useEnvColumns(
                   { default: () => $gettext('Manage') },
                 ),
                 h(
-                  NButton,
+                  AppButton,
                   {
                     size: 'small',
                     type: 'error',
@@ -126,7 +125,7 @@ export function useEnvColumns(
                         positiveText: $gettext('Uninstall'),
                         countdown: 5,
                       })
-                      if (ok) handleUninstall(row.type, row.slug)
+                      if (ok) await handleUninstall(row.type, row.slug)
                     },
                   },
                   { default: () => $gettext('Uninstall') },
@@ -135,7 +134,7 @@ export function useEnvColumns(
             } else {
               items.push(
                 h(
-                  NButton,
+                  AppButton,
                   {
                     size: 'small',
                     type: 'success',

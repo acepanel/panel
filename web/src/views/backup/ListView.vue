@@ -7,6 +7,7 @@ import backup from '@/api/panel/backup'
 import storage from '@/api/panel/backup-storage'
 import database from '@/api/panel/database'
 import website from '@/api/panel/website'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -18,8 +19,6 @@ const { confirmDelete } = useConfirm()
 const type = defineModel<string>('type', { type: String, required: true })
 
 const uploadModal = ref(false)
-const createLoading = ref(false)
-const restoreLoading = ref(false)
 
 const createModal = ref(false)
 const createModel = ref<{ target: string | null; storage: number }>({
@@ -38,6 +37,7 @@ const restorePoints = ref<any[]>([])
 
 const websites = ref<any>([])
 const databases = ref<any[]>([])
+const databasesLoading = ref(false)
 
 const selectedRowKeys = ref<any>([])
 
@@ -117,7 +117,7 @@ const columns: any = [
         row.children
           ? null
           : h(
-              NButton,
+              AppButton,
               {
                 size: 'small',
                 type: 'error',
@@ -125,7 +125,7 @@ const columns: any = [
                   const ok = await confirmDelete({
                     content: $gettext('Are you sure you want to delete this backup?'),
                   })
-                  if (ok) handleDelete(row.file.name)
+                  if (ok) await handleDelete(row.file.name)
                 },
               },
               { default: () => $gettext('Delete') },
@@ -175,41 +175,28 @@ const openRestore = (row: any) => {
   restoreModal.value = true
 }
 
-const handleCreate = () => {
-  createLoading.value = true
-  useRequest(backup.create(type.value, createModel.value.target, createModel.value.storage))
-    .onSuccess(() => {
-      createModal.value = false
-      window.$bus.emit('backup:refresh')
-      window.$message.success(
-        $gettext('Backup task created, please check the progress in background tasks'),
-      )
-    })
-    .onComplete(() => {
-      createLoading.value = false
-    })
+const handleCreate = async () => {
+  await backup.create(type.value, createModel.value.target, createModel.value.storage)
+  createModal.value = false
+  window.$bus.emit('backup:refresh')
+  window.$message.success(
+    $gettext('Backup task created, please check the progress in background tasks'),
+  )
 }
 
-const handleRestore = () => {
-  restoreLoading.value = true
-  useRequest(backup.restore(type.value, restoreModel.value.file, restoreModel.value.target))
-    .onSuccess(() => {
-      restoreModal.value = false
-      window.$bus.emit('backup:refresh')
-      window.$message.success(
-        $gettext('Restore task created, please check the progress in background tasks'),
-      )
-    })
-    .onComplete(() => {
-      restoreLoading.value = false
-    })
+const handleRestore = async () => {
+  await backup.restore(type.value, restoreModel.value.file, restoreModel.value.target)
+  restoreModal.value = false
+  window.$bus.emit('backup:refresh')
+  window.$message.success(
+    $gettext('Restore task created, please check the progress in background tasks'),
+  )
 }
 
 const handleDelete = async (file: string) => {
-  useRequest(backup.delete(type.value, file)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await backup.delete(type.value, file)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const bulkDelete = async () => {
@@ -225,14 +212,19 @@ const bulkDelete = async () => {
 
 const loadDatabases = (dbType: string) => {
   databases.value = []
-  useRequest(database.list(1, 10000, dbType)).onSuccess(({ data }: { data: any }) => {
-    for (const item of data.items) {
-      databases.value.push({
-        label: `${item.name} (${item.server_name || 'local'})`,
-        value: item.name,
-      })
-    }
-  })
+  databasesLoading.value = true
+  useRequest(database.list(1, 10000, dbType))
+    .onSuccess(({ data }: { data: any }) => {
+      for (const item of data.items) {
+        databases.value.push({
+          label: `${item.name} (${item.server_name || 'local'})`,
+          value: item.name,
+        })
+      }
+    })
+    .onComplete(() => {
+      databasesLoading.value = false
+    })
 }
 
 watch(
@@ -310,9 +302,9 @@ useBus('backup:refresh', refresh)
         @confirm="bulkDelete"
       >
         <template #trigger>
-          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+          <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Delete') }}
-          </n-button>
+          </app-button>
         </template>
       </ConfirmDialog>
     </n-flex>
@@ -347,6 +339,7 @@ useBus('backup:refresh', refresh)
         <n-select
           v-model:value="createModel.target"
           :options="databases"
+          :loading="databasesLoading"
           filterable
           :placeholder="$gettext('Select database')"
         />
@@ -359,15 +352,9 @@ useBus('backup:refresh', refresh)
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="createLoading"
-      :disabled="createLoading"
-      @click="handleCreate"
-    >
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <app-modal v-model:show="restoreModal" :title="$gettext('Restore Backup')">
     <n-form :model="restoreModel">
@@ -389,20 +376,15 @@ useBus('backup:refresh', refresh)
         <n-select
           v-model:value="restoreModel.target"
           :options="databases"
+          :loading="databasesLoading"
           filterable
           :placeholder="$gettext('Select database')"
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="restoreLoading"
-      :disabled="restoreLoading"
-      @click="handleRestore"
-    >
+    <app-button type="info" block @click="handleRestore">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>

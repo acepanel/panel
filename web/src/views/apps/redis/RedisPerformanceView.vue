@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type redis from '@/api/apps/redis'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const props = defineProps<{
@@ -60,7 +60,7 @@ const clientColumns: any = [
     width: 110,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -72,7 +72,7 @@ const clientColumns: any = [
               }),
               positiveText: $gettext('Kill'),
             })
-            if (ok) handleKillClient(Number(row.id))
+            if (ok) await handleKillClient(Number(row.id))
           },
         },
         { default: () => $gettext('Kill') },
@@ -93,17 +93,15 @@ const handleResetSlowLog = async () => {
     content: $gettext('Are you sure you want to reset the slow log?'),
   })
   if (!ok) return
-  useRequest(props.api.resetSlowLog()).onSuccess(() => {
-    window.$message.success($gettext('Reset successfully'))
-    refreshSlowLog()
-  })
+  await props.api.resetSlowLog()
+  window.$message.success($gettext('Reset successfully'))
+  refreshSlowLog()
 }
 
-const handleKillClient = (id: number) => {
-  useRequest(props.api.killClient(id)).onSuccess(() => {
-    window.$message.success($gettext('Killed successfully'))
-    refreshClients()
-  })
+const handleKillClient = async (id: number) => {
+  await props.api.killClient(id)
+  window.$message.success($gettext('Killed successfully'))
+  refreshClients()
 }
 
 const handleScanBigKeys = async () => {
@@ -115,9 +113,8 @@ const handleScanBigKeys = async () => {
     ),
   })
   if (!ok) return
-  useRequest(props.api.scanBigKeys()).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-  })
+  await props.api.scanBigKeys()
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 </script>
 
@@ -126,12 +123,12 @@ const handleScanBigKeys = async () => {
     <n-tab-pane name="slow-log" :tab="$gettext('Slow Log')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshSlowLog()">
+          <app-button type="primary" @click="() => refreshSlowLog()">
             {{ $gettext('Refresh') }}
-          </n-button>
-          <n-button type="warning" @click="handleResetSlowLog">
+          </app-button>
+          <app-button type="warning" @click="handleResetSlowLog">
             {{ $gettext('Reset Slow Log') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           striped
@@ -145,9 +142,9 @@ const handleScanBigKeys = async () => {
     <n-tab-pane name="clients" :tab="$gettext('Clients')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshClients()">
+          <app-button type="primary" @click="() => refreshClients()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           striped
@@ -161,12 +158,12 @@ const handleScanBigKeys = async () => {
     <n-tab-pane name="memory" :tab="$gettext('Memory')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshMemory()">
+          <app-button type="primary" @click="() => refreshMemory()">
             {{ $gettext('Refresh') }}
-          </n-button>
-          <n-button type="info" @click="handleScanBigKeys">
+          </app-button>
+          <app-button type="info" @click="handleScanBigKeys">
             {{ $gettext('Scan Big Keys') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-alert v-if="memory.no_limit" type="warning">
           {{

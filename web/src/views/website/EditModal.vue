@@ -9,7 +9,6 @@ import file from '@/api/panel/file'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
-import { useResponsive } from '@/components/system/composables/useResponsive'
 import { webserverFeatures } from '@/utils'
 
 import AdvancedTab from './edit/AdvancedTab.vue'
@@ -22,7 +21,6 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
 
 const { $gettext } = useGettext()
-const { isMobile } = useResponsive()
 const formLayout = useFormLayout(140)
 const presetFormLayout = useFormLayout('auto')
 const configFormLayout = useFormLayout(100)
@@ -30,10 +28,7 @@ let messageReactive: MessageReactive | null = null
 
 const current = ref('listen')
 const loading = ref(false)
-const saveLoading = ref(false)
-const resetLoading = ref(false)
 const switchTypeLoading = ref(false)
-const clearLogLoading = ref(false)
 const id = ref(0)
 const initialSetting = {
   id: 0,
@@ -149,7 +144,7 @@ const certOptions = computed(() => {
 })
 const selectedCert = ref(null)
 
-const handleSave = () => {
+const handleSave = async () => {
   // 目录级基本认证规则必须填写目录
   if (setting.value.basic_auth.some((a: any) => a._scope === 'dir' && !a.path?.trim())) {
     window.$message.error($gettext('Please enter the directory for basic authentication rules'))
@@ -191,16 +186,10 @@ const handleSave = () => {
       .filter((s: string) => s.length > 0)
   }
 
-  saveLoading.value = true
-  useRequest(website.saveConfig(id.value, setting.value))
-    .onSuccess(() => {
-      fetchSetting()
-      window.$message.success($gettext('Saved successfully'))
-      window.$bus.emit('website:refresh')
-    })
-    .onComplete(() => {
-      saveLoading.value = false
-    })
+  await website.saveConfig(id.value, setting.value)
+  fetchSetting()
+  window.$message.success($gettext('Saved successfully'))
+  window.$bus.emit('website:refresh')
 }
 
 const handleSwitchType = (target: any) => {
@@ -216,17 +205,11 @@ const handleSwitchType = (target: any) => {
     })
 }
 
-const handleReset = () => {
-  resetLoading.value = true
-  useRequest(website.resetConfig(id.value))
-    .onSuccess(() => {
-      fetchSetting()
-      window.$bus.emit('website:refresh')
-      window.$message.success($gettext('Reset successfully'))
-    })
-    .onComplete(() => {
-      resetLoading.value = false
-    })
+const handleReset = async () => {
+  await website.resetConfig(id.value)
+  fetchSetting()
+  window.$bus.emit('website:refresh')
+  window.$message.success($gettext('Reset successfully'))
 }
 
 const handleRewrite = (value: string) => {
@@ -238,27 +221,26 @@ const dnsModal = ref(false)
 const dnsList = ref<any>([])
 const selectedDnsId = ref<number | null>(null)
 
-const handleObtainCert = () => {
+const handleObtainCert = async () => {
   // 检测泛域名
   const hasWildcard = setting.value.domains?.some((domain: string) => domain.includes('*'))
   if (hasWildcard) {
     // 加载 DNS 列表并弹窗选择
-    useRequest(cert.dns(1, 10000)).onSuccess(({ data }) => {
-      dnsList.value = data.items.map((item: any) => ({
-        label: item.name,
-        value: item.id,
-      }))
-      if (dnsList.value.length === 0) {
-        window.$message.error(
-          $gettext(
-            'Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first.',
-          ),
-        )
-        return
-      }
-      selectedDnsId.value = null
-      dnsModal.value = true
-    })
+    const data = await cert.dns(1, 10000)
+    dnsList.value = data.items.map((item: any) => ({
+      label: item.name,
+      value: item.id,
+    }))
+    if (dnsList.value.length === 0) {
+      window.$message.error(
+        $gettext(
+          'Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first.',
+        ),
+      )
+      return
+    }
+    selectedDnsId.value = null
+    dnsModal.value = true
     return
   }
 
@@ -308,16 +290,10 @@ const clearLog = async () => {
   const isError = current.value === 'error_log'
   const path = isError ? setting.value.error_log : setting.value.access_log
   if (!path || path === 'off') return
-  clearLogLoading.value = true
-  useRequest(file.truncate(path))
-    .onSuccess(() => {
-      if (isError) errorLogRef.value?.clear()
-      else accessLogRef.value?.clear()
-      window.$message.success($gettext('Cleared successfully'))
-    })
-    .onComplete(() => {
-      clearLogLoading.value = false
-    })
+  await file.truncate(path)
+  if (isError) errorLogRef.value?.clear()
+  else accessLogRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 
 const onCreateListen = () => {
@@ -960,12 +936,12 @@ const removeCustomConfig = (index: number) => {
           @confirm="clearLog"
         >
           <template #trigger>
-            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading">
+            <app-button type="primary">
               {{ $gettext('Clear Logs') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
-        <n-button
+        <app-button
           v-if="current === 'https' && setting.domains.length > 0"
           :loading="isObtainCert"
           :disabled="isObtainCert"
@@ -973,30 +949,28 @@ const removeCustomConfig = (index: number) => {
           @click="handleObtainCert"
         >
           {{ $gettext('One-click Certificate Issuance') }}
-        </n-button>
+        </app-button>
         <ConfirmDialog
           type="danger"
           :content="$gettext('Are you sure you want to reset the configuration?')"
           @confirm="handleReset"
         >
           <template #trigger>
-            <n-button type="warning" :loading="resetLoading" :disabled="resetLoading">
+            <app-button type="warning">
               {{ $gettext('Reset Configuration') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
         <n-button @click="show = false">
           {{ $gettext('Cancel') }}
         </n-button>
-        <n-button
+        <app-button
           v-if="current !== 'log' && current !== 'error_log'"
           type="primary"
-          :loading="saveLoading"
-          :disabled="saveLoading"
           @click="handleSave"
         >
           {{ $gettext('Save') }}
-        </n-button>
+        </app-button>
       </n-flex>
     </template>
   </app-modal>

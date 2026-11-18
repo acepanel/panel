@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 import fail2ban from '@/api/apps/fail2ban'
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { WEBSERVER_SLUGS } from '@/utils'
@@ -17,8 +18,6 @@ const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const currentTab = ref('status')
 const white = ref('')
-const saveWhiteListLoading = ref(false)
-const addJailLoading = ref(false)
 
 const addJailModal = ref(false)
 const addJailModel = ref({
@@ -38,7 +37,6 @@ const jailTotalBan = ref(0)
 const jailBanedList = ref<any[]>([])
 
 const editJailModal = ref(false)
-const editJailLoading = ref(false)
 const editJailModel = ref({
   name: '',
   enabled: true,
@@ -79,7 +77,7 @@ const jailsColumns: any = [
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'warning',
@@ -112,7 +110,7 @@ const jailsColumns: any = [
           { default: () => $gettext('Configure') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -122,7 +120,7 @@ const jailsColumns: any = [
                   name: row.name,
                 }),
               })
-              if (ok) handleDeleteJail(row.name)
+              if (ok) await handleDeleteJail(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -147,7 +145,7 @@ const banedIPColumns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -156,7 +154,7 @@ const banedIPColumns: any = [
               content: $gettext('Are you sure you want to unban %{ ip }?', { ip: row.ip }),
               positiveText: $gettext('Unban'),
             })
-            if (ok) handleUnBan(row.name, row.ip)
+            if (ok) await handleUnBan(row.name, row.ip)
           },
         },
         { default: () => $gettext('Unban') },
@@ -171,15 +169,9 @@ const getWhiteList = async () => {
   white.value = await fail2ban.whitelist()
 }
 
-const handleSaveWhiteList = () => {
-  saveWhiteListLoading.value = true
-  useRequest(fail2ban.setWhitelist(white.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saveWhiteListLoading.value = false
-    })
+const handleSaveWhiteList = async () => {
+  await fail2ban.setWhitelist(white.value)
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const getWebsiteList = async (page: number, limit: number) => {
@@ -197,24 +189,17 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
   fail2ban.jails(page, pageSize),
 )
 
-const handleAddJail = () => {
-  addJailLoading.value = true
-  useRequest(fail2ban.add(addJailModel.value))
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Added successfully'))
-      addJailModal.value = false
-    })
-    .onComplete(() => {
-      addJailLoading.value = false
-    })
+const handleAddJail = async () => {
+  await fail2ban.add(addJailModel.value)
+  refresh()
+  window.$message.success($gettext('Added successfully'))
+  addJailModal.value = false
 }
 
-const handleDeleteJail = (name: string) => {
-  useRequest(fail2ban.delete(name)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDeleteJail = async (name: string) => {
+  await fail2ban.delete(name)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const switching = reactive(new Set<string>())
@@ -229,17 +214,11 @@ const handleToggleJail = (row: any, enabled: boolean) => {
     .onComplete(() => switching.delete(row.name))
 }
 
-const handleEditJail = () => {
-  editJailLoading.value = true
-  useRequest(fail2ban.update(editJailModel.value.name, editJailModel.value))
-    .onSuccess(() => {
-      refresh()
-      editJailModal.value = false
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      editJailLoading.value = false
-    })
+const handleEditJail = async () => {
+  await fail2ban.update(editJailModel.value.name, editJailModel.value)
+  refresh()
+  editJailModal.value = false
+  window.$message.success($gettext('Saved successfully'))
 }
 
 const getJailInfo = async (name: string) => {
@@ -249,11 +228,10 @@ const getJailInfo = async (name: string) => {
   jailBanedList.value = data.baned_list
 }
 
-const handleUnBan = (name: string, ip: string) => {
-  useRequest(fail2ban.unban(name, ip)).onSuccess(() => {
-    window.$message.success($gettext('Unbanned successfully'))
-    getJailInfo(name)
-  })
+const handleUnBan = async (name: string, ip: string) => {
+  await fail2ban.unban(name, ip)
+  window.$message.success($gettext('Unbanned successfully'))
+  getJailInfo(name)
 }
 
 onMounted(() => {
@@ -281,14 +259,9 @@ onMounted(() => {
             />
           </n-card>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="saveWhiteListLoading"
-              :disabled="saveWhiteListLoading"
-              @click="handleSaveWhiteList"
-            >
+            <app-button type="primary" @click="handleSaveWhiteList">
               {{ $gettext('Save Whitelist') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </n-flex>
       </n-tab-pane>
@@ -395,15 +368,9 @@ onMounted(() => {
           <n-input-number v-model:value="addJailModel.bantime" @keydown.enter.prevent :min="1" />
         </n-form-item>
       </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="addJailLoading"
-        :disabled="addJailLoading"
-        @click="handleAddJail"
-      >
+      <app-button type="info" block @click="handleAddJail">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-space>
   </app-modal>
   <app-modal v-model:show="editJailModal" :title="$gettext('Rule Configuration')">
@@ -447,15 +414,9 @@ onMounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="editJailLoading"
-        :disabled="editJailLoading"
-        @click="handleEditJail"
-      >
+      <app-button type="info" block @click="handleEditJail">
         {{ $gettext('Save') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal v-model:show="jailModal" :title="$gettext('View Rule')">

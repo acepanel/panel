@@ -22,20 +22,23 @@ useRequest(safe.pingStatus).onSuccess(({ data }) => {
 const firewallLoading = ref(false)
 const pingLoading = ref(false)
 
-const handleFirewallStatus = () => {
+// 开关不用 v-model，请求成功后才切换，失败时停在原状态
+const handleFirewallStatus = (value: boolean) => {
   firewallLoading.value = true
-  useRequest(firewall.updateStatus(model.value.firewallStatus))
+  useRequest(firewall.updateStatus(value))
     .onSuccess(() => {
+      model.value.firewallStatus = value
       window.$message.success($gettext('Settings saved successfully'))
       window.$bus.emit('firewall:refresh')
     })
     .onComplete(() => (firewallLoading.value = false))
 }
 
-const handlePingStatus = () => {
+const handlePingStatus = (value: boolean) => {
   pingLoading.value = true
-  useRequest(safe.updatePingStatus(model.value.pingStatus))
+  useRequest(safe.updatePingStatus(value))
     .onSuccess(() => {
+      model.value.pingStatus = value
       window.$message.success($gettext('Settings saved successfully'))
     })
     .onComplete(() => (pingLoading.value = false))
@@ -46,7 +49,6 @@ const scanEnabled = ref(false)
 const saveDays = ref(30)
 const selectedInterfaces = ref<string[]>([])
 const interfaceOptions = ref<any[]>([])
-const scanSettingLoading = ref(false)
 
 // 自动屏蔽设置
 const autoBlock = ref(false)
@@ -75,27 +77,19 @@ useRequest(firewall.scanInterfaces()).onSuccess(({ data }) => {
   }))
 })
 
-const handleSaveScanSetting = () => {
-  scanSettingLoading.value = true
-  useRequest(
-    firewall.updateScanSetting({
-      enabled: scanEnabled.value,
-      days: saveDays.value,
-      interfaces: selectedInterfaces.value,
-      auto_block: autoBlock.value,
-      block_threshold: blockThreshold.value,
-      block_window: blockWindow.value,
-      block_duration: blockDuration.value,
-      block_outbound: blockOutbound.value,
-      whitelist: whitelist.value,
-    }),
-  )
-    .onSuccess(() => {
-      window.$message.success($gettext('Settings saved successfully'))
-    })
-    .onComplete(() => {
-      scanSettingLoading.value = false
-    })
+const handleSaveScanSetting = async () => {
+  await firewall.updateScanSetting({
+    enabled: scanEnabled.value,
+    days: saveDays.value,
+    interfaces: selectedInterfaces.value,
+    auto_block: autoBlock.value,
+    block_threshold: blockThreshold.value,
+    block_window: blockWindow.value,
+    block_duration: blockDuration.value,
+    block_outbound: blockOutbound.value,
+    whitelist: whitelist.value,
+  })
+  window.$message.success($gettext('Settings saved successfully'))
 }
 </script>
 
@@ -103,17 +97,13 @@ const handleSaveScanSetting = () => {
   <n-form :model="model" v-bind="formLayout">
     <n-form-item path="firewall" :label="$gettext('System Firewall')">
       <n-switch
-        v-model:value="model.firewallStatus"
+        :value="model.firewallStatus"
         :loading="firewallLoading"
         @update:value="handleFirewallStatus"
       />
     </n-form-item>
     <n-form-item path="ping" :label="$gettext('Allow Ping')">
-      <n-switch
-        v-model:value="model.pingStatus"
-        :loading="pingLoading"
-        @update:value="handlePingStatus"
-      />
+      <n-switch :value="model.pingStatus" :loading="pingLoading" @update:value="handlePingStatus" />
     </n-form-item>
     <n-divider />
     <n-form-item :label="$gettext('Scan Awareness')">
@@ -163,9 +153,9 @@ const handleSaveScanSetting = () => {
       </template>
     </template>
     <n-form-item>
-      <n-button type="primary" :loading="scanSettingLoading" @click="handleSaveScanSetting">
+      <app-button type="primary" @click="handleSaveScanSetting">
         {{ $gettext('Save') }}
-      </n-button>
+      </app-button>
     </n-form-item>
   </n-form>
 </template>

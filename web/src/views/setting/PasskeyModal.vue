@@ -4,6 +4,7 @@ import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useUserStore } from '@/stores'
 import { formatDateTime } from '@/utils'
@@ -54,7 +55,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -62,7 +63,7 @@ const columns: any = [
             const ok = await confirmDelete({
               content: $gettext('Are you sure you want to delete this passkey?'),
             })
-            if (ok) handleDelete(row.id)
+            if (ok) await handleDelete(row.id)
           },
         },
         { default: () => $gettext('Delete') },
@@ -91,14 +92,15 @@ const checkSupported = () => {
   })
 }
 
-const handleDelete = (passkeyId: number) => {
-  useRequest(() => user.passkeyDelete(passkeyId, id.value)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refresh()
-  })
+const handleDelete = async (passkeyId: number) => {
+  await user.passkeyDelete(passkeyId, id.value)
+  window.$message.success($gettext('Deleted successfully'))
+  refresh()
 }
 
 const handleRegister = async () => {
+  // 输入框回车也会触发，按钮禁用挡不住
+  if (registerLoading.value) return
   const name = passkeyName.value.trim()
   if (!name) {
     window.$message.warning($gettext('Please enter a name for the passkey'))
@@ -161,6 +163,8 @@ watch(
             v-model:value="passkeyName"
             :placeholder="$gettext('Passkey name')"
             class="md:max-w-75"
+            :disabled="registerLoading"
+            :loading="registerLoading || undefined"
             @keydown.enter="handleRegister"
           />
           <n-button

@@ -57,17 +57,22 @@ watch(show, (val) => {
   type.value = 'mysql'
   model.value = defaultModel()
   if (!props.editId) return
-  useRequest(database.serverGet(props.editId)).onSuccess(({ data }: { data: any }) => {
-    type.value = data.type
-    model.value = {
-      name: data.name,
-      host: data.host,
-      port: data.port,
-      username: data.username,
-      password: data.password,
-      remark: data.remark,
-    }
-  })
+  loading.value = true
+  useRequest(database.serverGet(props.editId))
+    .onSuccess(({ data }: { data: any }) => {
+      type.value = data.type
+      model.value = {
+        name: data.name,
+        host: data.host,
+        port: data.port,
+        username: data.username,
+        password: data.password,
+        remark: data.remark,
+      }
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 })
 
 const showPathSelector = ref(false)
@@ -79,23 +84,16 @@ watch(showPathSelector, (val) => {
   }
 })
 
-const handleSubmit = () => {
-  loading.value = true
-  const req = isEdit.value
+const handleSubmit = async () => {
+  await (isEdit.value
     ? database.serverUpdate(props.editId!, model.value)
-    : database.serverCreate({ ...model.value, type: type.value })
-  useRequest(req)
-    .onSuccess(() => {
-      show.value = false
-      window.$message.success(
-        isEdit.value ? $gettext('Modified successfully') : $gettext('Added successfully'),
-      )
-      window.$bus.emit('database-user:refresh')
-      window.$bus.emit('database-server:refresh')
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+    : database.serverCreate({ ...model.value, type: type.value }))
+  show.value = false
+  window.$message.success(
+    isEdit.value ? $gettext('Modified successfully') : $gettext('Added successfully'),
+  )
+  window.$bus.emit('database-user:refresh')
+  window.$bus.emit('database-server:refresh')
 }
 </script>
 
@@ -104,98 +102,100 @@ const handleSubmit = () => {
     v-model:show="show"
     :title="isEdit ? $gettext('Modify Server') : $gettext('Add Server')"
   >
-    <n-form :model="model">
-      <n-form-item v-if="!isEdit" path="type" :label="$gettext('Type')">
-        <n-select
-          v-model:value="type"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Select type')"
-          :options="typeOptions"
-          @update:value="handleTypeChange"
-        />
-      </n-form-item>
-      <n-form-item path="name" :label="$gettext('Name')">
-        <n-input
-          v-model:value="model.name"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter database server name')"
-        />
-      </n-form-item>
-      <template v-if="type === 'sqlite'">
-        <n-form-item path="host" :label="$gettext('File Path')">
-          <n-input-group>
-            <n-input
-              v-model:value="model.host"
-              type="text"
-              @keydown.enter.prevent
-              :placeholder="$gettext('Enter SQLite database file path, e.g. /data/app.db')"
-            />
-            <n-button
-              type="primary"
-              ghost
-              @click="
-                () => {
-                  pathSelectorPath = model.host || '/'
-                  showPathSelector = true
-                }
-              "
-            >
-              {{ $gettext('Select') }}
-            </n-button>
-          </n-input-group>
+    <n-spin :show="loading">
+      <n-form :model="model">
+        <n-form-item v-if="!isEdit" path="type" :label="$gettext('Type')">
+          <n-select
+            v-model:value="type"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Select type')"
+            :options="typeOptions"
+            @update:value="handleTypeChange"
+          />
         </n-form-item>
-      </template>
-      <template v-else>
-        <n-grid cols="1 m:24" responsive="screen">
-          <n-form-item-gi :span="15" path="host" :label="$gettext('Host')">
-            <n-input
-              v-model:value="model.host"
-              type="text"
-              @keydown.enter.prevent
-              :placeholder="$gettext('Enter database server host')"
-            />
-          </n-form-item-gi>
-          <n-gi :span="2" />
-          <n-form-item-gi :span="7" path="port" :label="$gettext('Port')">
-            <n-input-number
-              w-full
-              v-model:value="model.port"
-              @keydown.enter.prevent
-              :placeholder="$gettext('Enter database server port')"
-            />
-          </n-form-item-gi>
-        </n-grid>
-        <n-form-item v-if="type !== 'redis'" path="username" :label="$gettext('Username')">
+        <n-form-item path="name" :label="$gettext('Name')">
           <n-input
-            v-model:value="model.username"
+            v-model:value="model.name"
             type="text"
             @keydown.enter.prevent
-            :placeholder="$gettext('Enter database server username')"
+            :placeholder="$gettext('Enter database server name')"
           />
         </n-form-item>
-        <n-form-item path="password" :label="$gettext('Password')">
+        <template v-if="type === 'sqlite'">
+          <n-form-item path="host" :label="$gettext('File Path')">
+            <n-input-group>
+              <n-input
+                v-model:value="model.host"
+                type="text"
+                @keydown.enter.prevent
+                :placeholder="$gettext('Enter SQLite database file path, e.g. /data/app.db')"
+              />
+              <n-button
+                type="primary"
+                ghost
+                @click="
+                  () => {
+                    pathSelectorPath = model.host || '/'
+                    showPathSelector = true
+                  }
+                "
+              >
+                {{ $gettext('Select') }}
+              </n-button>
+            </n-input-group>
+          </n-form-item>
+        </template>
+        <template v-else>
+          <n-grid cols="1 m:24" responsive="screen">
+            <n-form-item-gi :span="15" path="host" :label="$gettext('Host')">
+              <n-input
+                v-model:value="model.host"
+                type="text"
+                @keydown.enter.prevent
+                :placeholder="$gettext('Enter database server host')"
+              />
+            </n-form-item-gi>
+            <n-gi :span="2" />
+            <n-form-item-gi :span="7" path="port" :label="$gettext('Port')">
+              <n-input-number
+                w-full
+                v-model:value="model.port"
+                @keydown.enter.prevent
+                :placeholder="$gettext('Enter database server port')"
+              />
+            </n-form-item-gi>
+          </n-grid>
+          <n-form-item v-if="type !== 'redis'" path="username" :label="$gettext('Username')">
+            <n-input
+              v-model:value="model.username"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter database server username')"
+            />
+          </n-form-item>
+          <n-form-item path="password" :label="$gettext('Password')">
+            <n-input
+              v-model:value="model.password"
+              type="password"
+              show-password-on="click"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter database server password')"
+            />
+          </n-form-item>
+        </template>
+        <n-form-item path="remark" :label="$gettext('Comment')">
           <n-input
-            v-model:value="model.password"
-            type="password"
-            show-password-on="click"
+            v-model:value="model.remark"
+            type="textarea"
             @keydown.enter.prevent
-            :placeholder="$gettext('Enter database server password')"
+            :placeholder="$gettext('Enter database server comment')"
           />
         </n-form-item>
-      </template>
-      <n-form-item path="remark" :label="$gettext('Comment')">
-        <n-input
-          v-model:value="model.remark"
-          type="textarea"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter database server comment')"
-        />
-      </n-form-item>
-    </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleSubmit">
+      </n-form>
+    </n-spin>
+    <app-button type="info" block :disabled="loading" @click="handleSubmit">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="false" />
 </template>

@@ -56,7 +56,6 @@ watch(show, (value) => {
 
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace')
-const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
@@ -92,16 +91,10 @@ const handleCreate = async () => {
   }
   // 端口中去掉 443 端口，不允许在未配置证书下监听 443 端口
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '443')
-  loading.value = true
-  useRequest(website.create(createModel.value))
-    .onSuccess(({ data }) => {
-      window.$bus.emit('website:refresh')
-      notifyWebsiteCreated(createModel.value.name, data.warnings)
-      show.value = false
-    })
-    .onComplete(() => {
-      loading.value = false
-    })
+  const data = await website.create(createModel.value)
+  window.$bus.emit('website:refresh')
+  notifyWebsiteCreated(createModel.value.name, data.warnings)
+  show.value = false
 }
 
 const formatDbValue = (value: string) => {
@@ -264,9 +257,9 @@ watch(showPathSelector, (val) => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Create') }}
-    </n-button>
+    </app-button>
   </app-modal>
 
   <!-- 目录选择器 -->

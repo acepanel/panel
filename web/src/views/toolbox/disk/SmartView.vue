@@ -30,21 +30,24 @@ const loadingInfo = ref(false)
 // 加载 SMART 磁盘列表
 const loadSmartDisks = () => {
   loadingDisks.value = true
-  useRequest(disk.smartDisks()).onSuccess(({ data }) => {
-    loadingDisks.value = false
-    available.value = data.available
-    unavailableMessage.value = data.message || ''
-    if (data.available && data.disks) {
-      diskOptions.value = data.disks.map((d: SmartDisk) => ({
-        label: d.model ? `${d.name} (${d.model})` : d.name,
-        value: d.name,
-      }))
-      // 自动选中第一个
-      if (diskOptions.value.length > 0) {
-        selectedDisk.value = diskOptions.value[0]!.value
+  useRequest(disk.smartDisks())
+    .onSuccess(({ data }) => {
+      available.value = data.available
+      unavailableMessage.value = data.message || ''
+      if (data.available && data.disks) {
+        diskOptions.value = data.disks.map((d: SmartDisk) => ({
+          label: d.model ? `${d.name} (${d.model})` : d.name,
+          value: d.name,
+        }))
+        // 自动选中第一个
+        if (diskOptions.value.length > 0) {
+          selectedDisk.value = diskOptions.value[0]!.value
+        }
       }
-    }
-  })
+    })
+    .onComplete(() => {
+      loadingDisks.value = false
+    })
 }
 
 // 加载 SMART 详情
@@ -52,10 +55,13 @@ const loadSmartInfo = () => {
   if (!selectedDisk.value) return
   loadingInfo.value = true
   smartData.value = null
-  useRequest(disk.smartInfo(selectedDisk.value)).onSuccess(({ data }) => {
-    loadingInfo.value = false
-    smartData.value = data
-  })
+  useRequest(disk.smartInfo(selectedDisk.value))
+    .onSuccess(({ data }) => {
+      smartData.value = data
+    })
+    .onComplete(() => {
+      loadingInfo.value = false
+    })
 }
 
 // 监听磁盘选择变化

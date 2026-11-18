@@ -10,11 +10,12 @@ import toolboxNetwork, {
   type NetworkInterfaceState,
   type NetworkInterfaces,
 } from '@/api/panel/toolbox-network'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 const result = ref<NetworkInterfaces>({ manager: 'unsupported', items: [], pending: false })
 const loading = ref(false)
-const saving = ref(false)
 const showModal = ref(false)
 const editing = ref<NetworkInterfaceConfig>(createEmptyConfig())
 
@@ -43,20 +44,18 @@ const stopCountdown = () => {
   countdown.value = 0
 }
 
-const confirmChange = () => {
-  useRequest(toolboxNetwork.confirmInterface()).onSuccess(() => {
-    stopCountdown()
-    window.$message.success($gettext('Change confirmed'))
-    loadInterfaces()
-  })
+const confirmChange = async () => {
+  await toolboxNetwork.confirmInterface()
+  stopCountdown()
+  window.$message.success($gettext('Change confirmed'))
+  loadInterfaces()
 }
 
-const rollbackChange = () => {
-  useRequest(toolboxNetwork.rollbackInterface()).onSuccess(() => {
-    stopCountdown()
-    window.$message.success($gettext('Change rolled back'))
-    loadInterfaces()
-  })
+const rollbackChange = async () => {
+  await toolboxNetwork.rollbackInterface()
+  stopCountdown()
+  window.$message.success($gettext('Change rolled back'))
+  loadInterfaces()
 }
 
 onUnmounted(stopCountdown)
@@ -287,27 +286,18 @@ const cleanConfig = (): NetworkInterfaceConfig => {
   }
 }
 
-const saveConfig = () => {
-  window.$dialog.warning({
+const saveConfig = async () => {
+  const ok = await confirmAction({
     title: $gettext('Confirm Network Configuration Change'),
     content: $gettext(
       'Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. The change will be rolled back automatically unless you confirm it afterwards. Continue?',
     ),
-    positiveText: $gettext('Confirm'),
-    negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      saving.value = true
-      return useRequest(toolboxNetwork.updateInterface(cleanConfig()))
-        .onSuccess(({ data }: any) => {
-          showModal.value = false
-          startCountdown(data?.confirm_timeout ?? 30)
-          loadInterfaces()
-        })
-        .onComplete(() => {
-          saving.value = false
-        })
-    },
   })
+  if (!ok) return
+  const data = await toolboxNetwork.updateInterface(cleanConfig())
+  showModal.value = false
+  startCountdown(data?.confirm_timeout ?? 30)
+  loadInterfaces()
 }
 
 loadInterfaces()
@@ -328,12 +318,12 @@ loadInterfaces()
           }}
         </span>
         <n-flex :size="8">
-          <n-button size="small" type="primary" @click="confirmChange">
+          <app-button size="small" type="primary" @click="confirmChange">
             {{ $gettext('Keep change') }}
-          </n-button>
-          <n-button size="small" @click="rollbackChange">
+          </app-button>
+          <app-button size="small" @click="rollbackChange">
             {{ $gettext('Roll back now') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-alert>
@@ -422,9 +412,9 @@ loadInterfaces()
 
     <n-flex justify="end">
       <n-button @click="showModal = false">{{ $gettext('Cancel') }}</n-button>
-      <n-button type="primary" :loading="saving" :disabled="saving" @click="saveConfig">
+      <app-button type="primary" @click="saveConfig">
         {{ $gettext('Save and Apply') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

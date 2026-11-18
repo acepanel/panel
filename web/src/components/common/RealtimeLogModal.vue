@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { PropType } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -20,8 +21,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 声明成属性而不是事件，才能把处理函数返回的 Promise 交给确认气泡
+  onClear: {
+    type: Function as PropType<() => unknown>,
+    required: false,
+  },
 })
-const emit = defineEmits<{ clear: [] }>()
 
 const logRef = ref<{ clear: () => void } | null>(null)
 
@@ -48,12 +53,12 @@ defineExpose({ clear })
           v-if="clearable"
           type="danger"
           :content="$gettext('Are you sure you want to clear the log?')"
-          @confirm="emit('clear')"
+          @confirm="props.onClear?.()"
         >
           <template #trigger>
-            <n-button size="small" type="warning">
+            <app-button size="small" type="warning">
               {{ $gettext('Clear Log') }}
-            </n-button>
+            </app-button>
           </template>
         </ConfirmDialog>
       </n-flex>

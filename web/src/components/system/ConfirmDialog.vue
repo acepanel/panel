@@ -2,6 +2,8 @@
 import type { PopoverPlacement } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import { isThenable } from '@/utils'
+
 interface Props {
   type?: 'normal' | 'danger' | 'delete'
   countdown?: number
@@ -13,6 +15,8 @@ interface Props {
   trigger?: 'click' | 'hover' | 'manual'
   showIcon?: boolean
   width?: number | string
+  // 声明成属性而不是事件，才能拿到处理函数返回的 Promise
+  onConfirm?: () => unknown
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -26,10 +30,10 @@ const props = withDefaults(defineProps<Props>(), {
   trigger: 'click',
   showIcon: false,
   width: 280,
+  onConfirm: undefined,
 })
 
 const emit = defineEmits<{
-  (e: 'confirm'): void
   (e: 'cancel'): void
 }>()
 
@@ -82,9 +86,23 @@ const onUpdateShow = (show: boolean) => {
   }
 }
 
+// 确认后的操作未结束时，作为触发器的 AppButton 保持加载态
+const pending = ref(false)
+provide('confirmPending', pending)
+
+// 不把 Promise 返回给 n-popconfirm，否则气泡会等操作结束才关闭
 const onPositive = () => {
   if (isDisabled.value) return false
-  emit('confirm')
+  const result = props.onConfirm?.()
+  if (!isThenable(result)) return
+  // 推迟到下一个宏任务，已经结束的 Promise 不会让触发按钮闪一下
+  const timer = setTimeout(() => {
+    pending.value = true
+  })
+  void Promise.resolve(result).finally(() => {
+    clearTimeout(timer)
+    pending.value = false
+  })
 }
 
 const onNegative = () => {

@@ -15,6 +15,7 @@ import migration, {
   type MigrationResult,
 } from '@/api/panel/toolbox-migration'
 import ws from '@/api/ws'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { useTablePagination } from '@/components/system/composables/useTablePagination'
@@ -22,6 +23,7 @@ import { formatBytes } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
+const { confirmAction } = useConfirm()
 
 const step = ref(0)
 const loading = ref(false)
@@ -290,7 +292,22 @@ const timeLabel = computed(() => {
     : $gettext('%{ started }, running for %{ elapsed }', { started, elapsed })
 })
 
+const connect = async () => {
+  loading.value = true
+  try {
+    const data: any = await migration.precheck(connection.value)
+    source.value = data.source
+  } finally {
+    loading.value = false
+  }
+  // 放在复位之后，否则读取资源期间按钮会提前退出加载态
+  handleItems()
+}
+
+// 校验不通过时同步返回，避免连接按钮闪一下加载图标
 const handleConnect = () => {
+  // 地址框回车也会触发，请求期间不能重复发起
+  if (loading.value) return
   if (!connection.value.url) {
     window.$message.error($gettext('Please enter the panel address.'))
     return
@@ -303,14 +320,7 @@ const handleConnect = () => {
     window.$message.error($gettext('Please enter the source panel API key.'))
     return
   }
-
-  loading.value = true
-  useRequest(migration.precheck(connection.value))
-    .onSuccess(({ data }: any) => {
-      source.value = data.source
-      handleItems()
-    })
-    .onComplete(() => (loading.value = false))
+  return connect()
 }
 
 const handleItems = () => {
@@ -333,6 +343,36 @@ const handleItems = () => {
     .onComplete(() => (loading.value = false))
 }
 
+const startMigration = async () => {
+  const ok = await confirmAction({
+    title: $gettext('Start migration'),
+    content: $gettext('Are you sure you want to start migrating the selected resources?'),
+    positiveText: $gettext('Start migration'),
+    negativeText: $gettext('Cancel'),
+  })
+  if (!ok) return
+  loading.value = true
+  logs.value = []
+  results.value = []
+  try {
+    await migration.start({
+      items: selected.value.map((key) => ({
+        key,
+        target_path: targetPaths.value[key],
+        target_user: targetUsers.value[key],
+      })),
+      skip_blocked: skipBlocked.value,
+      stop_source: stopSource.value,
+    })
+    step.value = 2
+    running.value = true
+    connectProgress()
+  } finally {
+    loading.value = false
+  }
+}
+
+// 校验不通过时同步返回，避免开始按钮闪一下加载图标
 const handleStart = () => {
   if (!selected.value.length) {
     window.$message.warning($gettext('Please select at least one resource to migrate.'))
@@ -344,35 +384,7 @@ const handleStart = () => {
     )
     return
   }
-
-  window.$dialog.warning({
-    title: $gettext('Start migration'),
-    content: $gettext('Are you sure you want to start migrating the selected resources?'),
-    positiveText: $gettext('Start migration'),
-    negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      loading.value = true
-      logs.value = []
-      results.value = []
-      useRequest(
-        migration.start({
-          items: selected.value.map((key) => ({
-            key,
-            target_path: targetPaths.value[key],
-            target_user: targetUsers.value[key],
-          })),
-          skip_blocked: skipBlocked.value,
-          stop_source: stopSource.value,
-        }),
-      )
-        .onSuccess(() => {
-          step.value = 2
-          running.value = true
-          connectProgress()
-        })
-        .onComplete(() => (loading.value = false))
-    },
-  })
+  return startMigration()
 }
 
 const connectProgress = async () => {
@@ -414,37 +426,35 @@ const closeProgress = () => {
   }
 }
 
-const handleReset = () => {
-  window.$dialog.warning({
+const handleReset = async () => {
+  const ok = await confirmAction({
     title: $gettext('Start a new migration'),
     content: $gettext('The current migration results and logs will be cleared.'),
     positiveText: $gettext('Reset'),
     negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      useRequest(migration.reset()).onSuccess(() => {
-        closeProgress()
-        step.value = 0
-        connection.value = {
-          source_panel: 'acepanel',
-          url: '',
-          token_id: 1,
-          token: '',
-          api_key: '',
-        }
-        source.value = null
-        resources.value = []
-        selected.value = []
-        targetPaths.value = {}
-        targetUsers.value = {}
-        skipBlocked.value = false
-        stopSource.value = false
-        logs.value = []
-        results.value = []
-        startedAt.value = null
-        endedAt.value = null
-      })
-    },
   })
+  if (!ok) return
+  await migration.reset()
+  closeProgress()
+  step.value = 0
+  connection.value = {
+    source_panel: 'acepanel',
+    url: '',
+    token_id: 1,
+    token: '',
+    api_key: '',
+  }
+  source.value = null
+  resources.value = []
+  selected.value = []
+  targetPaths.value = {}
+  targetUsers.value = {}
+  skipBlocked.value = false
+  stopSource.value = false
+  logs.value = []
+  results.value = []
+  startedAt.value = null
+  endedAt.value = null
 }
 
 // 迁移在后台执行，进入页面时恢复正在进行或已结束的任务
@@ -530,6 +540,8 @@ watch(
             <n-input
               v-model:value="connection.url"
               placeholder="https://192.168.1.100:8888"
+              :disabled="loading"
+              :loading="loading || undefined"
               @keydown.enter.prevent="handleConnect"
             />
           </n-form-item>
@@ -567,9 +579,9 @@ watch(
         </n-alert>
 
         <n-flex justify="end">
-          <n-button type="primary" :loading="loading" @click="handleConnect">
+          <app-button type="primary" :loading="loading" @click="handleConnect">
             {{ $gettext('Connect and read resources') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -608,9 +620,9 @@ watch(
         </n-flex>
         <n-flex justify="space-between">
           <n-button @click="step = 0">{{ $gettext('Back') }}</n-button>
-          <n-button type="primary" :loading="loading" @click="handleStart">
+          <app-button type="primary" :loading="loading" @click="handleStart">
             {{ $gettext('Start migration (%{ count })', { count: String(selected.length) }) }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </n-card>
@@ -622,9 +634,9 @@ watch(
           <n-button v-if="!running" tag="a" :href="migration.logUrl" size="small">
             {{ $gettext('Download log') }}
           </n-button>
-          <n-button v-if="!running" size="small" type="primary" @click="handleReset">
+          <app-button v-if="!running" size="small" type="primary" @click="handleReset">
             {{ $gettext('Start a new migration') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </template>
       <n-flex vertical :size="16">

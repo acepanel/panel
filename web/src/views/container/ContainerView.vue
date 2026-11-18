@@ -21,7 +21,6 @@ const infoContainerId = ref('')
 const editModal = ref(false)
 const editContainerId = ref('')
 const renameModal = ref(false)
-const renameLoading = ref(false)
 const renameModel = ref({
   id: '',
   name: '',
@@ -34,7 +33,6 @@ const terminalRef = ref<HTMLElement | null>(null)
 let xterm: Xterm | null = null
 
 const containerCreateModal = ref(false)
-const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
 
 const columns: any = [
@@ -168,6 +166,7 @@ const columns: any = [
         h(
           NDropdown,
           {
+            disabled: switching.has(row.id),
             options: [
               { label: $gettext('Edit'), key: 'edit' },
               ...actions.map((item) => ({
@@ -192,6 +191,7 @@ const columns: any = [
                 {
                   size: 'small',
                   type: 'primary',
+                  loading: switching.has(row.id),
                 },
                 {
                   default: () => $gettext('More'),
@@ -218,17 +218,11 @@ const handleShowLog = (row: any) => {
   logModal.value = true
 }
 
-const handleRename = () => {
-  renameLoading.value = true
-  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name))
-    .onSuccess(() => {
-      refresh()
-      renameModal.value = false
-      window.$message.success($gettext('Rename successful'))
-    })
-    .onComplete(() => {
-      renameLoading.value = false
-    })
+const handleRename = async () => {
+  await container.containerRename(renameModel.value.id, renameModel.value.name)
+  refresh()
+  renameModal.value = false
+  window.$message.success($gettext('Rename successful'))
 }
 
 // 用 type 而非 interface：要能直接当作下拉选项传给 n-dropdown
@@ -293,7 +287,7 @@ const actions: ContainerAction[] = [
   },
 ]
 
-// 操作进行中的容器，行内开关显示加载态
+// 操作进行中的容器，行内开关和更多按钮显示加载态，更多下拉禁止再选
 const switching = reactive(new Set<string>())
 
 const run = async (key: string, ids: string[]) => {
@@ -309,20 +303,24 @@ const run = async (key: string, ids: string[]) => {
   }
 }
 
-const handlePrune = () => {
-  pruneLoading.value = true
-  useRequest(container.containerPrune())
-    .onSuccess(() => {
-      refresh()
-      window.$message.success($gettext('Cleanup successful'))
-    })
-    .onComplete(() => {
-      pruneLoading.value = false
-    })
+const handlePrune = async () => {
+  await container.containerPrune()
+  refresh()
+  window.$message.success($gettext('Cleanup successful'))
 }
 
 // 批量操作：桌面按钮组，手机七个按钮放不下改下拉
 const { isMobile } = useResponsive()
+const batchRunning = ref(false)
+
+const handleBatchSelect = async (key: string) => {
+  batchRunning.value = true
+  try {
+    await run(key, selectedRowKeys.value)
+  } finally {
+    batchRunning.value = false
+  }
+}
 
 const closeContainerCreateModal = () => {
   refresh()
@@ -371,28 +369,22 @@ onUnmounted(() => {
         <n-button type="primary" @click="containerCreateModal = true">
           {{ $gettext('Create Container') }}
         </n-button>
-        <n-button
-          type="primary"
-          :loading="pruneLoading"
-          :disabled="pruneLoading"
-          @click="handlePrune"
-          ghost
-        >
+        <app-button type="primary" @click="handlePrune" ghost>
           {{ $gettext('Cleanup Containers') }}
-        </n-button>
+        </app-button>
         <n-dropdown
           v-if="isMobile"
           trigger="click"
           :options="actions"
-          :disabled="selectedRowKeys.length === 0"
-          @select="(key: string) => run(key, selectedRowKeys)"
+          :disabled="selectedRowKeys.length === 0 || batchRunning"
+          @select="handleBatchSelect"
         >
-          <n-button :disabled="selectedRowKeys.length === 0" ghost>
+          <n-button :loading="batchRunning" :disabled="selectedRowKeys.length === 0" ghost>
             {{ $gettext('Actions') }}
           </n-button>
         </n-dropdown>
         <n-button-group v-else>
-          <n-button
+          <app-button
             v-for="item in actions"
             :key="item.key"
             :disabled="selectedRowKeys.length === 0"
@@ -400,7 +392,7 @@ onUnmounted(() => {
             @click="run(item.key, selectedRowKeys)"
           >
             {{ item.label }}
-          </n-button>
+          </app-button>
         </n-button-group>
       </n-flex>
       <n-input
@@ -436,15 +428,9 @@ onUnmounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="renameLoading"
-      :disabled="renameLoading"
-      @click="handleRename"
-    >
+    <app-button type="info" block @click="handleRename">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <app-modal
     v-model:show="terminalModal"

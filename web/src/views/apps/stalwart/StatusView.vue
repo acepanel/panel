@@ -31,13 +31,11 @@ const emit = defineEmits<{ refresh: [] }>()
 const { $gettext } = useGettext()
 const formLayout = useFormLayout()
 
-const initLoading = ref(false)
 const initModel = ref({
   hostname: '',
   domain: '',
 })
 
-const checkLoading = ref(false)
 const checkItems = ref<any[]>([])
 
 const tagType = (status: string) => {
@@ -66,32 +64,21 @@ const tagText = (status: string) => {
   }
 }
 
-const handleInit = () => {
-  initLoading.value = true
-  useRequest(stalwart.init(initModel.value.hostname, initModel.value.domain))
-    .onSuccess(() => {
-      window.$message.success($gettext('Initialized successfully'))
-    })
-    .onComplete(() => {
-      initLoading.value = false
-      // 初始化要一两分钟，前置反代超时断开时服务端仍可能已完成，统一刷新状态
-      emit('refresh')
-    })
+const handleInit = async () => {
+  try {
+    await stalwart.init(initModel.value.hostname, initModel.value.domain)
+    window.$message.success($gettext('Initialized successfully'))
+  } finally {
+    // 初始化要一两分钟，前置反代超时断开时服务端仍可能已完成，统一刷新状态
+    emit('refresh')
+  }
 }
 
-const handleCheck = () => {
-  checkLoading.value = true
-  useRequest(stalwart.check())
-    .onSuccess(({ data }) => {
-      checkItems.value = data
-    })
-    .onComplete(() => {
-      checkLoading.value = false
-    })
+const handleCheck = async () => {
+  checkItems.value = await stalwart.check()
 }
 
 // 反代站点：未创建时可选证书一键创建，已创建后新增域名要同步子域
-const proxyLoading = ref(false)
 const proxyCertID = ref(0)
 const certs = ref<any[]>([])
 const certOptions = computed(() => [
@@ -112,19 +99,13 @@ const loadCerts = () => {
   })
 }
 
-const handleProxy = () => {
-  proxyLoading.value = true
-  useRequest(stalwart.proxy(proxyCertID.value))
-    .onSuccess(({ data }) => {
-      if (data.warnings?.length) {
-        data.warnings.forEach((item: string) => window.$message.warning(item))
-      }
-      window.$message.success($gettext('Reverse proxy website is ready'))
-      emit('refresh')
-    })
-    .onComplete(() => {
-      proxyLoading.value = false
-    })
+const handleProxy = async () => {
+  const data = await stalwart.proxy(proxyCertID.value)
+  if (data.warnings?.length) {
+    data.warnings.forEach((item: string) => window.$message.warning(item))
+  }
+  window.$message.success($gettext('Reverse proxy website is ready'))
+  emit('refresh')
 }
 
 watch(
@@ -163,14 +144,13 @@ watch(
             />
           </n-form-item>
         </n-form>
-        <n-button
+        <app-button
           type="primary"
-          :loading="initLoading"
-          :disabled="initLoading || !initModel.hostname || !initModel.domain"
+          :disabled="!initModel.hostname || !initModel.domain"
           @click="handleInit"
         >
           {{ $gettext('Initialize') }}
-        </n-button>
+        </app-button>
       </n-flex>
     </n-card>
     <template v-else>
@@ -197,14 +177,9 @@ watch(
             }}
           </n-text>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="checkLoading"
-              :disabled="checkLoading"
-              @click="handleCheck"
-            >
+            <app-button type="primary" @click="handleCheck">
               {{ $gettext('Run Check') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <n-list v-if="checkItems.length" bordered>
             <n-list-item v-for="item in checkItems" :key="item.key">
@@ -253,15 +228,9 @@ watch(
               }}
             </n-alert>
             <n-flex>
-              <n-button
-                v-if="proxyMissing.length"
-                type="primary"
-                :loading="proxyLoading"
-                :disabled="proxyLoading"
-                @click="handleProxy"
-              >
+              <app-button v-if="proxyMissing.length" type="primary" @click="handleProxy">
                 {{ $gettext('Sync Hostnames') }}
-              </n-button>
+              </app-button>
               <router-link :to="{ name: 'website-index' }">
                 <n-button>{{ $gettext('Open Website Management') }}</n-button>
               </router-link>
@@ -285,14 +254,9 @@ watch(
               }}
             </n-text>
             <n-flex>
-              <n-button
-                type="primary"
-                :loading="proxyLoading"
-                :disabled="proxyLoading"
-                @click="handleProxy"
-              >
+              <app-button type="primary" @click="handleProxy">
                 {{ $gettext('Create Reverse Proxy Website') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </template>
         </n-flex>

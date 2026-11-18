@@ -3,6 +3,7 @@ import { NButton, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type nginx from '@/api/apps/nginx'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import DurationInput from '@/views/website/edit/DurationInput.vue'
@@ -15,8 +16,6 @@ const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
 const { confirmDelete } = useConfirm()
 const streamTab = ref('server')
-const saveStreamServerLoading = ref(false)
-const saveStreamUpstreamLoading = ref(false)
 
 // Go time.Duration 在 JSON 中以纳秒表示
 const SECOND = 1000000000
@@ -127,7 +126,7 @@ const streamServerColumns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -135,7 +134,7 @@ const streamServerColumns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete %{ name }?', { name: row.name }),
               })
-              if (ok) handleDeleteStreamServer(row.name)
+              if (ok) await handleDeleteStreamServer(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -191,7 +190,7 @@ const streamUpstreamColumns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -199,7 +198,7 @@ const streamUpstreamColumns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete %{ name }?', { name: row.name }),
               })
-              if (ok) handleDeleteStreamUpstream(row.name)
+              if (ok) await handleDeleteStreamUpstream(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -254,7 +253,7 @@ const handleEditStreamServer = (row: any) => {
   streamServerModal.value = true
 }
 
-const handleSaveStreamServer = () => {
+const handleSaveStreamServer = async () => {
   const data = {
     ...streamServerModel.value,
     proxy_timeout: streamServerModel.value.proxy_timeout * SECOND,
@@ -265,23 +264,16 @@ const handleSaveStreamServer = () => {
     ? props.api.stream.updateServer(streamServerEditName.value, data)
     : props.api.stream.createServer(data)
 
-  saveStreamServerLoading.value = true
-  useRequest(request)
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      streamServerModal.value = false
-      loadStreamServers()
-    })
-    .onComplete(() => {
-      saveStreamServerLoading.value = false
-    })
+  await request
+  window.$message.success($gettext('Saved successfully'))
+  streamServerModal.value = false
+  loadStreamServers()
 }
 
-const handleDeleteStreamServer = (name: string) => {
-  useRequest(props.api.stream.deleteServer(name)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    loadStreamServers()
-  })
+const handleDeleteStreamServer = async (name: string) => {
+  await props.api.stream.deleteServer(name)
+  window.$message.success($gettext('Deleted successfully'))
+  loadStreamServers()
 }
 
 // Stream Upstream 操作
@@ -329,12 +321,7 @@ const handleRemoveUpstreamServer = (addr: string) => {
   delete streamUpstreamModel.value.servers[addr]
 }
 
-const handleSaveStreamUpstream = () => {
-  if (Object.keys(streamUpstreamModel.value.servers).length === 0) {
-    window.$message.warning($gettext('Please add at least one server'))
-    return
-  }
-
+const saveStreamUpstream = async () => {
   const data = {
     name: streamUpstreamModel.value.name,
     algo: streamUpstreamModel.value.algo,
@@ -347,23 +334,25 @@ const handleSaveStreamUpstream = () => {
     ? props.api.stream.updateUpstream(streamUpstreamEditName.value, data)
     : props.api.stream.createUpstream(data)
 
-  saveStreamUpstreamLoading.value = true
-  useRequest(request)
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      streamUpstreamModal.value = false
-      loadStreamUpstreams()
-    })
-    .onComplete(() => {
-      saveStreamUpstreamLoading.value = false
-    })
+  await request
+  window.$message.success($gettext('Saved successfully'))
+  streamUpstreamModal.value = false
+  loadStreamUpstreams()
 }
 
-const handleDeleteStreamUpstream = (name: string) => {
-  useRequest(props.api.stream.deleteUpstream(name)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    loadStreamUpstreams()
-  })
+// 校验不通过时同步返回，避免提交按钮闪一下加载图标
+const handleSaveStreamUpstream = () => {
+  if (Object.keys(streamUpstreamModel.value.servers).length === 0) {
+    window.$message.warning($gettext('Please add at least one server'))
+    return
+  }
+  return saveStreamUpstream()
+}
+
+const handleDeleteStreamUpstream = async (name: string) => {
+  await props.api.stream.deleteUpstream(name)
+  window.$message.success($gettext('Deleted successfully'))
+  loadStreamUpstreams()
 }
 </script>
 
@@ -471,15 +460,9 @@ const handleDeleteStreamUpstream = (name: string) => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="saveStreamServerLoading"
-      :disabled="saveStreamServerLoading"
-      @click="handleSaveStreamServer"
-    >
+    <app-button type="info" block @click="handleSaveStreamServer">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <!-- Stream Upstream 模态框 -->
   <app-modal v-model:show="streamUpstreamModal" :title="streamUpstreamModalTitle">
@@ -570,14 +553,8 @@ const handleDeleteStreamUpstream = (name: string) => {
         <duration-input v-model:value="streamUpstreamModel.resolver_timeout" :min="1" :max="3600" />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="saveStreamUpstreamLoading"
-      :disabled="saveStreamUpstreamLoading"
-      @click="handleSaveStreamUpstream"
-    >
+    <app-button type="info" block @click="handleSaveStreamUpstream">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

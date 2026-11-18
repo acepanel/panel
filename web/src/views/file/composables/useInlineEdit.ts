@@ -1,6 +1,7 @@
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { checkName, getFilename, joinPath } from '@/utils/file'
 import { useFileOps } from '@/views/file/composables/useFileOps'
 
@@ -8,6 +9,7 @@ import { useFileOps } from '@/views/file/composables/useFileOps'
 export function useInlineEdit(path: Ref<string>) {
   const { $gettext } = useGettext()
   const { movePath } = useFileOps()
+  const { confirmAction } = useConfirm()
 
   // 内联重命名状态
   const inlineRenameItem = ref<any>(null)
@@ -21,7 +23,8 @@ export function useInlineEdit(path: Ref<string>) {
   const inlineCreateInputRef = ref<HTMLInputElement | null>(null)
 
   // 回车提交后到请求结束前输入框还在，这期间失焦（包括被覆盖确认框夺走焦点）不能再提交一次
-  let submitting = false
+  // 期间输入框只读而不是禁用：禁用会丢掉焦点，取消覆盖或失败后失焦提交就不再生效
+  const inlineSubmitting = ref(false)
 
   // 设置内联重命名输入框 ref 的函数
   const setInlineRenameRef = (el: any) => {
@@ -63,7 +66,7 @@ export function useInlineEdit(path: Ref<string>) {
 
   // 提交内联新建
   const submitInlineCreate = () => {
-    if (!inlineCreateActive.value || submitting) return
+    if (!inlineCreateActive.value || inlineSubmitting.value) return
 
     const name = inlineCreateName.value.trim()
 
@@ -81,20 +84,21 @@ export function useInlineEdit(path: Ref<string>) {
 
     const fullPath = joinPath(path.value, name)
 
-    submitting = true
+    inlineSubmitting.value = true
     useRequest(file.create(fullPath, inlineCreateIsDir.value))
       .onSuccess(() => {
         window.$bus.emit('file:refresh')
         window.$message.success($gettext('Created successfully'))
       })
       .onComplete(() => {
-        submitting = false
+        inlineSubmitting.value = false
         cancelInlineCreate()
       })
   }
 
   // 处理内联新建键盘事件
   const handleInlineCreateKeydown = (event: KeyboardEvent) => {
+    if (inlineSubmitting.value) return
     if (event.key === 'Enter') {
       event.preventDefault()
       submitInlineCreate()
@@ -129,22 +133,9 @@ export function useInlineEdit(path: Ref<string>) {
     inlineRenameName.value = ''
   }
 
-  // 同名项的覆盖确认，以任何方式关掉都算不覆盖
-  const confirmOverwrite = () =>
-    new Promise<boolean>((resolve) => {
-      window.$dialog.warning({
-        title: $gettext('Warning'),
-        content: $gettext('There are items with the same name. Do you want to overwrite?'),
-        positiveText: $gettext('Overwrite'),
-        negativeText: $gettext('Cancel'),
-        onPositiveClick: () => resolve(true),
-        onAfterLeave: () => resolve(false),
-      })
-    })
-
   // 提交内联重命名
   const submitInlineRename = async () => {
-    if (!inlineRenameItem.value || submitting) return
+    if (!inlineRenameItem.value || inlineSubmitting.value) return
 
     const item = inlineRenameItem.value
     const sourceName = getFilename(item.name)
@@ -165,14 +156,9 @@ export function useInlineEdit(path: Ref<string>) {
     const source = joinPath(path.value, sourceName)
     const target = joinPath(path.value, targetName)
 
-    submitting = true
-    try {
-      const [exists] = await file.exist([target])
-      // 不覆盖就保持编辑状态，让用户修改名称
-      if (exists && !(await confirmOverwrite())) return
-
-      // 成功后编辑器标签页同步与列表刷新由 movePath 收敛处理
-      if (await movePath(source, target, exists)) {
+    // 成功后编辑器标签页同步与列表刷新由 movePath 收敛处理
+    const rename = async (force: boolean) => {
+      if (await movePath(source, target, force)) {
         window.$message.success(
           $gettext('Renamed %{ source } to %{ target } successfully', {
             source: sourceName,
@@ -181,15 +167,33 @@ export function useInlineEdit(path: Ref<string>) {
         )
       }
       cancelInlineRename()
+    }
+
+    inlineSubmitting.value = true
+    try {
+      const [exists] = await file.exist([target])
+      // 同名项在覆盖确认框里改名，不覆盖就保持编辑状态，让用户修改名称
+      if (exists) {
+        await confirmAction({
+          title: $gettext('Warning'),
+          content: $gettext('There are items with the same name. Do you want to overwrite?'),
+          positiveText: $gettext('Overwrite'),
+          negativeText: $gettext('Cancel'),
+          onConfirm: () => rename(true),
+        })
+      } else {
+        await rename(false)
+      }
     } catch {
       // 请求失败的错误弹窗由全局拦截器负责，保持编辑状态
     } finally {
-      submitting = false
+      inlineSubmitting.value = false
     }
   }
 
   // 处理内联重命名键盘事件
   const handleInlineRenameKeydown = (event: KeyboardEvent) => {
+    if (inlineSubmitting.value) return
     if (event.key === 'Enter') {
       event.preventDefault()
       submitInlineRename()
@@ -200,6 +204,7 @@ export function useInlineEdit(path: Ref<string>) {
   }
 
   return {
+    inlineSubmitting,
     inlineCreateActive,
     inlineCreateIsDir,
     inlineCreateName,

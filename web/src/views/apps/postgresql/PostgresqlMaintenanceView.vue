@@ -7,6 +7,7 @@ import { NButton, NSpace, NTag, NTooltip } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
@@ -28,17 +29,19 @@ const databaseOptions = computed(() =>
   (databases.value as string[]).map((name) => ({ label: name, value: name })),
 )
 
-const { data: bloat, send: sendBloat } = useRequest(
-  () => postgresql.bloat(selectedDatabase.value),
-  {
-    immediate: false,
-    initialData: { repack_installed: false, items: [] },
-  },
-)
+const {
+  data: bloat,
+  loading: bloatLoading,
+  send: sendBloat,
+} = useRequest(() => postgresql.bloat(selectedDatabase.value), {
+  immediate: false,
+  initialData: { repack_installed: false, items: [] },
+})
 const checkedTables = ref<string[]>([])
+// 未选数据库时同步返回，避免刷新按钮闪一下加载图标
 const refreshBloat = () => {
   checkedTables.value = []
-  if (selectedDatabase.value) sendBloat()
+  if (selectedDatabase.value) return sendBloat()
 }
 const bloatRowKey = (row: any) => `${row.schema}|${row.table}`
 
@@ -75,15 +78,12 @@ const handleMaintenance = async (
     content,
   })
   if (!ok) return
-  useRequest(
-    postgresql.runMaintenance({
-      database: selectedDatabase.value,
-      tables,
-      operation,
-    }),
-  ).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  await postgresql.runMaintenance({
+    database: selectedDatabase.value,
+    tables,
+    operation,
   })
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
 }
 
 const handleBatchMaintenance = (operation: string) => {
@@ -91,7 +91,7 @@ const handleBatchMaintenance = (operation: string) => {
     const [schema, table] = key.split('|')
     return { schema: schema!, table: table! }
   })
-  handleMaintenance(tables, operation)
+  return handleMaintenance(tables, operation)
 }
 
 const bloatColumns: any = [
@@ -154,12 +154,12 @@ const bloatColumns: any = [
       const rowTables = [{ schema: row.schema, table: row.table }]
       const buttons = [
         h(
-          NButton,
+          AppButton,
           { size: 'small', type: 'info', onClick: () => handleMaintenance(rowTables, 'vacuum') },
           { default: () => 'VACUUM' },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -168,7 +168,7 @@ const bloatColumns: any = [
           { default: () => 'VACUUM FULL' },
         ),
         h(
-          NButton,
+          AppButton,
           { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
           { default: () => 'ANALYZE' },
         ),
@@ -176,7 +176,7 @@ const bloatColumns: any = [
       if (bloat.value.repack_installed) {
         buttons.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'warning',
@@ -225,7 +225,7 @@ const slotColumns: any = [
     render(row: any) {
       if (row.active) return '-'
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -239,7 +239,7 @@ const slotColumns: any = [
               positiveText: $gettext('Delete'),
               countdown: 5,
             })
-            if (ok) handleDropSlot(row.name)
+            if (ok) await handleDropSlot(row.name)
           },
         },
         { default: () => $gettext('Delete') },
@@ -255,11 +255,10 @@ const replicationColumns: any = [
   { title: $gettext('Lag'), key: 'lag', width: 120 },
 ]
 
-const handleDropSlot = (name: string) => {
-  useRequest(postgresql.dropReplicationSlot(name)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refreshWal()
-  })
+const handleDropSlot = async (name: string) => {
+  await postgresql.dropReplicationSlot(name)
+  window.$message.success($gettext('Deleted successfully'))
+  refreshWal()
 }
 </script>
 
@@ -274,38 +273,39 @@ const handleDropSlot = (name: string) => {
             class="md:!w-60"
             @update:value="refreshBloat"
           />
-          <n-button type="primary" @click="refreshBloat">
+          <app-button type="primary" @click="refreshBloat">
             {{ $gettext('Refresh') }}
-          </n-button>
-          <n-button
+          </app-button>
+          <app-button
             type="info"
             :disabled="!checkedTables.length"
             @click="handleBatchMaintenance('vacuum')"
           >
             VACUUM
-          </n-button>
-          <n-button
+          </app-button>
+          <app-button
             type="error"
             :disabled="!checkedTables.length"
             @click="handleBatchMaintenance('vacuum_full')"
           >
             VACUUM FULL
-          </n-button>
-          <n-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
+          </app-button>
+          <app-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
             ANALYZE
-          </n-button>
-          <n-button
+          </app-button>
+          <app-button
             v-if="bloat.repack_installed"
             type="warning"
             :disabled="!checkedTables.length"
             @click="handleBatchMaintenance('repack')"
           >
             REPACK
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           v-model:checked-row-keys="checkedTables"
           striped
+          :loading="bloatLoading"
           :columns="bloatColumns"
           :data="bloat.items"
           :row-key="bloatRowKey"
@@ -317,9 +317,9 @@ const handleDropSlot = (name: string) => {
     <n-tab-pane name="wal" tab="WAL">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshWal()">
+          <app-button type="primary" @click="() => refreshWal()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-card :title="$gettext('WAL Status')">
           <n-flex>

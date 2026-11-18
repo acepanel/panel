@@ -42,6 +42,7 @@ const disk = ref<'hdd' | 'ssd' | 'nvme'>('ssd')
 const scenario = ref('')
 const connections = ref<number | null>(200)
 const detected = ref(false)
+const detecting = ref(false)
 
 const diskOptions = [
   { label: 'HDD', value: 'hdd' },
@@ -55,16 +56,21 @@ watch(show, (val) => {
   if (!scenario.value && props.scenarioOptions.length) {
     scenario.value = props.scenarioOptions[0]!.value
   }
-  if (detected.value) return
-  useRequest(home.current([], [])).onSuccess(({ data }: any) => {
-    if (data?.mem?.total) {
-      memoryMB.value = Math.round((data.mem.total / 1024 / 1024) * props.memoryRatio)
-    }
-    if (data?.cpus?.length) {
-      cpuCores.value = data.cpus.length
-    }
-    detected.value = true
-  })
+  if (detected.value || detecting.value) return
+  detecting.value = true
+  useRequest(home.current([], []))
+    .onSuccess(({ data }: any) => {
+      if (data?.mem?.total) {
+        memoryMB.value = Math.round((data.mem.total / 1024 / 1024) * props.memoryRatio)
+      }
+      if (data?.cpus?.length) {
+        cpuCores.value = data.cpus.length
+      }
+      detected.value = true
+    })
+    .onComplete(() => {
+      detecting.value = false
+    })
 })
 
 const handleGenerate = () => {
@@ -89,30 +95,33 @@ const handleGenerate = () => {
           )
         }}
       </n-alert>
-      <n-form v-bind="formLayout">
-        <n-form-item v-if="fields.includes('memory')" :label="$gettext('Memory (MB)')">
-          <n-input-number
-            class="w-full"
-            v-model:value="memoryMB"
-            :min="128"
-            :placeholder="$gettext('Memory allocated to this service')"
-          />
-        </n-form-item>
-        <n-form-item v-if="fields.includes('cpu')" :label="$gettext('CPU Cores')">
-          <n-input-number class="w-full" v-model:value="cpuCores" :min="1" />
-        </n-form-item>
-        <n-form-item v-if="fields.includes('disk')" :label="$gettext('Disk Type')">
-          <n-select v-model:value="disk" :options="diskOptions" />
-        </n-form-item>
-        <n-form-item v-if="scenarioOptions.length" :label="scenarioLabel || $gettext('Scenario')">
-          <n-select v-model:value="scenario" :options="scenarioOptions" />
-        </n-form-item>
-        <n-form-item v-if="fields.includes('connections')" :label="$gettext('Max Connections')">
-          <n-input-number class="w-full" v-model:value="connections" :min="10" />
-        </n-form-item>
-      </n-form>
+      <n-spin :show="detecting">
+        <n-form v-bind="formLayout">
+          <n-form-item v-if="fields.includes('memory')" :label="$gettext('Memory (MB)')">
+            <n-input-number
+              class="w-full"
+              v-model:value="memoryMB"
+              :min="128"
+              :placeholder="$gettext('Memory allocated to this service')"
+            />
+          </n-form-item>
+          <n-form-item v-if="fields.includes('cpu')" :label="$gettext('CPU Cores')">
+            <n-input-number class="w-full" v-model:value="cpuCores" :min="1" />
+          </n-form-item>
+          <n-form-item v-if="fields.includes('disk')" :label="$gettext('Disk Type')">
+            <n-select v-model:value="disk" :options="diskOptions" />
+          </n-form-item>
+          <n-form-item v-if="scenarioOptions.length" :label="scenarioLabel || $gettext('Scenario')">
+            <n-select v-model:value="scenario" :options="scenarioOptions" />
+          </n-form-item>
+          <n-form-item v-if="fields.includes('connections')" :label="$gettext('Max Connections')">
+            <n-input-number class="w-full" v-model:value="connections" :min="10" />
+          </n-form-item>
+        </n-form>
+      </n-spin>
       <n-flex>
-        <n-button type="primary" @click="handleGenerate">
+        <!-- 探测完成前生成会用占位的默认值 -->
+        <n-button type="primary" :disabled="detecting" @click="handleGenerate">
           {{ $gettext('Generate') }}
         </n-button>
       </n-flex>

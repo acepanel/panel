@@ -4,6 +4,7 @@ import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
+import AppButton from '@/components/system/AppButton.vue'
 import { useEditorStore } from '@/stores'
 
 const { $gettext } = useGettext()
@@ -38,6 +39,8 @@ async function handleBeforeClose(): Promise<boolean> {
 
   // 显示确认对话框
   return new Promise((resolve) => {
+    // 保存期间不能返回或放弃，也不能按 Esc 关掉
+    const saving = ref(false)
     const d = window.$dialog.warning({
       title: $gettext('Unsaved Changes'),
       content: $gettext('You have unsaved changes. Do you want to save them before closing?'),
@@ -48,6 +51,7 @@ async function handleBeforeClose(): Promise<boolean> {
           h(
             NButton,
             {
+              disabled: saving.value,
               onClick: () => {
                 d.destroy()
                 resolve(false) // 返回编辑器
@@ -59,6 +63,7 @@ async function handleBeforeClose(): Promise<boolean> {
             NButton,
             {
               type: 'warning',
+              disabled: saving.value,
               onClick: () => {
                 d.destroy()
                 resolve(true) // 放弃更改，关闭窗口
@@ -67,11 +72,13 @@ async function handleBeforeClose(): Promise<boolean> {
             () => $gettext('Discard'),
           ),
           h(
-            NButton,
+            AppButton,
             {
               type: 'primary',
               onClick: async () => {
-                // 保存所有未保存的文件
+                saving.value = true
+                d.closeOnEsc = false
+                // 保存所有未保存的文件，saveTabs 不会抛错，结束后对话框总会关闭
                 const failed = await saveTabs(editorStore.unsavedTabs.map((t) => t.path))
 
                 d.destroy()

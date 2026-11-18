@@ -3,7 +3,6 @@ defineOptions({
   name: 'app-index',
 })
 
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -17,18 +16,11 @@ const { $gettext } = useGettext()
 const tabStore = useTabStore()
 
 const currentTab = ref('installed')
-const updateCacheLoading = ref(false)
 
-const handleUpdateCache = () => {
-  updateCacheLoading.value = true
-  useRequest(app.updateCache())
-    .onSuccess(() => {
-      window.$message.success($gettext('Cache updated successfully'))
-      tabStore.reloadTab(tabStore.active)
-    })
-    .onComplete(() => {
-      updateCacheLoading.value = false
-    })
+const handleUpdateCache = async () => {
+  await app.updateCache()
+  window.$message.success($gettext('Cache updated successfully'))
+  tabStore.reloadTab(tabStore.active)
 }
 </script>
 
@@ -41,14 +33,9 @@ const handleUpdateCache = () => {
         <n-tab name="environment" :tab="$gettext('Operating Environment')" />
         <n-tab name="template" :tab="$gettext('Container Template')" />
         <template #suffix>
-          <n-button
-            type="primary"
-            :loading="updateCacheLoading"
-            :disabled="updateCacheLoading"
-            @click="handleUpdateCache"
-          >
+          <app-button type="primary" @click="handleUpdateCache">
             {{ $gettext('Update Cache') }}
-          </n-button>
+          </app-button>
         </template>
       </n-tabs>
     </template>

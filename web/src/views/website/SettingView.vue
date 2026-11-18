@@ -37,7 +37,6 @@ const statSetting = ref({
   detail_max_keys: 100000,
   body_enabled: true,
 })
-const statSaveLoading = ref(false)
 
 useRequest(website.statSetting()).onSuccess(({ data }: any) => {
   statSetting.value = data
@@ -54,20 +53,13 @@ const handleSave = () => {
     })
 }
 
-const handleSaveStatSetting = () => {
-  statSaveLoading.value = true
-  useRequest(website.saveStatSetting(statSetting.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Modified successfully'))
-    })
-    .onComplete(() => {
-      statSaveLoading.value = false
-    })
+const handleSaveStatSetting = async () => {
+  await website.saveStatSetting(statSetting.value)
+  window.$message.success($gettext('Modified successfully'))
 }
 
 // 默认站点
 const defaultSite = ref(0)
-const defaultSiteSaving = ref(false)
 const websiteOptions = ref<{ label: string; value: number }[]>([])
 
 useRequest(website.defaultSite()).onSuccess(({ data }: any) => {
@@ -85,15 +77,9 @@ const defaultSiteOptions = computed(() => [
   ...websiteOptions.value,
 ])
 
-const handleSaveDefaultSite = () => {
-  defaultSiteSaving.value = true
-  useRequest(website.saveDefaultSite(defaultSite.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Modified successfully'))
-    })
-    .onComplete(() => {
-      defaultSiteSaving.value = false
-    })
+const handleSaveDefaultSite = async () => {
+  await website.saveDefaultSite(defaultSite.value)
+  window.$message.success($gettext('Modified successfully'))
 }
 </script>
 
@@ -157,14 +143,9 @@ const handleSaveDefaultSite = () => {
           <n-form-item :label="$gettext('Default Site')">
             <n-select v-model:value="defaultSite" :options="defaultSiteOptions" class="md:!w-100" />
           </n-form-item>
-          <n-button
-            type="primary"
-            :loading="defaultSiteSaving"
-            :disabled="defaultSiteSaving"
-            @click="handleSaveDefaultSite"
-          >
+          <app-button type="primary" @click="handleSaveDefaultSite">
             {{ $gettext('Save Changes') }}
-          </n-button>
+          </app-button>
         </n-form>
       </n-flex>
     </n-tab-pane>
@@ -272,14 +253,9 @@ const handleSaveDefaultSite = () => {
           <n-form-item :label="$gettext('Record Request Body')">
             <n-switch v-model:value="statSetting.body_enabled" />
           </n-form-item>
-          <n-button
-            type="primary"
-            :loading="statSaveLoading"
-            :disabled="statSaveLoading"
-            @click="handleSaveStatSetting"
-          >
+          <app-button type="primary" @click="handleSaveStatSetting">
             {{ $gettext('Save Changes') }}
-          </n-button>
+          </app-button>
         </n-form>
       </n-flex>
     </n-tab-pane>

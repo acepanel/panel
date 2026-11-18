@@ -16,8 +16,6 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ submitted: [] }>()
 
-const submitLoading = ref(false)
-
 const defaultModel = () => ({
   name: '',
   type: 'tcp',
@@ -223,20 +221,12 @@ const buildPayload = () => {
   return payload
 }
 
-const handleSubmit = () => {
-  submitLoading.value = true
+const handleSubmit = async () => {
   const payload = buildPayload()
-  const request = isEdit.value ? frp.updateProxy(payload.name, payload) : frp.addProxy(payload)
-
-  useRequest(request)
-    .onSuccess(() => {
-      show.value = false
-      emit('submitted')
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      submitLoading.value = false
-    })
+  await (isEdit.value ? frp.updateProxy(payload.name, payload) : frp.addProxy(payload))
+  show.value = false
+  emit('submitted')
+  window.$message.success($gettext('Saved successfully'))
 }
 </script>
 
@@ -566,15 +556,8 @@ const handleSubmit = () => {
         </n-collapse-item>
       </n-collapse>
     </n-form>
-    <n-button
-      type="info"
-      mt-16
-      block
-      :loading="submitLoading"
-      :disabled="submitLoading"
-      @click="handleSubmit"
-    >
+    <app-button type="info" mt-16 block @click="handleSubmit">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>

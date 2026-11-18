@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const loading = ref(false)
 
 const protocols = [
   {
@@ -77,26 +75,18 @@ watch(show, (value) => {
 })
 
 const handleCreate = async () => {
-  loading.value = true
-  try {
-    if (!createModel.value.address.length) {
-      createModel.value.address.push('')
-    }
-    const promises = createModel.value.address.map((address) =>
-      useRequest(
-        firewall.createIpRule({
-          ...createModel.value,
-          address,
-        }),
-      ).onSuccess(() => {
-        window.$message.success($gettext('%{ address } created successfully', { address: address }))
-      }),
-    )
-    await Promise.all(promises)
-    show.value = false
-  } finally {
-    loading.value = false
+  if (!createModel.value.address.length) {
+    createModel.value.address.push('')
   }
+  const promises = createModel.value.address.map(async (address) => {
+    await firewall.createIpRule({
+      ...createModel.value,
+      address,
+    })
+    window.$message.success($gettext('%{ address } created successfully', { address: address }))
+  })
+  await Promise.all(promises)
+  show.value = false
 }
 </script>
 
@@ -123,9 +113,9 @@ const handleCreate = async () => {
         <n-select v-model:value="createModel.direction" :options="directions" />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

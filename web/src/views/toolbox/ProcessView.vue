@@ -4,12 +4,14 @@ import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useResponsive } from '@/components/system/composables/useResponsive'
 import { formatBytes, formatDateTime, formatPercent } from '@/utils'
 
 const { $gettext } = useGettext()
 const { isMobile } = useResponsive()
+const { confirmAction } = useConfirm()
 
 // 排序状态
 const sortState = ref<DataTableSortState | null>(null)
@@ -240,25 +242,22 @@ const handleDropdownSelect = (key: string) => {
 }
 
 // 发送信号
-const handleSignal = (pid: number, signal: number, signalName: string) => {
-  window.$dialog.warning({
+const handleSignal = async (pid: number, signal: number, signalName: string) => {
+  await confirmAction({
     title: $gettext('Confirm'),
     content: $gettext('Are you sure you want to send %{ signal } to process %{ pid }?', {
       signal: signalName,
       pid: pid.toString(),
     }),
-    positiveText: $gettext('Confirm'),
-    negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      useRequest(process.signal(pid, signal)).onSuccess(() => {
-        reload()
-        window.$message.success(
-          $gettext('Signal %{ signal } has been sent to process %{ pid }', {
-            signal: signalName,
-            pid: pid.toString(),
-          }),
-        )
-      })
+    onConfirm: async () => {
+      await process.signal(pid, signal)
+      reload()
+      window.$message.success(
+        $gettext('Signal %{ signal } has been sent to process %{ pid }', {
+          signal: signalName,
+          pid: pid.toString(),
+        }),
+      )
     },
   })
 }

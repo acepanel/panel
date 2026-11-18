@@ -41,6 +41,7 @@ const deployMode = ref<'create' | 'update'>('create')
 // 编排列表
 const composeList = ref<{ name: string; path: string }[]>([])
 const composeListLoading = ref(false)
+const composeDetailLoading = ref(false)
 const selectedCompose = ref<string | null>(null)
 const selectedComposeData = ref<{ compose: string; envs: { key: string; value: string }[] } | null>(
   null,
@@ -130,27 +131,32 @@ const loadComposeList = () => {
 
 // 加载选中编排的详情并预填充环境变量
 const loadComposeDetailAndFillEnvs = (name: string) => {
-  useRequest(containerApi.composeGet(name)).onSuccess(({ data }) => {
-    selectedComposeData.value = {
-      compose: data.compose,
-      envs: data.envs || [],
-    }
-    // 用旧编排的环境变量预填充表单
-    const oldEnvs = data.envs || []
-    oldEnvs.forEach((env: { key: string; value: string }) => {
-      if (env.key in deployModel.envs) {
-        // 根据模板中定义的类型进行转换
-        const envDef = props.template?.environments?.find((e) => e.name === env.key)
-        if (envDef && (envDef.type === 'number' || envDef.type === 'port')) {
-          // 数字类型需要转换为 number
-          const numValue = Number(env.value)
-          deployModel.envs[env.key] = isNaN(numValue) ? null : numValue
-        } else {
-          deployModel.envs[env.key] = env.value
-        }
+  composeDetailLoading.value = true
+  useRequest(containerApi.composeGet(name))
+    .onSuccess(({ data }) => {
+      selectedComposeData.value = {
+        compose: data.compose,
+        envs: data.envs || [],
       }
+      // 用旧编排的环境变量预填充表单
+      const oldEnvs = data.envs || []
+      oldEnvs.forEach((env: { key: string; value: string }) => {
+        if (env.key in deployModel.envs) {
+          // 根据模板中定义的类型进行转换
+          const envDef = props.template?.environments?.find((e) => e.name === env.key)
+          if (envDef && (envDef.type === 'number' || envDef.type === 'port')) {
+            // 数字类型需要转换为 number
+            const numValue = Number(env.value)
+            deployModel.envs[env.key] = isNaN(numValue) ? null : numValue
+          } else {
+            deployModel.envs[env.key] = env.value
+          }
+        }
+      })
     })
-  })
+    .onComplete(() => {
+      composeDetailLoading.value = false
+    })
 }
 
 // 进入步骤3
@@ -468,7 +474,7 @@ const composeOptions = computed(() => {
       </template>
 
       <!-- 更新模式 -->
-      <template v-else>
+      <n-spin v-else :show="composeDetailLoading">
         <n-form ref="formRef" :model="deployModel" :rules="formRules" v-bind="formLayout">
           <n-form-item :label="$gettext('Select Compose')" required>
             <n-select
@@ -539,7 +545,7 @@ const composeOptions = computed(() => {
             </n-form-item>
           </template>
         </n-form>
-      </template>
+      </n-spin>
     </div>
 
     <!-- 步骤3：预览和编辑 -->
@@ -621,7 +627,12 @@ const composeOptions = computed(() => {
           <n-button @click="show = false" :disabled="doSubmit">
             {{ $gettext('Cancel') }}
           </n-button>
-          <n-button v-if="currentStep === 2" type="primary" @click="handleStep2Next">
+          <n-button
+            v-if="currentStep === 2"
+            type="primary"
+            :disabled="composeDetailLoading"
+            @click="handleStep2Next"
+          >
             {{ $gettext('Next') }}
           </n-button>
           <n-button v-else-if="currentStep === 3" type="primary" @click="handleStep3Next">

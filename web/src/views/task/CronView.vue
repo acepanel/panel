@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -17,16 +18,14 @@ const logPath = ref('')
 const logModal = ref(false)
 const logModalRef = ref<{ clear: () => void } | null>(null)
 
-const handleClearLog = () => {
+const handleClearLog = async () => {
   if (!logPath.value) return
-  useRequest(file.truncate(logPath.value)).onSuccess(() => {
-    logModalRef.value?.clear()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  await file.truncate(logPath.value)
+  logModalRef.value?.clear()
+  window.$message.success($gettext('Cleared successfully'))
 }
 const shellEditModal = ref(false)
 const visualEditModal = ref(false)
-const saveTaskEditLoading = ref(false)
 const runModal = ref(false)
 const runCommand = ref('')
 const runTaskName = ref('')
@@ -125,7 +124,7 @@ const columns: any = [
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'success',
@@ -148,7 +147,7 @@ const columns: any = [
           { default: () => $gettext('Logs') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'primary',
@@ -157,7 +156,7 @@ const columns: any = [
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -165,7 +164,7 @@ const columns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this task?'),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -191,15 +190,14 @@ const handleStatusChange = (row: any) => {
     .onComplete(() => switching.delete(row.id))
 }
 
-const handleRun = (row: any) => {
-  useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-    runTaskName.value = row.name
-    runCommand.value = `bash '${data.shell}'`
-    runModal.value = true
-  })
+const handleRun = async (row: any) => {
+  const data = await cron.get(row.id)
+  runTaskName.value = row.name
+  runCommand.value = `bash '${data.shell}'`
+  runModal.value = true
 }
 
-const handleEdit = (row: any) => {
+const handleEdit = async (row: any) => {
   if (
     row.type === 'backup' ||
     row.type === 'cutoff' ||
@@ -207,31 +205,27 @@ const handleEdit = (row: any) => {
     row.type === 'synctime'
   ) {
     // 可视化编辑
-    useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-      visualEditData.value = data
-      visualEditModal.value = true
-    })
+    const data = await cron.get(row.id)
+    visualEditData.value = data
+    visualEditModal.value = true
   } else {
     // shell 脚本编辑
-    useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-      useRequest(file.content(data.shell)).onSuccess(({ data: fileData }) => {
-        shellEditTask.value.id = row.id
-        shellEditTask.value.name = row.name
-        shellEditTask.value.type = row.type
-        shellEditTask.value.flock = data.config?.flock ?? false
-        shellEditTask.value.time = row.time
-        shellEditTask.value.script = decodeBase64(fileData.content)
-        shellEditModal.value = true
-      })
-    })
+    const data = await cron.get(row.id)
+    const fileData = await file.content(data.shell)
+    shellEditTask.value.id = row.id
+    shellEditTask.value.name = row.name
+    shellEditTask.value.type = row.type
+    shellEditTask.value.flock = data.config?.flock ?? false
+    shellEditTask.value.time = row.time
+    shellEditTask.value.script = decodeBase64(fileData.content)
+    shellEditModal.value = true
   }
 }
 
 const handleDelete = async (id: number) => {
-  useRequest(cron.delete(id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    window.$bus.emit('task:refresh-cron')
-  })
+  await cron.delete(id)
+  window.$message.success($gettext('Deleted successfully'))
+  window.$bus.emit('task:refresh-cron')
 }
 
 const bulkDelete = async () => {
@@ -245,24 +239,16 @@ const bulkDelete = async () => {
 defineExpose({ selectedRowKeys, bulkDelete })
 
 const saveShellEdit = async () => {
-  saveTaskEditLoading.value = true
-  useRequest(
-    cron.update(shellEditTask.value.id, {
-      name: shellEditTask.value.name,
-      type: shellEditTask.value.type,
-      flock: shellEditTask.value.flock,
-      time: shellEditTask.value.time,
-      script: shellEditTask.value.script,
-    }),
-  )
-    .onSuccess(() => {
-      shellEditModal.value = false
-      window.$message.success($gettext('Modified successfully'))
-      window.$bus.emit('task:refresh-cron')
-    })
-    .onComplete(() => {
-      saveTaskEditLoading.value = false
-    })
+  await cron.update(shellEditTask.value.id, {
+    name: shellEditTask.value.name,
+    type: shellEditTask.value.type,
+    flock: shellEditTask.value.flock,
+    time: shellEditTask.value.time,
+    script: shellEditTask.value.script,
+  })
+  shellEditModal.value = false
+  window.$message.success($gettext('Modified successfully'))
+  window.$bus.emit('task:refresh-cron')
 }
 
 useBus('task:refresh-cron', refresh)
@@ -310,16 +296,9 @@ useBus('task:refresh-cron', refresh)
       </n-form-item>
     </n-form>
     <common-editor v-model:value="shellEditTask.script" lang="shell" height="40vh" />
-    <n-button
-      class="mt-2"
-      type="info"
-      block
-      :loading="saveTaskEditLoading"
-      :disabled="saveTaskEditLoading"
-      @click="saveShellEdit"
-    >
+    <app-button class="mt-2" type="info" block @click="saveShellEdit">
       {{ $gettext('Save') }}
-    </n-button>
+    </app-button>
   </app-modal>
   <create-modal v-model:show="visualEditModal" mode="edit" :edit-data="visualEditData" />
   <pty-terminal-modal

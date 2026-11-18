@@ -16,9 +16,6 @@ const password = ref('')
 const newPort = ref(0)
 const newUsername = ref('')
 const newPassword = ref('')
-const savePortLoading = ref(false)
-const updateUsernameLoading = ref(false)
-const resetPasswordLoading = ref(false)
 
 const url = computed(() => {
   return `http://${hostname.value}:${port.value}`
@@ -32,42 +29,24 @@ const getInfo = async () => {
   password.value = data.password
 }
 
-const handleSavePort = () => {
-  savePortLoading.value = true
-  useRequest(pgadmin.port(newPort.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      getInfo()
-    })
-    .onComplete(() => {
-      savePortLoading.value = false
-    })
+const handleSavePort = async () => {
+  await pgadmin.port(newPort.value)
+  window.$message.success($gettext('Saved successfully'))
+  getInfo()
 }
 
-const handleUpdateUsername = () => {
-  updateUsernameLoading.value = true
-  useRequest(pgadmin.updateUsername(newUsername.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      newUsername.value = ''
-      getInfo()
-    })
-    .onComplete(() => {
-      updateUsernameLoading.value = false
-    })
+const handleUpdateUsername = async () => {
+  await pgadmin.updateUsername(newUsername.value)
+  window.$message.success($gettext('Saved successfully'))
+  newUsername.value = ''
+  getInfo()
 }
 
-const handleResetPassword = () => {
-  resetPasswordLoading.value = true
-  useRequest(pgadmin.resetPassword(newPassword.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Password reset successfully'))
-      newPassword.value = ''
-      getInfo()
-    })
-    .onComplete(() => {
-      resetPasswordLoading.value = false
-    })
+const handleResetPassword = async () => {
+  await pgadmin.resetPassword(newPassword.value)
+  window.$message.success($gettext('Password reset successfully'))
+  newPassword.value = ''
+  getInfo()
 }
 
 onMounted(() => {
@@ -110,28 +89,18 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Port')">
             <n-flex>
               <n-input-number v-model:value="newPort" :min="1" :max="65535" />
-              <n-button
-                type="primary"
-                :loading="savePortLoading"
-                :disabled="savePortLoading"
-                @click="handleSavePort"
-              >
+              <app-button type="primary" @click="handleSavePort">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
             {{ $gettext('Modify pgAdmin access port') }}
           </n-card>
           <n-card :title="$gettext('Modify Username')">
             <n-flex>
               <n-input v-model:value="newUsername" class="md:!w-60" :placeholder="email" />
-              <n-button
-                type="warning"
-                :loading="updateUsernameLoading"
-                :disabled="updateUsernameLoading || !newUsername"
-                @click="handleUpdateUsername"
-              >
+              <app-button type="warning" :disabled="!newUsername" @click="handleUpdateUsername">
                 {{ $gettext('Save') }}
-              </n-button>
+              </app-button>
             </n-flex>
             {{
               $gettext(
@@ -148,14 +117,9 @@ onMounted(() => {
                 class="md:!w-60"
                 :placeholder="$gettext('New password')"
               />
-              <n-button
-                type="warning"
-                :loading="resetPasswordLoading"
-                :disabled="resetPasswordLoading || !newPassword"
-                @click="handleResetPassword"
-              >
+              <app-button type="warning" :disabled="!newPassword" @click="handleResetPassword">
                 {{ $gettext('Reset') }}
-              </n-button>
+              </app-button>
             </n-flex>
             {{ $gettext('Reset the login password of the pgAdmin administrator account') }}
           </n-card>

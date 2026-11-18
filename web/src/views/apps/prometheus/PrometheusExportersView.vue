@@ -3,10 +3,11 @@ defineOptions({
   name: 'prometheus-exporters',
 })
 
-import { NButton, NSpace, NTag } from 'naive-ui'
+import { NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import prometheus from '@/api/apps/prometheus'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
@@ -15,7 +16,6 @@ const { confirmDelete, confirmAction } = useConfirm()
 const showConfigModal = ref(false)
 const configSlug = ref('')
 const configContent = ref('')
-const saveConfigLoading = ref(false)
 
 const { data: exporters, send: refreshExporters } = useRequest(prometheus.exporters, {
   initialData: [],
@@ -61,7 +61,7 @@ const columns: any = [
       if (!row.installed) {
         buttons.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'info',
@@ -73,7 +73,7 @@ const columns: any = [
                     name: row.name,
                   }),
                 })
-                if (ok) handleInstall(row.slug)
+                if (ok) await handleInstall(row.slug)
               },
             },
             { default: () => $gettext('Install') },
@@ -83,7 +83,7 @@ const columns: any = [
         if (!row.running) {
           buttons.push(
             h(
-              NButton,
+              AppButton,
               { size: 'small', type: 'success', onClick: () => handleStart(row.slug) },
               { default: () => $gettext('Start') },
             ),
@@ -91,14 +91,14 @@ const columns: any = [
         } else {
           buttons.push(
             h(
-              NButton,
+              AppButton,
               { size: 'small', type: 'warning', onClick: () => handleStop(row.slug) },
               { default: () => $gettext('Stop') },
             ),
           )
           buttons.push(
             h(
-              NButton,
+              AppButton,
               { size: 'small', onClick: () => handleRestart(row.slug) },
               { default: () => $gettext('Restart') },
             ),
@@ -107,7 +107,7 @@ const columns: any = [
         if (row.has_config) {
           buttons.push(
             h(
-              NButton,
+              AppButton,
               { size: 'small', onClick: () => handleOpenConfig(row.slug) },
               { default: () => $gettext('Config') },
             ),
@@ -115,7 +115,7 @@ const columns: any = [
         }
         buttons.push(
           h(
-            NButton,
+            AppButton,
             {
               size: 'small',
               type: 'error',
@@ -128,7 +128,7 @@ const columns: any = [
                   positiveText: $gettext('Uninstall'),
                   countdown: 5,
                 })
-                if (ok) handleUninstall(row.slug)
+                if (ok) await handleUninstall(row.slug)
               },
             },
             { default: () => $gettext('Delete') },
@@ -141,59 +141,46 @@ const columns: any = [
   },
 ]
 
-const handleInstall = (slug: string) => {
-  useRequest(prometheus.installExporter(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-    refreshExporters()
-  })
+const handleInstall = async (slug: string) => {
+  await prometheus.installExporter(slug)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  refreshExporters()
 }
 
-const handleUninstall = (slug: string) => {
-  useRequest(prometheus.uninstallExporter(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
-    refreshExporters()
-  })
+const handleUninstall = async (slug: string) => {
+  await prometheus.uninstallExporter(slug)
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  refreshExporters()
 }
 
-const handleStart = (slug: string) => {
-  useRequest(prometheus.startExporter(slug)).onSuccess(() => {
-    window.$message.success($gettext('Started successfully'))
-    refreshExporters()
-  })
+const handleStart = async (slug: string) => {
+  await prometheus.startExporter(slug)
+  window.$message.success($gettext('Started successfully'))
+  refreshExporters()
 }
 
-const handleStop = (slug: string) => {
-  useRequest(prometheus.stopExporter(slug)).onSuccess(() => {
-    window.$message.success($gettext('Stopped successfully'))
-    refreshExporters()
-  })
+const handleStop = async (slug: string) => {
+  await prometheus.stopExporter(slug)
+  window.$message.success($gettext('Stopped successfully'))
+  refreshExporters()
 }
 
-const handleRestart = (slug: string) => {
-  useRequest(prometheus.restartExporter(slug)).onSuccess(() => {
-    window.$message.success($gettext('Restarted successfully'))
-    refreshExporters()
-  })
+const handleRestart = async (slug: string) => {
+  await prometheus.restartExporter(slug)
+  window.$message.success($gettext('Restarted successfully'))
+  refreshExporters()
 }
 
-const handleOpenConfig = (slug: string) => {
+const handleOpenConfig = async (slug: string) => {
   configSlug.value = slug
-  useRequest(prometheus.exporterConfig(slug)).onSuccess(({ data }: any) => {
-    configContent.value = data
-    showConfigModal.value = true
-  })
+  configContent.value = await prometheus.exporterConfig(slug)
+  showConfigModal.value = true
 }
 
-const handleSaveConfig = () => {
-  saveConfigLoading.value = true
-  useRequest(prometheus.saveExporterConfig(configSlug.value, configContent.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      showConfigModal.value = false
-    })
-    .onComplete(() => {
-      saveConfigLoading.value = false
-    })
+const handleSaveConfig = async () => {
+  await prometheus.saveExporterConfig(configSlug.value, configContent.value)
+  window.$message.success($gettext('Saved successfully'))
+  showConfigModal.value = false
 }
 </script>
 
@@ -216,14 +203,9 @@ const handleSaveConfig = () => {
         </n-alert>
         <common-editor v-model:value="configContent" height="40vh" />
         <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveConfigLoading"
-            :disabled="saveConfigLoading"
-            @click="handleSaveConfig"
-          >
+          <app-button type="primary" @click="handleSaveConfig">
             {{ $gettext('Save') }}
-          </n-button>
+          </app-button>
         </n-flex>
       </n-flex>
     </app-modal>

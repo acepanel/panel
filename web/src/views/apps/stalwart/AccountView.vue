@@ -7,6 +7,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -23,7 +24,6 @@ const domainID = ref<string | null>(null)
 const keyword = ref('')
 
 const addModal = ref(false)
-const addLoading = ref(false)
 const addModel = ref({
   name: '',
   domain_id: '',
@@ -34,7 +34,6 @@ const addModel = ref({
 })
 
 const editModal = ref(false)
-const editLoading = ref(false)
 const editModel = ref({
   id: '',
   email: '',
@@ -44,7 +43,6 @@ const editModel = ref({
 })
 
 const passwordModal = ref(false)
-const passwordLoading = ref(false)
 const passwordModel = ref({
   id: '',
   email: '',
@@ -155,7 +153,7 @@ const columns: any = [
           { default: () => $gettext('Change Password') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -166,7 +164,7 @@ const columns: any = [
                   { email: row.email },
                 ),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -186,69 +184,46 @@ const loadDomains = async () => {
 
 const cleanAliases = (aliases: string[]) => aliases.map((a) => a.trim()).filter(Boolean)
 
-const handleAdd = () => {
-  addLoading.value = true
-  useRequest(
-    stalwart.accountCreate({
-      name: addModel.value.name,
-      domain_id: addModel.value.domain_id,
-      password: addModel.value.password,
-      description: addModel.value.description,
-      quota: addModel.value.quota * MB,
-      aliases: cleanAliases(addModel.value.aliases),
-    }),
-  )
-    .onSuccess(() => {
-      refresh()
-      addModal.value = false
-      addModel.value.name = ''
-      addModel.value.password = generateRandomString(16)
-      addModel.value.description = ''
-      addModel.value.quota = 0
-      addModel.value.aliases = []
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      addLoading.value = false
-    })
-}
-
-const handleEdit = () => {
-  editLoading.value = true
-  useRequest(
-    stalwart.accountUpdate(editModel.value.id, {
-      description: editModel.value.description,
-      quota: editModel.value.quota * MB,
-      aliases: cleanAliases(editModel.value.aliases),
-    }),
-  )
-    .onSuccess(() => {
-      refresh()
-      editModal.value = false
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      editLoading.value = false
-    })
-}
-
-const handlePassword = () => {
-  passwordLoading.value = true
-  useRequest(stalwart.accountPassword(passwordModel.value.id, passwordModel.value.password))
-    .onSuccess(() => {
-      passwordModal.value = false
-      window.$message.success($gettext('Modified successfully'))
-    })
-    .onComplete(() => {
-      passwordLoading.value = false
-    })
-}
-
-const handleDelete = (id: string) => {
-  useRequest(stalwart.accountDelete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
+const handleAdd = async () => {
+  await stalwart.accountCreate({
+    name: addModel.value.name,
+    domain_id: addModel.value.domain_id,
+    password: addModel.value.password,
+    description: addModel.value.description,
+    quota: addModel.value.quota * MB,
+    aliases: cleanAliases(addModel.value.aliases),
   })
+  refresh()
+  addModal.value = false
+  addModel.value.name = ''
+  addModel.value.password = generateRandomString(16)
+  addModel.value.description = ''
+  addModel.value.quota = 0
+  addModel.value.aliases = []
+  window.$message.success($gettext('Added successfully'))
+}
+
+const handleEdit = async () => {
+  await stalwart.accountUpdate(editModel.value.id, {
+    description: editModel.value.description,
+    quota: editModel.value.quota * MB,
+    aliases: cleanAliases(editModel.value.aliases),
+  })
+  refresh()
+  editModal.value = false
+  window.$message.success($gettext('Saved successfully'))
+}
+
+const handlePassword = async () => {
+  await stalwart.accountPassword(passwordModel.value.id, passwordModel.value.password)
+  passwordModal.value = false
+  window.$message.success($gettext('Modified successfully'))
+}
+
+const handleDelete = async (id: string) => {
+  await stalwart.accountDelete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 onMounted(() => {
@@ -346,9 +321,9 @@ onMounted(() => {
           )
         }}
       </n-text>
-      <n-button type="info" block :loading="addLoading" :disabled="addLoading" @click="handleAdd">
+      <app-button type="info" block @click="handleAdd">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal v-model:show="editModal" :title="$gettext('Edit Mailbox')">
@@ -379,15 +354,9 @@ onMounted(() => {
           <ListInput v-model:value="editModel.aliases" placeholder="alias@example.com" />
         </n-form-item>
       </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="editLoading"
-        :disabled="editLoading"
-        @click="handleEdit"
-      >
+      <app-button type="info" block @click="handleEdit">
         {{ $gettext('Save') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal v-model:show="passwordModal" :title="$gettext('Change Password')">
@@ -414,15 +383,9 @@ onMounted(() => {
           )
         }}
       </n-text>
-      <n-button
-        type="info"
-        block
-        :loading="passwordLoading"
-        :disabled="passwordLoading"
-        @click="handlePassword"
-      >
+      <app-button type="info" block @click="handlePassword">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
 </template>

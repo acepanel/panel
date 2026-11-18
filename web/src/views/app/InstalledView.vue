@@ -28,7 +28,6 @@ const envRowKey = (row: any) => `${row.type}:${row.slug}`
 
 const selectedApps = ref<string[]>([])
 const selectedEnvs = ref<string[]>([])
-const updating = ref(false)
 
 // 获取已安装应用
 const {
@@ -55,14 +54,12 @@ const handleBulkUpdate = async () => {
   })
   if (!ok) return
 
-  updating.value = true
   const results = await Promise.allSettled([
     ...selectedApps.value.map((slug) => app.update(slug)),
     ...envData.value
       .filter((row: any) => selectedEnvs.value.includes(envRowKey(row)))
       .map((row: any) => environment.update(row.type, row.slug)),
   ])
-  updating.value = false
 
   selectedApps.value = []
   selectedEnvs.value = []
@@ -77,14 +74,13 @@ const handleBulkUpdate = async () => {
 <template>
   <n-flex vertical :size="24">
     <n-flex>
-      <n-button
+      <app-button
         type="warning"
-        :loading="updating"
         :disabled="selectedApps.length + selectedEnvs.length === 0"
         @click="handleBulkUpdate"
       >
         {{ $gettext('Update') }}
-      </n-button>
+      </app-button>
     </n-flex>
     <!-- 已安装应用 -->
     <n-flex vertical>

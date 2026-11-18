@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
@@ -7,7 +6,6 @@ import firewall from '@/api/panel/firewall'
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const emit = defineEmits<{ created: [] }>()
-const loading = ref(false)
 
 type PortMode = 'single' | 'range'
 
@@ -84,7 +82,6 @@ const addressLabel = computed(() =>
 watch(show, (value) => {
   if (!value) return
   createModel.value = newCreateModel()
-  loading.value = false
 })
 
 watch(
@@ -104,33 +101,25 @@ watch(
 )
 
 const handleCreate = async () => {
-  loading.value = true
-  try {
-    const addresses = createModel.value.address.length ? createModel.value.address : ['']
-    const promises = addresses.map((address) =>
-      useRequest(
-        firewall.createRule({
-          family: createModel.value.family,
-          protocol: createModel.value.protocol,
-          port_start: createModel.value.port_start,
-          port_end:
-            createModel.value.portMode === 'single'
-              ? createModel.value.port_start
-              : createModel.value.port_end,
-          address,
-          strategy: createModel.value.strategy,
-          direction: createModel.value.direction,
-        }),
-      ).onSuccess(() => {
-        window.$message.success($gettext('%{ address } created successfully', { address }))
-      }),
-    )
-    await Promise.all(promises)
-    emit('created')
-    show.value = false
-  } finally {
-    loading.value = false
-  }
+  const addresses = createModel.value.address.length ? createModel.value.address : ['']
+  const promises = addresses.map(async (address) => {
+    await firewall.createRule({
+      family: createModel.value.family,
+      protocol: createModel.value.protocol,
+      port_start: createModel.value.port_start,
+      port_end:
+        createModel.value.portMode === 'single'
+          ? createModel.value.port_start
+          : createModel.value.port_end,
+      address,
+      strategy: createModel.value.strategy,
+      direction: createModel.value.direction,
+    })
+    window.$message.success($gettext('%{ address } created successfully', { address }))
+  })
+  await Promise.all(promises)
+  emit('created')
+  show.value = false
 }
 </script>
 
@@ -196,9 +185,9 @@ const handleCreate = async () => {
         <n-select v-model:value="createModel.strategy" :options="strategies" />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
+    <app-button type="info" block @click="handleCreate">
       {{ $gettext('Submit') }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

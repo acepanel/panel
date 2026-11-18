@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NTag } from 'naive-ui'
+import { NDataTable, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import CreateIpModal from '@/views/firewall/CreateIpModal.vue'
@@ -127,7 +128,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -135,7 +136,7 @@ const columns: any = [
             const ok = await confirmDelete({
               content: $gettext('Are you sure you want to delete?'),
             })
-            if (ok) handleDelete(row)
+            if (ok) await handleDelete(row)
           },
         },
         { default: () => $gettext('Delete') },
@@ -150,19 +151,13 @@ const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((pa
 
 const selectedRowKeys = ref<any>([])
 
-const handleDelete = (row: any) => {
-  useRequest(firewall.deleteIpRule(row)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (row: any) => {
+  await firewall.deleteIpRule(row)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const batchDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    window.$message.info($gettext('Please select rules to delete'))
-    return
-  }
-
+const deleteSelected = async () => {
   const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
     return firewall.deleteIpRule(rule)
@@ -172,6 +167,15 @@ const batchDelete = async () => {
   selectedRowKeys.value = []
   refresh()
   window.$message.success($gettext('Deleted successfully'))
+}
+
+// 未勾选时同步返回，避免删除按钮闪一下加载图标
+const batchDelete = () => {
+  if (selectedRowKeys.value.length === 0) {
+    window.$message.info($gettext('Please select rules to delete'))
+    return
+  }
+  return deleteSelected()
 }
 
 watch(createModalShow, () => {
@@ -191,9 +195,9 @@ watch(createModalShow, () => {
         @confirm="batchDelete"
       >
         <template #trigger>
-          <n-button type="error" ghost>
+          <app-button type="error" ghost>
             {{ $gettext('Delete') }}
-          </n-button>
+          </app-button>
         </template>
       </ConfirmDialog>
     </n-flex>

@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 
 import stalwart from '@/api/apps/stalwart'
 import cert from '@/api/panel/cert'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -19,21 +20,19 @@ const { confirmDelete } = useConfirm()
 const formLayout = useFormLayout()
 
 const addModal = ref(false)
-const addLoading = ref(false)
 const addModel = ref({ name: '' })
 
 const catchAllModal = ref(false)
-const catchAllLoading = ref(false)
 const catchAllModel = ref({ id: '', name: '', address: '' })
 
 const dnsModal = ref(false)
 const dnsLoading = ref(false)
-const dnsPublishLoading = ref(false)
 const dnsDomain = ref({ id: '', name: '' })
 const dnsZone = ref('')
 const dnsRecords = ref<any[]>([])
 const dnsSelected = ref<string[]>([])
 const dnsAccounts = ref<any[]>([])
+const dnsAccountsLoading = ref(false)
 const dnsAccountID = ref<number | null>(null)
 
 const { loading, data, page, pageSize, refresh, pagination } = usePagedTable((page, pageSize) =>
@@ -120,7 +119,7 @@ const columns: any = [
           { default: () => $gettext('Catch-all') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -132,7 +131,7 @@ const columns: any = [
                   { name: row.name },
                 ),
               })
-              if (ok) handleDelete(row.id)
+              if (ok) await handleDelete(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -268,62 +267,50 @@ const openDNS = async (row: any) => {
   dnsRecords.value = []
   dnsSelected.value = []
   dnsModal.value = true
-  if (!dnsAccounts.value.length) {
-    useRequest(cert.dns(1, 10000)).onSuccess(({ data }) => {
-      dnsAccounts.value = data.items
-      dnsAccountID.value = data.items[0]?.id ?? null
-    })
+  if (!dnsAccounts.value.length && !dnsAccountsLoading.value) {
+    dnsAccountsLoading.value = true
+    useRequest(cert.dns(1, 10000))
+      .onSuccess(({ data }) => {
+        dnsAccounts.value = data.items
+        dnsAccountID.value = data.items[0]?.id ?? null
+      })
+      .onComplete(() => {
+        dnsAccountsLoading.value = false
+      })
   }
   await loadDNS()
 }
 
-const handlePublish = () => {
+const handlePublish = async () => {
   if (!dnsAccountID.value) return
-  dnsPublishLoading.value = true
-  useRequest(stalwart.domainDNSPublish(dnsDomain.value.id, dnsAccountID.value, dnsSelected.value))
-    .onSuccess(({ data }) => {
-      window.$message.success(
-        $gettext('%{ count } records added', { count: String(data.published) }),
-      )
-      loadDNS()
-    })
-    .onComplete(() => {
-      dnsPublishLoading.value = false
-    })
+  const data = await stalwart.domainDNSPublish(
+    dnsDomain.value.id,
+    dnsAccountID.value,
+    dnsSelected.value,
+  )
+  window.$message.success($gettext('%{ count } records added', { count: String(data.published) }))
+  loadDNS()
 }
 
-const handleAdd = () => {
-  addLoading.value = true
-  useRequest(stalwart.domainCreate(addModel.value.name))
-    .onSuccess(() => {
-      refresh()
-      addModal.value = false
-      addModel.value.name = ''
-      window.$message.success($gettext('Added successfully'))
-    })
-    .onComplete(() => {
-      addLoading.value = false
-    })
+const handleAdd = async () => {
+  await stalwart.domainCreate(addModel.value.name)
+  refresh()
+  addModal.value = false
+  addModel.value.name = ''
+  window.$message.success($gettext('Added successfully'))
 }
 
-const handleCatchAll = () => {
-  catchAllLoading.value = true
-  useRequest(stalwart.domainCatchAll(catchAllModel.value.id, catchAllModel.value.address))
-    .onSuccess(() => {
-      refresh()
-      catchAllModal.value = false
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      catchAllLoading.value = false
-    })
+const handleCatchAll = async () => {
+  await stalwart.domainCatchAll(catchAllModel.value.id, catchAllModel.value.address)
+  refresh()
+  catchAllModal.value = false
+  window.$message.success($gettext('Saved successfully'))
 }
 
-const handleDelete = (id: string) => {
-  useRequest(stalwart.domainDelete(id)).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Deleted successfully'))
-  })
+const handleDelete = async (id: string) => {
+  await stalwart.domainDelete(id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 </script>
 
@@ -361,9 +348,9 @@ const handleDelete = (id: string) => {
           <n-input v-model:value="addModel.name" placeholder="example.com" @keydown.enter.prevent />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="addLoading" :disabled="addLoading" @click="handleAdd">
+      <app-button type="info" block @click="handleAdd">
         {{ $gettext('Submit') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal v-model:show="catchAllModal" :title="$gettext('Catch-all Address')">
@@ -385,15 +372,9 @@ const handleDelete = (id: string) => {
           />
         </n-form-item>
       </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="catchAllLoading"
-        :disabled="catchAllLoading"
-        @click="handleCatchAll"
-      >
+      <app-button type="info" block @click="handleCatchAll">
         {{ $gettext('Save') }}
-      </n-button>
+      </app-button>
     </n-flex>
   </app-modal>
   <app-modal
@@ -421,41 +402,42 @@ const handleDelete = (id: string) => {
         :scroll-x="900"
       />
       <n-card :title="$gettext('Publish via DNS Provider')" size="small">
-        <n-flex v-if="dnsAccountOptions.length" vertical>
-          <n-text depth="3">
+        <n-spin :show="dnsAccountsLoading">
+          <n-flex v-if="dnsAccountOptions.length" vertical>
+            <n-text depth="3">
+              {{
+                $gettext(
+                  'Selected records that are not active yet will be added through the DNS account below. Existing records are not modified.',
+                )
+              }}
+            </n-text>
+            <n-flex align="center">
+              <n-select
+                v-model:value="dnsAccountID"
+                class="md:!w-80"
+                :options="dnsAccountOptions"
+                :placeholder="$gettext('Select DNS account')"
+              />
+              <app-button
+                type="primary"
+                :disabled="!dnsAccountID || !dnsSelected.length"
+                @click="handlePublish"
+              >
+                {{ $gettext('Add Selected Records') }}
+              </app-button>
+              <n-button :loading="dnsLoading" :disabled="dnsLoading" @click="loadDNS">
+                {{ $gettext('Recheck') }}
+              </n-button>
+            </n-flex>
+          </n-flex>
+          <n-text v-else depth="3">
             {{
               $gettext(
-                'Selected records that are not active yet will be added through the DNS account below. Existing records are not modified.',
+                'No DNS account is configured. Add one under Certificates → DNS Accounts to publish records with one click, or add them manually.',
               )
             }}
           </n-text>
-          <n-flex align="center">
-            <n-select
-              v-model:value="dnsAccountID"
-              class="md:!w-80"
-              :options="dnsAccountOptions"
-              :placeholder="$gettext('Select DNS account')"
-            />
-            <n-button
-              type="primary"
-              :loading="dnsPublishLoading"
-              :disabled="dnsPublishLoading || !dnsAccountID || !dnsSelected.length"
-              @click="handlePublish"
-            >
-              {{ $gettext('Add Selected Records') }}
-            </n-button>
-            <n-button :loading="dnsLoading" :disabled="dnsLoading" @click="loadDNS">
-              {{ $gettext('Recheck') }}
-            </n-button>
-          </n-flex>
-        </n-flex>
-        <n-text v-else depth="3">
-          {{
-            $gettext(
-              'No DNS account is configured. Add one under Certificates → DNS Accounts to publish records with one click, or add them manually.',
-            )
-          }}
-        </n-text>
+        </n-spin>
       </n-card>
     </n-flex>
   </app-modal>

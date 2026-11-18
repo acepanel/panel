@@ -3,6 +3,7 @@ import { NButton, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import tamper from '@/api/panel/tamper'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -35,8 +36,6 @@ const setting = ref({
   block_new_files: false,
   log_days: 30,
 })
-const settingLoading = ref(false)
-const activating = ref(false)
 
 const loadStatus = () => {
   useRequest(tamper.status()).onSuccess(({ data }: any) => {
@@ -48,21 +47,20 @@ const loadStatus = () => {
 }
 loadStatus()
 
+const saveSetting = async () => {
+  await tamper.saveSetting(setting.value)
+  window.$message.success($gettext('Saved successfully'))
+  loadStatus()
+}
+
+// 校验不通过时同步返回，避免保存按钮闪一下加载图标
 const handleSaveSetting = () => {
   // 选择 eBPF 但不可用时阻止
   if (setting.value.enabled && setting.value.mode === 'ebpf' && !ebpf.value.available) {
     window.$message.error($gettext('eBPF mode is not available, please activate it first'))
     return
   }
-  settingLoading.value = true
-  useRequest(tamper.saveSetting(setting.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-      loadStatus()
-    })
-    .onComplete(() => {
-      settingLoading.value = false
-    })
+  return saveSetting()
 }
 
 // 激活 eBPF:改 grub 并重启系统
@@ -76,14 +74,8 @@ const handleActivateEBPF = async () => {
     countdown: 5,
   })
   if (!ok) return
-  activating.value = true
-  useRequest(tamper.activateEBPF())
-    .onSuccess(() => {
-      window.$message.success($gettext('The server is rebooting, please reconnect later'))
-    })
-    .onComplete(() => {
-      activating.value = false
-    })
+  await tamper.activateEBPF()
+  window.$message.success($gettext('The server is rebooting, please reconnect later'))
 }
 
 // 规则
@@ -114,10 +106,9 @@ const handleDeleteRule = async (row: any) => {
     content: $gettext('Are you sure to delete this rule?'),
   })
   if (!ok) return
-  useRequest(tamper.deleteRule(row.id)).onSuccess(() => {
-    window.$message.success($gettext('Deleted successfully'))
-    refreshRules()
-  })
+  await tamper.deleteRule(row.id)
+  window.$message.success($gettext('Deleted successfully'))
+  refreshRules()
 }
 
 const ruleColumns: any = [
@@ -154,7 +145,7 @@ const ruleColumns: any = [
           $gettext('Edit'),
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -212,10 +203,9 @@ const handleClearLogs = async () => {
     content: $gettext('Are you sure to clear all interception logs?'),
   })
   if (!ok) return
-  useRequest(tamper.clearLogs()).onSuccess(() => {
-    window.$message.success($gettext('Cleared successfully'))
-    refreshLogs()
-  })
+  await tamper.clearLogs()
+  window.$message.success($gettext('Cleared successfully'))
+  refreshLogs()
 }
 </script>
 
@@ -291,14 +281,9 @@ const handleClearLogs = async () => {
               />
             </n-form-item>
             <n-form-item>
-              <n-button
-                type="primary"
-                :loading="settingLoading"
-                :disabled="settingLoading"
-                @click="handleSaveSetting"
-              >
+              <app-button type="primary" @click="handleSaveSetting">
                 {{ $gettext('Save Changes') }}
-              </n-button>
+              </app-button>
             </n-form-item>
           </n-form>
         </n-card>
@@ -323,14 +308,9 @@ const handleClearLogs = async () => {
               {{ ebpf.reason }}
             </n-alert>
             <n-flex v-if="!ebpf.available && !ebpf.bpf_lsm_active && ebpf.kernel_version">
-              <n-button
-                type="warning"
-                :loading="activating"
-                :disabled="activating"
-                @click="handleActivateEBPF"
-              >
+              <app-button type="warning" @click="handleActivateEBPF">
                 {{ $gettext('Activate eBPF and Reboot') }}
-              </n-button>
+              </app-button>
             </n-flex>
           </n-flex>
         </n-card>
@@ -365,12 +345,12 @@ const handleClearLogs = async () => {
     <n-tab-pane name="log" :tab="$gettext('Interception Logs')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="error" secondary @click="handleClearLogs">
+          <app-button type="error" secondary @click="handleClearLogs">
             <template #icon>
               <i-mdi-delete-outline />
             </template>
             {{ $gettext('Clear Logs') }}
-          </n-button>
+          </app-button>
           <n-button secondary @click="() => refreshLogs()">
             <template #icon>
               <i-mdi-refresh />

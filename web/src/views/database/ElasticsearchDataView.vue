@@ -3,6 +3,7 @@ import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import AppButton from '@/components/system/AppButton.vue'
 import { useBus } from '@/components/system/composables/useBus'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { usePagedTable } from '@/components/system/composables/usePagedTable'
@@ -134,7 +135,7 @@ const indexColumns: any = [
           { default: () => $gettext('Browse') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -142,7 +143,7 @@ const indexColumns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this index?'),
               })
-              if (ok) handleDeleteIndex(row.name)
+              if (ok) await handleDeleteIndex(row.name)
             },
           },
           { default: () => $gettext('Delete') },
@@ -188,7 +189,7 @@ const docColumns: any = [
           { default: () => $gettext('View') },
         ),
         h(
-          NButton,
+          AppButton,
           {
             size: 'small',
             type: 'error',
@@ -196,7 +197,7 @@ const docColumns: any = [
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete this document?'),
               })
-              if (ok) handleDeleteDoc(row.id)
+              if (ok) await handleDeleteDoc(row.id)
             },
           },
           { default: () => $gettext('Delete') },
@@ -231,38 +232,34 @@ const handleSearch = () => {
   page.value = 1
 }
 
-const handleDeleteIndex = (name: string) => {
+const handleDeleteIndex = async (name: string) => {
   if (!selectedServer.value) return
-  useRequest(database.esIndexDelete(selectedServer.value, name)).onSuccess(() => {
-    loadIndices()
-    if (selectedIndex.value === name) selectedIndex.value = ''
-    window.$message.success($gettext('Deleted successfully'))
-  })
+  await database.esIndexDelete(selectedServer.value, name)
+  loadIndices()
+  if (selectedIndex.value === name) selectedIndex.value = ''
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleDeleteDoc = (id: string) => {
+const handleDeleteDoc = async (id: string) => {
   if (!selectedServer.value) return
-  useRequest(database.esDocumentDelete(selectedServer.value, selectedIndex.value, id)).onSuccess(
-    () => {
-      refresh()
-      window.$message.success($gettext('Deleted successfully'))
-    },
-  )
+  await database.esDocumentDelete(selectedServer.value, selectedIndex.value, id)
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
 }
 
-const handleCreateIndex = () => {
-  if (!selectedServer.value || !createIndexName.value) return
+const handleCreateIndex = async () => {
+  // 输入框回车绕过了按钮的加载态，请求中不再重复提交
+  if (createIndexLoading.value || !selectedServer.value || !createIndexName.value) return
   createIndexLoading.value = true
-  useRequest(database.esIndexCreate(selectedServer.value, createIndexName.value))
-    .onSuccess(() => {
-      createIndexShow.value = false
-      createIndexName.value = ''
-      loadIndices()
-      window.$message.success($gettext('Created successfully'))
-    })
-    .onComplete(() => {
-      createIndexLoading.value = false
-    })
+  try {
+    await database.esIndexCreate(selectedServer.value, createIndexName.value)
+    createIndexShow.value = false
+    createIndexName.value = ''
+    loadIndices()
+    window.$message.success($gettext('Created successfully'))
+  } finally {
+    createIndexLoading.value = false
+  }
 }
 
 const openCreateDoc = () => {
@@ -361,6 +358,8 @@ useBus('database-server:refresh', loadServers)
         <n-input
           v-model:value="createIndexName"
           :placeholder="$gettext('Enter index name')"
+          :disabled="createIndexLoading"
+          :loading="createIndexLoading || undefined"
           @keydown.enter.prevent="handleCreateIndex"
         />
       </n-form-item>

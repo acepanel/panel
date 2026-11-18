@@ -12,8 +12,7 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const operation = defineModel<string>('operation', { type: String, required: true })
 const info = defineModel<App>('info', { type: Object, required: true })
 
-const doSubmit = ref(false)
-const customFormRef = ref<{ save: () => Promise<any> } | null>(null)
+const customFormRef = ref<{ save: () => Promise<any>; loading: boolean } | null>(null)
 
 const model = ref({
   channel: null,
@@ -31,31 +30,22 @@ const options = computed(() => {
 })
 
 const handleSubmit = async () => {
-  doSubmit.value = true
   try {
     // 编译型应用先保存自定义参数再触发安装
     if (customFormRef.value) {
       await customFormRef.value.save()
     }
   } catch {
-    doSubmit.value = false
     return
   }
-  useRequest(app.install(info.value.slug, model.value.channel))
-    .onSuccess(() => {
-      show.value = false
-      model.value = {
-        channel: null,
-        version: '',
-        log: '',
-      }
-      window.$message.success(
-        $gettext('Task submitted, please check the progress in background tasks'),
-      )
-    })
-    .onComplete(() => {
-      doSubmit.value = false
-    })
+  await app.install(info.value.slug, model.value.channel)
+  show.value = false
+  model.value = {
+    channel: null,
+    version: '',
+    log: '',
+  }
+  window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
 }
 
 const handleChannelUpdate = (value: string) => {
@@ -114,15 +104,14 @@ const handleClose = () => {
         <custom-form ref="customFormRef" :slug="info.slug" />
       </n-collapse-item>
     </n-collapse>
-    <n-button
+    <app-button
       type="info"
       block
-      :loading="doSubmit"
-      :disabled="model.channel == null || doSubmit"
+      :disabled="model.channel == null || customFormRef?.loading"
       @click="handleSubmit"
     >
       {{ operation }}
-    </n-button>
+    </app-button>
   </app-modal>
 </template>
 

@@ -3,16 +3,15 @@ defineOptions({
   name: 'postgresql-performance',
 })
 
-import { NButton, NTag } from 'naive-ui'
+import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'
+import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
-
-const enableTopSQLLoading = ref(false)
 
 const { data: sessions, send: refreshSessions } = useRequest(postgresql.sessions, {
   initialData: [],
@@ -74,7 +73,7 @@ const sessionColumns: any = [
     width: 120,
     render(row: any) {
       return h(
-        NButton,
+        AppButton,
         {
           size: 'small',
           type: 'error',
@@ -86,7 +85,7 @@ const sessionColumns: any = [
               }),
               positiveText: $gettext('Terminate'),
             })
-            if (ok) handleTerminate(row.pid)
+            if (ok) await handleTerminate(row.pid)
           },
         },
         { default: () => $gettext('Terminate') },
@@ -126,11 +125,10 @@ const topSQLColumns: any = [
   { title: 'SQL', key: 'query', minWidth: 300, ellipsis: { tooltip: true } },
 ]
 
-const handleTerminate = (pid: number) => {
-  useRequest(postgresql.terminateSession(pid)).onSuccess(() => {
-    window.$message.success($gettext('Terminated successfully'))
-    refreshSessions()
-  })
+const handleTerminate = async (pid: number) => {
+  await postgresql.terminateSession(pid)
+  window.$message.success($gettext('Terminated successfully'))
+  refreshSessions()
 }
 
 const handleEnableTopSQL = async () => {
@@ -142,15 +140,9 @@ const handleEnableTopSQL = async () => {
     ),
   })
   if (!ok) return
-  enableTopSQLLoading.value = true
-  useRequest(postgresql.enableTopSQL())
-    .onSuccess(() => {
-      window.$message.success($gettext('Enabled, please restart PostgreSQL to take effect'))
-      refreshTopSQL()
-    })
-    .onComplete(() => {
-      enableTopSQLLoading.value = false
-    })
+  await postgresql.enableTopSQL()
+  window.$message.success($gettext('Enabled, please restart PostgreSQL to take effect'))
+  refreshTopSQL()
 }
 
 const handleResetTopSQL = async () => {
@@ -160,10 +152,9 @@ const handleResetTopSQL = async () => {
     content: $gettext('Are you sure you want to reset all SQL statistics?'),
   })
   if (!ok) return
-  useRequest(postgresql.resetTopSQL()).onSuccess(() => {
-    window.$message.success($gettext('Reset successfully'))
-    refreshTopSQL()
-  })
+  await postgresql.resetTopSQL()
+  window.$message.success($gettext('Reset successfully'))
+  refreshTopSQL()
 }
 </script>
 
@@ -172,9 +163,9 @@ const handleResetTopSQL = async () => {
     <n-tab-pane name="sessions" :tab="$gettext('Sessions')">
       <n-flex vertical>
         <n-flex>
-          <n-button type="primary" @click="() => refreshSessions()">
+          <app-button type="primary" @click="() => refreshSessions()">
             {{ $gettext('Refresh') }}
-          </n-button>
+          </app-button>
         </n-flex>
         <n-data-table
           striped
@@ -199,24 +190,19 @@ const handleResetTopSQL = async () => {
             }}
           </n-alert>
           <n-flex>
-            <n-button
-              type="primary"
-              :loading="enableTopSQLLoading"
-              :disabled="enableTopSQLLoading"
-              @click="handleEnableTopSQL"
-            >
+            <app-button type="primary" @click="handleEnableTopSQL">
               {{ $gettext('Enable') }}
-            </n-button>
+            </app-button>
           </n-flex>
         </template>
         <template v-if="topSQL.enabled">
           <n-flex>
-            <n-button type="primary" @click="() => refreshTopSQL()">
+            <app-button type="primary" @click="() => refreshTopSQL()">
               {{ $gettext('Refresh') }}
-            </n-button>
-            <n-button type="warning" @click="handleResetTopSQL">
+            </app-button>
+            <app-button type="warning" @click="handleResetTopSQL">
               {{ $gettext('Reset Statistics') }}
-            </n-button>
+            </app-button>
           </n-flex>
           <n-data-table
             striped

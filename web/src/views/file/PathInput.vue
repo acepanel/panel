@@ -110,17 +110,46 @@ const handleGoFavorite = (p: string) => {
 // 行内编辑备注，回车或失焦保存，Esc 取消
 const editingId = ref<number | null>(null)
 const editingRemark = ref('')
+// 回车与失焦可能先后触发保存，进行中直接返回
+const savingRemarks = reactive(new Set<number>())
 
 const startEditRemark = (item: FileFavorite) => {
   editingId.value = item.id
   editingRemark.value = item.remark
 }
 
-const saveRemark = () => {
-  if (editingId.value === null) return
+// 不论成败保存结束都退出编辑，期间改去编辑别的收藏则不打断
+const saveRemark = async () => {
   const id = editingId.value
-  editingId.value = null
-  fileStore.updateFavoriteRemark(id, editingRemark.value.trim())
+  if (id === null || savingRemarks.has(id)) return
+  savingRemarks.add(id)
+  try {
+    await fileStore.updateFavoriteRemark(id, editingRemark.value.trim())
+  } finally {
+    savingRemarks.delete(id)
+    if (editingId.value === id) editingId.value = null
+  }
+}
+
+// 拖拽排序后保存顺序，请求期间不能再拖
+const sortingFavorites = ref(false)
+// 松手时列表已是新顺序，保存失败要靠拖拽开始时的快照回滚
+let favoritesBeforeSort: FileFavorite[] = []
+
+const handleSortStart = () => {
+  favoritesBeforeSort = [...fileStore.favorites]
+}
+
+const handleSortFavorites = async () => {
+  sortingFavorites.value = true
+  try {
+    await fileStore.sortFavorites()
+  } catch (error) {
+    fileStore.favorites = favoritesBeforeSort
+    throw error
+  } finally {
+    sortingFavorites.value = false
+  }
 }
 
 watch(
@@ -193,58 +222,64 @@ watch(
         <div class="favorites" :class="{ 'is-mobile': isMobile }">
           <div class="favorites-header">
             <span>{{ $gettext('Favorites') }}</span>
-            <n-button size="tiny" quaternary type="primary" @click="toggleFavorite(path)">
+            <app-button size="tiny" quaternary type="primary" @click="toggleFavorite(path)">
               {{
                 isFavorite
                   ? $gettext('Remove current directory')
                   : $gettext('Add current directory')
               }}
-            </n-button>
+            </app-button>
           </div>
           <div v-if="!fileStore.favorites.length" class="favorites-empty">
             {{ $gettext('No favorites yet') }}
           </div>
-          <draggable
-            v-model="fileStore.favorites"
-            item-key="id"
-            handle=".favorites-drag"
-            class="favorites-list"
-            @end="fileStore.sortFavorites()"
-          >
-            <template #item="{ element: item }">
-              <div
-                class="favorites-item"
-                :class="{ active: item.path === path }"
-                @click="handleGoFavorite(item.path)"
-              >
-                <i-mdi-drag class="favorites-drag" />
-                <i-mdi-folder class="text-amber-500 shrink-0" />
-                <div class="favorites-text">
-                  <n-input
-                    v-if="editingId === item.id"
-                    v-model:value="editingRemark"
-                    size="tiny"
-                    autofocus
-                    @click.stop
-                    :placeholder="$gettext('Remark')"
-                    @keyup.enter="saveRemark"
-                    @keyup.esc="editingId = null"
-                    @blur="saveRemark"
-                  />
-                  <div v-else class="favorites-name">{{ favoriteName(item) }}</div>
-                  <div class="favorites-path">{{ item.path }}</div>
+          <n-spin :show="sortingFavorites">
+            <draggable
+              v-model="fileStore.favorites"
+              item-key="id"
+              handle=".favorites-drag"
+              class="favorites-list"
+              :disabled="sortingFavorites"
+              @start="handleSortStart"
+              @end="handleSortFavorites"
+            >
+              <template #item="{ element: item }">
+                <div
+                  class="favorites-item"
+                  :class="{ active: item.path === path }"
+                  @click="handleGoFavorite(item.path)"
+                >
+                  <i-mdi-drag class="favorites-drag" />
+                  <i-mdi-folder class="text-amber-500 shrink-0" />
+                  <div class="favorites-text">
+                    <n-input
+                      v-if="editingId === item.id"
+                      v-model:value="editingRemark"
+                      size="tiny"
+                      autofocus
+                      @click.stop
+                      :placeholder="$gettext('Remark')"
+                      :disabled="savingRemarks.has(item.id)"
+                      :loading="savingRemarks.has(item.id) || undefined"
+                      @keyup.enter="saveRemark"
+                      @keyup.esc="editingId = null"
+                      @blur="saveRemark"
+                    />
+                    <div v-else class="favorites-name">{{ favoriteName(item) }}</div>
+                    <div class="favorites-path">{{ item.path }}</div>
+                  </div>
+                  <div class="favorites-actions" @click.stop>
+                    <n-button size="tiny" quaternary circle @click="startEditRemark(item)">
+                      <i-mdi-pencil />
+                    </n-button>
+                    <app-button size="tiny" quaternary circle @click="toggleFavorite(item.path)">
+                      <i-mdi-close />
+                    </app-button>
+                  </div>
                 </div>
-                <div class="favorites-actions" @click.stop>
-                  <n-button size="tiny" quaternary circle @click="startEditRemark(item)">
-                    <i-mdi-pencil />
-                  </n-button>
-                  <n-button size="tiny" quaternary circle @click="toggleFavorite(item.path)">
-                    <i-mdi-close />
-                  </n-button>
-                </div>
-              </div>
-            </template>
-          </draggable>
+              </template>
+            </draggable>
+          </n-spin>
         </div>
       </n-popover>
     </n-button-group>
@@ -374,6 +409,11 @@ watch(
 
 // 触屏没有悬停，操作按钮常显
 .favorites.is-mobile .favorites-actions {
+  opacity: 1;
+}
+
+// 按钮转圈期间鼠标移开也保持可见
+.favorites-item:has(.n-button--loading) .favorites-actions {
   opacity: 1;
 }
 </style>
