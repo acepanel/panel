@@ -294,15 +294,33 @@ func (r *websiteRepo) RebuildPHPMyAdmin() (bool, error) {
 		return webservertypes.Listen{Address: port}
 	})
 
-	backupDir := fmt.Sprintf("%s.rebuild-backup-%d", configDir, time.Now().UnixNano())
-	if err = os.Rename(configDir, backupDir); err != nil {
+	if err = io.Remove(configDir); err != nil {
 		return false, err
 	}
-	if err = r.buildPHPMyAdmin(d, configDir, listens, php); err != nil {
-		return false, errors.Join(err, io.Remove(configDir), os.Rename(backupDir, configDir))
+	if err = r.makeConfigDirs(configDir); err != nil {
+		return false, err
+	}
+	vhost, err := d.NewPHPVhost(configDir)
+	if err != nil {
+		return false, err
+	}
+	// 站点没有域名，靠默认站点标志接住端口上的全部请求，路径与安装脚本一致
+	logFile := filepath.Join(filepath.Dir(configDir), "log", "phpmyadmin.log")
+	if err = errors.Join(
+		vhost.SetListen(listens),
+		vhost.SetDefault(true),
+		vhost.SetRoot(filepath.Join(app.Root, "server", "phpmyadmin")),
+		vhost.SetIndex([]string{"index.php"}),
+		vhost.SetPHP(php),
+		vhost.SetAccessLog(logFile),
+		vhost.SetErrorLog(logFile),
+	); err != nil {
+		return false, err
+	}
+	if err = vhost.Save(); err != nil {
+		return false, err
 	}
 
-	_ = io.Remove(backupDir)
 	return true, nil
 }
 
@@ -323,37 +341,6 @@ func (r *websiteRepo) sourceDialect(configDir string) (webserver.Dialect, bool) 
 	}
 
 	return latest, !modTime.IsZero()
-}
-
-// buildPHPMyAdmin 站点没有域名，靠默认站点标志接住端口上的全部请求，路径与安装脚本一致
-func (r *websiteRepo) buildPHPMyAdmin(
-	d webserver.Dialect,
-	configDir string,
-	listens []webservertypes.Listen,
-	php uint,
-) error {
-	if err := r.makeConfigDirs(configDir); err != nil {
-		return err
-	}
-	vhost, err := d.NewPHPVhost(configDir)
-	if err != nil {
-		return err
-	}
-
-	logFile := filepath.Join(filepath.Dir(configDir), "log", "phpmyadmin.log")
-	if err = errors.Join(
-		vhost.SetListen(listens),
-		vhost.SetDefault(true),
-		vhost.SetRoot(filepath.Join(app.Root, "server", "phpmyadmin")),
-		vhost.SetIndex([]string{"index.php"}),
-		vhost.SetPHP(php),
-		vhost.SetAccessLog(logFile),
-		vhost.SetErrorLog(logFile),
-	); err != nil {
-		return err
-	}
-
-	return vhost.Save()
 }
 
 // latestPHP 取已安装的最高 PHP 版本，没有安装时为 0

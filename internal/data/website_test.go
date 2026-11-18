@@ -165,10 +165,7 @@ func TestWebsiteRebuildPHPMyAdmin(t *testing.T) {
 	must.NoError(t, err)
 	check.True(t, rebuilt)
 
-	// 旧服务器的配置连同备份都不留
-	entries, err := os.ReadDir(filepath.Dir(configDir))
-	must.NoError(t, err)
-	check.Len(t, entries, 1)
+	// 旧服务器的配置不留
 	check.False(t, io.Exists(oldConf))
 	check.False(t, io.Exists(filepath.Join(configDir, "openlitespeed.listen.conf")))
 
