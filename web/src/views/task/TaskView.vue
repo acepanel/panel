@@ -14,6 +14,9 @@ const { confirmDelete, confirmAction } = useConfirm()
 const logModal = ref(false)
 const logPath = ref('')
 const logModalRef = ref<{ clear: () => void } | null>(null)
+const selectedRowKeys = ref<number[]>([])
+
+const active = (row: any) => row.status === 'waiting' || row.status === 'running'
 
 const handleClearLog = async () => {
   if (!logPath.value) return
@@ -23,6 +26,8 @@ const handleClearLog = async () => {
 }
 
 const columns: any = [
+  // 等待中和运行中的任务要先取消才能删除
+  { type: 'selection', fixed: 'left', disabled: active },
   {
     title: $gettext('Task Name'),
     key: 'name',
@@ -89,7 +94,7 @@ const columns: any = [
           ),
         )
       }
-      if (row.status == 'waiting' || row.status == 'running') {
+      if (active(row)) {
         items.push(
           h(
             AppButton,
@@ -143,6 +148,13 @@ const handleDelete = async (id: number) => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
+const bulkDelete = async () => {
+  await Promise.all(selectedRowKeys.value.map((id) => task.delete(id)))
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
 const handleCancel = async (id: number) => {
   await task.cancel(id)
   refresh()
@@ -152,15 +164,29 @@ const handleCancel = async (id: number) => {
 
 <template>
   <n-flex vertical>
+    <n-flex>
+      <ConfirmDialog
+        type="delete"
+        :content="$gettext('Are you sure you want to delete the selected tasks?')"
+        @confirm="bulkDelete"
+      >
+        <template #trigger>
+          <app-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </app-button>
+        </template>
+      </ConfirmDialog>
+    </n-flex>
     <n-alert type="info">{{
       $gettext('If logs cannot be loaded, please disable ad blockers!')
     }}</n-alert>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
       v-model:page="page"
       v-model:pageSize="pageSize"
       striped
       remote
-      :scroll-x="1000"
+      :scroll-x="1040"
       :loading="loading"
       :columns="columns"
       :data="data"
