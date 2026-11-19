@@ -194,20 +194,10 @@ func (r *scanEventRepo) VacuumDB() error {
 }
 
 func (r *scanEventRepo) AddBlocks(blocks []*biz.ScanBlock) error {
-	return batchUpsert(r.db, blocks, clause.OnConflict{DoNothing: true})
-}
-
-func (r *scanEventRepo) BlockedIPs(ips []string) ([]string, error) {
-	blocked := make([]string, 0)
-	for chunk := range slices.Chunk(ips, upsertBatchSize) {
-		var found []string
-		if err := r.db.Model(&biz.ScanBlock{}).Where("ip IN ?", chunk).Pluck("ip", &found).Error; err != nil {
-			return nil, err
-		}
-		blocked = append(blocked, found...)
-	}
-
-	return blocked, nil
+	return batchUpsert(r.db, blocks, clause.OnConflict{
+		Columns:   []clause.Column{{Name: "ip"}},
+		DoUpdates: clause.AssignmentColumns([]string{"expires_at", "outbound", "created_at"}),
+	})
 }
 
 func (r *scanEventRepo) ExpiredBlocks(now time.Time) ([]*biz.ScanBlock, error) {

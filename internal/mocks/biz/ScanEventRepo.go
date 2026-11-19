@@ -24,9 +24,6 @@ var _ biz.ScanEventRepo = &ScanEventRepo{}
 //			AddBlocksFunc: func(blocks []*biz.ScanBlock) error {
 //				panic("mock out the AddBlocks method")
 //			},
-//			BlockedIPsFunc: func(ips []string) ([]string, error) {
-//				panic("mock out the BlockedIPs method")
-//			},
 //			ClearFunc: func() error {
 //				panic("mock out the Clear method")
 //			},
@@ -70,9 +67,6 @@ type ScanEventRepo struct {
 	// AddBlocksFunc mocks the AddBlocks method.
 	AddBlocksFunc func(blocks []*biz.ScanBlock) error
 
-	// BlockedIPsFunc mocks the BlockedIPs method.
-	BlockedIPsFunc func(ips []string) ([]string, error)
-
 	// ClearFunc mocks the Clear method.
 	ClearFunc func() error
 
@@ -112,11 +106,6 @@ type ScanEventRepo struct {
 		AddBlocks []struct {
 			// Blocks is the blocks argument value.
 			Blocks []*biz.ScanBlock
-		}
-		// BlockedIPs holds details about calls to the BlockedIPs method.
-		BlockedIPs []struct {
-			// Ips is the ips argument value.
-			Ips []string
 		}
 		// Clear holds details about calls to the Clear method.
 		Clear []struct {
@@ -195,7 +184,6 @@ type ScanEventRepo struct {
 		}
 	}
 	lockAddBlocks     sync.RWMutex
-	lockBlockedIPs    sync.RWMutex
 	lockClear         sync.RWMutex
 	lockClearBefore   sync.RWMutex
 	lockDeleteBlocks  sync.RWMutex
@@ -238,38 +226,6 @@ func (mock *ScanEventRepo) AddBlocksCalls() []struct {
 	mock.lockAddBlocks.RLock()
 	calls = mock.calls.AddBlocks
 	mock.lockAddBlocks.RUnlock()
-	return calls
-}
-
-// BlockedIPs calls BlockedIPsFunc.
-func (mock *ScanEventRepo) BlockedIPs(ips []string) ([]string, error) {
-	if mock.BlockedIPsFunc == nil {
-		panic("ScanEventRepo.BlockedIPsFunc: method is nil but ScanEventRepo.BlockedIPs was just called")
-	}
-	callInfo := struct {
-		Ips []string
-	}{
-		Ips: ips,
-	}
-	mock.lockBlockedIPs.Lock()
-	mock.calls.BlockedIPs = append(mock.calls.BlockedIPs, callInfo)
-	mock.lockBlockedIPs.Unlock()
-	return mock.BlockedIPsFunc(ips)
-}
-
-// BlockedIPsCalls gets all the calls that were made to BlockedIPs.
-// Check the length with:
-//
-//	len(mockedScanEventRepo.BlockedIPsCalls())
-func (mock *ScanEventRepo) BlockedIPsCalls() []struct {
-	Ips []string
-} {
-	var calls []struct {
-		Ips []string
-	}
-	mock.lockBlockedIPs.RLock()
-	calls = mock.calls.BlockedIPs
-	mock.lockBlockedIPs.RUnlock()
 	return calls
 }
 

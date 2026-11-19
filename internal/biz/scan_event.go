@@ -103,10 +103,8 @@ type ScanEventRepo interface {
 	ClearBefore(date string) error
 	Clear() error
 	VacuumDB() error
-	// AddBlocks 记录屏蔽的 IP，已有记录的保持原样
+	// AddBlocks 记录屏蔽的 IP，已有记录的按这次的重新计时
 	AddBlocks(blocks []*ScanBlock) error
-	// BlockedIPs 返回给定 IP 中已有屏蔽记录的
-	BlockedIPs(ips []string) ([]string, error)
 	// ExpiredBlocks 返回到期的限时屏蔽
 	ExpiredBlocks(now time.Time) ([]*ScanBlock, error)
 	DeleteBlocks(ips []string) error
@@ -177,10 +175,6 @@ func (uc *ScanEventUsecase) VacuumDB() error {
 
 func (uc *ScanEventUsecase) AddBlocks(blocks []*ScanBlock) error {
 	return uc.repo.AddBlocks(blocks)
-}
-
-func (uc *ScanEventUsecase) BlockedIPs(ips []string) ([]string, error) {
-	return uc.repo.BlockedIPs(ips)
 }
 
 func (uc *ScanEventUsecase) ExpiredBlocks(now time.Time) ([]*ScanBlock, error) {

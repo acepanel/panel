@@ -2,7 +2,6 @@ package data
 
 import (
 	"fmt"
-	"slices"
 	"testing"
 	"time"
 
@@ -32,25 +31,27 @@ func TestScanBlocks(t *testing.T) {
 	repo := newScanEventRepoForTest(t)
 	now := time.Now()
 
+	count := func() int {
+		var total int64
+		must.NoError(t, repo.db.Model(&biz.ScanBlock{}).Count(&total).Error)
+		return int(total)
+	}
+
 	must.NoError(t, repo.AddBlocks([]*biz.ScanBlock{
-		{IP: "1.1.1.1", ExpiresAt: now.Add(-time.Minute).Unix(), Outbound: true},
+		{IP: "1.1.1.1", CreatedAt: now.Add(-time.Hour)},
 		{IP: "2.2.2.2", ExpiresAt: now.Add(time.Hour).Unix()},
 		{IP: "2001:db8::1"},
 	}))
-	// 已有记录的保持原到期时间
-	must.NoError(t, repo.AddBlocks([]*biz.ScanBlock{{IP: "1.1.1.1", ExpiresAt: now.Add(time.Hour).Unix()}}))
-
-	blocked, err := repo.BlockedIPs([]string{"1.1.1.1", "3.3.3.3", "2001:db8::1"})
-	must.NoError(t, err)
-	slices.Sort(blocked)
-	check.DeepEqual(t, blocked, []string{"1.1.1.1", "2001:db8::1"})
+	// 已有记录的按这次的重新计时
+	must.NoError(t, repo.AddBlocks([]*biz.ScanBlock{{IP: "1.1.1.1", ExpiresAt: now.Add(-time.Minute).Unix(), Outbound: true}}))
+	check.Equal(t, count(), 3)
 
 	expired, err := repo.ExpiredBlocks(now)
 	must.NoError(t, err)
 	must.Len(t, expired, 1)
 	check.Equal(t, expired[0].IP, "1.1.1.1")
 	check.True(t, expired[0].Outbound)
-	check.False(t, expired[0].CreatedAt.IsZero())
+	check.True(t, expired[0].CreatedAt.After(now.Add(-time.Minute)))
 
 	// 永久屏蔽不会到期
 	expired, err = repo.ExpiredBlocks(now.AddDate(100, 0, 0))
@@ -61,9 +62,7 @@ func TestScanBlocks(t *testing.T) {
 	expired, err = repo.ExpiredBlocks(now)
 	must.NoError(t, err)
 	check.Len(t, expired, 0)
-	blocked, err = repo.BlockedIPs([]string{"1.1.1.1", "2.2.2.2"})
-	must.NoError(t, err)
-	check.DeepEqual(t, blocked, []string{"2.2.2.2"})
+	check.Equal(t, count(), 2)
 
 	// 超过单批上限时分批处理
 	ips := make([]string, 0, 2*upsertBatchSize+5)
@@ -73,11 +72,7 @@ func TestScanBlocks(t *testing.T) {
 		blocks = append(blocks, &biz.ScanBlock{IP: ips[i], ExpiresAt: now.Unix()})
 	}
 	must.NoError(t, repo.AddBlocks(blocks))
-	blocked, err = repo.BlockedIPs(ips)
-	must.NoError(t, err)
-	check.Len(t, blocked, len(ips))
+	check.Equal(t, count(), 2+len(ips))
 	must.NoError(t, repo.DeleteBlocks(ips))
-	blocked, err = repo.BlockedIPs(ips)
-	must.NoError(t, err)
-	check.Len(t, blocked, 0)
+	check.Equal(t, count(), 2)
 }

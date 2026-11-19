@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"maps"
 	"net"
 	"slices"
 	"sync"
@@ -278,7 +279,7 @@ func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) 
 		return
 	}
 
-	whitelist := r.parseWhitelist(setting.Whitelist)
+	whitelist := r.parseNets(setting.Whitelist)
 	now := time.Now()
 	window := time.Duration(setting.BlockWindow) * time.Minute //nolint:gosec
 
@@ -309,14 +310,15 @@ func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) 
 	}
 
 	// TCX 挂在 netfilter 之前，已屏蔽的 IP 仍会继续计数，不重复下发
-	blocked, err := r.scanRepo.BlockedIPs(lo.Keys(counts))
+	// 是否已屏蔽看防火墙里的规则而不是屏蔽记录，规则被手动删掉后才能再次屏蔽
+	blocked, err := r.blockedNets(ctx)
 	if err != nil {
-		r.log.Warn(r.t.Get("failed to read scan blocks"), slog.Any("err", err))
+		r.log.Warn(r.t.Get("failed to list firewall rules"), slog.Any("err", err))
 		return
 	}
-	for _, ip := range blocked {
-		delete(counts, ip)
-	}
+	maps.DeleteFunc(counts, func(ip string, _ uint) bool {
+		return r.isBlocked(ip, blocked)
+	})
 	if len(counts) == 0 {
 		return
 	}
@@ -386,6 +388,26 @@ func (r *FirewallScan) blockRules(ip string, outbound bool) []firewall.FireInfo 
 	return []firewall.FireInfo{rule, out}
 }
 
+// blockedNets 防火墙里入站全端口丢弃的地址段，手动加的规则也算
+func (r *FirewallScan) blockedNets(ctx context.Context) ([]net.IPNet, error) {
+	rules, err := r.fw.ListRule(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.parseNets(lo.FilterMap(rules, func(rule firewall.FireInfo, _ int) (string, bool) {
+		return rule.Address, rule.Direction == firewall.DirectionIn && rule.Strategy == firewall.StrategyDrop && rule.PortStart == 1 && rule.PortEnd == 65535
+	})), nil
+}
+
+// isBlocked 检查 IP 是否落在已屏蔽的地址段里
+func (r *FirewallScan) isBlocked(ip string, blocked []net.IPNet) bool {
+	parsed := net.ParseIP(ip)
+	return lo.ContainsBy(blocked, func(cidr net.IPNet) bool {
+		return cidr.Contains(parsed)
+	})
+}
+
 // ipFamily 根据 IP 地址返回协议族
 func (r *FirewallScan) ipFamily(ip string) string {
 	parsed := net.ParseIP(ip)
@@ -395,8 +417,8 @@ func (r *FirewallScan) ipFamily(ip string) string {
 	return "ipv4"
 }
 
-// parseWhitelist 解析白名单为 net.IPNet 列表
-func (r *FirewallScan) parseWhitelist(list []string) []net.IPNet {
+// parseNets 解析 IP/CIDR 列表为 net.IPNet 列表，解析不了的跳过
+func (r *FirewallScan) parseNets(list []string) []net.IPNet {
 	var nets []net.IPNet
 	for _, entry := range list {
 		// 尝试 CIDR

@@ -27,14 +27,9 @@ func (s scanBlockStore) repo() biz.ScanEventRepo {
 	return &mocks.ScanEventRepo{
 		AddBlocksFunc: func(blocks []*biz.ScanBlock) error {
 			for _, block := range blocks {
-				if _, ok := s[block.IP]; !ok {
-					s[block.IP] = block
-				}
+				s[block.IP] = block
 			}
 			return nil
-		},
-		BlockedIPsFunc: func(ips []string) ([]string, error) {
-			return lo.Filter(ips, func(ip string, _ int) bool { return s[ip] != nil }), nil
 		},
 		ExpiredBlocksFunc: func(now time.Time) ([]*biz.ScanBlock, error) {
 			return lo.Filter(lo.Values(s), func(block *biz.ScanBlock, _ int) bool {
@@ -64,6 +59,12 @@ type fakeFirewall struct {
 
 func (f *fakeFirewall) Status(context.Context) (bool, error) {
 	return f.running, nil
+}
+
+func (f *fakeFirewall) ListRule(context.Context) ([]firewall.FireInfo, error) {
+	return lo.MapToSlice(f.blocked, func(address string, _ bool) firewall.FireInfo {
+		return firewall.FireInfo{Type: firewall.TypeRich, Address: address, PortStart: 1, PortEnd: 65535, Protocol: firewall.ProtocolTCPUDP, Strategy: firewall.StrategyDrop, Direction: firewall.DirectionIn}
+	}), nil
 }
 
 func (f *fakeFirewall) RichRulesBatch(_ context.Context, rules []firewall.FireInfo, operation firewall.Operation) error {
@@ -197,7 +198,7 @@ func TestFirewallScanKeepsBlocksWhileFirewallDown(t *testing.T) {
 
 func TestFirewallScanAutoBlock(t *testing.T) {
 	store := scanBlockStore{"198.51.100.4": {IP: "198.51.100.4"}}
-	fw := &fakeFirewall{running: true, blocked: map[string]bool{"198.51.100.4": true}}
+	fw := &fakeFirewall{running: true, blocked: map[string]bool{"198.51.100.4": true, "203.0.113.0/24": true}}
 	task := newFirewallScanForTest(store, autoBlockSettings(), fw)
 
 	now := time.Now()
@@ -206,11 +207,12 @@ func TestFirewallScanAutoBlock(t *testing.T) {
 		"198.51.100.2": {count: 9, firstSeen: now},                         // 没到阈值
 		"198.51.100.3": {count: 50, firstSeen: now.Add(-10 * time.Minute)}, // 窗口已过期
 		"198.51.100.4": {count: 50, firstSeen: now},                        // 已屏蔽
+		"203.0.113.9":  {count: 50, firstSeen: now},                        // 落在手动屏蔽的网段里
 		"192.0.2.8":    {count: 50, firstSeen: now},                        // 白名单
 	}
 	task.autoBlockForTest(t)
 
-	check.DeepEqual(t, fw.blocked, map[string]bool{"198.51.100.1": true, "198.51.100.4": true})
+	check.DeepEqual(t, fw.blocked, map[string]bool{"198.51.100.1": true, "198.51.100.4": true, "203.0.113.0/24": true})
 	check.Equal(t, fw.reloads, 1)
 	check.Len(t, store, 2)
 	check.Equal(t, store["198.51.100.4"].ExpiresAt, int64(0), check.Msgf("已有的永久屏蔽不被改成限时"))
@@ -222,6 +224,27 @@ func TestFirewallScanAutoBlock(t *testing.T) {
 	task.autoBlockForTest(t)
 	check.MapNotContainsKey(t, store, "198.51.100.5")
 	check.False(t, fw.blocked["198.51.100.5"])
+}
+
+// 规则被手动删掉后屏蔽记录还在，再次触发阈值要重新屏蔽并按现在的设置重新计时
+func TestFirewallScanReblocksAfterManualRemoval(t *testing.T) {
+	store := scanBlockStore{
+		"198.51.100.1": {IP: "198.51.100.1"},
+		"2001:db8::1":  {IP: "2001:db8::1", ExpiresAt: time.Now().Add(time.Minute).Unix(), Outbound: true},
+	}
+	fw := &fakeFirewall{running: true, blocked: map[string]bool{}}
+	task := newFirewallScanForTest(store, autoBlockSettings(), fw)
+
+	task.ipCounters["198.51.100.1"] = &ipCounter{count: 20, firstSeen: time.Now()}
+	task.ipCounters["2001:db8::1"] = &ipCounter{count: 20, firstSeen: time.Now()}
+	task.autoBlockForTest(t)
+
+	check.DeepEqual(t, fw.blocked, map[string]bool{"198.51.100.1": true, "2001:db8::1": true})
+	must.Len(t, store, 2)
+	for _, block := range store {
+		check.Greater(t, block.ExpiresAt, time.Now().Add(59*time.Minute).Unix())
+		check.False(t, block.Outbound)
+	}
 }
 
 // 开了出站屏蔽后入站出站一起下发；解封按屏蔽当时的记录删，不看现在的开关
