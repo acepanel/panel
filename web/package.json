@@ -50,7 +50,7 @@
     "p-limit": "7.3.3",
     "pinia": "4.1.0",
     "pinia-plugin-persistedstate": "4.7.1",
-    "vue": "3.5.45",
+    "vue": "3.5.46",
     "vue-echarts": "8.3.2",
     "vue-router": "5.5.1",
     "vue3-gettext": "4.0.1",
