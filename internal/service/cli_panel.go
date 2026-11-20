@@ -187,9 +187,10 @@ func (s *CliService) SyncTime(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) ClearTask(ctx context.Context, cmd *cli.Command) error {
+	// 运行中的任务由面板里的运行器发现状态变化后杀掉进程
 	if err := s.db.Model(&biz.Task{}).
 		Where("status", biz.TaskStatusRunning).Or("status", biz.TaskStatusWaiting).
-		Update("status", biz.TaskStatusFailed).
+		Update("status", biz.TaskStatusCanceled).
 		Error; err != nil {
 		return errors.New(s.t.Get("Failed to clear tasks: %v", err))
 	}

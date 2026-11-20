@@ -166,8 +166,10 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) bool {
 		return true
 	}
 
+	go r.watch(taskCtx, cancel, task.ID)
+
 	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
-		// 用户取消和面板停机都不是任务本身失败，记为 canceled 并跑清理命令；
+		// 用户取消、状态被外部改走和面板停机都不是任务本身失败，记为 canceled 并跑清理命令；
 		// 停机时 systemd 向整个 cgroup 同时发 SIGTERM，命令可能比 ctx 取消早一步死，
 		// 给一个远大于这点调度差的宽限期，否则会被记成失败并发假告警
 		status := biz.TaskStatusFailed
@@ -196,6 +198,26 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) bool {
 		r.log.Error(r.t.Get("failed to update task status to success"), slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
 	return true
+}
+
+// watch 状态被外部改走（CLI 的 clear-task）就取消任务，否则卡死的命令会一直占着队列
+func (r *Runner) watch(ctx context.Context, cancel context.CancelFunc, id uint) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			var count int64
+			err := r.db.Model(&biz.Task{}).Where("id = ? AND status = ?", id, biz.TaskStatusRunning).Count(&count).Error
+			if err == nil && count == 0 {
+				cancel()
+				return
+			}
+		}
+	}
 }
 
 // runCancelShell 任务被取消后执行清理命令，输出追加到任务日志

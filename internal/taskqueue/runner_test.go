@@ -92,6 +92,30 @@ func TestRunnerCancelRunning(t *testing.T) {
 	}
 }
 
+// clear-task 在另一个进程里只能改库，运行器要据此杀掉进程、跑清理并放行后面的任务
+func TestRunnerStatusChangedExternally(t *testing.T) {
+	r := newRunnerForTest(t)
+	marker := filepath.Join(t.TempDir(), "cleanup.done")
+
+	stuck := &biz.Task{Name: "stuck", Status: biz.TaskStatusWaiting, Shell: "sleep 60", CancelShell: "touch " + marker}
+	must.NoError(t, r.db.Create(stuck).Error)
+
+	r.Run(t.Context())
+
+	waitStatus(t, r.db, stuck.ID, biz.TaskStatusRunning)
+	must.NoError(t, r.db.Model(&biz.Task{}).Where("id = ?", stuck.ID).Update("status", biz.TaskStatusCanceled).Error)
+
+	next := &biz.Task{Name: "next", Status: biz.TaskStatusWaiting, Shell: "true"}
+	must.NoError(t, r.db.Create(next).Error)
+
+	waitStatus(t, r.db, next.ID, biz.TaskStatusSuccess)
+	_, err := os.Stat(marker)
+	check.NoError(t, err)
+	got := new(biz.Task)
+	must.NoError(t, r.db.First(got, stuck.ID).Error)
+	check.Equal(t, got.Status, biz.TaskStatusCanceled)
+}
+
 // 模拟 systemd 停机：命令被 SIGTERM 杀死，运行器 ctx 几乎同时取消，应记为 canceled 并跑清理
 func TestRunnerShutdownCanceled(t *testing.T) {
 	r := newRunnerForTest(t)
