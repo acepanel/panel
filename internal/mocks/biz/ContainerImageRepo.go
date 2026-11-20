@@ -27,6 +27,12 @@ var _ biz.ContainerImageRepo = &ContainerImageRepo{}
 //			ExistFunc: func(ctx context.Context, name string) (bool, error) {
 //				panic("mock out the Exist method")
 //			},
+//			ExportShellFunc: func(ctx context.Context, id string, dir string) (string, string, string, error) {
+//				panic("mock out the ExportShell method")
+//			},
+//			ImportShellFunc: func(path string) string {
+//				panic("mock out the ImportShell method")
+//			},
 //			ListFunc: func(ctx context.Context) ([]types.ContainerImage, error) {
 //				panic("mock out the List method")
 //			},
@@ -55,6 +61,12 @@ type ContainerImageRepo struct {
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(ctx context.Context, name string) (bool, error)
 
+	// ExportShellFunc mocks the ExportShell method.
+	ExportShellFunc func(ctx context.Context, id string, dir string) (string, string, string, error)
+
+	// ImportShellFunc mocks the ImportShell method.
+	ImportShellFunc func(path string) string
+
 	// ListFunc mocks the List method.
 	ListFunc func(ctx context.Context) ([]types.ContainerImage, error)
 
@@ -81,6 +93,20 @@ type ContainerImageRepo struct {
 			Ctx context.Context
 			// Name is the name argument value.
 			Name string
+		}
+		// ExportShell holds details about calls to the ExportShell method.
+		ExportShell []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID string
+			// Dir is the dir argument value.
+			Dir string
+		}
+		// ImportShell holds details about calls to the ImportShell method.
+		ImportShell []struct {
+			// Path is the path argument value.
+			Path string
 		}
 		// List holds details about calls to the List method.
 		List []struct {
@@ -119,13 +145,15 @@ type ContainerImageRepo struct {
 			ID string
 		}
 	}
-	lockExist      sync.RWMutex
-	lockList       sync.RWMutex
-	lockPrune      sync.RWMutex
-	lockPull       sync.RWMutex
-	lockPullShell  sync.RWMutex
-	lockPullStream sync.RWMutex
-	lockRemove     sync.RWMutex
+	lockExist       sync.RWMutex
+	lockExportShell sync.RWMutex
+	lockImportShell sync.RWMutex
+	lockList        sync.RWMutex
+	lockPrune       sync.RWMutex
+	lockPull        sync.RWMutex
+	lockPullShell   sync.RWMutex
+	lockPullStream  sync.RWMutex
+	lockRemove      sync.RWMutex
 }
 
 // Exist calls ExistFunc.
@@ -161,6 +189,78 @@ func (mock *ContainerImageRepo) ExistCalls() []struct {
 	mock.lockExist.RLock()
 	calls = mock.calls.Exist
 	mock.lockExist.RUnlock()
+	return calls
+}
+
+// ExportShell calls ExportShellFunc.
+func (mock *ContainerImageRepo) ExportShell(ctx context.Context, id string, dir string) (string, string, string, error) {
+	if mock.ExportShellFunc == nil {
+		panic("ContainerImageRepo.ExportShellFunc: method is nil but ContainerImageRepo.ExportShell was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		ID  string
+		Dir string
+	}{
+		Ctx: ctx,
+		ID:  id,
+		Dir: dir,
+	}
+	mock.lockExportShell.Lock()
+	mock.calls.ExportShell = append(mock.calls.ExportShell, callInfo)
+	mock.lockExportShell.Unlock()
+	return mock.ExportShellFunc(ctx, id, dir)
+}
+
+// ExportShellCalls gets all the calls that were made to ExportShell.
+// Check the length with:
+//
+//	len(mockedContainerImageRepo.ExportShellCalls())
+func (mock *ContainerImageRepo) ExportShellCalls() []struct {
+	Ctx context.Context
+	ID  string
+	Dir string
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  string
+		Dir string
+	}
+	mock.lockExportShell.RLock()
+	calls = mock.calls.ExportShell
+	mock.lockExportShell.RUnlock()
+	return calls
+}
+
+// ImportShell calls ImportShellFunc.
+func (mock *ContainerImageRepo) ImportShell(path string) string {
+	if mock.ImportShellFunc == nil {
+		panic("ContainerImageRepo.ImportShellFunc: method is nil but ContainerImageRepo.ImportShell was just called")
+	}
+	callInfo := struct {
+		Path string
+	}{
+		Path: path,
+	}
+	mock.lockImportShell.Lock()
+	mock.calls.ImportShell = append(mock.calls.ImportShell, callInfo)
+	mock.lockImportShell.Unlock()
+	return mock.ImportShellFunc(path)
+}
+
+// ImportShellCalls gets all the calls that were made to ImportShell.
+// Check the length with:
+//
+//	len(mockedContainerImageRepo.ImportShellCalls())
+func (mock *ContainerImageRepo) ImportShellCalls() []struct {
+	Path string
+} {
+	var calls []struct {
+		Path string
+	}
+	mock.lockImportShell.RLock()
+	calls = mock.calls.ImportShell
+	mock.lockImportShell.RUnlock()
 	return calls
 }
 

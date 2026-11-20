@@ -58,6 +58,11 @@ export default {
   imageExist: (name: string): any => http.Get(`/container/image/exist`, { params: { name } }),
   // 拉取镜像
   imagePull: (config: any): any => http.Post(`/container/image`, config),
+  // 导出镜像，path 为保存目录，留空用备份目录
+  imageExport: (id: string, path: string): any =>
+    http.Post(`/container/image/${id}/export`, { path }),
+  // 导入镜像
+  imageImport: (path: string): any => http.Post(`/container/image/import`, { path }),
   // 删除镜像
   imageRemove: (id: string): any => http.Delete(`/container/image/${id}`),
   // 清理镜像

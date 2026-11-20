@@ -85,6 +85,37 @@ func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *ContainerImageService) Export(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerImageExport](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	path, err := s.containerImageRepo.Export(r.Context(), req)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, path)
+}
+
+func (s *ContainerImageService) Import(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerImageImport](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.containerImageRepo.Import(r.Context(), req); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *ContainerImageService) Remove(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerImageID](r)
 	if err != nil {

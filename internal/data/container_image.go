@@ -20,6 +20,7 @@ import (
 	"github.com/moby/moby/client"
 	"github.com/samber/lo"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -171,6 +172,42 @@ func (r *containerImageRepo) PullShell(req *request.ContainerImagePull) (string,
 	}, "\n")
 
 	return shell, cleanup, nil
+}
+
+// ExportShell 生成导出镜像的命令和取消时的清理命令，一并返回归档路径
+func (r *containerImageRepo) ExportShell(ctx context.Context, id, dir string) (string, string, string, error) {
+	apiClient, err := r.client()
+	if err != nil {
+		return "", "", "", err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.ImageInspect(ctx, id)
+	if err != nil {
+		return "", "", "", err
+	}
+	// 按标签导出，归档里才带镜像名，导入后不会变成无名镜像
+	refs := resp.RepoTags
+	if len(refs) == 0 {
+		refs = []string{resp.ID}
+	}
+
+	if dir == "" {
+		backupPath, _ := r.setting.Get(biz.SettingKeyBackupPath, filepath.Join(app.Root, "backup"))
+		dir = filepath.Join(backupPath, "image")
+	}
+	if err = os.MkdirAll(dir, 0755); err != nil {
+		return "", "", "", err
+	}
+	name := strings.NewReplacer("/", "_", ":", "_").Replace(refs[0])
+	path := filepath.Join(dir, fmt.Sprintf("%s_%s.tar", name, time.Now().Format("20060102150405")))
+
+	return path, r.command(append([]string{"save", "--output", path}, refs...)...), "rm -f " + shell.Quote(path), nil
+}
+
+// ImportShell 生成从归档导入镜像的命令
+func (r *containerImageRepo) ImportShell(path string) string {
+	return r.command("load", "--input", path)
 }
 
 // Remove 删除镜像

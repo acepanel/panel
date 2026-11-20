@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NDataTable } from 'naive-ui'
+import { NButton, NDataTable, NFlex } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
@@ -24,6 +24,15 @@ const pullModel = ref({
 const pullModal = ref(false)
 const pullSubmitting = ref(false)
 const selectedRowKeys = ref<any>([])
+
+const exportModal = ref(false)
+const exportModel = ref({ id: '', name: '', path: '' })
+const importModal = ref(false)
+const importPath = ref('')
+// 导出选保存目录，导入选归档文件，共用一个路径选择器
+const showPathSelector = ref(false)
+const selectorPath = ref('/')
+const selectorDir = ref(true)
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -70,23 +79,30 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 120,
+    width: 200,
     hideInExcel: true,
     render(row: any) {
-      return h(
-        AppButton,
-        {
-          size: 'small',
-          type: 'error',
-          onClick: async () => {
-            const ok = await confirmDelete({
-              content: $gettext('Are you sure you want to delete?'),
-            })
-            if (ok) await handleDelete(row)
+      return h(NFlex, { size: 8 }, () => [
+        h(
+          NButton,
+          { size: 'small', type: 'primary', onClick: () => openExport(row) },
+          { default: () => $gettext('Export') },
+        ),
+        h(
+          AppButton,
+          {
+            size: 'small',
+            type: 'error',
+            onClick: async () => {
+              const ok = await confirmDelete({
+                content: $gettext('Are you sure you want to delete?'),
+              })
+              if (ok) await handleDelete(row)
+            },
           },
-        },
-        { default: () => $gettext('Delete') },
-      )
+          { default: () => $gettext('Delete') },
+        ),
+      ])
     },
   },
 ]
@@ -114,6 +130,50 @@ const handleBulkDelete = async () => {
   selectedRowKeys.value = []
   refresh()
   window.$message.success($gettext('Deleted successfully'))
+}
+
+const openExport = (row: any) => {
+  exportModel.value = { id: row.id, name: row.repo_tags.join(', ') || row.id, path: '' }
+  exportModal.value = true
+}
+
+const handleExport = async () => {
+  const path = await container.imageExport(exportModel.value.id, exportModel.value.path)
+  exportModal.value = false
+  window.$message.success(
+    $gettext('Exporting to %{ path }, please check progress in background tasks', { path }),
+  )
+}
+
+const openImport = () => {
+  importPath.value = ''
+  importModal.value = true
+}
+
+const handleImport = async () => {
+  if (!importPath.value) {
+    window.$message.warning($gettext('Please select the image archive'))
+    return
+  }
+  await container.imageImport(importPath.value)
+  importModal.value = false
+  window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+}
+
+const handleSelectPath = (dir: boolean) => {
+  const current = dir ? exportModel.value.path : importPath.value
+  selectorDir.value = dir
+  // 选择器从目录打开，已填的文件路径取其所在目录
+  selectorPath.value = (dir ? current : current.slice(0, current.lastIndexOf('/'))) || '/'
+  showPathSelector.value = true
+}
+
+const handlePathSelected = (path: string) => {
+  if (selectorDir.value) {
+    exportModel.value.path = path
+  } else {
+    importPath.value = path
+  }
 }
 
 const { isPulling, pullProgress, pullStatus, pullError, totalProgress, start, cancel, reset } =
@@ -176,6 +236,7 @@ watch(pullModal, (val) => {
   <n-flex vertical :size="20">
     <n-flex>
       <n-button type="primary" @click="pullModal = true">{{ $gettext('Pull Image') }}</n-button>
+      <n-button type="primary" ghost @click="openImport">{{ $gettext('Import Image') }}</n-button>
       <app-button type="primary" ghost @click="handlePrune">
         {{ $gettext('Cleanup Images') }}
       </app-button>
@@ -198,7 +259,7 @@ watch(pullModal, (val) => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1300"
+      :scroll-x="1380"
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.id"
@@ -270,4 +331,47 @@ watch(pullModal, (val) => {
       </n-button>
     </template>
   </app-modal>
+  <app-modal v-model:show="exportModal" size="sm" :title="$gettext('Export Image')">
+    <n-form>
+      <n-form-item :label="$gettext('Image')">
+        <n-input :value="exportModel.name" readonly />
+      </n-form-item>
+      <n-form-item :label="$gettext('Save Directory')">
+        <n-input-group>
+          <n-input
+            v-model:value="exportModel.path"
+            :placeholder="$gettext('Leave empty to use the backup directory')"
+            @keydown.enter.prevent
+          />
+          <n-button type="primary" ghost @click="handleSelectPath(true)">
+            {{ $gettext('Select') }}
+          </n-button>
+        </n-input-group>
+      </n-form-item>
+    </n-form>
+    <app-button type="info" block @click="handleExport">{{ $gettext('Submit') }}</app-button>
+  </app-modal>
+  <app-modal v-model:show="importModal" size="sm" :title="$gettext('Import Image')">
+    <n-form>
+      <n-form-item :label="$gettext('Image Archive')">
+        <n-input-group>
+          <n-input
+            v-model:value="importPath"
+            placeholder="/path/to/image.tar"
+            @keydown.enter.prevent
+          />
+          <n-button type="primary" ghost @click="handleSelectPath(false)">
+            {{ $gettext('Select') }}
+          </n-button>
+        </n-input-group>
+      </n-form-item>
+    </n-form>
+    <app-button type="info" block @click="handleImport">{{ $gettext('Submit') }}</app-button>
+  </app-modal>
+  <path-selector
+    v-model:show="showPathSelector"
+    v-model:path="selectorPath"
+    :dir="selectorDir"
+    @select="handlePathSelected"
+  />
 </template>

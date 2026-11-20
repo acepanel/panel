@@ -23,6 +23,10 @@ type ContainerImageRepo interface {
 	PullStream(ctx context.Context, req *request.ContainerImagePull) (iter.Seq2[ImagePullProgress, error], error)
 	// PullShell 生成后台拉取镜像的命令，需要认证时一并返回清理凭据的命令
 	PullShell(req *request.ContainerImagePull) (shell, cancelShell string, err error)
+	// ExportShell 生成把镜像导出到 dir 的命令和取消时的清理命令，dir 留空用备份目录，一并返回归档路径
+	ExportShell(ctx context.Context, id, dir string) (path, shell, cancelShell string, err error)
+	// ImportShell 生成从归档导入镜像的命令
+	ImportShell(path string) string
 	Remove(ctx context.Context, id string) error
 	Prune(ctx context.Context) error
 }
@@ -90,6 +94,44 @@ func (uc *ContainerImageUsecase) PullBackground(ctx context.Context, req *reques
 	}
 
 	uc.log.Info(uc.t.Get("image pulled"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("name", req.Name), slog.Bool("background", true))
+	return nil
+}
+
+// Export 提交导出镜像的后台任务，返回归档路径
+func (uc *ContainerImageUsecase) Export(ctx context.Context, req *request.ContainerImageExport) (string, error) {
+	path, shell, cancelShell, err := uc.repo.ExportShell(ctx, req.ID, req.Path)
+	if err != nil {
+		return "", err
+	}
+
+	task := new(Task)
+	task.Key = "container:image:export:" + req.ID
+	task.Name = uc.t.Get("Export image to %s", path)
+	task.Status = TaskStatusWaiting
+	task.Shell = shell
+	task.CancelShell = cancelShell
+
+	if err = uc.task.Push(task); err != nil {
+		return "", err
+	}
+
+	uc.log.Info(uc.t.Get("image exported"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("id", req.ID), slog.String("path", path))
+	return path, nil
+}
+
+// Import 提交导入镜像的后台任务
+func (uc *ContainerImageUsecase) Import(ctx context.Context, req *request.ContainerImageImport) error {
+	task := new(Task)
+	task.Key = "container:image:import:" + req.Path
+	task.Name = uc.t.Get("Import image from %s", req.Path)
+	task.Status = TaskStatusWaiting
+	task.Shell = uc.repo.ImportShell(req.Path)
+
+	if err := uc.task.Push(task); err != nil {
+		return err
+	}
+
+	uc.log.Info(uc.t.Get("image imported"), slog.String("type", OperationTypeContainer), slog.Uint64("operator_id", OperatorID(ctx)), slog.String("path", req.Path))
 	return nil
 }
 
