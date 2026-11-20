@@ -84,7 +84,7 @@ func (a *baotaAdapter) Items(ctx context.Context) ([]types.MigrationItem, error)
 			websites[i].DependsOn = append(websites[i].DependsOn, databases[index].Key)
 		}
 	}
-	return slices.Concat(websites, databases, a.databaseUserItems(rows, subtype), a.projectItems(ctx)), nil
+	return slices.Concat(websites, a.dockerWebsiteItems(ctx), databases, a.databaseUserItems(rows, subtype), a.projectItems(ctx)), nil
 }
 
 // websiteItems 列出静态、PHP 与反代网站
@@ -124,6 +124,31 @@ func (a *baotaAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem,
 		})
 	}
 	return items, nil
+}
+
+// dockerWebsiteItems 列出 Docker 模块里的反代网站，它们存在 Docker 自己的库里，站点表读不到
+// 容器里跑 PHP 的站点没有代理目标，不在迁移范围
+func (a *baotaAdapter) dockerWebsiteItems(ctx context.Context) []types.MigrationItem {
+	data, err := a.call(ctx, http.MethodPost, "/mod/docker/com/get_site_list", map[string]any{
+		"type": "all", "p": 1, "row": 10000,
+	})
+	if err != nil {
+		return nil
+	}
+
+	items := make([]types.MigrationItem, 0)
+	for _, row := range a.rows(data) {
+		id, name := cast.ToString(row["id"]), cast.ToString(row["name"])
+		if id == "" || name == "" || cast.ToString(row["proxy_pass"]) == "" {
+			continue
+		}
+		items = append(items, types.MigrationItem{
+			Key: biz.MigrationItemKey("website", "docker:"+id), Type: "website", Subtype: "proxy", Name: name,
+			Status:     lo.Ternary(cast.ToString(row["status"]) == "1", "running", "stopped"),
+			TargetName: name, SourceID: id, SourcePath: cast.ToString(row["path"]), SourceGroup: "docker",
+		})
+	}
+	return items
 }
 
 // databaseRows 读取 databases 表与本机 MySQL 的实际分支
@@ -252,7 +277,11 @@ func (a *baotaAdapter) Detail(ctx context.Context, item types.MigrationItem) (*t
 	var err error
 	switch item.Type {
 	case "website":
-		detail.Website = a.websiteDetail(ctx, item)
+		if item.SourceGroup == "docker" {
+			detail.Website = a.dockerWebsiteDetail(ctx, item)
+		} else {
+			detail.Website = a.websiteDetail(ctx, item)
+		}
 	case "database":
 		detail.Database, err = a.databaseDetail(ctx, item)
 	case "database_user":
@@ -327,8 +356,27 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 	}
 	website.Rewrite = a.rewrite(ctx, item)
 	website.Proxies = a.proxies(ctx, item)
-	if website.Type == "static" && slices.ContainsFunc(website.Proxies, func(proxy types.MigrationProxy) bool { return proxy.Location == "/" }) {
+	if website.Type == "static" && slices.ContainsFunc(website.Proxies, func(proxy types.MigrationProxy) bool { return proxy.Location == a.proxyLocation("/") }) {
 		website.Type = "proxy"
+	}
+	website.Redirects = a.redirects(ctx, item.Name)
+	a.applySSL(ctx, item.Name, website)
+	return website
+}
+
+// dockerWebsiteDetail 读取 Docker 网站的配置
+// 站点接口多按 ID 查站点表，对它不可用，域名与端口改从它自己的配置文件里取
+func (a *baotaAdapter) dockerWebsiteDetail(ctx context.Context, item types.MigrationItem) *types.MigrationWebsite {
+	config := a.moduleConfig(ctx, "/www/dk_project/sites", item.Name)
+	website := &types.MigrationWebsite{
+		Type: item.Subtype, Path: item.SourcePath, Root: item.SourcePath,
+		Listens: cast.ToStringSlice(config["site_port"]), Remark: cast.ToString(config["remark"]),
+		Enabled: item.Status == "running", Proxies: a.moduleProxies(config),
+	}
+	// 建站时填的域名带端口，之后追加的不带
+	for _, domain := range cast.ToStringSlice(config["domain_list"]) {
+		host, _, _ := strings.Cut(domain, ":")
+		website.Domains = append(website.Domains, host)
 	}
 	website.Redirects = a.redirects(ctx, item.Name)
 	a.applySSL(ctx, item.Name, website)
@@ -394,13 +442,21 @@ func (a *baotaAdapter) rewrite(ctx context.Context, item types.MigrationItem) st
 }
 
 // proxies 读取站点反向代理规则
-// 反代站点的规则归代理模块管，站点接口读不到
+// 反代站点有新旧两代：新版的规则归代理模块管，旧版的和普通站点同一格式，只是存在项目接口下
 func (a *baotaAdapter) proxies(ctx context.Context, item types.MigrationItem) []types.MigrationProxy {
-	if item.Subtype == "proxy" {
-		return a.moduleProxies(ctx, item.Name)
+	if item.Subtype != "proxy" {
+		return a.listProxies(ctx, "/site?action=GetProxyList", item.Name)
+	}
+	if proxies := a.moduleProxies(a.moduleConfig(ctx, "/www/server/proxy_project/sites", item.Name)); len(proxies) > 0 {
+		return proxies
 	}
 
-	data, err := a.call(ctx, http.MethodPost, "/site?action=GetProxyList", map[string]any{"sitename": item.Name})
+	return a.listProxies(ctx, "/project/proxy/GetProxyList", item.Name)
+}
+
+// listProxies 从列表接口读取反向代理规则
+func (a *baotaAdapter) listProxies(ctx context.Context, path, name string) []types.MigrationProxy {
+	data, err := a.call(ctx, http.MethodPost, path, map[string]any{"sitename": name})
 	if err != nil {
 		return nil
 	}
@@ -416,21 +472,29 @@ func (a *baotaAdapter) proxies(ctx context.Context, item types.MigrationItem) []
 		})
 		delete(replaces, "")
 		proxies = append(proxies, types.MigrationProxy{
-			Location: lo.CoalesceOrEmpty(cast.ToString(row["proxydir"]), "/"),
+			Location: a.proxyLocation(cast.ToString(row["proxydir"])),
 			Pass:     pass, Host: cast.ToString(row["todomain"]), Replaces: replaces,
 		})
 	}
 	return proxies
 }
 
-// moduleProxies 读取反代站点在代理模块中的规则
-func (a *baotaAdapter) moduleProxies(ctx context.Context, name string) []types.MigrationProxy {
-	data, err := a.call(ctx, http.MethodPost, "/mod/proxy/com/get_proxy_list", map[string]any{"site_name": name})
+// moduleConfig 读取代理模块或 Docker 模块为站点保存的配置
+// 直接读配置文件：模块接口在面板未绑定账号时会被重定向到绑定页
+func (a *baotaAdapter) moduleConfig(ctx context.Context, dir, name string) map[string]any {
+	content, err := a.fileContent(ctx, filepath.Join(dir, name, name+".json"))
 	if err != nil {
 		return nil
 	}
+	var config map[string]any
+	_ = json.Unmarshal([]byte(content), &config)
+	return config
+}
+
+// moduleProxies 取出模块配置里的反向代理规则
+func (a *baotaAdapter) moduleProxies(config map[string]any) []types.MigrationProxy {
 	proxies := make([]types.MigrationProxy, 0)
-	for _, row := range a.rows(data) {
+	for _, row := range a.rows(config["proxy_info"]) {
 		// AcePanel 不支持 unix 套接字形态的代理目标
 		pass := cast.ToString(row["proxy_pass"])
 		if pass == "" || strings.HasPrefix(pass, "http://unix:") {
@@ -441,11 +505,16 @@ func (a *baotaAdapter) moduleProxies(ctx context.Context, name string) []types.M
 		})
 		delete(replaces, "")
 		proxies = append(proxies, types.MigrationProxy{
-			Location: lo.CoalesceOrEmpty(cast.ToString(row["proxy_path"]), "/"),
+			Location: a.proxyLocation(cast.ToString(row["proxy_path"])),
 			Pass:     pass, Host: cast.ToString(row["proxy_host"]), Replaces: replaces,
 		})
 	}
 	return proxies
+}
+
+// proxyLocation 宝塔的反代规则一律生成 location ^~，照此还原才不会被站点里的正则 location 抢走请求
+func (a *baotaAdapter) proxyLocation(path string) string {
+	return "^~ " + lo.CoalesceOrEmpty(path, "/")
 }
 
 // redirects 读取站点重定向规则
@@ -483,8 +552,9 @@ func (a *baotaAdapter) applySSL(ctx context.Context, name string, website *types
 		return
 	}
 	ssl := cast.ToStringMap(data)
-	website.SSLCert = cast.ToString(ssl["csr"])
-	website.SSLKey = cast.ToString(ssl["key"])
+	// 没有证书时这两个字段是 false 而不是空字符串
+	website.SSLCert, _ = ssl["csr"].(string)
+	website.SSLKey, _ = ssl["key"].(string)
 	website.HTTPRedirect = cast.ToBool(ssl["httpTohttps"])
 	website.SSL = cast.ToBool(ssl["status"]) && website.SSLCert != "" && website.SSLKey != ""
 	if !website.SSL {
@@ -704,6 +774,12 @@ func (a *baotaAdapter) SetRunning(ctx context.Context, item types.MigrationItem,
 	action := lo.Ternary(running, "start", "stop")
 	switch item.Type {
 	case "website":
+		if item.SourceGroup == "docker" {
+			_, err := a.call(ctx, http.MethodPost, "/mod/docker/com/set_site_status", map[string]any{
+				"id": item.SourceID, "site_name": item.Name, "status": lo.Ternary(running, 1, 0),
+			})
+			return err
+		}
 		path := lo.Ternary(running, "/site?action=SiteStart", "/site?action=SiteStop")
 		_, err := a.call(ctx, http.MethodPost, path, map[string]any{"id": item.SourceID, "name": item.Name})
 		return err
@@ -719,6 +795,10 @@ func (a *baotaAdapter) SetRunning(ctx context.Context, item types.MigrationItem,
 
 func (a *baotaAdapter) Backup(ctx context.Context, detail *types.MigrationDetail) (string, error) {
 	item := detail.Item
+	// 面板的网站备份按 ID 查站点表，Docker 网站不在其中，改为直接打包目录
+	if item.SourceGroup == "docker" {
+		return a.archive(ctx, item.Name, detail.Website.Path)
+	}
 	switch item.Type {
 	case "website", "database":
 		return a.panelBackup(ctx, item)
@@ -737,7 +817,8 @@ func (a *baotaAdapter) panelBackup(ctx context.Context, item types.MigrationItem
 		return "", err
 	}
 	path := lo.Ternary(item.Type == "database", "/database?action=ToBackup", "/site?action=ToBackup")
-	if _, err = a.call(ctx, http.MethodPost, path, map[string]any{"id": item.SourceID}); err != nil {
+	// 网站备份接口是同步的，站点稍大就会超过默认超时
+	if _, err = a.callTimeout(ctx, http.MethodPost, path, map[string]any{"id": item.SourceID}, 30*time.Minute); err != nil {
 		return "", err
 	}
 

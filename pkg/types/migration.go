@@ -65,7 +65,7 @@ type MigrationItem struct {
 	// 以下字段仅服务端内部使用
 	SourceID    string `json:"-"` // 来源主键
 	SourcePath  string `json:"-"` // 来源目录
-	SourceGroup string `json:"-"` // 来源分组：项目模块名 / 数据库服务名
+	SourceGroup string `json:"-"` // 来源分组：项目或网站所属的模块名 / 数据库服务名
 	Version     string `json:"-"` // 运行时版本
 }
 
