@@ -28,7 +28,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.6.3
 	github.com/hashicorp/go-version v1.9.0
-	github.com/klauspost/compress v1.20.4
+	github.com/klauspost/compress v1.20.5
 	github.com/leonelquinteros/gotext v1.8.0
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7
