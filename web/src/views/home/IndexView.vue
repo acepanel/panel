@@ -499,7 +499,7 @@ if (import.meta.hot) {
               responsive="screen"
               :x-gap="12"
               :y-gap="12"
-              pb-10
+              pb-2
             >
               <n-gi v-for="item in countItems" :key="item.route">
                 <router-link
