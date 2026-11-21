@@ -591,7 +591,7 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:102
 #: src/views/apps/stalwart/QueueView.vue:91
 #: src/views/backup/ListView.vue:68
-#: src/views/container/ImageView.vue:55
+#: src/views/container/ImageView.vue:64
 #: src/views/database/ElasticsearchDataView.vue:115
 #: src/views/database/RedisDataView.vue:130
 #: src/views/file/ListView.vue:1096
@@ -1643,8 +1643,8 @@ msgstr ""
 #: src/views/container/ComposeView.vue:201
 #: src/views/container/ComposeView.vue:271
 #: src/views/container/ContainerView.vue:284
-#: src/views/container/ImageView.vue:88
-#: src/views/container/ImageView.vue:189
+#: src/views/container/ImageView.vue:103
+#: src/views/container/ImageView.vue:250
 #: src/views/container/NetworkView.vue:131
 #: src/views/container/NetworkView.vue:199
 #: src/views/container/VolumeView.vue:84
@@ -1730,7 +1730,7 @@ msgstr ""
 #: src/views/backup/ListView.vue:199
 #: src/views/backup/ListView.vue:210
 #: src/views/backup/StorageView.vue:104
-#: src/views/container/ImageView.vue:116
+#: src/views/container/ImageView.vue:132
 #: src/views/container/NetworkView.vue:166
 #: src/views/container/VolumeView.vue:112
 #: src/views/database/DatabaseList.vue:112
@@ -2273,7 +2273,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:104
 #: src/views/container/ContainerView.vue:107
 #: src/views/container/ContainerView.vue:383
-#: src/views/container/ImageView.vue:71
+#: src/views/container/ImageView.vue:80
 #: src/views/container/NetworkView.vue:113
 #: src/views/container/VolumeView.vue:67
 #: src/views/database/DatabaseList.vue:75
@@ -3398,7 +3398,9 @@ msgstr ""
 #: src/views/container/ComposeView.vue:326
 #: src/views/container/ContainerView.vue:432
 #: src/views/container/ImagePullModal.vue:86
-#: src/views/container/ImageView.vue:269
+#: src/views/container/ImageView.vue:330
+#: src/views/container/ImageView.vue:352
+#: src/views/container/ImageView.vue:369
 #: src/views/container/NetworkView.vue:304
 #: src/views/container/VolumeView.vue:196
 #: src/views/database/CreateDatabaseModal.vue:159
@@ -3523,7 +3525,7 @@ msgstr ""
 
 #: src/views/apps/frp/FrpcConfigTuneView.vue:68
 #: src/views/apps/frp/FrpsConfigTuneView.vue:80
-#: src/views/container/ImageView.vue:235
+#: src/views/container/ImageView.vue:296
 msgid "Authentication"
 msgstr ""
 
@@ -4421,7 +4423,7 @@ msgstr ""
 #: src/views/backup/StorageModal.vue:34
 #: src/views/backup/StorageModal.vue:275
 #: src/views/backup/StorageModal.vue:304
-#: src/views/container/ImageView.vue:252
+#: src/views/container/ImageView.vue:313
 #: src/views/database/CreateDatabaseModal.vue:119
 #: src/views/database/CreateUserModal.vue:114
 #: src/views/database/ServerList.vue:84
@@ -4869,7 +4871,8 @@ msgstr ""
 #: src/views/apps/prometheus/PrometheusExportersView.vue:152
 #: src/views/apps/redis/RedisPerformanceView.vue:117
 #: src/views/container/ContainerCreate.vue:226
-#: src/views/container/ImageView.vue:147
+#: src/views/container/ImageView.vue:160
+#: src/views/container/ImageView.vue:207
 #: src/views/environment/PHPView.vue:240
 #: src/views/environment/PHPView.vue:245
 #: src/views/environment/PHPView.vue:264
@@ -6091,7 +6094,7 @@ msgstr ""
 #: src/views/apps/stalwart/SettingView.vue:239
 #: src/views/backup/StorageModal.vue:269
 #: src/views/backup/StorageModal.vue:301
-#: src/views/container/ImageView.vue:244
+#: src/views/container/ImageView.vue:305
 #: src/views/database/CreateDatabaseModal.vue:111
 #: src/views/database/CreateUserModal.vue:106
 #: src/views/database/ServerList.vue:75
@@ -6144,7 +6147,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:193
 #: src/views/backup/StorageModal.vue:270
 #: src/views/backup/StorageModal.vue:302
-#: src/views/container/ImageView.vue:249
+#: src/views/container/ImageView.vue:310
 #: src/views/database/CreateDatabaseModal.vue:116
 #: src/views/database/CreateUserModal.vue:111
 msgid "Enter username"
@@ -7438,7 +7441,7 @@ msgstr ""
 
 #: src/views/backup/StorageModal.vue:280
 #: src/views/backup/StorageModal.vue:309
-#: src/views/container/ImageView.vue:258
+#: src/views/container/ImageView.vue:319
 #: src/views/database/CreateDatabaseModal.vue:126
 #: src/views/database/CreateUserModal.vue:121
 #: src/views/database/UpdateUserModal.vue:60
@@ -7867,6 +7870,8 @@ msgstr ""
 
 #: src/views/cert/UploadFields.vue:85
 #: src/views/cert/UploadFields.vue:97
+#: src/views/container/ImageView.vue:347
+#: src/views/container/ImageView.vue:364
 #: src/views/database/ServerModal.vue:143
 msgid "Select"
 msgstr ""
@@ -7884,7 +7889,7 @@ msgid "Pull completed"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:95
-#: src/views/container/ImageView.vue:62
+#: src/views/container/ImageView.vue:71
 #: src/views/container/NetworkView.vue:104
 #: src/views/container/VolumeView.vue:58
 #: src/views/setting/PasskeyModal.vue:34
@@ -7920,7 +7925,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:198
 #: src/views/container/ComposeView.vue:254
 #: src/views/container/ContainerView.vue:286
-#: src/views/container/ImageView.vue:101
+#: src/views/container/ImageView.vue:117
 #: src/views/container/NetworkView.vue:144
 #: src/views/container/VolumeView.vue:97
 msgid "Delete successful"
@@ -7965,7 +7970,7 @@ msgid "Read-Only"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:256
-#: src/views/container/ImageView.vue:137
+#: src/views/container/ImageView.vue:197
 msgid "Please enter image name"
 msgstr ""
 
@@ -8002,7 +8007,8 @@ msgstr ""
 #: src/views/container/ContainerCreate.vue:467
 #: src/views/container/ContainerInfoModal.vue:107
 #: src/views/container/ContainerView.vue:63
-#: src/views/container/ImageView.vue:45
+#: src/views/container/ImageView.vue:54
+#: src/views/container/ImageView.vue:336
 msgid "Image"
 msgstr ""
 
@@ -8451,7 +8457,7 @@ msgid "Resume successful"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:309
-#: src/views/container/ImageView.vue:107
+#: src/views/container/ImageView.vue:123
 #: src/views/container/NetworkView.vue:150
 #: src/views/container/VolumeView.vue:103
 msgid "Cleanup successful"
@@ -8478,28 +8484,28 @@ msgid "Enter new name"
 msgstr ""
 
 #: src/views/container/ImagePullModal.vue:59
-#: src/views/container/ImageView.vue:178
-#: src/views/container/ImageView.vue:210
+#: src/views/container/ImageView.vue:238
+#: src/views/container/ImageView.vue:271
 msgid "Pull Image"
 msgstr ""
 
 #: src/views/container/ImagePullModal.vue:75
-#: src/views/container/ImageView.vue:227
+#: src/views/container/ImageView.vue:288
 msgid "Image Name"
 msgstr ""
 
 #: src/views/container/ImagePullModal.vue:78
-#: src/views/container/ImageView.vue:238
+#: src/views/container/ImageView.vue:299
 msgid "Execution Mode"
 msgstr ""
 
 #: src/views/container/ImagePullModal.vue:80
-#: src/views/container/ImageView.vue:240
+#: src/views/container/ImageView.vue:301
 msgid "Foreground"
 msgstr ""
 
 #: src/views/container/ImagePullModal.vue:81
-#: src/views/container/ImageView.vue:241
+#: src/views/container/ImageView.vue:302
 msgid "Background"
 msgstr ""
 
@@ -8513,11 +8519,16 @@ msgstr ""
 msgid "Retry"
 msgstr ""
 
-#: src/views/container/ImageView.vue:38
+#: src/views/container/ImageView.vue:47
 msgid "Container Count"
 msgstr ""
 
-#: src/views/container/ImageView.vue:83
+#: src/views/container/ImageView.vue:89
+#: src/views/firewall/RuleView.vue:418
+msgid "Export"
+msgstr ""
+
+#: src/views/container/ImageView.vue:98
 #: src/views/container/NetworkView.vue:126
 #: src/views/container/VolumeView.vue:79
 #: src/views/firewall/ForwardView.vue:95
@@ -8527,20 +8538,49 @@ msgstr ""
 msgid "Are you sure you want to delete?"
 msgstr ""
 
-#: src/views/container/ImageView.vue:123
+#: src/views/container/ImageView.vue:144
+msgid "Exporting to %{ path }, please check progress in background tasks"
+msgstr ""
+
+#: src/views/container/ImageView.vue:155
+msgid "Please select the image archive"
+msgstr ""
+
+#: src/views/container/ImageView.vue:183
 msgid "Pull successful"
 msgstr ""
 
-#: src/views/container/ImageView.vue:180
+#: src/views/container/ImageView.vue:239
+#: src/views/container/ImageView.vue:354
+msgid "Import Image"
+msgstr ""
+
+#: src/views/container/ImageView.vue:241
 msgid "Cleanup Images"
 msgstr ""
 
-#: src/views/container/ImageView.vue:184
+#: src/views/container/ImageView.vue:245
 msgid "Are you sure you want to delete the selected images?"
 msgstr ""
 
-#: src/views/container/ImageView.vue:232
+#: src/views/container/ImageView.vue:293
 msgid "docker.io/php:8.3-fpm"
+msgstr ""
+
+#: src/views/container/ImageView.vue:334
+msgid "Export Image"
+msgstr ""
+
+#: src/views/container/ImageView.vue:339
+msgid "Save Directory"
+msgstr ""
+
+#: src/views/container/ImageView.vue:343
+msgid "Leave empty to use the backup directory"
+msgstr ""
+
+#: src/views/container/ImageView.vue:356
+msgid "Image Archive"
 msgstr ""
 
 #: src/views/container/IndexView.vue:22
@@ -10345,10 +10385,6 @@ msgstr ""
 
 #: src/views/firewall/RuleView.vue:404
 msgid "Select Unused Port Rules"
-msgstr ""
-
-#: src/views/firewall/RuleView.vue:418
-msgid "Export"
 msgstr ""
 
 #: src/views/firewall/RuleView.vue:428
