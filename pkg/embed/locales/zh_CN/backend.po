@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-18 22:26\n"
+"PO-Revision-Date: 2026-11-21 16:02\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -204,7 +204,7 @@ msgstr "分配器碎片率"
 msgid "Allow or remove a port rule"
 msgstr "放行或移除端口规则"
 
-#: internal/service/cli_panel.go:204
+#: internal/service/cli_panel.go:205
 msgid "Already initialized"
 msgstr "已经初始化过了"
 
@@ -970,7 +970,7 @@ msgstr "环境"
 
 #: internal/biz/backup.go:158
 #: internal/job/cert_renew.go:193
-#: internal/taskqueue/runner.go:188
+#: internal/taskqueue/runner.go:190
 msgid "Error"
 msgstr "错误"
 
@@ -1014,6 +1014,10 @@ msgstr "过期小时数"
 msgid "Expire Time"
 msgstr "过期时间"
 
+#: internal/biz/container_image.go:109
+msgid "Export image to %s"
+msgstr "导出镜像到 %s"
+
 #: internal/data/backup_panel.go:335
 msgid "Extracting new version..."
 msgstr "正在提取新版本……"
@@ -1043,7 +1047,7 @@ msgstr "清理临时目录失败：%v"
 msgid "Failed to clear passkeys: %v"
 msgstr "清除通行密钥失败：%v"
 
-#: internal/service/cli_panel.go:194
+#: internal/service/cli_panel.go:195
 msgid "Failed to clear tasks: %v"
 msgstr "清除任务失败：%v"
 
@@ -1456,6 +1460,10 @@ msgstr "镜像"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
+#: internal/biz/container_image.go:126
+msgid "Import image from %s"
+msgstr "从 %s 导入镜像"
+
 #: internal/apps/postgresql/app.go:865
 msgid "Incremental view maintenance for materialized views"
 msgstr "物化视图的增量维护"
@@ -1468,9 +1476,9 @@ msgstr "索引"
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
-#: internal/service/cli_panel.go:252
-#: internal/service/cli_panel.go:257
-#: internal/service/cli_panel.go:301
+#: internal/service/cli_panel.go:253
+#: internal/service/cli_panel.go:258
+#: internal/service/cli_panel.go:302
 msgid "Initialization failed: %v"
 msgstr "初始化失败：%v"
 
@@ -1688,7 +1696,7 @@ msgid "Locale"
 msgstr "语言"
 
 #: internal/service/cli_cron.go:88
-#: internal/taskqueue/runner.go:187
+#: internal/taskqueue/runner.go:189
 msgid "Log"
 msgstr "日志"
 
@@ -2355,7 +2363,7 @@ msgstr "公网 IPv4： %s://%s:%d%s"
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr "公网 IPv6： %s://[%s]:%d%s"
 
-#: internal/biz/container_image.go:83
+#: internal/biz/container_image.go:87
 msgid "Pull image %s"
 msgstr "拉取镜像 %s"
 
@@ -2872,11 +2880,11 @@ msgid "Targets"
 msgstr "目标"
 
 #: internal/service/cli_cron.go:85
-#: internal/taskqueue/runner.go:186
+#: internal/taskqueue/runner.go:188
 msgid "Task"
 msgstr "任务"
 
-#: internal/service/cli_panel.go:197
+#: internal/service/cli_panel.go:198
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
@@ -2921,7 +2929,7 @@ msgstr "阈值"
 #: internal/service/user.go:191
 #: internal/service/user.go:418
 #: internal/service/user_passkey.go:323
-#: internal/taskqueue/runner.go:189
+#: internal/taskqueue/runner.go:191
 msgid "Time"
 msgstr "时间"
 
@@ -2949,7 +2957,7 @@ msgstr "切换用户的两步验证"
 msgid "Token"
 msgstr "令牌"
 
-#: internal/data/toolbox_migration_baota.go:222
+#: internal/data/toolbox_migration_baota.go:247
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr "不支持自动迁移 Tomcat 项目"
 
@@ -3392,7 +3400,7 @@ msgstr "[%s] 开始迁移"
 msgid "[AcePanel] Alert: %s"
 msgstr "[AcePanel] 告警：%s"
 
-#: internal/taskqueue/runner.go:185
+#: internal/taskqueue/runner.go:187
 msgid "[AcePanel] Background Task Failed"
 msgstr "[AcePanel] 后台任务失败"
 
@@ -3708,19 +3716,19 @@ msgstr "应用已卸载"
 msgid "app updated"
 msgstr "应用已更新"
 
-#: internal/job/firewall_scan.go:349
+#: internal/job/firewall_scan.go:351
 msgid "auto blocked IP"
 msgstr "已自动屏蔽 IP"
 
-#: internal/job/firewall_scan.go:135
+#: internal/job/firewall_scan.go:136
 msgid "auto unblocked IP (expired)"
 msgstr "已自动解除屏蔽 IP（已过期）"
 
-#: internal/taskqueue/runner.go:180
+#: internal/taskqueue/runner.go:182
 msgid "background task did not finish"
 msgstr "后台任务未能完成"
 
-#: internal/taskqueue/runner.go:185
+#: internal/taskqueue/runner.go:187
 msgid "background task failed"
 msgstr "后台任务执行失败"
 
@@ -4059,7 +4067,7 @@ msgstr "容器已强制停止"
 msgid "container list viewed"
 msgstr "已查看容器列表"
 
-#: internal/service/file.go:1047
+#: internal/service/file.go:1049
 msgid "container log viewed"
 msgstr "已查看容器日志"
 
@@ -4334,7 +4342,7 @@ msgstr "eBPF 扫描检测器已挂载"
 msgid "eBPF scan detector detached"
 msgstr "eBPF 扫描检测器已卸载"
 
-#: internal/job/firewall_scan.go:151
+#: internal/job/firewall_scan.go:152
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr "当前内核不支持 eBPF 扫描检测器（TCX 挂载需要 6.6+）"
 
@@ -4475,7 +4483,7 @@ msgstr "应用 PostgreSQL 配置失败：%v"
 msgid "failed to attach scan detector, skip interface"
 msgstr "挂载扫描检测器失败，跳过该网络接口"
 
-#: internal/job/firewall_scan.go:341
+#: internal/job/firewall_scan.go:343
 msgid "failed to auto block IP"
 msgstr "自动屏蔽 IP 失败"
 
@@ -4516,7 +4524,7 @@ msgstr "清除过期文件分享失败"
 msgid "failed to clear expired ip stats"
 msgstr "清除过期 IP 统计失败"
 
-#: internal/job/firewall_scan.go:368
+#: internal/job/firewall_scan.go:370
 msgid "failed to clear expired scan data"
 msgstr "清除过期扫描数据失败"
 
@@ -4837,8 +4845,8 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
-#: internal/job/firewall_scan.go:114
-#: internal/job/firewall_scan.go:272
+#: internal/job/firewall_scan.go:115
+#: internal/job/firewall_scan.go:273
 msgid "failed to get firewall status"
 msgstr "获取防火墙状态失败"
 
@@ -4906,7 +4914,7 @@ msgstr "获取 prometheus 状态失败：%v"
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
-#: internal/job/firewall_scan.go:85
+#: internal/job/firewall_scan.go:86
 msgid "failed to get scan setting"
 msgstr "获取扫描设置失败"
 
@@ -4945,6 +4953,10 @@ msgstr "获取应用 %s 的卸载脚本失败"
 #: internal/job/website_stat.go:203
 msgid "failed to insert website error logs"
 msgstr "写入网站错误日志失败"
+
+#: internal/job/firewall_scan.go:316
+msgid "failed to list firewall rules"
+msgstr "列出防火墙规则失败"
 
 #: internal/apps/nginx/stream.go:70
 msgid "failed to list stream servers: %v"
@@ -5104,8 +5116,7 @@ msgstr "读取项目详情失败：%v"
 msgid "failed to read ring buffer"
 msgstr "读取环形缓冲区失败"
 
-#: internal/job/firewall_scan.go:105
-#: internal/job/firewall_scan.go:314
+#: internal/job/firewall_scan.go:106
 msgid "failed to read scan blocks"
 msgstr "读取扫描屏蔽记录失败"
 
@@ -5258,7 +5269,7 @@ msgstr "跑分失败：%v"
 msgid "failed to run command: %v"
 msgstr "运行命令失败： %v"
 
-#: internal/taskqueue/runner.go:212
+#: internal/taskqueue/runner.go:234
 msgid "failed to run task cancel shell"
 msgstr "执行任务取消命令失败"
 
@@ -5274,8 +5285,8 @@ msgstr "保存 MongoDB 管理员密码失败：%v"
 msgid "failed to save alert record"
 msgstr "保存告警记录失败"
 
-#: internal/job/firewall_scan.go:131
-#: internal/job/firewall_scan.go:337
+#: internal/job/firewall_scan.go:132
+#: internal/job/firewall_scan.go:339
 msgid "failed to save scan blocks"
 msgstr "保存扫描屏蔽记录失败"
 
@@ -5333,7 +5344,7 @@ msgstr "启动 %s 服务失败： %v"
 msgid "failed to start container terminal: %v"
 msgstr "启动容器终端失败：%v"
 
-#: internal/job/firewall_scan.go:159
+#: internal/job/firewall_scan.go:160
 msgid "failed to start eBPF scan detector"
 msgstr "启动 eBPF 扫描检测器失败"
 
@@ -5361,7 +5372,7 @@ msgstr "同步服务器到 pgAdmin 失败：%v"
 msgid "failed to umount partition: %v"
 msgstr "卸载分区失败：%v"
 
-#: internal/job/firewall_scan.go:127
+#: internal/job/firewall_scan.go:128
 msgid "failed to unblock IP"
 msgstr "解除屏蔽 IP 失败"
 
@@ -5432,7 +5443,7 @@ msgstr "更新 root 密码失败：%v"
 msgid "failed to update task status to running"
 msgstr "将任务状态更新为运行中失败"
 
-#: internal/taskqueue/runner.go:196
+#: internal/taskqueue/runner.go:198
 msgid "failed to update task status to success"
 msgstr "将任务状态更新为已完成失败"
 
@@ -5448,7 +5459,7 @@ msgstr "写入客户端统计失败"
 msgid "failed to upsert ip stats"
 msgstr "写入 IP 统计失败"
 
-#: internal/job/firewall_scan.go:254
+#: internal/job/firewall_scan.go:255
 msgid "failed to upsert scan events"
 msgstr "写入扫描事件失败"
 
@@ -5790,9 +5801,17 @@ msgstr "已查看 hosts 文件"
 msgid "if the site connects to a database, change the host in its config from the 1Panel container name to localhost"
 msgstr "如果网站连接数据库，请在其配置中将主机地址从 1Panel 容器名称改为 localhost"
 
-#: internal/biz/container_image.go:101
+#: internal/biz/container_image.go:143
 msgid "image deleted"
 msgstr "镜像已删除"
+
+#: internal/biz/container_image.go:118
+msgid "image exported"
+msgstr "镜像已导出"
+
+#: internal/biz/container_image.go:134
+msgid "image imported"
+msgstr "镜像已导入"
 
 #: internal/service/container_image.go:41
 msgid "image list viewed"
@@ -5802,13 +5821,13 @@ msgstr "已查看镜像列表"
 msgid "image pull error"
 msgstr "镜像拉取错误"
 
-#: internal/biz/container_image.go:64
-#: internal/biz/container_image.go:92
+#: internal/biz/container_image.go:68
+#: internal/biz/container_image.go:96
 #: internal/service/ws.go:438
 msgid "image pulled"
 msgstr "镜像已拉取"
 
-#: internal/service/container_image.go:109
+#: internal/service/container_image.go:140
 msgid "images pruned"
 msgstr "镜像已清理"
 
@@ -6847,9 +6866,9 @@ msgid "renewing certificate, domains: %s"
 msgstr "续签证书，域名：%s"
 
 #: internal/biz/toolbox_migration.go:463
-#: internal/data/toolbox_migration_baota.go:521
-#: internal/data/toolbox_migration_baota.go:547
-#: internal/data/toolbox_migration_baota.go:563
+#: internal/data/toolbox_migration_baota.go:591
+#: internal/data/toolbox_migration_baota.go:617
+#: internal/data/toolbox_migration_baota.go:633
 #: internal/data/toolbox_migration_onepanel.go:436
 #: internal/data/toolbox_migration_onepanel.go:457
 msgid "resource no longer exists on the source server"
@@ -6935,7 +6954,7 @@ msgstr "已查看 S3fs 挂载列表"
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
-#: internal/biz/scan_event.go:289
+#: internal/biz/scan_event.go:283
 msgid "scan aware setting updated"
 msgstr "扫描感知设置已更新"
 
@@ -6943,7 +6962,7 @@ msgstr "扫描感知设置已更新"
 msgid "scan event list viewed"
 msgstr "已查看扫描事件列表"
 
-#: internal/biz/scan_event.go:170
+#: internal/biz/scan_event.go:168
 msgid "scan events cleared"
 msgstr "扫描事件已清除"
 
@@ -6988,7 +7007,7 @@ msgstr "服务已启用"
 msgid "service log cleared"
 msgstr "服务日志已清除"
 
-#: internal/service/file.go:984
+#: internal/service/file.go:986
 msgid "service log viewed"
 msgstr "已查看服务日志"
 
@@ -7038,7 +7057,7 @@ msgstr "签名已过期"
 msgid "skip unavailable optional LSM hook"
 msgstr "跳过不可用的可选 LSM 钩子"
 
-#: internal/job/firewall_scan.go:303
+#: internal/job/firewall_scan.go:304
 msgid "skip whitelisted IP"
 msgstr "跳过白名单 IP"
 
@@ -7416,8 +7435,8 @@ msgstr "源 PostgreSQL 主版本高于目标版本"
 msgid "the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually"
 msgstr "未迁移源 Python 虚拟环境；请创建环境、安装依赖并手动启动项目"
 
-#: internal/data/toolbox_migration_baota.go:761
-#: internal/data/toolbox_migration_baota.go:845
+#: internal/data/toolbox_migration_baota.go:842
+#: internal/data/toolbox_migration_baota.go:926
 #: internal/data/toolbox_migration_onepanel.go:549
 msgid "the source backup did not finish in time"
 msgstr "源备份未能及时完成"
@@ -7426,12 +7445,12 @@ msgstr "源备份未能及时完成"
 msgid "the source is MariaDB and the target is MySQL"
 msgstr "源端为 MariaDB，目标端为 MySQL"
 
-#: internal/data/toolbox_migration_baota.go:790
+#: internal/data/toolbox_migration_baota.go:871
 msgid "the source path is empty"
 msgstr "源路径为空"
 
 #: internal/biz/toolbox_migration_import.go:324
-#: internal/data/toolbox_migration_baota.go:580
+#: internal/data/toolbox_migration_baota.go:650
 msgid "the source project start command is missing"
 msgstr "源项目缺少启动命令"
 
@@ -7439,7 +7458,7 @@ msgstr "源项目缺少启动命令"
 msgid "the source reverse proxy target could not be determined"
 msgstr "无法确定源反向代理目标"
 
-#: internal/data/toolbox_migration_baota.go:835
+#: internal/data/toolbox_migration_baota.go:916
 #: internal/data/toolbox_migration_onepanel.go:538
 msgid "the source task failed"
 msgstr "源任务执行失败"
@@ -7577,8 +7596,8 @@ msgstr "不支持的文件系统类型：%s"
 
 #: internal/biz/toolbox_migration.go:432
 #: internal/biz/toolbox_migration_push.go:122
-#: internal/data/toolbox_migration_baota.go:263
-#: internal/data/toolbox_migration_baota.go:728
+#: internal/data/toolbox_migration_baota.go:292
+#: internal/data/toolbox_migration_baota.go:808
 #: internal/data/toolbox_migration_onepanel.go:251
 #: internal/data/toolbox_migration_onepanel.go:497
 msgid "unsupported migration resource type: %s"
