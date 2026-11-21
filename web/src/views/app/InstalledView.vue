@@ -44,7 +44,9 @@ const { loading: envLoading, data: envData } = useRequest(
   { initialData: [] },
 )
 
-const handleBulkUpdate = async () => {
+const selectedCount = computed(() => selectedApps.value.length + selectedEnvs.value.length)
+
+const bulkUpdate = async () => {
   const ok = await confirmAction({
     type: 'warning',
     title: $gettext('Confirm Update'),
@@ -69,19 +71,12 @@ const handleBulkUpdate = async () => {
     )
   }
 }
+
+defineExpose({ selectedCount, bulkUpdate })
 </script>
 
 <template>
   <n-flex vertical :size="24">
-    <n-flex>
-      <app-button
-        type="warning"
-        :disabled="selectedApps.length + selectedEnvs.length === 0"
-        @click="handleBulkUpdate"
-      >
-        {{ $gettext('Update') }}
-      </app-button>
-    </n-flex>
     <!-- 已安装应用 -->
     <n-flex vertical>
       <n-h3 prefix="bar">{{ $gettext('Native App') }}</n-h3>

@@ -16,6 +16,7 @@ const { $gettext } = useGettext()
 const tabStore = useTabStore()
 
 const currentTab = ref('installed')
+const installedRef = ref<InstanceType<typeof InstalledView>>()
 
 const handleUpdateCache = async () => {
   await app.updateCache()
@@ -33,13 +34,23 @@ const handleUpdateCache = async () => {
         <n-tab name="environment" :tab="$gettext('Operating Environment')" />
         <n-tab name="template" :tab="$gettext('Container Template')" />
         <template #suffix>
-          <app-button type="primary" @click="handleUpdateCache">
-            {{ $gettext('Update Cache') }}
-          </app-button>
+          <n-flex :wrap="false">
+            <app-button
+              v-if="currentTab === 'installed'"
+              type="warning"
+              :disabled="!installedRef?.selectedCount"
+              @click="installedRef?.bulkUpdate()"
+            >
+              {{ $gettext('Update') }}
+            </app-button>
+            <app-button type="primary" @click="handleUpdateCache">
+              {{ $gettext('Update Cache') }}
+            </app-button>
+          </n-flex>
         </template>
       </n-tabs>
     </template>
-    <installed-view v-if="currentTab === 'installed'" />
+    <installed-view v-if="currentTab === 'installed'" ref="installedRef" />
     <app-view v-if="currentTab === 'app'" />
     <environment-view v-if="currentTab === 'environment'" />
     <template-view v-if="currentTab === 'template'" />
