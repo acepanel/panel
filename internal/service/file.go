@@ -929,9 +929,10 @@ func (s *FileService) setPermission(path string, mode stdos.FileMode, owner, gro
 
 // tailService 用 journalctl cursor 反向分页读取 systemd 服务日志
 func (s *FileService) tailService(ctx context.Context, w http.ResponseWriter, req *request.FileTail) {
-	cmd := fmt.Sprintf("journalctl --no-pager -o json -u %s -n %d", req.Service, req.Limit)
+	// journalctl 没有 --before-cursor，倒序时 --after-cursor 取的才是游标之前的条目
+	cmd := fmt.Sprintf("journalctl --no-pager -o json -u %s -r -n %d", req.Service, req.Limit)
 	if req.Cursor != "" {
-		cmd += fmt.Sprintf(" --before-cursor %q", req.Cursor)
+		cmd += fmt.Sprintf(" --after-cursor %q", req.Cursor)
 	}
 	out, err := shell.Exec(ctx, cmd)
 	if err != nil {
@@ -967,13 +968,14 @@ func (s *FileService) tailService(ctx context.Context, w http.ResponseWriter, re
 		}
 		entries = append(entries, e)
 	}
+	slices.Reverse(entries)
 
 	lines := make([]string, 0, len(entries))
 	for _, e := range entries {
 		lines = append(lines, s.formatJournalLine(e.Timestamp, e.Hostname, e.Ident, e.Comm, e.PID, e.Message))
 	}
 
-	// next_cursor 是本次结果中最早那条的 cursor，供下一页 --before-cursor 继续往前翻
+	// next_cursor 是本次结果中最早那条的 cursor，供下一页继续往前翻
 	nextCursor := ""
 	if len(entries) > 0 {
 		nextCursor = entries[0].Cursor
