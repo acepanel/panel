@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-11-21 16:02\n"
+"PO-Revision-Date: 2026-11-21 16:07\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:513
@@ -8553,7 +8553,7 @@ msgstr "正在匯出到 %{ path }，請在後台任務中查看進度"
 
 #: src/views/container/ImageView.vue:155
 msgid "Please select the image archive"
-msgstr "請選擇鏡像封存檔"
+msgstr "請選擇鏡像壓縮包"
 
 #: src/views/container/ImageView.vue:183
 msgid "Pull successful"
@@ -8590,7 +8590,7 @@ msgstr "留空則使用備份目錄"
 
 #: src/views/container/ImageView.vue:356
 msgid "Image Archive"
-msgstr "鏡像封存檔"
+msgstr "鏡像壓縮包"
 
 #: src/views/container/IndexView.vue:22
 msgid "Containers"
