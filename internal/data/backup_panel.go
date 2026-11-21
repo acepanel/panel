@@ -28,15 +28,27 @@ func (r *backupRepo) CreatePanel(ctx context.Context) error {
 
 	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s.tar.xz", time.Now().Format("20060102150405")))
 
-	// 备份前 checkpoint 主库
-	_ = r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error
+	// 主库随时在写，直接打包会读到写了一半的文件，打包的是导出的事务一致快照
+	stage, err := r.tmpDir()
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(stage)
+	snapshot := filepath.Join(stage, "panel/storage/panel.db")
+	if err = os.MkdirAll(filepath.Dir(snapshot), 0700); err != nil {
+		return err
+	}
+	if err = r.db.Exec("VACUUM INTO ?", snapshot).Error; err != nil {
+		return err
+	}
+	if err = io.Chmod(snapshot, 0600); err != nil {
+		return err
+	}
 
-	// 只备份恢复面板运行所必需的核心文件；checkpoint 后 -wal 已并入 panel.db、
-	// -shm 为纯临时共享内存，均无需备份
+	// 只备份恢复面板运行所必需的核心文件
 	var files []string
 	for _, f := range []string{
 		"panel/ace",
-		"panel/storage/panel.db",
 		"panel/storage/config.yml",
 		"panel/storage/cert.pem",
 		"panel/storage/cert.key",
@@ -52,17 +64,17 @@ func (r *backupRepo) CreatePanel(ctx context.Context) error {
 	tmp := backup + ".partial"
 	defer func() { _ = os.Remove(tmp) }()
 
-	// 两个 -C 把 panel 内的核心文件与 panel 外的 cli 二进制收进同一个包
-	if _, err := shell.Execf(
-		ctx, "tar -cJf '%s' -C '%s' %s -C /usr/local/sbin acepanel",
-		tmp, app.Root, strings.Join(files, " "),
+	// 三个 -C 把 panel 内的核心文件、主库快照与 panel 外的 cli 二进制收进同一个包
+	if _, err = shell.Execf(
+		ctx, "tar -cJf '%s' -C '%s' %s -C '%s' panel/storage/panel.db -C /usr/local/sbin acepanel",
+		tmp, app.Root, strings.Join(files, " "), stage,
 	); err != nil {
 		return err
 	}
-	if err := io.Chmod(tmp, 0600); err != nil {
+	if err = io.Chmod(tmp, 0600); err != nil {
 		return err
 	}
-	if err := os.Rename(tmp, backup); err != nil {
+	if err = os.Rename(tmp, backup); err != nil {
 		return err
 	}
 

@@ -8,7 +8,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/tools"
 )
@@ -64,11 +63,6 @@ func (r *Monitoring) Run(_ context.Context) error {
 	info.Disk = nil
 	info.Cpus = nil
 
-	// 采样期间每日任务可能已进入维护并开始整理数据库
-	if app.Status.Load() != app.StatusNormal {
-		return nil
-	}
-
 	if err = r.monitorRepo.Create(&biz.Monitor{Info: info}); err != nil {
 		r.log.Warn(r.t.Get("failed to create monitor record"), slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
@@ -85,7 +79,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil //nolint:nilerr
 	}
 	day := cast.ToInt(dayStr)
-	if day <= 0 || app.Status.Load() != app.StatusNormal {
+	if day <= 0 {
 		return nil
 	}
 	if err = r.monitorRepo.ClearBefore(time.Now().AddDate(0, 0, -day)); err != nil {

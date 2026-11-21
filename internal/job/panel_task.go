@@ -50,8 +50,6 @@ func NewPanelTask(
 ) Job {
 	return Job{
 		Spec: "0 2 * * *",
-		// 维护状态由本任务自己进出
-		AnyStatus: true,
 		Task: &PanelTask{
 			db:          db,
 			log:         log,
@@ -69,7 +67,8 @@ func NewPanelTask(
 }
 
 func (r *PanelTask) Run(ctx context.Context) error {
-	r.maintain(ctx)
+	r.vacuum()
+	r.backup(ctx)
 
 	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
 		r.updateIPDB(ctx)
@@ -85,24 +84,19 @@ func (r *PanelTask) Run(ctx context.Context) error {
 	return nil
 }
 
-// maintain 在维护状态下整理数据库并备份面板
-func (r *PanelTask) maintain(ctx context.Context) {
+// vacuum 整理主数据库和辅助数据库，期间读写对应库的请求排队等待
+func (r *PanelTask) vacuum() {
 	// healthKeyPanelDB 面板主数据库健康问题上报 key
 	const healthKeyPanelDB = "database:panel"
 
-	// 升级中不进维护，否则收尾时会把升级状态冲回正常
-	if !app.Status.CompareAndSwap(app.StatusNormal, app.StatusMaintain) {
-		return
-	}
-	// 中途 panic 也要恢复，否则面板会一直停在维护状态
-	defer app.Status.Store(app.StatusNormal)
-
-	// 优化主数据库，失败只上报，磁盘满时用户还要进面板清理
-	checkpointErr := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error
+	// 主数据库整理失败只上报，磁盘满时用户还要进面板清理
+	checkpointErr := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error
+	vacuumErr := r.db.Exec("VACUUM").Error
+	// VACUUM 的结果先落在 WAL 里，再 checkpoint 一次才写回主库文件并截断 WAL
+	checkpointErr = errors.Join(checkpointErr, r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error)
 	if checkpointErr != nil {
 		r.log.Warn(r.t.Get("failed to wal checkpoint database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", checkpointErr))
 	}
-	vacuumErr := r.db.Exec("VACUUM").Error
 	if vacuumErr != nil {
 		r.log.Warn(r.t.Get("failed to vacuum database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", vacuumErr))
 	}
@@ -111,7 +105,7 @@ func (r *PanelTask) maintain(ctx context.Context) {
 	} else {
 		app.Health.Clear(healthKeyPanelDB)
 	}
-	// 优化辅助数据库
+
 	if err := r.scanRepo.VacuumDB(); err != nil {
 		r.log.Warn(r.t.Get("failed to vacuum scan event database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
@@ -124,13 +118,13 @@ func (r *PanelTask) maintain(ctx context.Context) {
 	if err := r.monitorRepo.VacuumDB(); err != nil {
 		r.log.Warn(r.t.Get("failed to vacuum monitor database"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
+}
 
-	// 备份面板
+// backup 备份面板并清理过期备份
+func (r *PanelTask) backup(ctx context.Context) {
 	if err := r.backupRepo.CreatePanel(ctx); err != nil {
 		r.log.Warn(r.t.Get("failed to backup panel"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
-
-	// 清理备份
 	if err := r.backupRepo.ClearExpired(r.backupRepo.GetDefaultPath(biz.BackupTypePanel), "panel_", 10); err != nil {
 		r.log.Warn(r.t.Get("failed to clear backup"), slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}

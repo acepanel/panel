@@ -24,11 +24,7 @@ func NewCron(log *slog.Logger, jobs []job.Job) (*cron.Cron, error) {
 	}
 
 	for _, j := range jobs {
-		task := j.Task
-		if !j.AnyStatus {
-			task = normalOnly(task)
-		}
-		id, err := c.Add(j.Spec, task)
+		id, err := c.Add(j.Spec, normalOnly(j.Task))
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +44,7 @@ func NewCron(log *slog.Logger, jobs []job.Job) (*cron.Cron, error) {
 	return c, nil
 }
 
-// normalOnly 面板处于维护或升级状态时跳过任务
+// normalOnly 面板升级期间跳过任务
 func normalOnly(j cron.Job) cron.Job {
 	return cron.JobFunc(func(ctx context.Context) error {
 		if app.Status.Load() != app.StatusNormal {

@@ -17,7 +17,6 @@ type Job struct {
 	Spec      string   // cron 表达式
 	Task      cron.Job // 任务体
 	Immediate bool     // 调度器启动后立即执行一次,不等首个调度点
-	AnyStatus bool     // 面板处于维护或升级状态时照常执行
 }
 
 // Dependencies 汇总定时任务依赖，Wire 会在生成期校验完整性。

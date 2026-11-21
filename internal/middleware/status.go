@@ -12,16 +12,11 @@ import (
 func status(t *gotext.Locale) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch app.Status.Load() {
-			case app.StatusUpgrade:
+			if app.Status.Load() == app.StatusUpgrade {
 				abort(w, http.StatusServiceUnavailable, t.Get("panel is upgrading, please refresh later"))
 				return
-			case app.StatusMaintain:
-				abort(w, http.StatusServiceUnavailable, t.Get("panel is maintaining, please refresh later"))
-				return
-			default:
-				next.ServeHTTP(w, r)
 			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }

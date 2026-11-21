@@ -13,31 +13,26 @@ import (
 	"github.com/acepanel/panel/v3/internal/job"
 )
 
-func TestNewCronSkipsJobsUnlessNormal(t *testing.T) {
+func TestNewCronSkipsJobsWhileUpgrading(t *testing.T) {
 	t.Cleanup(func() { app.Status.Store(app.StatusNormal) })
 
-	ran := make(map[string]int)
-	record := func(name string) cron.Job {
-		return cron.JobFunc(func(context.Context) error {
-			ran[name]++
-			return nil
-		})
-	}
-
+	var ran int
 	c, err := NewCron(slog.New(slog.DiscardHandler), []job.Job{
-		{Spec: "0 0 1 1 *", Task: record("normal")},
-		{Spec: "0 0 1 1 *", Task: record("any"), AnyStatus: true},
+		{Spec: "0 0 1 1 *", Task: cron.JobFunc(func(context.Context) error {
+			ran++
+			return nil
+		})},
 	})
 	must.NoError(t, err)
 	must.NoError(t, c.Start())
 	t.Cleanup(func() { _ = c.Stop(context.Background()) })
 
-	for _, status := range []int32{app.StatusMaintain, app.StatusUpgrade, app.StatusNormal} {
+	for _, status := range []int32{app.StatusUpgrade, app.StatusNormal} {
 		app.Status.Store(status)
 		for entry := range c.Entries() {
 			must.NoError(t, c.TriggerAndWait(t.Context(), entry.ID))
 		}
 	}
 
-	check.DeepEqual(t, ran, map[string]int{"normal": 1, "any": 3})
+	check.Equal(t, ran, 1)
 }

@@ -11,7 +11,6 @@ var StartTime = time.Now()
 // 面板状态常量
 const (
 	StatusNormal int32 = iota
-	StatusMaintain
 	StatusUpgrade
 )
 
