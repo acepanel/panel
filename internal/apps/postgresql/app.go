@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
@@ -405,6 +406,12 @@ func (s *App) TerminateSession(w http.ResponseWriter, r *http.Request) {
 
 // TopSQL 获取 SQL 性能统计
 func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[TopSQLQuery](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
 	postgres, err := s.connect(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -412,13 +419,15 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(r.Context(), `
-		SELECT coalesce(d.datname,''), s.calls, round(s.total_exec_time)::bigint,
-		       round(s.mean_exec_time::numeric,2)::float8, s.rows,
-		       coalesce(round(100.0*s.shared_blks_hit/nullif(s.shared_blks_hit+s.shared_blks_read,0),1),0)::float8,
+	// 排序字段即列别名，queryid 让同值的行在翻页时顺序固定
+	rows, err := postgres.Query(r.Context(), fmt.Sprintf(`
+		SELECT coalesce(d.datname,''), s.calls AS calls, round(s.total_exec_time)::bigint AS total_ms,
+		       round(s.mean_exec_time::numeric,2)::float8 AS mean_ms, s.rows AS rows,
+		       coalesce(round(100.0*s.shared_blks_hit/nullif(s.shared_blks_hit+s.shared_blks_read,0),1),0)::float8 AS hit_rate,
 		       s.query
 		FROM pg_stat_statements s LEFT JOIN pg_database d ON d.oid = s.dbid
-		ORDER BY s.total_exec_time DESC LIMIT 50`)
+		ORDER BY %s %s, s.queryid LIMIT $1 OFFSET $2`, cmp.Or(req.Sort, "total_ms"), cmp.Or(req.Order, "desc")),
+		req.Limit, (req.Page-1)*req.Limit)
 	if err != nil {
 		// pg_stat_statements 未启用时返回状态而非报错
 		if strings.Contains(err.Error(), "shared_preload_libraries") {
@@ -448,9 +457,15 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"))
+	var total uint
+	if err = postgres.QueryRow(r.Context(), `SELECT count(*) FROM pg_stat_statements`).Scan(&total); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
-	service.Success(w, TopSQL{Enabled: true, Items: items})
+	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
+	service.Success(w, TopSQL{Enabled: true, Total: total, Items: items})
 }
 
 // EnableTopSQL 启用 pg_stat_statements
@@ -562,13 +577,25 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(r.Context(), `
+	// 排序表达式与列表展示的值一致，从未执行过的时间排在最早
+	orderBy := map[string]string{
+		"size":         "pg_total_relation_size(relid)",
+		"live_tuples":  "n_live_tup",
+		"dead_tuples":  "n_dead_tup",
+		"dead_rate":    "n_dead_tup::float8/greatest(n_live_tup+n_dead_tup,1)",
+		"last_vacuum":  "coalesce(last_vacuum,last_autovacuum,'-infinity')",
+		"last_analyze": "coalesce(last_analyze,last_autoanalyze,'-infinity')",
+	}
+	// relid 让同值的行在翻页时顺序固定
+	rows, err := postgres.Query(r.Context(), fmt.Sprintf(`
 		SELECT schemaname, relname, pg_size_pretty(pg_total_relation_size(relid)),
 		       pg_total_relation_size(relid), n_live_tup, n_dead_tup,
 		       coalesce(round(100.0*n_dead_tup/nullif(n_live_tup+n_dead_tup,0),1),0)::float8,
 		       coalesce(to_char(last_vacuum,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autovacuum,'YYYY-MM-DD HH24:MI'),''),
 		       coalesce(to_char(last_analyze,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autoanalyze,'YYYY-MM-DD HH24:MI'),'')
-		FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 50`)
+		FROM pg_stat_user_tables
+		ORDER BY %s %s, relid LIMIT $1 OFFSET $2`, orderBy[cmp.Or(req.Sort, "dead_tuples")], cmp.Or(req.Order, "desc")),
+		req.Limit, (req.Page-1)*req.Limit)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -590,10 +617,17 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("database", req.Database))
+	var total uint
+	if err = postgres.QueryRow(r.Context(), `SELECT count(*) FROM pg_stat_user_tables`).Scan(&total); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", "postgresql"), slog.String("database", req.Database), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
 	service.Success(w, Bloat{
 		RepackInstalled: io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control"),
+		Total:           total,
 		Items:           items,
 	})
 }

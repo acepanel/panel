@@ -1,5 +1,7 @@
 package mysql
 
+import "github.com/acepanel/panel/v3/internal/request"
+
 type SetRootPassword struct {
 	Password string `form:"password" json:"password" validate:"required && password"`
 }
@@ -40,7 +42,10 @@ type ConfigTune struct {
 
 // TableQuery 表维护列表查询请求
 type TableQuery struct {
+	request.Paginate
 	Database string `form:"database" json:"database"`
+	Sort     string `form:"sort" json:"sort" query:"sort" validate:"in:rows,size,fragment_rate"`
+	Order    string `form:"order" json:"order" query:"order" validate:"in:asc,desc"`
 }
 
 // MaintenanceTable 维护操作的目标表
@@ -97,6 +102,13 @@ type Transactions struct {
 	LockWaits    []LockWait    `json:"lock_waits"`
 }
 
+// TopSQLQuery Top SQL 查询请求
+type TopSQLQuery struct {
+	request.Paginate
+	Sort  string `form:"sort" json:"sort" query:"sort" validate:"in:calls,total_ms,mean_ms,rows_sent,rows_examined"`
+	Order string `form:"order" json:"order" query:"order" validate:"in:asc,desc"`
+}
+
 // TopSQLItem Top SQL 统计项
 type TopSQLItem struct {
 	Database     string  `json:"database"`
@@ -113,6 +125,7 @@ type TopSQL struct {
 	Supported      bool         `json:"supported"`
 	Enabled        bool         `json:"enabled"`
 	PendingRestart bool         `json:"pending_restart"`
+	Total          uint         `json:"total"`
 	Items          []TopSQLItem `json:"items"`
 }
 

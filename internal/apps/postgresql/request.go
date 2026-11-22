@@ -1,5 +1,7 @@
 package postgresql
 
+import "github.com/acepanel/panel/v3/internal/request"
+
 type SetPostgresPassword struct {
 	Password string `form:"password" json:"password" validate:"required && password"`
 }
@@ -40,6 +42,13 @@ type Session struct {
 	Query         string `json:"query"`
 }
 
+// TopSQLQuery Top SQL 查询请求
+type TopSQLQuery struct {
+	request.Paginate
+	Sort  string `form:"sort" json:"sort" query:"sort" validate:"in:calls,total_ms,mean_ms,rows,hit_rate"`
+	Order string `form:"order" json:"order" query:"order" validate:"in:asc,desc"`
+}
+
 // TopSQLItem Top SQL 统计项
 type TopSQLItem struct {
 	Database string  `json:"database"`
@@ -55,12 +64,16 @@ type TopSQLItem struct {
 type TopSQL struct {
 	Enabled        bool         `json:"enabled"`
 	PendingRestart bool         `json:"pending_restart"` // 已配置 preload，等待重启生效
+	Total          uint         `json:"total"`
 	Items          []TopSQLItem `json:"items"`
 }
 
 // BloatQuery 表膨胀查询请求
 type BloatQuery struct {
+	request.Paginate
 	Database string `form:"database" json:"database" validate:"required"`
+	Sort     string `form:"sort" json:"sort" query:"sort" validate:"in:size,live_tuples,dead_tuples,dead_rate,last_vacuum,last_analyze"`
+	Order    string `form:"order" json:"order" query:"order" validate:"in:asc,desc"`
 }
 
 // BloatItem 表膨胀信息
@@ -81,6 +94,7 @@ type BloatItem struct {
 // Bloat 表膨胀响应
 type Bloat struct {
 	RepackInstalled bool        `json:"repack_installed"`
+	Total           uint        `json:"total"`
 	Items           []BloatItem `json:"items"`
 }
 

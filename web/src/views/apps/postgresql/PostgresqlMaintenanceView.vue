@@ -3,12 +3,14 @@ defineOptions({
   name: 'postgresql-maintenance',
 })
 
+import type { DataTableSortState } from 'naive-ui'
 import { NButton, NSpace, NTag, NTooltip } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'
 import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { useTablePagination } from '@/components/system/composables/useTablePagination'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
@@ -21,7 +23,6 @@ const { data: databases } = useRequest(postgresql.databases, {
   if (data?.length && !selectedDatabase.value) {
     // 默认选中 postgres 库
     selectedDatabase.value = data.includes('postgres') ? 'postgres' : data[0]
-    refreshBloat()
   }
 })
 
@@ -29,15 +30,46 @@ const databaseOptions = computed(() =>
   (databases.value as string[]).map((name) => ({ label: name, value: name })),
 )
 
+const bloatPage = ref(1)
+const bloatPageSize = ref(50)
+const bloatSort = ref<DataTableSortState | null>(null)
 const {
   data: bloat,
   loading: bloatLoading,
   send: sendBloat,
-} = useRequest(() => postgresql.bloat(selectedDatabase.value), {
-  immediate: false,
-  initialData: { repack_installed: false, items: [] },
-})
+} = useRequest(
+  () => {
+    const order = bloatSort.value?.order
+    return postgresql.bloat({
+      database: selectedDatabase.value,
+      page: bloatPage.value,
+      limit: bloatPageSize.value,
+      sort: order ? bloatSort.value?.columnKey : undefined,
+      order: order ? (order === 'descend' ? 'desc' : 'asc') : undefined,
+    })
+  },
+  {
+    immediate: false,
+    initialData: { repack_installed: false, total: 0, items: [] },
+  },
+)
+const bloatPagination = useTablePagination(
+  bloatPage,
+  bloatPageSize,
+  () => bloat.value.total,
+  [50, 100, 200, 500],
+)
+watch([selectedDatabase, bloatPage, bloatPageSize, bloatSort], () => sendBloat())
+const handleBloatSort = (sorter: DataTableSortState | DataTableSortState[] | null) => {
+  bloatSort.value = Array.isArray(sorter) ? (sorter[0] ?? null) : sorter
+  bloatPage.value = 1
+}
+// 勾选跨页保留，换库或刷新时清空
 const checkedTables = ref<string[]>([])
+const handleDatabaseChange = () => {
+  checkedTables.value = []
+  bloatPage.value = 1
+}
 // 未选数据库时同步返回，避免刷新按钮闪一下加载图标
 const refreshBloat = () => {
   checkedTables.value = []
@@ -98,29 +130,20 @@ const bloatColumns: any = [
   { type: 'selection' },
   { title: $gettext('Schema'), key: 'schema', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
-  {
-    title: $gettext('Size'),
-    key: 'size',
-    width: 100,
-    sorter: (a: any, b: any) => a.size_bytes - b.size_bytes,
-  },
-  {
-    title: $gettext('Live Tuples'),
-    key: 'live_tuples',
-    width: 120,
-    sorter: (a: any, b: any) => a.live_tuples - b.live_tuples,
-  },
+  { title: $gettext('Size'), key: 'size', width: 100, sorter: true },
+  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 120, sorter: true },
   {
     title: $gettext('Dead Tuples'),
     key: 'dead_tuples',
     width: 130,
-    sorter: (a: any, b: any) => a.dead_tuples - b.dead_tuples,
+    sorter: true,
+    defaultSortOrder: 'descend',
   },
   {
     title: $gettext('Dead Rate'),
     key: 'dead_rate',
     width: 120,
-    sorter: (a: any, b: any) => a.dead_rate - b.dead_rate,
+    sorter: true,
     render(row: any) {
       const type = row.dead_rate >= 20 ? 'error' : row.dead_rate >= 10 ? 'warning' : 'default'
       return h(NTag, { type, size: 'small' }, { default: () => `${row.dead_rate}%` })
@@ -130,20 +153,14 @@ const bloatColumns: any = [
     title: $gettext('Last Vacuum'),
     key: 'last_vacuum',
     width: 150,
-    sorter: (a: any, b: any) =>
-      (a.last_vacuum || a.last_autovacuum || '').localeCompare(
-        b.last_vacuum || b.last_autovacuum || '',
-      ),
+    sorter: true,
     render: (row: any) => row.last_vacuum || row.last_autovacuum || '-',
   },
   {
     title: $gettext('Last Analyze'),
     key: 'last_analyze',
     width: 150,
-    sorter: (a: any, b: any) =>
-      (a.last_analyze || a.last_autoanalyze || '').localeCompare(
-        b.last_analyze || b.last_autoanalyze || '',
-      ),
+    sorter: true,
     render: (row: any) => row.last_analyze || row.last_autoanalyze || '-',
   },
   {
@@ -271,7 +288,7 @@ const handleDropSlot = async (name: string) => {
             v-model:value="selectedDatabase"
             :options="databaseOptions"
             class="md:!w-60"
-            @update:value="refreshBloat"
+            @update:value="handleDatabaseChange"
           />
           <app-button type="primary" @click="refreshBloat">
             {{ $gettext('Refresh') }}
@@ -304,13 +321,19 @@ const handleDropSlot = async (name: string) => {
         </n-flex>
         <n-data-table
           v-model:checked-row-keys="checkedTables"
+          v-model:page="bloatPage"
+          v-model:page-size="bloatPageSize"
           striped
+          remote
           :loading="bloatLoading"
           :columns="bloatColumns"
           :data="bloat.items"
           :row-key="bloatRowKey"
           :scroll-x="1530"
           max-height="60vh"
+          virtual-scroll
+          :pagination="bloatPagination"
+          @update:sorter="handleBloatSort"
         />
       </n-flex>
     </n-tab-pane>

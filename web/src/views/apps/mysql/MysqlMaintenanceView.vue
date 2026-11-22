@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DataTableSortState } from 'naive-ui'
 import { NSpace, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -6,6 +7,7 @@ import type mysql from '@/api/apps/mysql'
 import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useResponsive } from '@/components/system/composables/useResponsive'
+import { useTablePagination } from '@/components/system/composables/useTablePagination'
 
 const props = defineProps<{
   api: typeof mysql
@@ -23,14 +25,43 @@ const databaseOptions = computed(() => [
   { label: $gettext('All databases'), value: '' },
   ...(databases.value as string[]).map((name) => ({ label: name, value: name })),
 ])
+const tablesPage = ref(1)
+const tablesPageSize = ref(50)
+const tablesSort = ref<DataTableSortState | null>(null)
 const {
   data: tables,
   loading: tablesLoading,
   send: sendTables,
-} = useRequest(() => props.api.tables(selectedDatabase.value), {
-  initialData: [],
-})
+} = useRequest(
+  () => {
+    const order = tablesSort.value?.order
+    return props.api.tables({
+      database: selectedDatabase.value,
+      page: tablesPage.value,
+      limit: tablesPageSize.value,
+      sort: order ? tablesSort.value?.columnKey : undefined,
+      order: order ? (order === 'descend' ? 'desc' : 'asc') : undefined,
+    })
+  },
+  { initialData: { total: 0, items: [] } },
+)
+const tablesPagination = useTablePagination(
+  tablesPage,
+  tablesPageSize,
+  () => tables.value.total,
+  [50, 100, 200, 500],
+)
+watch([selectedDatabase, tablesPage, tablesPageSize, tablesSort], () => sendTables())
+const handleTablesSort = (sorter: DataTableSortState | DataTableSortState[] | null) => {
+  tablesSort.value = Array.isArray(sorter) ? (sorter[0] ?? null) : sorter
+  tablesPage.value = 1
+}
+// 勾选跨页保留，换库或刷新时清空
 const checkedTables = ref<string[]>([])
+const handleDatabaseChange = () => {
+  checkedTables.value = []
+  tablesPage.value = 1
+}
 const refreshTables = () => {
   checkedTables.value = []
   return sendTables()
@@ -87,18 +118,13 @@ const tableColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 130, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Engine'), key: 'engine', width: 100 },
-  { title: $gettext('Rows'), key: 'rows', width: 110, sorter: (a: any, b: any) => a.rows - b.rows },
-  {
-    title: $gettext('Size'),
-    key: 'size',
-    width: 100,
-    sorter: (a: any, b: any) => a.size_bytes - b.size_bytes,
-  },
+  { title: $gettext('Rows'), key: 'rows', width: 110, sorter: true },
+  { title: $gettext('Size'), key: 'size', width: 100, sorter: true, defaultSortOrder: 'descend' },
   {
     title: $gettext('Fragment Rate'),
     key: 'fragment_rate',
     width: 130,
-    sorter: (a: any, b: any) => a.fragment_rate - b.fragment_rate,
+    sorter: true,
     render(row: any) {
       const rate = Math.round(row.fragment_rate * 10) / 10
       const type = rate >= 30 ? 'error' : rate >= 10 ? 'warning' : 'default'
@@ -196,7 +222,7 @@ const replicationRunning = (value: string) => {
             v-model:value="selectedDatabase"
             :options="databaseOptions"
             class="md:!w-60"
-            @update:value="refreshTables"
+            @update:value="handleDatabaseChange"
           />
           <app-button type="primary" @click="() => refreshTables()">
             {{ $gettext('Refresh') }}
@@ -214,13 +240,19 @@ const replicationRunning = (value: string) => {
         </n-flex>
         <n-data-table
           v-model:checked-row-keys="checkedTables"
+          v-model:page="tablesPage"
+          v-model:page-size="tablesPageSize"
           striped
+          remote
           :loading="tablesLoading"
           :columns="tableColumns"
-          :data="tables"
+          :data="tables.items"
           :row-key="tableRowKey"
           :scroll-x="1030"
           max-height="60vh"
+          virtual-scroll
+          :pagination="tablesPagination"
+          @update:sorter="handleTablesSort"
         />
       </n-flex>
     </n-tab-pane>

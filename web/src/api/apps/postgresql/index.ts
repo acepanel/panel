@@ -31,12 +31,12 @@ export default {
   // 性能
   sessions: (): any => http.Get('/apps/postgresql/sessions'),
   terminateSession: (pid: number): any => http.Post(`/apps/postgresql/sessions/${pid}/terminate`),
-  topSQL: (): any => http.Get('/apps/postgresql/top_sql'),
+  topSQL: (params: any): any => http.Get('/apps/postgresql/top_sql', { params }),
   enableTopSQL: (): any => http.Post('/apps/postgresql/top_sql/enable'),
   resetTopSQL: (): any => http.Post('/apps/postgresql/top_sql/reset'),
   // 维护
   databases: (): any => http.Get('/apps/postgresql/databases'),
-  bloat: (database: string): any => http.Get('/apps/postgresql/bloat', { params: { database } }),
+  bloat: (params: any): any => http.Get('/apps/postgresql/bloat', { params }),
   runMaintenance: (data: any): any => http.Post('/apps/postgresql/maintenance', data),
   wal: (): any => http.Get('/apps/postgresql/wal'),
   dropReplicationSlot: (slot: string): any =>

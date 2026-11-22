@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -361,6 +363,12 @@ func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
 
 // TopSQL 获取 SQL 性能统计
 func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[TopSQLQuery](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
 	mysql, err := s.connect(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -385,11 +393,15 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := mysql.Query(r.Context(), `
-		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR, SUM_TIMER_WAIT DIV 1000000000,
-		       round(AVG_TIMER_WAIT/1e9,2), SUM_ROWS_SENT, SUM_ROWS_EXAMINED, coalesce(DIGEST_TEXT,'')
+	// 排序字段即列别名，DIGEST 让同值的行在翻页时顺序固定
+	rows, err := mysql.Query(r.Context(), fmt.Sprintf(`
+		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR AS calls, SUM_TIMER_WAIT DIV 1000000000 AS total_ms,
+		       round(AVG_TIMER_WAIT/1e9,2) AS mean_ms, SUM_ROWS_SENT AS rows_sent,
+		       SUM_ROWS_EXAMINED AS rows_examined, coalesce(DIGEST_TEXT,'')
 		FROM performance_schema.events_statements_summary_by_digest
-		WHERE DIGEST_TEXT IS NOT NULL ORDER BY SUM_TIMER_WAIT DESC LIMIT 50`)
+		WHERE DIGEST_TEXT IS NOT NULL
+		ORDER BY %s %s, DIGEST LIMIT ? OFFSET ?`, cmp.Or(req.Sort, "total_ms"), cmp.Or(req.Order, "desc")),
+		req.Limit, (req.Page-1)*req.Limit)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -410,9 +422,17 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug))
+	var total uint
+	if err = mysql.QueryRow(r.Context(), `
+		SELECT COUNT(*) FROM performance_schema.events_statements_summary_by_digest
+		WHERE DIGEST_TEXT IS NOT NULL`).Scan(&total); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
-	service.Success(w, TopSQL{Supported: true, Enabled: true, Items: items})
+	s.log.Info(s.t.Get("app top sql viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
+
+	service.Success(w, TopSQL{Supported: true, Enabled: true, Total: total, Items: items})
 }
 
 // EnableTopSQL 启用 performance_schema
@@ -519,19 +539,33 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	query := `
-		SELECT table_schema, table_name, coalesce(engine,''), coalesce(table_rows,0),
-		       coalesce(data_length + index_length,0), coalesce(data_free,0)
+	where := `
 		FROM information_schema.TABLES
 		WHERE table_schema NOT IN ('mysql','information_schema','performance_schema','sys')
 		  AND table_type = 'BASE TABLE'`
 	var args []any
 	if req.Database != "" {
-		query += ` AND table_schema = ?`
+		where += ` AND table_schema = ?`
 		args = append(args, req.Database)
 	}
-	query += ` ORDER BY data_length + index_length DESC LIMIT 50`
-	rows, err := mysql.Query(r.Context(), query, args...)
+
+	var total uint
+	if err = mysql.QueryRow(r.Context(), `SELECT COUNT(*)`+where, args...).Scan(&total); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	orderBy := map[string]string{
+		"rows":          "table_rows",
+		"size":          "data_length + index_length",
+		"fragment_rate": "data_free / (data_length + index_length + data_free)",
+	}
+	// 库名和表名让同值的行在翻页时顺序固定
+	rows, err := mysql.Query(r.Context(), fmt.Sprintf(`
+		SELECT table_schema, table_name, coalesce(engine,''), coalesce(table_rows,0),
+		       coalesce(data_length + index_length,0), coalesce(data_free,0)%s
+		ORDER BY %s %s, table_schema, table_name LIMIT ? OFFSET ?`, where, orderBy[cmp.Or(req.Sort, "size")], cmp.Or(req.Order, "desc")),
+		append(args, req.Limit, (req.Page-1)*req.Limit)...)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -558,9 +592,12 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("database", req.Database))
+	s.log.Info(s.t.Get("app table list viewed"), slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("app", s.slug), slog.String("database", req.Database), slog.Uint64("page", uint64(req.Page)), slog.Uint64("limit", uint64(req.Limit)))
 
-	service.Success(w, items)
+	service.Success(w, chix.M{
+		"total": total,
+		"items": items,
+	})
 }
 
 // RunMaintenance 对表执行维护操作（异步任务）

@@ -134,8 +134,10 @@ const handleScanBigKeys = async () => {
           striped
           :columns="slowLogColumns"
           :data="slowLog"
+          :row-key="(row: any) => row.id"
           :scroll-x="880"
           max-height="60vh"
+          virtual-scroll
         />
       </n-flex>
     </n-tab-pane>

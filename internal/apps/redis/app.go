@@ -210,7 +210,7 @@ func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	reply, err := conn.Exec("SLOWLOG", "GET", 50)
+	reply, err := conn.Exec("SLOWLOG", "GET", -1)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

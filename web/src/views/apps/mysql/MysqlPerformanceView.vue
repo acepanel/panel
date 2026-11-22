@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { DataTableSortState } from 'naive-ui'
 import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import type mysql from '@/api/apps/mysql'
 import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { useTablePagination } from '@/components/system/composables/useTablePagination'
 
 const props = defineProps<{
   api: typeof mysql
@@ -19,9 +21,31 @@ const { data: processes, send: refreshProcesses } = useRequest(props.api.process
 const { data: transactions, send: refreshTransactions } = useRequest(props.api.transactions, {
   initialData: { transactions: [], lock_waits: [] },
 })
-const { data: topSQL, send: refreshTopSQL } = useRequest(props.api.topSQL, {
-  initialData: { supported: true, enabled: true, pending_restart: false, items: [] },
-})
+const topSQLPage = ref(1)
+const topSQLPageSize = ref(50)
+const topSQLSort = ref<DataTableSortState | null>(null)
+const {
+  data: topSQL,
+  loading: topSQLLoading,
+  send: refreshTopSQL,
+} = useRequest(
+  () => {
+    const order = topSQLSort.value?.order
+    return props.api.topSQL({
+      page: topSQLPage.value,
+      limit: topSQLPageSize.value,
+      sort: order ? topSQLSort.value?.columnKey : undefined,
+      order: order ? (order === 'descend' ? 'desc' : 'asc') : undefined,
+    })
+  },
+  { initialData: { supported: true, enabled: true, pending_restart: false, total: 0, items: [] } },
+)
+const topSQLPagination = useTablePagination(topSQLPage, topSQLPageSize, () => topSQL.value.total)
+watch([topSQLPage, topSQLPageSize, topSQLSort], () => refreshTopSQL())
+const handleTopSQLSort = (sorter: DataTableSortState | DataTableSortState[] | null) => {
+  topSQLSort.value = Array.isArray(sorter) ? (sorter[0] ?? null) : sorter
+  topSQLPage.value = 1
+}
 
 const handleKill = async (id: number, refresh: () => void) => {
   await props.api.killProcess(id)
@@ -154,36 +178,17 @@ const lockWaitColumns: any = [
 
 const topSQLColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
-  {
-    title: $gettext('Calls'),
-    key: 'calls',
-    width: 100,
-    sorter: (a: any, b: any) => a.calls - b.calls,
-  },
+  { title: $gettext('Calls'), key: 'calls', width: 100, sorter: true },
   {
     title: $gettext('Total Time (ms)'),
     key: 'total_ms',
     width: 150,
-    sorter: (a: any, b: any) => a.total_ms - b.total_ms,
+    sorter: true,
+    defaultSortOrder: 'descend',
   },
-  {
-    title: $gettext('Mean Time (ms)'),
-    key: 'mean_ms',
-    width: 150,
-    sorter: (a: any, b: any) => a.mean_ms - b.mean_ms,
-  },
-  {
-    title: $gettext('Rows Sent'),
-    key: 'rows_sent',
-    width: 120,
-    sorter: (a: any, b: any) => a.rows_sent - b.rows_sent,
-  },
-  {
-    title: $gettext('Rows Examined'),
-    key: 'rows_examined',
-    width: 150,
-    sorter: (a: any, b: any) => a.rows_examined - b.rows_examined,
-  },
+  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150, sorter: true },
+  { title: $gettext('Rows Sent'), key: 'rows_sent', width: 120, sorter: true },
+  { title: $gettext('Rows Examined'), key: 'rows_examined', width: 150, sorter: true },
   { title: 'SQL', key: 'query', minWidth: 300, ellipsis: { tooltip: true } },
 ]
 
@@ -210,6 +215,7 @@ const handleResetTopSQL = async () => {
   if (!ok) return
   await props.api.resetTopSQL()
   window.$message.success($gettext('Reset successfully'))
+  topSQLPage.value = 1
   refreshTopSQL()
 }
 </script>
@@ -294,11 +300,17 @@ const handleResetTopSQL = async () => {
             </app-button>
           </n-flex>
           <n-data-table
+            v-model:page="topSQLPage"
+            v-model:page-size="topSQLPageSize"
             striped
+            remote
+            :loading="topSQLLoading"
             :columns="topSQLColumns"
             :data="topSQL.items"
             :scroll-x="1365"
             max-height="60vh"
+            :pagination="topSQLPagination"
+            @update:sorter="handleTopSQLSort"
           />
         </template>
       </n-flex>
