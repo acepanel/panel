@@ -114,7 +114,7 @@ func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	items, err := s.statRepo.TopSpiders(req.Start, req.End, req.SiteList(), 50)
+	items, err := s.statRepo.TopSpiders(req.Start, req.End, req.SiteList())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -147,7 +147,7 @@ func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	items, err := s.statRepo.TopClients(req.Start, req.End, req.SiteList(), 100)
+	items, err := s.statRepo.TopClients(req.Start, req.End, req.SiteList())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

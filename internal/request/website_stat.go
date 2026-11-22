@@ -82,9 +82,6 @@ func (r *WebsiteStatGeo) Prepare(req *http.Request) error {
 	if r.GroupBy == "" {
 		r.GroupBy = "country"
 	}
-	if r.Limit == 0 {
-		r.Limit = 100
-	}
 	return nil
 }
 

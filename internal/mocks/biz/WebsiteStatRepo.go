@@ -60,7 +60,7 @@ var _ biz.WebsiteStatRepo = &WebsiteStatRepo{}
 //			ListSiteStatsFunc: func(start string, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error) {
 //				panic("mock out the ListSiteStats method")
 //			},
-//			TopClientsFunc: func(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
+//			TopClientsFunc: func(start string, end string, sites []string) ([]*biz.WebsiteStatClientRank, error) {
 //				panic("mock out the TopClients method")
 //			},
 //			TopGeosFunc: func(start string, end string, sites []string, groupBy string, country string, limit uint) ([]*biz.WebsiteStatGeoRank, error) {
@@ -72,7 +72,7 @@ var _ biz.WebsiteStatRepo = &WebsiteStatRepo{}
 //			TopSlowURIsFunc: func(start string, end string, sites []string, threshold uint, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
 //				panic("mock out the TopSlowURIs method")
 //			},
-//			TopSpidersFunc: func(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
+//			TopSpidersFunc: func(start string, end string, sites []string) ([]*biz.WebsiteStatSpiderRank, error) {
 //				panic("mock out the TopSpiders method")
 //			},
 //			TopURIsFunc: func(start string, end string, sites []string, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
@@ -143,7 +143,7 @@ type WebsiteStatRepo struct {
 	ListSiteStatsFunc func(start string, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error)
 
 	// TopClientsFunc mocks the TopClients method.
-	TopClientsFunc func(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error)
+	TopClientsFunc func(start string, end string, sites []string) ([]*biz.WebsiteStatClientRank, error)
 
 	// TopGeosFunc mocks the TopGeos method.
 	TopGeosFunc func(start string, end string, sites []string, groupBy string, country string, limit uint) ([]*biz.WebsiteStatGeoRank, error)
@@ -155,7 +155,7 @@ type WebsiteStatRepo struct {
 	TopSlowURIsFunc func(start string, end string, sites []string, threshold uint, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error)
 
 	// TopSpidersFunc mocks the TopSpiders method.
-	TopSpidersFunc func(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error)
+	TopSpidersFunc func(start string, end string, sites []string) ([]*biz.WebsiteStatSpiderRank, error)
 
 	// TopURIsFunc mocks the TopURIs method.
 	TopURIsFunc func(start string, end string, sites []string, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error)
@@ -271,8 +271,6 @@ type WebsiteStatRepo struct {
 			End string
 			// Sites is the sites argument value.
 			Sites []string
-			// Limit is the limit argument value.
-			Limit uint
 		}
 		// TopGeos holds details about calls to the TopGeos method.
 		TopGeos []struct {
@@ -325,8 +323,6 @@ type WebsiteStatRepo struct {
 			End string
 			// Sites is the sites argument value.
 			Sites []string
-			// Limit is the limit argument value.
-			Limit uint
 		}
 		// TopURIs holds details about calls to the TopURIs method.
 		TopURIs []struct {
@@ -849,7 +845,7 @@ func (mock *WebsiteStatRepo) ListSiteStatsCalls() []struct {
 }
 
 // TopClients calls TopClientsFunc.
-func (mock *WebsiteStatRepo) TopClients(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
+func (mock *WebsiteStatRepo) TopClients(start string, end string, sites []string) ([]*biz.WebsiteStatClientRank, error) {
 	if mock.TopClientsFunc == nil {
 		panic("WebsiteStatRepo.TopClientsFunc: method is nil but WebsiteStatRepo.TopClients was just called")
 	}
@@ -857,17 +853,15 @@ func (mock *WebsiteStatRepo) TopClients(start string, end string, sites []string
 		Start string
 		End   string
 		Sites []string
-		Limit uint
 	}{
 		Start: start,
 		End:   end,
 		Sites: sites,
-		Limit: limit,
 	}
 	mock.lockTopClients.Lock()
 	mock.calls.TopClients = append(mock.calls.TopClients, callInfo)
 	mock.lockTopClients.Unlock()
-	return mock.TopClientsFunc(start, end, sites, limit)
+	return mock.TopClientsFunc(start, end, sites)
 }
 
 // TopClientsCalls gets all the calls that were made to TopClients.
@@ -878,13 +872,11 @@ func (mock *WebsiteStatRepo) TopClientsCalls() []struct {
 	Start string
 	End   string
 	Sites []string
-	Limit uint
 } {
 	var calls []struct {
 		Start string
 		End   string
 		Sites []string
-		Limit uint
 	}
 	mock.lockTopClients.RLock()
 	calls = mock.calls.TopClients
@@ -1045,7 +1037,7 @@ func (mock *WebsiteStatRepo) TopSlowURIsCalls() []struct {
 }
 
 // TopSpiders calls TopSpidersFunc.
-func (mock *WebsiteStatRepo) TopSpiders(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
+func (mock *WebsiteStatRepo) TopSpiders(start string, end string, sites []string) ([]*biz.WebsiteStatSpiderRank, error) {
 	if mock.TopSpidersFunc == nil {
 		panic("WebsiteStatRepo.TopSpidersFunc: method is nil but WebsiteStatRepo.TopSpiders was just called")
 	}
@@ -1053,17 +1045,15 @@ func (mock *WebsiteStatRepo) TopSpiders(start string, end string, sites []string
 		Start string
 		End   string
 		Sites []string
-		Limit uint
 	}{
 		Start: start,
 		End:   end,
 		Sites: sites,
-		Limit: limit,
 	}
 	mock.lockTopSpiders.Lock()
 	mock.calls.TopSpiders = append(mock.calls.TopSpiders, callInfo)
 	mock.lockTopSpiders.Unlock()
-	return mock.TopSpidersFunc(start, end, sites, limit)
+	return mock.TopSpidersFunc(start, end, sites)
 }
 
 // TopSpidersCalls gets all the calls that were made to TopSpiders.
@@ -1074,13 +1064,11 @@ func (mock *WebsiteStatRepo) TopSpidersCalls() []struct {
 	Start string
 	End   string
 	Sites []string
-	Limit uint
 } {
 	var calls []struct {
 		Start string
 		End   string
 		Sites []string
-		Limit uint
 	}
 	mock.lockTopSpiders.RLock()
 	calls = mock.calls.TopSpiders

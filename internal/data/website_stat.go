@@ -138,11 +138,7 @@ func (r *websiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {
 	})
 }
 
-func (r *websiteStatRepo) TopSpiders(
-	start, end string,
-	sites []string,
-	limit uint,
-) ([]*biz.WebsiteStatSpiderRank, error) {
+func (r *websiteStatRepo) TopSpiders(start, end string, sites []string) ([]*biz.WebsiteStatSpiderRank, error) {
 	var items []*biz.WebsiteStatSpiderRank
 	q := r.db.Model(&biz.WebsiteStatSpider{}).
 		Select("spider, SUM(requests) as requests").
@@ -150,7 +146,7 @@ func (r *websiteStatRepo) TopSpiders(
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
 	}
-	err := q.Group("spider").Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	err := q.Group("spider").Order("requests DESC").Scan(&items).Error
 	return items, err
 }
 
@@ -173,11 +169,7 @@ func (r *websiteStatRepo) UpsertClients(stats []*biz.WebsiteStatClient) error {
 	})
 }
 
-func (r *websiteStatRepo) TopClients(
-	start, end string,
-	sites []string,
-	limit uint,
-) ([]*biz.WebsiteStatClientRank, error) {
+func (r *websiteStatRepo) TopClients(start, end string, sites []string) ([]*biz.WebsiteStatClientRank, error) {
 	var items []*biz.WebsiteStatClientRank
 	q := r.db.Model(&biz.WebsiteStatClient{}).
 		Select("browser, os, SUM(requests) as requests").
@@ -185,7 +177,7 @@ func (r *websiteStatRepo) TopClients(
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
 	}
-	err := q.Group("browser, os").Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	err := q.Group("browser, os").Order("requests DESC").Scan(&items).Error
 	return items, err
 }
 
@@ -274,7 +266,12 @@ func (r *websiteStatRepo) TopGeos(
 		q = q.Group("country")
 	}
 
-	err := q.Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	q = q.Order("requests DESC")
+	// limit 为 0 时返回全部
+	if limit > 0 {
+		q = q.Limit(int(limit))
+	}
+	err := q.Scan(&items).Error
 	return items, err
 }
 

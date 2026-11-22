@@ -191,12 +191,12 @@ type WebsiteStatRepo interface {
 
 	// 蜘蛛统计
 	UpsertSpiders(stats []*WebsiteStatSpider) error
-	TopSpiders(start, end string, sites []string, limit uint) ([]*WebsiteStatSpiderRank, error)
+	TopSpiders(start, end string, sites []string) ([]*WebsiteStatSpiderRank, error)
 	ClearSpidersBefore(date string) error
 
 	// 客户端统计
 	UpsertClients(stats []*WebsiteStatClient) error
-	TopClients(start, end string, sites []string, limit uint) ([]*WebsiteStatClientRank, error)
+	TopClients(start, end string, sites []string) ([]*WebsiteStatClientRank, error)
 	ClearClientsBefore(date string) error
 
 	// IP 统计
@@ -299,12 +299,8 @@ func (uc *WebsiteStatUsecase) UpsertSpiders(stats []*WebsiteStatSpider) error {
 	return uc.repo.UpsertSpiders(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopSpiders(
-	start, end string,
-	sites []string,
-	limit uint,
-) ([]*WebsiteStatSpiderRank, error) {
-	return uc.repo.TopSpiders(start, end, sites, limit)
+func (uc *WebsiteStatUsecase) TopSpiders(start, end string, sites []string) ([]*WebsiteStatSpiderRank, error) {
+	return uc.repo.TopSpiders(start, end, sites)
 }
 
 func (uc *WebsiteStatUsecase) ClearSpidersBefore(date string) error {
@@ -315,12 +311,8 @@ func (uc *WebsiteStatUsecase) UpsertClients(stats []*WebsiteStatClient) error {
 	return uc.repo.UpsertClients(stats)
 }
 
-func (uc *WebsiteStatUsecase) TopClients(
-	start, end string,
-	sites []string,
-	limit uint,
-) ([]*WebsiteStatClientRank, error) {
-	return uc.repo.TopClients(start, end, sites, limit)
+func (uc *WebsiteStatUsecase) TopClients(start, end string, sites []string) ([]*WebsiteStatClientRank, error) {
+	return uc.repo.TopClients(start, end, sites)
 }
 
 func (uc *WebsiteStatUsecase) ClearClientsBefore(date string) error {

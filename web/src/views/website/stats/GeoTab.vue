@@ -51,7 +51,7 @@ const loadMap = async () => {
 onMounted(loadMap)
 
 const { loading, items, reload } = useStatQuery(({ start, end, sites }) =>
-  website.statGeos(start, end, sites, groupBy.value, undefined, 100),
+  website.statGeos(start, end, sites, groupBy.value),
 )
 
 watch(groupBy, reload)
@@ -63,6 +63,8 @@ const nameColumn = computed(() => {
     ? { title: $gettext('Region'), key: 'region' }
     : { title: $gettext('Country'), key: 'country' }
 })
+
+const rowKey = (row: any) => row[nameColumn.value.key]
 
 const columns = computed(() => [
   {
@@ -232,7 +234,15 @@ const showMap = computed(() => groupBy.value === 'country' && mapReady.value)
       </n-card>
 
       <!-- 表格 -->
-      <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
+      <n-data-table
+        :columns="columns"
+        :data="items"
+        :row-key="rowKey"
+        :bordered="false"
+        size="small"
+        max-height="60vh"
+        virtual-scroll
+      />
     </n-spin>
   </n-flex>
 </template>

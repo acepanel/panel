@@ -68,6 +68,8 @@ const osChartOption = computed<EChartsOption>(() => {
   }
 })
 
+const rowKey = (row: any) => `${row.browser}|${row.os}`
+
 const columns = computed(() => [
   { title: $gettext('Browser'), key: 'browser' },
   { title: $gettext('OS'), key: 'os' },
@@ -90,7 +92,15 @@ const columns = computed(() => [
           <v-chart class="h-300px" :option="osChartOption" autoresize />
         </n-card>
       </div>
-      <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
+      <n-data-table
+        :columns="columns"
+        :data="items"
+        :row-key="rowKey"
+        :bordered="false"
+        size="small"
+        max-height="60vh"
+        virtual-scroll
+      />
     </n-spin>
   </n-flex>
 </template>
