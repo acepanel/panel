@@ -818,28 +818,51 @@ func (s *App) tuneFields(t *ConfigTune) []confval.Field {
 		{Key: "port", Value: &t.Port},
 		{Key: "max_connections", Value: &t.MaxConnections},
 		{Key: "superuser_reserved_connections", Value: &t.SuperuserReservedConnections},
+		{Key: "idle_in_transaction_session_timeout", Value: &t.IdleInTransactionSessionTimeout},
 		// 内存设置
 		{Key: "shared_buffers", Value: &t.SharedBuffers},
 		{Key: "work_mem", Value: &t.WorkMem},
+		{Key: "hash_mem_multiplier", Value: &t.HashMemMultiplier},
 		{Key: "maintenance_work_mem", Value: &t.MaintenanceWorkMem},
+		{Key: "temp_buffers", Value: &t.TempBuffers},
 		{Key: "effective_cache_size", Value: &t.EffectiveCacheSize},
 		{Key: "huge_pages", Value: &t.HugePages},
 		// WAL 设置
 		{Key: "wal_level", Value: &t.WalLevel},
+		{Key: "max_wal_senders", Value: &t.MaxWalSenders},
 		{Key: "wal_buffers", Value: &t.WalBuffers},
+		{Key: "wal_compression", Value: &t.WalCompression},
+		{Key: "synchronous_commit", Value: &t.SynchronousCommit},
 		{Key: "max_wal_size", Value: &t.MaxWalSize},
 		{Key: "min_wal_size", Value: &t.MinWalSize},
+		{Key: "checkpoint_timeout", Value: &t.CheckpointTimeout},
 		{Key: "checkpoint_completion_target", Value: &t.CheckpointCompletionTarget},
 		// 查询优化
 		{Key: "default_statistics_target", Value: &t.DefaultStatisticsTarget},
 		{Key: "random_page_cost", Value: &t.RandomPageCost},
 		{Key: "effective_io_concurrency", Value: &t.EffectiveIoConcurrency},
+		{Key: "maintenance_io_concurrency", Value: &t.MaintenanceIoConcurrency},
+		// 并行设置
+		{Key: "max_worker_processes", Value: &t.MaxWorkerProcesses},
+		{Key: "max_parallel_workers", Value: &t.MaxParallelWorkers},
+		{Key: "max_parallel_workers_per_gather", Value: &t.MaxParallelWorkersPerGather},
+		{Key: "max_parallel_maintenance_workers", Value: &t.MaxParallelMaintenanceWorkers},
+		// 自动清理
+		{Key: "autovacuum_max_workers", Value: &t.AutovacuumMaxWorkers},
+		{Key: "autovacuum_work_mem", Value: &t.AutovacuumWorkMem},
+		{Key: "autovacuum_vacuum_cost_limit", Value: &t.AutovacuumVacuumCostLimit},
+		{Key: "autovacuum_vacuum_scale_factor", Value: &t.AutovacuumVacuumScaleFactor},
+		{Key: "autovacuum_analyze_scale_factor", Value: &t.AutovacuumAnalyzeScaleFactor},
 		// 日志设置
 		{Key: "log_destination", Value: &t.LogDestination},
+		{Key: "log_statement", Value: &t.LogStatement},
 		{Key: "log_min_duration_statement", Value: &t.LogMinDurationStatement},
+		{Key: "log_lock_waits", Value: &t.LogLockWaits},
+		{Key: "log_temp_files", Value: &t.LogTempFiles},
 		{Key: "log_timezone", Value: &t.LogTimezone},
-		// IO 设置
+		// IO 与存储设置
 		{Key: "io_method", Value: &t.IoMethod},
+		{Key: "default_toast_compression", Value: &t.DefaultToastCompression},
 	}
 }
 

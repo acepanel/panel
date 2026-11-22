@@ -146,30 +146,53 @@ type Wal struct {
 // ConfigTune PostgreSQL 配置调整
 type ConfigTune struct {
 	// 连接设置
-	ListenAddresses              string `form:"listen_addresses" json:"listen_addresses"`
-	Port                         string `form:"port" json:"port" validate:"number && min:1 && max:65535"`
-	MaxConnections               string `form:"max_connections" json:"max_connections"`
-	SuperuserReservedConnections string `form:"superuser_reserved_connections" json:"superuser_reserved_connections"`
+	ListenAddresses                 string `form:"listen_addresses" json:"listen_addresses"`
+	Port                            string `form:"port" json:"port" validate:"number && min:1 && max:65535"`
+	MaxConnections                  string `form:"max_connections" json:"max_connections"`
+	SuperuserReservedConnections    string `form:"superuser_reserved_connections" json:"superuser_reserved_connections"`
+	IdleInTransactionSessionTimeout string `form:"idle_in_transaction_session_timeout" json:"idle_in_transaction_session_timeout"`
 	// 内存设置
 	SharedBuffers      string `form:"shared_buffers" json:"shared_buffers"`
 	WorkMem            string `form:"work_mem" json:"work_mem"`
+	HashMemMultiplier  string `form:"hash_mem_multiplier" json:"hash_mem_multiplier"`
 	MaintenanceWorkMem string `form:"maintenance_work_mem" json:"maintenance_work_mem"`
+	TempBuffers        string `form:"temp_buffers" json:"temp_buffers"`
 	EffectiveCacheSize string `form:"effective_cache_size" json:"effective_cache_size"`
 	HugePages          string `form:"huge_pages" json:"huge_pages"`
 	// WAL 设置
 	WalLevel                   string `form:"wal_level" json:"wal_level"`
+	MaxWalSenders              string `form:"max_wal_senders" json:"max_wal_senders"`
 	WalBuffers                 string `form:"wal_buffers" json:"wal_buffers"`
+	WalCompression             string `form:"wal_compression" json:"wal_compression"`
+	SynchronousCommit          string `form:"synchronous_commit" json:"synchronous_commit"`
 	MaxWalSize                 string `form:"max_wal_size" json:"max_wal_size"`
 	MinWalSize                 string `form:"min_wal_size" json:"min_wal_size"`
+	CheckpointTimeout          string `form:"checkpoint_timeout" json:"checkpoint_timeout"`
 	CheckpointCompletionTarget string `form:"checkpoint_completion_target" json:"checkpoint_completion_target"`
 	// 查询优化
-	DefaultStatisticsTarget string `form:"default_statistics_target" json:"default_statistics_target"`
-	RandomPageCost          string `form:"random_page_cost" json:"random_page_cost"`
-	EffectiveIoConcurrency  string `form:"effective_io_concurrency" json:"effective_io_concurrency"`
+	DefaultStatisticsTarget  string `form:"default_statistics_target" json:"default_statistics_target"`
+	RandomPageCost           string `form:"random_page_cost" json:"random_page_cost"`
+	EffectiveIoConcurrency   string `form:"effective_io_concurrency" json:"effective_io_concurrency"`
+	MaintenanceIoConcurrency string `form:"maintenance_io_concurrency" json:"maintenance_io_concurrency"`
+	// 并行设置
+	MaxWorkerProcesses            string `form:"max_worker_processes" json:"max_worker_processes"`
+	MaxParallelWorkers            string `form:"max_parallel_workers" json:"max_parallel_workers"`
+	MaxParallelWorkersPerGather   string `form:"max_parallel_workers_per_gather" json:"max_parallel_workers_per_gather"`
+	MaxParallelMaintenanceWorkers string `form:"max_parallel_maintenance_workers" json:"max_parallel_maintenance_workers"`
+	// 自动清理
+	AutovacuumMaxWorkers         string `form:"autovacuum_max_workers" json:"autovacuum_max_workers"`
+	AutovacuumWorkMem            string `form:"autovacuum_work_mem" json:"autovacuum_work_mem"`
+	AutovacuumVacuumCostLimit    string `form:"autovacuum_vacuum_cost_limit" json:"autovacuum_vacuum_cost_limit"`
+	AutovacuumVacuumScaleFactor  string `form:"autovacuum_vacuum_scale_factor" json:"autovacuum_vacuum_scale_factor"`
+	AutovacuumAnalyzeScaleFactor string `form:"autovacuum_analyze_scale_factor" json:"autovacuum_analyze_scale_factor"`
 	// 日志设置
 	LogDestination          string `form:"log_destination" json:"log_destination"`
+	LogStatement            string `form:"log_statement" json:"log_statement"`
 	LogMinDurationStatement string `form:"log_min_duration_statement" json:"log_min_duration_statement"`
+	LogLockWaits            string `form:"log_lock_waits" json:"log_lock_waits"`
+	LogTempFiles            string `form:"log_temp_files" json:"log_temp_files"`
 	LogTimezone             string `form:"log_timezone" json:"log_timezone"`
-	// IO 设置
-	IoMethod string `form:"io_method" json:"io_method"`
+	// IO 与存储设置
+	IoMethod                string `form:"io_method" json:"io_method"`
+	DefaultToastCompression string `form:"default_toast_compression" json:"default_toast_compression"`
 }

@@ -28,10 +28,11 @@ export const kbToPair = (kb: number, units: [string, string] = ['kB', 'MB']): Si
   return { num: kb, unit: units[0] }
 }
 
-// PostgreSQL
+// PostgreSQL，算法对齐 PGTune（PostgreSQL 18、数据量为内存的 1 到 3 倍），null 表示沿用默认值
 export const postgresqlPreset = (p: TuneProfile) => {
+  const dw = p.scenario === 'dw'
   const sharedBuffersMB = Math.floor(p.memoryMB / 4)
-  const maintenanceDivisor = p.scenario === 'dw' ? 8 : 16
+  const maintenanceWorkMemMB = Math.min(Math.floor(p.memoryMB / (dw ? 8 : 16)), 8192)
   const walSizes: Record<string, [number, number]> = {
     web: [1, 4],
     oltp: [2, 8],
@@ -39,22 +40,46 @@ export const postgresqlPreset = (p: TuneProfile) => {
     mixed: [1, 4],
   }
   const [minWal, maxWal] = walSizes[p.scenario] ?? [1, 4]
-  let workMemKB = Math.floor(((p.memoryMB - sharedBuffersMB) * 1024) / (p.connections * 3))
-  if (p.scenario === 'dw') workMemKB = Math.floor(workMemKB / 2)
+  // 少于 4 核时不调并行参数，此时 max_parallel_workers 是默认的 8
+  const parallel = p.cpuCores >= 4
+  const parallelWorkers = parallel ? Math.min(p.cpuCores, 1024) : 8
+  const halfWorkers = Math.ceil(parallelWorkers / 2)
+  // 数仓放宽单个查询的 worker 数，但要留够 4 个查询同时并行
+  const workersPerGather = dw
+    ? Math.min(halfWorkers, Math.max(4, Math.floor(parallelWorkers / 4)))
+    : Math.min(halfWorkers, 4)
+  // shared_buffers 以外的内存由连接和并行 worker 分摊，每个按同时 3 次排序或哈希估算
+  const workMemBudgetMB = (p.memoryMB - sharedBuffersMB) / ((p.connections + parallelWorkers) * 3)
+  const workMemMB = Math.floor(dw || p.scenario === 'mixed' ? workMemBudgetMB / 2 : workMemBudgetMB)
+  const ioConcurrency = { hdd: 2, ssd: 200, nvme: 1000 }[p.disk]
+  const autovacuumMaxWorkers = p.cpuCores >= 32 ? 5 : p.cpuCores >= 16 ? 4 : null
 
   return {
     maxConnections: p.connections,
     sharedBuffers: mbToPair(sharedBuffersMB),
     effectiveCacheSize: mbToPair(Math.floor((p.memoryMB * 3) / 4)),
-    maintenanceWorkMem: mbToPair(Math.min(Math.floor(p.memoryMB / maintenanceDivisor), 2048)),
-    workMemKB: Math.max(workMemKB, 64),
-    walBuffersKB: Math.min(Math.floor((sharedBuffersMB * 1024 * 3) / 100), 16384),
+    maintenanceWorkMem: mbToPair(maintenanceWorkMemMB),
+    workMem: mbToPair(Math.max(workMemMB, 4)),
+    // shared_buffers 的 1/32，与 wal_buffers = -1 时自动取的值相同
+    walBuffersKB: Math.min(Math.max(sharedBuffersMB * 32, 64), 16384),
+    walCompression: 'lz4',
     minWalSizeGB: minWal,
     maxWalSizeGB: maxWal,
     checkpointCompletionTarget: '0.9',
-    defaultStatisticsTarget: p.scenario === 'dw' ? 500 : 100,
-    randomPageCost: p.disk === 'hdd' ? '4.0' : '1.1',
-    effectiveIoConcurrency: p.disk === 'hdd' ? 2 : p.disk === 'ssd' ? 200 : 300,
+    defaultStatisticsTarget: dw ? 500 : 100,
+    // 数仓放不进内存时，过低的随机读代价会让大范围读取误选索引扫描
+    randomPageCost: p.disk === 'hdd' || dw ? '4.0' : '1.1',
+    effectiveIoConcurrency: ioConcurrency,
+    maintenanceIoConcurrency: ioConcurrency,
+    maxWorkerProcesses: parallel ? Math.max(parallelWorkers, 8) : null,
+    maxParallelWorkers: parallel ? parallelWorkers : null,
+    maxParallelWorkersPerGather: parallel ? workersPerGather : null,
+    maxParallelMaintenanceWorkers: parallel ? Math.min(halfWorkers, 4) : null,
+    autovacuumMaxWorkers,
+    // maintenance_work_mem 调大后，每个自动清理 worker 都按它申请内存会有 OOM 风险
+    autovacuumWorkMem: maintenanceWorkMemMB > 1024 ? mbToPair(1024) : null,
+    // 代价上限由所有 worker 平分，随 worker 数放大才能保持单个 worker 的速度
+    autovacuumVacuumCostLimit: autovacuumMaxWorkers && Math.round((200 * autovacuumMaxWorkers) / 3),
     hugePages: p.memoryMB >= 32768 ? 'try' : 'off',
   }
 }
