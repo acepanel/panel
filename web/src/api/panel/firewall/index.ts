@@ -29,6 +29,18 @@ export default {
   createForward: (rule: any): any => http.Post('/firewall/forward', rule),
   // 删除防火墙转发规则
   deleteForward: (rule: any): any => http.Delete('/firewall/forward', rule),
+  // IP 订阅 - 获取列表
+  subscriptions: (page: number, limit: number): any =>
+    http.Get('/firewall/subscription', { params: { page, limit } }),
+  // IP 订阅 - 创建
+  createSubscription: (subscription: any): any => http.Post('/firewall/subscription', subscription),
+  // IP 订阅 - 修改
+  updateSubscription: (id: number, subscription: any): any =>
+    http.Put(`/firewall/subscription/${id}`, subscription),
+  // IP 订阅 - 删除
+  deleteSubscription: (id: number): any => http.Delete(`/firewall/subscription/${id}`),
+  // IP 订阅 - 立即更新
+  refreshSubscription: (id: number): any => http.Post(`/firewall/subscription/${id}/refresh`),
   // 获取端口占用进程信息
   portUsage: (port: number, protocol: string): any =>
     http.Get('/firewall/rule/port_usage', { params: { port, protocol } }),

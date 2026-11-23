@@ -138,6 +138,7 @@ func Attributes(t *gotext.Locale) map[string]string {
 		"RootDir":               t.Get("Root Directory"),
 		"SSLCertificate":        t.Get("SSL Certificate"),
 		"SSLCertificateKey":     t.Get("SSL Certificate Key"),
+		"Schedule":              t.Get("Update Schedule"),
 		"Schema":                t.Get("Schema"),
 		"Scope":                 t.Get("Scope"),
 		"Script":                t.Get("Script"),

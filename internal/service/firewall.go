@@ -24,20 +24,26 @@ import (
 )
 
 type FirewallService struct {
-	t        *gotext.Locale
-	log      *slog.Logger
-	firewall firewall.Firewall
+	t            *gotext.Locale
+	log          *slog.Logger
+	firewall     firewall.Firewall
+	subscription *biz.FirewallSubscriptionUsecase
 }
 
 type firewallRuleOperator interface {
 	Port(ctx context.Context, rule firewall.FireInfo, operation firewall.Operation) error
 }
 
-func NewFirewallService(t *gotext.Locale, log *slog.Logger) *FirewallService {
+func NewFirewallService(
+	t *gotext.Locale,
+	log *slog.Logger,
+	subscriptionUsecase *biz.FirewallSubscriptionUsecase,
+) *FirewallService {
 	return &FirewallService{
-		t:        t,
-		log:      log,
-		firewall: firewall.NewFirewall(),
+		t:            t,
+		log:          log,
+		firewall:     firewall.NewFirewall(),
+		subscription: subscriptionUsecase,
 	}
 }
 
@@ -72,6 +78,7 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Info(s.t.Get("firewall status updated"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.Bool("status", req.Status), slog.String("firewall", s.firewall.Name()))
 	Success(w, nil)
 }
@@ -137,6 +144,7 @@ func (s *FirewallService) CreateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Info(s.t.Get("firewall rule created"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
@@ -170,6 +178,7 @@ func (s *FirewallService) UpdateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Info(s.t.Get("firewall rule updated"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction), slog.String("new_strategy", req.NewStrategy))
 	Success(w, nil)
 }
@@ -188,6 +197,7 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Warn(s.t.Get("firewall rule deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("rule_type", req.Type), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.Uint64("port_start", uint64(req.PortStart)), slog.Uint64("port_end", uint64(req.PortEnd)), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
@@ -297,6 +307,7 @@ func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
 		succeeded++
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Info(s.t.Get("firewall rules imported"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("filename", header.Filename), slog.Int("succeeded", succeeded), slog.Int("failed", failed))
 	Success(w, chix.M{
 		"succeeded": succeeded,
@@ -348,6 +359,7 @@ func (s *FirewallService) CreateIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Info(s.t.Get("firewall ip rule created"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
@@ -366,6 +378,7 @@ func (s *FirewallService) DeleteIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.syncSubscriptions(r.Context())
 	s.log.Warn(s.t.Get("firewall ip rule deleted"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("family", req.Family), slog.String("protocol", req.Protocol), slog.String("address", req.Address), slog.String("strategy", req.Strategy), slog.String("direction", req.Direction))
 	Success(w, nil)
 }
@@ -445,6 +458,13 @@ func (s *FirewallService) portRangeInUse(rule firewall.FireInfo, tcp, udp os.Por
 		return udp.Overlaps(rule.PortStart, rule.PortEnd)
 	default:
 		return tcp.Overlaps(rule.PortStart, rule.PortEnd) || udp.Overlaps(rule.PortStart, rule.PortEnd)
+	}
+}
+
+// syncSubscriptions 订阅豁免谁、生不生效取决于自定义规则和防火墙状态，它们变了就重新下发
+func (s *FirewallService) syncSubscriptions(ctx context.Context) {
+	if err := s.subscription.Sync(ctx); err != nil {
+		s.log.Warn(s.t.Get("failed to apply firewall subscriptions"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(ctx)), slog.Any("err", err))
 	}
 }
 

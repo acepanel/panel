@@ -21,25 +21,26 @@ type Job struct {
 
 // Dependencies 汇总定时任务依赖，Wire 会在生成期校验完整性。
 type Dependencies struct {
-	Alert       *biz.AlertUsecase
-	Backup      *biz.BackupUsecase
-	Cache       *biz.CacheUsecase
-	Cert        *biz.CertUsecase
-	CertAccount *biz.CertAccountUsecase
-	FileShare   *biz.FileShareUsecase
-	Monitor     *biz.MonitorUsecase
-	Notify      *biz.NotifyUsecase
-	ScanEvent   *biz.ScanEventUsecase
-	Setting     *biz.SettingUsecase
-	Tamper      *biz.TamperUsecase
-	Task        *biz.TaskUsecase
-	Website     *biz.WebsiteUsecase
-	WebsiteStat *biz.WebsiteStatUsecase
-	Conf        *config.Config
-	DB          *gorm.DB
-	T           *gotext.Locale
-	Log         *slog.Logger
-	Aggregator  *websitestat.Aggregator
+	Alert                *biz.AlertUsecase
+	Backup               *biz.BackupUsecase
+	Cache                *biz.CacheUsecase
+	Cert                 *biz.CertUsecase
+	CertAccount          *biz.CertAccountUsecase
+	FileShare            *biz.FileShareUsecase
+	FirewallSubscription *biz.FirewallSubscriptionUsecase
+	Monitor              *biz.MonitorUsecase
+	Notify               *biz.NotifyUsecase
+	ScanEvent            *biz.ScanEventUsecase
+	Setting              *biz.SettingUsecase
+	Tamper               *biz.TamperUsecase
+	Task                 *biz.TaskUsecase
+	Website              *biz.WebsiteUsecase
+	WebsiteStat          *biz.WebsiteStatUsecase
+	Conf                 *config.Config
+	DB                   *gorm.DB
+	T                    *gotext.Locale
+	Log                  *slog.Logger
+	Aggregator           *websitestat.Aggregator
 }
 
 func NewJobs(d *Dependencies) []Job {
@@ -47,6 +48,7 @@ func NewJobs(d *Dependencies) []Job {
 		NewAlert(d.Alert, d.T, d.Log),
 		NewMonitoring(d.Monitor, d.Setting, d.T, d.Log),
 		NewFirewallScan(d.ScanEvent, d.Setting, d.T, d.Log),
+		NewFirewallSubscription(d.FirewallSubscription, d.T, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
 		NewFileShareClean(d.FileShare, d.T, d.Log),
 		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.DB, d.T, d.Log),

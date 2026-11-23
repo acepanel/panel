@@ -12,6 +12,11 @@ const value = defineModel<string>('value', {
   required: true,
 })
 
+const props = defineProps<{
+  // 不提供的周期类型
+  exclude?: CronType[]
+}>()
+
 // 当前选择的周期类型
 const selectedOption = ref<CronType>('every-n-minutes')
 
@@ -55,21 +60,23 @@ const parseCron = (cron: string) => {
 }
 
 // 周期选项
-const options = [
-  { label: $gettext('Every Second'), value: 'every-second' },
-  { label: $gettext('Every N Seconds'), value: 'every-n-seconds' },
-  { label: $gettext('Every Minute'), value: 'every-minute' },
-  { label: $gettext('Every N Minutes'), value: 'every-n-minutes' },
-  { label: $gettext('Every N Hours'), value: 'every-n-hours' },
-  { label: $gettext('Every N Days'), value: 'every-n-days' },
-  { label: $gettext('Hourly'), value: 'every-hour' },
-  { label: $gettext('Daily'), value: 'every-day' },
-  { label: $gettext('Weekly'), value: 'every-week' },
-  { label: $gettext('Monthly'), value: 'every-month' },
-  { label: $gettext('Yearly'), value: 'every-year' },
-  { label: $gettext('After Reboot'), value: 'reboot' },
-  { label: $gettext('Custom'), value: 'custom' },
-]
+const options = (
+  [
+    { label: $gettext('Every Second'), value: 'every-second' },
+    { label: $gettext('Every N Seconds'), value: 'every-n-seconds' },
+    { label: $gettext('Every Minute'), value: 'every-minute' },
+    { label: $gettext('Every N Minutes'), value: 'every-n-minutes' },
+    { label: $gettext('Every N Hours'), value: 'every-n-hours' },
+    { label: $gettext('Every N Days'), value: 'every-n-days' },
+    { label: $gettext('Hourly'), value: 'every-hour' },
+    { label: $gettext('Daily'), value: 'every-day' },
+    { label: $gettext('Weekly'), value: 'every-week' },
+    { label: $gettext('Monthly'), value: 'every-month' },
+    { label: $gettext('Yearly'), value: 'every-year' },
+    { label: $gettext('After Reboot'), value: 'reboot' },
+    { label: $gettext('Custom'), value: 'custom' },
+  ] as { label: string; value: CronType }[]
+).filter((option) => !props.exclude?.includes(option.value))
 
 // 星期选项
 const weekdayOptions = [

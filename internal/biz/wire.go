@@ -27,6 +27,7 @@ var Module = wire.New().
 	Provide(NewDatabaseUserUsecase).
 	Provide(NewEnvironmentUsecase).
 	Provide(NewFileShareUsecase).
+	Provide(NewFirewallSubscriptionUsecase).
 	Provide(NewFileFavoriteUsecase).
 	Provide(NewLogUsecase).
 	Provide(NewMonitorUsecase).
@@ -67,6 +68,7 @@ var Module = wire.New().
 	Export[*DatabaseUserUsecase]().
 	Export[*EnvironmentUsecase]().
 	Export[*FileShareUsecase]().
+	Export[*FirewallSubscriptionUsecase]().
 	Export[*FileFavoriteUsecase]().
 	Export[*LogUsecase]().
 	Export[*MonitorUsecase]().

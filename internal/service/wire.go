@@ -37,6 +37,7 @@ var Module = wire.New().
 	Provide(NewFileFavoriteService).
 	Provide(NewFirewallService).
 	Provide(NewFirewallScanService).
+	Provide(NewFirewallSubscriptionService).
 	Provide(NewHomeService).
 	Provide(NewLogService).
 	Provide(NewMonitorService).
@@ -95,6 +96,7 @@ var Module = wire.New().
 	Export[*FileFavoriteService]().
 	Export[*FirewallService]().
 	Export[*FirewallScanService]().
+	Export[*FirewallSubscriptionService]().
 	Export[*HomeService]().
 	Export[*LogService]().
 	Export[*MonitorService]().

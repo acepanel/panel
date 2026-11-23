@@ -199,4 +199,10 @@ func init() {
 			return tx.AutoMigrate(&biz.Cert{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261124-add-firewall-subscription",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.FirewallSubscription{})
+		},
+	})
 }

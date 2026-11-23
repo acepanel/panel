@@ -34,3 +34,16 @@ type FirewallForward struct {
 	TargetIP   string `json:"target_ip" validate:"required && ip"`
 	TargetPort uint   `json:"target_port" validate:"required && min:1 && max:65535"`
 }
+
+type FirewallSubscriptionCreate struct {
+	Name     string `json:"name" validate:"required"`
+	URL      string `json:"url" validate:"required && url"`
+	Type     string `json:"type" validate:"required && in:block,allow"`
+	Schedule string `json:"schedule" validate:"required && cron"`
+	Status   bool   `json:"status"`
+}
+
+type FirewallSubscriptionUpdate struct {
+	ID uint `json:"id" uri:"id" validate:"required && exists:firewall_subscriptions,id"`
+	FirewallSubscriptionCreate
+}

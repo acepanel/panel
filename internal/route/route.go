@@ -46,6 +46,7 @@ type Services struct {
 	FileFavorite          *service.FileFavoriteService
 	Firewall              *service.FirewallService
 	FirewallScan          *service.FirewallScanService
+	FirewallSubscription  *service.FirewallSubscriptionService
 	Home                  *service.HomeService
 	Log                   *service.LogService
 	Monitor               *service.MonitorService
@@ -110,7 +111,7 @@ func NewEndpoints(s *Services) []Endpoints {
 		FileFavoriteRoutes(s.FileFavorite),
 		CronRoutes(s.Cron),
 		ProcessRoutes(s.Process),
-		FirewallRoutes(s.FirewallScan, s.Firewall),
+		FirewallRoutes(s.FirewallScan, s.Firewall, s.FirewallSubscription),
 		SSHRoutes(s.SSH),
 		SystemctlRoutes(s.Systemctl),
 		SettingRoutes(s.Setting),

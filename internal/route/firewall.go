@@ -12,9 +12,11 @@ import (
 func FirewallRoutes(
 	firewallScanService *service.FirewallScanService,
 	firewallService *service.FirewallService,
+	firewallSubscriptionService *service.FirewallSubscriptionService,
 ) Endpoints {
 	svc := firewallService
 	scan := firewallScanService
+	subscription := firewallSubscriptionService
 
 	return Endpoints{
 		// /api/firewall
@@ -56,6 +58,22 @@ func FirewallRoutes(
 		{Method: http.MethodDelete, Path: "/api/firewall/forward", Handler: svc.DeleteForward,
 			Summary: "删除端口转发", Tags: []string{"防火墙"},
 			Document: DescribeReq[request.FirewallForward]()},
+		// /api/firewall/subscription
+		{Method: http.MethodGet, Path: "/api/firewall/subscription", Handler: subscription.List,
+			Summary: "获取 IP 订阅列表", Tags: []string{"防火墙"},
+			Document: Describe[request.Paginate, service.Envelope[service.Page[*biz.FirewallSubscription]]]()},
+		{Method: http.MethodPost, Path: "/api/firewall/subscription", Handler: subscription.Create,
+			Summary: "创建 IP 订阅", Tags: []string{"防火墙"},
+			Document: Describe[request.FirewallSubscriptionCreate, service.Envelope[biz.FirewallSubscription]]()},
+		{Method: http.MethodPut, Path: "/api/firewall/subscription/{id}", Handler: subscription.Update,
+			Summary: "更新 IP 订阅", Tags: []string{"防火墙"},
+			Document: DescribeReq[request.FirewallSubscriptionUpdate]()},
+		{Method: http.MethodDelete, Path: "/api/firewall/subscription/{id}", Handler: subscription.Delete,
+			Summary: "删除 IP 订阅", Tags: []string{"防火墙"},
+			Document: DescribeReq[request.ID]()},
+		{Method: http.MethodPost, Path: "/api/firewall/subscription/{id}/refresh", Handler: subscription.Refresh,
+			Summary: "立即更新 IP 订阅", Tags: []string{"防火墙"},
+			Document: DescribeReq[request.ID]()},
 		// /api/firewall/scan
 		{Method: http.MethodGet, Path: "/api/firewall/scan/setting", Handler: scan.GetSetting,
 			Summary: "获取扫描感知设置", Tags: []string{"防火墙"},
