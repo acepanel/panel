@@ -203,19 +203,24 @@ const columns: any = [
           ),
         )
       }
-      items.push(
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            onClick: () => {
-              updateID.value = row.id
-              updateModal.value = true
+      // 内置服务器的凭据由面板随应用设置同步，不提供修改
+      if (!row.built_in) {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              onClick: () => {
+                updateID.value = row.id
+                updateModal.value = true
+              },
             },
-          },
-          { default: () => $gettext('Modify') },
-        ),
+            { default: () => $gettext('Modify') },
+          ),
+        )
+      }
+      items.push(
         h(
           AppButton,
           {
@@ -223,17 +228,7 @@ const columns: any = [
             type: 'error',
             // 内置服务器直接提示，不返回 Promise，否则按钮会闪一下加载图标
             onClick: () => {
-              const builtIns = [
-                'local_mysql',
-                'local_postgresql',
-                'local_redis',
-                'local_valkey',
-                'local_clickhouse',
-                'local_mongodb',
-                'local_elasticsearch',
-                'local_opensearch',
-              ]
-              if (builtIns.includes(row.name)) {
+              if (row.built_in) {
                 window.$message.error(
                   $gettext(
                     'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app',

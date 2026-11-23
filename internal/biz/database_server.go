@@ -31,6 +31,7 @@ type DatabaseServer struct {
 	Username  string               `gorm:"not null;default:''" json:"username"`
 	Password  string               `gorm:"not null;default:''" json:"password"`
 	Status    DatabaseServerStatus `gorm:"-:all" json:"status"`
+	BuiltIn   bool                 `gorm:"-:all" json:"built_in"`
 	Remark    string               `gorm:"not null;default:''" json:"remark"`
 	CreatedAt time.Time            `json:"created_at"`
 	UpdatedAt time.Time            `json:"updated_at"`
@@ -41,6 +42,17 @@ func (r *DatabaseServer) BeforeSave(tx *gorm.DB) error {
 }
 
 func (r *DatabaseServer) AfterFind(tx *gorm.DB) error {
+	// 数据库应用安装时登记，凭据和端口随应用设置同步
+	r.BuiltIn = slices.Contains([]string{
+		"local_mysql",
+		"local_postgresql",
+		"local_redis",
+		"local_valkey",
+		"local_clickhouse",
+		"local_mongodb",
+		"local_elasticsearch",
+		"local_opensearch",
+	}, r.Name)
 	return decryptFields(&r.Password)
 }
 
@@ -125,6 +137,9 @@ func (uc *DatabaseServerUsecase) Update(ctx context.Context, req *request.Databa
 	server, err := uc.repo.Find(req.ID)
 	if err != nil {
 		return err
+	}
+	if server.BuiltIn {
+		return errors.New(uc.t.Get("built-in servers are managed by the panel, please modify them in the corresponding app"))
 	}
 
 	server.Name = req.Name
