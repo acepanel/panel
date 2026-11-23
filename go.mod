@@ -17,7 +17,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/dchest/captcha v1.1.0
 	github.com/distribution/reference v0.6.0
-	github.com/expr-lang/expr v1.18.0
+	github.com/expr-lang/expr v1.18.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-chi/httplog/v3 v3.5.0
@@ -79,7 +79,7 @@ require (
 	golang.org/x/term v0.48.0
 	golang.org/x/text v0.44.0
 	gorm.io/gorm v1.31.2
-	modernc.org/sqlite v1.62.0
+	modernc.org/sqlite v1.63.0
 	resty.dev/v3 v3.0.0-rc.4
 )
 

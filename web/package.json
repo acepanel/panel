@@ -67,7 +67,7 @@
     "@vitejs/plugin-vue": "6.0.11",
     "@vue/eslint-config-typescript": "14.9.0",
     "@vue/tsconfig": "0.9.1",
-    "cpx2": "9.0.3",
+    "cpx2": "9.1.0",
     "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-oxlint": "1.94.0",
