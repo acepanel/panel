@@ -554,3 +554,32 @@ func TestUFWParseRuleFullOutput(t *testing.T) {
 		{Type: TypeNormal, Family: "ipv6", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
 	})
 }
+
+// 拒绝类规则插到最前，删除不看位置
+func TestUFWBuildCmd(t *testing.T) {
+	fw := newUFW()
+	ip := FireInfo{Family: "ipv4", Address: "203.0.113.4", Direction: DirectionIn}
+	port := FireInfo{PortStart: 8000, PortEnd: 8000, Direction: DirectionIn}
+	tests := []struct {
+		name string
+		got  string
+		want string
+	}{
+		{"放行地址", fw.buildRichCmd(withStrategy(ip, StrategyAccept), "tcp", OperationAdd), "ufw allow in proto tcp from 203.0.113.4 "},
+		{"丢弃地址", fw.buildRichCmd(withStrategy(ip, StrategyDrop), "tcp", OperationAdd), "ufw prepend deny in proto tcp from 203.0.113.4 "},
+		{"拒绝地址", fw.buildRichCmd(withStrategy(ip, StrategyReject), "tcp", OperationAdd), "ufw prepend reject in proto tcp from 203.0.113.4 "},
+		{"删除丢弃规则", fw.buildRichCmd(withStrategy(ip, StrategyDrop), "tcp", OperationRemove), "ufw delete deny in proto tcp from 203.0.113.4 "},
+		{"放行端口", fw.buildSimplePortCmd(withStrategy(port, StrategyAccept), "tcp"), "ufw allow 8000/tcp"},
+		{"丢弃端口", fw.buildSimplePortCmd(withStrategy(port, StrategyDrop), "tcp"), "ufw prepend deny 8000/tcp"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.Equal(t, tt.got, tt.want)
+		})
+	}
+}
+
+func withStrategy(rule FireInfo, strategy Strategy) FireInfo {
+	rule.Strategy = strategy
+	return rule
+}

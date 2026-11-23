@@ -395,9 +395,9 @@ func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 // buildSimplePortCmd 构建简单语法命令: ufw allow 443/tcp
 func (r *ufw) buildSimplePortCmd(rule FireInfo, protocol string) string {
 	if protocol != "" {
-		return fmt.Sprintf("ufw %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
+		return fmt.Sprintf("%s %s %s/%s", r.addCmd(rule.Strategy), r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
 	}
-	return fmt.Sprintf("ufw %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
+	return fmt.Sprintf("%s %s %s", r.addCmd(rule.Strategy), r.strategyToUFW(rule.Strategy), r.formatPort(rule))
 }
 
 // buildDeletePortCmd 构建扩展语法的删除命令（带协议、方向）
@@ -418,7 +418,7 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 	if operation == OperationRemove {
 		sb.WriteString("ufw delete ")
 	} else {
-		sb.WriteString("ufw ")
+		sb.WriteString(r.addCmd(rule.Strategy) + " ")
 	}
 
 	sb.WriteString(r.strategyToUFW(rule.Strategy))
@@ -457,6 +457,15 @@ func (r *ufw) formatPort(rule FireInfo) string {
 		return strconv.FormatUint(uint64(rule.PortStart), 10)
 	}
 	return fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd)
+}
+
+// addCmd 新增规则的命令：ufw 按顺序匹配、先中先得，拒绝类规则追加在末尾会被前面的放行规则遮住
+// 插到最前，与 firewalld 先拒绝后放行的顺序一致
+func (r *ufw) addCmd(strategy Strategy) string {
+	if strategy == StrategyDrop || strategy == StrategyReject {
+		return "ufw prepend"
+	}
+	return "ufw"
 }
 
 // strategyToUFW 将内部策略映射到 ufw 命令关键字
