@@ -39,7 +39,7 @@ func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("Firewall enabled"))
-	return nil
+	return s.syncFirewallSubscriptions(ctx)
 }
 
 func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
@@ -48,7 +48,7 @@ func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("Firewall disabled"))
-	return nil
+	return s.syncFirewallSubscriptions(ctx)
 }
 
 func (s *CliService) FirewallList(ctx context.Context, cmd *cli.Command) error {
@@ -111,5 +111,15 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(msg)
+	return nil
+}
+
+// syncFirewallSubscriptions IP 订阅的过滤表随防火墙启停，面板没在运行时也要立刻跟上
+// 关掉防火墙是被订阅误拦之后的自救手段，表不能留着
+func (s *CliService) syncFirewallSubscriptions(ctx context.Context) error {
+	if err := s.firewallSubscriptionRepo.Sync(ctx); err != nil {
+		return errors.New(s.t.Get("failed to apply firewall subscriptions: %v", err))
+	}
+
 	return nil
 }

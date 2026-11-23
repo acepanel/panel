@@ -95,6 +95,10 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue35_0 := biz.NewDatabaseServerUsecase(wireValue1_0, wireValue4_0, wireValue76_0)
 
+	wireValue80_0 := data.NewFirewallSubscriptionRepo(wireValue5_0, wireValue1_0)
+
+	wireValue39_0 := biz.NewFirewallSubscriptionUsecase(wireValue1_0, wireValue4_0, wireValue80_0)
+
 	wireValue47_0 := biz.NewSettingUsecase(wireValue1_0, wireValue4_0, wireValue88_0, wireValue91_0)
 
 	wireValue94_0 := data.NewUserPasskeyRepo(wireValue5_0)
@@ -135,7 +139,7 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue9_0 := bootstrap.NewValidator(wireValue0_0, wireValue5_0, wireValue1_0)
 
-	wireValue109_0 := service.NewCliService(wireValue19_0, wireValue20_0, wireValue22_0, wireValue24_0, wireValue23_0, wireValue31_0, wireValue35_0, wireValue43_0, wireValue47_0, wireValue53_0, wireValue52_0, wireValue56_0, wireValue0_0, wireValue5_0, wireValue1_0, wireValue4_0, wireValue9_0)
+	wireValue109_0 := service.NewCliService(wireValue19_0, wireValue20_0, wireValue22_0, wireValue24_0, wireValue23_0, wireValue31_0, wireValue35_0, wireValue39_0, wireValue43_0, wireValue47_0, wireValue53_0, wireValue52_0, wireValue56_0, wireValue0_0, wireValue5_0, wireValue1_0, wireValue4_0, wireValue9_0)
 
 	wireValue16_0 := bootstrap.NewCli(wireValue1_0, wireValue109_0)
 

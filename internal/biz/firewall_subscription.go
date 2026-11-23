@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -54,6 +55,8 @@ type FirewallSubscriptionUsecase struct {
 	log    *slog.Logger
 	repo   FirewallSubscriptionRepo
 	parser *cron.StandardParser
+	// mu 串行化订阅的增删改与拉取：拉取要等网络，期间插进来的修改会被它手里的旧数据盖掉，删掉的订阅也会被存回来
+	mu sync.Mutex
 }
 
 func NewFirewallSubscriptionUsecase(
@@ -68,7 +71,6 @@ func (uc *FirewallSubscriptionUsecase) List(page, limit uint) ([]*FirewallSubscr
 	return uc.repo.List(page, limit)
 }
 
-// Create 列表拉得下来、规则下发得了才保留订阅
 func (uc *FirewallSubscriptionUsecase) Create(
 	ctx context.Context,
 	req *request.FirewallSubscriptionCreate,
@@ -76,6 +78,9 @@ func (uc *FirewallSubscriptionUsecase) Create(
 	if err := uc.checkSchedule(req.Schedule); err != nil {
 		return nil, err
 	}
+
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
 
 	sub := &FirewallSubscription{
 		Name:        req.Name,
@@ -88,15 +93,16 @@ func (uc *FirewallSubscriptionUsecase) Create(
 	if err := uc.repo.Create(sub); err != nil {
 		return nil, err
 	}
-	if err := uc.repo.Fetch(ctx, sub); err != nil {
-		_ = uc.repo.Delete(sub)
-		return nil, err
+
+	// 列表拉不下来、结果存不上、规则下发不了（没装 nftables、容器里没权限），都不留下订阅
+	err := uc.repo.Fetch(ctx, sub)
+	if err == nil {
+		err = uc.repo.Save(sub)
 	}
-	if err := uc.repo.Save(sub); err != nil {
-		return nil, err
+	if err == nil {
+		err = uc.apply(ctx)
 	}
-	// 下发不了（没装 nftables、容器里没权限）就不留下一个永远不生效的订阅
-	if err := uc.apply(ctx); err != nil {
+	if err != nil {
 		_ = uc.repo.Delete(sub)
 		return nil, err
 	}
@@ -111,6 +117,9 @@ func (uc *FirewallSubscriptionUsecase) Update(ctx context.Context, req *request.
 	if err := uc.checkSchedule(req.Schedule); err != nil {
 		return err
 	}
+
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
 
 	sub, err := uc.repo.Get(req.ID)
 	if err != nil {
@@ -135,6 +144,9 @@ func (uc *FirewallSubscriptionUsecase) Update(ctx context.Context, req *request.
 }
 
 func (uc *FirewallSubscriptionUsecase) Delete(ctx context.Context, id uint) error {
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
+
 	sub, err := uc.repo.Get(id)
 	if err != nil {
 		return err
@@ -150,6 +162,9 @@ func (uc *FirewallSubscriptionUsecase) Delete(ctx context.Context, id uint) erro
 
 // Refresh 立即更新一个订阅
 func (uc *FirewallSubscriptionUsecase) Refresh(ctx context.Context, id uint) error {
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
+
 	sub, err := uc.repo.Get(id)
 	if err != nil {
 		return err
@@ -169,19 +184,9 @@ func (uc *FirewallSubscriptionUsecase) RefreshDue(ctx context.Context) bool {
 		return false
 	}
 
-	now := time.Now()
 	refreshed := false
 	for _, sub := range subs {
-		schedule, err := uc.parser.Parse(sub.Schedule)
-		if err != nil {
-			continue
-		}
-		// 缓存丢了（比如还原面板备份之后）不等周期，上次拉取失败过的除外，免得每分钟都去撞一个失效的地址
-		lost := sub.Error == "" && !uc.repo.Cached(sub.ID)
-		if schedule.Next(sub.RefreshedAt).After(now) && !lost {
-			continue
-		}
-		if uc.refresh(ctx, sub) == nil {
+		if uc.refreshDue(ctx, sub.ID) {
 			refreshed = true
 		}
 	}
@@ -201,6 +206,28 @@ func (uc *FirewallSubscriptionUsecase) apply(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// refreshDue 拿到锁之后才读订阅：等锁期间它可能已被删除、停用或刚更新过
+func (uc *FirewallSubscriptionUsecase) refreshDue(ctx context.Context, id uint) bool {
+	uc.mu.Lock()
+	defer uc.mu.Unlock()
+
+	sub, err := uc.repo.Get(id)
+	if err != nil || !sub.Status {
+		return false
+	}
+	schedule, err := uc.parser.Parse(sub.Schedule)
+	if err != nil {
+		return false
+	}
+	// 缓存丢了（比如还原面板备份之后）不等周期，上次拉取失败过的除外，免得每分钟都去撞一个失效的地址
+	lost := sub.Error == "" && !uc.repo.Cached(sub.ID)
+	if schedule.Next(sub.RefreshedAt).After(time.Now()) && !lost {
+		return false
+	}
+
+	return uc.refresh(ctx, sub) == nil
 }
 
 // refresh 拉取一次列表并记下结果，失败时旧列表继续生效

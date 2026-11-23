@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"testing"
 	"time"
 
@@ -26,6 +27,7 @@ func TestFirewallSubscriptionRefreshDue(t *testing.T) {
 		name   string
 		sub    biz.FirewallSubscription
 		cached bool
+		getErr error // 排到锁时订阅已被删除
 		want   bool
 	}{
 		{
@@ -54,15 +56,23 @@ func TestFirewallSubscriptionRefreshDue(t *testing.T) {
 			name: "缓存丢失但上次拉取失败，仍按周期重试",
 			sub:  biz.FirewallSubscription{Schedule: "@every 1h", RefreshedAt: now.Add(-10 * time.Minute), Error: "timeout"},
 		},
+		{
+			name:   "排到锁时已被删除",
+			sub:    biz.FirewallSubscription{Schedule: "@every 1h", RefreshedAt: now.Add(-61 * time.Minute)},
+			cached: true,
+			getErr: errors.New("record not found"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sub := tt.sub
-			sub.ID = 1
+			sub.ID, sub.Status = 1, true
 			repo := &mocks.FirewallSubscriptionRepo{
 				ListEnabledFunc: func() ([]*biz.FirewallSubscription, error) {
-					return []*biz.FirewallSubscription{&sub}, nil
+					listed := sub
+					return []*biz.FirewallSubscription{&listed}, nil
 				},
+				GetFunc:    func(uint) (*biz.FirewallSubscription, error) { return &sub, tt.getErr },
 				CachedFunc: func(uint) bool { return tt.cached },
 				FetchFunc: func(_ context.Context, sub *biz.FirewallSubscription) error {
 					sub.Count = 42
@@ -84,11 +94,12 @@ func TestFirewallSubscriptionRefreshDue(t *testing.T) {
 
 // 拉取失败只记下原因和时间，不算更新成功，下次仍按周期重试
 func TestFirewallSubscriptionRefreshDueFailure(t *testing.T) {
-	sub := &biz.FirewallSubscription{ID: 1, Schedule: "@every 1h", Count: 7}
+	sub := &biz.FirewallSubscription{ID: 1, Schedule: "@every 1h", Status: true, Count: 7}
 	repo := &mocks.FirewallSubscriptionRepo{
 		ListEnabledFunc: func() ([]*biz.FirewallSubscription, error) {
 			return []*biz.FirewallSubscription{sub}, nil
 		},
+		GetFunc:    func(uint) (*biz.FirewallSubscription, error) { return sub, nil },
 		CachedFunc: func(uint) bool { return true },
 		FetchFunc:  func(context.Context, *biz.FirewallSubscription) error { return errors.New("boom") },
 		SaveFunc:   func(*biz.FirewallSubscription) error { return nil },
@@ -104,17 +115,19 @@ func TestFirewallSubscriptionRefreshDueFailure(t *testing.T) {
 	check.Len(t, repo.FetchCalls(), 1)
 }
 
-// 列表拉不下来或规则下发不了时不留下订阅
+// 列表拉不下来、结果存不上或规则下发不了时不留下订阅
 func TestFirewallSubscriptionCreateRollback(t *testing.T) {
 	req := &request.FirewallSubscriptionCreate{Name: "test", URL: "https://example.com/list.txt", Type: biz.FirewallSubscriptionBlock, Schedule: "0 3 * * *", Status: true}
 	tests := []struct {
 		name     string
 		fetchErr error
+		saveErr  error
 		syncErr  error
 		wantErr  bool
 	}{
 		{name: "成功"},
 		{name: "拉取失败", fetchErr: errors.New("404"), wantErr: true},
+		{name: "保存失败", saveErr: errors.New("database is locked"), wantErr: true},
 		{name: "下发失败", syncErr: errors.New("nft: Operation not permitted"), wantErr: true},
 	}
 	for _, tt := range tests {
@@ -125,7 +138,7 @@ func TestFirewallSubscriptionCreateRollback(t *testing.T) {
 					return nil
 				},
 				FetchFunc:  func(context.Context, *biz.FirewallSubscription) error { return tt.fetchErr },
-				SaveFunc:   func(*biz.FirewallSubscription) error { return nil },
+				SaveFunc:   func(*biz.FirewallSubscription) error { return tt.saveErr },
 				SyncFunc:   func(context.Context) error { return tt.syncErr },
 				DeleteFunc: func(*biz.FirewallSubscription) error { return nil },
 			}
@@ -183,4 +196,50 @@ func TestFirewallSubscriptionUpdate(t *testing.T) {
 	must.NoError(t, usecase.Update(t.Context(), req))
 	check.Equal(t, stored.URL, "https://example.com/b.txt")
 	check.Equal(t, stored.Count, uint(9))
+}
+
+// 拉取等在网络上时插进来的删除要排到它后面：否则删掉的订阅会被拉取结束时的保存写回去
+func TestFirewallSubscriptionDeleteWaitsForRefresh(t *testing.T) {
+	sub := &biz.FirewallSubscription{ID: 1, Schedule: "@every 1h", Status: true}
+	fetching, release := make(chan struct{}), make(chan struct{})
+	var mu sync.Mutex
+	var events []string
+	record := func(event string) {
+		mu.Lock()
+		defer mu.Unlock()
+		events = append(events, event)
+	}
+	repo := &mocks.FirewallSubscriptionRepo{
+		ListEnabledFunc: func() ([]*biz.FirewallSubscription, error) {
+			return []*biz.FirewallSubscription{sub}, nil
+		},
+		GetFunc:    func(uint) (*biz.FirewallSubscription, error) { return sub, nil },
+		CachedFunc: func(uint) bool { return true },
+		FetchFunc: func(context.Context, *biz.FirewallSubscription) error {
+			close(fetching)
+			<-release
+			return nil
+		},
+		SaveFunc: func(*biz.FirewallSubscription) error {
+			record("save")
+			return nil
+		},
+		DeleteFunc: func(*biz.FirewallSubscription) error {
+			record("delete")
+			return nil
+		},
+		SyncFunc: func(context.Context) error { return nil },
+	}
+	usecase := newFirewallSubscriptionUsecase(repo)
+
+	var wg sync.WaitGroup
+	wg.Go(func() { usecase.RefreshDue(t.Context()) })
+	<-fetching
+	wg.Go(func() { _ = usecase.Delete(t.Context(), 1) })
+
+	time.Sleep(50 * time.Millisecond)
+	check.Len(t, repo.DeleteCalls(), 0)
+	close(release)
+	wg.Wait()
+	check.DeepEqual(t, events, []string{"save", "delete"})
 }

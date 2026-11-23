@@ -21,24 +21,25 @@ import (
 )
 
 type CliService struct {
-	hr                 string
-	t                  *gotext.Locale
-	log                *slog.Logger
-	conf               *config.Config
-	db                 *gorm.DB
-	appRepo            *biz.AppUsecase
-	cacheRepo          *biz.CacheUsecase
-	userRepo           *biz.UserUsecase
-	userPasskeyRepo    *biz.UserPasskeyUsecase
-	settingRepo        *biz.SettingUsecase
-	backupRepo         *biz.BackupUsecase
-	websiteRepo        *biz.WebsiteUsecase
-	databaseServerRepo *biz.DatabaseServerUsecase
-	certRepo           *biz.CertUsecase
-	certAccountRepo    *biz.CertAccountUsecase
-	cronRepo           *biz.CronUsecase
-	notifyRepo         *biz.NotifyUsecase
-	validator          *validator.Validator
+	hr                       string
+	t                        *gotext.Locale
+	log                      *slog.Logger
+	conf                     *config.Config
+	db                       *gorm.DB
+	appRepo                  *biz.AppUsecase
+	cacheRepo                *biz.CacheUsecase
+	userRepo                 *biz.UserUsecase
+	userPasskeyRepo          *biz.UserPasskeyUsecase
+	settingRepo              *biz.SettingUsecase
+	backupRepo               *biz.BackupUsecase
+	websiteRepo              *biz.WebsiteUsecase
+	databaseServerRepo       *biz.DatabaseServerUsecase
+	certRepo                 *biz.CertUsecase
+	certAccountRepo          *biz.CertAccountUsecase
+	cronRepo                 *biz.CronUsecase
+	notifyRepo               *biz.NotifyUsecase
+	firewallSubscriptionRepo *biz.FirewallSubscriptionUsecase
+	validator                *validator.Validator
 }
 
 func NewCliService(
@@ -49,6 +50,7 @@ func NewCliService(
 	certUsecase *biz.CertUsecase,
 	cronUsecase *biz.CronUsecase,
 	databaseServerUsecase *biz.DatabaseServerUsecase,
+	firewallSubscriptionUsecase *biz.FirewallSubscriptionUsecase,
 	notifyUsecase *biz.NotifyUsecase,
 	settingUsecase *biz.SettingUsecase,
 	userPasskeyUsecase *biz.UserPasskeyUsecase,
@@ -61,24 +63,25 @@ func NewCliService(
 	v *validator.Validator,
 ) *CliService {
 	return &CliService{
-		hr:                 `+----------------------------------------------------`,
-		t:                  t,
-		log:                log,
-		conf:               conf,
-		db:                 db,
-		validator:          v,
-		appRepo:            appUsecase,
-		cacheRepo:          cacheUsecase,
-		userRepo:           userUsecase,
-		userPasskeyRepo:    userPasskeyUsecase,
-		settingRepo:        settingUsecase,
-		backupRepo:         backupUsecase,
-		websiteRepo:        websiteUsecase,
-		databaseServerRepo: databaseServerUsecase,
-		certRepo:           certUsecase,
-		certAccountRepo:    certAccountUsecase,
-		cronRepo:           cronUsecase,
-		notifyRepo:         notifyUsecase,
+		hr:                       `+----------------------------------------------------`,
+		t:                        t,
+		log:                      log,
+		conf:                     conf,
+		db:                       db,
+		validator:                v,
+		appRepo:                  appUsecase,
+		cacheRepo:                cacheUsecase,
+		userRepo:                 userUsecase,
+		userPasskeyRepo:          userPasskeyUsecase,
+		settingRepo:              settingUsecase,
+		backupRepo:               backupUsecase,
+		websiteRepo:              websiteUsecase,
+		databaseServerRepo:       databaseServerUsecase,
+		certRepo:                 certUsecase,
+		certAccountRepo:          certAccountUsecase,
+		cronRepo:                 cronUsecase,
+		notifyRepo:               notifyUsecase,
+		firewallSubscriptionRepo: firewallSubscriptionUsecase,
 	}
 }
 
