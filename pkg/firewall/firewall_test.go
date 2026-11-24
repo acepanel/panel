@@ -569,8 +569,10 @@ func TestUFWBuildCmd(t *testing.T) {
 		{"丢弃地址", fw.buildRichCmd(withStrategy(ip, StrategyDrop), "tcp", OperationAdd), "ufw prepend deny in proto tcp from 203.0.113.4 "},
 		{"拒绝地址", fw.buildRichCmd(withStrategy(ip, StrategyReject), "tcp", OperationAdd), "ufw prepend reject in proto tcp from 203.0.113.4 "},
 		{"删除丢弃规则", fw.buildRichCmd(withStrategy(ip, StrategyDrop), "tcp", OperationRemove), "ufw delete deny in proto tcp from 203.0.113.4 "},
-		{"放行端口", fw.buildSimplePortCmd(withStrategy(port, StrategyAccept), "tcp"), "ufw allow 8000/tcp"},
-		{"丢弃端口", fw.buildSimplePortCmd(withStrategy(port, StrategyDrop), "tcp"), "ufw prepend deny 8000/tcp"},
+		{"放行端口", fw.buildSimplePortCmd(withStrategy(port, StrategyAccept), "tcp", OperationAdd), "ufw allow 8000/tcp"},
+		{"丢弃端口", fw.buildSimplePortCmd(withStrategy(port, StrategyDrop), "tcp", OperationAdd), "ufw prepend deny 8000/tcp"},
+		{"删除放行端口", fw.buildSimplePortCmd(withStrategy(port, StrategyAccept), "tcp", OperationRemove), "ufw delete allow 8000/tcp"},
+		{"删除无协议端口", fw.buildSimplePortCmd(withStrategy(port, StrategyDrop), "", OperationRemove), "ufw delete deny 8000"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

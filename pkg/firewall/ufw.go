@@ -123,8 +123,9 @@ func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) erro
 
 	// 添加规则：使用简单语法
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		cmd := r.buildSimplePortCmd(rule, protocol)
-		if _, err := shell.Exec(ctx, cmd); err != nil {
+		if err := r.add(ctx, rule, func(rule FireInfo, operation Operation) string {
+			return r.buildSimplePortCmd(rule, protocol, operation)
+		}); err != nil {
 			return err
 		}
 	}
@@ -148,8 +149,14 @@ func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation)
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		_, err := shell.Exec(ctx, r.buildRichCmd(rule, protocol, operation))
-		if err != nil && operation != OperationRemove {
+		build := func(rule FireInfo, operation Operation) string {
+			return r.buildRichCmd(rule, protocol, operation)
+		}
+		if operation == OperationRemove {
+			_, _ = shell.Exec(ctx, build(rule, operation))
+			continue
+		}
+		if err := r.add(ctx, rule, build); err != nil {
 			return err
 		}
 	}
@@ -256,6 +263,23 @@ func (r *ufw) UpdatePingStatus(ctx context.Context, status bool) error {
 	}
 
 	_, err = shell.Execf(ctx, "ufw reload")
+	return err
+}
+
+// add 新增一条规则，build 按规则和操作生成命令
+// 同一匹配条件在 ufw 里只能有一条规则：已有那条的动作不同时，前插会被当成重复而跳过，要先删掉它再插
+func (r *ufw) add(ctx context.Context, rule FireInfo, build func(FireInfo, Operation) string) error {
+	out, err := shell.Exec(ctx, build(rule, OperationAdd))
+	if err != nil || !strings.Contains(out, "Skipping inserting") {
+		return err
+	}
+
+	for _, strategy := range []Strategy{StrategyAccept, StrategyDrop, StrategyReject} {
+		existing := rule
+		existing.Strategy = strategy
+		_, _ = shell.Exec(ctx, build(existing, OperationRemove))
+	}
+	_, err = shell.Exec(ctx, build(rule, OperationAdd))
 	return err
 }
 
@@ -379,12 +403,12 @@ func (r *ufw) isIPOrCIDR(s string) bool {
 func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 	// tcp/udp 时先尝试无协议删除（匹配 ufw allow 8888 这种原生规则）
 	if rule.Protocol == ProtocolTCPUDP {
-		_, _ = shell.Execf(ctx, "ufw delete %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
+		_, _ = shell.Exec(ctx, r.buildSimplePortCmd(rule, "", OperationRemove))
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		// 简单语法: ufw delete allow 443/tcp
-		_, _ = shell.Execf(ctx, "ufw delete %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
+		_, _ = shell.Exec(ctx, r.buildSimplePortCmd(rule, protocol, OperationRemove))
 		// 扩展语法: ufw delete allow in proto tcp to any port 443
 		_, _ = shell.Exec(ctx, r.buildDeletePortCmd(rule, protocol))
 	}
@@ -393,11 +417,15 @@ func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 }
 
 // buildSimplePortCmd 构建简单语法命令: ufw allow 443/tcp
-func (r *ufw) buildSimplePortCmd(rule FireInfo, protocol string) string {
-	if protocol != "" {
-		return fmt.Sprintf("%s %s %s/%s", r.addCmd(rule.Strategy), r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
+func (r *ufw) buildSimplePortCmd(rule FireInfo, protocol string, operation Operation) string {
+	prefix := r.addCmd(rule.Strategy)
+	if operation == OperationRemove {
+		prefix = "ufw delete"
 	}
-	return fmt.Sprintf("%s %s %s", r.addCmd(rule.Strategy), r.strategyToUFW(rule.Strategy), r.formatPort(rule))
+	if protocol != "" {
+		return fmt.Sprintf("%s %s %s/%s", prefix, r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
+	}
+	return fmt.Sprintf("%s %s %s", prefix, r.strategyToUFW(rule.Strategy), r.formatPort(rule))
 }
 
 // buildDeletePortCmd 构建扩展语法的删除命令（带协议、方向）
