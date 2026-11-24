@@ -132,7 +132,7 @@ msgstr ""
 msgid "AcePanel service stopped"
 msgstr ""
 
-#: internal/apps/mysql/app.go:786
+#: internal/apps/mysql/app.go:823
 msgid "Active Connections"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 msgid "Address to proxy to (required for proxy type)"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:864
+#: internal/apps/postgresql/app.go:921
 msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -240,11 +240,11 @@ msgstr ""
 msgid "Application management"
 msgstr ""
 
-#: internal/data/backup_panel.go:349
+#: internal/data/backup_panel.go:361
 msgid "Applying update failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:347
+#: internal/data/backup_panel.go:359
 msgid "Applying update..."
 msgstr ""
 
@@ -256,11 +256,11 @@ msgstr ""
 msgid "Authorization"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:861
+#: internal/apps/postgresql/app.go:918
 msgid "Automated partition management"
 msgstr ""
 
-#: internal/data/backup_panel.go:304
+#: internal/data/backup_panel.go:316
 msgid "Backing up panel data..."
 msgstr ""
 
@@ -390,11 +390,11 @@ msgstr ""
 msgid "Bytes Per Key"
 msgstr ""
 
-#: internal/apps/mysql/app.go:785
+#: internal/apps/mysql/app.go:822
 msgid "Bytes Received"
 msgstr ""
 
-#: internal/apps/mysql/app.go:784
+#: internal/apps/mysql/app.go:821
 msgid "Bytes Sent"
 msgstr ""
 
@@ -478,7 +478,7 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:858
+#: internal/apps/postgresql/app.go:915
 msgid "Chinese full-text search parser based on SCWS"
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 msgid "Cleaning failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:195
+#: internal/data/backup_panel.go:207
 msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
@@ -588,7 +588,7 @@ msgstr ""
 msgid "Container name"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:863
+#: internal/apps/postgresql/app.go:920
 msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -854,12 +854,12 @@ msgstr ""
 msgid "Download URL is empty"
 msgstr ""
 
-#: internal/data/backup_panel.go:315
-#: internal/data/backup_panel.go:318
+#: internal/data/backup_panel.go:327
+#: internal/data/backup_panel.go:330
 msgid "Download failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:321
+#: internal/data/backup_panel.go:333
 msgid "Download file check failed"
 msgstr ""
 
@@ -867,7 +867,7 @@ msgstr ""
 msgid "Download remote file %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:313
+#: internal/data/backup_panel.go:325
 msgid "Downloading new version..."
 msgstr ""
 
@@ -1010,7 +1010,7 @@ msgstr ""
 msgid "Export image to %s"
 msgstr ""
 
-#: internal/data/backup_panel.go:335
+#: internal/data/backup_panel.go:347
 msgid "Extracting new version..."
 msgstr ""
 
@@ -1031,7 +1031,7 @@ msgstr ""
 msgid "Failed to change username: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:297
+#: internal/data/backup_panel.go:309
 msgid "Failed to clean up temporary directory: %v"
 msgstr ""
 
@@ -1043,7 +1043,7 @@ msgstr ""
 msgid "Failed to clear tasks: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:311
+#: internal/data/backup_panel.go:323
 msgid "Failed to create temporary directory: %v"
 msgstr ""
 
@@ -1123,7 +1123,7 @@ msgstr ""
 msgid "Failed to obtain panel certificate via ACME, using self-signed certificate: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:300
+#: internal/data/backup_panel.go:312
 msgid "Failed to optimize database: %v"
 msgstr ""
 
@@ -1131,7 +1131,7 @@ msgstr ""
 msgid "Failed to read certificate file: %v"
 msgstr ""
 
-#: internal/service/cli.go:136
+#: internal/service/cli.go:139
 #: internal/service/cli_user.go:165
 msgid "Failed to read input: %v"
 msgstr ""
@@ -1140,7 +1140,7 @@ msgstr ""
 msgid "Failed to read private key file: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:127
+#: internal/data/backup_panel.go:139
 msgid "Failed to remove %s.db: %v"
 msgstr ""
 
@@ -1166,11 +1166,11 @@ msgstr ""
 msgid "Failed to start command: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:137
+#: internal/data/backup_panel.go:149
 msgid "Failed to start panel: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:120
+#: internal/data/backup_panel.go:132
 msgid "Failed to stop panel: %v"
 msgstr ""
 
@@ -1218,7 +1218,7 @@ msgstr ""
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
-#: internal/data/backup_panel.go:113
+#: internal/data/backup_panel.go:125
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr ""
 
@@ -1230,11 +1230,11 @@ msgstr ""
 msgid "Find Time"
 msgstr ""
 
-#: internal/data/backup_panel.go:353
+#: internal/data/backup_panel.go:365
 msgid "Finishing up..."
 msgstr ""
 
-#: internal/data/backup_panel.go:355
+#: internal/data/backup_panel.go:367
 msgid "Finishing update failed: %v"
 msgstr ""
 
@@ -1278,11 +1278,11 @@ msgstr ""
 msgid "Fragmentation Ratio"
 msgstr ""
 
-#: internal/apps/mysql/app.go:792
+#: internal/apps/mysql/app.go:829
 msgid "Full Joins without Index"
 msgstr ""
 
-#: internal/apps/mysql/app.go:793
+#: internal/apps/mysql/app.go:830
 msgid "Full Range Joins without Index"
 msgstr ""
 
@@ -1330,7 +1330,7 @@ msgstr ""
 msgid "HTTP Port"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:869
+#: internal/apps/postgresql/app.go:926
 msgid "HTTP client for SQL, send requests from the database"
 msgstr ""
 
@@ -1366,7 +1366,7 @@ msgstr ""
 msgid "Huawei Cloud"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:866
+#: internal/apps/postgresql/app.go:923
 msgid "Hypothetical indexes for query plan testing"
 msgstr ""
 
@@ -1456,7 +1456,7 @@ msgstr ""
 msgid "Import image from %s"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:865
+#: internal/apps/postgresql/app.go:922
 msgid "Incremental view maintenance for materialized views"
 msgstr ""
 
@@ -1464,7 +1464,7 @@ msgstr ""
 msgid "Index"
 msgstr ""
 
-#: internal/apps/mysql/app.go:788
+#: internal/apps/mysql/app.go:825
 msgid "Index Hit Rate"
 msgstr ""
 
@@ -1478,7 +1478,7 @@ msgstr ""
 msgid "Initialize AcePanel (use only under guidance)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:789
+#: internal/apps/mysql/app.go:826
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
@@ -1494,7 +1494,7 @@ msgstr ""
 msgid "Install PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:825
+#: internal/apps/postgresql/app.go:882
 msgid "Install PostgreSQL extension %s"
 msgstr ""
 
@@ -1589,7 +1589,7 @@ msgstr ""
 msgid "Lifetime"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:867
+#: internal/apps/postgresql/app.go:924
 msgid "Lightweight message queue"
 msgstr ""
 
@@ -1670,11 +1670,11 @@ msgstr ""
 msgid "Listening port"
 msgstr ""
 
-#: internal/service/cli.go:152
+#: internal/service/cli.go:155
 msgid "Local IPv4: %s://%s:%d%s"
 msgstr ""
 
-#: internal/service/cli.go:156
+#: internal/service/cli.go:159
 msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr ""
 
@@ -1855,11 +1855,11 @@ msgstr ""
 msgid "Mount Point"
 msgstr ""
 
-#: internal/data/backup_panel.go:226
+#: internal/data/backup_panel.go:238
 msgid "Move acepanel file failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:217
+#: internal/data/backup_panel.go:229
 msgid "Move panel file failed: %v"
 msgstr ""
 
@@ -1919,7 +1919,7 @@ msgstr ""
 msgid "No Anonymous"
 msgstr ""
 
-#: internal/data/backup_panel.go:165
+#: internal/data/backup_panel.go:177
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
@@ -2015,7 +2015,7 @@ msgstr ""
 msgid "Old username cannot be empty"
 msgstr ""
 
-#: internal/apps/mysql/app.go:791
+#: internal/apps/mysql/app.go:828
 msgid "Open Tables"
 msgstr ""
 
@@ -2052,7 +2052,7 @@ msgstr ""
 msgid "Operator"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:868
+#: internal/apps/postgresql/app.go:925
 msgid "Oracle compatibility functions"
 msgstr ""
 
@@ -2142,7 +2142,7 @@ msgstr ""
 msgid "Password length cannot be less than 6"
 msgstr ""
 
-#: internal/service/cli.go:129
+#: internal/service/cli.go:132
 msgid "Password not provided, pass it as an argument or set the %s environment variable"
 msgstr ""
 
@@ -2176,7 +2176,7 @@ msgstr ""
 msgid "Peak Allocated"
 msgstr ""
 
-#: internal/apps/mysql/app.go:787
+#: internal/apps/mysql/app.go:824
 msgid "Peak Connections"
 msgstr ""
 
@@ -2293,7 +2293,7 @@ msgstr ""
 msgid "PostgreSQL database metrics"
 msgstr ""
 
-#: internal/data/backup_panel.go:295
+#: internal/data/backup_panel.go:307
 msgid "Preparing to update to %s..."
 msgstr ""
 
@@ -2310,7 +2310,7 @@ msgstr ""
 msgid "Process"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:152
+#: internal/apps/postgresql/app.go:153
 msgid "Process Count"
 msgstr ""
 
@@ -2319,7 +2319,7 @@ msgstr ""
 msgid "Process Manager"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:151
+#: internal/apps/postgresql/app.go:152
 msgid "Process PID"
 msgstr ""
 
@@ -2347,11 +2347,11 @@ msgstr ""
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
-#: internal/service/cli.go:160
+#: internal/service/cli.go:163
 msgid "Public IPv4: %s://%s:%d%s"
 msgstr ""
 
-#: internal/service/cli.go:164
+#: internal/service/cli.go:167
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr ""
 
@@ -2367,19 +2367,19 @@ msgstr ""
 msgid "QQ Group：12370907"
 msgstr ""
 
-#: internal/apps/mysql/app.go:800
+#: internal/apps/mysql/app.go:837
 msgid "Query Cache Hit Rate"
 msgstr ""
 
-#: internal/apps/mysql/app.go:797
+#: internal/apps/mysql/app.go:834
 msgid "Query Cache Hits"
 msgstr ""
 
-#: internal/apps/mysql/app.go:798
+#: internal/apps/mysql/app.go:835
 msgid "Query Cache Inserts"
 msgstr ""
 
-#: internal/apps/mysql/app.go:799
+#: internal/apps/mysql/app.go:836
 msgid "Query Cache Not Cached"
 msgstr ""
 
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "Remove panel application mark (use only under guidance)"
 msgstr ""
 
-#: internal/data/backup_panel.go:214
+#: internal/data/backup_panel.go:226
 msgid "Remove panel file failed: %v"
 msgstr ""
 
@@ -2443,7 +2443,7 @@ msgstr ""
 msgid "Renew certificate"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:859
+#: internal/apps/postgresql/app.go:916
 msgid "Reorganize tables online to remove bloat"
 msgstr ""
 
@@ -2491,7 +2491,7 @@ msgstr ""
 msgid "Reverse DNS (PTR)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:783
+#: internal/apps/mysql/app.go:820
 msgid "Rollbacks per Second"
 msgstr ""
 
@@ -2511,11 +2511,11 @@ msgstr ""
 msgid "Rule"
 msgstr ""
 
-#: internal/apps/mysql/app.go:598
+#: internal/apps/mysql/app.go:635
 msgid "Run %[1]s on %[2]d tables"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:648
+#: internal/apps/postgresql/app.go:682
 msgid "Run %[1]s on %[2]d tables in database %[3]s"
 msgstr ""
 
@@ -2523,7 +2523,7 @@ msgstr ""
 msgid "Run a cron task immediately"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:860
+#: internal/apps/postgresql/app.go:917
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -2559,23 +2559,23 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: internal/request/attributes.go:141
+#: internal/request/attributes.go:142
 msgid "Schema"
 msgstr ""
 
-#: internal/request/attributes.go:142
+#: internal/request/attributes.go:143
 msgid "Scope"
 msgstr ""
 
-#: internal/request/attributes.go:143
+#: internal/request/attributes.go:144
 msgid "Script"
 msgstr ""
 
-#: internal/request/attributes.go:153
+#: internal/request/attributes.go:154
 msgid "Secret Key"
 msgstr ""
 
-#: internal/request/attributes.go:144
+#: internal/request/attributes.go:145
 msgid "Server"
 msgstr ""
 
@@ -2608,23 +2608,23 @@ msgstr ""
 msgid "Server username"
 msgstr ""
 
-#: internal/request/attributes.go:145
+#: internal/request/attributes.go:146
 msgid "Servers"
 msgstr ""
 
-#: internal/request/attributes.go:146
+#: internal/request/attributes.go:147
 msgid "Service"
 msgstr ""
 
-#: internal/request/attributes.go:147
+#: internal/request/attributes.go:148
 msgid "Session Cookie Lifetime"
 msgstr ""
 
-#: internal/request/attributes.go:148
+#: internal/request/attributes.go:149
 msgid "Session GC Max Lifetime"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:862
+#: internal/apps/postgresql/app.go:919
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -2644,19 +2644,19 @@ msgstr ""
 msgid "Setting not exists"
 msgstr ""
 
-#: internal/request/attributes.go:149
+#: internal/request/attributes.go:150
 msgid "Settings"
 msgstr ""
 
-#: internal/request/attributes.go:150
+#: internal/request/attributes.go:151
 msgid "Signal"
 msgstr ""
 
-#: internal/request/attributes.go:151
+#: internal/request/attributes.go:152
 msgid "Silence"
 msgstr ""
 
-#: internal/request/attributes.go:152
+#: internal/request/attributes.go:153
 msgid "Size"
 msgstr ""
 
@@ -2669,7 +2669,7 @@ msgstr ""
 #: internal/command/app.go:31
 #: internal/command/app.go:42
 #: internal/command/app.go:49
-#: internal/request/attributes.go:154
+#: internal/request/attributes.go:155
 msgid "Slug"
 msgstr ""
 
@@ -2677,27 +2677,27 @@ msgstr ""
 msgid "Slug: %s, Channel: %s, Version: %s"
 msgstr ""
 
-#: internal/request/attributes.go:155
+#: internal/request/attributes.go:156
 msgid "Slugs"
 msgstr ""
 
-#: internal/request/attributes.go:156
+#: internal/request/attributes.go:157
 msgid "Sort"
 msgstr ""
 
-#: internal/apps/mysql/app.go:795
+#: internal/apps/mysql/app.go:832
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/request/attributes.go:157
+#: internal/request/attributes.go:158
 msgid "Source"
 msgstr ""
 
-#: internal/request/attributes.go:158
+#: internal/request/attributes.go:159
 msgid "Source Panel"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:856
+#: internal/apps/postgresql/app.go:913
 msgid "Spatial and geographic objects support"
 msgstr ""
 
@@ -2705,7 +2705,7 @@ msgstr ""
 msgid "Stalwart mail server reverse proxy"
 msgstr ""
 
-#: internal/request/attributes.go:159
+#: internal/request/attributes.go:160
 msgid "Start"
 msgstr ""
 
@@ -2721,13 +2721,13 @@ msgstr ""
 msgid "Start Servers"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:150
+#: internal/apps/postgresql/app.go:151
 #: internal/apps/prometheus/app.go:101
 #: internal/service/environment_php.go:206
 msgid "Start Time"
 msgstr ""
 
-#: internal/request/attributes.go:176
+#: internal/request/attributes.go:177
 msgid "Start Timeout"
 msgstr ""
 
@@ -2735,11 +2735,11 @@ msgstr ""
 msgid "Startup Allocated"
 msgstr ""
 
-#: internal/request/attributes.go:160
+#: internal/request/attributes.go:161
 msgid "Status"
 msgstr ""
 
-#: internal/request/attributes.go:161
+#: internal/request/attributes.go:162
 msgid "Stop"
 msgstr ""
 
@@ -2747,7 +2747,7 @@ msgstr ""
 msgid "Stop AcePanel service"
 msgstr ""
 
-#: internal/request/attributes.go:177
+#: internal/request/attributes.go:178
 msgid "Stop Timeout"
 msgstr ""
 
@@ -2769,19 +2769,19 @@ msgstr ""
 msgid "Storage Retention"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:154
+#: internal/apps/postgresql/app.go:155
 msgid "Storage Usage"
 msgstr ""
 
-#: internal/request/attributes.go:162
+#: internal/request/attributes.go:163
 msgid "Strategy"
 msgstr ""
 
-#: internal/request/attributes.go:163
+#: internal/request/attributes.go:164
 msgid "Sub Type"
 msgstr ""
 
-#: internal/apps/mysql/app.go:794
+#: internal/apps/mysql/app.go:831
 msgid "Subqueries without Index"
 msgstr ""
 
@@ -2805,7 +2805,7 @@ msgstr ""
 msgid "Sync server time with NTP"
 msgstr ""
 
-#: internal/request/attributes.go:164
+#: internal/request/attributes.go:165
 msgid "System Log Path"
 msgstr ""
 
@@ -2822,23 +2822,23 @@ msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
 #: internal/apps/redis/app.go:122
-#: internal/request/attributes.go:165
+#: internal/request/attributes.go:166
 msgid "TCP Port"
 msgstr ""
 
-#: internal/request/attributes.go:166
+#: internal/request/attributes.go:167
 msgid "TLS"
 msgstr ""
 
-#: internal/request/attributes.go:167
+#: internal/request/attributes.go:168
 msgid "TLS Versions"
 msgstr ""
 
-#: internal/request/attributes.go:168
+#: internal/request/attributes.go:169
 msgid "Table"
 msgstr ""
 
-#: internal/apps/mysql/app.go:796
+#: internal/apps/mysql/app.go:833
 msgid "Table Locks Waited"
 msgstr ""
 
@@ -2847,15 +2847,15 @@ msgid "Tables"
 msgstr ""
 
 #: internal/biz/backup.go:157
-#: internal/request/attributes.go:169
+#: internal/request/attributes.go:170
 msgid "Target"
 msgstr ""
 
-#: internal/request/attributes.go:170
+#: internal/request/attributes.go:171
 msgid "Target IP"
 msgstr ""
 
-#: internal/request/attributes.go:171
+#: internal/request/attributes.go:172
 msgid "Target Port"
 msgstr ""
 
@@ -2867,7 +2867,7 @@ msgstr ""
 msgid "Target username (the first user if not filled)"
 msgstr ""
 
-#: internal/request/attributes.go:172
+#: internal/request/attributes.go:173
 msgid "Targets"
 msgstr ""
 
@@ -2880,11 +2880,11 @@ msgstr ""
 msgid "Tasks cleared successfully"
 msgstr ""
 
-#: internal/request/attributes.go:179
+#: internal/request/attributes.go:180
 msgid "Temp Path"
 msgstr ""
 
-#: internal/apps/mysql/app.go:790
+#: internal/apps/mysql/app.go:827
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
@@ -2900,7 +2900,7 @@ msgstr ""
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
 msgstr ""
 
-#: internal/request/attributes.go:173
+#: internal/request/attributes.go:174
 msgid "Threads"
 msgstr ""
 
@@ -2916,7 +2916,7 @@ msgstr ""
 #: internal/biz/notify.go:188
 #: internal/biz/tamper.go:458
 #: internal/job/cert_renew.go:194
-#: internal/request/attributes.go:174
+#: internal/request/attributes.go:175
 #: internal/service/cli_cron.go:90
 #: internal/service/user.go:191
 #: internal/service/user.go:418
@@ -2929,15 +2929,15 @@ msgstr ""
 msgid "Time synchronized successfully"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:857
+#: internal/apps/postgresql/app.go:914
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr ""
 
-#: internal/request/attributes.go:175
+#: internal/request/attributes.go:176
 msgid "Timeout"
 msgstr ""
 
-#: internal/request/attributes.go:178
+#: internal/request/attributes.go:179
 msgid "Timezone"
 msgstr ""
 
@@ -2945,7 +2945,7 @@ msgstr ""
 msgid "Toggle two-factor authentication for a user"
 msgstr ""
 
-#: internal/request/attributes.go:180
+#: internal/request/attributes.go:181
 msgid "Token"
 msgstr ""
 
@@ -2969,8 +2969,8 @@ msgstr ""
 msgid "Total Commands Processed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:781
-#: internal/apps/postgresql/app.go:153
+#: internal/apps/mysql/app.go:818
+#: internal/apps/postgresql/app.go:154
 msgid "Total Connections"
 msgstr ""
 
@@ -2990,7 +2990,7 @@ msgstr ""
 msgid "Total Processes"
 msgstr ""
 
-#: internal/apps/mysql/app.go:780
+#: internal/apps/mysql/app.go:817
 msgid "Total Queries"
 msgstr ""
 
@@ -3010,20 +3010,20 @@ msgstr ""
 msgid "Total requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:782
+#: internal/apps/mysql/app.go:819
 msgid "Transactions per Second"
 msgstr ""
 
 #: internal/biz/backup.go:156
-#: internal/request/attributes.go:181
+#: internal/request/attributes.go:182
 msgid "Type"
 msgstr ""
 
-#: internal/request/attributes.go:182
+#: internal/request/attributes.go:183
 msgid "UDP Port"
 msgstr ""
 
-#: internal/request/attributes.go:183
+#: internal/request/attributes.go:184
 msgid "URL"
 msgstr ""
 
@@ -3031,7 +3031,7 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/request/attributes.go:184
+#: internal/request/attributes.go:185
 msgid "UV Max Keys"
 msgstr ""
 
@@ -3051,7 +3051,7 @@ msgstr ""
 msgid "Uninstall PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:827
+#: internal/apps/postgresql/app.go:884
 msgid "Uninstall PostgreSQL extension %s"
 msgstr ""
 
@@ -3087,15 +3087,15 @@ msgstr ""
 msgid "Unused container images: %d"
 msgstr ""
 
-#: internal/data/backup_panel.go:198
+#: internal/data/backup_panel.go:210
 msgid "Unzip backup file failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:340
+#: internal/data/backup_panel.go:352
 msgid "Unzip new version failed, missing file"
 msgstr ""
 
-#: internal/data/backup_panel.go:337
+#: internal/data/backup_panel.go:349
 msgid "Unzip new version failed: %v"
 msgstr ""
 
@@ -3107,6 +3107,10 @@ msgstr ""
 msgid "Update Operations"
 msgstr ""
 
+#: internal/request/attributes.go:141
+msgid "Update Schedule"
+msgstr ""
+
 #: internal/biz/app.go:252
 msgid "Update app %s"
 msgstr ""
@@ -3115,7 +3119,7 @@ msgstr ""
 msgid "Update application"
 msgstr ""
 
-#: internal/data/backup_panel.go:359
+#: internal/data/backup_panel.go:371
 msgid "Update completed"
 msgstr ""
 
@@ -3131,7 +3135,7 @@ msgstr ""
 msgid "Update website certificate from files"
 msgstr ""
 
-#: internal/apps/mysql/app.go:779
+#: internal/apps/mysql/app.go:816
 msgid "Uptime"
 msgstr ""
 
@@ -3144,8 +3148,8 @@ msgstr ""
 msgid "Uptime in Days"
 msgstr ""
 
-#: internal/request/attributes.go:185
 #: internal/request/attributes.go:186
+#: internal/request/attributes.go:187
 msgid "User"
 msgstr ""
 
@@ -3182,7 +3186,7 @@ msgstr ""
 #: internal/command/user.go:56
 #: internal/command/user.go:64
 #: internal/command/user.go:70
-#: internal/request/attributes.go:187
+#: internal/request/attributes.go:188
 #: internal/service/user.go:188
 #: internal/service/user.go:415
 #: internal/service/user_passkey.go:319
@@ -3210,19 +3214,19 @@ msgid "VERSION"
 msgstr ""
 
 #: internal/command/setting.go:27
-#: internal/request/attributes.go:189
+#: internal/request/attributes.go:190
 msgid "Value"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:855
+#: internal/apps/postgresql/app.go:912
 msgid "Vector similarity search"
 msgstr ""
 
-#: internal/data/backup_panel.go:331
+#: internal/data/backup_panel.go:343
 msgid "Verify download file failed: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:325
+#: internal/data/backup_panel.go:337
 msgid "Verifying download file..."
 msgstr ""
 
@@ -3233,7 +3237,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: internal/request/attributes.go:188
+#: internal/request/attributes.go:189
 msgid "Volume Group"
 msgstr ""
 
@@ -3274,15 +3278,15 @@ msgstr ""
 msgid "Website %s written successfully"
 msgstr ""
 
-#: internal/request/attributes.go:191
+#: internal/request/attributes.go:192
 msgid "Website Mode"
 msgstr ""
 
-#: internal/request/attributes.go:192
+#: internal/request/attributes.go:193
 msgid "Website Name"
 msgstr ""
 
-#: internal/request/attributes.go:193
+#: internal/request/attributes.go:194
 msgid "Website Path"
 msgstr ""
 
@@ -3319,7 +3323,7 @@ msgstr ""
 msgid "Website type (proxy, static, php)"
 msgstr ""
 
-#: internal/request/attributes.go:190
+#: internal/request/attributes.go:191
 msgid "Websites"
 msgstr ""
 
@@ -3335,7 +3339,7 @@ msgstr ""
 msgid "Whether the website has SSL enabled"
 msgstr ""
 
-#: internal/request/attributes.go:194
+#: internal/request/attributes.go:195
 msgid "Whitelist"
 msgstr ""
 
@@ -3552,9 +3556,9 @@ msgstr ""
 #: internal/apps/kafka/app.go:125
 #: internal/apps/memcached/app.go:170
 #: internal/apps/mongodb/app.go:192
-#: internal/apps/mysql/app.go:224
+#: internal/apps/mysql/app.go:226
 #: internal/apps/nginx/app.go:199
-#: internal/apps/postgresql/app.go:269
+#: internal/apps/postgresql/app.go:270
 #: internal/apps/prometheus/app.go:172
 #: internal/apps/pureftpd/app.go:261
 #: internal/apps/redis/app.go:199
@@ -3586,15 +3590,15 @@ msgstr ""
 #: internal/apps/minio/app.go:43
 #: internal/apps/mongodb/app.go:120
 #: internal/apps/mongodb/app.go:142
-#: internal/apps/mysql/app.go:121
-#: internal/apps/mysql/app.go:197
+#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:199
 #: internal/apps/nginx/app.go:161
 #: internal/apps/phpmyadmin/app.go:271
 #: internal/apps/podman/app.go:42
 #: internal/apps/podman/app.go:51
-#: internal/apps/postgresql/app.go:112
-#: internal/apps/postgresql/app.go:236
-#: internal/apps/postgresql/app.go:98
+#: internal/apps/postgresql/app.go:113
+#: internal/apps/postgresql/app.go:237
+#: internal/apps/postgresql/app.go:99
 #: internal/apps/prometheus/app.go:113
 #: internal/apps/prometheus/app.go:132
 #: internal/apps/prometheus/app.go:180
@@ -3644,24 +3648,24 @@ msgstr ""
 msgid "app logged in"
 msgstr ""
 
-#: internal/apps/mysql/app.go:606
-#: internal/apps/postgresql/app.go:659
+#: internal/apps/mysql/app.go:643
+#: internal/apps/postgresql/app.go:693
 msgid "app maintenance queued"
 msgstr ""
 
 #: internal/apps/clickhouse/app.go:249
 #: internal/apps/mongodb/app.go:253
-#: internal/apps/mysql/app.go:181
+#: internal/apps/mysql/app.go:183
 #: internal/apps/pgadmin/app.go:350
-#: internal/apps/postgresql/app.go:220
+#: internal/apps/postgresql/app.go:221
 msgid "app password updated"
 msgstr ""
 
 #: internal/apps/clickhouse/app.go:196
 #: internal/apps/mongodb/app.go:205
-#: internal/apps/mysql/app.go:143
+#: internal/apps/mysql/app.go:145
 #: internal/apps/pgadmin/app.go:94
-#: internal/apps/postgresql/app.go:179
+#: internal/apps/postgresql/app.go:180
 #: internal/apps/stalwart/app.go:254
 msgid "app password viewed"
 msgstr ""
@@ -3680,23 +3684,23 @@ msgstr ""
 msgid "app status"
 msgstr ""
 
-#: internal/apps/mysql/app.go:561
-#: internal/apps/postgresql/app.go:593
+#: internal/apps/mysql/app.go:595
+#: internal/apps/postgresql/app.go:626
 msgid "app table list viewed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:447
-#: internal/apps/postgresql/app.go:493
+#: internal/apps/mysql/app.go:467
+#: internal/apps/postgresql/app.go:508
 msgid "app top sql enabled"
 msgstr ""
 
-#: internal/apps/mysql/app.go:466
-#: internal/apps/postgresql/app.go:512
+#: internal/apps/mysql/app.go:486
+#: internal/apps/postgresql/app.go:527
 msgid "app top sql reset"
 msgstr ""
 
-#: internal/apps/mysql/app.go:413
-#: internal/apps/postgresql/app.go:451
+#: internal/apps/mysql/app.go:433
+#: internal/apps/postgresql/app.go:466
 msgid "app top sql viewed"
 msgstr ""
 
@@ -3724,8 +3728,8 @@ msgstr ""
 msgid "background task failed"
 msgstr ""
 
-#: internal/biz/setting.go:212
-#: internal/biz/setting.go:303
+#: internal/biz/setting.go:213
+#: internal/biz/setting.go:304
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -3810,12 +3814,16 @@ msgstr ""
 msgid "backup uploaded"
 msgstr ""
 
-#: internal/apps/mysql/app.go:683
+#: internal/apps/mysql/app.go:720
 msgid "binlog file %s does not exist"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:416
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
+msgstr ""
+
+#: internal/biz/database_server.go:142
+msgid "built-in servers are managed by the panel, please modify them in the corresponding app"
 msgstr ""
 
 #: internal/service/backup.go:170
@@ -3943,8 +3951,8 @@ msgstr ""
 msgid "character %s on line %d cannot be saved as %s"
 msgstr ""
 
-#: internal/biz/database_server.go:112
-#: internal/biz/database_server.go:138
+#: internal/biz/database_server.go:124
+#: internal/biz/database_server.go:153
 msgid "check server connection failed"
 msgstr ""
 
@@ -4184,11 +4192,11 @@ msgstr ""
 msgid "database server %s is unreachable"
 msgstr ""
 
-#: internal/biz/database_server.go:119
+#: internal/biz/database_server.go:131
 msgid "database server created"
 msgstr ""
 
-#: internal/biz/database_server.go:175
+#: internal/biz/database_server.go:190
 msgid "database server deleted"
 msgstr ""
 
@@ -4196,7 +4204,7 @@ msgstr ""
 msgid "database server list viewed"
 msgstr ""
 
-#: internal/biz/database_server.go:160
+#: internal/biz/database_server.go:175
 msgid "database server remark updated"
 msgstr ""
 
@@ -4204,11 +4212,11 @@ msgstr ""
 msgid "database server status"
 msgstr ""
 
-#: internal/biz/database_server.go:145
+#: internal/biz/database_server.go:160
 msgid "database server updated"
 msgstr ""
 
-#: internal/biz/database_server.go:238
+#: internal/biz/database_server.go:253
 msgid "database server users synced"
 msgstr ""
 
@@ -4434,8 +4442,8 @@ msgstr ""
 msgid "exporter %s has no configuration file"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:315
-#: internal/apps/postgresql/app.go:821
+#: internal/apps/postgresql/app.go:316
+#: internal/apps/postgresql/app.go:878
 msgid "extension %s does not exist"
 msgstr ""
 
@@ -4467,8 +4475,22 @@ msgstr ""
 msgid "fail2ban whitelist saved"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:265
+#: internal/apps/postgresql/app.go:266
 msgid "failed to apply PostgreSQL config: %v"
+msgstr ""
+
+#: internal/job/firewall_filter.go:68
+#: internal/service/firewall.go:492
+msgid "failed to apply firewall filter rules"
+msgstr ""
+
+#: internal/biz/firewall_filter.go:56
+#: internal/service/cli_firewall.go:121
+msgid "failed to apply firewall filter rules: %v"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:200
+msgid "failed to apply firewall subscriptions: %v"
 msgstr ""
 
 #: pkg/firewall/scan/scanner_linux.go:183
@@ -4479,11 +4501,11 @@ msgstr ""
 msgid "failed to auto block IP"
 msgstr ""
 
-#: internal/job/panel_task.go:130
+#: internal/job/panel_task.go:126
 msgid "failed to backup panel"
 msgstr ""
 
-#: internal/data/backup_panel.go:306
+#: internal/data/backup_panel.go:318
 msgid "failed to backup panel before update"
 msgstr ""
 
@@ -4496,7 +4518,7 @@ msgstr ""
 msgid "failed to check ssh connection: %v"
 msgstr ""
 
-#: internal/job/panel_task.go:135
+#: internal/job/panel_task.go:129
 msgid "failed to clear backup"
 msgstr ""
 
@@ -4590,7 +4612,7 @@ msgstr ""
 msgid "failed to create logical volume: %v"
 msgstr ""
 
-#: internal/job/monitoring.go:73
+#: internal/job/monitoring.go:67
 msgid "failed to create monitor record"
 msgstr ""
 
@@ -4646,7 +4668,7 @@ msgstr ""
 msgid "failed to delete fstab entry: %v"
 msgstr ""
 
-#: internal/job/monitoring.go:92
+#: internal/job/monitoring.go:86
 msgid "failed to delete monitor record"
 msgstr ""
 
@@ -4678,8 +4700,8 @@ msgstr ""
 msgid "failed to disable expired website"
 msgstr ""
 
-#: internal/biz/setting.go:278
-#: internal/job/panel_task.go:159
+#: internal/biz/setting.go:279
+#: internal/job/panel_task.go:153
 msgid "failed to download ipdb"
 msgstr ""
 
@@ -4699,7 +4721,7 @@ msgstr ""
 msgid "failed to enable %s service: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:327
+#: internal/apps/postgresql/app.go:328
 msgid "failed to enable extension: %v"
 msgstr ""
 
@@ -4728,7 +4750,7 @@ msgstr ""
 msgid "failed to generate self-signed certificate"
 msgstr ""
 
-#: internal/biz/setting.go:166
+#: internal/biz/setting.go:167
 msgid "failed to generate self-signed certificate: %v"
 msgstr ""
 
@@ -4775,7 +4797,7 @@ msgstr ""
 msgid "failed to get MongoDB admin password: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:112
+#: internal/apps/mysql/app.go:114
 msgid "failed to get MySQL status: %v"
 msgstr ""
 
@@ -4888,7 +4910,7 @@ msgstr ""
 msgid "failed to get port: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:175
+#: internal/apps/postgresql/app.go:176
 msgid "failed to get postgres password: %v"
 msgstr ""
 
@@ -4950,6 +4972,10 @@ msgstr ""
 msgid "failed to list firewall rules"
 msgstr ""
 
+#: internal/biz/firewall_subscription.go:183
+msgid "failed to list firewall subscriptions"
+msgstr ""
+
 #: internal/apps/nginx/stream.go:70
 msgid "failed to list stream servers: %v"
 msgstr ""
@@ -4962,12 +4988,12 @@ msgstr ""
 msgid "failed to list system units: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:106
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:108
+#: internal/apps/mysql/app.go:141
 msgid "failed to load MySQL root password: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:620
+#: internal/apps/postgresql/app.go:654
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
@@ -4996,8 +5022,8 @@ msgid "failed to open sftp session on %s: %v"
 msgstr ""
 
 #: internal/biz/cert.go:383
-#: internal/biz/setting.go:175
-#: internal/biz/setting.go:306
+#: internal/biz/setting.go:176
+#: internal/biz/setting.go:307
 #: internal/data/website.go:582
 #: internal/data/website.go:853
 msgid "failed to parse certificate: %v"
@@ -5017,8 +5043,8 @@ msgid "failed to parse phpMyAdmin login page"
 msgstr ""
 
 #: internal/biz/cert.go:387
-#: internal/biz/setting.go:178
-#: internal/biz/setting.go:309
+#: internal/biz/setting.go:179
+#: internal/biz/setting.go:310
 #: internal/data/website.go:585
 #: internal/data/website.go:856
 msgid "failed to parse private key: %v"
@@ -5041,7 +5067,7 @@ msgstr ""
 msgid "failed to parse version: %v"
 msgstr ""
 
-#: internal/service/firewall.go:240
+#: internal/service/firewall.go:275
 msgid "failed to parse xlsx: %v"
 msgstr ""
 
@@ -5157,6 +5183,10 @@ msgstr ""
 
 #: internal/job/tamper.go:38
 msgid "failed to reconcile tamper protection"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:240
+msgid "failed to refresh firewall subscription"
 msgstr ""
 
 #: internal/job/cert_renew.go:84
@@ -5322,9 +5352,9 @@ msgstr ""
 msgid "failed to set hosts: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:202
-#: internal/apps/postgresql/app.go:208
-#: internal/apps/postgresql/app.go:214
+#: internal/apps/postgresql/app.go:203
+#: internal/apps/postgresql/app.go:209
+#: internal/apps/postgresql/app.go:215
 msgid "failed to set postgres password: %v"
 msgstr ""
 
@@ -5352,7 +5382,7 @@ msgstr ""
 msgid "failed to stop %s service: %v"
 msgstr ""
 
-#: internal/biz/database_server.go:232
+#: internal/biz/database_server.go:247
 msgid "failed to sync database users"
 msgstr ""
 
@@ -5377,7 +5407,7 @@ msgstr ""
 msgid "failed to update SSH port: %v"
 msgstr ""
 
-#: internal/job/panel_task.go:170
+#: internal/job/panel_task.go:164
 msgid "failed to update apps cache"
 msgstr ""
 
@@ -5385,15 +5415,15 @@ msgstr ""
 msgid "failed to update authorized_keys: %v"
 msgstr ""
 
-#: internal/job/panel_task.go:169
+#: internal/job/panel_task.go:163
 msgid "failed to update categories cache"
 msgstr ""
 
-#: internal/job/panel_task.go:171
+#: internal/job/panel_task.go:165
 msgid "failed to update environment cache"
 msgstr ""
 
-#: internal/service/firewall.go:169
+#: internal/service/firewall.go:202
 #: internal/service/toolbox_ssh.go:85
 msgid "failed to update firewall rule: %v"
 msgstr ""
@@ -5402,7 +5432,7 @@ msgstr ""
 msgid "failed to update network interface: %v"
 msgstr ""
 
-#: internal/job/panel_task.go:205
+#: internal/job/panel_task.go:199
 msgid "failed to update panel"
 msgstr ""
 
@@ -5439,7 +5469,7 @@ msgstr ""
 msgid "failed to update task status to success"
 msgstr ""
 
-#: internal/job/panel_task.go:172
+#: internal/job/panel_task.go:166
 msgid "failed to update template cache"
 msgstr ""
 
@@ -5467,27 +5497,27 @@ msgstr ""
 msgid "failed to upsert website stats"
 msgstr ""
 
-#: internal/job/panel_task.go:107
+#: internal/job/panel_task.go:101
 msgid "failed to vacuum database"
 msgstr ""
 
-#: internal/job/panel_task.go:125
+#: internal/job/panel_task.go:119
 msgid "failed to vacuum monitor database"
 msgstr ""
 
-#: internal/job/panel_task.go:116
+#: internal/job/panel_task.go:110
 msgid "failed to vacuum scan event database"
 msgstr ""
 
-#: internal/job/panel_task.go:122
+#: internal/job/panel_task.go:116
 msgid "failed to vacuum tamper database"
 msgstr ""
 
-#: internal/job/panel_task.go:119
+#: internal/job/panel_task.go:113
 msgid "failed to vacuum website stat database"
 msgstr ""
 
-#: internal/job/panel_task.go:103
+#: internal/job/panel_task.go:98
 msgid "failed to wal checkpoint database"
 msgstr ""
 
@@ -5613,56 +5643,80 @@ msgstr ""
 msgid "file uploaded"
 msgstr ""
 
-#: internal/service/firewall.go:403
+#: internal/biz/firewall_filter.go:59
+msgid "firewall container port filtering updated"
+msgstr ""
+
+#: internal/service/firewall.go:441
 msgid "firewall forward created"
 msgstr ""
 
-#: internal/service/firewall.go:421
+#: internal/service/firewall.go:459
 msgid "firewall forward deleted"
 msgstr ""
 
-#: internal/service/firewall.go:382
+#: internal/service/firewall.go:420
 msgid "firewall forward list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:351
+#: internal/service/firewall.go:388
 msgid "firewall ip rule created"
 msgstr ""
 
-#: internal/service/firewall.go:369
+#: internal/service/firewall.go:407
 msgid "firewall ip rule deleted"
 msgstr ""
 
-#: internal/service/firewall.go:330
+#: internal/service/firewall.go:366
 msgid "firewall ip rule list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:140
+#: internal/service/firewall.go:173
 msgid "firewall rule created"
 msgstr ""
 
-#: internal/service/firewall.go:191
+#: internal/service/firewall.go:226
 msgid "firewall rule deleted"
 msgstr ""
 
-#: internal/service/firewall.go:119
+#: internal/service/firewall.go:151
 msgid "firewall rule list viewed"
 msgstr ""
 
-#: internal/service/firewall.go:173
+#: internal/service/firewall.go:207
 msgid "firewall rule updated"
 msgstr ""
 
-#: internal/service/firewall.go:218
+#: internal/service/firewall.go:253
 msgid "firewall rules exported"
 msgstr ""
 
-#: internal/service/firewall.go:300
+#: internal/service/firewall.go:336
 msgid "firewall rules imported"
 msgstr ""
 
-#: internal/service/firewall.go:75
+#: internal/service/firewall.go:82
 msgid "firewall status updated"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:110
+msgid "firewall subscription created"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:158
+msgid "firewall subscription deleted"
+msgstr ""
+
+#: internal/service/firewall_subscription.go:45
+msgid "firewall subscription list viewed"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:244
+msgid "firewall subscription refreshed"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:141
+msgid "firewall subscription updated"
 msgstr ""
 
 #: internal/apps/frp/app.go:305
@@ -5841,7 +5895,7 @@ msgstr ""
 msgid "invalid channel config: %v"
 msgstr ""
 
-#: internal/service/firewall.go:261
+#: internal/service/firewall.go:296
 msgid "invalid file: missing port_start column"
 msgstr ""
 
@@ -5861,16 +5915,16 @@ msgstr ""
 msgid "invalid mirror url"
 msgstr ""
 
-#: internal/apps/mysql/app.go:579
-#: internal/apps/postgresql/app.go:614
+#: internal/apps/mysql/app.go:616
+#: internal/apps/postgresql/app.go:648
 msgid "invalid operation"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:385
+#: internal/apps/postgresql/app.go:386
 msgid "invalid pid"
 msgstr ""
 
-#: internal/apps/mysql/app.go:271
+#: internal/apps/mysql/app.go:273
 msgid "invalid process id"
 msgstr ""
 
@@ -5897,12 +5951,16 @@ msgstr ""
 msgid "invalid size"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:731
+#: internal/apps/postgresql/app.go:765
 msgid "invalid slot name"
 msgstr ""
 
 #: internal/service/home.go:437
 msgid "invalid type"
+msgstr ""
+
+#: internal/biz/firewall_subscription.go:251
+msgid "invalid update schedule: %v"
 msgstr ""
 
 #: internal/middleware/must_login.go:75
@@ -5913,7 +5971,7 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
-#: internal/biz/setting.go:280
+#: internal/biz/setting.go:281
 msgid "ipdb downloaded"
 msgstr ""
 
@@ -5929,7 +5987,7 @@ msgstr ""
 msgid "ipdb reloaded"
 msgstr ""
 
-#: internal/job/panel_task.go:163
+#: internal/job/panel_task.go:157
 msgid "ipdb updated"
 msgstr ""
 
@@ -6173,27 +6231,27 @@ msgstr ""
 msgid "mount point %s already exists in fstab"
 msgstr ""
 
-#: internal/apps/mysql/app.go:651
+#: internal/apps/mysql/app.go:688
 msgid "mysql binlog list viewed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:692
+#: internal/apps/mysql/app.go:729
 msgid "mysql binlog purged"
 msgstr ""
 
-#: internal/apps/mysql/app.go:291
+#: internal/apps/mysql/app.go:293
 msgid "mysql process killed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:262
+#: internal/apps/mysql/app.go:264
 msgid "mysql process list viewed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:734
+#: internal/apps/mysql/app.go:771
 msgid "mysql replication status viewed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:357
+#: internal/apps/mysql/app.go:359
 msgid "mysql transaction list viewed"
 msgstr ""
 
@@ -6245,6 +6303,10 @@ msgstr ""
 
 #: internal/biz/container_network.go:68
 msgid "networks pruned"
+msgstr ""
+
+#: internal/data/firewall_filter.go:68
+msgid "nftables is not installed, please install it first (e.g., apt install nftables or dnf install nftables)"
 msgstr ""
 
 #: internal/apps/nginx/stream.go:76
@@ -6300,13 +6362,17 @@ msgstr ""
 msgid "no records selected"
 msgstr ""
 
-#: internal/service/firewall.go:251
+#: internal/service/firewall.go:286
 msgid "no rules found in file"
 msgstr ""
 
-#: internal/apps/mysql/app.go:575
-#: internal/apps/postgresql/app.go:610
+#: internal/apps/mysql/app.go:612
+#: internal/apps/postgresql/app.go:644
 msgid "no tables selected"
+msgstr ""
+
+#: internal/data/firewall_subscription.go:110
+msgid "no valid IP address found in the list"
 msgstr ""
 
 #: internal/service/environment_nodejs.go:40
@@ -6385,7 +6451,7 @@ msgstr ""
 msgid "open upload file error: %v"
 msgstr ""
 
-#: internal/data/backup_panel.go:416
+#: internal/data/backup_panel.go:428
 msgid "panel binary is missing after update"
 msgstr ""
 
@@ -6414,15 +6480,11 @@ msgstr ""
 msgid "panel goroutines viewed"
 msgstr ""
 
-#: internal/data/backup_panel.go:277
+#: internal/data/backup_panel.go:289
 msgid "panel is already updating, please try again later"
 msgstr ""
 
-#: internal/middleware/status.go:20
-msgid "panel is maintaining, please refresh later"
-msgstr ""
-
-#: internal/middleware/status.go:17
+#: internal/middleware/status.go:16
 msgid "panel is upgrading, please refresh later"
 msgstr ""
 
@@ -6451,11 +6513,11 @@ msgstr ""
 msgid "panel self-signed certificate renewed"
 msgstr ""
 
-#: internal/data/backup_panel.go:412
+#: internal/data/backup_panel.go:424
 msgid "panel service file is missing"
 msgstr ""
 
-#: internal/biz/setting.go:296
+#: internal/biz/setting.go:297
 msgid "panel settings updated"
 msgstr ""
 
@@ -6467,7 +6529,7 @@ msgstr ""
 msgid "panel updated"
 msgstr ""
 
-#: internal/job/panel_task.go:203
+#: internal/job/panel_task.go:197
 msgid "panel updating"
 msgstr ""
 
@@ -6528,7 +6590,7 @@ msgstr ""
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/apps/mysql/app.go:429
+#: internal/apps/mysql/app.go:449
 msgid "performance_schema is not supported by this instance"
 msgstr ""
 
@@ -6542,7 +6604,7 @@ msgstr ""
 msgid "pgAdmin port not found"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:629
+#: internal/apps/postgresql/app.go:663
 msgid "pg_repack is not installed, please install it in the extensions tab first"
 msgstr ""
 
@@ -6652,7 +6714,7 @@ msgstr ""
 msgid "please select at least one migration resource"
 msgstr ""
 
-#: internal/biz/setting.go:193
+#: internal/biz/setting.go:194
 msgid "port is already in use"
 msgstr ""
 
@@ -6660,31 +6722,31 @@ msgstr ""
 msgid "ports %s are occupied by other programs, please stop them first"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:331
+#: internal/apps/postgresql/app.go:332
 msgid "postgresql extension enabled"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:825
+#: internal/apps/postgresql/app.go:882
 msgid "postgresql extension install queued"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:288
+#: internal/apps/postgresql/app.go:289
 msgid "postgresql extension list viewed"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:827
+#: internal/apps/postgresql/app.go:884
 msgid "postgresql extension uninstall queued"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:747
+#: internal/apps/postgresql/app.go:781
 msgid "postgresql replication slot deleted"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:376
+#: internal/apps/postgresql/app.go:377
 msgid "postgresql session list viewed"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:401
+#: internal/apps/postgresql/app.go:402
 msgid "postgresql session terminated"
 msgstr ""
 
@@ -7212,7 +7274,7 @@ msgstr ""
 msgid "swap viewed"
 msgstr ""
 
-#: internal/biz/database_server.go:229
+#: internal/biz/database_server.go:244
 msgid "sync from server %s"
 msgstr ""
 
@@ -7544,6 +7606,10 @@ msgstr ""
 
 #: internal/data/backup.go:376
 msgid "uncompressed backup is empty, restore aborted"
+msgstr ""
+
+#: internal/data/firewall_subscription.go:101
+msgid "unexpected status code: %d"
 msgstr ""
 
 #: internal/biz/toolbox_migration_import.go:330
@@ -8021,7 +8087,7 @@ msgstr ""
 msgid "{field} must be one of {0+}"
 msgstr ""
 
-#: internal/data/backup_panel.go:170
+#: internal/data/backup_panel.go:182
 msgid "|-Backup file used: %s"
 msgstr ""
 
@@ -8032,7 +8098,7 @@ msgstr ""
 #: internal/data/backup_database.go:327
 #: internal/data/backup_database.go:488
 #: internal/data/backup_database.go:91
-#: internal/data/backup_panel.go:71
+#: internal/data/backup_panel.go:83
 msgid "|-Backup file: %s"
 msgstr ""
 
@@ -8045,7 +8111,7 @@ msgid "|-Backup target: %s"
 msgstr ""
 
 #: internal/data/backup.go:158
-#: internal/data/backup_panel.go:70
+#: internal/data/backup_panel.go:82
 msgid "|-Backup time: %s"
 msgstr ""
 
@@ -8083,8 +8149,8 @@ msgstr ""
 msgid "|-File size: %s"
 msgstr ""
 
-#: internal/data/backup_panel.go:140
-#: internal/data/backup_panel.go:262
+#: internal/data/backup_panel.go:152
+#: internal/data/backup_panel.go:274
 msgid "|-Fix completed"
 msgstr ""
 
@@ -8092,7 +8158,7 @@ msgstr ""
 msgid "|-Fixing file permissions..."
 msgstr ""
 
-#: internal/data/backup_panel.go:130
+#: internal/data/backup_panel.go:142
 msgid "|-Found %s.db is abnormal, removed it"
 msgstr ""
 
@@ -8122,7 +8188,7 @@ msgstr ""
 msgid "|-Keep count: %d"
 msgstr ""
 
-#: internal/data/backup_panel.go:203
+#: internal/data/backup_panel.go:215
 msgid "|-Move backup file..."
 msgstr ""
 
@@ -8175,11 +8241,11 @@ msgstr ""
 msgid "|-Running cron task: %s"
 msgstr ""
 
-#: internal/data/backup_panel.go:239
+#: internal/data/backup_panel.go:251
 msgid "|-Set key file permissions..."
 msgstr ""
 
-#: internal/data/backup_panel.go:79
+#: internal/data/backup_panel.go:91
 msgid "|-Start fixing the panel..."
 msgstr ""
 
@@ -8210,7 +8276,7 @@ msgstr ""
 msgid "|-Uncompressing backup..."
 msgstr ""
 
-#: internal/data/backup_panel.go:192
+#: internal/data/backup_panel.go:204
 msgid "|-Unzip backup file..."
 msgstr ""
 
