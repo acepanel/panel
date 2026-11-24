@@ -53,6 +53,7 @@ const (
 	SettingHiddenMenu                   SettingKey = "hidden_menu"
 	SettingKeyCustomLogo                SettingKey = "custom_logo"
 	SettingKeyMemo                      SettingKey = "memo"
+	SettingKeyFirewallContainerPorts    SettingKey = "firewall_container_ports" // 容器映射端口是否受防火墙规则管控
 	SettingKeyScanAware                 SettingKey = "scan_aware"
 	SettingKeyScanAwareDays             SettingKey = "scan_aware_days"
 	SettingKeyScanAwareInterfaces       SettingKey = "scan_aware_interfaces"

@@ -31,6 +31,7 @@ var Module = wire.New().
 	Provide(NewDatabaseUserRepo).
 	Provide(NewEnvironmentRepo).
 	Provide(NewFileShareRepo).
+	Provide(NewFirewallFilterRepo).
 	Provide(NewFirewallSubscriptionRepo).
 	Provide(NewFileFavoriteRepo).
 	Provide(NewLogRepo).
@@ -74,6 +75,7 @@ var Module = wire.New().
 	Export[biz.DatabaseUserRepo]().
 	Export[biz.EnvironmentRepo]().
 	Export[biz.FileShareRepo]().
+	Export[biz.FirewallFilterRepo]().
 	Export[biz.FirewallSubscriptionRepo]().
 	Export[biz.FileFavoriteRepo]().
 	Export[biz.LogRepo]().

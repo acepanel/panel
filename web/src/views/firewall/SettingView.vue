@@ -3,13 +3,16 @@ import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
 import safe from '@/api/panel/safe'
+import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 const formLayout = useFormLayout(160)
 const model = ref({
   firewallStatus: false,
   pingStatus: false,
+  containerPorts: false,
 })
 
 useRequest(firewall.status).onSuccess(({ data }) => {
@@ -18,9 +21,13 @@ useRequest(firewall.status).onSuccess(({ data }) => {
 useRequest(safe.pingStatus).onSuccess(({ data }) => {
   model.value.pingStatus = data
 })
+useRequest(firewall.containerPorts).onSuccess(({ data }) => {
+  model.value.containerPorts = data
+})
 
 const firewallLoading = ref(false)
 const pingLoading = ref(false)
+const containerPortsLoading = ref(false)
 
 // 开关不用 v-model，请求成功后才切换，失败时停在原状态
 const handleFirewallStatus = (value: boolean) => {
@@ -42,6 +49,32 @@ const handlePingStatus = (value: boolean) => {
       window.$message.success($gettext('Settings saved successfully'))
     })
     .onComplete(() => (pingLoading.value = false))
+}
+
+const saveContainerPorts = async (value: boolean) => {
+  containerPortsLoading.value = true
+  try {
+    await firewall.updateContainerPorts(value)
+    model.value.containerPorts = value
+    window.$message.success($gettext('Settings saved successfully'))
+  } finally {
+    containerPortsLoading.value = false
+  }
+}
+
+// 开启会立刻切断没放行的映射端口，先确认
+const handleContainerPorts = (value: boolean) => {
+  if (!value) {
+    saveContainerPorts(false)
+    return
+  }
+  confirmAction({
+    title: $gettext('Filter Container Ports'),
+    content: $gettext(
+      'Ports published by containers that no port or IP rule allows will become unreachable from outside immediately. Continue?',
+    ),
+    onConfirm: () => saveContainerPorts(true),
+  })
 }
 
 // 扫描感知设置
@@ -104,6 +137,22 @@ const handleSaveScanSetting = async () => {
     </n-form-item>
     <n-form-item path="ping" :label="$gettext('Allow Ping')">
       <n-switch :value="model.pingStatus" :loading="pingLoading" @update:value="handlePingStatus" />
+    </n-form-item>
+    <n-form-item path="containerPorts" :label="$gettext('Filter Container Ports')">
+      <n-flex align="center">
+        <n-switch
+          :value="model.containerPorts"
+          :loading="containerPortsLoading"
+          @update:value="handleContainerPorts"
+        />
+        <n-text depth="3">
+          {{
+            $gettext(
+              'Apply port and IP rules to ports published by containers, which otherwise bypass the system firewall',
+            )
+          }}
+        </n-text>
+      </n-flex>
     </n-form-item>
     <n-divider />
     <n-form-item :label="$gettext('Scan Awareness')">

@@ -8,6 +8,8 @@ import (
 
 	"github.com/libtnb/assert/check"
 	"github.com/libtnb/assert/must"
+
+	"github.com/acepanel/panel/v3/pkg/firewall"
 )
 
 // lines 集合写出的各行
@@ -92,15 +94,27 @@ func TestUnion(t *testing.T) {
 	check.DeepEqual(t, lines(t, set), []string{"1.1.1.0-1.1.2.255", "8.8.8.8", "2001:db8::1"})
 }
 
-func TestTableRender(t *testing.T) {
+// rendered 表渲染出的全文
+func rendered(t *testing.T, ruleset Ruleset) string {
+	t.Helper()
 	f, err := os.Create(filepath.Join(t.TempDir(), "table.nft"))
 	must.NoError(t, err)
-	must.NoError(t, Table{}.render(f, Of("192.0.2.1"), Of("1.2.3.4", "5.6.7.0/24", "2001:db8::/32")))
+	must.NoError(t, Table{}.render(f, ruleset))
 	must.NoError(t, f.Close())
 
 	content, err := os.ReadFile(f.Name())
 	must.NoError(t, err)
-	check.Equal(t, string(content), `table inet acepanel
+	return string(content)
+}
+
+func TestTableRender(t *testing.T) {
+	// 没开映射端口管控时规则不进表
+	content := rendered(t, Ruleset{
+		Allow: Of("192.0.2.1"),
+		Block: Of("1.2.3.4", "5.6.7.0/24", "2001:db8::/32"),
+		Rules: []firewall.FireInfo{{PortStart: 80, PortEnd: 80, Protocol: firewall.ProtocolTCP, Strategy: firewall.StrategyAccept, Direction: firewall.DirectionIn}},
+	})
+	check.Equal(t, content, `table inet acepanel
 delete table inet acepanel
 table inet acepanel {
 	set allow4 {
@@ -124,4 +138,70 @@ table inet acepanel {
 		elements = { 2001:db8::-2001:db8:ffff:ffff:ffff:ffff:ffff:ffff }
 	}
 `+inboundChain+"}\n")
+}
+
+func TestTableRenderMapped(t *testing.T) {
+	rule := func(address string, start, end uint, protocol firewall.Protocol, strategy firewall.Strategy) firewall.FireInfo {
+		return firewall.FireInfo{Address: address, PortStart: start, PortEnd: end, Protocol: protocol, Strategy: strategy, Direction: firewall.DirectionIn}
+	}
+	outbound := rule("9.9.9.9", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyDrop)
+	outbound.Direction = firewall.DirectionOut
+
+	content := rendered(t, Ruleset{Mapped: true, Rules: []firewall.FireInfo{
+		rule("", 80, 80, firewall.ProtocolTCP, firewall.StrategyAccept),
+		rule("", 8000, 8100, firewall.ProtocolTCPUDP, firewall.StrategyAccept),
+		rule("10.0.0.0/8", 3306, 3306, firewall.ProtocolTCP, firewall.StrategyAccept),
+		rule("2001:db8::1", 53, 53, firewall.ProtocolUDP, firewall.StrategyAccept),
+		rule("", 8080, 8080, firewall.ProtocolTCP, firewall.StrategyDrop),
+		rule("198.51.100.0/24", 443, 443, firewall.ProtocolTCP, firewall.StrategyReject),
+		// 对全部端口生效的来源进集合，只限一种协议的仍是单独一行
+		rule("192.0.2.1", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyAccept),
+		rule("203.0.113.0/24", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyDrop),
+		rule("2001:db8:bad::/48", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyReject),
+		rule("203.0.113.9", 1, 65535, firewall.ProtocolTCP, firewall.StrategyDrop),
+		// 出站、标记、别的协议和认不出的来源都与映射端口无关
+		outbound,
+		rule("", 22, 22, firewall.ProtocolTCP, firewall.StrategyMark),
+		rule("", 1, 65535, "icmp", firewall.StrategyDrop),
+		rule("ipset:office", 22, 22, firewall.ProtocolTCP, firewall.StrategyAccept),
+	}})
+
+	_, mapped, found := strings.Cut(content, inboundChain)
+	must.True(t, found)
+	check.Equal(t, mapped, `	set trusted4 {
+		type ipv4_addr
+		flags interval
+		elements = { 192.0.2.1 }
+	}
+	set trusted6 {
+		type ipv6_addr
+		flags interval
+	}
+	set banned4 {
+		type ipv4_addr
+		flags interval
+		elements = { 203.0.113.0-203.0.113.255 }
+	}
+	set banned6 {
+		type ipv6_addr
+		flags interval
+		elements = { 2001:db8:bad::-2001:db8:bad:ffff:ffff:ffff:ffff:ffff }
+	}
+`+forwardChain+`	chain mapped {
+		ip saddr @banned4 drop
+		ip6 saddr @banned6 drop
+		meta l4proto tcp ct original proto-dst 8080 drop
+		ip saddr 198.51.100.0-198.51.100.255 meta l4proto tcp ct original proto-dst 443 drop
+		ip saddr 203.0.113.9 meta l4proto tcp drop
+		ip saddr @trusted4 accept
+		ip6 saddr @trusted6 accept
+		meta l4proto tcp ct original proto-dst 80 accept
+		meta l4proto tcp ct original proto-dst 8000-8100 accept
+		meta l4proto udp ct original proto-dst 8000-8100 accept
+		ip saddr 10.0.0.0-10.255.255.255 meta l4proto tcp ct original proto-dst 3306 accept
+		ip6 saddr 2001:db8::1 meta l4proto udp ct original proto-dst 53 accept
+		drop
+	}
+}
+`)
 }

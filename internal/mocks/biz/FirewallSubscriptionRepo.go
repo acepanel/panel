@@ -45,9 +45,6 @@ var _ biz.FirewallSubscriptionRepo = &FirewallSubscriptionRepo{}
 //			SaveFunc: func(sub *biz.FirewallSubscription) error {
 //				panic("mock out the Save method")
 //			},
-//			SyncFunc: func(ctx context.Context) error {
-//				panic("mock out the Sync method")
-//			},
 //		}
 //
 //		// use mockedFirewallSubscriptionRepo in code that requires biz.FirewallSubscriptionRepo
@@ -78,9 +75,6 @@ type FirewallSubscriptionRepo struct {
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(sub *biz.FirewallSubscription) error
-
-	// SyncFunc mocks the Sync method.
-	SyncFunc func(ctx context.Context) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -126,11 +120,6 @@ type FirewallSubscriptionRepo struct {
 			// Sub is the sub argument value.
 			Sub *biz.FirewallSubscription
 		}
-		// Sync holds details about calls to the Sync method.
-		Sync []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-		}
 	}
 	lockCached      sync.RWMutex
 	lockCreate      sync.RWMutex
@@ -140,7 +129,6 @@ type FirewallSubscriptionRepo struct {
 	lockList        sync.RWMutex
 	lockListEnabled sync.RWMutex
 	lockSave        sync.RWMutex
-	lockSync        sync.RWMutex
 }
 
 // Cached calls CachedFunc.
@@ -399,37 +387,5 @@ func (mock *FirewallSubscriptionRepo) SaveCalls() []struct {
 	mock.lockSave.RLock()
 	calls = mock.calls.Save
 	mock.lockSave.RUnlock()
-	return calls
-}
-
-// Sync calls SyncFunc.
-func (mock *FirewallSubscriptionRepo) Sync(ctx context.Context) error {
-	if mock.SyncFunc == nil {
-		panic("FirewallSubscriptionRepo.SyncFunc: method is nil but FirewallSubscriptionRepo.Sync was just called")
-	}
-	callInfo := struct {
-		Ctx context.Context
-	}{
-		Ctx: ctx,
-	}
-	mock.lockSync.Lock()
-	mock.calls.Sync = append(mock.calls.Sync, callInfo)
-	mock.lockSync.Unlock()
-	return mock.SyncFunc(ctx)
-}
-
-// SyncCalls gets all the calls that were made to Sync.
-// Check the length with:
-//
-//	len(mockedFirewallSubscriptionRepo.SyncCalls())
-func (mock *FirewallSubscriptionRepo) SyncCalls() []struct {
-	Ctx context.Context
-} {
-	var calls []struct {
-		Ctx context.Context
-	}
-	mock.lockSync.RLock()
-	calls = mock.calls.Sync
-	mock.lockSync.RUnlock()
 	return calls
 }

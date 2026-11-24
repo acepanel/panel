@@ -5,6 +5,10 @@ export default {
   status: (): any => http.Get('/firewall/status'),
   // 设置防火墙状态
   updateStatus: (status: boolean): any => http.Post('/firewall/status', { status }),
+  // 获取容器端口管控状态
+  containerPorts: (): any => http.Get('/firewall/container_port'),
+  // 设置容器端口管控状态
+  updateContainerPorts: (status: boolean): any => http.Post('/firewall/container_port', { status }),
   // 获取防火墙规则
   rules: (page: number, limit: number): any =>
     http.Get('/firewall/rule', { params: { page, limit } }),

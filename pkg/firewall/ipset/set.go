@@ -1,4 +1,4 @@
-// Package ipset 解析 IP 列表，并把它们下发成面板独占的 nftables 过滤表
+// Package ipset 解析 IP 列表，并下发面板独占的 nftables 过滤表
 package ipset
 
 import (

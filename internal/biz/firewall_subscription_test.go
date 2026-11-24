@@ -17,8 +17,12 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 )
 
-func newFirewallSubscriptionUsecase(repo *mocks.FirewallSubscriptionRepo) *biz.FirewallSubscriptionUsecase {
-	return biz.NewFirewallSubscriptionUsecase(gotext.NewLocale("", "en"), slog.New(slog.DiscardHandler), repo)
+// newFirewallSubscriptionUsecase 没给 filter 的桩时，下发过滤表就会 panic
+func newFirewallSubscriptionUsecase(
+	repo *mocks.FirewallSubscriptionRepo,
+	filter *mocks.FirewallFilterRepo,
+) *biz.FirewallSubscriptionUsecase {
+	return biz.NewFirewallSubscriptionUsecase(gotext.NewLocale("", "en"), slog.New(slog.DiscardHandler), repo, filter)
 }
 
 func TestFirewallSubscriptionRefreshDue(t *testing.T) {
@@ -81,7 +85,7 @@ func TestFirewallSubscriptionRefreshDue(t *testing.T) {
 				SaveFunc: func(*biz.FirewallSubscription) error { return nil },
 			}
 
-			check.Equal(t, newFirewallSubscriptionUsecase(repo).RefreshDue(t.Context()), tt.want)
+			check.Equal(t, newFirewallSubscriptionUsecase(repo, &mocks.FirewallFilterRepo{}).RefreshDue(t.Context()), tt.want)
 			check.Len(t, repo.FetchCalls(), map[bool]int{true: 1}[tt.want])
 			if tt.want {
 				check.Equal(t, sub.Count, uint(42))
@@ -104,7 +108,7 @@ func TestFirewallSubscriptionRefreshDueFailure(t *testing.T) {
 		FetchFunc:  func(context.Context, *biz.FirewallSubscription) error { return errors.New("boom") },
 		SaveFunc:   func(*biz.FirewallSubscription) error { return nil },
 	}
-	usecase := newFirewallSubscriptionUsecase(repo)
+	usecase := newFirewallSubscriptionUsecase(repo, &mocks.FirewallFilterRepo{})
 
 	check.False(t, usecase.RefreshDue(t.Context()))
 	must.Len(t, repo.SaveCalls(), 1)
@@ -139,11 +143,11 @@ func TestFirewallSubscriptionCreateRollback(t *testing.T) {
 				},
 				FetchFunc:  func(context.Context, *biz.FirewallSubscription) error { return tt.fetchErr },
 				SaveFunc:   func(*biz.FirewallSubscription) error { return tt.saveErr },
-				SyncFunc:   func(context.Context) error { return tt.syncErr },
 				DeleteFunc: func(*biz.FirewallSubscription) error { return nil },
 			}
+			filter := &mocks.FirewallFilterRepo{SyncFunc: func(context.Context) error { return tt.syncErr }}
 
-			_, err := newFirewallSubscriptionUsecase(repo).Create(t.Context(), req)
+			_, err := newFirewallSubscriptionUsecase(repo, filter).Create(t.Context(), req)
 			check.Equal(t, err != nil, tt.wantErr)
 			check.Len(t, repo.DeleteCalls(), map[bool]int{true: 1}[tt.wantErr])
 		})
@@ -152,7 +156,7 @@ func TestFirewallSubscriptionCreateRollback(t *testing.T) {
 
 // 更新周期要能推算下次时间，秒级表达式和 @reboot 不接受；Create 没有桩，被调到就会 panic
 func TestFirewallSubscriptionCreateInvalidSchedule(t *testing.T) {
-	usecase := newFirewallSubscriptionUsecase(&mocks.FirewallSubscriptionRepo{})
+	usecase := newFirewallSubscriptionUsecase(&mocks.FirewallSubscriptionRepo{}, &mocks.FirewallFilterRepo{})
 	for _, schedule := range []string{"@reboot", "*/5 * * * * *", "61 * * * *"} {
 		_, err := usecase.Create(t.Context(), &request.FirewallSubscriptionCreate{Schedule: schedule})
 		check.Error(t, err, check.Msgf("应拒绝: %s", schedule))
@@ -171,9 +175,9 @@ func TestFirewallSubscriptionUpdate(t *testing.T) {
 			stored = sub
 			return nil
 		},
-		SyncFunc: func(context.Context) error { return nil },
 	}
-	usecase := newFirewallSubscriptionUsecase(repo)
+	filter := &mocks.FirewallFilterRepo{SyncFunc: func(context.Context) error { return nil }}
+	usecase := newFirewallSubscriptionUsecase(repo, filter)
 
 	req := &request.FirewallSubscriptionUpdate{ID: 1}
 	req.Name, req.URL, req.Type, req.Schedule = "new", stored.URL, biz.FirewallSubscriptionAllow, "@every 6h"
@@ -181,7 +185,7 @@ func TestFirewallSubscriptionUpdate(t *testing.T) {
 	check.Equal(t, stored.Name, "new")
 	check.Equal(t, stored.Type, biz.FirewallSubscriptionAllow)
 	check.False(t, stored.Status)
-	check.Len(t, repo.SyncCalls(), 1)
+	check.Len(t, filter.SyncCalls(), 1)
 
 	// 换了地址要先拉取成功才保存
 	req.URL = "https://example.com/b.txt"
@@ -228,9 +232,9 @@ func TestFirewallSubscriptionDeleteWaitsForRefresh(t *testing.T) {
 			record("delete")
 			return nil
 		},
-		SyncFunc: func(context.Context) error { return nil },
 	}
-	usecase := newFirewallSubscriptionUsecase(repo)
+	filter := &mocks.FirewallFilterRepo{SyncFunc: func(context.Context) error { return nil }}
+	usecase := newFirewallSubscriptionUsecase(repo, filter)
 
 	var wg sync.WaitGroup
 	wg.Go(func() { usecase.RefreshDue(t.Context()) })

@@ -45,8 +45,6 @@ type FirewallSubscriptionRepo interface {
 	Fetch(ctx context.Context, sub *FirewallSubscription) error
 	// Cached 本地是否有缓存的列表
 	Cached(id uint) bool
-	// Sync 让内核里的过滤表与启用的订阅、防火墙运行状态和自定义规则保持一致
-	Sync(ctx context.Context) error
 }
 
 // FirewallSubscriptionUsecase 防火墙 IP 列表订阅业务逻辑
@@ -54,6 +52,7 @@ type FirewallSubscriptionUsecase struct {
 	t      *gotext.Locale
 	log    *slog.Logger
 	repo   FirewallSubscriptionRepo
+	filter FirewallFilterRepo
 	parser *cron.StandardParser
 	// mu 串行化订阅的增删改与拉取：拉取要等网络，期间插进来的修改会被它手里的旧数据盖掉，删掉的订阅也会被存回来
 	mu sync.Mutex
@@ -63,8 +62,9 @@ func NewFirewallSubscriptionUsecase(
 	t *gotext.Locale,
 	log *slog.Logger,
 	repo FirewallSubscriptionRepo,
+	filter FirewallFilterRepo,
 ) *FirewallSubscriptionUsecase {
-	return &FirewallSubscriptionUsecase{t: t, log: log, repo: repo, parser: cron.NewStandardParser()}
+	return &FirewallSubscriptionUsecase{t: t, log: log, repo: repo, filter: filter, parser: cron.NewStandardParser()}
 }
 
 func (uc *FirewallSubscriptionUsecase) List(page, limit uint) ([]*FirewallSubscription, int64, error) {
@@ -194,14 +194,9 @@ func (uc *FirewallSubscriptionUsecase) RefreshDue(ctx context.Context) bool {
 	return refreshed
 }
 
-// Sync 把订阅下发到内核，防火墙状态或自定义规则变化后都要调用
-func (uc *FirewallSubscriptionUsecase) Sync(ctx context.Context) error {
-	return uc.repo.Sync(ctx)
-}
-
 // apply 订阅变化后下发，失败时说明出错的是下发这一步
 func (uc *FirewallSubscriptionUsecase) apply(ctx context.Context) error {
-	if err := uc.repo.Sync(ctx); err != nil {
+	if err := uc.filter.Sync(ctx); err != nil {
 		return errors.New(uc.t.Get("failed to apply firewall subscriptions: %v", err))
 	}
 

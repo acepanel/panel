@@ -27,6 +27,7 @@ type Dependencies struct {
 	Cert                 *biz.CertUsecase
 	CertAccount          *biz.CertAccountUsecase
 	FileShare            *biz.FileShareUsecase
+	FirewallFilter       *biz.FirewallFilterUsecase
 	FirewallSubscription *biz.FirewallSubscriptionUsecase
 	Monitor              *biz.MonitorUsecase
 	Notify               *biz.NotifyUsecase
@@ -48,7 +49,7 @@ func NewJobs(d *Dependencies) []Job {
 		NewAlert(d.Alert, d.T, d.Log),
 		NewMonitoring(d.Monitor, d.Setting, d.T, d.Log),
 		NewFirewallScan(d.ScanEvent, d.Setting, d.T, d.Log),
-		NewFirewallSubscription(d.FirewallSubscription, d.T, d.Log),
+		NewFirewallFilter(d.FirewallFilter, d.FirewallSubscription, d.T, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
 		NewFileShareClean(d.FileShare, d.T, d.Log),
 		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.DB, d.T, d.Log),
