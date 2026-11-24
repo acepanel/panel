@@ -59,7 +59,7 @@ require (
 	github.com/molecule-man/go-brrr v1.3.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
-	github.com/pkg/sftp v1.13.12
+	github.com/pkg/sftp v1.13.13
 	github.com/pquerna/otp v1.5.0
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.2.0
