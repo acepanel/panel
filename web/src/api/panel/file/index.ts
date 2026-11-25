@@ -49,7 +49,8 @@ export default {
   compress: (dir: string, paths: string[], file: string): any =>
     http.Post('/file/compress', { dir, paths, file }),
   // 解压文件
-  unCompress: (file: string, path: string): any => http.Post('/file/un_compress', { file, path }),
+  unCompress: (file: string, path: string, setPermission = false): any =>
+    http.Post('/file/un_compress', { file, path, set_permission: setPermission }),
   // 获取文件列表
   list: (
     path: string,

@@ -102,11 +102,24 @@ const {
   handleInlineRenameKeydown,
 } = useInlineEdit(path)
 
+const isInSitesDir = (dir: string) => {
+  const normalized = dir.replace(/\/+$/, '')
+  return normalized === '/opt/ace/sites' || normalized.startsWith('/opt/ace/sites/')
+}
+
 const unCompressModal = ref(false)
 const unCompressModel = ref({
   path: '',
   file: '',
+  setPermission: false,
 })
+
+watch(
+  () => isInSitesDir(unCompressModel.value.path),
+  (inSites) => {
+    unCompressModel.value.setPermission = inSites
+  },
+)
 
 // 目录大小计算状态（列表视图用）
 const sizeLoading = ref<Map<string, boolean>>(new Map())
@@ -406,6 +419,7 @@ const openFile = (row: any) => {
   } else if (isCompress(row.name)) {
     unCompressModel.value.file = row.full
     unCompressModel.value.path = path.value
+    unCompressModel.value.setPermission = isInSitesDir(path.value)
     unCompressModal.value = true
   } else {
     // 编辑器由 IndexView 承载，跨文件标签页共享同一实例
@@ -957,7 +971,11 @@ const handleUnCompress = async () => {
     window.$message.error($gettext('Invalid path'))
     return
   }
-  const data = await file.unCompress(unCompressModel.value.file, unCompressModel.value.path)
+  const data = await file.unCompress(
+    unCompressModel.value.file,
+    unCompressModel.value.path,
+    unCompressModel.value.setPermission,
+  )
   unCompressModal.value = false
   taskQueue.add(data)
 }
@@ -1436,6 +1454,11 @@ onUnmounted(() => {
       <n-form>
         <n-form-item :label="$gettext('Uncompress to')">
           <n-input v-model:value="unCompressModel.path" />
+        </n-form-item>
+        <n-form-item :show-label="false">
+          <n-checkbox v-model:checked="unCompressModel.setPermission">
+            {{ $gettext('Set www permissions after uncompressing') }}
+          </n-checkbox>
         </n-form-item>
       </n-form>
       <app-button type="primary" @click="handleUnCompress">{{ $gettext('Uncompress') }}</app-button>

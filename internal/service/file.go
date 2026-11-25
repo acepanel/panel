@@ -646,14 +646,17 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	task.Key = fmt.Sprintf("uncompress:%s:%s", req.File, req.Path)
 	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = cmd + " && " + s.wwwShell(req.Path, true)
+	task.Shell = cmd
+	if req.SetPermission {
+		task.Shell += " && " + s.wwwShell(req.Path, true)
+	}
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.log.Info(s.t.Get("file uncompress task created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("file", req.File), slog.String("path", req.Path), slog.Uint64("task_id", uint64(task.ID)))
+	s.log.Info(s.t.Get("file uncompress task created"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("file", req.File), slog.String("path", req.Path), slog.Bool("set_permission", req.SetPermission), slog.Uint64("task_id", uint64(task.ID)))
 	Success(w, task)
 }
 

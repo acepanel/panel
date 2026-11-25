@@ -86,8 +86,9 @@ type FileCompress struct {
 }
 
 type FileUnCompress struct {
-	File string `form:"file" json:"file" validate:"required && unix_path"`
-	Path string `form:"path" json:"path" validate:"required && unix_path"`
+	File          string `form:"file" json:"file" validate:"required && unix_path"`
+	Path          string `form:"path" json:"path" validate:"required && unix_path"`
+	SetPermission bool   `form:"set_permission" json:"set_permission"` // 解压后设置 www 权限
 }
 
 type FileShareCreate struct {
