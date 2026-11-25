@@ -38,9 +38,6 @@ type backend interface {
 	Port(ctx context.Context, rule FireInfo, operation Operation) error
 	// RichRules 添加/删除富规则（IP/高级规则）
 	RichRules(ctx context.Context, rule FireInfo, operation Operation) error
-	// RichRulesBatch 批量添加/删除富规则，整批只重载一次
-	// 返回错误时可能已有部分规则生效，调用方可用相反的操作撤回
-	RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error
 
 	// ListForward 列出所有转发规则
 	ListForward(ctx context.Context) ([]FireForwardInfo, error)
@@ -125,15 +122,6 @@ func (f lockedFirewall) RichRules(ctx context.Context, rule FireInfo, operation 
 	mu.Lock()
 	defer mu.Unlock()
 	return f.detectFirewall().RichRules(context.WithoutCancel(ctx), rule, operation)
-}
-
-func (f lockedFirewall) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
-	if len(rules) == 0 {
-		return nil
-	}
-	mu.Lock()
-	defer mu.Unlock()
-	return f.detectFirewall().RichRulesBatch(context.WithoutCancel(ctx), rules, operation)
 }
 
 func (f lockedFirewall) ListForward(ctx context.Context) ([]FireForwardInfo, error) {

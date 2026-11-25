@@ -42,7 +42,7 @@ type ScanSource struct {
 type ScanBlock struct {
 	IP        string    `gorm:"primaryKey" json:"ip"`
 	ExpiresAt int64     `gorm:"not null;default:0;index" json:"expires_at"` // Unix 秒，0 为永久
-	Outbound  bool      `gorm:"not null;default:false" json:"outbound"`     // 出站是否一并屏蔽，解封时据此删规则
+	Outbound  bool      `gorm:"not null;default:false" json:"outbound"`     // 出站是否一并屏蔽
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -203,9 +203,6 @@ func (uc *ScanEventUsecase) DeleteBlocks(ips []string) error {
 
 // Unblock 手动解封指定的自动屏蔽 IP 并立即同步过滤表
 func (uc *ScanEventUsecase) Unblock(ctx context.Context, ips []string) error {
-	if len(ips) == 0 {
-		return nil
-	}
 	if err := uc.repo.DeleteBlocks(ips); err != nil {
 		return err
 	}
@@ -219,11 +216,8 @@ func (uc *ScanEventUsecase) Unblock(ctx context.Context, ips []string) error {
 
 // ClearBlocks 清空全部自动屏蔽记录并立即同步过滤表
 func (uc *ScanEventUsecase) ClearBlocks(ctx context.Context) error {
-	if err := uc.repo.ClearBlocks(); err != nil {
+	if err := uc.unblockAll(ctx); err != nil {
 		return err
-	}
-	if err := uc.filter.Sync(ctx); err != nil {
-		return errors.New(uc.t.Get("failed to apply firewall filter rules: %v", err))
 	}
 
 	uc.log.Warn(uc.t.Get("scan blocked IPs cleared"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)))
@@ -328,6 +322,25 @@ func (uc *ScanEventUsecase) UpdateSetting(ctx context.Context, setting *ScanSett
 		return err
 	}
 
+	// 关闭后没有页面能查看和解封这些 IP，不能让它们继续生效
+	if !setting.Enabled {
+		if err = uc.unblockAll(ctx); err != nil {
+			return err
+		}
+	}
+
 	uc.log.Info(uc.t.Get("scan aware setting updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Bool("enabled", setting.Enabled), slog.Bool("auto_block", setting.AutoBlock), slog.Uint64("days", uint64(setting.Days)), slog.Uint64("block_threshold", uint64(setting.BlockThreshold)), slog.Uint64("block_window", uint64(setting.BlockWindow)), slog.Uint64("block_duration", uint64(setting.BlockDuration)), slog.Bool("block_outbound", setting.BlockOutbound), slog.Any("whitelist", setting.Whitelist))
+	return nil
+}
+
+// unblockAll 删掉全部自动屏蔽记录并立即同步过滤表
+func (uc *ScanEventUsecase) unblockAll(ctx context.Context) error {
+	if err := uc.repo.ClearBlocks(); err != nil {
+		return err
+	}
+	if err := uc.filter.Sync(ctx); err != nil {
+		return errors.New(uc.t.Get("failed to apply firewall filter rules: %v", err))
+	}
+
 	return nil
 }

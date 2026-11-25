@@ -11,6 +11,7 @@ import { useGettext } from 'vue3-gettext'
 import firewall from '@/api/panel/firewall'
 import AppButton from '@/components/system/AppButton.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { usePagedTable } from '@/components/system/composables/usePagedTable'
 import { useTablePagination } from '@/components/system/composables/useTablePagination'
 import { formatDateTime } from '@/utils'
 
@@ -73,14 +74,22 @@ const searchPort = ref<number | null>(null)
 const searchLocation = ref('')
 
 // 自动屏蔽列表
-const blocks = ref<any[]>([])
-const blocksTotal = ref(0)
-const blocksPage = ref(1)
-const blocksPageSize = ref(20)
-const blocksLoading = ref(false)
-const blocksPagination = useTablePagination(blocksPage, blocksPageSize, blocksTotal, [20, 50, 100])
 const searchBlockIP = ref('')
 const selectedBlockIPs = ref<string[]>([])
+const {
+  loading: blocksLoading,
+  data: blocks,
+  page: blocksPage,
+  pageSize: blocksPageSize,
+  refresh: refreshBlocks,
+  reload: reloadBlocks,
+  pagination: blocksPagination,
+} = usePagedTable((page, pageSize) => firewall.scanBlocks(page, pageSize, searchBlockIP.value), {
+  pageSizes: [20, 50, 100],
+  immediate: false,
+  watchingStates: [searchBlockIP],
+  debounce: [300],
+})
 
 const loadSummary = () => {
   summaryLoading.value = true
@@ -163,18 +172,6 @@ const loadEvents = () => {
     })
 }
 
-const loadBlocks = () => {
-  blocksLoading.value = true
-  useRequest(firewall.scanBlocks(blocksPage.value, blocksPageSize.value, searchBlockIP.value || undefined))
-    .onSuccess(({ data }) => {
-      blocks.value = data.items || []
-      blocksTotal.value = data.total || 0
-    })
-    .onComplete(() => {
-      blocksLoading.value = false
-    })
-}
-
 const refreshOverview = () => {
   loadSummary()
   loadTrend()
@@ -195,16 +192,12 @@ watch([eventsPage, eventsPageSize], () => {
   loadEvents()
 })
 
-watch([blocksPage, blocksPageSize], () => {
-  loadBlocks()
-})
-
 watch(currentTab, (val) => {
   if (val === 'events' && events.value.length === 0) {
     loadEvents()
   }
   if (val === 'blocks') {
-    loadBlocks()
+    reloadBlocks()
   }
 })
 
@@ -373,9 +366,10 @@ const handleUnblock = async (ips: string[]) => {
   await firewall.scanUnblock(ips)
   selectedBlockIPs.value = selectedBlockIPs.value.filter((ip) => !ips.includes(ip))
   window.$message.success($gettext('Unblocked successfully'))
-  loadBlocks()
+  refreshBlocks()
 }
 
+// 未勾选时同步返回，避免解封按钮闪一下加载图标
 const batchUnblock = () => {
   if (selectedBlockIPs.value.length === 0) {
     window.$message.info($gettext('Please select IPs to unblock'))
@@ -388,7 +382,7 @@ const handleClearBlocks = async () => {
   await firewall.scanClearBlocks()
   selectedBlockIPs.value = []
   window.$message.success($gettext('Cleared successfully'))
-  loadBlocks()
+  reloadBlocks()
 }
 
 const blockColumns: any = [
@@ -461,7 +455,10 @@ const blockColumns: any = [
       <n-tab name="blocks" :tab="$gettext('Blocked IPs')" />
     </n-tabs>
     <!-- 工具栏 -->
-    <div v-if="currentTab !== 'blocks'" class="flex flex-wrap gap-2 w-full items-center justify-between">
+    <div
+      v-if="currentTab !== 'blocks'"
+      class="flex flex-wrap gap-2 w-full items-center justify-between"
+    >
       <n-date-picker
         v-model:value="dateRange"
         type="daterange"
@@ -625,11 +622,8 @@ const blockColumns: any = [
             :placeholder="$gettext('Search IP')"
             clearable
             class="md:!w-52"
-            @clear="loadBlocks()"
-            @keyup.enter="loadBlocks()"
           />
           <ConfirmDialog
-            type="warning"
             :content="$gettext('Are you sure you want to unblock the selected IPs?')"
             @confirm="batchUnblock"
           >

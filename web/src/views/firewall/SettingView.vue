@@ -79,6 +79,7 @@ const handleContainerPorts = (value: boolean) => {
 
 // 扫描感知设置
 const scanEnabled = ref(false)
+const scanEnabledSaved = ref(false)
 const saveDays = ref(30)
 const selectedInterfaces = ref<string[]>([])
 const interfaceOptions = ref<any[]>([])
@@ -93,6 +94,7 @@ const whitelist = ref<string[]>([])
 
 useRequest(firewall.scanSetting()).onSuccess(({ data }) => {
   scanEnabled.value = data.enabled
+  scanEnabledSaved.value = data.enabled
   saveDays.value = data.days || 30
   selectedInterfaces.value = data.interfaces || []
   autoBlock.value = data.auto_block || false
@@ -111,6 +113,18 @@ useRequest(firewall.scanInterfaces()).onSuccess(({ data }) => {
 })
 
 const handleSaveScanSetting = async () => {
+  if (scanEnabledSaved.value && !scanEnabled.value) {
+    const ok = await confirmAction({
+      title: $gettext('Disable Scan Awareness'),
+      content: $gettext(
+        'All IPs blocked by scan awareness will be unblocked immediately after it is disabled. Continue?',
+      ),
+    })
+    if (!ok) {
+      scanEnabled.value = true
+      return
+    }
+  }
   await firewall.updateScanSetting({
     enabled: scanEnabled.value,
     days: saveDays.value,
@@ -122,6 +136,7 @@ const handleSaveScanSetting = async () => {
     block_outbound: blockOutbound.value,
     whitelist: whitelist.value,
   })
+  scanEnabledSaved.value = scanEnabled.value
   window.$message.success($gettext('Settings saved successfully'))
 }
 </script>

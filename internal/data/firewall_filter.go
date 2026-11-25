@@ -2,15 +2,15 @@ package data
 
 import (
 	"context"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"os"
-	"slices"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/firewall"
@@ -27,7 +27,7 @@ type firewallFilterRepo struct {
 	cache        firewallSubscriptionCache
 
 	mu      sync.Mutex
-	applied [sha256.Size]byte // 已下发内容的指纹，零值表示尚未下发
+	applied string // 已下发内容的指纹
 }
 
 func NewFirewallFilterRepo(
@@ -50,12 +50,11 @@ func (r *firewallFilterRepo) Available() bool {
 }
 
 func (r *firewallFilterRepo) Sync(ctx context.Context) error {
-	// 断开上游取消链，避免客户端断连把正在执行的 nft 事务杀掉
-	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
-	defer cancel()
-
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
+	// 客户端断连也要下发完，否则系统防火墙的规则改了而过滤表没跟上
+	ctx = context.WithoutCancel(ctx)
 
 	subs, err := r.subscription.ListEnabled()
 	if err != nil {
@@ -109,22 +108,15 @@ func (r *firewallFilterRepo) Sync(ctx context.Context) error {
 		}
 	}
 
-	var scanIn, scanOut []string
-	for _, item := range blocks {
-		scanIn = append(scanIn, item.IP)
-		if item.Outbound {
-			scanOut = append(scanOut, item.IP)
-		}
-	}
-	if len(scanIn) > 0 {
-		block = append(block, ipset.Of(scanIn...))
-	}
+	blockIn := lo.Map(blocks, func(block *biz.ScanBlock, _ int) string { return block.IP })
+	blockOut := lo.FilterMap(blocks, func(block *biz.ScanBlock, _ int) (string, bool) { return block.IP, block.Outbound })
 
 	if err = r.table.Apply(ctx, ipset.Ruleset{
 		Allow:      ipset.Union(allow...),
-		Block:      ipset.Union(block...),
-		BlockOut:   ipset.Of(scanOut...),
 		AllowRules: scopedAllows,
+		Block:      ipset.Union(block...),
+		BlockIn:    ipset.Of(blockIn...),
+		BlockOut:   ipset.Of(blockOut...),
 		Mapped:     containerPorts,
 		Rules:      rules,
 	}); err != nil {
@@ -137,7 +129,7 @@ func (r *firewallFilterRepo) Sync(ctx context.Context) error {
 
 // remove 撤掉内核里的过滤表
 func (r *firewallFilterRepo) remove(ctx context.Context) error {
-	r.applied = [sha256.Size]byte{}
+	r.applied = ""
 	if !r.table.Exists(ctx) {
 		return nil
 	}
@@ -149,7 +141,11 @@ func (r *firewallFilterRepo) allowedRules(rules []firewall.FireInfo) ([]string, 
 	var allPorts []string
 	var scoped []firewall.FireInfo
 	for _, rule := range rules {
-		if rule.Address == "" || rule.Direction != firewall.DirectionIn || rule.Strategy != firewall.StrategyAccept {
+		if rule.Direction != firewall.DirectionIn || rule.Strategy != firewall.StrategyAccept {
+			continue
+		}
+		// 不限来源的放行（不带地址或写成 0.0.0.0/0、::/0）不算豁免，否则黑名单对这些端口就没用了
+		if rule.Address == "" || strings.HasSuffix(rule.Address, "/0") {
 			continue
 		}
 		if rule.PortStart == 1 && rule.PortEnd == 65535 && rule.Protocol == firewall.ProtocolTCPUDP {
@@ -158,8 +154,7 @@ func (r *firewallFilterRepo) allowedRules(rules []firewall.FireInfo) ([]string, 
 		}
 		scoped = append(scoped, rule)
 	}
-	slices.Sort(allPorts)
-	return slices.Compact(allPorts), scoped
+	return allPorts, scoped
 }
 
 // fingerprint 决定下发内容的全部输入：启用的订阅缓存、扫描自动屏蔽、容器端口管控开关、自定义规则
@@ -168,22 +163,18 @@ func (r *firewallFilterRepo) fingerprint(
 	blocks []*biz.ScanBlock,
 	containerPorts bool,
 	rules []firewall.FireInfo,
-) [sha256.Size]byte {
-	h := sha256.New()
+) string {
+	var sb strings.Builder
 	for _, sub := range subs {
-		var modTime, size int64
+		var modTime int64
 		if info, err := os.Stat(r.cache.path(sub.ID)); err == nil {
 			modTime = info.ModTime().UnixNano()
-			size = info.Size()
 		}
-		_, _ = fmt.Fprintf(h, "sub:%d %s %d %d\n", sub.ID, sub.Type, modTime, size)
+		_, _ = fmt.Fprintf(&sb, "%d %s %d\n", sub.ID, sub.Type, modTime)
 	}
 	for _, block := range blocks {
-		_, _ = fmt.Fprintf(h, "scan:%s %t\n", block.IP, block.Outbound)
+		_, _ = fmt.Fprintf(&sb, "%s %t\n", block.IP, block.Outbound)
 	}
-	_, _ = fmt.Fprintf(h, "mapped:%t %v", containerPorts, rules)
-
-	var sum [sha256.Size]byte
-	h.Sum(sum[:0])
-	return sum
+	_, _ = fmt.Fprintf(&sb, "%t %v", containerPorts, rules)
+	return sb.String()
 }

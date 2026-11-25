@@ -82,7 +82,7 @@ func newFirewallScan(
 }
 
 func (r *FirewallScan) Run(ctx context.Context) error {
-	// 到期解封不看开关：关掉扫描感知或自动屏蔽后，已有的限时屏蔽照常到期
+	// 到期解封不看开关：关掉自动屏蔽后，已有的限时屏蔽照常到期
 	r.unblockExpired(ctx)
 
 	setting, err := r.scanRepo.GetSetting()
@@ -114,13 +114,15 @@ func (r *FirewallScan) unblockExpired(ctx context.Context) {
 		return
 	}
 
+	// 过滤表只认没到期的记录，下发成功再删，失败的下次重试
+	if err = r.filter.Sync(ctx); err != nil {
+		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(blocks)), slog.Any("err", err))
+		return
+	}
 	ips := lo.Map(blocks, func(block *biz.ScanBlock, _ int) string { return block.IP })
 	if err = r.scanRepo.DeleteBlocks(ips); err != nil {
 		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
 		return
-	}
-	if err = r.filter.Sync(ctx); err != nil {
-		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(ips)), slog.Any("err", err))
 	}
 	for _, block := range blocks {
 		r.log.Info(r.t.Get("auto unblocked IP (expired)"), slog.String("ip", block.IP), slog.Time("blocked_at", block.CreatedAt))

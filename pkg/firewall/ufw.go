@@ -164,17 +164,6 @@ func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation)
 	return nil
 }
 
-// RichRulesBatch ufw 每条规则即时生效，没有重载可合并，逐条执行
-func (r *ufw) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
-	for _, rule := range rules {
-		if err := r.RichRules(ctx, rule, operation); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (r *ufw) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {

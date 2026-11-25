@@ -51,7 +51,7 @@ func (s scanBlockStore) repo() biz.ScanEventRepo {
 	}
 }
 
-// fakeFirewall 只提供系统防火墙运行状态和手动规则，自动屏蔽不再调用 RichRulesBatch
+// fakeFirewall 只提供系统防火墙运行状态和手动规则，自动屏蔽去改系统防火墙就会 panic
 type fakeFirewall struct {
 	firewall.Firewall
 	running bool
@@ -203,6 +203,20 @@ func TestFirewallScanUnblocksWhileFirewallDown(t *testing.T) {
 	must.NoError(t, task.Run(t.Context()))
 	check.Len(t, store, 0)
 	check.Equal(t, filter.syncs, 1)
+}
+
+// 下发失败时记录留着，下次重试
+func TestFirewallScanUnblockRetries(t *testing.T) {
+	store := scanBlockStore{"198.51.100.1": {IP: "198.51.100.1", ExpiresAt: time.Now().Add(-time.Minute).Unix()}}
+	filter := &fakeFilter{syncErr: errors.New("nft failed")}
+	task := newFirewallScanForTest(store, scanSettings{}, &fakeFirewall{running: true}, filter)
+
+	must.NoError(t, task.Run(t.Context()))
+	check.Len(t, store, 1)
+
+	filter.syncErr = nil
+	must.NoError(t, task.Run(t.Context()))
+	check.Len(t, store, 0)
 }
 
 func TestFirewallScanAutoBlock(t *testing.T) {

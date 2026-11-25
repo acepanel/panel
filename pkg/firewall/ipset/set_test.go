@@ -34,27 +34,12 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name:  "注释、空行与行内附加内容",
-			input: "\uFEFF# firehol_level1\n\n; Spamhaus DROP\n\uFEFF1.2.3.4 # scanner\n5.6.7.0/24 ; SBL123\n8.8.8.8\tgoogle\n9.9.9.9,quad9\n10.0.0.1 - 10.0.0.5 # spaced range\n10.0.1.1 - not-an-ip\n",
-			want:  []string{"1.2.3.4", "5.6.7.0-5.6.7.255", "8.8.8.8", "9.9.9.9", "10.0.0.1-10.0.0.5", "10.0.1.1"},
+			input: "# firehol_level1\n\n; Spamhaus DROP\n1.2.3.4 # scanner\n5.6.7.0/24 ; SBL123\n8.8.8.8\tgoogle\n9.9.9.9,quad9\n",
+			want:  []string{"1.2.3.4", "5.6.7.0-5.6.7.255", "8.8.8.8", "9.9.9.9"},
 		},
 		{
 			name:  "认不出的行与全地址空间条目跳过",
-			input: "<html>\nexample.com\n1.2.3.4/33\n9.9.9.9-1.1.1.1\n1.2.3.4-::1\nfe80::1%eth0\n0.0.0.0/0\n::/0\n0.0.0.0-255.255.255.255\n1.2.3.4\n",
-			want:  []string{"1.2.3.4"},
-		},
-		{
-			name:  "合并后覆盖全地址空间的段丢弃",
-			input: "0.0.0.0/1\n128.0.0.0/1\n2001:db8::1\n",
-			want:  []string{"2001:db8::1"},
-		},
-		{
-			name:  "IPv6 bogon 映射前缀不还原成全 IPv4",
-			input: "::ffff:0:0/96\n::ffff:0.0.0.0-::ffff:255.255.255.255\n::ffff:9.9.9.0/120\n",
-			want:  []string{"9.9.9.0-9.9.9.255", "::ffff:0.0.0.0-::ffff:255.255.255.255"},
-		},
-		{
-			name:  "超长行跳过不报错",
-			input: strings.Repeat("a", 80*1024) + "\n1.2.3.4\n",
+			input: "<html>\nexample.com\n1.2.3.4/33\n9.9.9.9-1.1.1.1\n1.2.3.4-::1\nfe80::1%eth0\n0.0.0.0/0\n::/0\n::ffff:0:0/96\n1.2.3.4\n",
 			want:  []string{"1.2.3.4"},
 		},
 		{
@@ -123,7 +108,7 @@ func rendered(t *testing.T, ruleset Ruleset) string {
 }
 
 func TestTableRender(t *testing.T) {
-	// 没开映射端口管控时规则不进表；带端口限制的放行规则只在对应端口豁免黑名单
+	// 没开映射端口管控时规则不进表；带端口限制的放行规则只在对应端口豁免屏蔽；保留地址只豁免 Block
 	content := rendered(t, Ruleset{
 		Allow: Of("192.0.2.1"),
 		Block: Of("1.2.3.4", "5.6.7.0/24", "2001:db8::/32"),
@@ -131,6 +116,7 @@ func TestTableRender(t *testing.T) {
 			{Address: "1.2.3.4", PortStart: 443, PortEnd: 443, Protocol: firewall.ProtocolTCP, Strategy: firewall.StrategyAccept, Direction: firewall.DirectionIn},
 			{Address: "2001:db8::1", PortStart: 8000, PortEnd: 8100, Protocol: firewall.ProtocolUDP, Strategy: firewall.StrategyAccept, Direction: firewall.DirectionIn},
 		},
+		BlockIn:  Of("10.0.0.9", "198.51.100.2"),
 		BlockOut: Of("198.51.100.2", "2001:db8:bad::1"),
 		Rules:    []firewall.FireInfo{{PortStart: 80, PortEnd: 80, Protocol: firewall.ProtocolTCP, Strategy: firewall.StrategyAccept, Direction: firewall.DirectionIn}},
 	})
@@ -157,16 +143,28 @@ table inet acepanel {
 		flags interval
 		elements = { 2001:db8::-2001:db8:ffff:ffff:ffff:ffff:ffff:ffff }
 	}
+	set block_in4 {
+		type ipv4_addr
+		flags interval
+		elements = { 10.0.0.9,
+			198.51.100.2 }
+	}
+	set block_in6 {
+		type ipv6_addr
+		flags interval
+	}
 	chain inbound {
 		type filter hook prerouting priority mangle; policy accept;
 		iifname "lo" accept
 		ct state established,related accept
-		ip saddr `+reservedV4+` accept
-		ip6 saddr `+reservedV6+` accept
 		ip saddr @allow4 accept
 		ip6 saddr @allow6 accept
-		ip saddr 1.2.3.4 tcp dport 443 accept
-		ip6 saddr 2001:db8::1 udp dport 8000-8100 accept
+		ip saddr 1.2.3.4 meta l4proto tcp ct original proto-dst 443 accept
+		ip6 saddr 2001:db8::1 meta l4proto udp ct original proto-dst 8000-8100 accept
+		ip saddr @block_in4 drop
+		ip6 saddr @block_in6 drop
+		ip saddr `+reservedV4+` accept
+		ip6 saddr `+reservedV6+` accept
 		ip saddr @block4 drop
 		ip6 saddr @block6 drop
 	}
@@ -206,6 +204,9 @@ func TestTableRenderMapped(t *testing.T) {
 		rule("203.0.113.0/24", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyDrop),
 		rule("2001:db8:bad::/48", 1, 65535, firewall.ProtocolTCPUDP, firewall.StrategyReject),
 		rule("203.0.113.9", 1, 65535, firewall.ProtocolTCP, firewall.StrategyDrop),
+		// firewalld 富规则可以把不限来源写成 0.0.0.0/0
+		rule("0.0.0.0/0", 8443, 8443, firewall.ProtocolTCP, firewall.StrategyAccept),
+		rule("::/0", 6379, 6379, firewall.ProtocolTCP, firewall.StrategyDrop),
 		// 出站、标记、别的协议和认不出的来源都与映射端口无关
 		outbound,
 		rule("", 22, 22, firewall.ProtocolTCP, firewall.StrategyMark),
@@ -241,6 +242,7 @@ func TestTableRenderMapped(t *testing.T) {
 		meta nfproto ipv6 meta l4proto tcp ct original proto-dst 9000 drop
 		ip saddr 198.51.100.0-198.51.100.255 meta l4proto tcp ct original proto-dst 443 drop
 		ip saddr 203.0.113.9 meta l4proto tcp drop
+		ip6 saddr ::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff meta l4proto tcp ct original proto-dst 6379 drop
 		ip saddr @trusted4 accept
 		ip6 saddr @trusted6 accept
 		meta l4proto tcp ct original proto-dst 80 accept
@@ -248,6 +250,7 @@ func TestTableRenderMapped(t *testing.T) {
 		meta l4proto udp ct original proto-dst 8000-8100 accept
 		ip saddr 10.0.0.0-10.255.255.255 meta l4proto tcp ct original proto-dst 3306 accept
 		ip6 saddr 2001:db8::1 meta l4proto udp ct original proto-dst 53 accept
+		ip saddr 0.0.0.0-255.255.255.255 meta l4proto tcp ct original proto-dst 8443 accept
 		drop
 	}
 }

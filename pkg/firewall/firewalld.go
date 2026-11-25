@@ -132,38 +132,22 @@ func (r *firewalld) Port(ctx context.Context, rule FireInfo, operation Operation
 }
 
 func (r *firewalld) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
-	return r.RichRulesBatch(ctx, []FireInfo{rule}, operation)
-}
-
-func (r *firewalld) RichRulesBatch(ctx context.Context, rules []FireInfo, operation Operation) error {
-	// richRuleChunk 单条 firewall-cmd 携带的规则数上限，避免命令行过长
-	const richRuleChunk = 200
-
-	options := make(map[string][]string) // 按作用域分组
-	for _, rule := range rules {
-		// 出站规则下，必须指定具体的地址
-		if rule.Direction == DirectionOut && rule.Address == "" {
-			return errors.New("outbound rules must specify an address")
-		}
-		scope := r.scope(rule.Direction)
-		for _, protocol := range buildProtocols(rule.Protocol) {
-			options[scope] = append(options[scope], fmt.Sprintf("--%s-rich-rule '%s'", operation, r.buildRichRuleStr(rule, protocol)))
-		}
+	// 出站规则下，必须指定具体的地址
+	if rule.Direction == DirectionOut && rule.Address == "" {
+		return errors.New("outbound rules must specify an address")
 	}
 
-	if operation == OperationAdd && len(options[r.scope(DirectionOut)]) > 0 {
+	if operation == OperationAdd && rule.Direction == DirectionOut {
 		if err := r.ensureOutPolicy(ctx); err != nil {
 			return err
 		}
 	}
 
 	// 删除时忽略错误（规则可能已不存在）
-	for _, scope := range []string{r.scope(DirectionIn), r.scope(DirectionOut)} {
-		for chunk := range slices.Chunk(options[scope], richRuleChunk) {
-			_, err := shell.Execf(ctx, "firewall-cmd %s --permanent %s", scope, strings.Join(chunk, " "))
-			if err != nil && operation != OperationRemove {
-				return err
-			}
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		_, err := shell.Execf(ctx, "firewall-cmd %s --permanent --%s-rich-rule '%s'", r.scope(rule.Direction), operation, r.buildRichRuleStr(rule, protocol))
+		if err != nil && operation != OperationRemove {
+			return err
 		}
 	}
 
