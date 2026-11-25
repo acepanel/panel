@@ -126,6 +126,7 @@ func (uc *FirewallSubscriptionUsecase) Update(ctx context.Context, req *request.
 		return err
 	}
 
+	prev := *sub
 	refetch := sub.URL != req.URL
 	sub.Name, sub.URL, sub.Type, sub.Schedule, sub.Status = req.Name, req.URL, req.Type, req.Schedule, req.Status
 	if refetch {
@@ -137,10 +138,14 @@ func (uc *FirewallSubscriptionUsecase) Update(ctx context.Context, req *request.
 	if err = uc.repo.Save(sub); err != nil {
 		return err
 	}
+	if err = uc.apply(ctx); err != nil {
+		_ = uc.repo.Save(&prev)
+		return err
+	}
 
 	uc.log.Info(uc.t.Get("firewall subscription updated"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Uint64("id", uint64(sub.ID)), slog.String("name", sub.Name), slog.String("url", sub.URL), slog.String("subscription_type", sub.Type), slog.String("schedule", sub.Schedule), slog.Bool("status", sub.Status))
 
-	return uc.apply(ctx)
+	return nil
 }
 
 func (uc *FirewallSubscriptionUsecase) Delete(ctx context.Context, id uint) error {

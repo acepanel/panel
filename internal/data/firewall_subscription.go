@@ -124,7 +124,26 @@ func (r *firewallSubscriptionRepo) Fetch(ctx context.Context, sub *biz.FirewallS
 	if err = os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 		return err
 	}
-	return os.WriteFile(path, content.Bytes(), 0600)
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".subscription-*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	if _, err = tmp.Write(content.Bytes()); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	if err = tmp.Chmod(0600); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	if err = tmp.Close(); err != nil {
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	return os.Rename(tmpPath, path)
 }
 
 func (r *firewallSubscriptionRepo) Cached(id uint) bool {

@@ -111,7 +111,7 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(msg)
-	return nil
+	return s.syncFirewallFilter(ctx)
 }
 
 // syncFirewallFilter 过滤表随防火墙启停，面板没在运行时也要立刻跟上

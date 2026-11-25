@@ -31,6 +31,7 @@ type FirewallScan struct {
 	log          *slog.Logger
 	setting      *biz.SettingUsecase
 	scanRepo     *biz.ScanEventUsecase
+	filter       *biz.FirewallFilterUsecase
 	t            *gotext.Locale
 	fw           firewall.Firewall
 	scanner      *scan.Scanner
@@ -50,18 +51,20 @@ type FirewallScan struct {
 func NewFirewallScan(
 	scanEventUsecase *biz.ScanEventUsecase,
 	settingUsecase *biz.SettingUsecase,
+	filterUsecase *biz.FirewallFilterUsecase,
 	t *gotext.Locale,
 	log *slog.Logger,
 ) Job {
 	return Job{
 		Spec: "*/2 * * * *",
-		Task: newFirewallScan(scanEventUsecase, settingUsecase, firewall.NewFirewall(), t, log),
+		Task: newFirewallScan(scanEventUsecase, settingUsecase, filterUsecase, firewall.NewFirewall(), t, log),
 	}
 }
 
 func newFirewallScan(
 	scanEventUsecase *biz.ScanEventUsecase,
 	settingUsecase *biz.SettingUsecase,
+	filterUsecase *biz.FirewallFilterUsecase,
 	fw firewall.Firewall,
 	t *gotext.Locale,
 	log *slog.Logger,
@@ -70,6 +73,7 @@ func newFirewallScan(
 		log:        log,
 		setting:    settingUsecase,
 		scanRepo:   scanEventUsecase,
+		filter:     filterUsecase,
 		t:          t,
 		fw:         fw,
 		buffer:     make(map[string]*biz.ScanEvent),
@@ -99,7 +103,7 @@ func (r *FirewallScan) Run(ctx context.Context) error {
 	return nil
 }
 
-// unblockExpired 解封到期的限时屏蔽
+// unblockExpired 解封到期的限时屏蔽，直接同步到 nftables 过滤表
 func (r *FirewallScan) unblockExpired(ctx context.Context) {
 	blocks, err := r.scanRepo.ExpiredBlocks(time.Now())
 	if err != nil {
@@ -110,27 +114,13 @@ func (r *FirewallScan) unblockExpired(ctx context.Context) {
 		return
 	}
 
-	running, err := r.fw.Status(ctx)
-	if err != nil {
-		r.log.Warn(r.t.Get("failed to get firewall status"), slog.Any("err", err))
-		return
-	}
-	// 防火墙没在运行时规则删不掉，记录留着等它恢复后再解封
-	if !running {
-		return
-	}
-
 	ips := lo.Map(blocks, func(block *biz.ScanBlock, _ int) string { return block.IP })
-	rules := lo.FlatMap(blocks, func(block *biz.ScanBlock, _ int) []firewall.FireInfo {
-		return r.blockRules(block.IP, block.Outbound)
-	})
-	if err = r.fw.RichRulesBatch(ctx, rules, firewall.OperationRemove); err != nil {
-		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(ips)), slog.Any("err", err))
-		return
-	}
 	if err = r.scanRepo.DeleteBlocks(ips); err != nil {
 		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
 		return
+	}
+	if err = r.filter.Sync(ctx); err != nil {
+		r.log.Warn(r.t.Get("failed to unblock IP"), slog.Int("count", len(ips)), slog.Any("err", err))
 	}
 	for _, block := range blocks {
 		r.log.Info(r.t.Get("auto unblocked IP (expired)"), slog.String("ip", block.IP), slog.Time("blocked_at", block.CreatedAt))
@@ -309,8 +299,23 @@ func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) 
 		return
 	}
 
-	// TCX 挂在 netfilter 之前，已屏蔽的 IP 仍会继续计数，不重复下发
-	// 是否已屏蔽看防火墙里的规则而不是屏蔽记录，规则被手动删掉后才能再次屏蔽
+	// TCX 挂在 netfilter 之前，已屏蔽的 IP 仍会继续计数，过滤掉已生效的自动屏蔽与手动屏蔽段
+	active, err := r.scanRepo.ActiveBlocks(now)
+	if err != nil {
+		r.log.Warn(r.t.Get("failed to read scan blocks"), slog.Any("err", err))
+		return
+	}
+	activeSet := lo.SliceToMap(active, func(block *biz.ScanBlock) (string, struct{}) {
+		return block.IP, struct{}{}
+	})
+	maps.DeleteFunc(counts, func(ip string, _ uint) bool {
+		_, ok := activeSet[ip]
+		return ok
+	})
+	if len(counts) == 0 {
+		return
+	}
+
 	blocked, err := r.blockedNets(ctx)
 	if err != nil {
 		r.log.Warn(r.t.Get("failed to list firewall rules"), slog.Any("err", err))
@@ -328,23 +333,17 @@ func (r *FirewallScan) autoBlock(ctx context.Context, setting *biz.ScanSetting) 
 		expiresAt = now.Add(time.Duration(setting.BlockDuration) * time.Hour).Unix() //nolint:gosec
 	}
 	ips := lo.Keys(counts)
-	rules := lo.FlatMap(ips, func(ip string, _ int) []firewall.FireInfo {
-		return r.blockRules(ip, setting.BlockOutbound)
-	})
 
-	// 先落库再下发规则：中途被杀只会留下一条到期后空删的记录，不会留下没人解封的规则
+	// 先落库再同步 nftables 过滤表，下发失败时撤回本次新增记录
 	if err = r.scanRepo.AddBlocks(lo.Map(ips, func(ip string, _ int) *biz.ScanBlock {
 		return &biz.ScanBlock{IP: ip, ExpiresAt: expiresAt, Outbound: setting.BlockOutbound}
 	})); err != nil {
 		r.log.Warn(r.t.Get("failed to save scan blocks"), slog.Any("err", err))
 		return
 	}
-	if err = r.fw.RichRulesBatch(ctx, rules, firewall.OperationAdd); err != nil {
+	if err = r.filter.Sync(ctx); err != nil {
 		r.log.Warn(r.t.Get("failed to auto block IP"), slog.Int("count", len(ips)), slog.Any("err", err))
-		// 规则可能已写入一部分，撤回成功才删记录，否则留到期满再解封
-		if r.fw.RichRulesBatch(ctx, rules, firewall.OperationRemove) == nil {
-			_ = r.scanRepo.DeleteBlocks(ips)
-		}
+		_ = r.scanRepo.DeleteBlocks(ips)
 		return
 	}
 	for ip, count := range counts {
@@ -371,23 +370,6 @@ func (r *FirewallScan) cleanup() {
 	}
 }
 
-// blockRules 屏蔽指定 IP 全部入站流量的规则，outbound 为真时再加一条屏蔽出站的
-func (r *FirewallScan) blockRules(ip string, outbound bool) []firewall.FireInfo {
-	rule := firewall.FireInfo{
-		Family:    r.ipFamily(ip),
-		Address:   ip,
-		Strategy:  firewall.StrategyDrop,
-		Direction: firewall.DirectionIn,
-	}
-	if !outbound {
-		return []firewall.FireInfo{rule}
-	}
-
-	out := rule
-	out.Direction = firewall.DirectionOut
-	return []firewall.FireInfo{rule, out}
-}
-
 // blockedNets 防火墙里入站全端口丢弃的地址段，手动加的规则也算
 func (r *FirewallScan) blockedNets(ctx context.Context) ([]net.IPNet, error) {
 	rules, err := r.fw.ListRule(ctx)
@@ -406,15 +388,6 @@ func (r *FirewallScan) isBlocked(ip string, blocked []net.IPNet) bool {
 	return lo.ContainsBy(blocked, func(cidr net.IPNet) bool {
 		return cidr.Contains(parsed)
 	})
-}
-
-// ipFamily 根据 IP 地址返回协议族
-func (r *FirewallScan) ipFamily(ip string) string {
-	parsed := net.ParseIP(ip)
-	if parsed != nil && parsed.To4() == nil {
-		return "ipv6"
-	}
-	return "ipv4"
 }
 
 // parseNets 解析 IP/CIDR 列表为 net.IPNet 列表，解析不了的跳过

@@ -93,4 +93,17 @@ export default {
     }),
   // 扫描感知 - 清空数据
   scanClear: (): any => http.Post('/firewall/scan/clear'),
+  // 扫描感知 - 获取自动屏蔽 IP 列表
+  scanBlocks: (page: number, limit: number, ip?: string): any =>
+    http.Get('/firewall/scan/blocks', {
+      params: {
+        page,
+        limit,
+        ip: ip || undefined,
+      },
+    }),
+  // 扫描感知 - 解封自动屏蔽 IP
+  scanUnblock: (ips: string[]): any => http.Delete('/firewall/scan/blocks', { ips }),
+  // 扫描感知 - 清空自动屏蔽 IP
+  scanClearBlocks: (): any => http.Post('/firewall/scan/blocks/clear'),
 }

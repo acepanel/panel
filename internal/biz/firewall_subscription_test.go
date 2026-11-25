@@ -200,6 +200,12 @@ func TestFirewallSubscriptionUpdate(t *testing.T) {
 	must.NoError(t, usecase.Update(t.Context(), req))
 	check.Equal(t, stored.URL, "https://example.com/b.txt")
 	check.Equal(t, stored.Count, uint(9))
+
+	// 下发失败时回滚订阅状态
+	filter.SyncFunc = func(context.Context) error { return errors.New("nftables is not installed") }
+	req.Status = true
+	must.Error(t, usecase.Update(t.Context(), req))
+	check.False(t, stored.Status)
 }
 
 // 拉取等在网络上时插进来的删除要排到它后面：否则删掉的订阅会被拉取结束时的保存写回去

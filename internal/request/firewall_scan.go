@@ -12,3 +12,8 @@ type FirewallScanSetting struct {
 	BlockOutbound  bool     `json:"block_outbound"`
 	Whitelist      []string `json:"whitelist" validate:"unique && dive && ipcidr"`
 }
+
+// FirewallScanUnblock 解封扫描感知自动屏蔽的 IP
+type FirewallScanUnblock struct {
+	IPs []string `json:"ips" validate:"required && dive && ip"`
+}

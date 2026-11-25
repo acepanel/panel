@@ -64,6 +64,16 @@ func TestScanBlocks(t *testing.T) {
 	check.Len(t, expired, 0)
 	check.Equal(t, count(), 2)
 
+	active, err := repo.ActiveBlocks(now)
+	must.NoError(t, err)
+	check.Len(t, active, 2)
+
+	listed, total, err := repo.ListBlocks("2.2", now, 1, 10)
+	must.NoError(t, err)
+	check.Equal(t, total, uint(1))
+	must.Len(t, listed, 1)
+	check.Equal(t, listed[0].IP, "2.2.2.2")
+
 	// 超过单批上限时分批处理
 	ips := make([]string, 0, 2*upsertBatchSize+5)
 	blocks := make([]*biz.ScanBlock, 0, cap(ips))
@@ -75,4 +85,7 @@ func TestScanBlocks(t *testing.T) {
 	check.Equal(t, count(), 2+len(ips))
 	must.NoError(t, repo.DeleteBlocks(ips))
 	check.Equal(t, count(), 2)
+
+	must.NoError(t, repo.ClearBlocks())
+	check.Equal(t, count(), 0)
 }

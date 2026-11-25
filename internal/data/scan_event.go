@@ -200,6 +200,30 @@ func (r *scanEventRepo) AddBlocks(blocks []*biz.ScanBlock) error {
 	})
 }
 
+func (r *scanEventRepo) ListBlocks(ip string, now time.Time, page, limit uint) ([]*biz.ScanBlock, uint, error) {
+	var total int64
+	items := make([]*biz.ScanBlock, 0)
+
+	tx := r.db.Model(&biz.ScanBlock{}).Where("expires_at = 0 OR expires_at > ?", now.Unix())
+	if ip != "" {
+		tx = tx.Where("ip LIKE ?", "%"+ip+"%")
+	}
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if err := tx.Order("created_at DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&items).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return items, uint(total), nil //nolint:gosec
+}
+
+func (r *scanEventRepo) ActiveBlocks(now time.Time) ([]*biz.ScanBlock, error) {
+	blocks := make([]*biz.ScanBlock, 0)
+	err := r.db.Where("expires_at = 0 OR expires_at > ?", now.Unix()).Order("ip ASC").Find(&blocks).Error
+	return blocks, err
+}
+
 func (r *scanEventRepo) ExpiredBlocks(now time.Time) ([]*biz.ScanBlock, error) {
 	blocks := make([]*biz.ScanBlock, 0)
 	err := r.db.Where("expires_at > 0 AND expires_at <= ?", now.Unix()).Find(&blocks).Error
@@ -214,4 +238,8 @@ func (r *scanEventRepo) DeleteBlocks(ips []string) error {
 	}
 
 	return nil
+}
+
+func (r *scanEventRepo) ClearBlocks() error {
+	return r.db.Where("1 = 1").Delete(&biz.ScanBlock{}).Error
 }

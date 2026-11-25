@@ -106,5 +106,13 @@ func FirewallRoutes(
 			Document: DescribeResp[service.Envelope[service.Page[*biz.ScanEvent]]]()},
 		{Method: http.MethodPost, Path: "/api/firewall/scan/clear", Handler: scan.Clear,
 			Summary: "清空扫描数据", Tags: []string{"防火墙"}},
+		{Method: http.MethodGet, Path: "/api/firewall/scan/blocks", Handler: scan.ListBlocks,
+			Summary: "获取扫描自动屏蔽 IP 列表", Tags: []string{"防火墙"},
+			Document: DescribeResp[service.Envelope[service.Page[*biz.ScanBlock]]]()},
+		{Method: http.MethodDelete, Path: "/api/firewall/scan/blocks", Handler: scan.Unblock,
+			Summary: "解封扫描自动屏蔽 IP", Tags: []string{"防火墙"},
+			Document: DescribeReq[request.FirewallScanUnblock]()},
+		{Method: http.MethodPost, Path: "/api/firewall/scan/blocks/clear", Handler: scan.ClearBlocks,
+			Summary: "清空扫描自动屏蔽 IP", Tags: []string{"防火墙"}},
 	}
 }

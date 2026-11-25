@@ -21,6 +21,9 @@ var _ biz.FirewallFilterRepo = &FirewallFilterRepo{}
 //
 //		// make and configure a mocked biz.FirewallFilterRepo
 //		mockedFirewallFilterRepo := &FirewallFilterRepo{
+//			AvailableFunc: func() bool {
+//				panic("mock out the Available method")
+//			},
 //			SyncFunc: func(ctx context.Context) error {
 //				panic("mock out the Sync method")
 //			},
@@ -31,18 +34,52 @@ var _ biz.FirewallFilterRepo = &FirewallFilterRepo{}
 //
 //	}
 type FirewallFilterRepo struct {
+	// AvailableFunc mocks the Available method.
+	AvailableFunc func() bool
+
 	// SyncFunc mocks the Sync method.
 	SyncFunc func(ctx context.Context) error
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// Available holds details about calls to the Available method.
+		Available []struct {
+		}
 		// Sync holds details about calls to the Sync method.
 		Sync []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
 	}
-	lockSync sync.RWMutex
+	lockAvailable sync.RWMutex
+	lockSync      sync.RWMutex
+}
+
+// Available calls AvailableFunc.
+func (mock *FirewallFilterRepo) Available() bool {
+	if mock.AvailableFunc == nil {
+		panic("FirewallFilterRepo.AvailableFunc: method is nil but FirewallFilterRepo.Available was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockAvailable.Lock()
+	mock.calls.Available = append(mock.calls.Available, callInfo)
+	mock.lockAvailable.Unlock()
+	return mock.AvailableFunc()
+}
+
+// AvailableCalls gets all the calls that were made to Available.
+// Check the length with:
+//
+//	len(mockedFirewallFilterRepo.AvailableCalls())
+func (mock *FirewallFilterRepo) AvailableCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockAvailable.RLock()
+	calls = mock.calls.Available
+	mock.lockAvailable.RUnlock()
+	return calls
 }
 
 // Sync calls SyncFunc.

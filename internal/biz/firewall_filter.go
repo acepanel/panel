@@ -9,9 +9,11 @@ import (
 	"github.com/spf13/cast"
 )
 
-// FirewallFilterRepo 面板在系统防火墙之外自己维护的内核过滤表，IP 订阅和容器端口管控都靠它生效
+// FirewallFilterRepo 面板在系统防火墙之外自己维护的内核过滤表，IP 订阅、扫描自动屏蔽和容器端口管控都靠它生效
 type FirewallFilterRepo interface {
-	// Sync 让过滤表与启用的订阅、容器端口管控开关、防火墙运行状态和自定义规则保持一致
+	// Available 系统是否支持下发过滤表（如 nft 命令是否存在）
+	Available() bool
+	// Sync 让过滤表与启用的订阅、扫描自动屏蔽、容器端口管控开关、防火墙运行状态和自定义规则保持一致
 	Sync(ctx context.Context) error
 }
 

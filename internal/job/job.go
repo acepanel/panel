@@ -48,7 +48,7 @@ func NewJobs(d *Dependencies) []Job {
 	return []Job{
 		NewAlert(d.Alert, d.T, d.Log),
 		NewMonitoring(d.Monitor, d.Setting, d.T, d.Log),
-		NewFirewallScan(d.ScanEvent, d.Setting, d.T, d.Log),
+		NewFirewallScan(d.ScanEvent, d.Setting, d.FirewallFilter, d.T, d.Log),
 		NewFirewallFilter(d.FirewallFilter, d.FirewallSubscription, d.T, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
 		NewFileShareClean(d.FileShare, d.T, d.Log),

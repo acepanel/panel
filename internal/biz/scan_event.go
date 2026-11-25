@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -105,9 +106,14 @@ type ScanEventRepo interface {
 	VacuumDB() error
 	// AddBlocks 记录屏蔽的 IP，已有记录的按这次的重新计时
 	AddBlocks(blocks []*ScanBlock) error
+	// ListBlocks 分页返回当前生效的自动屏蔽记录
+	ListBlocks(ip string, now time.Time, page, limit uint) ([]*ScanBlock, uint, error)
+	// ActiveBlocks 返回全部未过期的自动屏蔽记录
+	ActiveBlocks(now time.Time) ([]*ScanBlock, error)
 	// ExpiredBlocks 返回到期的限时屏蔽
 	ExpiredBlocks(now time.Time) ([]*ScanBlock, error)
 	DeleteBlocks(ips []string) error
+	ClearBlocks() error
 }
 
 // ScanEventUsecase 扫描事件业务逻辑
@@ -116,6 +122,7 @@ type ScanEventUsecase struct {
 	log     *slog.Logger
 	repo    ScanEventRepo
 	setting SettingRepo
+	filter  FirewallFilterRepo
 }
 
 func NewScanEventUsecase(
@@ -123,8 +130,9 @@ func NewScanEventUsecase(
 	log *slog.Logger,
 	repo ScanEventRepo,
 	setting SettingRepo,
+	filter FirewallFilterRepo,
 ) *ScanEventUsecase {
-	return &ScanEventUsecase{t: t, log: log, repo: repo, setting: setting}
+	return &ScanEventUsecase{t: t, log: log, repo: repo, setting: setting, filter: filter}
 }
 
 func (uc *ScanEventUsecase) Upsert(events []*ScanEvent) error {
@@ -177,12 +185,49 @@ func (uc *ScanEventUsecase) AddBlocks(blocks []*ScanBlock) error {
 	return uc.repo.AddBlocks(blocks)
 }
 
+func (uc *ScanEventUsecase) ListBlocks(ip string, page, limit uint) ([]*ScanBlock, uint, error) {
+	return uc.repo.ListBlocks(ip, time.Now(), page, limit)
+}
+
+func (uc *ScanEventUsecase) ActiveBlocks(now time.Time) ([]*ScanBlock, error) {
+	return uc.repo.ActiveBlocks(now)
+}
+
 func (uc *ScanEventUsecase) ExpiredBlocks(now time.Time) ([]*ScanBlock, error) {
 	return uc.repo.ExpiredBlocks(now)
 }
 
 func (uc *ScanEventUsecase) DeleteBlocks(ips []string) error {
 	return uc.repo.DeleteBlocks(ips)
+}
+
+// Unblock 手动解封指定的自动屏蔽 IP 并立即同步过滤表
+func (uc *ScanEventUsecase) Unblock(ctx context.Context, ips []string) error {
+	if len(ips) == 0 {
+		return nil
+	}
+	if err := uc.repo.DeleteBlocks(ips); err != nil {
+		return err
+	}
+	if err := uc.filter.Sync(ctx); err != nil {
+		return errors.New(uc.t.Get("failed to apply firewall filter rules: %v", err))
+	}
+
+	uc.log.Warn(uc.t.Get("scan blocked IPs unblocked"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)), slog.Any("ips", ips))
+	return nil
+}
+
+// ClearBlocks 清空全部自动屏蔽记录并立即同步过滤表
+func (uc *ScanEventUsecase) ClearBlocks(ctx context.Context) error {
+	if err := uc.repo.ClearBlocks(); err != nil {
+		return err
+	}
+	if err := uc.filter.Sync(ctx); err != nil {
+		return errors.New(uc.t.Get("failed to apply firewall filter rules: %v", err))
+	}
+
+	uc.log.Warn(uc.t.Get("scan blocked IPs cleared"), slog.String("type", OperationTypeFirewall), slog.Uint64("operator_id", OperatorID(ctx)))
+	return nil
 }
 
 func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
@@ -245,6 +290,9 @@ func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
 }
 
 func (uc *ScanEventUsecase) UpdateSetting(ctx context.Context, setting *ScanSetting) error {
+	if setting.AutoBlock && !uc.filter.Available() {
+		return errors.New(uc.t.Get("nftables is not installed, please install it first (e.g., apt install nftables or dnf install nftables)"))
+	}
 	if err := uc.setting.Set(SettingKeyScanAware, cast.ToString(setting.Enabled)); err != nil {
 		return err
 	}

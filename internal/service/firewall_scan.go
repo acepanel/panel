@@ -175,3 +175,52 @@ func (s *FirewallScanService) Clear(w http.ResponseWriter, r *http.Request) {
 	}
 	Success(w, nil)
 }
+
+// ListBlocks 获取扫描感知自动屏蔽的 IP 列表
+func (s *FirewallScanService) ListBlocks(w http.ResponseWriter, r *http.Request) {
+	ip := r.URL.Query().Get("ip")
+	page := cast.ToUint(r.URL.Query().Get("page"))
+	limit := cast.ToUint(r.URL.Query().Get("limit"))
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 20
+	}
+
+	items, total, err := s.scanRepo.ListBlocks(ip, page, limit)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	s.log.Info(s.t.Get("scan blocked IP list viewed"), slog.String("type", biz.OperationTypeFirewall), slog.Uint64("operator_id", biz.OperatorID(r.Context())), slog.String("ip", ip), slog.Uint64("page", uint64(page)), slog.Uint64("limit", uint64(limit)))
+	Success(w, chix.M{
+		"total": total,
+		"items": items,
+	})
+}
+
+// Unblock 手动解封指定的自动屏蔽 IP
+func (s *FirewallScanService) Unblock(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.FirewallScanUnblock](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.scanRepo.Unblock(r.Context(), req.IPs); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	Success(w, nil)
+}
+
+// ClearBlocks 清空全部自动屏蔽记录
+func (s *FirewallScanService) ClearBlocks(w http.ResponseWriter, r *http.Request) {
+	if err := s.scanRepo.ClearBlocks(r.Context()); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	Success(w, nil)
+}

@@ -97,7 +97,14 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue82_0 := data.NewFirewallSubscriptionRepo(wireValue5_0, wireValue1_0)
 
-	wireValue81_0 := data.NewFirewallFilterRepo(wireValue1_0, wireValue90_0, wireValue82_0)
+	wireValue89_0, wireErr89 := data.NewScanEventRepo()
+	if wireErr89 != nil {
+		wireCommitted = true
+		cleanupErr := wireCleanup.close()
+		return wireZero0, nil, errors.Join(wireErr89, cleanupErr)
+	}
+
+	wireValue81_0 := data.NewFirewallFilterRepo(wireValue1_0, wireValue90_0, wireValue82_0, wireValue89_0)
 
 	wireValue39_0 := biz.NewFirewallFilterUsecase(wireValue1_0, wireValue4_0, wireValue81_0, wireValue90_0)
 

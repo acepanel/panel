@@ -4,6 +4,7 @@ import { LineChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
+import { NTag } from 'naive-ui'
 import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
@@ -70,6 +71,16 @@ const eventsPagination = useTablePagination(eventsPage, eventsPageSize, eventsTo
 const searchIP = ref('')
 const searchPort = ref<number | null>(null)
 const searchLocation = ref('')
+
+// 自动屏蔽列表
+const blocks = ref<any[]>([])
+const blocksTotal = ref(0)
+const blocksPage = ref(1)
+const blocksPageSize = ref(20)
+const blocksLoading = ref(false)
+const blocksPagination = useTablePagination(blocksPage, blocksPageSize, blocksTotal, [20, 50, 100])
+const searchBlockIP = ref('')
+const selectedBlockIPs = ref<string[]>([])
 
 const loadSummary = () => {
   summaryLoading.value = true
@@ -152,6 +163,18 @@ const loadEvents = () => {
     })
 }
 
+const loadBlocks = () => {
+  blocksLoading.value = true
+  useRequest(firewall.scanBlocks(blocksPage.value, blocksPageSize.value, searchBlockIP.value || undefined))
+    .onSuccess(({ data }) => {
+      blocks.value = data.items || []
+      blocksTotal.value = data.total || 0
+    })
+    .onComplete(() => {
+      blocksLoading.value = false
+    })
+}
+
 const refreshOverview = () => {
   loadSummary()
   loadTrend()
@@ -172,9 +195,16 @@ watch([eventsPage, eventsPageSize], () => {
   loadEvents()
 })
 
+watch([blocksPage, blocksPageSize], () => {
+  loadBlocks()
+})
+
 watch(currentTab, (val) => {
   if (val === 'events' && events.value.length === 0) {
     loadEvents()
+  }
+  if (val === 'blocks') {
+    loadBlocks()
   }
 })
 
@@ -338,6 +368,79 @@ const handleClear = async () => {
   refreshOverview()
   loadEvents()
 }
+
+const handleUnblock = async (ips: string[]) => {
+  await firewall.scanUnblock(ips)
+  selectedBlockIPs.value = selectedBlockIPs.value.filter((ip) => !ips.includes(ip))
+  window.$message.success($gettext('Unblocked successfully'))
+  loadBlocks()
+}
+
+const batchUnblock = () => {
+  if (selectedBlockIPs.value.length === 0) {
+    window.$message.info($gettext('Please select IPs to unblock'))
+    return
+  }
+  return handleUnblock([...selectedBlockIPs.value])
+}
+
+const handleClearBlocks = async () => {
+  await firewall.scanClearBlocks()
+  selectedBlockIPs.value = []
+  window.$message.success($gettext('Cleared successfully'))
+  loadBlocks()
+}
+
+const blockColumns: any = [
+  { type: 'selection', fixed: 'left' },
+  { title: $gettext('IP Address'), key: 'ip', minWidth: 160 },
+  {
+    title: $gettext('Direction'),
+    key: 'outbound',
+    width: 180,
+    render: (row: any) =>
+      h(
+        NTag,
+        { type: row.outbound ? 'warning' : 'info' },
+        { default: () => (row.outbound ? $gettext('Inbound & Outbound') : $gettext('Inbound')) },
+      ),
+  },
+  {
+    title: $gettext('Blocked At'),
+    key: 'created_at',
+    width: 180,
+    render: (row: any) => formatDateTime(row.created_at),
+  },
+  {
+    title: $gettext('Expires At'),
+    key: 'expires_at',
+    width: 180,
+    render: (row: any) =>
+      row.expires_at > 0 ? formatDateTime(row.expires_at * 1000) : $gettext('Permanent'),
+  },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 120,
+    render: (row: any) =>
+      h(
+        AppButton,
+        {
+          size: 'tiny',
+          type: 'warning',
+          onClick: async () => {
+            const ok = await confirmAction({
+              type: 'warning',
+              title: $gettext('Unblock IP'),
+              content: $gettext('Unblock %{ ip }?', { ip: row.ip }),
+            })
+            if (ok) await handleUnblock([row.ip])
+          },
+        },
+        () => $gettext('Unblock'),
+      ),
+  },
+]
 </script>
 
 <template>
@@ -355,9 +458,10 @@ const handleClear = async () => {
     <n-tabs v-model:value="currentTab" type="segment">
       <n-tab name="overview" :tab="$gettext('Overview')" />
       <n-tab name="events" :tab="$gettext('Scan Events')" />
+      <n-tab name="blocks" :tab="$gettext('Blocked IPs')" />
     </n-tabs>
     <!-- 工具栏 -->
-    <div class="flex flex-wrap gap-2 w-full items-center justify-between">
+    <div v-if="currentTab !== 'blocks'" class="flex flex-wrap gap-2 w-full items-center justify-between">
       <n-date-picker
         v-model:value="dateRange"
         type="daterange"
@@ -508,6 +612,59 @@ const handleClear = async () => {
           :data="events"
           :row-key="(row: any) => row.id"
           :pagination="eventsPagination"
+        />
+      </n-card>
+    </template>
+
+    <!-- 自动屏蔽列表 -->
+    <template v-if="currentTab === 'blocks'">
+      <div class="flex flex-wrap gap-2 w-full items-center justify-between">
+        <n-flex items-center :size="8">
+          <n-input
+            v-model:value="searchBlockIP"
+            :placeholder="$gettext('Search IP')"
+            clearable
+            class="md:!w-52"
+            @clear="loadBlocks()"
+            @keyup.enter="loadBlocks()"
+          />
+          <ConfirmDialog
+            type="warning"
+            :content="$gettext('Are you sure you want to unblock the selected IPs?')"
+            @confirm="batchUnblock"
+          >
+            <template #trigger>
+              <app-button type="warning" ghost>
+                {{ $gettext('Unblock') }}
+              </app-button>
+            </template>
+          </ConfirmDialog>
+        </n-flex>
+        <ConfirmDialog
+          type="danger"
+          :content="$gettext('Are you sure you want to clear all blocked IPs?')"
+          @confirm="handleClearBlocks"
+        >
+          <template #trigger>
+            <app-button type="error" ghost>
+              {{ $gettext('Clear All') }}
+            </app-button>
+          </template>
+        </ConfirmDialog>
+      </div>
+      <n-card :bordered="false">
+        <n-data-table
+          v-model:checked-row-keys="selectedBlockIPs"
+          v-model:page="blocksPage"
+          v-model:pageSize="blocksPageSize"
+          striped
+          remote
+          :scroll-x="960"
+          :loading="blocksLoading"
+          :columns="blockColumns"
+          :data="blocks"
+          :row-key="(row: any) => row.ip"
+          :pagination="blocksPagination"
         />
       </n-card>
     </template>

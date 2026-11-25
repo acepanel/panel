@@ -3,6 +3,7 @@ package ipset
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net/netip"
@@ -14,6 +15,11 @@ import (
 type Range struct {
 	From netip.Addr
 	To   netip.Addr
+}
+
+// IsAll 是否覆盖整个 IPv4 或 IPv6 地址空间
+func (r Range) IsAll() bool {
+	return !r.From.Prev().IsValid() && !r.To.Next().IsValid()
 }
 
 // String 单个地址写成地址本身，其余写成 起-止，nft 和 Parse 都认这两种写法
@@ -31,22 +37,28 @@ type Set struct {
 }
 
 // Parse 从文本列表读出集合
-// 每行只看首个字段，可以是地址、CIDR 或 起-止 形式的地址段，注释和认不出的行跳过
+// 每行可写地址、CIDR 或 起-止 地址段（支持短横线两侧带空格），注释、超长行和认不出的行跳过
 func Parse(r io.Reader) (Set, error) {
 	var ranges []Range
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		field := strings.TrimSpace(scanner.Text())
-		// 行内可能带注释（# 或 ;）或额外的列
-		if i := strings.IndexAny(field, " \t#;,"); i >= 0 {
-			field = field[:i]
+	br := bufio.NewReader(r)
+	for {
+		line, isPrefix, err := br.ReadLine()
+		if isPrefix {
+			// 跳过超过缓冲区长度的行（如压缩成一行的报错页面），合法 IP 行远小于 4KB
+			for isPrefix && err == nil {
+				_, isPrefix, err = br.ReadLine()
+			}
+		} else if len(line) > 0 {
+			if rg, ok := parseLine(string(line)); ok {
+				ranges = append(ranges, rg)
+			}
 		}
-		if rg, ok := parseRange(field); ok {
-			ranges = append(ranges, rg)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return Set{}, err
 		}
-	}
-	if err := scanner.Err(); err != nil {
-		return Set{}, err
 	}
 
 	return newSet(ranges), nil
@@ -95,7 +107,7 @@ func (s Set) WriteTo(w io.Writer) (int64, error) {
 	return n, bw.Flush()
 }
 
-// newSet 按地址族分开后排序，并合并重叠或首尾相接的地址段
+// newSet 按地址族分开后排序，并合并重叠或首尾相接的地址段，丢弃覆盖全地址空间的段
 func newSet(ranges []Range) Set {
 	slices.SortFunc(ranges, func(a, b Range) int {
 		return a.From.Compare(b.From)
@@ -103,6 +115,9 @@ func newSet(ranges []Range) Set {
 
 	var set Set
 	for _, rg := range ranges {
+		if rg.IsAll() {
+			continue
+		}
 		family := &set.v6
 		if rg.From.Is4() {
 			family = &set.v4
@@ -120,10 +135,31 @@ func newSet(ranges []Range) Set {
 		*family = append(*family, rg)
 	}
 
+	set.v4 = slices.DeleteFunc(set.v4, Range.IsAll)
+	set.v6 = slices.DeleteFunc(set.v6, Range.IsAll)
 	return set
 }
 
-// parseRange 解析地址、CIDR 或 起-止 形式的地址段
+// parseLine 从单行文本提取地址、CIDR 或 起-止 地址段
+func parseLine(line string) (Range, bool) {
+	line = strings.TrimPrefix(line, "\uFEFF")
+	if i := strings.IndexAny(line, "#;,"); i >= 0 {
+		line = line[:i]
+	}
+	fields := strings.Fields(line)
+	if len(fields) == 0 {
+		return Range{}, false
+	}
+	// 兼容 1.2.3.4 - 1.2.3.10 写法；若短横线右侧不是地址（如 1.2.3.4 - note）则回退按首字段解析
+	if len(fields) >= 3 && fields[1] == "-" {
+		if rg, ok := parseRange(fields[0] + "-" + fields[2]); ok {
+			return rg, true
+		}
+	}
+	return parseRange(fields[0])
+}
+
+// parseRange 解析地址、CIDR 或 起-止 形式的地址段，拒绝覆盖整个地址空间的条目
 func parseRange(s string) (Range, bool) {
 	if from, to, ok := strings.Cut(s, "-"); ok {
 		start, err := netip.ParseAddr(from)
@@ -134,9 +170,15 @@ func parseRange(s string) (Range, bool) {
 		if err != nil {
 			return Range{}, false
 		}
-		rg := Range{From: start.Unmap(), To: end.Unmap()}
-		valid := rg.From.Zone() == "" && rg.To.Zone() == "" && rg.From.Is4() == rg.To.Is4() && rg.From.Compare(rg.To) <= 0
-		return rg, valid
+		if start.Zone() != "" || end.Zone() != "" {
+			return Range{}, false
+		}
+		// ::ffff:0.0.0.0-::ffff:255.255.255.255 对应 IPv6 保留段 ::ffff:0:0/96，不能还原成全部 IPv4
+		if !isFullMappedRange(start, end) {
+			start, end = start.Unmap(), end.Unmap()
+		}
+		rg := Range{From: start, To: end}
+		return rg, rg.From.Is4() == rg.To.Is4() && rg.From.Compare(rg.To) <= 0 && !rg.IsAll()
 	}
 
 	if strings.Contains(s, "/") {
@@ -144,8 +186,8 @@ func parseRange(s string) (Range, bool) {
 		if err != nil {
 			return Range{}, false
 		}
-		// ::ffff:1.2.3.0/120 这类映射地址还原成 IPv4 前缀
-		if addr := prefix.Addr(); addr.Is4In6() && prefix.Bits() >= 96 {
+		// ::ffff:1.2.3.0/120 这类映射子网还原成 IPv4 前缀；::ffff:0:0/96 是常见 IPv6 bogon，保留为 IPv6
+		if addr := prefix.Addr(); addr.Is4In6() && prefix.Bits() > 96 {
 			prefix = netip.PrefixFrom(addr.Unmap(), prefix.Bits()-96)
 		}
 		prefix = prefix.Masked()
@@ -155,7 +197,8 @@ func parseRange(s string) (Range, bool) {
 			last[i/8] |= 1 << (7 - i%8)
 		}
 		to, _ := netip.AddrFromSlice(last)
-		return Range{From: prefix.Addr(), To: to}, true
+		rg := Range{From: prefix.Addr(), To: to}
+		return rg, !rg.IsAll()
 	}
 
 	addr, err := netip.ParseAddr(s)
@@ -164,4 +207,11 @@ func parseRange(s string) (Range, bool) {
 	}
 	addr = addr.Unmap()
 	return Range{From: addr, To: addr}, true
+}
+
+func isFullMappedRange(start, end netip.Addr) bool {
+	if !start.Is4In6() || !end.Is4In6() {
+		return false
+	}
+	return !start.Unmap().Prev().IsValid() && !end.Unmap().Next().IsValid()
 }

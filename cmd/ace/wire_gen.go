@@ -245,7 +245,14 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue116_0 := data.NewFirewallSubscriptionRepo(wireValue5_0, wireValue1_0)
 
-	wireValue115_0 := data.NewFirewallFilterRepo(wireValue1_0, wireValue124_0, wireValue116_0)
+	wireValue123_0, wireErr123 := data.NewScanEventRepo()
+	if wireErr123 != nil {
+		wireCommitted = true
+		cleanupErr := wireCleanup.close()
+		return wireZero0, nil, errors.Join(wireErr123, cleanupErr)
+	}
+
+	wireValue115_0 := data.NewFirewallFilterRepo(wireValue1_0, wireValue124_0, wireValue116_0, wireValue123_0)
 
 	wireValue73_0 := biz.NewFirewallFilterUsecase(wireValue1_0, wireValue4_0, wireValue115_0, wireValue124_0)
 
@@ -260,14 +267,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue77_0 := biz.NewMonitorUsecase(wireValue1_0, wireValue4_0, wireValue119_0, wireValue124_0)
 
-	wireValue123_0, wireErr123 := data.NewScanEventRepo()
-	if wireErr123 != nil {
-		wireCommitted = true
-		cleanupErr := wireCleanup.close()
-		return wireZero0, nil, errors.Join(wireErr123, cleanupErr)
-	}
-
-	wireValue81_0 := biz.NewScanEventUsecase(wireValue1_0, wireValue4_0, wireValue123_0, wireValue124_0)
+	wireValue81_0 := biz.NewScanEventUsecase(wireValue1_0, wireValue4_0, wireValue123_0, wireValue124_0, wireValue115_0)
 
 	wireValue85_0 := biz.NewTaskUsecase(wireValue1_0, wireValue4_0, wireValue127_0)
 
