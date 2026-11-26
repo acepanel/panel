@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-11-24 11:16\n"
+"PO-Revision-Date: 2026-11-26 14:30\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:513
@@ -55,7 +55,8 @@ msgstr "贊助"
 #: src/views/database/RedisDataView.vue:255
 #: src/views/environment/PHPView.vue:229
 #: src/views/environment/PHPView.vue:235
-#: src/views/firewall/ScanView.vue:337
+#: src/views/firewall/ScanView.vue:360
+#: src/views/firewall/ScanView.vue:384
 #: src/views/monitor/AlertView.vue:174
 #: src/views/monitor/SettingView.vue:46
 #: src/views/tamper/TamperView.vue:207
@@ -124,7 +125,7 @@ msgstr "連接錯誤。"
 #: src/views/monitor/SettingView.vue:167
 #: src/views/project/EditModal.vue:254
 #: src/views/project/ProxyModal.vue:124
-#: src/views/setting/IndexView.vue:77
+#: src/views/setting/IndexView.vue:78
 #: src/views/tamper/RuleModal.vue:73
 #: src/views/tamper/TamperView.vue:52
 #: src/views/toolbox/SystemView.vue:55
@@ -172,7 +173,7 @@ msgstr "儲存成功"
 #: src/views/environment/PHPView.vue:498
 #: src/views/environment/RuntimeView.vue:200
 #: src/views/file/EditModal.vue:97
-#: src/views/firewall/SettingView.vue:206
+#: src/views/firewall/SettingView.vue:221
 #: src/views/firewall/SubscriptionModal.vue:85
 #: src/views/monitor/AlertRuleModal.vue:191
 #: src/views/monitor/ChannelModal.vue:142
@@ -180,7 +181,7 @@ msgstr "儲存成功"
 #: src/views/monitor/SettingView.vue:267
 #: src/views/project/EditModal.vue:674
 #: src/views/project/ProxyModal.vue:356
-#: src/views/setting/IndexView.vue:149
+#: src/views/setting/IndexView.vue:150
 #: src/views/tamper/RuleModal.vue:126
 #: src/views/task/CreateModal.vue:554
 #: src/views/task/CronView.vue:300
@@ -502,8 +503,8 @@ msgstr "複製成功"
 #: src/components/common/PasswordCard.vue:41
 #: src/views/database/ServerList.vue:108
 #: src/views/database/UserList.vue:59
-#: src/views/file/ListView.vue:280
-#: src/views/file/ListView.vue:344
+#: src/views/file/ListView.vue:293
+#: src/views/file/ListView.vue:357
 #: src/views/file/ToolBar.vue:92
 msgid "Copy"
 msgstr "複製"
@@ -549,7 +550,7 @@ msgstr "選擇檔案"
 #: src/views/container/VolumeView.vue:30
 #: src/views/database/ServerList.vue:68
 #: src/views/database/ServerModal.vue:116
-#: src/views/file/ListView.vue:1089
+#: src/views/file/ListView.vue:1107
 #: src/views/file/PropertyModal.vue:19
 #: src/views/file/ToolBar.vue:149
 #: src/views/firewall/SubscriptionModal.vue:62
@@ -579,15 +580,15 @@ msgstr "名稱"
 
 #: src/components/common/PathSelector.vue:82
 #: src/components/file-editor/FileTree.vue:328
-#: src/views/file/ListView.vue:1126
-#: src/views/file/ListView.vue:1148
+#: src/views/file/ListView.vue:1144
+#: src/views/file/ListView.vue:1166
 msgid "Folder name"
 msgstr "資料夾名稱"
 
 #: src/components/common/PathSelector.vue:82
 #: src/components/file-editor/FileTree.vue:328
-#: src/views/file/ListView.vue:1126
-#: src/views/file/ListView.vue:1148
+#: src/views/file/ListView.vue:1144
+#: src/views/file/ListView.vue:1166
 msgid "File name"
 msgstr "檔案名稱"
 
@@ -596,7 +597,7 @@ msgid "Permissions"
 msgstr "權限"
 
 #: src/components/common/PathSelector.vue:128
-#: src/views/file/ListView.vue:1100
+#: src/views/file/ListView.vue:1118
 msgid "Owner / Group"
 msgstr "所有者 / 群組"
 
@@ -609,7 +610,7 @@ msgstr "所有者 / 群組"
 #: src/views/container/ImageView.vue:64
 #: src/views/database/ElasticsearchDataView.vue:115
 #: src/views/database/RedisDataView.vue:130
-#: src/views/file/ListView.vue:1096
+#: src/views/file/ListView.vue:1114
 #: src/views/file/PropertyModal.vue:31
 #: src/views/file/ToolBar.vue:150
 #: src/views/file/UploadModal.vue:131
@@ -622,19 +623,19 @@ msgid "Size"
 msgstr "大小"
 
 #: src/components/common/PathSelector.vue:175
-#: src/views/file/ListView.vue:1267
+#: src/views/file/ListView.vue:1285
 msgid "Calculate"
 msgstr "計算"
 
 #: src/components/common/PathSelector.vue:180
-#: src/views/file/ListView.vue:1105
+#: src/views/file/ListView.vue:1123
 #: src/views/file/PropertyModal.vue:43
 #: src/views/file/ToolBar.vue:151
 msgid "Modification Time"
 msgstr "修改時間"
 
 #: src/components/common/PathSelector.vue:221
-#: src/views/file/ListView.vue:957
+#: src/views/file/ListView.vue:971
 #: src/views/file/PathInput.vue:51
 msgid "Invalid path"
 msgstr "無效路徑"
@@ -759,7 +760,7 @@ msgstr "命令可能仍在執行。關閉視窗將終止命令，您確定嗎？
 #: src/views/file/composables/useInlineEdit.ts:181
 #: src/views/file/composables/usePaste.ts:77
 #: src/views/file/composables/usePaste.ts:171
-#: src/views/file/ListView.vue:232
+#: src/views/file/ListView.vue:245
 #: src/views/file/ToolBar.vue:213
 #: src/views/file/UploadModal.vue:228
 #: src/views/file/UploadModal.vue:391
@@ -784,7 +785,7 @@ msgstr "取消"
 #: src/views/container/ContainerView.vue:136
 #: src/views/container/ContainerView.vue:438
 #: src/views/database/ServerList.vue:178
-#: src/views/file/ListView.vue:288
+#: src/views/file/ListView.vue:301
 #: src/views/file/ToolBar.vue:188
 msgid "Terminal"
 msgstr "終端機"
@@ -1417,7 +1418,7 @@ msgid "Editor Settings"
 msgstr "編輯器設定"
 
 #: src/components/file-editor/FileEditorView.vue:158
-#: src/views/setting/IndexView.vue:133
+#: src/views/setting/IndexView.vue:134
 msgid "Basic"
 msgstr "基本"
 
@@ -1621,8 +1622,8 @@ msgstr "輸入時格式化"
 #: src/views/database/RedisDataView.vue:182
 #: src/views/file/composables/usePaste.ts:52
 #: src/views/file/composables/usePaste.ts:181
-#: src/views/file/ListView.vue:287
-#: src/views/file/ListView.vue:1357
+#: src/views/file/ListView.vue:300
+#: src/views/file/ListView.vue:1375
 #: src/views/file/UploadModal.vue:66
 #: src/views/file/UploadModal.vue:449
 #: src/views/file/UploadModal.vue:479
@@ -1672,9 +1673,9 @@ msgstr "重新命名"
 #: src/views/database/ServerList.vue:242
 #: src/views/database/UserList.vue:170
 #: src/views/environment/PHPView.vue:177
-#: src/views/file/ListView.vue:302
-#: src/views/file/ListView.vue:348
-#: src/views/file/ListView.vue:1368
+#: src/views/file/ListView.vue:315
+#: src/views/file/ListView.vue:361
+#: src/views/file/ListView.vue:1386
 #: src/views/file/ToolBar.vue:100
 #: src/views/file/ToolBar.vue:245
 #: src/views/firewall/ForwardView.vue:100
@@ -1705,8 +1706,8 @@ msgstr "刪除"
 
 #: src/components/file-editor/FileTree.vue:433
 #: src/views/backup/ListView.vue:104
-#: src/views/file/ListView.vue:284
-#: src/views/file/ListView.vue:1347
+#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:1365
 #: src/views/monitor/SystemView.vue:530
 #: src/views/toolbox/SshView.vue:336
 msgid "Download"
@@ -1724,8 +1725,8 @@ msgstr "重命名成功"
 #: src/components/file-editor/FileTree.vue:549
 #: src/views/apps/nginx/NginxStreamView.vue:135
 #: src/views/apps/nginx/NginxStreamView.vue:199
-#: src/views/file/ListView.vue:612
-#: src/views/file/ListView.vue:1362
+#: src/views/file/ListView.vue:626
+#: src/views/file/ListView.vue:1380
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "您確定要刪除 %{ name } 嗎？"
 
@@ -1787,12 +1788,12 @@ msgid "Go Up"
 msgstr "上一級"
 
 #: src/components/file-editor/FileTree.vue:645
-#: src/views/file/ListView.vue:329
+#: src/views/file/ListView.vue:342
 msgid "New File"
 msgstr "新增檔案"
 
 #: src/components/file-editor/FileTree.vue:646
-#: src/views/file/ListView.vue:330
+#: src/views/file/ListView.vue:343
 msgid "New Folder"
 msgstr "新增資料夾"
 
@@ -1957,7 +1958,7 @@ msgstr "備份"
 #: src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadFields.vue:52
 #: src/views/log/OperationLog.vue:31
-#: src/views/setting/SettingSafe.vue:303
+#: src/views/setting/SettingSafe.vue:325
 #: src/views/website/EditModal.vue:686
 msgid "Certificate"
 msgstr "證書"
@@ -2002,7 +2003,7 @@ msgid "Security"
 msgstr "安全"
 
 #: src/locales/menu.ts:15
-#: src/views/login/IndexView.vue:317
+#: src/views/login/IndexView.vue:319
 msgid "Login"
 msgstr "登入"
 
@@ -2302,14 +2303,15 @@ msgstr "在主頁顯示"
 #: src/views/database/ServerList.vue:165
 #: src/views/database/UserList.vue:139
 #: src/views/environment/PHPView.vue:141
-#: src/views/file/ListView.vue:1108
+#: src/views/file/ListView.vue:1126
 #: src/views/file/ShareModal.vue:112
 #: src/views/file/ToolBar.vue:232
 #: src/views/file/UploadModal.vue:208
 #: src/views/firewall/ForwardView.vue:83
 #: src/views/firewall/IpRuleView.vue:125
 #: src/views/firewall/RuleView.vue:295
-#: src/views/firewall/ScanView.vue:257
+#: src/views/firewall/ScanView.vue:280
+#: src/views/firewall/ScanView.vue:416
 #: src/views/firewall/SubscriptionView.vue:92
 #: src/views/monitor/AlertView.vue:103
 #: src/views/monitor/SettingView.vue:115
@@ -2590,8 +2592,8 @@ msgstr "更新現有"
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:233
 #: src/views/apps/supervisor/IndexView.vue:63
 #: src/views/container/ContainerInfoModal.vue:128
-#: src/views/file/ListView.vue:191
-#: src/views/file/ListView.vue:619
+#: src/views/file/ListView.vue:204
+#: src/views/file/ListView.vue:633
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:78
@@ -2604,8 +2606,8 @@ msgstr "是"
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:234
 #: src/views/apps/supervisor/IndexView.vue:64
 #: src/views/container/ContainerInfoModal.vue:128
-#: src/views/file/ListView.vue:192
-#: src/views/file/ListView.vue:620
+#: src/views/file/ListView.vue:205
+#: src/views/file/ListView.vue:634
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:78
@@ -3294,7 +3296,7 @@ msgid "Unbanned successfully"
 msgstr "解封成功"
 
 #: src/views/apps/fail2ban/IndexView.vue:253
-#: src/views/firewall/SettingView.vue:199
+#: src/views/firewall/SettingView.vue:214
 msgid "IP Whitelist"
 msgstr "IP 白名單"
 
@@ -4237,7 +4239,7 @@ msgstr "執行使用者"
 #: src/views/log/SSHLog.vue:73
 #: src/views/monitor/SystemView.vue:261
 #: src/views/monitor/SystemView.vue:273
-#: src/views/setting/IndexView.vue:135
+#: src/views/setting/IndexView.vue:136
 #: src/views/toolbox/ProcessView.vue:133
 #: src/views/toolbox/ProcessView.vue:387
 #: src/views/toolbox/WebHookView.vue:284
@@ -4406,7 +4408,7 @@ msgstr "瀏覽器（直連）"
 #: src/views/backup/StorageView.vue:65
 #: src/views/container/ComposeView.vue:124
 #: src/views/container/ContainerView.vue:171
-#: src/views/file/ListView.vue:273
+#: src/views/file/ListView.vue:286
 #: src/views/firewall/SubscriptionView.vue:118
 #: src/views/monitor/AlertView.vue:110
 #: src/views/monitor/SettingView.vue:131
@@ -4459,7 +4461,7 @@ msgstr "存取"
 #: src/views/database/ServerModal.vue:176
 #: src/views/database/UpdateUserModal.vue:54
 #: src/views/database/UserList.vue:35
-#: src/views/login/IndexView.vue:269
+#: src/views/login/IndexView.vue:271
 #: src/views/monitor/ChannelModal.vue:111
 #: src/views/setting/CreateModal.vue:36
 #: src/views/setting/PasswordModal.vue:32
@@ -5352,8 +5354,8 @@ msgstr "監聽"
 
 #: src/views/apps/nginx/NginxStreamView.vue:91
 #: src/views/apps/openlitespeed/IndexView.vue:64
-#: src/views/firewall/ScanView.vue:302
-#: src/views/firewall/ScanView.vue:318
+#: src/views/firewall/ScanView.vue:325
+#: src/views/firewall/ScanView.vue:341
 msgid "Protocol"
 msgstr "協議"
 
@@ -6266,7 +6268,7 @@ msgstr "修改 exporter 配置將重啟 exporter 服務。"
 #: src/views/database/ServerList.vue:75
 #: src/views/database/ServerModal.vue:168
 #: src/views/database/UserList.vue:25
-#: src/views/login/IndexView.vue:259
+#: src/views/login/IndexView.vue:261
 #: src/views/monitor/ChannelModal.vue:108
 #: src/views/setting/CreateModal.vue:29
 #: src/views/setting/SettingUser.vue:29
@@ -6306,7 +6308,7 @@ msgstr "執行日誌"
 #: src/views/database/CreateUserModal.vue:89
 #: src/views/database/IndexView.vue:176
 #: src/views/setting/CreateModal.vue:27
-#: src/views/setting/IndexView.vue:141
+#: src/views/setting/IndexView.vue:142
 msgid "Create User"
 msgstr "建立使用者"
 
@@ -7071,9 +7073,9 @@ msgstr "中繼主機"
 #: src/views/firewall/CreateModal.vue:144
 #: src/views/firewall/ForwardView.vue:35
 #: src/views/firewall/RuleView.vue:182
-#: src/views/firewall/ScanView.vue:301
-#: src/views/firewall/ScanView.vue:317
-#: src/views/firewall/ScanView.vue:381
+#: src/views/firewall/ScanView.vue:324
+#: src/views/firewall/ScanView.vue:340
+#: src/views/firewall/ScanView.vue:482
 #: src/views/log/SSHLog.vue:83
 #: src/views/setting/SettingBase.vue:136
 #: src/views/ssh/HostModal.vue:79
@@ -7112,8 +7114,8 @@ msgstr "通過"
 #: src/views/apps/stalwart/StatusView.vue:59
 #: src/views/file/composables/useInlineEdit.ts:178
 #: src/views/file/composables/usePaste.ts:154
-#: src/views/file/ListView.vue:226
-#: src/views/file/ListView.vue:617
+#: src/views/file/ListView.vue:239
+#: src/views/file/ListView.vue:631
 msgid "Warning"
 msgstr "警告"
 
@@ -7151,7 +7153,7 @@ msgid "Email Domain"
 msgstr "郵件域名"
 
 #: src/views/apps/stalwart/StatusView.vue:157
-#: src/views/firewall/ScanView.vue:356
+#: src/views/firewall/ScanView.vue:453
 #: src/views/website/StatsView.vue:232
 msgid "Overview"
 msgstr "概覽"
@@ -7485,7 +7487,7 @@ msgstr "Amazon S3（中國區）"
 #: src/views/backup/StorageModal.vue:283
 #: src/views/cert/CertView.vue:526
 #: src/views/cert/UploadFields.vue:60
-#: src/views/setting/SettingSafe.vue:310
+#: src/views/setting/SettingSafe.vue:332
 #: src/views/ssh/HostModal.vue:88
 #: src/views/ssh/HostModal.vue:99
 #: src/views/website/EditModal.vue:696
@@ -8142,7 +8144,7 @@ msgid "Updating will remove the current container and recreate it with the new c
 msgstr "更新將移除目前容器並以新設定重新建立，未存放在掛載資料卷中的資料將遺失，是否繼續？"
 
 #: src/views/container/ContainerCreate.vue:268
-#: src/views/file/ListView.vue:231
+#: src/views/file/ListView.vue:244
 #: src/views/tamper/TamperView.vue:73
 msgid "Continue"
 msgstr "繼續"
@@ -8577,7 +8579,7 @@ msgid "Info"
 msgstr "資訊"
 
 #: src/views/container/ContainerView.vue:197
-#: src/views/file/ListView.vue:1379
+#: src/views/file/ListView.vue:1397
 msgid "More"
 msgstr "更多"
 
@@ -9028,7 +9030,8 @@ msgid "Enter JSON document"
 msgstr "輸入 JSON 文檔"
 
 #: src/views/database/RedisDataView.vue:124
-#: src/views/firewall/SettingView.vue:187
+#: src/views/firewall/ScanView.vue:413
+#: src/views/firewall/SettingView.vue:202
 msgid "Permanent"
 msgstr "永久"
 
@@ -9757,9 +9760,9 @@ msgstr "存在同名項目 %{ items } 是否要覆蓋？"
 
 #: src/views/file/CompressModal.vue:63
 #: src/views/file/CompressModal.vue:95
-#: src/views/file/ListView.vue:283
-#: src/views/file/ListView.vue:346
-#: src/views/file/ListView.vue:1328
+#: src/views/file/ListView.vue:296
+#: src/views/file/ListView.vue:359
+#: src/views/file/ListView.vue:1346
 #: src/views/file/ToolBar.vue:94
 msgid "Compress"
 msgstr "壓縮"
@@ -9788,128 +9791,132 @@ msgstr "檔案編輯器"
 msgid "Drop files to upload"
 msgstr "拖放檔案以上傳"
 
-#: src/views/file/ListView.vue:184
-#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:197
+#: src/views/file/ListView.vue:310
 msgid "Add Protection"
 msgstr "加入保護"
 
-#: src/views/file/ListView.vue:184
-#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:197
+#: src/views/file/ListView.vue:310
 msgid "Remove Protection"
 msgstr "移除保護"
 
-#: src/views/file/ListView.vue:186
+#: src/views/file/ListView.vue:199
 msgid "Add tamper protection for %{ name }?"
 msgstr "為 %{ name } 加入防竄改保護？"
 
-#: src/views/file/ListView.vue:187
+#: src/views/file/ListView.vue:200
 msgid "Remove tamper protection for %{ name }? The matching rule or exclusions will be adjusted accordingly."
 msgstr "移除 %{ name } 的防竄改保護？相符的規則或排除項將相應調整。"
 
-#: src/views/file/ListView.vue:195
+#: src/views/file/ListView.vue:208
 msgid "Operation successful"
 msgstr "操作成功"
 
-#: src/views/file/ListView.vue:227
+#: src/views/file/ListView.vue:240
 msgid "%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?"
 msgstr "%{ name } 具有不可變屬性。面板將暫時移除不可變屬性，執行操作，然後恢復不可變屬性。您要繼續嗎？"
 
-#: src/views/file/ListView.vue:270
-#: src/views/file/ListView.vue:1320
+#: src/views/file/ListView.vue:283
+#: src/views/file/ListView.vue:1338
 msgid "Open"
 msgstr "開啟"
 
-#: src/views/file/ListView.vue:271
+#: src/views/file/ListView.vue:284
 msgid "Preview"
 msgstr "預覽"
 
-#: src/views/file/ListView.vue:272
-#: src/views/file/ListView.vue:1441
+#: src/views/file/ListView.vue:285
+#: src/views/file/ListView.vue:1464
 msgid "Uncompress"
 msgstr "解壓縮"
 
-#: src/views/file/ListView.vue:278
-#: src/views/file/ListView.vue:334
-#: src/views/file/ListView.vue:352
+#: src/views/file/ListView.vue:291
+#: src/views/file/ListView.vue:347
+#: src/views/file/ListView.vue:365
 #: src/views/file/ToolBar.vue:222
 msgid "Paste"
 msgstr "貼上"
 
-#: src/views/file/ListView.vue:281
-#: src/views/file/ListView.vue:345
+#: src/views/file/ListView.vue:294
+#: src/views/file/ListView.vue:358
 #: src/views/file/ToolBar.vue:93
 msgid "Move"
 msgstr "移動"
 
-#: src/views/file/ListView.vue:282
-#: src/views/file/ListView.vue:347
-#: src/views/file/ListView.vue:1099
+#: src/views/file/ListView.vue:295
+#: src/views/file/ListView.vue:360
+#: src/views/file/ListView.vue:1117
 #: src/views/file/PermissionModal.vue:143
 #: src/views/file/PropertyModal.vue:34
 #: src/views/file/ToolBar.vue:95
 msgid "Permission"
 msgstr "權限"
 
-#: src/views/file/ListView.vue:285
+#: src/views/file/ListView.vue:298
 msgid "Share"
 msgstr "分享"
 
-#: src/views/file/ListView.vue:286
+#: src/views/file/ListView.vue:299
 msgid "Copy Path"
 msgstr "複製路徑"
 
-#: src/views/file/ListView.vue:291
+#: src/views/file/ListView.vue:304
 msgid "Remove from Favorites"
 msgstr "取消收藏"
 
-#: src/views/file/ListView.vue:292
+#: src/views/file/ListView.vue:305
 msgid "Add to Favorites"
 msgstr "收藏"
 
-#: src/views/file/ListView.vue:301
+#: src/views/file/ListView.vue:314
 #: src/views/file/PropertyModal.vue:11
 msgid "Properties"
 msgstr "屬性"
 
-#: src/views/file/ListView.vue:606
+#: src/views/file/ListView.vue:620
 msgid "Some files are immutable and cannot be deleted"
 msgstr "某些檔案是不可變的，無法刪除"
 
-#: src/views/file/ListView.vue:613
+#: src/views/file/ListView.vue:627
 msgid "Are you sure you want to delete %{count} items?"
 msgstr "您確定要刪除 %{count} 項嗎？"
 
-#: src/views/file/ListView.vue:629
+#: src/views/file/ListView.vue:643
 #: src/views/file/PathInput.vue:40
 msgid "Path copied to clipboard"
 msgstr "路徑已複製到剪貼板"
 
-#: src/views/file/ListView.vue:1390
+#: src/views/file/ListView.vue:1408
 msgid "No files"
 msgstr "沒有檔案"
 
-#: src/views/file/ListView.vue:1400
+#: src/views/file/ListView.vue:1418
 #: src/views/toolbox/LogView.vue:220
 msgid "%{count} item(s) selected"
 msgstr "選擇了 %{count} 項"
 
-#: src/views/file/ListView.vue:1403
+#: src/views/file/ListView.vue:1421
 msgid "Clear"
 msgstr "清除"
 
-#: src/views/file/ListView.vue:1408
+#: src/views/file/ListView.vue:1426
 msgid "%{count} item(s)"
 msgstr "共 %{count} 項"
 
-#: src/views/file/ListView.vue:1433
+#: src/views/file/ListView.vue:1451
 msgid "Uncompress - %{ file }"
 msgstr "解壓 - %{ file }"
 
-#: src/views/file/ListView.vue:1437
+#: src/views/file/ListView.vue:1455
 msgid "Uncompress to"
 msgstr "解壓到"
 
-#: src/views/file/ListView.vue:1451
+#: src/views/file/ListView.vue:1460
+msgid "Set www permissions after uncompressing"
+msgstr "解壓後設定 www 權限"
+
+#: src/views/file/ListView.vue:1474
 #: src/views/file/ToolBar.vue:270
 msgid "Terminal - %{ path }"
 msgstr "終端 - %{ path }"
@@ -10381,6 +10388,7 @@ msgstr "拒絕"
 #: src/views/firewall/CreateModal.vue:55
 #: src/views/firewall/IpRuleView.vue:101
 #: src/views/firewall/RuleView.vue:268
+#: src/views/firewall/ScanView.vue:399
 #: src/views/website/stats/OverviewTab.vue:383
 #: src/views/website/stats/OverviewTab.vue:417
 #: src/views/website/stats/OverviewTab.vue:473
@@ -10421,6 +10429,7 @@ msgstr "網路協議"
 
 #: src/views/firewall/CreateIpModal.vue:102
 #: src/views/firewall/IpRuleView.vue:113
+#: src/views/firewall/ScanView.vue:390
 msgid "IP Address"
 msgstr "IP 地址"
 
@@ -10440,6 +10449,7 @@ msgstr "策略"
 #: src/views/firewall/CreateModal.vue:171
 #: src/views/firewall/IpRuleView.vue:88
 #: src/views/firewall/RuleView.vue:255
+#: src/views/firewall/ScanView.vue:392
 msgid "Direction"
 msgstr "方向"
 
@@ -10507,7 +10517,7 @@ msgid "Port Forwarding"
 msgstr "連接埠轉發"
 
 #: src/views/firewall/IndexView.vue:49
-#: src/views/firewall/SettingView.vue:158
+#: src/views/firewall/SettingView.vue:173
 msgid "Scan Awareness"
 msgstr "掃描感知"
 
@@ -10557,129 +10567,179 @@ msgstr "選擇未使用的連接埠規則"
 msgid "Import"
 msgstr "匯入"
 
-#: src/views/firewall/ScanView.vue:197
-#: src/views/firewall/ScanView.vue:215
-#: src/views/firewall/ScanView.vue:227
-#: src/views/firewall/ScanView.vue:289
-#: src/views/firewall/ScanView.vue:303
-#: src/views/firewall/ScanView.vue:319
+#: src/views/firewall/ScanView.vue:220
+#: src/views/firewall/ScanView.vue:238
+#: src/views/firewall/ScanView.vue:250
+#: src/views/firewall/ScanView.vue:312
+#: src/views/firewall/ScanView.vue:326
+#: src/views/firewall/ScanView.vue:342
 msgid "Scan Count"
 msgstr "掃描次數"
 
-#: src/views/firewall/ScanView.vue:197
 #: src/views/firewall/ScanView.vue:220
-#: src/views/firewall/ScanView.vue:233
-#: src/views/firewall/ScanView.vue:444
+#: src/views/firewall/ScanView.vue:243
+#: src/views/firewall/ScanView.vue:256
+#: src/views/firewall/ScanView.vue:545
 msgid "Source IPs"
 msgstr "來源 IP 數"
 
-#: src/views/firewall/ScanView.vue:252
+#: src/views/firewall/ScanView.vue:275
 msgid "%{ address } blocked successfully"
 msgstr "%{ address } 已成功阻止"
 
-#: src/views/firewall/ScanView.vue:269
+#: src/views/firewall/ScanView.vue:292
 msgctxt "firewall"
 msgid "Block IP"
 msgstr "阻止 IP"
 
-#: src/views/firewall/ScanView.vue:270
+#: src/views/firewall/ScanView.vue:293
 msgctxt "firewall"
 msgid "Block %{ ip }?"
 msgstr "阻止 %{ ip }？"
 
-#: src/views/firewall/ScanView.vue:275
+#: src/views/firewall/ScanView.vue:298
 msgctxt "firewall"
 msgid "Block"
 msgstr "阻止"
 
-#: src/views/firewall/ScanView.vue:280
-#: src/views/firewall/ScanView.vue:308
+#: src/views/firewall/ScanView.vue:303
+#: src/views/firewall/ScanView.vue:331
 #: src/views/log/SSHLog.vue:78
 msgid "Source IP"
 msgstr "來源 IP"
 
-#: src/views/firewall/ScanView.vue:282
-#: src/views/firewall/ScanView.vue:310
-#: src/views/firewall/ScanView.vue:391
+#: src/views/firewall/ScanView.vue:305
+#: src/views/firewall/ScanView.vue:333
+#: src/views/firewall/ScanView.vue:492
 #: src/views/website/stats/IPsTab.vue:75
 msgid "Location"
 msgstr "位置"
 
-#: src/views/firewall/ScanView.vue:290
+#: src/views/firewall/ScanView.vue:313
 msgid "Port Count"
 msgstr "連接埠數"
 
-#: src/views/firewall/ScanView.vue:292
-#: src/views/firewall/ScanView.vue:327
+#: src/views/firewall/ScanView.vue:315
+#: src/views/firewall/ScanView.vue:350
 msgid "Last Seen"
 msgstr "最後記錄"
 
-#: src/views/firewall/ScanView.vue:304
+#: src/views/firewall/ScanView.vue:327
 msgid "IP Count"
 msgstr "IP 數"
 
-#: src/views/firewall/ScanView.vue:321
+#: src/views/firewall/ScanView.vue:344
 msgid "First Seen"
 msgstr "首次記錄"
 
-#: src/views/firewall/ScanView.vue:345
+#: src/views/firewall/ScanView.vue:368
+msgid "Unblocked successfully"
+msgstr "解除屏蔽成功"
+
+#: src/views/firewall/ScanView.vue:375
+msgid "Please select IPs to unblock"
+msgstr "請選擇要解除屏蔽的 IP"
+
+#: src/views/firewall/ScanView.vue:399
+msgid "Inbound & Outbound"
+msgstr "入站和出站"
+
+#: src/views/firewall/ScanView.vue:403
+msgid "Blocked At"
+msgstr "屏蔽時間"
+
+#: src/views/firewall/ScanView.vue:409
+msgid "Expires At"
+msgstr "到期時間"
+
+#: src/views/firewall/ScanView.vue:428
+msgid "Unblock IP"
+msgstr "解除屏蔽 IP"
+
+#: src/views/firewall/ScanView.vue:429
+msgid "Unblock %{ ip }?"
+msgstr "解除屏蔽 %{ ip }？"
+
+#: src/views/firewall/ScanView.vue:434
+#: src/views/firewall/ScanView.vue:632
+msgid "Unblock"
+msgstr "解除屏蔽"
+
+#: src/views/firewall/ScanView.vue:442
 msgid "Scan Awareness Disabled"
 msgstr "掃描感知已禁用"
 
-#: src/views/firewall/ScanView.vue:348
+#: src/views/firewall/ScanView.vue:445
 msgid "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr "在設定分頁中啟用掃描感知以開始偵測連接埠掃描。"
 
-#: src/views/firewall/ScanView.vue:357
+#: src/views/firewall/ScanView.vue:454
 msgid "Scan Events"
 msgstr "掃描事件"
 
-#: src/views/firewall/ScanView.vue:372
+#: src/views/firewall/ScanView.vue:455
+msgid "Blocked IPs"
+msgstr "已屏蔽 IP"
+
+#: src/views/firewall/ScanView.vue:473
+#: src/views/firewall/ScanView.vue:622
 msgid "Search IP"
 msgstr "搜尋 IP"
 
-#: src/views/firewall/ScanView.vue:399
+#: src/views/firewall/ScanView.vue:500
 msgid "Are you sure you want to clear all scan data?"
 msgstr "您確定要清除所有掃描資料嗎？"
 
-#: src/views/firewall/ScanView.vue:404
+#: src/views/firewall/ScanView.vue:505
 #: src/views/website/StatsView.vue:223
 msgid "Clear Data"
 msgstr "清除資料"
 
-#: src/views/firewall/ScanView.vue:418
+#: src/views/firewall/ScanView.vue:519
 msgid "Total Scans"
 msgstr "總掃描次數"
 
-#: src/views/firewall/ScanView.vue:431
+#: src/views/firewall/ScanView.vue:532
 msgid "Scanned Ports"
 msgstr "掃描連接埠數"
 
-#: src/views/firewall/ScanView.vue:457
+#: src/views/firewall/ScanView.vue:558
 msgid "Scan Trend"
 msgstr "掃描趨勢"
 
-#: src/views/firewall/ScanView.vue:466
+#: src/views/firewall/ScanView.vue:567
 msgid "Top 10 Source IPs"
 msgstr "來源 IP 前 10"
 
-#: src/views/firewall/ScanView.vue:477
+#: src/views/firewall/ScanView.vue:578
 msgid "Top 10 Scanned Ports"
 msgstr "掃描連接埠前 10"
 
-#: src/views/firewall/ScanView.vue:494
+#: src/views/firewall/ScanView.vue:595
 msgid "Scan awareness runs before the system firewall, so it is normal for blocked IPs to continue generating scan records."
 msgstr "掃描感知執行在系統防火牆之前，因此被拉黑的 IP 仍繼續產生掃描記錄屬於正常現象。"
+
+#: src/views/firewall/ScanView.vue:627
+msgid "Are you sure you want to unblock the selected IPs?"
+msgstr "您確定要解除屏蔽選取的 IP 嗎？"
+
+#: src/views/firewall/ScanView.vue:639
+msgid "Are you sure you want to clear all blocked IPs?"
+msgstr "您確定要清除所有已屏蔽的 IP 嗎？"
+
+#: src/views/firewall/ScanView.vue:644
+msgid "Clear All"
+msgstr "全部清除"
 
 #: src/views/firewall/SettingView.vue:38
 #: src/views/firewall/SettingView.vue:49
 #: src/views/firewall/SettingView.vue:59
-#: src/views/firewall/SettingView.vue:125
+#: src/views/firewall/SettingView.vue:140
 msgid "Settings saved successfully"
 msgstr "設定儲存成功"
 
 #: src/views/firewall/SettingView.vue:72
-#: src/views/firewall/SettingView.vue:141
+#: src/views/firewall/SettingView.vue:156
 msgid "Filter Container Ports"
 msgstr "過濾容器連接埠"
 
@@ -10687,51 +10747,59 @@ msgstr "過濾容器連接埠"
 msgid "Ports published by containers that no port or IP rule allows will become unreachable from outside immediately. Continue?"
 msgstr "容器對應到主機的連接埠若沒有連接埠規則或 IP 規則放行，將立即無法從外部存取，是否繼續？"
 
-#: src/views/firewall/SettingView.vue:131
+#: src/views/firewall/SettingView.vue:118
+msgid "Disable Scan Awareness"
+msgstr "禁用掃描感知"
+
+#: src/views/firewall/SettingView.vue:119
+msgid "All IPs blocked by scan awareness will be unblocked immediately after it is disabled. Continue?"
+msgstr "禁用後，掃描感知屏蔽的所有 IP 將立即解除屏蔽，是否繼續？"
+
+#: src/views/firewall/SettingView.vue:146
 msgid "System Firewall"
 msgstr "系統防火牆"
 
-#: src/views/firewall/SettingView.vue:138
+#: src/views/firewall/SettingView.vue:153
 msgid "Allow Ping"
 msgstr "允許 Ping"
 
-#: src/views/firewall/SettingView.vue:150
+#: src/views/firewall/SettingView.vue:165
 msgid "Apply port and IP rules to ports published by containers, which otherwise bypass the system firewall"
 msgstr "讓連接埠規則和 IP 規則對容器對應到主機的連接埠同樣生效，否則這些連接埠會繞過系統防火牆"
 
-#: src/views/firewall/SettingView.vue:162
+#: src/views/firewall/SettingView.vue:177
 msgid "Retention Days"
 msgstr "保留天數"
 
-#: src/views/firewall/SettingView.vue:165
+#: src/views/firewall/SettingView.vue:180
 msgid "Network Interfaces"
 msgstr "網路介面"
 
-#: src/views/firewall/SettingView.vue:171
+#: src/views/firewall/SettingView.vue:186
 msgid "Auto detect"
 msgstr "自動檢測"
 
-#: src/views/firewall/SettingView.vue:174
+#: src/views/firewall/SettingView.vue:189
 msgid "Auto Block"
 msgstr "自動屏蔽"
 
-#: src/views/firewall/SettingView.vue:178
+#: src/views/firewall/SettingView.vue:193
 msgid "Block Threshold"
 msgstr "屏蔽閾值"
 
-#: src/views/firewall/SettingView.vue:181
+#: src/views/firewall/SettingView.vue:196
 msgid "Time Window (minutes)"
 msgstr "時間窗口（分鐘）"
 
-#: src/views/firewall/SettingView.vue:184
+#: src/views/firewall/SettingView.vue:199
 msgid "Block Duration (hours)"
 msgstr "屏蔽時長（小時）"
 
-#: src/views/firewall/SettingView.vue:191
+#: src/views/firewall/SettingView.vue:206
 msgid "Block Outbound"
 msgstr "封鎖外發"
 
-#: src/views/firewall/SettingView.vue:195
+#: src/views/firewall/SettingView.vue:210
 msgid "Also drop traffic from this server to blocked IPs"
 msgstr "同時捨棄從此伺服器發往已封鎖 IP 的流量"
 
@@ -11306,47 +11374,47 @@ msgstr "已斷開"
 msgid "Auth Method"
 msgstr "驗證方法"
 
-#: src/views/login/IndexView.vue:64
+#: src/views/login/IndexView.vue:60
 msgid "Login successful!"
 msgstr "登入成功！"
 
-#: src/views/login/IndexView.vue:145
+#: src/views/login/IndexView.vue:143
 msgid "Please enter username and password"
 msgstr "請輸入使用者名稱與密碼"
 
-#: src/views/login/IndexView.vue:150
+#: src/views/login/IndexView.vue:148
 msgid "Please enter captcha code"
 msgstr "請輸入驗證碼"
 
-#: src/views/login/IndexView.vue:159
+#: src/views/login/IndexView.vue:160
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr "取得加密公鑰失敗，請重新整理頁面後重試"
 
-#: src/views/login/IndexView.vue:244
+#: src/views/login/IndexView.vue:246
 msgid "Authenticating with passkey..."
 msgstr "正在透過通行金鑰驗證……"
 
-#: src/views/login/IndexView.vue:252
+#: src/views/login/IndexView.vue:254
 msgid "Passkey login failed, please use username and password."
 msgstr "通行金鑰登入失敗，請使用使用者名稱和密碼。"
 
-#: src/views/login/IndexView.vue:280
+#: src/views/login/IndexView.vue:282
 msgid "2FA Code"
 msgstr "兩步驟驗證碼"
 
-#: src/views/login/IndexView.vue:290
+#: src/views/login/IndexView.vue:292
 msgid "Captcha Code"
 msgstr "驗證碼"
 
-#: src/views/login/IndexView.vue:306
+#: src/views/login/IndexView.vue:308
 msgid "Safe Login"
 msgstr "安全登入"
 
-#: src/views/login/IndexView.vue:307
+#: src/views/login/IndexView.vue:309
 msgid "Remember Me"
 msgstr "記住我"
 
-#: src/views/login/IndexView.vue:328
+#: src/views/login/IndexView.vue:330
 msgid "Login with Passkey"
 msgstr "使用通行金鑰登入"
 
@@ -12379,29 +12447,29 @@ msgstr "輸入使用者密碼"
 msgid "Enter user email"
 msgstr "輸入使用者信箱"
 
-#: src/views/setting/IndexView.vue:93
-#: src/views/setting/IndexView.vue:112
+#: src/views/setting/IndexView.vue:94
+#: src/views/setting/IndexView.vue:113
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr "面板正在重啟，頁面將在 5 秒後重新整理"
 
-#: src/views/setting/IndexView.vue:106
+#: src/views/setting/IndexView.vue:107
 #: src/views/website/EditModal.vue:261
 msgid "Please wait..."
 msgstr "請稍候……"
 
-#: src/views/setting/IndexView.vue:111
+#: src/views/setting/IndexView.vue:112
 msgid "Certificate refreshed successfully"
 msgstr "憑證重新整理成功"
 
-#: src/views/setting/IndexView.vue:134
+#: src/views/setting/IndexView.vue:135
 msgid "Safe"
 msgstr "安全"
 
-#: src/views/setting/IndexView.vue:159
+#: src/views/setting/IndexView.vue:160
 msgid "Refresh Certificate"
 msgstr "更新憑證"
 
-#: src/views/setting/IndexView.vue:160
+#: src/views/setting/IndexView.vue:161
 msgid "Regenerate Certificate"
 msgstr "重新產生憑證"
 
@@ -12609,63 +12677,71 @@ msgid "X-Real-IP"
 msgstr "X-Real-IP"
 
 #: src/views/setting/SettingSafe.vue:165
+msgid "Trusted Proxies"
+msgstr "受信任的代理"
+
+#: src/views/setting/SettingSafe.vue:170
+msgid "The request IP header is only accepted from these proxy IPs or CIDRs, such as the IP ranges of your CDN. Loopback and private addresses are always trusted"
+msgstr "僅接受來自這些代理 IP 或 CIDR 的請求 IP 標頭，例如 CDN 的 IP 範圍。回環地址和私有地址始終受信任"
+
+#: src/views/setting/SettingSafe.vue:187
 msgid "Bind Domain"
 msgstr "綁定域名"
 
-#: src/views/setting/SettingSafe.vue:170
+#: src/views/setting/SettingSafe.vue:192
 msgid "Restrict panel access to the specified domain names. Leave blank to allow access from any domain"
 msgstr "限制僅允許指定網域存取面板。留空以允許來自任何網域的存取"
 
-#: src/views/setting/SettingSafe.vue:183
+#: src/views/setting/SettingSafe.vue:205
 msgid "Bind IP"
 msgstr "綁定 IP"
 
-#: src/views/setting/SettingSafe.vue:188
+#: src/views/setting/SettingSafe.vue:210
 msgid "Restrict panel access to the specified IP addresses. Leave blank to allow access from any IP"
 msgstr "限制僅允許指定 IP 位址存取面板。留空以允許來自任何 IP 的存取"
 
-#: src/views/setting/SettingSafe.vue:201
+#: src/views/setting/SettingSafe.vue:223
 msgid "Bind UA"
 msgstr "綁定 UA"
 
-#: src/views/setting/SettingSafe.vue:206
+#: src/views/setting/SettingSafe.vue:228
 msgid "Restrict panel access to the specified User-Agent strings. Leave blank to allow access from any User-Agent"
 msgstr "限制僅允許指定 User-Agent 字串存取面板。留空以允許任何 User-Agent 存取"
 
-#: src/views/setting/SettingSafe.vue:225
+#: src/views/setting/SettingSafe.vue:247
 msgid "Offline Mode"
 msgstr "離線模式"
 
-#: src/views/setting/SettingSafe.vue:230
+#: src/views/setting/SettingSafe.vue:252
 msgid "When enabled, the panel will not attempt to connect to external services for updates or other features. This may limit some functionalities"
 msgstr "啟用後，面板將不會嘗試連線外部服務以取得更新或其他功能。這可能會限制某些功能"
 
-#: src/views/setting/SettingSafe.vue:243
+#: src/views/setting/SettingSafe.vue:265
 msgid "Auto Update"
 msgstr "自動更新"
 
-#: src/views/setting/SettingSafe.vue:248
+#: src/views/setting/SettingSafe.vue:270
 msgid "When enabled, the panel will automatically check for and install updates when they are available. It is recommended to keep this enabled to ensure you have the latest features and security patches"
 msgstr "啟用後，面板將自動檢查並安裝可用的更新。建議保持此功能啟用，以確保您擁有最新的功能和安全補丁"
 
-#: src/views/setting/SettingSafe.vue:261
+#: src/views/setting/SettingSafe.vue:283
 msgid "Panel HTTPS"
 msgstr "面板 HTTPS"
 
-#: src/views/setting/SettingSafe.vue:266
+#: src/views/setting/SettingSafe.vue:288
 msgid "Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Self-Signed generates a certificate automatically (browsers will show a warning). Custom allows you to provide your own certificate"
 msgstr "為面板啟用 HTTPS。ACME 將每天自動取得並更新憑證（需支援透過公網 IP 存取面板）。自簽名會自動產生憑證（瀏覽器會顯示警告）。自訂允許您提供自己的憑證"
 
-#: src/views/setting/SettingSafe.vue:282
-#: src/views/setting/SettingSafe.vue:287
+#: src/views/setting/SettingSafe.vue:304
+#: src/views/setting/SettingSafe.vue:309
 msgid "Panel Public IP"
 msgstr "面板公網 IP"
 
-#: src/views/setting/SettingSafe.vue:292
+#: src/views/setting/SettingSafe.vue:314
 msgid "Panel public IP is used to issue HTTPS certificates using ACME. Ensure that the entered IP address is accessible from the public network."
 msgstr "面板公網 IP 用於透過 ACME 簽發 HTTPS 憑證。請確保輸入的 IP 位址可從公網存取。"
 
-#: src/views/setting/SettingSafe.vue:300
+#: src/views/setting/SettingSafe.vue:322
 #: src/views/website/EditModal.vue:649
 msgid "Use Existing Certificate"
 msgstr "使用現有證書"

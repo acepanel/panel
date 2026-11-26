@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 1166\n"
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2026-11-24 11:16\n"
+"PO-Revision-Date: 2026-11-26 14:30\n"
 
 #: pkg/tui/tui.go:152
 msgid "#%d, leave empty to finish"
@@ -1023,7 +1023,7 @@ msgid "Extracting new version..."
 msgstr "正在提取新版本……"
 
 #: internal/biz/alert_ssh.go:77
-#: internal/service/user.go:416
+#: internal/service/user.go:384
 msgid "Failed Attempts"
 msgstr "失败次数"
 
@@ -1410,9 +1410,9 @@ msgstr "IMAP 模块允许 PHP 读取、搜索、删除、下载和管理邮件"
 #: internal/biz/alert_ssh.go:76
 #: internal/command/entrance.go:67
 #: internal/request/attributes.go:70
-#: internal/service/user.go:189
-#: internal/service/user.go:414
-#: internal/service/user_passkey.go:321
+#: internal/service/user.go:170
+#: internal/service/user.go:382
+#: internal/service/user_passkey.go:302
 msgid "IP"
 msgstr "IP"
 
@@ -1823,7 +1823,7 @@ msgid "Memory Usage (bytes)"
 msgstr "内存使用（字节）"
 
 #: internal/biz/alert_ssh.go:63
-#: internal/service/user_passkey.go:320
+#: internal/service/user_passkey.go:301
 msgid "Method"
 msgstr "方式"
 
@@ -2131,7 +2131,7 @@ msgstr "页码"
 msgid "Parameters cannot be empty"
 msgstr "参数不能为空"
 
-#: internal/service/user_passkey.go:195
+#: internal/service/user_passkey.go:190
 msgid "Passkey"
 msgstr "通行密钥"
 
@@ -2926,9 +2926,9 @@ msgstr "阈值"
 #: internal/job/cert_renew.go:194
 #: internal/request/attributes.go:175
 #: internal/service/cli_cron.go:90
-#: internal/service/user.go:191
-#: internal/service/user.go:418
-#: internal/service/user_passkey.go:323
+#: internal/service/user.go:172
+#: internal/service/user.go:386
+#: internal/service/user_passkey.go:304
 #: internal/taskqueue/runner.go:191
 msgid "Time"
 msgstr "时间"
@@ -3022,16 +3022,20 @@ msgstr "总请求数"
 msgid "Transactions per Second"
 msgstr "每秒事务"
 
-#: internal/biz/backup.go:156
 #: internal/request/attributes.go:182
+msgid "Trusted Proxies"
+msgstr "受信任的代理"
+
+#: internal/biz/backup.go:156
+#: internal/request/attributes.go:183
 msgid "Type"
 msgstr "类型"
 
-#: internal/request/attributes.go:183
+#: internal/request/attributes.go:184
 msgid "UDP Port"
 msgstr "UDP 端口"
 
-#: internal/request/attributes.go:184
+#: internal/request/attributes.go:185
 msgid "URL"
 msgstr "URL"
 
@@ -3039,7 +3043,7 @@ msgstr "URL"
 msgid "USAGE"
 msgstr "使用"
 
-#: internal/request/attributes.go:185
+#: internal/request/attributes.go:186
 msgid "UV Max Keys"
 msgstr "UV 键最大值"
 
@@ -3156,8 +3160,8 @@ msgstr "运行时间（秒）"
 msgid "Uptime in Days"
 msgstr "已运行天数"
 
-#: internal/request/attributes.go:186
 #: internal/request/attributes.go:187
+#: internal/request/attributes.go:188
 msgid "User"
 msgstr "用户"
 
@@ -3169,9 +3173,9 @@ msgstr "用户 %s 创建成功"
 msgid "User %s deleted successfully"
 msgstr "用户 %s 删除成功"
 
-#: internal/service/user.go:190
-#: internal/service/user.go:417
-#: internal/service/user_passkey.go:322
+#: internal/service/user.go:171
+#: internal/service/user.go:385
+#: internal/service/user_passkey.go:303
 msgid "User Agent"
 msgstr "User Agent"
 
@@ -3194,10 +3198,10 @@ msgstr "User-Agent"
 #: internal/command/user.go:56
 #: internal/command/user.go:64
 #: internal/command/user.go:70
-#: internal/request/attributes.go:188
-#: internal/service/user.go:188
-#: internal/service/user.go:415
-#: internal/service/user_passkey.go:319
+#: internal/request/attributes.go:189
+#: internal/service/user.go:169
+#: internal/service/user.go:383
+#: internal/service/user_passkey.go:300
 msgid "Username"
 msgstr "用户名"
 
@@ -3222,7 +3226,7 @@ msgid "VERSION"
 msgstr "版本"
 
 #: internal/command/setting.go:27
-#: internal/request/attributes.go:190
+#: internal/request/attributes.go:191
 msgid "Value"
 msgstr "值"
 
@@ -3245,7 +3249,7 @@ msgstr "验证下载文件……"
 msgid "Version"
 msgstr "版本"
 
-#: internal/request/attributes.go:189
+#: internal/request/attributes.go:190
 msgid "Volume Group"
 msgstr "卷组"
 
@@ -3286,15 +3290,15 @@ msgstr "网站 %s 移除成功"
 msgid "Website %s written successfully"
 msgstr "网站 %s 写入成功"
 
-#: internal/request/attributes.go:192
+#: internal/request/attributes.go:193
 msgid "Website Mode"
 msgstr "网站模式"
 
-#: internal/request/attributes.go:193
+#: internal/request/attributes.go:194
 msgid "Website Name"
 msgstr "网站名称"
 
-#: internal/request/attributes.go:194
+#: internal/request/attributes.go:195
 msgid "Website Path"
 msgstr "网站路径"
 
@@ -3331,7 +3335,7 @@ msgstr "网站状态"
 msgid "Website type (proxy, static, php)"
 msgstr "网站类型（proxy、static、php）"
 
-#: internal/request/attributes.go:191
+#: internal/request/attributes.go:192
 msgid "Websites"
 msgstr "网站"
 
@@ -3347,7 +3351,7 @@ msgstr "西部数码"
 msgid "Whether the website has SSL enabled"
 msgstr "网站是否启用 SSL"
 
-#: internal/request/attributes.go:195
+#: internal/request/attributes.go:196
 msgid "Whitelist"
 msgstr "白名单"
 
@@ -3424,8 +3428,8 @@ msgstr "[AcePanel] 计划任务失败"
 msgid "[AcePanel] Panel Health Issue"
 msgstr "[AcePanel] 面板健康问题"
 
-#: internal/service/user.go:187
-#: internal/service/user_passkey.go:318
+#: internal/service/user.go:168
+#: internal/service/user_passkey.go:299
 msgid "[AcePanel] Panel Login"
 msgstr "[AcePanel] 面板登录"
 
@@ -3437,7 +3441,7 @@ msgstr "[AcePanel] SSH 暴力破解尝试"
 msgid "[AcePanel] SSH Login"
 msgstr "[AcePanel] SSH 登录"
 
-#: internal/service/user.go:413
+#: internal/service/user.go:381
 msgid "[AcePanel] Suspicious Login Attempts"
 msgstr "[AcePanel] 可疑登录尝试"
 
@@ -3720,11 +3724,11 @@ msgstr "应用已卸载"
 msgid "app updated"
 msgstr "应用已更新"
 
-#: internal/job/firewall_scan.go:351
+#: internal/job/firewall_scan.go:352
 msgid "auto blocked IP"
 msgstr "已自动屏蔽 IP"
 
-#: internal/job/firewall_scan.go:136
+#: internal/job/firewall_scan.go:128
 msgid "auto unblocked IP (expired)"
 msgstr "已自动解除屏蔽 IP（已过期）"
 
@@ -3736,8 +3740,8 @@ msgstr "后台任务未能完成"
 msgid "background task failed"
 msgstr "后台任务执行失败"
 
-#: internal/biz/setting.go:213
-#: internal/biz/setting.go:304
+#: internal/biz/setting.go:214
+#: internal/biz/setting.go:305
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr "后台任务正在运行，禁止修改某些设置，请稍后再试"
 
@@ -3843,7 +3847,7 @@ msgstr "无法下载目录"
 msgid "can't find %s database server, please add it first"
 msgstr "找不到 %s 数据库服务器，请先添加"
 
-#: internal/service/file_share.go:62
+#: internal/service/file_share.go:64
 msgid "can't share a directory"
 msgstr "无法分享目录"
 
@@ -3964,27 +3968,27 @@ msgstr "无法将第 %d 行的字符 %s 储存为 %s"
 msgid "check server connection failed"
 msgstr "检查服务器连接失败"
 
-#: internal/service/file.go:887
+#: internal/service/file.go:890
 msgid "chunk %d is missing"
 msgstr "缺少分块 %d"
 
-#: internal/service/file.go:850
+#: internal/service/file.go:853
 msgid "chunk hash mismatch"
 msgstr "分块哈希不匹配"
 
-#: internal/service/file.go:816
+#: internal/service/file.go:819
 msgid "chunk index out of range"
 msgstr "分块索引超出范围"
 
-#: internal/service/file.go:846
+#: internal/service/file.go:849
 msgid "chunk size mismatch"
 msgstr "分块大小不匹配"
 
-#: internal/service/file.go:810
+#: internal/service/file.go:813
 msgid "chunk upload not started"
 msgstr "分块上传未开始"
 
-#: internal/service/file.go:882
+#: internal/service/file.go:885
 msgid "chunk upload not started or chunk count mismatch"
 msgstr "分块上传未开始或分块数量不匹配"
 
@@ -3992,7 +3996,7 @@ msgstr "分块上传未开始或分块数量不匹配"
 msgid "client %d not found"
 msgstr "未找到客户端 %d"
 
-#: internal/middleware/must_login.go:66
+#: internal/data/user_session.go:61
 msgid "client ip changed, please login again"
 msgstr "客户端 IP 已更改，请重新登录"
 
@@ -4075,7 +4079,7 @@ msgstr "容器已强制停止"
 msgid "container list viewed"
 msgstr "已查看容器列表"
 
-#: internal/service/file.go:1049
+#: internal/service/file.go:1052
 msgid "container log viewed"
 msgstr "已查看容器日志"
 
@@ -4125,7 +4129,7 @@ msgid "could not find database backup file"
 msgstr "找不到数据库备份文件"
 
 #: internal/service/file.go:355
-#: internal/service/file.go:767
+#: internal/service/file.go:770
 msgid "create directory error: %v"
 msgstr "创建目录错误：%v"
 
@@ -4350,7 +4354,7 @@ msgstr "eBPF 扫描检测器已挂载"
 msgid "eBPF scan detector detached"
 msgstr "eBPF 扫描检测器已卸载"
 
-#: internal/job/firewall_scan.go:152
+#: internal/job/firewall_scan.go:144
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr "当前内核不支持 eBPF 扫描检测器（TCX 挂载需要 6.6+）"
 
@@ -4492,7 +4496,9 @@ msgstr "应用 PostgreSQL 配置失败：%v"
 msgid "failed to apply firewall filter rules"
 msgstr "应用防火墙过滤规则失败"
 
-#: internal/biz/firewall_filter.go:56
+#: internal/biz/firewall_filter.go:58
+#: internal/biz/scan_event.go:210
+#: internal/biz/scan_event.go:342
 #: internal/service/cli_firewall.go:121
 msgid "failed to apply firewall filter rules: %v"
 msgstr "应用防火墙过滤规则失败：%v"
@@ -4505,7 +4511,7 @@ msgstr "应用防火墙订阅失败：%v"
 msgid "failed to attach scan detector, skip interface"
 msgstr "挂载扫描检测器失败，跳过该网络接口"
 
-#: internal/job/firewall_scan.go:343
+#: internal/job/firewall_scan.go:347
 msgid "failed to auto block IP"
 msgstr "自动屏蔽 IP 失败"
 
@@ -4546,7 +4552,7 @@ msgstr "清除过期文件分享失败"
 msgid "failed to clear expired ip stats"
 msgstr "清除过期 IP 统计失败"
 
-#: internal/job/firewall_scan.go:370
+#: internal/job/firewall_scan.go:371
 msgid "failed to clear expired scan data"
 msgstr "清除过期扫描数据失败"
 
@@ -4557,6 +4563,10 @@ msgstr "清除过期蜘蛛统计失败"
 #: internal/job/website_stat.go:349
 msgid "failed to clear expired uri stats"
 msgstr "清除过期 URI 统计失败"
+
+#: internal/job/user_session_clean.go:33
+msgid "failed to clear expired user sessions"
+msgstr "清除过期用户会话失败"
 
 #: internal/job/website_stat.go:335
 msgid "failed to clear expired website error logs"
@@ -4708,7 +4718,7 @@ msgstr "禁用 %s 服务失败：%v"
 msgid "failed to disable expired website"
 msgstr "停用到期网站失败"
 
-#: internal/biz/setting.go:279
+#: internal/biz/setting.go:280
 #: internal/job/panel_task.go:153
 msgid "failed to download ipdb"
 msgstr "下载 ipdb 失败"
@@ -4867,8 +4877,7 @@ msgstr "获取磁盘空间失败： %v"
 msgid "failed to get filesystem type: %v"
 msgstr "获取文件系统类型失败：%v"
 
-#: internal/job/firewall_scan.go:115
-#: internal/job/firewall_scan.go:273
+#: internal/job/firewall_scan.go:265
 msgid "failed to get firewall status"
 msgstr "获取防火墙状态失败"
 
@@ -4936,7 +4945,7 @@ msgstr "获取 prometheus 状态失败：%v"
 msgid "failed to get s3fs list: %v"
 msgstr "获取 s3fs 列表失败： %v"
 
-#: internal/job/firewall_scan.go:86
+#: internal/job/firewall_scan.go:90
 msgid "failed to get scan setting"
 msgstr "获取扫描设置失败"
 
@@ -4976,7 +4985,7 @@ msgstr "获取应用 %s 的卸载脚本失败"
 msgid "failed to insert website error logs"
 msgstr "写入网站错误日志失败"
 
-#: internal/job/firewall_scan.go:316
+#: internal/job/firewall_scan.go:323
 msgid "failed to list firewall rules"
 msgstr "列出防火墙规则失败"
 
@@ -5031,7 +5040,7 @@ msgstr "在 %s 上打开 SFTP 会话失败：%v"
 
 #: internal/biz/cert.go:383
 #: internal/biz/setting.go:176
-#: internal/biz/setting.go:307
+#: internal/biz/setting.go:308
 #: internal/data/website.go:582
 #: internal/data/website.go:853
 msgid "failed to parse certificate: %v"
@@ -5052,7 +5061,7 @@ msgstr "解析 phpMyAdmin 登录页面失败"
 
 #: internal/biz/cert.go:387
 #: internal/biz/setting.go:179
-#: internal/biz/setting.go:310
+#: internal/biz/setting.go:311
 #: internal/data/website.go:585
 #: internal/data/website.go:856
 msgid "failed to parse private key: %v"
@@ -5142,7 +5151,8 @@ msgstr "读取项目详情失败：%v"
 msgid "failed to read ring buffer"
 msgstr "读取环形缓冲区失败"
 
-#: internal/job/firewall_scan.go:106
+#: internal/job/firewall_scan.go:110
+#: internal/job/firewall_scan.go:307
 msgid "failed to read scan blocks"
 msgstr "读取扫描屏蔽记录失败"
 
@@ -5315,8 +5325,8 @@ msgstr "保存 MongoDB 管理员密码失败：%v"
 msgid "failed to save alert record"
 msgstr "保存告警记录失败"
 
-#: internal/job/firewall_scan.go:132
-#: internal/job/firewall_scan.go:339
+#: internal/job/firewall_scan.go:124
+#: internal/job/firewall_scan.go:343
 msgid "failed to save scan blocks"
 msgstr "保存扫描屏蔽记录失败"
 
@@ -5374,7 +5384,7 @@ msgstr "启动 %s 服务失败： %v"
 msgid "failed to start container terminal: %v"
 msgstr "启动容器终端失败：%v"
 
-#: internal/job/firewall_scan.go:160
+#: internal/job/firewall_scan.go:152
 msgid "failed to start eBPF scan detector"
 msgstr "启动 eBPF 扫描检测器失败"
 
@@ -5402,7 +5412,7 @@ msgstr "同步服务器到 pgAdmin 失败：%v"
 msgid "failed to umount partition: %v"
 msgstr "卸载分区失败：%v"
 
-#: internal/job/firewall_scan.go:128
+#: internal/job/firewall_scan.go:119
 msgid "failed to unblock IP"
 msgstr "解除屏蔽 IP 失败"
 
@@ -5489,7 +5499,7 @@ msgstr "写入客户端统计失败"
 msgid "failed to upsert ip stats"
 msgstr "写入 IP 统计失败"
 
-#: internal/job/firewall_scan.go:255
+#: internal/job/firewall_scan.go:247
 msgid "failed to upsert scan events"
 msgstr "写入扫描事件失败"
 
@@ -5606,7 +5616,7 @@ msgstr "文件是必填项"
 msgid "file is too large, please download it to view"
 msgstr "文件太大，请下载后查看"
 
-#: internal/service/file.go:746
+#: internal/service/file.go:749
 msgid "file list viewed"
 msgstr "已查看文件列表"
 
@@ -5626,15 +5636,15 @@ msgstr "文件权限已更新"
 msgid "file saved"
 msgstr "文件已保存"
 
-#: internal/biz/file_share.go:60
+#: internal/biz/file_share.go:64
 msgid "file share created"
 msgstr "文件分享已创建"
 
-#: internal/biz/file_share.go:76
+#: internal/biz/file_share.go:80
 msgid "file share deleted"
 msgstr "文件分享已删除"
 
-#: internal/service/file_share.go:114
+#: internal/service/file_share.go:120
 msgid "file share downloaded"
 msgstr "分享文件已下载"
 
@@ -5642,16 +5652,16 @@ msgstr "分享文件已下载"
 msgid "file truncated"
 msgstr "文件已清空"
 
-#: internal/service/file.go:656
+#: internal/service/file.go:659
 msgid "file uncompress task created"
 msgstr "文件解压任务已创建"
 
 #: internal/service/file.go:387
-#: internal/service/file.go:903
+#: internal/service/file.go:906
 msgid "file uploaded"
 msgstr "文件已上传"
 
-#: internal/biz/firewall_filter.go:59
+#: internal/biz/firewall_filter.go:61
 msgid "firewall container port filtering updated"
 msgstr "防火墙容器端口过滤已更新"
 
@@ -5889,12 +5899,12 @@ msgstr "镜像已清理"
 msgid "initializing ACME client"
 msgstr "初始化 ACME 客户端"
 
-#: internal/data/user.go:215
-#: internal/service/user.go:160
+#: internal/data/user.go:220
+#: internal/service/user.go:153
 msgid "invalid 2FA code"
 msgstr "无效的两步验证代码"
 
-#: internal/service/user.go:133
+#: internal/service/user.go:122
 msgid "invalid captcha code"
 msgstr "验证码无效"
 
@@ -5911,7 +5921,7 @@ msgstr "无效文件：缺少 port_start 列"
 msgid "invalid header: %v"
 msgstr "无效的请求头： %v"
 
-#: internal/service/user.go:141
+#: internal/service/user.go:138
 msgid "invalid key, please refresh the page"
 msgstr "无效的密钥，请刷新页面"
 
@@ -5936,7 +5946,7 @@ msgstr "PID 无效"
 msgid "invalid process id"
 msgstr "进程 ID 无效"
 
-#: internal/data/user_token.go:147
+#: internal/data/user_token.go:126
 msgid "invalid request ip: %s"
 msgstr "无效的请求 IP：%s"
 
@@ -5944,14 +5954,14 @@ msgstr "无效的请求 IP：%s"
 msgid "invalid response"
 msgstr "无效的响应"
 
-#: internal/service/user_passkey.go:162
-#: internal/service/user_passkey.go:261
+#: internal/service/user_passkey.go:158
+#: internal/service/user_passkey.go:247
 msgid "invalid session, please try again"
 msgstr "无效的会话，请重试"
 
 #: internal/data/user_token.go:106
 #: internal/data/user_token.go:112
-#: internal/data/user_token.go:135
+#: internal/data/user_token.go:144
 msgid "invalid signature"
 msgstr "无效的签名"
 
@@ -5971,7 +5981,7 @@ msgstr "无效的类型"
 msgid "invalid update schedule: %v"
 msgstr "更新周期无效：%v"
 
-#: internal/middleware/must_login.go:75
+#: internal/middleware/must_login.go:73
 msgid "invalid user id, please login again"
 msgstr "无效的用户ID，请重新登录"
 
@@ -5979,7 +5989,7 @@ msgstr "无效的用户ID，请重新登录"
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）"
 
-#: internal/biz/setting.go:281
+#: internal/biz/setting.go:282
 msgid "ipdb downloaded"
 msgstr "ipdb 已下载"
 
@@ -6313,7 +6323,8 @@ msgstr "网络上行速率"
 msgid "networks pruned"
 msgstr "网络已清理"
 
-#: internal/data/firewall_filter.go:68
+#: internal/biz/scan_event.go:288
+#: internal/data/firewall_filter.go:75
 msgid "nftables is not installed, please install it first (e.g., apt install nftables or dnf install nftables)"
 msgstr "未安装 nftables，请先安装（例如 apt install nftables 或 dnf install nftables）"
 
@@ -6455,7 +6466,7 @@ msgstr "只能迁移 PHP 运行环境网站：%s"
 msgid "open file error: %v"
 msgstr "打开文件错误： %v"
 
-#: internal/service/file.go:822
+#: internal/service/file.go:825
 msgid "open upload file error: %v"
 msgstr "打开上传文件错误：%v"
 
@@ -6500,8 +6511,8 @@ msgstr "面板正在升级，请稍后刷新"
 msgid "panel log viewed"
 msgstr "已查看面板日志"
 
-#: internal/service/user.go:187
-#: internal/service/user_passkey.go:318
+#: internal/service/user.go:168
+#: internal/service/user_passkey.go:299
 msgid "panel login detected"
 msgstr "检测到面板登录"
 
@@ -6525,7 +6536,7 @@ msgstr "面板自签名证书已续签"
 msgid "panel service file is missing"
 msgstr "面板服务文件丢失"
 
-#: internal/biz/setting.go:297
+#: internal/biz/setting.go:298
 msgid "panel settings updated"
 msgstr "面板设置已更新"
 
@@ -6565,15 +6576,15 @@ msgstr "分区已挂载"
 msgid "partition unmounted"
 msgstr "分区已卸载"
 
-#: internal/service/user_passkey.go:320
+#: internal/service/user_passkey.go:301
 msgid "passkey"
 msgstr "通行密钥"
 
-#: internal/service/user_passkey.go:291
+#: internal/service/user_passkey.go:276
 msgid "passkey login failed: %v"
 msgstr "密钥登录失败：%v"
 
-#: internal/service/user_passkey.go:188
+#: internal/service/user_passkey.go:183
 msgid "passkey registration failed: %v"
 msgstr "通行密钥注册失败：%v"
 
@@ -6701,7 +6712,7 @@ msgstr "请先取消任务"
 msgid "please connect to the source server first"
 msgstr "请先连接源服务器"
 
-#: internal/biz/user.go:144
+#: internal/biz/user.go:158
 #: internal/service/file.go:324
 #: internal/service/file.go:431
 #: internal/service/file.go:467
@@ -6927,6 +6938,10 @@ msgstr "续签失败，尝试重新签发"
 msgid "renewing certificate, domains: %s"
 msgstr "续签证书，域名：%s"
 
+#: internal/middleware/must_login.go:53
+msgid "request body is too large, the maximum is %d MB"
+msgstr "请求体过大，最大为 %d MB"
+
 #: internal/biz/toolbox_migration.go:463
 #: internal/data/toolbox_migration_baota.go:591
 #: internal/data/toolbox_migration_baota.go:617
@@ -7008,23 +7023,35 @@ msgstr "S3fs 挂载已删除"
 msgid "s3fs mount list viewed"
 msgstr "已查看 S3fs 挂载列表"
 
-#: internal/service/file.go:780
-#: internal/service/file.go:829
-#: internal/service/file.go:839
-#: internal/service/file.go:857
-#: internal/service/file.go:862
+#: internal/service/file.go:783
+#: internal/service/file.go:832
+#: internal/service/file.go:842
+#: internal/service/file.go:860
+#: internal/service/file.go:865
 msgid "save chunk error: %v"
 msgstr "保存分块错误：%v"
 
-#: internal/biz/scan_event.go:283
+#: internal/biz/scan_event.go:332
 msgid "scan aware setting updated"
 msgstr "扫描感知设置已更新"
+
+#: internal/service/firewall_scan.go:197
+msgid "scan blocked IP list viewed"
+msgstr "已查看扫描屏蔽 IP 列表"
+
+#: internal/biz/scan_event.go:223
+msgid "scan blocked IPs cleared"
+msgstr "已清空扫描屏蔽 IP"
+
+#: internal/biz/scan_event.go:213
+msgid "scan blocked IPs unblocked"
+msgstr "已解除扫描屏蔽 IP"
 
 #: internal/service/firewall_scan.go:163
 msgid "scan event list viewed"
 msgstr "已查看扫描事件列表"
 
-#: internal/biz/scan_event.go:168
+#: internal/biz/scan_event.go:176
 msgid "scan events cleared"
 msgstr "扫描事件已清除"
 
@@ -7069,7 +7096,7 @@ msgstr "服务已启用"
 msgid "service log cleared"
 msgstr "服务日志已清除"
 
-#: internal/service/file.go:986
+#: internal/service/file.go:989
 msgid "service log viewed"
 msgstr "已查看服务日志"
 
@@ -7093,7 +7120,7 @@ msgstr "服务状态"
 msgid "service stopped"
 msgstr "服务已停止"
 
-#: internal/middleware/must_login.go:56
+#: internal/data/user_session.go:56
 msgid "session expired, please login again"
 msgstr "会话已过期，请重新登录"
 
@@ -7106,12 +7133,11 @@ msgstr "分享链接已达下载次数上限"
 msgid "share link has expired"
 msgstr "分享链接已过期"
 
-#: internal/data/file_share.go:60
-#: internal/service/file_share.go:109
+#: internal/service/file_share.go:115
 msgid "share link not found"
 msgstr "分享链接不存在"
 
-#: internal/data/user_token.go:140
+#: internal/data/user_token.go:121
 msgid "signature expired"
 msgstr "签名已过期"
 
@@ -7119,7 +7145,7 @@ msgstr "签名已过期"
 msgid "skip unavailable optional LSM hook"
 msgstr "跳过不可用的可选 LSM 钩子"
 
-#: internal/job/firewall_scan.go:304
+#: internal/job/firewall_scan.go:296
 msgid "skip whitelisted IP"
 msgstr "跳过白名单 IP"
 
@@ -7389,8 +7415,8 @@ msgid "target is a directory"
 msgstr "目标是一个目录"
 
 #: internal/service/file.go:349
-#: internal/service/file.go:763
-#: internal/service/file.go:894
+#: internal/service/file.go:766
+#: internal/service/file.go:897
 msgid "target path %s already exists"
 msgstr "目标路径 %s 已存在"
 
@@ -7598,9 +7624,14 @@ msgstr "令牌已过期"
 msgid "too many failed SSH login attempts"
 msgstr "SSH 登录失败次数过多"
 
-#: internal/service/user.go:413
+#: internal/service/user.go:381
 msgid "too many failed panel login attempts"
 msgstr "面板登录失败次数过多"
+
+#: internal/service/user.go:79
+#: internal/service/user_passkey.go:373
+msgid "too many logins in progress, please try again later"
+msgstr "正在进行的登录过多，请稍后再试"
 
 #: internal/service/home.go:312
 #: internal/service/home.go:334
@@ -7727,36 +7758,36 @@ msgstr "上传文件错误：%v"
 msgid "uploading"
 msgstr "正在上传"
 
-#: internal/biz/user.go:181
+#: internal/biz/user.go:195
 msgid "user 2fa updated"
 msgstr "用户两步验证已更新"
 
-#: internal/biz/user.go:85
+#: internal/biz/user.go:99
 msgid "user created"
 msgstr "用户已创建"
 
-#: internal/biz/user.go:153
+#: internal/biz/user.go:167
 msgid "user deleted"
 msgstr "用户已删除"
 
-#: internal/biz/user.go:133
+#: internal/biz/user.go:147
 msgid "user email updated"
 msgstr "用户邮箱已更新"
 
-#: internal/biz/user.go:60
+#: internal/biz/user.go:74
 msgid "user list viewed"
 msgstr "已查看用户列表"
 
-#: internal/service/user.go:194
-#: internal/service/user_passkey.go:326
+#: internal/service/user.go:175
+#: internal/service/user_passkey.go:307
 msgid "user logged in"
 msgstr "用户已登录"
 
-#: internal/service/user.go:219
+#: internal/service/user.go:191
 msgid "user logged out"
 msgstr "用户已登出"
 
-#: internal/service/user.go:406
+#: internal/service/user.go:374
 msgid "user login failed"
 msgstr "用户登录失败"
 
@@ -7768,7 +7799,7 @@ msgstr "用户通行密钥已创建"
 msgid "user passkey deleted"
 msgstr "用户通行密钥已删除"
 
-#: internal/service/user_passkey.go:355
+#: internal/service/user_passkey.go:336
 msgid "user passkey list viewed"
 msgstr "已查看用户通行密钥列表"
 
@@ -7776,7 +7807,7 @@ msgstr "已查看用户通行密钥列表"
 msgid "user passkeys cleared"
 msgstr "用户通行密钥已清除"
 
-#: internal/biz/user.go:117
+#: internal/biz/user.go:131
 msgid "user password updated"
 msgstr "用户密码已更新"
 
@@ -7796,13 +7827,13 @@ msgstr "已查看用户访问令牌列表"
 msgid "user token updated"
 msgstr "用户访问令牌已更新"
 
-#: internal/biz/user.go:101
+#: internal/biz/user.go:115
 msgid "user username updated"
 msgstr "用户名已更新"
 
-#: internal/data/user.go:163
-#: internal/data/user.go:169
-#: internal/data/user.go:179
+#: internal/data/user.go:168
+#: internal/data/user.go:174
+#: internal/data/user.go:184
 msgid "username or password error"
 msgstr "用户名或密码错误"
 
@@ -7860,7 +7891,6 @@ msgid "webhook list viewed"
 msgstr "已查看 Webhook 列表"
 
 #: internal/data/webhook.go:105
-#: internal/service/webhook.go:120
 msgid "webhook not found"
 msgstr "未找到 Web 钩子"
 
@@ -8026,7 +8056,7 @@ msgstr "写入证书进度错误"
 
 #: internal/service/file.go:379
 #: internal/service/file.go:383
-#: internal/service/file.go:898
+#: internal/service/file.go:901
 msgid "write file error: %v"
 msgstr "写入文件错误：%v"
 
@@ -8034,7 +8064,7 @@ msgstr "写入文件错误：%v"
 msgid "write image pull progress error"
 msgstr "写入镜像拉取进度错误"
 
-#: internal/middleware/must_login.go:46
+#: internal/middleware/must_login.go:44
 msgid "ws not allowed"
 msgstr "不允许 ws"
 
