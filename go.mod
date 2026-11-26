@@ -78,7 +78,7 @@ require (
 	golang.org/x/text v0.44.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.63.0
-	resty.dev/v3 v3.0.0-rc.4
+	resty.dev/v3 v3.0.0-rc.4.0.20261115233412-884689b62945
 )
 
 require (
