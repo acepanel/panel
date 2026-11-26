@@ -1015,7 +1015,7 @@ msgid "Extracting new version..."
 msgstr ""
 
 #: internal/biz/alert_ssh.go:77
-#: internal/service/user.go:416
+#: internal/service/user.go:384
 msgid "Failed Attempts"
 msgstr ""
 
@@ -1402,9 +1402,9 @@ msgstr ""
 #: internal/biz/alert_ssh.go:76
 #: internal/command/entrance.go:67
 #: internal/request/attributes.go:70
-#: internal/service/user.go:189
-#: internal/service/user.go:414
-#: internal/service/user_passkey.go:321
+#: internal/service/user.go:170
+#: internal/service/user.go:382
+#: internal/service/user_passkey.go:302
 msgid "IP"
 msgstr ""
 
@@ -1815,7 +1815,7 @@ msgid "Memory Usage (bytes)"
 msgstr ""
 
 #: internal/biz/alert_ssh.go:63
-#: internal/service/user_passkey.go:320
+#: internal/service/user_passkey.go:301
 msgid "Method"
 msgstr ""
 
@@ -2123,7 +2123,7 @@ msgstr ""
 msgid "Parameters cannot be empty"
 msgstr ""
 
-#: internal/service/user_passkey.go:195
+#: internal/service/user_passkey.go:190
 msgid "Passkey"
 msgstr ""
 
@@ -2918,9 +2918,9 @@ msgstr ""
 #: internal/job/cert_renew.go:194
 #: internal/request/attributes.go:175
 #: internal/service/cli_cron.go:90
-#: internal/service/user.go:191
-#: internal/service/user.go:418
-#: internal/service/user_passkey.go:323
+#: internal/service/user.go:172
+#: internal/service/user.go:386
+#: internal/service/user_passkey.go:304
 #: internal/taskqueue/runner.go:191
 msgid "Time"
 msgstr ""
@@ -3014,16 +3014,20 @@ msgstr ""
 msgid "Transactions per Second"
 msgstr ""
 
-#: internal/biz/backup.go:156
 #: internal/request/attributes.go:182
+msgid "Trusted Proxies"
+msgstr ""
+
+#: internal/biz/backup.go:156
+#: internal/request/attributes.go:183
 msgid "Type"
 msgstr ""
 
-#: internal/request/attributes.go:183
+#: internal/request/attributes.go:184
 msgid "UDP Port"
 msgstr ""
 
-#: internal/request/attributes.go:184
+#: internal/request/attributes.go:185
 msgid "URL"
 msgstr ""
 
@@ -3031,7 +3035,7 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/request/attributes.go:185
+#: internal/request/attributes.go:186
 msgid "UV Max Keys"
 msgstr ""
 
@@ -3148,8 +3152,8 @@ msgstr ""
 msgid "Uptime in Days"
 msgstr ""
 
-#: internal/request/attributes.go:186
 #: internal/request/attributes.go:187
+#: internal/request/attributes.go:188
 msgid "User"
 msgstr ""
 
@@ -3161,9 +3165,9 @@ msgstr ""
 msgid "User %s deleted successfully"
 msgstr ""
 
-#: internal/service/user.go:190
-#: internal/service/user.go:417
-#: internal/service/user_passkey.go:322
+#: internal/service/user.go:171
+#: internal/service/user.go:385
+#: internal/service/user_passkey.go:303
 msgid "User Agent"
 msgstr ""
 
@@ -3186,10 +3190,10 @@ msgstr ""
 #: internal/command/user.go:56
 #: internal/command/user.go:64
 #: internal/command/user.go:70
-#: internal/request/attributes.go:188
-#: internal/service/user.go:188
-#: internal/service/user.go:415
-#: internal/service/user_passkey.go:319
+#: internal/request/attributes.go:189
+#: internal/service/user.go:169
+#: internal/service/user.go:383
+#: internal/service/user_passkey.go:300
 msgid "Username"
 msgstr ""
 
@@ -3214,7 +3218,7 @@ msgid "VERSION"
 msgstr ""
 
 #: internal/command/setting.go:27
-#: internal/request/attributes.go:190
+#: internal/request/attributes.go:191
 msgid "Value"
 msgstr ""
 
@@ -3237,7 +3241,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: internal/request/attributes.go:189
+#: internal/request/attributes.go:190
 msgid "Volume Group"
 msgstr ""
 
@@ -3278,15 +3282,15 @@ msgstr ""
 msgid "Website %s written successfully"
 msgstr ""
 
-#: internal/request/attributes.go:192
+#: internal/request/attributes.go:193
 msgid "Website Mode"
 msgstr ""
 
-#: internal/request/attributes.go:193
+#: internal/request/attributes.go:194
 msgid "Website Name"
 msgstr ""
 
-#: internal/request/attributes.go:194
+#: internal/request/attributes.go:195
 msgid "Website Path"
 msgstr ""
 
@@ -3323,7 +3327,7 @@ msgstr ""
 msgid "Website type (proxy, static, php)"
 msgstr ""
 
-#: internal/request/attributes.go:191
+#: internal/request/attributes.go:192
 msgid "Websites"
 msgstr ""
 
@@ -3339,7 +3343,7 @@ msgstr ""
 msgid "Whether the website has SSL enabled"
 msgstr ""
 
-#: internal/request/attributes.go:195
+#: internal/request/attributes.go:196
 msgid "Whitelist"
 msgstr ""
 
@@ -3416,8 +3420,8 @@ msgstr ""
 msgid "[AcePanel] Panel Health Issue"
 msgstr ""
 
-#: internal/service/user.go:187
-#: internal/service/user_passkey.go:318
+#: internal/service/user.go:168
+#: internal/service/user_passkey.go:299
 msgid "[AcePanel] Panel Login"
 msgstr ""
 
@@ -3429,7 +3433,7 @@ msgstr ""
 msgid "[AcePanel] SSH Login"
 msgstr ""
 
-#: internal/service/user.go:413
+#: internal/service/user.go:381
 msgid "[AcePanel] Suspicious Login Attempts"
 msgstr ""
 
@@ -3712,11 +3716,11 @@ msgstr ""
 msgid "app updated"
 msgstr ""
 
-#: internal/job/firewall_scan.go:351
+#: internal/job/firewall_scan.go:352
 msgid "auto blocked IP"
 msgstr ""
 
-#: internal/job/firewall_scan.go:136
+#: internal/job/firewall_scan.go:128
 msgid "auto unblocked IP (expired)"
 msgstr ""
 
@@ -3728,8 +3732,8 @@ msgstr ""
 msgid "background task failed"
 msgstr ""
 
-#: internal/biz/setting.go:213
-#: internal/biz/setting.go:304
+#: internal/biz/setting.go:214
+#: internal/biz/setting.go:305
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -3835,7 +3839,7 @@ msgstr ""
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
-#: internal/service/file_share.go:62
+#: internal/service/file_share.go:64
 msgid "can't share a directory"
 msgstr ""
 
@@ -3956,27 +3960,27 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:887
+#: internal/service/file.go:890
 msgid "chunk %d is missing"
 msgstr ""
 
-#: internal/service/file.go:850
+#: internal/service/file.go:853
 msgid "chunk hash mismatch"
 msgstr ""
 
-#: internal/service/file.go:816
+#: internal/service/file.go:819
 msgid "chunk index out of range"
 msgstr ""
 
-#: internal/service/file.go:846
+#: internal/service/file.go:849
 msgid "chunk size mismatch"
 msgstr ""
 
-#: internal/service/file.go:810
+#: internal/service/file.go:813
 msgid "chunk upload not started"
 msgstr ""
 
-#: internal/service/file.go:882
+#: internal/service/file.go:885
 msgid "chunk upload not started or chunk count mismatch"
 msgstr ""
 
@@ -3984,7 +3988,7 @@ msgstr ""
 msgid "client %d not found"
 msgstr ""
 
-#: internal/middleware/must_login.go:66
+#: internal/data/user_session.go:61
 msgid "client ip changed, please login again"
 msgstr ""
 
@@ -4067,7 +4071,7 @@ msgstr ""
 msgid "container list viewed"
 msgstr ""
 
-#: internal/service/file.go:1049
+#: internal/service/file.go:1052
 msgid "container log viewed"
 msgstr ""
 
@@ -4117,7 +4121,7 @@ msgid "could not find database backup file"
 msgstr ""
 
 #: internal/service/file.go:355
-#: internal/service/file.go:767
+#: internal/service/file.go:770
 msgid "create directory error: %v"
 msgstr ""
 
@@ -4342,7 +4346,7 @@ msgstr ""
 msgid "eBPF scan detector detached"
 msgstr ""
 
-#: internal/job/firewall_scan.go:152
+#: internal/job/firewall_scan.go:144
 msgid "eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)"
 msgstr ""
 
@@ -4484,7 +4488,9 @@ msgstr ""
 msgid "failed to apply firewall filter rules"
 msgstr ""
 
-#: internal/biz/firewall_filter.go:56
+#: internal/biz/firewall_filter.go:58
+#: internal/biz/scan_event.go:210
+#: internal/biz/scan_event.go:342
 #: internal/service/cli_firewall.go:121
 msgid "failed to apply firewall filter rules: %v"
 msgstr ""
@@ -4497,7 +4503,7 @@ msgstr ""
 msgid "failed to attach scan detector, skip interface"
 msgstr ""
 
-#: internal/job/firewall_scan.go:343
+#: internal/job/firewall_scan.go:347
 msgid "failed to auto block IP"
 msgstr ""
 
@@ -4538,7 +4544,7 @@ msgstr ""
 msgid "failed to clear expired ip stats"
 msgstr ""
 
-#: internal/job/firewall_scan.go:370
+#: internal/job/firewall_scan.go:371
 msgid "failed to clear expired scan data"
 msgstr ""
 
@@ -4548,6 +4554,10 @@ msgstr ""
 
 #: internal/job/website_stat.go:349
 msgid "failed to clear expired uri stats"
+msgstr ""
+
+#: internal/job/user_session_clean.go:33
+msgid "failed to clear expired user sessions"
 msgstr ""
 
 #: internal/job/website_stat.go:335
@@ -4700,7 +4710,7 @@ msgstr ""
 msgid "failed to disable expired website"
 msgstr ""
 
-#: internal/biz/setting.go:279
+#: internal/biz/setting.go:280
 #: internal/job/panel_task.go:153
 msgid "failed to download ipdb"
 msgstr ""
@@ -4859,8 +4869,7 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:115
-#: internal/job/firewall_scan.go:273
+#: internal/job/firewall_scan.go:265
 msgid "failed to get firewall status"
 msgstr ""
 
@@ -4928,7 +4937,7 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:86
+#: internal/job/firewall_scan.go:90
 msgid "failed to get scan setting"
 msgstr ""
 
@@ -4968,7 +4977,7 @@ msgstr ""
 msgid "failed to insert website error logs"
 msgstr ""
 
-#: internal/job/firewall_scan.go:316
+#: internal/job/firewall_scan.go:323
 msgid "failed to list firewall rules"
 msgstr ""
 
@@ -5023,7 +5032,7 @@ msgstr ""
 
 #: internal/biz/cert.go:383
 #: internal/biz/setting.go:176
-#: internal/biz/setting.go:307
+#: internal/biz/setting.go:308
 #: internal/data/website.go:582
 #: internal/data/website.go:853
 msgid "failed to parse certificate: %v"
@@ -5044,7 +5053,7 @@ msgstr ""
 
 #: internal/biz/cert.go:387
 #: internal/biz/setting.go:179
-#: internal/biz/setting.go:310
+#: internal/biz/setting.go:311
 #: internal/data/website.go:585
 #: internal/data/website.go:856
 msgid "failed to parse private key: %v"
@@ -5134,7 +5143,8 @@ msgstr ""
 msgid "failed to read ring buffer"
 msgstr ""
 
-#: internal/job/firewall_scan.go:106
+#: internal/job/firewall_scan.go:110
+#: internal/job/firewall_scan.go:307
 msgid "failed to read scan blocks"
 msgstr ""
 
@@ -5307,8 +5317,8 @@ msgstr ""
 msgid "failed to save alert record"
 msgstr ""
 
-#: internal/job/firewall_scan.go:132
-#: internal/job/firewall_scan.go:339
+#: internal/job/firewall_scan.go:124
+#: internal/job/firewall_scan.go:343
 msgid "failed to save scan blocks"
 msgstr ""
 
@@ -5366,7 +5376,7 @@ msgstr ""
 msgid "failed to start container terminal: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:160
+#: internal/job/firewall_scan.go:152
 msgid "failed to start eBPF scan detector"
 msgstr ""
 
@@ -5394,7 +5404,7 @@ msgstr ""
 msgid "failed to umount partition: %v"
 msgstr ""
 
-#: internal/job/firewall_scan.go:128
+#: internal/job/firewall_scan.go:119
 msgid "failed to unblock IP"
 msgstr ""
 
@@ -5481,7 +5491,7 @@ msgstr ""
 msgid "failed to upsert ip stats"
 msgstr ""
 
-#: internal/job/firewall_scan.go:255
+#: internal/job/firewall_scan.go:247
 msgid "failed to upsert scan events"
 msgstr ""
 
@@ -5598,7 +5608,7 @@ msgstr ""
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/service/file.go:746
+#: internal/service/file.go:749
 msgid "file list viewed"
 msgstr ""
 
@@ -5618,15 +5628,15 @@ msgstr ""
 msgid "file saved"
 msgstr ""
 
-#: internal/biz/file_share.go:60
+#: internal/biz/file_share.go:64
 msgid "file share created"
 msgstr ""
 
-#: internal/biz/file_share.go:76
+#: internal/biz/file_share.go:80
 msgid "file share deleted"
 msgstr ""
 
-#: internal/service/file_share.go:114
+#: internal/service/file_share.go:120
 msgid "file share downloaded"
 msgstr ""
 
@@ -5634,16 +5644,16 @@ msgstr ""
 msgid "file truncated"
 msgstr ""
 
-#: internal/service/file.go:656
+#: internal/service/file.go:659
 msgid "file uncompress task created"
 msgstr ""
 
 #: internal/service/file.go:387
-#: internal/service/file.go:903
+#: internal/service/file.go:906
 msgid "file uploaded"
 msgstr ""
 
-#: internal/biz/firewall_filter.go:59
+#: internal/biz/firewall_filter.go:61
 msgid "firewall container port filtering updated"
 msgstr ""
 
@@ -5881,12 +5891,12 @@ msgstr ""
 msgid "initializing ACME client"
 msgstr ""
 
-#: internal/data/user.go:215
-#: internal/service/user.go:160
+#: internal/data/user.go:220
+#: internal/service/user.go:153
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/service/user.go:133
+#: internal/service/user.go:122
 msgid "invalid captcha code"
 msgstr ""
 
@@ -5903,7 +5913,7 @@ msgstr ""
 msgid "invalid header: %v"
 msgstr ""
 
-#: internal/service/user.go:141
+#: internal/service/user.go:138
 msgid "invalid key, please refresh the page"
 msgstr ""
 
@@ -5928,7 +5938,7 @@ msgstr ""
 msgid "invalid process id"
 msgstr ""
 
-#: internal/data/user_token.go:147
+#: internal/data/user_token.go:126
 msgid "invalid request ip: %s"
 msgstr ""
 
@@ -5936,14 +5946,14 @@ msgstr ""
 msgid "invalid response"
 msgstr ""
 
-#: internal/service/user_passkey.go:162
-#: internal/service/user_passkey.go:261
+#: internal/service/user_passkey.go:158
+#: internal/service/user_passkey.go:247
 msgid "invalid session, please try again"
 msgstr ""
 
 #: internal/data/user_token.go:106
 #: internal/data/user_token.go:112
-#: internal/data/user_token.go:135
+#: internal/data/user_token.go:144
 msgid "invalid signature"
 msgstr ""
 
@@ -5963,7 +5973,7 @@ msgstr ""
 msgid "invalid update schedule: %v"
 msgstr ""
 
-#: internal/middleware/must_login.go:75
+#: internal/middleware/must_login.go:73
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -5971,7 +5981,7 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
-#: internal/biz/setting.go:281
+#: internal/biz/setting.go:282
 msgid "ipdb downloaded"
 msgstr ""
 
@@ -6305,7 +6315,8 @@ msgstr ""
 msgid "networks pruned"
 msgstr ""
 
-#: internal/data/firewall_filter.go:68
+#: internal/biz/scan_event.go:288
+#: internal/data/firewall_filter.go:75
 msgid "nftables is not installed, please install it first (e.g., apt install nftables or dnf install nftables)"
 msgstr ""
 
@@ -6447,7 +6458,7 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:822
+#: internal/service/file.go:825
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -6492,8 +6503,8 @@ msgstr ""
 msgid "panel log viewed"
 msgstr ""
 
-#: internal/service/user.go:187
-#: internal/service/user_passkey.go:318
+#: internal/service/user.go:168
+#: internal/service/user_passkey.go:299
 msgid "panel login detected"
 msgstr ""
 
@@ -6517,7 +6528,7 @@ msgstr ""
 msgid "panel service file is missing"
 msgstr ""
 
-#: internal/biz/setting.go:297
+#: internal/biz/setting.go:298
 msgid "panel settings updated"
 msgstr ""
 
@@ -6557,15 +6568,15 @@ msgstr ""
 msgid "partition unmounted"
 msgstr ""
 
-#: internal/service/user_passkey.go:320
+#: internal/service/user_passkey.go:301
 msgid "passkey"
 msgstr ""
 
-#: internal/service/user_passkey.go:291
+#: internal/service/user_passkey.go:276
 msgid "passkey login failed: %v"
 msgstr ""
 
-#: internal/service/user_passkey.go:188
+#: internal/service/user_passkey.go:183
 msgid "passkey registration failed: %v"
 msgstr ""
 
@@ -6693,7 +6704,7 @@ msgstr ""
 msgid "please connect to the source server first"
 msgstr ""
 
-#: internal/biz/user.go:144
+#: internal/biz/user.go:158
 #: internal/service/file.go:324
 #: internal/service/file.go:431
 #: internal/service/file.go:467
@@ -6919,6 +6930,10 @@ msgstr ""
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
+#: internal/middleware/must_login.go:53
+msgid "request body is too large, the maximum is %d MB"
+msgstr ""
+
 #: internal/biz/toolbox_migration.go:463
 #: internal/data/toolbox_migration_baota.go:591
 #: internal/data/toolbox_migration_baota.go:617
@@ -7000,23 +7015,35 @@ msgstr ""
 msgid "s3fs mount list viewed"
 msgstr ""
 
-#: internal/service/file.go:780
-#: internal/service/file.go:829
-#: internal/service/file.go:839
-#: internal/service/file.go:857
-#: internal/service/file.go:862
+#: internal/service/file.go:783
+#: internal/service/file.go:832
+#: internal/service/file.go:842
+#: internal/service/file.go:860
+#: internal/service/file.go:865
 msgid "save chunk error: %v"
 msgstr ""
 
-#: internal/biz/scan_event.go:283
+#: internal/biz/scan_event.go:332
 msgid "scan aware setting updated"
+msgstr ""
+
+#: internal/service/firewall_scan.go:197
+msgid "scan blocked IP list viewed"
+msgstr ""
+
+#: internal/biz/scan_event.go:223
+msgid "scan blocked IPs cleared"
+msgstr ""
+
+#: internal/biz/scan_event.go:213
+msgid "scan blocked IPs unblocked"
 msgstr ""
 
 #: internal/service/firewall_scan.go:163
 msgid "scan event list viewed"
 msgstr ""
 
-#: internal/biz/scan_event.go:168
+#: internal/biz/scan_event.go:176
 msgid "scan events cleared"
 msgstr ""
 
@@ -7061,7 +7088,7 @@ msgstr ""
 msgid "service log cleared"
 msgstr ""
 
-#: internal/service/file.go:986
+#: internal/service/file.go:989
 msgid "service log viewed"
 msgstr ""
 
@@ -7085,7 +7112,7 @@ msgstr ""
 msgid "service stopped"
 msgstr ""
 
-#: internal/middleware/must_login.go:56
+#: internal/data/user_session.go:56
 msgid "session expired, please login again"
 msgstr ""
 
@@ -7098,12 +7125,11 @@ msgstr ""
 msgid "share link has expired"
 msgstr ""
 
-#: internal/data/file_share.go:60
-#: internal/service/file_share.go:109
+#: internal/service/file_share.go:115
 msgid "share link not found"
 msgstr ""
 
-#: internal/data/user_token.go:140
+#: internal/data/user_token.go:121
 msgid "signature expired"
 msgstr ""
 
@@ -7111,7 +7137,7 @@ msgstr ""
 msgid "skip unavailable optional LSM hook"
 msgstr ""
 
-#: internal/job/firewall_scan.go:304
+#: internal/job/firewall_scan.go:296
 msgid "skip whitelisted IP"
 msgstr ""
 
@@ -7381,8 +7407,8 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:349
-#: internal/service/file.go:763
-#: internal/service/file.go:894
+#: internal/service/file.go:766
+#: internal/service/file.go:897
 msgid "target path %s already exists"
 msgstr ""
 
@@ -7590,8 +7616,13 @@ msgstr ""
 msgid "too many failed SSH login attempts"
 msgstr ""
 
-#: internal/service/user.go:413
+#: internal/service/user.go:381
 msgid "too many failed panel login attempts"
+msgstr ""
+
+#: internal/service/user.go:79
+#: internal/service/user_passkey.go:373
+msgid "too many logins in progress, please try again later"
 msgstr ""
 
 #: internal/service/home.go:312
@@ -7719,36 +7750,36 @@ msgstr ""
 msgid "uploading"
 msgstr ""
 
-#: internal/biz/user.go:181
+#: internal/biz/user.go:195
 msgid "user 2fa updated"
 msgstr ""
 
-#: internal/biz/user.go:85
+#: internal/biz/user.go:99
 msgid "user created"
 msgstr ""
 
-#: internal/biz/user.go:153
+#: internal/biz/user.go:167
 msgid "user deleted"
 msgstr ""
 
-#: internal/biz/user.go:133
+#: internal/biz/user.go:147
 msgid "user email updated"
 msgstr ""
 
-#: internal/biz/user.go:60
+#: internal/biz/user.go:74
 msgid "user list viewed"
 msgstr ""
 
-#: internal/service/user.go:194
-#: internal/service/user_passkey.go:326
+#: internal/service/user.go:175
+#: internal/service/user_passkey.go:307
 msgid "user logged in"
 msgstr ""
 
-#: internal/service/user.go:219
+#: internal/service/user.go:191
 msgid "user logged out"
 msgstr ""
 
-#: internal/service/user.go:406
+#: internal/service/user.go:374
 msgid "user login failed"
 msgstr ""
 
@@ -7760,7 +7791,7 @@ msgstr ""
 msgid "user passkey deleted"
 msgstr ""
 
-#: internal/service/user_passkey.go:355
+#: internal/service/user_passkey.go:336
 msgid "user passkey list viewed"
 msgstr ""
 
@@ -7768,7 +7799,7 @@ msgstr ""
 msgid "user passkeys cleared"
 msgstr ""
 
-#: internal/biz/user.go:117
+#: internal/biz/user.go:131
 msgid "user password updated"
 msgstr ""
 
@@ -7788,13 +7819,13 @@ msgstr ""
 msgid "user token updated"
 msgstr ""
 
-#: internal/biz/user.go:101
+#: internal/biz/user.go:115
 msgid "user username updated"
 msgstr ""
 
-#: internal/data/user.go:163
-#: internal/data/user.go:169
-#: internal/data/user.go:179
+#: internal/data/user.go:168
+#: internal/data/user.go:174
+#: internal/data/user.go:184
 msgid "username or password error"
 msgstr ""
 
@@ -7852,7 +7883,6 @@ msgid "webhook list viewed"
 msgstr ""
 
 #: internal/data/webhook.go:105
-#: internal/service/webhook.go:120
 msgid "webhook not found"
 msgstr ""
 
@@ -8018,7 +8048,7 @@ msgstr ""
 
 #: internal/service/file.go:379
 #: internal/service/file.go:383
-#: internal/service/file.go:898
+#: internal/service/file.go:901
 msgid "write file error: %v"
 msgstr ""
 
@@ -8026,7 +8056,7 @@ msgstr ""
 msgid "write image pull progress error"
 msgstr ""
 
-#: internal/middleware/must_login.go:46
+#: internal/middleware/must_login.go:44
 msgid "ws not allowed"
 msgstr ""
 

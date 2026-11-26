@@ -45,7 +45,8 @@ msgstr ""
 #: src/views/database/RedisDataView.vue:255
 #: src/views/environment/PHPView.vue:229
 #: src/views/environment/PHPView.vue:235
-#: src/views/firewall/ScanView.vue:337
+#: src/views/firewall/ScanView.vue:360
+#: src/views/firewall/ScanView.vue:384
 #: src/views/monitor/AlertView.vue:174
 #: src/views/monitor/SettingView.vue:46
 #: src/views/tamper/TamperView.vue:207
@@ -114,7 +115,7 @@ msgstr ""
 #: src/views/monitor/SettingView.vue:167
 #: src/views/project/EditModal.vue:254
 #: src/views/project/ProxyModal.vue:124
-#: src/views/setting/IndexView.vue:77
+#: src/views/setting/IndexView.vue:78
 #: src/views/tamper/RuleModal.vue:73
 #: src/views/tamper/TamperView.vue:52
 #: src/views/toolbox/SystemView.vue:55
@@ -162,7 +163,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:498
 #: src/views/environment/RuntimeView.vue:200
 #: src/views/file/EditModal.vue:97
-#: src/views/firewall/SettingView.vue:206
+#: src/views/firewall/SettingView.vue:221
 #: src/views/firewall/SubscriptionModal.vue:85
 #: src/views/monitor/AlertRuleModal.vue:191
 #: src/views/monitor/ChannelModal.vue:142
@@ -170,7 +171,7 @@ msgstr ""
 #: src/views/monitor/SettingView.vue:267
 #: src/views/project/EditModal.vue:674
 #: src/views/project/ProxyModal.vue:356
-#: src/views/setting/IndexView.vue:149
+#: src/views/setting/IndexView.vue:150
 #: src/views/tamper/RuleModal.vue:126
 #: src/views/task/CreateModal.vue:554
 #: src/views/task/CronView.vue:300
@@ -492,8 +493,8 @@ msgstr ""
 #: src/components/common/PasswordCard.vue:41
 #: src/views/database/ServerList.vue:108
 #: src/views/database/UserList.vue:59
-#: src/views/file/ListView.vue:280
-#: src/views/file/ListView.vue:344
+#: src/views/file/ListView.vue:293
+#: src/views/file/ListView.vue:357
 #: src/views/file/ToolBar.vue:92
 msgid "Copy"
 msgstr ""
@@ -539,7 +540,7 @@ msgstr ""
 #: src/views/container/VolumeView.vue:30
 #: src/views/database/ServerList.vue:68
 #: src/views/database/ServerModal.vue:116
-#: src/views/file/ListView.vue:1089
+#: src/views/file/ListView.vue:1107
 #: src/views/file/PropertyModal.vue:19
 #: src/views/file/ToolBar.vue:149
 #: src/views/firewall/SubscriptionModal.vue:62
@@ -569,15 +570,15 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:82
 #: src/components/file-editor/FileTree.vue:328
-#: src/views/file/ListView.vue:1126
-#: src/views/file/ListView.vue:1148
+#: src/views/file/ListView.vue:1144
+#: src/views/file/ListView.vue:1166
 msgid "Folder name"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:82
 #: src/components/file-editor/FileTree.vue:328
-#: src/views/file/ListView.vue:1126
-#: src/views/file/ListView.vue:1148
+#: src/views/file/ListView.vue:1144
+#: src/views/file/ListView.vue:1166
 msgid "File name"
 msgstr ""
 
@@ -586,7 +587,7 @@ msgid "Permissions"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:128
-#: src/views/file/ListView.vue:1100
+#: src/views/file/ListView.vue:1118
 msgid "Owner / Group"
 msgstr ""
 
@@ -599,7 +600,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:64
 #: src/views/database/ElasticsearchDataView.vue:115
 #: src/views/database/RedisDataView.vue:130
-#: src/views/file/ListView.vue:1096
+#: src/views/file/ListView.vue:1114
 #: src/views/file/PropertyModal.vue:31
 #: src/views/file/ToolBar.vue:150
 #: src/views/file/UploadModal.vue:131
@@ -612,19 +613,19 @@ msgid "Size"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:175
-#: src/views/file/ListView.vue:1267
+#: src/views/file/ListView.vue:1285
 msgid "Calculate"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:180
-#: src/views/file/ListView.vue:1105
+#: src/views/file/ListView.vue:1123
 #: src/views/file/PropertyModal.vue:43
 #: src/views/file/ToolBar.vue:151
 msgid "Modification Time"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:221
-#: src/views/file/ListView.vue:957
+#: src/views/file/ListView.vue:971
 #: src/views/file/PathInput.vue:51
 msgid "Invalid path"
 msgstr ""
@@ -749,7 +750,7 @@ msgstr ""
 #: src/views/file/composables/useInlineEdit.ts:181
 #: src/views/file/composables/usePaste.ts:77
 #: src/views/file/composables/usePaste.ts:171
-#: src/views/file/ListView.vue:232
+#: src/views/file/ListView.vue:245
 #: src/views/file/ToolBar.vue:213
 #: src/views/file/UploadModal.vue:228
 #: src/views/file/UploadModal.vue:391
@@ -774,7 +775,7 @@ msgstr ""
 #: src/views/container/ContainerView.vue:136
 #: src/views/container/ContainerView.vue:438
 #: src/views/database/ServerList.vue:178
-#: src/views/file/ListView.vue:288
+#: src/views/file/ListView.vue:301
 #: src/views/file/ToolBar.vue:188
 msgid "Terminal"
 msgstr ""
@@ -1408,7 +1409,7 @@ msgid "Editor Settings"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:158
-#: src/views/setting/IndexView.vue:133
+#: src/views/setting/IndexView.vue:134
 msgid "Basic"
 msgstr ""
 
@@ -1612,8 +1613,8 @@ msgstr ""
 #: src/views/database/RedisDataView.vue:182
 #: src/views/file/composables/usePaste.ts:52
 #: src/views/file/composables/usePaste.ts:181
-#: src/views/file/ListView.vue:287
-#: src/views/file/ListView.vue:1357
+#: src/views/file/ListView.vue:300
+#: src/views/file/ListView.vue:1375
 #: src/views/file/UploadModal.vue:66
 #: src/views/file/UploadModal.vue:449
 #: src/views/file/UploadModal.vue:479
@@ -1663,9 +1664,9 @@ msgstr ""
 #: src/views/database/ServerList.vue:242
 #: src/views/database/UserList.vue:170
 #: src/views/environment/PHPView.vue:177
-#: src/views/file/ListView.vue:302
-#: src/views/file/ListView.vue:348
-#: src/views/file/ListView.vue:1368
+#: src/views/file/ListView.vue:315
+#: src/views/file/ListView.vue:361
+#: src/views/file/ListView.vue:1386
 #: src/views/file/ToolBar.vue:100
 #: src/views/file/ToolBar.vue:245
 #: src/views/firewall/ForwardView.vue:100
@@ -1696,8 +1697,8 @@ msgstr ""
 
 #: src/components/file-editor/FileTree.vue:433
 #: src/views/backup/ListView.vue:104
-#: src/views/file/ListView.vue:284
-#: src/views/file/ListView.vue:1347
+#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:1365
 #: src/views/monitor/SystemView.vue:530
 #: src/views/toolbox/SshView.vue:336
 msgid "Download"
@@ -1715,8 +1716,8 @@ msgstr ""
 #: src/components/file-editor/FileTree.vue:549
 #: src/views/apps/nginx/NginxStreamView.vue:135
 #: src/views/apps/nginx/NginxStreamView.vue:199
-#: src/views/file/ListView.vue:612
-#: src/views/file/ListView.vue:1362
+#: src/views/file/ListView.vue:626
+#: src/views/file/ListView.vue:1380
 msgid "Are you sure you want to delete %{ name }?"
 msgstr ""
 
@@ -1778,12 +1779,12 @@ msgid "Go Up"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:645
-#: src/views/file/ListView.vue:329
+#: src/views/file/ListView.vue:342
 msgid "New File"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:646
-#: src/views/file/ListView.vue:330
+#: src/views/file/ListView.vue:343
 msgid "New Folder"
 msgstr ""
 
@@ -1948,7 +1949,7 @@ msgstr ""
 #: src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadFields.vue:52
 #: src/views/log/OperationLog.vue:31
-#: src/views/setting/SettingSafe.vue:303
+#: src/views/setting/SettingSafe.vue:325
 #: src/views/website/EditModal.vue:686
 msgid "Certificate"
 msgstr ""
@@ -1993,7 +1994,7 @@ msgid "Security"
 msgstr ""
 
 #: src/locales/menu.ts:15
-#: src/views/login/IndexView.vue:317
+#: src/views/login/IndexView.vue:319
 msgid "Login"
 msgstr ""
 
@@ -2293,14 +2294,15 @@ msgstr ""
 #: src/views/database/ServerList.vue:165
 #: src/views/database/UserList.vue:139
 #: src/views/environment/PHPView.vue:141
-#: src/views/file/ListView.vue:1108
+#: src/views/file/ListView.vue:1126
 #: src/views/file/ShareModal.vue:112
 #: src/views/file/ToolBar.vue:232
 #: src/views/file/UploadModal.vue:208
 #: src/views/firewall/ForwardView.vue:83
 #: src/views/firewall/IpRuleView.vue:125
 #: src/views/firewall/RuleView.vue:295
-#: src/views/firewall/ScanView.vue:257
+#: src/views/firewall/ScanView.vue:280
+#: src/views/firewall/ScanView.vue:416
 #: src/views/firewall/SubscriptionView.vue:92
 #: src/views/monitor/AlertView.vue:103
 #: src/views/monitor/SettingView.vue:115
@@ -2581,8 +2583,8 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:233
 #: src/views/apps/supervisor/IndexView.vue:63
 #: src/views/container/ContainerInfoModal.vue:128
-#: src/views/file/ListView.vue:191
-#: src/views/file/ListView.vue:619
+#: src/views/file/ListView.vue:204
+#: src/views/file/ListView.vue:633
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:78
@@ -2595,8 +2597,8 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:234
 #: src/views/apps/supervisor/IndexView.vue:64
 #: src/views/container/ContainerInfoModal.vue:128
-#: src/views/file/ListView.vue:192
-#: src/views/file/ListView.vue:620
+#: src/views/file/ListView.vue:205
+#: src/views/file/ListView.vue:634
 #: src/views/file/PropertyModal.vue:47
 #: src/views/file/PropertyModal.vue:51
 #: src/views/toolbox/WebHookView.vue:78
@@ -3285,7 +3287,7 @@ msgid "Unbanned successfully"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:253
-#: src/views/firewall/SettingView.vue:199
+#: src/views/firewall/SettingView.vue:214
 msgid "IP Whitelist"
 msgstr ""
 
@@ -4228,7 +4230,7 @@ msgstr ""
 #: src/views/log/SSHLog.vue:73
 #: src/views/monitor/SystemView.vue:261
 #: src/views/monitor/SystemView.vue:273
-#: src/views/setting/IndexView.vue:135
+#: src/views/setting/IndexView.vue:136
 #: src/views/toolbox/ProcessView.vue:133
 #: src/views/toolbox/ProcessView.vue:387
 #: src/views/toolbox/WebHookView.vue:284
@@ -4397,7 +4399,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:65
 #: src/views/container/ComposeView.vue:124
 #: src/views/container/ContainerView.vue:171
-#: src/views/file/ListView.vue:273
+#: src/views/file/ListView.vue:286
 #: src/views/firewall/SubscriptionView.vue:118
 #: src/views/monitor/AlertView.vue:110
 #: src/views/monitor/SettingView.vue:131
@@ -4450,7 +4452,7 @@ msgstr ""
 #: src/views/database/ServerModal.vue:176
 #: src/views/database/UpdateUserModal.vue:54
 #: src/views/database/UserList.vue:35
-#: src/views/login/IndexView.vue:269
+#: src/views/login/IndexView.vue:271
 #: src/views/monitor/ChannelModal.vue:111
 #: src/views/setting/CreateModal.vue:36
 #: src/views/setting/PasswordModal.vue:32
@@ -5343,8 +5345,8 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxStreamView.vue:91
 #: src/views/apps/openlitespeed/IndexView.vue:64
-#: src/views/firewall/ScanView.vue:302
-#: src/views/firewall/ScanView.vue:318
+#: src/views/firewall/ScanView.vue:325
+#: src/views/firewall/ScanView.vue:341
 msgid "Protocol"
 msgstr ""
 
@@ -6257,7 +6259,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:75
 #: src/views/database/ServerModal.vue:168
 #: src/views/database/UserList.vue:25
-#: src/views/login/IndexView.vue:259
+#: src/views/login/IndexView.vue:261
 #: src/views/monitor/ChannelModal.vue:108
 #: src/views/setting/CreateModal.vue:29
 #: src/views/setting/SettingUser.vue:29
@@ -6297,7 +6299,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:89
 #: src/views/database/IndexView.vue:176
 #: src/views/setting/CreateModal.vue:27
-#: src/views/setting/IndexView.vue:141
+#: src/views/setting/IndexView.vue:142
 msgid "Create User"
 msgstr ""
 
@@ -7062,9 +7064,9 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:144
 #: src/views/firewall/ForwardView.vue:35
 #: src/views/firewall/RuleView.vue:182
-#: src/views/firewall/ScanView.vue:301
-#: src/views/firewall/ScanView.vue:317
-#: src/views/firewall/ScanView.vue:381
+#: src/views/firewall/ScanView.vue:324
+#: src/views/firewall/ScanView.vue:340
+#: src/views/firewall/ScanView.vue:482
 #: src/views/log/SSHLog.vue:83
 #: src/views/setting/SettingBase.vue:136
 #: src/views/ssh/HostModal.vue:79
@@ -7103,8 +7105,8 @@ msgstr ""
 #: src/views/apps/stalwart/StatusView.vue:59
 #: src/views/file/composables/useInlineEdit.ts:178
 #: src/views/file/composables/usePaste.ts:154
-#: src/views/file/ListView.vue:226
-#: src/views/file/ListView.vue:617
+#: src/views/file/ListView.vue:239
+#: src/views/file/ListView.vue:631
 msgid "Warning"
 msgstr ""
 
@@ -7142,7 +7144,7 @@ msgid "Email Domain"
 msgstr ""
 
 #: src/views/apps/stalwart/StatusView.vue:157
-#: src/views/firewall/ScanView.vue:356
+#: src/views/firewall/ScanView.vue:453
 #: src/views/website/StatsView.vue:232
 msgid "Overview"
 msgstr ""
@@ -7476,7 +7478,7 @@ msgstr ""
 #: src/views/backup/StorageModal.vue:283
 #: src/views/cert/CertView.vue:526
 #: src/views/cert/UploadFields.vue:60
-#: src/views/setting/SettingSafe.vue:310
+#: src/views/setting/SettingSafe.vue:332
 #: src/views/ssh/HostModal.vue:88
 #: src/views/ssh/HostModal.vue:99
 #: src/views/website/EditModal.vue:696
@@ -8133,7 +8135,7 @@ msgid "Updating will remove the current container and recreate it with the new c
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:268
-#: src/views/file/ListView.vue:231
+#: src/views/file/ListView.vue:244
 #: src/views/tamper/TamperView.vue:73
 msgid "Continue"
 msgstr ""
@@ -8568,7 +8570,7 @@ msgid "Info"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:197
-#: src/views/file/ListView.vue:1379
+#: src/views/file/ListView.vue:1397
 msgid "More"
 msgstr ""
 
@@ -9019,7 +9021,8 @@ msgid "Enter JSON document"
 msgstr ""
 
 #: src/views/database/RedisDataView.vue:124
-#: src/views/firewall/SettingView.vue:187
+#: src/views/firewall/ScanView.vue:413
+#: src/views/firewall/SettingView.vue:202
 msgid "Permanent"
 msgstr ""
 
@@ -9748,9 +9751,9 @@ msgstr ""
 
 #: src/views/file/CompressModal.vue:63
 #: src/views/file/CompressModal.vue:95
-#: src/views/file/ListView.vue:283
-#: src/views/file/ListView.vue:346
-#: src/views/file/ListView.vue:1328
+#: src/views/file/ListView.vue:296
+#: src/views/file/ListView.vue:359
+#: src/views/file/ListView.vue:1346
 #: src/views/file/ToolBar.vue:94
 msgid "Compress"
 msgstr ""
@@ -9779,128 +9782,132 @@ msgstr ""
 msgid "Drop files to upload"
 msgstr ""
 
-#: src/views/file/ListView.vue:184
-#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:197
+#: src/views/file/ListView.vue:310
 msgid "Add Protection"
 msgstr ""
 
-#: src/views/file/ListView.vue:184
-#: src/views/file/ListView.vue:297
+#: src/views/file/ListView.vue:197
+#: src/views/file/ListView.vue:310
 msgid "Remove Protection"
 msgstr ""
 
-#: src/views/file/ListView.vue:186
+#: src/views/file/ListView.vue:199
 msgid "Add tamper protection for %{ name }?"
 msgstr ""
 
-#: src/views/file/ListView.vue:187
+#: src/views/file/ListView.vue:200
 msgid "Remove tamper protection for %{ name }? The matching rule or exclusions will be adjusted accordingly."
 msgstr ""
 
-#: src/views/file/ListView.vue:195
+#: src/views/file/ListView.vue:208
 msgid "Operation successful"
 msgstr ""
 
-#: src/views/file/ListView.vue:227
+#: src/views/file/ListView.vue:240
 msgid "%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?"
 msgstr ""
 
-#: src/views/file/ListView.vue:270
-#: src/views/file/ListView.vue:1320
+#: src/views/file/ListView.vue:283
+#: src/views/file/ListView.vue:1338
 msgid "Open"
 msgstr ""
 
-#: src/views/file/ListView.vue:271
+#: src/views/file/ListView.vue:284
 msgid "Preview"
 msgstr ""
 
-#: src/views/file/ListView.vue:272
-#: src/views/file/ListView.vue:1441
+#: src/views/file/ListView.vue:285
+#: src/views/file/ListView.vue:1464
 msgid "Uncompress"
 msgstr ""
 
-#: src/views/file/ListView.vue:278
-#: src/views/file/ListView.vue:334
-#: src/views/file/ListView.vue:352
+#: src/views/file/ListView.vue:291
+#: src/views/file/ListView.vue:347
+#: src/views/file/ListView.vue:365
 #: src/views/file/ToolBar.vue:222
 msgid "Paste"
 msgstr ""
 
-#: src/views/file/ListView.vue:281
-#: src/views/file/ListView.vue:345
+#: src/views/file/ListView.vue:294
+#: src/views/file/ListView.vue:358
 #: src/views/file/ToolBar.vue:93
 msgid "Move"
 msgstr ""
 
-#: src/views/file/ListView.vue:282
-#: src/views/file/ListView.vue:347
-#: src/views/file/ListView.vue:1099
+#: src/views/file/ListView.vue:295
+#: src/views/file/ListView.vue:360
+#: src/views/file/ListView.vue:1117
 #: src/views/file/PermissionModal.vue:143
 #: src/views/file/PropertyModal.vue:34
 #: src/views/file/ToolBar.vue:95
 msgid "Permission"
 msgstr ""
 
-#: src/views/file/ListView.vue:285
+#: src/views/file/ListView.vue:298
 msgid "Share"
 msgstr ""
 
-#: src/views/file/ListView.vue:286
+#: src/views/file/ListView.vue:299
 msgid "Copy Path"
 msgstr ""
 
-#: src/views/file/ListView.vue:291
+#: src/views/file/ListView.vue:304
 msgid "Remove from Favorites"
 msgstr ""
 
-#: src/views/file/ListView.vue:292
+#: src/views/file/ListView.vue:305
 msgid "Add to Favorites"
 msgstr ""
 
-#: src/views/file/ListView.vue:301
+#: src/views/file/ListView.vue:314
 #: src/views/file/PropertyModal.vue:11
 msgid "Properties"
 msgstr ""
 
-#: src/views/file/ListView.vue:606
+#: src/views/file/ListView.vue:620
 msgid "Some files are immutable and cannot be deleted"
 msgstr ""
 
-#: src/views/file/ListView.vue:613
+#: src/views/file/ListView.vue:627
 msgid "Are you sure you want to delete %{count} items?"
 msgstr ""
 
-#: src/views/file/ListView.vue:629
+#: src/views/file/ListView.vue:643
 #: src/views/file/PathInput.vue:40
 msgid "Path copied to clipboard"
 msgstr ""
 
-#: src/views/file/ListView.vue:1390
+#: src/views/file/ListView.vue:1408
 msgid "No files"
 msgstr ""
 
-#: src/views/file/ListView.vue:1400
+#: src/views/file/ListView.vue:1418
 #: src/views/toolbox/LogView.vue:220
 msgid "%{count} item(s) selected"
 msgstr ""
 
-#: src/views/file/ListView.vue:1403
+#: src/views/file/ListView.vue:1421
 msgid "Clear"
 msgstr ""
 
-#: src/views/file/ListView.vue:1408
+#: src/views/file/ListView.vue:1426
 msgid "%{count} item(s)"
 msgstr ""
 
-#: src/views/file/ListView.vue:1433
+#: src/views/file/ListView.vue:1451
 msgid "Uncompress - %{ file }"
 msgstr ""
 
-#: src/views/file/ListView.vue:1437
+#: src/views/file/ListView.vue:1455
 msgid "Uncompress to"
 msgstr ""
 
-#: src/views/file/ListView.vue:1451
+#: src/views/file/ListView.vue:1460
+msgid "Set www permissions after uncompressing"
+msgstr ""
+
+#: src/views/file/ListView.vue:1474
 #: src/views/file/ToolBar.vue:270
 msgid "Terminal - %{ path }"
 msgstr ""
@@ -10373,6 +10380,7 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:55
 #: src/views/firewall/IpRuleView.vue:101
 #: src/views/firewall/RuleView.vue:268
+#: src/views/firewall/ScanView.vue:399
 #: src/views/website/stats/OverviewTab.vue:383
 #: src/views/website/stats/OverviewTab.vue:417
 #: src/views/website/stats/OverviewTab.vue:473
@@ -10413,6 +10421,7 @@ msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:102
 #: src/views/firewall/IpRuleView.vue:113
+#: src/views/firewall/ScanView.vue:390
 msgid "IP Address"
 msgstr ""
 
@@ -10432,6 +10441,7 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:171
 #: src/views/firewall/IpRuleView.vue:88
 #: src/views/firewall/RuleView.vue:255
+#: src/views/firewall/ScanView.vue:392
 msgid "Direction"
 msgstr ""
 
@@ -10499,7 +10509,7 @@ msgid "Port Forwarding"
 msgstr ""
 
 #: src/views/firewall/IndexView.vue:49
-#: src/views/firewall/SettingView.vue:158
+#: src/views/firewall/SettingView.vue:173
 msgid "Scan Awareness"
 msgstr ""
 
@@ -10549,129 +10559,179 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:197
-#: src/views/firewall/ScanView.vue:215
-#: src/views/firewall/ScanView.vue:227
-#: src/views/firewall/ScanView.vue:289
-#: src/views/firewall/ScanView.vue:303
-#: src/views/firewall/ScanView.vue:319
+#: src/views/firewall/ScanView.vue:220
+#: src/views/firewall/ScanView.vue:238
+#: src/views/firewall/ScanView.vue:250
+#: src/views/firewall/ScanView.vue:312
+#: src/views/firewall/ScanView.vue:326
+#: src/views/firewall/ScanView.vue:342
 msgid "Scan Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:197
 #: src/views/firewall/ScanView.vue:220
-#: src/views/firewall/ScanView.vue:233
-#: src/views/firewall/ScanView.vue:444
+#: src/views/firewall/ScanView.vue:243
+#: src/views/firewall/ScanView.vue:256
+#: src/views/firewall/ScanView.vue:545
 msgid "Source IPs"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:252
+#: src/views/firewall/ScanView.vue:275
 msgid "%{ address } blocked successfully"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:269
+#: src/views/firewall/ScanView.vue:292
 msgctxt "firewall"
 msgid "Block IP"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:270
+#: src/views/firewall/ScanView.vue:293
 msgctxt "firewall"
 msgid "Block %{ ip }?"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:275
+#: src/views/firewall/ScanView.vue:298
 msgctxt "firewall"
 msgid "Block"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:280
-#: src/views/firewall/ScanView.vue:308
+#: src/views/firewall/ScanView.vue:303
+#: src/views/firewall/ScanView.vue:331
 #: src/views/log/SSHLog.vue:78
 msgid "Source IP"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:282
-#: src/views/firewall/ScanView.vue:310
-#: src/views/firewall/ScanView.vue:391
+#: src/views/firewall/ScanView.vue:305
+#: src/views/firewall/ScanView.vue:333
+#: src/views/firewall/ScanView.vue:492
 #: src/views/website/stats/IPsTab.vue:75
 msgid "Location"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:290
+#: src/views/firewall/ScanView.vue:313
 msgid "Port Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:292
-#: src/views/firewall/ScanView.vue:327
+#: src/views/firewall/ScanView.vue:315
+#: src/views/firewall/ScanView.vue:350
 msgid "Last Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:304
+#: src/views/firewall/ScanView.vue:327
 msgid "IP Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:321
+#: src/views/firewall/ScanView.vue:344
 msgid "First Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:345
-msgid "Scan Awareness Disabled"
+#: src/views/firewall/ScanView.vue:368
+msgid "Unblocked successfully"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:348
-msgid "Enable scan awareness in the Settings tab to start detecting port scans."
-msgstr ""
-
-#: src/views/firewall/ScanView.vue:357
-msgid "Scan Events"
-msgstr ""
-
-#: src/views/firewall/ScanView.vue:372
-msgid "Search IP"
+#: src/views/firewall/ScanView.vue:375
+msgid "Please select IPs to unblock"
 msgstr ""
 
 #: src/views/firewall/ScanView.vue:399
+msgid "Inbound & Outbound"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:403
+msgid "Blocked At"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:409
+msgid "Expires At"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:428
+msgid "Unblock IP"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:429
+msgid "Unblock %{ ip }?"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:434
+#: src/views/firewall/ScanView.vue:632
+msgid "Unblock"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:442
+msgid "Scan Awareness Disabled"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:445
+msgid "Enable scan awareness in the Settings tab to start detecting port scans."
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:454
+msgid "Scan Events"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:455
+msgid "Blocked IPs"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:473
+#: src/views/firewall/ScanView.vue:622
+msgid "Search IP"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:500
 msgid "Are you sure you want to clear all scan data?"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:404
+#: src/views/firewall/ScanView.vue:505
 #: src/views/website/StatsView.vue:223
 msgid "Clear Data"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:418
+#: src/views/firewall/ScanView.vue:519
 msgid "Total Scans"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:431
+#: src/views/firewall/ScanView.vue:532
 msgid "Scanned Ports"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:457
+#: src/views/firewall/ScanView.vue:558
 msgid "Scan Trend"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:466
+#: src/views/firewall/ScanView.vue:567
 msgid "Top 10 Source IPs"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:477
+#: src/views/firewall/ScanView.vue:578
 msgid "Top 10 Scanned Ports"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:494
+#: src/views/firewall/ScanView.vue:595
 msgid "Scan awareness runs before the system firewall, so it is normal for blocked IPs to continue generating scan records."
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:627
+msgid "Are you sure you want to unblock the selected IPs?"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:639
+msgid "Are you sure you want to clear all blocked IPs?"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:644
+msgid "Clear All"
 msgstr ""
 
 #: src/views/firewall/SettingView.vue:38
 #: src/views/firewall/SettingView.vue:49
 #: src/views/firewall/SettingView.vue:59
-#: src/views/firewall/SettingView.vue:125
+#: src/views/firewall/SettingView.vue:140
 msgid "Settings saved successfully"
 msgstr ""
 
 #: src/views/firewall/SettingView.vue:72
-#: src/views/firewall/SettingView.vue:141
+#: src/views/firewall/SettingView.vue:156
 msgid "Filter Container Ports"
 msgstr ""
 
@@ -10679,51 +10739,59 @@ msgstr ""
 msgid "Ports published by containers that no port or IP rule allows will become unreachable from outside immediately. Continue?"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:131
+#: src/views/firewall/SettingView.vue:118
+msgid "Disable Scan Awareness"
+msgstr ""
+
+#: src/views/firewall/SettingView.vue:119
+msgid "All IPs blocked by scan awareness will be unblocked immediately after it is disabled. Continue?"
+msgstr ""
+
+#: src/views/firewall/SettingView.vue:146
 msgid "System Firewall"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:138
+#: src/views/firewall/SettingView.vue:153
 msgid "Allow Ping"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:150
+#: src/views/firewall/SettingView.vue:165
 msgid "Apply port and IP rules to ports published by containers, which otherwise bypass the system firewall"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:162
+#: src/views/firewall/SettingView.vue:177
 msgid "Retention Days"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:165
+#: src/views/firewall/SettingView.vue:180
 msgid "Network Interfaces"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:171
+#: src/views/firewall/SettingView.vue:186
 msgid "Auto detect"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:174
+#: src/views/firewall/SettingView.vue:189
 msgid "Auto Block"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:178
+#: src/views/firewall/SettingView.vue:193
 msgid "Block Threshold"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:181
+#: src/views/firewall/SettingView.vue:196
 msgid "Time Window (minutes)"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:184
+#: src/views/firewall/SettingView.vue:199
 msgid "Block Duration (hours)"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:191
+#: src/views/firewall/SettingView.vue:206
 msgid "Block Outbound"
 msgstr ""
 
-#: src/views/firewall/SettingView.vue:195
+#: src/views/firewall/SettingView.vue:210
 msgid "Also drop traffic from this server to blocked IPs"
 msgstr ""
 
@@ -11298,47 +11366,47 @@ msgstr ""
 msgid "Auth Method"
 msgstr ""
 
-#: src/views/login/IndexView.vue:64
+#: src/views/login/IndexView.vue:60
 msgid "Login successful!"
 msgstr ""
 
-#: src/views/login/IndexView.vue:145
+#: src/views/login/IndexView.vue:143
 msgid "Please enter username and password"
 msgstr ""
 
-#: src/views/login/IndexView.vue:150
+#: src/views/login/IndexView.vue:148
 msgid "Please enter captcha code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:159
+#: src/views/login/IndexView.vue:160
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 
-#: src/views/login/IndexView.vue:244
+#: src/views/login/IndexView.vue:246
 msgid "Authenticating with passkey..."
 msgstr ""
 
-#: src/views/login/IndexView.vue:252
+#: src/views/login/IndexView.vue:254
 msgid "Passkey login failed, please use username and password."
 msgstr ""
 
-#: src/views/login/IndexView.vue:280
+#: src/views/login/IndexView.vue:282
 msgid "2FA Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:290
+#: src/views/login/IndexView.vue:292
 msgid "Captcha Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:306
+#: src/views/login/IndexView.vue:308
 msgid "Safe Login"
 msgstr ""
 
-#: src/views/login/IndexView.vue:307
+#: src/views/login/IndexView.vue:309
 msgid "Remember Me"
 msgstr ""
 
-#: src/views/login/IndexView.vue:328
+#: src/views/login/IndexView.vue:330
 msgid "Login with Passkey"
 msgstr ""
 
@@ -12371,29 +12439,29 @@ msgstr ""
 msgid "Enter user email"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:93
-#: src/views/setting/IndexView.vue:112
+#: src/views/setting/IndexView.vue:94
+#: src/views/setting/IndexView.vue:113
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:106
+#: src/views/setting/IndexView.vue:107
 #: src/views/website/EditModal.vue:261
 msgid "Please wait..."
 msgstr ""
 
-#: src/views/setting/IndexView.vue:111
+#: src/views/setting/IndexView.vue:112
 msgid "Certificate refreshed successfully"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:134
+#: src/views/setting/IndexView.vue:135
 msgid "Safe"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:159
+#: src/views/setting/IndexView.vue:160
 msgid "Refresh Certificate"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:160
+#: src/views/setting/IndexView.vue:161
 msgid "Regenerate Certificate"
 msgstr ""
 
@@ -12601,63 +12669,71 @@ msgid "X-Real-IP"
 msgstr ""
 
 #: src/views/setting/SettingSafe.vue:165
-msgid "Bind Domain"
+msgid "Trusted Proxies"
 msgstr ""
 
 #: src/views/setting/SettingSafe.vue:170
+msgid "The request IP header is only accepted from these proxy IPs or CIDRs, such as the IP ranges of your CDN. Loopback and private addresses are always trusted"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:187
+msgid "Bind Domain"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:192
 msgid "Restrict panel access to the specified domain names. Leave blank to allow access from any domain"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:183
+#: src/views/setting/SettingSafe.vue:205
 msgid "Bind IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:188
+#: src/views/setting/SettingSafe.vue:210
 msgid "Restrict panel access to the specified IP addresses. Leave blank to allow access from any IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:201
+#: src/views/setting/SettingSafe.vue:223
 msgid "Bind UA"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:206
+#: src/views/setting/SettingSafe.vue:228
 msgid "Restrict panel access to the specified User-Agent strings. Leave blank to allow access from any User-Agent"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:225
+#: src/views/setting/SettingSafe.vue:247
 msgid "Offline Mode"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:230
+#: src/views/setting/SettingSafe.vue:252
 msgid "When enabled, the panel will not attempt to connect to external services for updates or other features. This may limit some functionalities"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:243
+#: src/views/setting/SettingSafe.vue:265
 msgid "Auto Update"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:248
+#: src/views/setting/SettingSafe.vue:270
 msgid "When enabled, the panel will automatically check for and install updates when they are available. It is recommended to keep this enabled to ensure you have the latest features and security patches"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:261
+#: src/views/setting/SettingSafe.vue:283
 msgid "Panel HTTPS"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:266
+#: src/views/setting/SettingSafe.vue:288
 msgid "Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Self-Signed generates a certificate automatically (browsers will show a warning). Custom allows you to provide your own certificate"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:282
-#: src/views/setting/SettingSafe.vue:287
+#: src/views/setting/SettingSafe.vue:304
+#: src/views/setting/SettingSafe.vue:309
 msgid "Panel Public IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:292
+#: src/views/setting/SettingSafe.vue:314
 msgid "Panel public IP is used to issue HTTPS certificates using ACME. Ensure that the entered IP address is accessible from the public network."
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:300
+#: src/views/setting/SettingSafe.vue:322
 #: src/views/website/EditModal.vue:649
 msgid "Use Existing Certificate"
 msgstr ""
