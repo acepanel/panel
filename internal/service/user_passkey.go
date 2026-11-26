@@ -3,7 +3,6 @@ package service
 import (
 	"crypto/x509"
 	"encoding/binary"
-	"encoding/gob"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
@@ -19,7 +18,6 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/libtnb/sessions"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -30,15 +28,19 @@ import (
 	"github.com/acepanel/panel/v3/pkg/cookie"
 )
 
+// passkeyCookie 存放进行中的通行密钥流程句柄的 Cookie 名
+const passkeyCookie = "ace_passkey"
+
 type UserPasskeyService struct {
 	t               *gotext.Locale
 	log             *slog.Logger
 	conf            *config.Config
-	session         *sessions.Manager
 	userPasskeyRepo *biz.UserPasskeyUsecase
 	userSessionRepo *biz.UserSessionUsecase
 	userRepo        *biz.UserUsecase
 	notifyRepo      *biz.NotifyUsecase
+	registers       *pendingStore[webauthn.SessionData] // 进行中的注册流程
+	logins          *pendingStore[webauthn.SessionData] // 进行中的登录流程
 }
 
 func NewUserPasskeyService(
@@ -49,19 +51,17 @@ func NewUserPasskeyService(
 	conf *config.Config,
 	t *gotext.Locale,
 	log *slog.Logger,
-	session *sessions.Manager,
 ) *UserPasskeyService {
-	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
-	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
 		t:               t,
 		log:             log,
 		conf:            conf,
-		session:         session,
 		userPasskeyRepo: userPasskeyUsecase,
 		userSessionRepo: userSessionUsecase,
 		userRepo:        userUsecase,
 		notifyRepo:      notifyUsecase,
+		registers:       newPendingStore[webauthn.SessionData](),
+		logins:          newPendingStore[webauthn.SessionData](),
 	}
 }
 
@@ -92,12 +92,6 @@ func (s *UserPasskeyService) Supported(w http.ResponseWriter, r *http.Request) {
 
 // BeginRegister 开始注册通行密钥
 func (s *UserPasskeyService) BeginRegister(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	userID := uint(biz.OperatorID(r.Context()))
 	if userID == 0 {
 		ErrorSystem(w)
@@ -144,30 +138,26 @@ func (s *UserPasskeyService) BeginRegister(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sess.Put("webauthn_register", *sessionData)
+	if !s.begin(w, r, s.registers, sessionData) {
+		return
+	}
 	Success(w, creation)
 }
 
 // FinishRegister 完成注册通行密钥
 func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	userID := uint(biz.OperatorID(r.Context()))
 	if userID == 0 {
 		ErrorSystem(w)
 		return
 	}
 
-	sessionData, ok := sess.Get("webauthn_register").(webauthn.SessionData)
+	sessionData, ok := s.registers.Take(cookie.Get(r, passkeyCookie))
+	cookie.Clear(w, r, passkeyCookie)
 	if !ok {
 		Error(w, http.StatusBadRequest, s.t.Get("invalid session, please try again"))
 		return
 	}
-	sess.Forget("webauthn_register")
 
 	u, err := s.userRepo.Get(userID)
 	if err != nil {
@@ -229,12 +219,6 @@ func (s *UserPasskeyService) FinishRegister(w http.ResponseWriter, r *http.Reque
 
 // BeginLogin 开始通行密钥登录
 func (s *UserPasskeyService) BeginLogin(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	wa, err := s.newWebAuthn(r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -249,24 +233,20 @@ func (s *UserPasskeyService) BeginLogin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	sess.Put("webauthn_login", *sessionData)
+	if !s.begin(w, r, s.logins, sessionData) {
+		return
+	}
 	Success(w, assertion)
 }
 
 // FinishLogin 完成通行密钥登录
 func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	sessionData, ok := sess.Get("webauthn_login").(webauthn.SessionData)
+	sessionData, ok := s.logins.Take(cookie.Get(r, passkeyCookie))
+	cookie.Clear(w, r, passkeyCookie)
 	if !ok {
 		Error(w, http.StatusBadRequest, s.t.Get("invalid session, please try again"))
 		return
 	}
-	sess.Forget("webauthn_login")
 
 	wa, err := s.newWebAuthn(r)
 	if err != nil {
@@ -384,6 +364,18 @@ func (s *UserPasskeyService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+// begin 暂存挑战数据并把句柄写进 Cookie，暂存区已满时返回 false
+func (s *UserPasskeyService) begin(w http.ResponseWriter, r *http.Request, store *pendingStore[webauthn.SessionData], data *webauthn.SessionData) bool {
+	id, ok := store.Put(*data)
+	if !ok {
+		Error(w, http.StatusServiceUnavailable, s.t.Get("too many logins in progress, please try again later"))
+		return false
+	}
+
+	cookie.Set(w, r, passkeyCookie, id, pendingTTL)
+	return true
 }
 
 // isCertTrusted 检查面板证书是否由 CA 签发（非自签名）

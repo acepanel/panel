@@ -4,16 +4,16 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/base64"
-	"encoding/gob"
 	"image/png"
 	"log/slog"
 	"net/http"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/dchest/captcha"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 
@@ -32,11 +32,12 @@ type UserService struct {
 	t               *gotext.Locale
 	log             *slog.Logger
 	conf            *config.Config
-	session         *sessions.Manager
 	userRepo        *biz.UserUsecase
 	userSessionRepo *biz.UserSessionUsecase
 	notifyRepo      *biz.NotifyUsecase
 	guard           *loginGuard
+	key             func() (*rsa.PrivateKey, error) // 登录加密用的密钥，进程内只生成一把
+	nonces          *pendingStore[struct{}]         // 已签发、尚未使用的登录随机数
 }
 
 func NewUserService(
@@ -46,53 +47,47 @@ func NewUserService(
 	conf *config.Config,
 	t *gotext.Locale,
 	log *slog.Logger,
-	session *sessions.Manager,
 ) *UserService {
-	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
-	gob.Register(rsa.PrivateKey{})
 	return &UserService{
 		t:               t,
 		log:             log,
 		conf:            conf,
-		session:         session,
 		userRepo:        userUsecase,
 		userSessionRepo: userSessionUsecase,
 		notifyRepo:      notifyUsecase,
 		guard:           newLoginGuard(),
+		key:             sync.OnceValues(rsacrypto.GenerateKey),
+		nonces:          newPendingStore[struct{}](),
 	}
 }
 
+// GetKey 获取登录公钥和一次性随机数
 func (s *UserService) GetKey(w http.ResponseWriter, r *http.Request) {
-	key, err := rsacrypto.GenerateKey()
+	key, err := s.key()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	sess.Put("key", *key)
-
 	pk, err := rsacrypto.PublicKeyToString(&key.PublicKey)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	Success(w, pk)
+	nonce, ok := s.nonces.Put(struct{}{})
+	if !ok {
+		Error(w, http.StatusServiceUnavailable, s.t.Get("too many logins in progress, please try again later"))
+		return
+	}
+
+	Success(w, chix.M{
+		"key":   pk,
+		"nonce": nonce,
+	})
 }
 
 // GetCaptcha 获取登录验证码
 func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	if !s.conf.HTTP.LoginCaptcha || s.guard.Count(clientIP(r, s.conf)) < loginFailThreshold {
 		Success(w, chix.M{
 			"required": false,
@@ -101,8 +96,6 @@ func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
 	}
 
 	captchaID := captcha.NewLen(4)
-	sess.Put("captcha_id", captchaID)
-
 	var buf bytes.Buffer
 	if err := captcha.WriteImage(&buf, captchaID, 150, 50); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -111,43 +104,42 @@ func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, chix.M{
 		"required": true,
+		"id":       captchaID,
 		"image":    base64.StdEncoding.EncodeToString(buf.Bytes()),
 	})
 }
 
 func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
 	req, err := Bind[request.UserLogin](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	// 失败次数按来源在服务端计数，记在会话里的话丢掉 Cookie 就能归零
 	ip := clientIP(r, s.conf)
 	if s.conf.HTTP.LoginCaptcha && s.guard.Count(ip) >= loginFailThreshold {
-		captchaID, ok := sess.Get("captcha_id").(string)
-		if !ok || captchaID == "" || !captcha.VerifyString(captchaID, req.CaptchaCode) {
+		if !captcha.VerifyString(req.CaptchaID, req.CaptchaCode) {
 			Error(w, http.StatusForbidden, s.t.Get("invalid captcha code"))
 			return
 		}
-		sess.Forget("captcha_id")
 	}
 
-	key, ok := sess.Get("key").(rsa.PrivateKey)
-	if !ok {
+	key, err := s.key()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	decryptedUsername, _ := rsacrypto.DecryptData(key, req.Username)
+	decryptedPassword, _ := rsacrypto.DecryptData(key, req.Password)
+
+	// 密码密文里带着一次性随机数，截获的登录请求不能重放
+	nonce, password, _ := strings.Cut(string(decryptedPassword), ":")
+	if _, ok := s.nonces.Take(nonce); !ok {
 		Error(w, http.StatusForbidden, s.t.Get("invalid key, please refresh the page"))
 		return
 	}
 
-	decryptedUsername, _ := rsacrypto.DecryptData(&key, req.Username)
-	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
-	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
+	user, err := s.userRepo.CheckPassword(string(decryptedUsername), password)
 	if err != nil {
 		s.loginFailed(r, ip, string(decryptedUsername))
 		Error(w, http.StatusForbidden, "%v", err)
@@ -172,7 +164,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cookie.Set(w, r, middleware.SessionCookie, token, s.conf.Session.TTL())
-	sess.Forget("key")
 
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
 		{s.t.Get("Username"), user.Username},

@@ -9,7 +9,6 @@ import (
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/cron"
-	"github.com/libtnb/sessions"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/wire"
 	"gorm.io/gorm"
@@ -33,7 +32,6 @@ var Module = wire.New().
 	Provide(NewSlog).
 	Provide(NewDB).
 	Provide(NewMigrate).
-	Provide(NewSession).
 	Provide(NewRunner).
 	Provide(NewValidator).
 	Provide(middleware.NewMiddlewares).
@@ -50,7 +48,6 @@ var Module = wire.New().
 	Export[*slog.Logger]().
 	Export[*gorm.DB]().
 	Export[*gormigrate.Gormigrate]().
-	Export[*sessions.Manager]().
 	Export[types.TaskRunner]().
 	Export[*validator.Validator]().
 	Export[*apploader.Loader]().

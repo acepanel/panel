@@ -16,7 +16,7 @@ func UserRoutes(userPasskeyService *service.UserPasskeyService, userService *ser
 
 	return Endpoints{
 		// 认证
-		{Method: http.MethodGet, Path: "/api/user/key", Handler: svc.GetKey, Summary: "获取登录公钥", Tags: []string{"用户"}, Public: true, Throttle: &ThrottleRule{Tokens: 20, Interval: time.Minute}},
+		{Method: http.MethodGet, Path: "/api/user/key", Handler: svc.GetKey, Summary: "获取登录公钥与随机数", Tags: []string{"用户"}, Public: true, Throttle: &ThrottleRule{Tokens: 20, Interval: time.Minute}},
 		{Method: http.MethodGet, Path: "/api/user/captcha", Handler: svc.GetCaptcha, Summary: "获取登录验证码", Tags: []string{"用户"}, Public: true},
 		{Method: http.MethodPost, Path: "/api/user/login", Handler: svc.Login, Summary: "登录", Tags: []string{"用户"}, Document: DescribeReq[request.UserLogin](), Public: true, Throttle: &ThrottleRule{Tokens: 5, Interval: time.Minute}},
 		{Method: http.MethodPost, Path: "/api/user/logout", Handler: svc.Logout, Summary: "登出", Tags: []string{"用户"}, Public: true},

@@ -10,8 +10,6 @@ import (
 	"github.com/go-chi/httplog/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/logrotate"
-	"github.com/libtnb/sessions"
-	sessionmiddleware "github.com/libtnb/sessions/middleware"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -21,7 +19,6 @@ import (
 type Middlewares struct {
 	conf        *config.Config
 	log         *slog.Logger
-	session     *sessions.Manager
 	appRepo     biz.AppRepo
 	userSession biz.UserSessionRepo
 	userToken   biz.UserTokenRepo
@@ -29,7 +26,6 @@ type Middlewares struct {
 
 func NewMiddlewares(
 	conf *config.Config,
-	session *sessions.Manager,
 	appRepo biz.AppRepo,
 	userSessionRepo biz.UserSessionRepo,
 	userTokenRepo biz.UserTokenRepo,
@@ -49,7 +45,6 @@ func NewMiddlewares(
 	return &Middlewares{
 		conf:        conf,
 		log:         slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{Level: slog.LevelInfo})),
-		session:     session,
 		appRepo:     appRepo,
 		userSession: userSessionRepo,
 		userToken:   userTokenRepo,
@@ -77,8 +72,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, whitelist []string) []func(http.
 		}),
 		compressor.Handler,
 		status(t),
-		sessionmiddleware.StartSession(r.session),
-		entrance(r.conf, r.session),
+		entrance(r.conf),
 		mustLogin(t, r.conf, r.userSession, r.userToken, whitelist),
 		mustInstall(t, r.appRepo),
 	}

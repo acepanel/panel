@@ -6,9 +6,10 @@ type UserID struct {
 
 type UserLogin struct {
 	Username    string `json:"username" validate:"required"` // encrypted with RSA-OAEP
-	Password    string `json:"password" validate:"required"` // encrypted with RSA-OAEP
+	Password    string `json:"password" validate:"required"` // encrypted with RSA-OAEP，明文为 随机数:密码
 	SafeLogin   bool   `json:"safe_login"`
 	PassCode    string `json:"pass_code"`    // 2FA
+	CaptchaID   string `json:"captcha_id"`   // 验证码 ID
 	CaptchaCode string `json:"captcha_code"` // 验证码
 }
 

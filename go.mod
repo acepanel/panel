@@ -44,9 +44,7 @@ require (
 	github.com/libtnb/assert v0.4.2
 	github.com/libtnb/chix/v2 v2.1.1
 	github.com/libtnb/cron v0.6.0
-	github.com/libtnb/gormstore v1.3.0
 	github.com/libtnb/logrotate v0.1.6
-	github.com/libtnb/sessions v1.6.0
 	github.com/libtnb/sqlite v1.3.0
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.6.0
@@ -109,11 +107,9 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/libtnb/securecookie v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect

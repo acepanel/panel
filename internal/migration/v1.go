@@ -211,4 +211,10 @@ func init() {
 			return tx.AutoMigrate(&biz.UserSession{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261126-drop-sessions",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable("sessions")
+		},
+	})
 }

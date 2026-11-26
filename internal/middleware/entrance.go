@@ -1,31 +1,34 @@
 package middleware
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"net"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/libtnb/chix/v2"
-	"github.com/libtnb/sessions"
 
 	"github.com/acepanel/panel/v3/pkg/clientip"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/cookie"
 	"github.com/acepanel/panel/v3/pkg/embed"
 	"github.com/acepanel/panel/v3/pkg/punycode"
 )
 
+// entranceCookie 存放入口凭证的 Cookie 名
+const entranceCookie = "ace_entrance"
+
 // entrance 确保通过正确的入口访问
-func entrance(conf *config.Config, session *sessions.Manager) func(next http.Handler) http.Handler {
+func entrance(conf *config.Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess, err := session.GetSession(r)
-			if err != nil {
-				abort(w, http.StatusInternalServerError, "%v", err)
-				return
-			}
-
+			ttl := conf.Session.TTL()
 			entrance := strings.TrimSuffix(conf.HTTP.Entrance, "/")
 			if !strings.HasPrefix(entrance, "/") {
 				entrance = "/" + entrance
@@ -55,19 +58,13 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 				return
 			}
 
-			// 情况二：请求路径与入口路径相同或未设置访问入口，标记通过验证并重定向
-			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") &&
-				r.Header.Get("Authorization") == "" {
-				if sess.Missing("verify_entrance") {
-					sess.Put("verify_entrance", true)
-				}
-				// 设置入口的情况下进行重定向
-				if entrance != "/" {
-					render := chix.NewRender(w, r)
-					defer render.Release()
-					render.Redirect("/login")
-					return
-				}
+			// 情况二：访问入口路径，下发入口凭证并重定向到登录页
+			if entrance != "/" && strings.TrimSuffix(r.URL.Path, "/") == entrance && r.Header.Get("Authorization") == "" {
+				cookie.Set(w, r, entranceCookie, entrancePass(conf, entrance, time.Now().Add(ttl)), ttl)
+				render := chix.NewRender(w, r)
+				defer render.Release()
+				render.Redirect("/login")
+				return
 			}
 
 			// 情况三：通过 APIKey+入口路径访问 API，重写请求路径并跳过入口验证
@@ -87,12 +84,17 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 				return
 			}
 
-			// 情况五：非调试模式且未通过验证的请求，返回错误
-			if !conf.App.Debug &&
-				sess.Missing("verify_entrance") &&
-				r.URL.Path != "/robots.txt" {
-				AbortEntrance(w, r, conf)
-				return
+			// 情况五：设置了入口时，非调试模式下没有有效凭证的请求返回错误
+			if entrance != "/" && !conf.App.Debug && r.URL.Path != "/robots.txt" {
+				expires := entranceExpires(conf, entrance, cookie.Get(r, entranceCookie))
+				if expires.IsZero() {
+					AbortEntrance(w, r, conf)
+					return
+				}
+				// 有效期过半即续期
+				if time.Until(expires) < ttl/2 {
+					cookie.Set(w, r, entranceCookie, entrancePass(conf, entrance, time.Now().Add(ttl)), ttl)
+				}
 			}
 
 			next.ServeHTTP(w, r)
@@ -138,6 +140,30 @@ func AbortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config) 
 		_, _ = w.Write(content)
 		return
 	}
+}
+
+// entrancePass 签发入口凭证，对入口路径和过期时间签名
+func entrancePass(conf *config.Config, entrance string, expires time.Time) string {
+	unix := strconv.FormatInt(expires.Unix(), 10)
+	mac := hmac.New(sha256.New, []byte(conf.App.Key))
+	mac.Write([]byte("entrance\n" + entrance + "\n" + unix))
+	return unix + "." + hex.EncodeToString(mac.Sum(nil))
+}
+
+// entranceExpires 返回入口凭证的过期时间，凭证无效或已过期时返回零值
+func entranceExpires(conf *config.Config, entrance string, pass string) time.Time {
+	unix, _, _ := strings.Cut(pass, ".")
+	seconds, err := strconv.ParseInt(unix, 10, 64)
+	if err != nil {
+		return time.Time{}
+	}
+
+	expires := time.Unix(seconds, 0)
+	if !hmac.Equal([]byte(pass), []byte(entrancePass(conf, entrance, expires))) || time.Now().After(expires) {
+		return time.Time{}
+	}
+
+	return expires
 }
 
 // isPublicPath 判断是否为 Webhook 回调或文件分享下载

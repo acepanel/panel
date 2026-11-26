@@ -1,7 +1,7 @@
 import { http } from '@/utils'
 
 export default {
-  // 公钥
+  // 公钥与一次性随机数
   key: (): any => http.Get('/user/key'),
   // 获取验证码
   captcha: (): any => http.Get('/user/captcha'),
@@ -11,6 +11,7 @@ export default {
     password: string,
     pass_code: string,
     safe_login: boolean,
+    captcha_id: string,
     captcha_code: string,
   ): any =>
     http.Post('/user/login', {
@@ -18,6 +19,7 @@ export default {
       password,
       pass_code,
       safe_login,
+      captcha_id,
       captcha_code,
     }),
   // 登出

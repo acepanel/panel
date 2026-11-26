@@ -37,7 +37,7 @@ func (uc *UserSessionUsecase) Create(userID uint, ip, userAgent string, safe boo
 	return uc.repo.Create(userID, ip, userAgent, safe)
 }
 
-// Authenticate 校验令牌并刷新活跃时间，过期或来源 IP 不符的会话视为无效
+// Authenticate 校验令牌并刷新活跃时间
 func (uc *UserSessionUsecase) Authenticate(token, ip string) (*UserSession, error) {
 	return uc.repo.Authenticate(token, ip)
 }

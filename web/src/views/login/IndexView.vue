@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
-import { until } from '@vueuse/core'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
@@ -15,10 +14,6 @@ const { $gettext } = useGettext()
 const router = useRouter()
 const route = useRoute()
 const query = route.query
-const keyLoaded = ref(false)
-const { data: key } = useRequest(user.key, { initialData: '' }).onComplete(() => {
-  keyLoaded.value = true
-})
 const { data: isLogin } = useRequest(user.isLogin, { initialData: false })
 
 interface LoginInfo {
@@ -49,6 +44,7 @@ const logining = ref(false)
 const isRemember = useStorage('isRemember', false)
 const showTwoFA = ref(false)
 const captchaRequired = ref(false)
+const captchaID = ref('')
 const captchaImage = ref('')
 const captchaLoading = ref(false)
 
@@ -127,11 +123,13 @@ const refreshCaptcha = () => {
   useRequest(user.captcha())
     .onSuccess(({ data }) => {
       captchaRequired.value = data.required
+      captchaID.value = data.id || ''
       captchaImage.value = 'data:image/png;base64,' + data.image || ''
       loginInfo.value.captcha_code = ''
     })
     .onError(() => {
       captchaRequired.value = false
+      captchaID.value = ''
       captchaImage.value = ''
     })
     .onComplete(() => {
@@ -151,9 +149,12 @@ async function handleLogin() {
     return
   }
   logining.value = true
-  // 等待公钥加载完成（密码管理器可能在公钥就绪前自动提交）
-  await until(keyLoaded).toBe(true)
-  if (!key.value) {
+  // 随机数只能用一次，每次登录都重新取公钥和随机数
+  let key = ''
+  let nonce = ''
+  try {
+    ;({ key, nonce } = await user.key())
+  } catch {
     logining.value = false
     window.$message.warning(
       $gettext('Failed to get encryption public key, please refresh the page and try again'),
@@ -162,10 +163,11 @@ async function handleLogin() {
   }
   useRequest(
     user.login(
-      rsaEncrypt(username, String(unref(key))),
-      rsaEncrypt(password, String(unref(key))),
+      rsaEncrypt(username, key),
+      rsaEncrypt(`${nonce}:${password}`, key),
       pass_code,
       safe_login,
+      captchaID.value,
       trimmedCaptcha,
     ),
   )
@@ -308,8 +310,8 @@ onMounted(() => {
             </n-flex>
 
             <n-button
-              :loading="!keyLoaded || logining"
-              :disabled="!keyLoaded || logining"
+              :loading="logining"
+              :disabled="logining"
               class="text-lg mt-6 h-12 w-full"
               type="primary"
               attr-type="submit"

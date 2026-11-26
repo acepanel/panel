@@ -61,7 +61,7 @@ func (r *userSessionRepo) Authenticate(token, ip string) (*biz.UserSession, erro
 		return nil, errors.New(r.t.Get("client ip changed, please login again"))
 	}
 
-	// 活跃时间每分钟最多落库一次，不必每个请求都写库
+	// 活跃时间每分钟最多落库一次
 	if now := time.Now(); now.Sub(session.LastActiveAt) > time.Minute {
 		if err := r.db.Model(session).Update("last_active_at", now).Error; err != nil {
 			return nil, err
@@ -85,7 +85,7 @@ func (r *userSessionRepo) deadline() time.Time {
 	return time.Now().Add(-r.conf.Session.TTL())
 }
 
-// hash 库里只存令牌的哈希，数据库或备份泄露后拿不到可用的令牌
+// hash 库里只存令牌的哈希
 func (r *userSessionRepo) hash(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])
