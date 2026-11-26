@@ -43,6 +43,7 @@ var Module = wire.New().
 	Provide(NewTemplateUsecase).
 	Provide(NewUserUsecase).
 	Provide(NewUserPasskeyUsecase).
+	Provide(NewUserSessionUsecase).
 	Provide(NewUserTokenUsecase).
 	Provide(NewWebHookUsecase).
 	Provide(NewWebsiteUsecase).
@@ -85,6 +86,7 @@ var Module = wire.New().
 	Export[*TemplateUsecase]().
 	Export[*UserUsecase]().
 	Export[*UserPasskeyUsecase]().
+	Export[*UserSessionUsecase]().
 	Export[*UserTokenUsecase]().
 	Export[*WebHookUsecase]().
 	Export[*WebsiteUsecase]().

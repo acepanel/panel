@@ -24,8 +24,10 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/cookie"
 )
 
 type UserPasskeyService struct {
@@ -34,6 +36,7 @@ type UserPasskeyService struct {
 	conf            *config.Config
 	session         *sessions.Manager
 	userPasskeyRepo *biz.UserPasskeyUsecase
+	userSessionRepo *biz.UserSessionUsecase
 	userRepo        *biz.UserUsecase
 	notifyRepo      *biz.NotifyUsecase
 }
@@ -41,6 +44,7 @@ type UserPasskeyService struct {
 func NewUserPasskeyService(
 	notifyUsecase *biz.NotifyUsecase,
 	userPasskeyUsecase *biz.UserPasskeyUsecase,
+	userSessionUsecase *biz.UserSessionUsecase,
 	userUsecase *biz.UserUsecase,
 	conf *config.Config,
 	t *gotext.Locale,
@@ -55,6 +59,7 @@ func NewUserPasskeyService(
 		conf:            conf,
 		session:         session,
 		userPasskeyRepo: userPasskeyUsecase,
+		userSessionRepo: userSessionUsecase,
 		userRepo:        userUsecase,
 		notifyRepo:      notifyUsecase,
 	}
@@ -302,20 +307,15 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// 重新生成会话 ID
-	if err = sess.Regenerate(true); err != nil {
+	// 通行密钥登录已经过设备验证，不需要安全登录的 IP 绑定
+	ip := clientIP(r, s.conf)
+	token, err := s.userSessionRepo.Create(wUser.Inner.ID, ip, r.UserAgent(), false)
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	cookie.Set(w, r, middleware.SessionCookie, token, s.conf.Session.TTL())
 
-	// 设置登录状态
-	sess.Put("user_id", wUser.Inner.ID)
-	sess.Put("user_stamp", wUser.Inner.SessionStamp())
-	// 通行密钥登录已经过设备验证，无需 safe_login
-	sess.Forget("safe_login")
-	sess.Forget("safe_client")
-
-	ip := clientIP(r, s.conf)
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
 		{s.t.Get("Username"), wUser.Inner.Username},
 		{s.t.Get("Method"), s.t.Get("passkey")},

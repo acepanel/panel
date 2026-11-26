@@ -5,65 +5,16 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/assert/check"
 	"github.com/libtnb/assert/must"
-	"github.com/libtnb/sessions"
-	sessionmiddleware "github.com/libtnb/sessions/middleware"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	mocks "github.com/acepanel/panel/v3/internal/mocks/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
-
-type memoryStore struct {
-	mu   sync.Mutex
-	data map[string]string
-}
-
-func (s *memoryStore) Close() error { return nil }
-
-func (s *memoryStore) Gc(int) error { return nil }
-
-func (s *memoryStore) Destroy(id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	delete(s.data, id)
-	return nil
-}
-
-func (s *memoryStore) Read(id string) (string, bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	data, ok := s.data[id]
-	return data, ok, nil
-}
-
-func (s *memoryStore) Touch(id string) (bool, error) {
-	_, ok, _ := s.Read(id)
-	return ok, nil
-}
-
-func (s *memoryStore) Write(id string, data string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.data[id] = data
-	return nil
-}
-
-func newSessionsForTest(t *testing.T) *sessions.Manager {
-	t.Helper()
-	manager, err := sessions.NewManager(&sessions.ManagerOptions{
-		Key:                  "0123456789abcdef0123456789abcdef",
-		DisableDefaultDriver: true,
-	})
-	must.NoError(t, err)
-	must.NoError(t, manager.Extend("default", &memoryStore{data: map[string]string{}}))
-	return manager
-}
 
 type zeroReader struct{}
 
@@ -84,7 +35,6 @@ func TestMustLoginLimitsSignedBody(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			manager := newSessionsForTest(t)
 			// 与真实实现一样，验签前读完请求体
 			tokens := &mocks.UserTokenRepo{ValidateReqFunc: func(r *http.Request) (uint, error) {
 				if _, err := io.Copy(io.Discard, r.Body); err != nil {
@@ -94,8 +44,7 @@ func TestMustLoginLimitsSignedBody(t *testing.T) {
 			}}
 
 			var handler http.Handler = http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})
-			handler = mustLogin(gotext.NewLocale("", "en"), &config.Config{}, manager, nil, tokens, nil)(handler)
-			handler = sessionmiddleware.StartSession(manager)(handler)
+			handler = mustLogin(gotext.NewLocale("", "en"), &config.Config{}, nil, tokens, nil)(handler)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/file/upload", io.LimitReader(zeroReader{}, tt.size))
 			req.Header.Set("Authorization", "HMAC-SHA256 Credential=1, Signature=x")
@@ -107,52 +56,71 @@ func TestMustLoginLimitsSignedBody(t *testing.T) {
 	}
 }
 
-func TestMustLoginSessionStamp(t *testing.T) {
+func TestMustLoginSession(t *testing.T) {
 	const loginPath, infoPath = "/api/user/login", "/api/user/info"
-	loggedIn := &biz.User{ID: 1, Password: "hash"}
 
 	tests := []struct {
-		name string
-		user *biz.User // 请求到来时库里的用户，nil 表示已删除
-		want int
+		name       string
+		path       string
+		token      string
+		wantStatus int
+		wantUserID uint64
 	}{
-		{name: "用户未变更", user: &biz.User{ID: 1, Password: "hash"}, want: http.StatusOK},
-		{name: "密码已变更", user: &biz.User{ID: 1, Password: "new hash"}, want: http.StatusUnauthorized},
-		{name: "用户已删除", want: http.StatusUnauthorized},
+		{name: "有效会话", path: infoPath, token: "valid", wantStatus: http.StatusOK, wantUserID: 7},
+		{name: "失效会话", path: infoPath, token: "stale", wantStatus: http.StatusUnauthorized},
+		{name: "没有会话", path: infoPath, wantStatus: http.StatusUnauthorized},
+		{name: "白名单路径不需要会话", path: loginPath, wantStatus: http.StatusOK},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			manager := newSessionsForTest(t)
-			users := &mocks.UserRepo{GetFunc: func(uint) (*biz.User, error) {
-				if tt.user == nil {
-					return nil, errors.New("record not found")
+			sessions := &mocks.UserSessionRepo{AuthenticateFunc: func(token, ip string) (*biz.UserSession, error) {
+				check.Equal(t, ip, "203.0.113.7")
+				if token != "valid" {
+					return nil, errors.New("session expired")
 				}
-				return tt.user, nil
+				return &biz.UserSession{UserID: 7}, nil
 			}}
 
-			var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path == loginPath {
-					sess, err := manager.GetSession(r)
-					must.NoError(t, err)
-					sess.Put("user_id", loggedIn.ID)
-					sess.Put("user_stamp", loggedIn.SessionStamp())
-				}
+			var userID uint64
+			var handler http.Handler = http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+				userID = biz.OperatorID(r.Context())
 			})
-			handler = mustLogin(gotext.NewLocale("", "en"), &config.Config{}, manager, users, nil, []string{loginPath})(handler)
-			handler = sessionmiddleware.StartSession(manager)(handler)
+			handler = mustLogin(gotext.NewLocale("", "en"), &config.Config{}, sessions, nil, []string{loginPath})(handler)
 
-			login := httptest.NewRecorder()
-			handler.ServeHTTP(login, httptest.NewRequest(http.MethodPost, loginPath, nil))
-
-			req := httptest.NewRequest(http.MethodGet, infoPath, nil)
-			for _, cookie := range login.Result().Cookies() {
-				req.AddCookie(cookie)
+			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			req.RemoteAddr = "203.0.113.7:54321"
+			if tt.token != "" {
+				req.Header.Set("Cookie", SessionCookie+"="+tt.token)
 			}
 			rec := httptest.NewRecorder()
 			handler.ServeHTTP(rec, req)
 
-			check.Equal(t, rec.Code, tt.want)
+			check.Equal(t, rec.Code, tt.wantStatus)
+			check.Equal(t, userID, tt.wantUserID)
 		})
 	}
+}
+
+// 活跃的会话每次请求都顺延 Cookie 的有效期
+func TestMustLoginRefreshesSessionCookie(t *testing.T) {
+	sessions := &mocks.UserSessionRepo{AuthenticateFunc: func(string, string) (*biz.UserSession, error) {
+		return &biz.UserSession{UserID: 7}, nil
+	}}
+	conf := &config.Config{}
+	conf.Session.Lifetime = 30
+
+	var handler http.Handler = http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})
+	handler = mustLogin(gotext.NewLocale("", "en"), conf, sessions, nil, nil)(handler)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/user/info", nil)
+	req.Header.Set("Cookie", SessionCookie+"=valid")
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	cookies := rec.Result().Cookies()
+	must.Equal(t, len(cookies), 1)
+	check.Equal(t, cookies[0].Name, SessionCookie)
+	check.Equal(t, cookies[0].Value, "valid")
+	check.Equal(t, cookies[0].MaxAge, 30*60)
 }

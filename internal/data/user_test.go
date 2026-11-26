@@ -15,6 +15,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/pkg/config"
 )
 
 func newUserRepoForTest(t *testing.T) biz.UserRepo {
@@ -23,7 +24,7 @@ func newUserRepoForTest(t *testing.T) biz.UserRepo {
 	app.Key = "0123456789abcdef0123456789abcdef"
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{SkipDefaultTransaction: true})
 	must.NoError(t, err)
-	must.NoError(t, db.AutoMigrate(&biz.User{}))
+	must.NoError(t, db.AutoMigrate(&biz.User{}, &biz.UserToken{}, &biz.UserPasskey{}, &biz.UserSession{}))
 	return NewUserRepo(db, gotext.NewLocale("", "en"))
 }
 
@@ -128,21 +129,34 @@ func TestUserJSONHidesSecrets(t *testing.T) {
 	check.False(t, strings.Contains(string(raw), got.Password))
 }
 
-// 会话指纹只随密码变化，改密后旧会话才会失效
-func TestUserSessionStampFollowsPassword(t *testing.T) {
+// 改密码或删除用户后该用户的会话全部失效，其他用户的不受影响
+func TestUserCredentialChangeRevokesSessions(t *testing.T) {
 	repo := newUserRepoForTest(t)
-	user, err := repo.Create("admin", "secret-1", "admin@example.com")
+	impl, ok := repo.(*userRepo)
+	must.True(t, ok)
+	sessions := &userSessionRepo{t: gotext.NewLocale("", "en"), conf: &config.Config{}, db: impl.db}
+
+	admin, err := repo.Create("admin", "secret-1", "admin@example.com")
+	must.NoError(t, err)
+	second, err := repo.Create("second", "secret-2", "second@example.com")
+	must.NoError(t, err)
+	adminToken, err := sessions.Create(admin.ID, "203.0.113.7", "curl", false)
+	must.NoError(t, err)
+	secondToken, err := sessions.Create(second.ID, "203.0.113.8", "curl", false)
 	must.NoError(t, err)
 
-	before, err := repo.Get(user.ID)
-	must.NoError(t, err)
-	must.NoError(t, repo.UpdateEmail(user.ID, "new@example.com"))
-	same, err := repo.Get(user.ID)
-	must.NoError(t, err)
-	check.Equal(t, same.SessionStamp(), before.SessionStamp())
+	must.NoError(t, repo.UpdateEmail(admin.ID, "new@example.com"))
+	_, err = sessions.Authenticate(adminToken, "203.0.113.7")
+	check.NoError(t, err)
 
-	must.NoError(t, repo.UpdatePassword(user.ID, "secret-2"))
-	after, err := repo.Get(user.ID)
+	must.NoError(t, repo.UpdatePassword(admin.ID, "secret-3"))
+	_, err = sessions.Authenticate(adminToken, "203.0.113.7")
+	check.Error(t, err)
+	_, err = sessions.Authenticate(secondToken, "203.0.113.8")
+	check.NoError(t, err)
+
+	_, err = repo.Delete(second.ID)
 	must.NoError(t, err)
-	check.NotEqual(t, after.SessionStamp(), before.SessionStamp())
+	_, err = sessions.Authenticate(secondToken, "203.0.113.8")
+	check.Error(t, err)
 }

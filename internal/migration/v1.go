@@ -205,4 +205,10 @@ func init() {
 			return tx.AutoMigrate(&biz.FirewallSubscription{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261126-add-user-session",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.UserSession{})
+		},
+	})
 }

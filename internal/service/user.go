@@ -3,10 +3,8 @@ package service
 import (
 	"bytes"
 	"crypto/rsa"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/gob"
-	"fmt"
 	"image/png"
 	"log/slog"
 	"net/http"
@@ -20,8 +18,10 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/cookie"
 	"github.com/acepanel/panel/v3/pkg/rsacrypto"
 )
 
@@ -29,17 +29,19 @@ import (
 const loginFailThreshold = 3
 
 type UserService struct {
-	t          *gotext.Locale
-	log        *slog.Logger
-	conf       *config.Config
-	session    *sessions.Manager
-	userRepo   *biz.UserUsecase
-	notifyRepo *biz.NotifyUsecase
-	guard      *loginGuard
+	t               *gotext.Locale
+	log             *slog.Logger
+	conf            *config.Config
+	session         *sessions.Manager
+	userRepo        *biz.UserUsecase
+	userSessionRepo *biz.UserSessionUsecase
+	notifyRepo      *biz.NotifyUsecase
+	guard           *loginGuard
 }
 
 func NewUserService(
 	notifyUsecase *biz.NotifyUsecase,
+	userSessionUsecase *biz.UserSessionUsecase,
 	userUsecase *biz.UserUsecase,
 	conf *config.Config,
 	t *gotext.Locale,
@@ -49,13 +51,14 @@ func NewUserService(
 	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	gob.Register(rsa.PrivateKey{})
 	return &UserService{
-		t:          t,
-		log:        log,
-		conf:       conf,
-		session:    session,
-		userRepo:   userUsecase,
-		notifyRepo: notifyUsecase,
-		guard:      newLoginGuard(),
+		t:               t,
+		log:             log,
+		conf:            conf,
+		session:         session,
+		userRepo:        userUsecase,
+		userSessionRepo: userSessionUsecase,
+		notifyRepo:      notifyUsecase,
+		guard:           newLoginGuard(),
 	}
 }
 
@@ -162,24 +165,13 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	s.guard.Reset(ip)
 
-	// 重新生成会话 ID
-	if err = sess.Regenerate(true); err != nil {
+	// 安全登录把会话绑定到当前 IP，只在未启用面板 HTTPS 时生效
+	token, err := s.userSessionRepo.Create(user.ID, ip, r.UserAgent(), req.SafeLogin && !s.conf.HTTP.IsHTTPS())
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	// 安全登录下，将当前客户端与会话绑定
-	// 安全登录只在未启用面板 HTTPS 时生效
-	if req.SafeLogin && !s.conf.HTTP.IsHTTPS() {
-		sess.Put("safe_login", true)
-		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))
-	} else {
-		sess.Forget("safe_login")
-		sess.Forget("safe_client")
-	}
-
-	sess.Put("user_id", user.ID)
-	sess.Put("user_stamp", user.SessionStamp())
+	cookie.Set(w, r, middleware.SessionCookie, token, s.conf.Session.TTL())
 	sess.Forget("key")
 
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
@@ -195,39 +187,27 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	token := cookie.Get(r, middleware.SessionCookie)
+	ip := clientIP(r, s.conf)
 
-	userID := cast.ToUint(sess.Get("user_id"))
-	sess.Forget("user_id")
-	sess.Forget("user_stamp")
-	sess.Forget("key")
-	sess.Forget("safe_login")
-	sess.Forget("safe_client")
-
-	// 重新生成会话 ID
-	if err = sess.Regenerate(true); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+	session, err := s.userSessionRepo.Authenticate(token, ip)
+	if err == nil {
+		if err = s.userSessionRepo.Delete(token); err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		if user, err := s.userRepo.Get(session.UserID); err == nil {
+			s.log.Info(s.t.Get("user logged out"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", ip))
+		}
 	}
-
-	if user, err := s.userRepo.Get(userID); err == nil {
-		s.log.Info(s.t.Get("user logged out"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", clientIP(r, s.conf)))
-	}
+	cookie.Clear(w, r, middleware.SessionCookie)
 
 	Success(w, nil)
 }
 
 func (s *UserService) IsLogin(w http.ResponseWriter, r *http.Request) {
-	sess, err := s.session.GetSession(r)
-	if err != nil {
-		Success(w, false)
-		return
-	}
-	Success(w, sess.Has("user_id"))
+	_, err := s.userSessionRepo.Authenticate(cookie.Get(r, middleware.SessionCookie), clientIP(r, s.conf))
+	Success(w, err == nil)
 }
 
 func (s *UserService) IsTwoFA(w http.ResponseWriter, r *http.Request) {

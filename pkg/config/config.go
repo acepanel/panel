@@ -1,7 +1,9 @@
 package config
 
 import (
+	"cmp"
 	"os"
+	"time"
 
 	"go.yaml.in/yaml/v4"
 
@@ -54,6 +56,11 @@ type DatabaseConfig struct {
 
 type SessionConfig struct {
 	Lifetime uint `yaml:"lifetime"`
+}
+
+// TTL 返回登录超时时长，未配置时为 120 分钟
+func (c *SessionConfig) TTL() time.Duration {
+	return time.Duration(cmp.Or(c.Lifetime, 120)) * time.Minute //nolint:gosec
 }
 
 func Load() (*Config, error) {

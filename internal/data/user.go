@@ -113,12 +113,14 @@ func (r *userRepo) UpdatePassword(id uint, password string) error {
 		return err
 	}
 
+	// 改密码后该用户的全部会话随之失效
 	user.Password = value
-	if err = r.db.Save(user).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("user_id = ?", id).Delete(&biz.UserSession{}).Error; err != nil {
+			return err
+		}
+		return tx.Save(user).Error
+	})
 }
 
 func (r *userRepo) UpdateEmail(id uint, email string) error {
@@ -146,6 +148,9 @@ func (r *userRepo) Delete(id uint) (string, error) {
 			return err
 		}
 		if err := tx.Where("user_id = ?", id).Delete(&biz.UserPasskey{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", id).Delete(&biz.UserSession{}).Error; err != nil {
 			return err
 		}
 		return tx.Delete(user).Error

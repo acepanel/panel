@@ -35,6 +35,7 @@ type Dependencies struct {
 	Setting              *biz.SettingUsecase
 	Tamper               *biz.TamperUsecase
 	Task                 *biz.TaskUsecase
+	UserSession          *biz.UserSessionUsecase
 	Website              *biz.WebsiteUsecase
 	WebsiteStat          *biz.WebsiteStatUsecase
 	Conf                 *config.Config
@@ -52,6 +53,7 @@ func NewJobs(d *Dependencies) []Job {
 		NewFirewallFilter(d.FirewallFilter, d.FirewallSubscription, d.T, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
 		NewFileShareClean(d.FileShare, d.T, d.Log),
+		NewUserSessionClean(d.UserSession, d.T, d.Log),
 		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.DB, d.T, d.Log),
 		NewWebsiteStat(d.Setting, d.WebsiteStat, d.Aggregator, d.T, d.Log),
 		NewWebsiteExpire(d.Notify, d.Website, d.DB, d.T, d.Log),

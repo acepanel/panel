@@ -2,8 +2,6 @@ package biz
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"image"
 	"log/slog"
@@ -34,12 +32,6 @@ func (r *User) AfterFind(tx *gorm.DB) error {
 	}
 	r.TwoFAEnabled = r.TwoFA != ""
 	return nil
-}
-
-// SessionStamp 登录时记入会话的凭据指纹，密码变更后旧会话随之失效
-func (r *User) SessionStamp() string {
-	sum := sha256.Sum256([]byte(r.Password))
-	return hex.EncodeToString(sum[:])
 }
 
 type UserRepo interface {

@@ -19,19 +19,19 @@ import (
 )
 
 type Middlewares struct {
-	conf      *config.Config
-	log       *slog.Logger
-	session   *sessions.Manager
-	appRepo   biz.AppRepo
-	user      biz.UserRepo
-	userToken biz.UserTokenRepo
+	conf        *config.Config
+	log         *slog.Logger
+	session     *sessions.Manager
+	appRepo     biz.AppRepo
+	userSession biz.UserSessionRepo
+	userToken   biz.UserTokenRepo
 }
 
 func NewMiddlewares(
 	conf *config.Config,
 	session *sessions.Manager,
 	appRepo biz.AppRepo,
-	userRepo biz.UserRepo,
+	userSessionRepo biz.UserSessionRepo,
 	userTokenRepo biz.UserTokenRepo,
 ) (*Middlewares, func() error, error) {
 	// http 访问日志写入轮转文件
@@ -47,12 +47,12 @@ func NewMiddlewares(
 	}
 
 	return &Middlewares{
-		conf:      conf,
-		log:       slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{Level: slog.LevelInfo})),
-		session:   session,
-		appRepo:   appRepo,
-		user:      userRepo,
-		userToken: userTokenRepo,
+		conf:        conf,
+		log:         slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{Level: slog.LevelInfo})),
+		session:     session,
+		appRepo:     appRepo,
+		userSession: userSessionRepo,
+		userToken:   userTokenRepo,
 	}, w.Close, nil
 }
 
@@ -79,7 +79,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, whitelist []string) []func(http.
 		status(t),
 		sessionmiddleware.StartSession(r.session),
 		entrance(r.conf, r.session),
-		mustLogin(t, r.conf, r.session, r.user, r.userToken, whitelist),
+		mustLogin(t, r.conf, r.userSession, r.userToken, whitelist),
 		mustInstall(t, r.appRepo),
 	}
 }

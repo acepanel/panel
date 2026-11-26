@@ -47,6 +47,7 @@ var Module = wire.New().
 	Provide(NewTemplateRepo).
 	Provide(NewUserRepo).
 	Provide(NewUserPasskeyRepo).
+	Provide(NewUserSessionRepo).
 	Provide(NewUserTokenRepo).
 	Provide(NewWebHookRepo).
 	Provide(NewWebsiteRepo).
@@ -91,6 +92,7 @@ var Module = wire.New().
 	Export[biz.TemplateRepo]().
 	Export[biz.UserRepo]().
 	Export[biz.UserPasskeyRepo]().
+	Export[biz.UserSessionRepo]().
 	Export[biz.UserTokenRepo]().
 	Export[biz.WebHookRepo]().
 	Export[biz.WebsiteRepo]().
