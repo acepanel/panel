@@ -12,6 +12,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/clientip"
+	"github.com/acepanel/panel/v3/pkg/config"
 )
 
 // defaultValidator Bind 使用的校验器
@@ -138,6 +139,6 @@ func Paginate[T any](r *http.Request, items []T) (pagedItems []T, total uint) {
 }
 
 // clientIP 提取客户端 IP
-func clientIP(r *http.Request, ipHeader string) string {
-	return clientip.FromRequest(r, ipHeader)
+func clientIP(r *http.Request, conf *config.Config) string {
+	return clientip.FromRequest(r, conf.HTTP.IPHeader, conf.HTTP.TrustedProxies)
 }

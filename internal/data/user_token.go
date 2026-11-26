@@ -115,7 +115,19 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 		return 0, errors.New(r.t.Get("token expired"))
 	}
 
-	// 步骤一：构造规范化请求
+	// 步骤一：验证时间戳与来源 IP
+	timestamp := cast.ToInt64(req.Header.Get("X-Timestamp"))
+	if skew := time.Now().Unix() - timestamp; skew > 300 || skew < -300 {
+		return 0, errors.New(r.t.Get("signature expired"))
+	}
+	if len(userToken.IPs) > 0 {
+		ip := clientip.FromRequest(req, r.conf.HTTP.IPHeader, r.conf.HTTP.TrustedProxies)
+		if !clientip.Match(ip, userToken.IPs) {
+			return 0, errors.New(r.t.Get("invalid request ip: %s", ip))
+		}
+	}
+
+	// 步骤二：构造规范化请求
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return 0, err
@@ -123,29 +135,13 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 	req.Body = io.NopCloser(bytes.NewReader(body))
 	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s", req.Method, req.URL.Path, req.URL.Query().Encode(), str.SHA256(string(body)))
 
-	// 步骤二：构造待签名字符串
-	timestamp := cast.ToInt64(req.Header.Get("X-Timestamp"))
-	stringToSign := fmt.Sprintf("%s\n%d\n%s", "HMAC-SHA256", cast.ToInt64(timestamp), str.SHA256(canonicalRequest))
+	// 步骤三：构造待签名字符串
+	stringToSign := fmt.Sprintf("%s\n%d\n%s", "HMAC-SHA256", timestamp, str.SHA256(canonicalRequest))
 
-	// 步骤三：计算签名
+	// 步骤四：计算并验证签名
 	validSignature := r.hmacsha256(stringToSign, userToken.Token)
-
-	// 步骤四：验证签名
 	if subtle.ConstantTimeCompare([]byte(signature), []byte(validSignature)) != 1 {
 		return 0, errors.New(r.t.Get("invalid signature"))
-	}
-
-	// 步骤五：验证时间戳
-	if timestamp == 0 || timestamp < (time.Now().Unix()-300) {
-		return 0, errors.New(r.t.Get("signature expired"))
-	}
-
-	// 步骤六：验证IP
-	if len(userToken.IPs) > 0 {
-		ip := clientip.FromRequest(req, r.conf.HTTP.IPHeader)
-		if !clientip.Match(ip, userToken.IPs) {
-			return 0, errors.New(r.t.Get("invalid request ip: %s", ip))
-		}
 	}
 
 	return userToken.UserID, nil

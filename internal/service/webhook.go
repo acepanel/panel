@@ -7,6 +7,7 @@ import (
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
@@ -110,18 +111,18 @@ func (s *WebHookService) Delete(w http.ResponseWriter, r *http.Request) {
 func (s *WebHookService) Call(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.WebHookKey](r)
 	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		middleware.AbortEntrance(w, r, s.conf)
 		return
 	}
 
 	// 获取 webhook 信息以判断返回格式
 	webhook, err := s.webhookRepo.GetByKey(req.Key)
 	if err != nil {
-		Error(w, http.StatusNotFound, s.t.Get("webhook not found"))
+		middleware.AbortEntrance(w, r, s.conf)
 		return
 	}
 
-	output, err := s.webhookRepo.Call(r.Context(), webhook, clientIP(r, s.conf.HTTP.IPHeader))
+	output, err := s.webhookRepo.Call(r.Context(), webhook, clientIP(r, s.conf))
 	if err != nil {
 		if webhook.Raw {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")

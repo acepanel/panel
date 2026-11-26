@@ -57,7 +57,7 @@ func (r *fileShareRepo) Delete(id uint) error {
 func (r *fileShareRepo) Consume(token string, count bool) (*biz.FileShare, error) {
 	share := new(biz.FileShare)
 	if err := r.db.Where("token = ?", token).First(share).Error; err != nil {
-		return nil, errors.New(r.t.Get("share link not found"))
+		return nil, biz.ErrFileShareNotFound
 	}
 	if time.Now().After(share.ExpiredAt) {
 		return nil, errors.New(r.t.Get("share link has expired"))

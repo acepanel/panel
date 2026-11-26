@@ -184,7 +184,7 @@ func HTTP(conf *config.Config, groups []Endpoints, r chi.Router) {
 	for _, endpoints := range groups {
 		for _, e := range endpoints {
 			if e.Throttle != nil {
-				r.With(middleware.Throttle(conf.HTTP.IPHeader, e.Throttle.Tokens, e.Throttle.Interval)).Method(e.Method, e.Path, e.Handler)
+				r.With(middleware.Throttle(conf, e.Throttle.Tokens, e.Throttle.Interval)).Method(e.Method, e.Path, e.Handler)
 			} else {
 				r.Method(e.Method, e.Path, e.Handler)
 			}

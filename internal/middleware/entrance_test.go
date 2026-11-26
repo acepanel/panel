@@ -1,6 +1,31 @@
 package middleware
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/libtnb/assert/check"
+)
+
+func TestIsPublicPath(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{name: "webhook 回调", path: "/webhook/abc", want: true},
+		{name: "分享下载", path: "/download/abc", want: true},
+		{name: "缺少标识", path: "/webhook/"},
+		{name: "多出一段路径", path: "/download/abc/def"},
+		{name: "前缀混淆", path: "/downloads/abc"},
+		{name: "其他路径", path: "/login"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.Equal(t, isPublicPath(tt.path), tt.want)
+		})
+	}
+}
 
 func TestTrimEntranceAPIPath(t *testing.T) {
 	tests := []struct {

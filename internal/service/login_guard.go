@@ -3,6 +3,8 @@ package service
 import (
 	"sync"
 	"time"
+
+	"github.com/acepanel/panel/v3/pkg/clientip"
 )
 
 const (
@@ -22,7 +24,7 @@ type loginFailEntry struct {
 	notified time.Time
 }
 
-// loginGuard 按来源 IP 统计登录失败，用于爆破告警
+// loginGuard 按来源 IP 统计登录失败，用于验证码判定与爆破告警
 type loginGuard struct {
 	mu      sync.Mutex
 	entries map[string]*loginFailEntry
@@ -34,6 +36,7 @@ func newLoginGuard() *loginGuard {
 
 // Fail 记录一次失败，返回窗口内失败次数与是否应当告警
 func (g *loginGuard) Fail(ip string) (uint, bool) {
+	ip = clientip.Bucket(ip)
 	now := time.Now()
 
 	g.mu.Lock()
@@ -68,11 +71,24 @@ func (g *loginGuard) Fail(ip string) (uint, bool) {
 	return entry.count, true
 }
 
+// Count 返回该来源在窗口内的失败次数
+func (g *loginGuard) Count(ip string) uint {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	entry, ok := g.entries[clientip.Bucket(ip)]
+	if !ok || time.Since(entry.since) > bruteforceWindow {
+		return 0
+	}
+
+	return entry.count
+}
+
 // Reset 登录成功后清除该来源的失败计数
 func (g *loginGuard) Reset(ip string) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	delete(g.entries, ip)
+	delete(g.entries, clientip.Bucket(ip))
 }
 
 // sweep 清理超出窗口且未在静默期内的条目，调用方需持有锁

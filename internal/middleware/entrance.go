@@ -42,16 +42,16 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 				}
 			}
 			if len(conf.HTTP.BindDomain) > 0 && !slices.Contains(conf.HTTP.BindDomain, host) {
-				abortEntrance(w, r, conf)
+				AbortEntrance(w, r, conf)
 				return
 			}
 
-			if len(conf.HTTP.BindIP) > 0 && !clientip.Match(clientip.FromRequest(r, conf.HTTP.IPHeader), conf.HTTP.BindIP) {
-				abortEntrance(w, r, conf)
+			if len(conf.HTTP.BindIP) > 0 && !clientip.Match(clientip.FromRequest(r, conf.HTTP.IPHeader, conf.HTTP.TrustedProxies), conf.HTTP.BindIP) {
+				AbortEntrance(w, r, conf)
 				return
 			}
 			if len(conf.HTTP.BindUA) > 0 && !slices.Contains(conf.HTTP.BindUA, r.UserAgent()) {
-				abortEntrance(w, r, conf)
+				AbortEntrance(w, r, conf)
 				return
 			}
 
@@ -82,7 +82,7 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 			}
 
 			// 情况四：Webhook 与文件分享下载访问，跳过验证
-			if strings.HasPrefix(r.URL.Path, "/webhook/") || strings.HasPrefix(r.URL.Path, "/download/") {
+			if isPublicPath(r.URL.Path) {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -91,7 +91,7 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 			if !conf.App.Debug &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
-				abortEntrance(w, r, conf)
+				AbortEntrance(w, r, conf)
 				return
 			}
 
@@ -100,7 +100,7 @@ func entrance(conf *config.Config, session *sessions.Manager) func(next http.Han
 	}
 }
 
-func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config) {
+func AbortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config) {
 	errorType := conf.HTTP.EntranceError
 
 	switch errorType {
@@ -138,6 +138,17 @@ func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config) 
 		_, _ = w.Write(content)
 		return
 	}
+}
+
+// isPublicPath 判断是否为 Webhook 回调或文件分享下载
+func isPublicPath(path string) bool {
+	for _, prefix := range []string{"/webhook/", "/download/"} {
+		if rest, ok := strings.CutPrefix(path, prefix); ok {
+			return rest != "" && !strings.Contains(rest, "/")
+		}
+	}
+
+	return false
 }
 
 func trimEntranceAPIPath(path string, entrance string) (string, bool) {

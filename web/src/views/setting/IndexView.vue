@@ -48,6 +48,7 @@ const { data: model } = useRequest(setting.list, {
     offline_mode: false,
     lifetime: 0,
     ip_header: '',
+    trusted_proxies: [],
     bind_domain: [],
     bind_ip: [],
     bind_ua: [],

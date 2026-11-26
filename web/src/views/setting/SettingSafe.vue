@@ -162,6 +162,28 @@ const selectedCert = computed({
           <n-tooltip>
             <template #trigger>
               <div class="flex items-center">
+                {{ $gettext('Trusted Proxies') }}
+                <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
+              </div>
+            </template>
+            {{
+              $gettext(
+                'The request IP header is only accepted from these proxy IPs or CIDRs, such as the IP ranges of your CDN. Loopback and private addresses are always trusted',
+              )
+            }}
+          </n-tooltip>
+        </template>
+        <ListInput
+          v-model:value="model.trusted_proxies"
+          placeholder="203.0.113.0/24"
+          show-sort-button
+        />
+      </n-form-item>
+      <n-form-item>
+        <template #label>
+          <n-tooltip>
+            <template #trigger>
+              <div class="flex items-center">
                 {{ $gettext('Bind Domain') }}
                 <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
               </div>

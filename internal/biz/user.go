@@ -2,22 +2,44 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"image"
 	"log/slog"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Username  string    `gorm:"not null;default:'';unique" json:"username"`
-	Password  string    `gorm:"not null;default:''" json:"password"`
-	Email     string    `gorm:"not null;default:''" json:"email"`
-	TwoFA     string    `gorm:"not null;default:''" json:"two_fa"` // 2FA secret，为空表示未开启
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	Username     string    `gorm:"not null;default:'';unique" json:"username"`
+	Password     string    `gorm:"not null;default:''" json:"-"`
+	Email        string    `gorm:"not null;default:''" json:"email"`
+	TwoFA        string    `gorm:"not null;default:''" json:"-"` // 2FA secret，为空表示未开启
+	TwoFAEnabled bool      `gorm:"-" json:"two_fa"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+func (r *User) BeforeSave(tx *gorm.DB) error {
+	return encryptFields(&r.TwoFA)
+}
+
+func (r *User) AfterFind(tx *gorm.DB) error {
+	if err := decryptFields(&r.TwoFA); err != nil {
+		return err
+	}
+	r.TwoFAEnabled = r.TwoFA != ""
+	return nil
+}
+
+// SessionStamp 登录时记入会话的凭据指纹，密码变更后旧会话随之失效
+func (r *User) SessionStamp() string {
+	sum := sha256.Sum256([]byte(r.Password))
+	return hex.EncodeToString(sum[:])
 }
 
 type UserRepo interface {

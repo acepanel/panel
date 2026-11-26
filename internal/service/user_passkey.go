@@ -310,11 +310,12 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 
 	// 设置登录状态
 	sess.Put("user_id", wUser.Inner.ID)
+	sess.Put("user_stamp", wUser.Inner.SessionStamp())
 	// 通行密钥登录已经过设备验证，无需 safe_login
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
 
-	ip := clientIP(r, s.conf.HTTP.IPHeader)
+	ip := clientIP(r, s.conf)
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
 		{s.t.Get("Username"), wUser.Inner.Username},
 		{s.t.Get("Method"), s.t.Get("passkey")},

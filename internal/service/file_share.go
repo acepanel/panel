@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	stdos "os"
@@ -11,6 +12,7 @@ import (
 	"github.com/libtnb/chix/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
@@ -91,7 +93,7 @@ func (s *FileShareService) Delete(w http.ResponseWriter, r *http.Request) {
 func (s *FileShareService) Download(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FileShareToken](r)
 	if err != nil {
-		Error(w, http.StatusNotFound, "%v", err)
+		middleware.AbortEntrance(w, r, s.conf)
 		return
 	}
 
@@ -99,6 +101,10 @@ func (s *FileShareService) Download(w http.ResponseWriter, r *http.Request) {
 	rangeHeader := r.Header.Get("Range")
 	count := rangeHeader == "" || strings.HasPrefix(rangeHeader, "bytes=0-")
 	share, err := s.fileShareRepo.Consume(req.Token, count)
+	if errors.Is(err, biz.ErrFileShareNotFound) {
+		middleware.AbortEntrance(w, r, s.conf)
+		return
+	}
 	if err != nil {
 		Error(w, http.StatusNotFound, "%v", err)
 		return
@@ -111,7 +117,7 @@ func (s *FileShareService) Download(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if count {
-		s.log.Info(s.t.Get("file share downloaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(share.ID)), slog.String("path", share.Path), slog.String("ip", clientIP(r, s.conf.HTTP.IPHeader)))
+		s.log.Info(s.t.Get("file share downloaded"), slog.String("type", biz.OperationTypeFile), slog.Uint64("operator_id", 0), slog.Uint64("id", uint64(share.ID)), slog.String("path", share.Path), slog.String("ip", clientIP(r, s.conf)))
 	}
 
 	render := chix.NewRender(w, r)

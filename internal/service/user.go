@@ -90,8 +90,7 @@ func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	failCount := cast.ToInt(sess.Get("login_fail_count"))
-	if !s.conf.HTTP.LoginCaptcha || failCount < loginFailThreshold {
+	if !s.conf.HTTP.LoginCaptcha || s.guard.Count(clientIP(r, s.conf)) < loginFailThreshold {
 		Success(w, chix.M{
 			"required": false,
 		})
@@ -126,8 +125,9 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	failCount := cast.ToInt(sess.Get("login_fail_count"))
-	if s.conf.HTTP.LoginCaptcha && failCount >= loginFailThreshold {
+	// 失败次数按来源在服务端计数，记在会话里的话丢掉 Cookie 就能归零
+	ip := clientIP(r, s.conf)
+	if s.conf.HTTP.LoginCaptcha && s.guard.Count(ip) >= loginFailThreshold {
 		captchaID, ok := sess.Get("captcha_id").(string)
 		if !ok || captchaID == "" || !captcha.VerifyString(captchaID, req.CaptchaCode) {
 			Error(w, http.StatusForbidden, s.t.Get("invalid captcha code"))
@@ -142,13 +142,11 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ip := clientIP(r, s.conf.HTTP.IPHeader)
-
 	decryptedUsername, _ := rsacrypto.DecryptData(&key, req.Username)
 	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
 	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
 	if err != nil {
-		s.loginFailed(r, sess, ip, string(decryptedUsername), failCount)
+		s.loginFailed(r, ip, string(decryptedUsername))
 		Error(w, http.StatusForbidden, "%v", err)
 		return
 	}
@@ -156,7 +154,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	// 2FA 失败同样计入，否则已知密码者可无限尝试验证码而不触发告警
 	if user.TwoFA != "" {
 		if valid := totp.Validate(req.PassCode, user.TwoFA); !valid {
-			s.loginFailed(r, sess, ip, string(decryptedUsername), failCount)
+			s.loginFailed(r, ip, string(decryptedUsername))
 			Error(w, http.StatusForbidden, s.t.Get("invalid 2FA code"))
 			return
 		}
@@ -181,8 +179,8 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sess.Put("user_id", user.ID)
+	sess.Put("user_stamp", user.SessionStamp())
 	sess.Forget("key")
-	sess.Forget("login_fail_count")
 
 	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
 		{s.t.Get("Username"), user.Username},
@@ -205,6 +203,7 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 
 	userID := cast.ToUint(sess.Get("user_id"))
 	sess.Forget("user_id")
+	sess.Forget("user_stamp")
 	sess.Forget("key")
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
@@ -216,7 +215,7 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user, err := s.userRepo.Get(userID); err == nil {
-		s.log.Info(s.t.Get("user logged out"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", clientIP(r, s.conf.HTTP.IPHeader)))
+		s.log.Info(s.t.Get("user logged out"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", uint64(user.ID)), slog.String("username", user.Username), slog.String("ip", clientIP(r, s.conf)))
 	}
 
 	Success(w, nil)
@@ -400,9 +399,7 @@ func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 // loginFailed 记录一次登录失败，同来源短时间内失败过多时告警
-func (s *UserService) loginFailed(r *http.Request, sess *sessions.Session, ip, username string, failCount int) {
-	sess.Put("login_fail_count", failCount+1)
-
+func (s *UserService) loginFailed(r *http.Request, ip, username string) {
 	s.log.Warn(s.t.Get("user login failed"), slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", 0), slog.String("username", username), slog.String("ip", ip))
 
 	count, exceeded := s.guard.Fail(ip)

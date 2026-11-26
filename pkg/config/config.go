@@ -29,16 +29,17 @@ type AppConfig struct {
 }
 
 type HTTPConfig struct {
-	Debug         bool     `yaml:"debug"`
-	Port          uint     `yaml:"port"`
-	Entrance      string   `yaml:"entrance"`
-	EntranceError string   `yaml:"entrance_error"`
-	TLS           string   `yaml:"tls"` // off, acme, self-signed, custom
-	LoginCaptcha  bool     `yaml:"login_captcha"`
-	IPHeader      string   `yaml:"ip_header"`
-	BindDomain    []string `yaml:"bind_domain"`
-	BindIP        []string `yaml:"bind_ip"`
-	BindUA        []string `yaml:"bind_ua"`
+	Debug          bool     `yaml:"debug"`
+	Port           uint     `yaml:"port"`
+	Entrance       string   `yaml:"entrance"`
+	EntranceError  string   `yaml:"entrance_error"`
+	TLS            string   `yaml:"tls"` // off, acme, self-signed, custom
+	LoginCaptcha   bool     `yaml:"login_captcha"`
+	IPHeader       string   `yaml:"ip_header"`
+	TrustedProxies []string `yaml:"trusted_proxies"` // 可以设置 IPHeader 的代理，回环与内网地址始终受信
+	BindDomain     []string `yaml:"bind_domain"`
+	BindIP         []string `yaml:"bind_ip"`
+	BindUA         []string `yaml:"bind_ua"`
 }
 
 // IsHTTPS 判断是否启用 HTTPS

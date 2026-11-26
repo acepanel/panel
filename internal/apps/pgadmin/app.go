@@ -534,7 +534,7 @@ func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]
 
 // clientIP 获取请求来源 IP,面板位于反代之后时优先取配置的 IP 头
 func (s *App) clientIP(r *http.Request) string {
-	return clientip.FromRequest(r, s.conf.HTTP.IPHeader)
+	return clientip.FromRequest(r, s.conf.HTTP.IPHeader, s.conf.HTTP.TrustedProxies)
 }
 
 // pgadminLanguage 面板语言映射为 pgAdmin 语言代码

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -20,6 +21,9 @@ type FileShare struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
+
+// ErrFileShareNotFound 分享不存在，下载端点据此按入口错误响应
+var ErrFileShareNotFound = errors.New("share link not found")
 
 type FileShareRepo interface {
 	List() ([]*FileShare, error)

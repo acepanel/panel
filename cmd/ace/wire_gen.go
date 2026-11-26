@@ -315,7 +315,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue131_0 := data.NewUserTokenRepo(wireValue0_0, wireValue5_0, wireValue1_0)
 
-	wireValue10_0, wireResourceCleanup10, wireErr10 := middleware.NewMiddlewares(wireValue0_0, wireValue7_0, wireValue95_0, wireValue131_0)
+	wireValue10_0, wireResourceCleanup10, wireErr10 := middleware.NewMiddlewares(wireValue0_0, wireValue7_0, wireValue95_0, wireValue129_0, wireValue131_0)
 	if wireErr10 != nil {
 		wireCommitted = true
 		cleanupErr := wireCleanup.close()

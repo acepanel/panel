@@ -179,6 +179,7 @@ func Attributes(t *gotext.Locale) map[string]string {
 		"Timezone":              t.Get("Timezone"),
 		"TmpPath":               t.Get("Temp Path"),
 		"Token":                 t.Get("Token"),
+		"TrustedProxies":        t.Get("Trusted Proxies"),
 		"Type":                  t.Get("Type"),
 		"UDPPort":               t.Get("UDP Port"),
 		"URL":                   t.Get("URL"),

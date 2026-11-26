@@ -201,6 +201,7 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 	conf.HTTP.LoginCaptcha = req.LoginCaptcha
 	conf.HTTP.TLS = req.TLS
 	conf.HTTP.IPHeader = req.IPHeader
+	conf.HTTP.TrustedProxies = req.TrustedProxies
 	conf.HTTP.BindDomain = req.BindDomain
 	conf.HTTP.BindIP = req.BindIP
 	conf.HTTP.BindUA = req.BindUA

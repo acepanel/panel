@@ -16,12 +16,12 @@ func UserRoutes(userPasskeyService *service.UserPasskeyService, userService *ser
 
 	return Endpoints{
 		// 认证
-		{Method: http.MethodGet, Path: "/api/user/key", Handler: svc.GetKey, Summary: "获取登录公钥", Tags: []string{"用户"}, Public: true},
+		{Method: http.MethodGet, Path: "/api/user/key", Handler: svc.GetKey, Summary: "获取登录公钥", Tags: []string{"用户"}, Public: true, Throttle: &ThrottleRule{Tokens: 20, Interval: time.Minute}},
 		{Method: http.MethodGet, Path: "/api/user/captcha", Handler: svc.GetCaptcha, Summary: "获取登录验证码", Tags: []string{"用户"}, Public: true},
 		{Method: http.MethodPost, Path: "/api/user/login", Handler: svc.Login, Summary: "登录", Tags: []string{"用户"}, Document: DescribeReq[request.UserLogin](), Public: true, Throttle: &ThrottleRule{Tokens: 5, Interval: time.Minute}},
 		{Method: http.MethodPost, Path: "/api/user/logout", Handler: svc.Logout, Summary: "登出", Tags: []string{"用户"}, Public: true},
 		{Method: http.MethodGet, Path: "/api/user/is_login", Handler: svc.IsLogin, Summary: "是否已登录", Tags: []string{"用户"}, Public: true},
-		{Method: http.MethodGet, Path: "/api/user/is_2fa", Handler: svc.IsTwoFA, Summary: "是否开启两步验证", Tags: []string{"用户"}, Document: DescribeReq[request.UserIsTwoFA](), Public: true},
+		{Method: http.MethodGet, Path: "/api/user/is_2fa", Handler: svc.IsTwoFA, Summary: "是否开启两步验证", Tags: []string{"用户"}, Document: DescribeReq[request.UserIsTwoFA](), Public: true, Throttle: &ThrottleRule{Tokens: 20, Interval: time.Minute}},
 		{Method: http.MethodGet, Path: "/api/user/info", Handler: svc.Info, Summary: "获取当前用户信息", Tags: []string{"用户"}},
 		// 通行密钥
 		{Method: http.MethodGet, Path: "/api/user/passkey/enabled", Handler: passkey.Enabled, Summary: "是否启用通行密钥", Tags: []string{"通行密钥"}, Public: true},

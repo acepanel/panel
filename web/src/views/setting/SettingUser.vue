@@ -69,7 +69,7 @@ const columns: any = [
       return h(NSwitch, {
         size: 'small',
         rubberBand: false,
-        value: row.two_fa !== '',
+        value: row.two_fa,
         loading: switching.has(row.id),
         onUpdateValue: (v) => {
           if (v) {
